@@ -1,0 +1,27 @@
+{
+  "name": "jimp",
+  "version": "0.1.0",
+  "description": "An image processing library written entirely in JavaScript (i.e. zero external or native dependencies).",
+  "main": "jimp.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "image",
+    "processing",
+    "manipulation",
+    "png",
+    "jpg",
+    "jpeg",
+    "resize",
+    "scale",
+    "crop"
+  ],
+  "author": "Oliver Moran <oliver.moran@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "pngjs": "~0.4.0",
+    "jpeg-js": "0.0.4",
+    "mime": "~1.2.11"
+  }
+}
