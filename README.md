@@ -18,11 +18,11 @@ Example usage:
             .write("lena-small-bw.png") // save again
             .crop(80, 100, 80, 50) // crop
             .write("lena-small-bw-cropped.png"); // save again
-    });;
+    });
 
 ## Methods ##
 
-The Jimp constructor takes two arugments, the path to a JPEG or PNG image and an optional call back when the image is parsed:
+The Jimp constructor takes two arugments, the path to a JPEG or PNG image and an optional call back for when the image is parsed:
 
     var image = new Jimp("./path/to/image.jpg", function () {
         // ready
@@ -37,6 +37,8 @@ Once the callback has fired the following methods can be called on the image:
     image.opacity( f ); // apply an opacity of 0-1 to the image
     image.resize( w, h ); // resize the image
     image.scale( f ); // scale the image by the factor f
+    image.blur( r ); // fast blur the image by r pixels
+    image.gaussian( r ); // Gaussian blur the image by r pixels (VERY slow)
 
 (Contributions of more methods are welcome!)
 
