@@ -1,6 +1,6 @@
 {
   "name": "jimp",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "An image processing library written entirely in JavaScript (i.e. zero external or native dependencies).",
   "main": "jimp.js",
   "scripts": {
@@ -23,5 +23,12 @@
     "pngjs": "~0.4.0",
     "jpeg-js": "0.0.4",
     "mime": "~1.2.11"
+  },
+  "repository": {
+    "type" : "git",
+    "url" : "https://github.com/oliver-moran/jimp.git"
+  },
+  "bugs": {
+    "url" : "https://github.com/oliver-moran/jimp/issues"
   }
 }
