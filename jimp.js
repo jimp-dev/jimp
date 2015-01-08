@@ -424,6 +424,8 @@ Jimp.prototype.opacity = function (f) {
 Jimp.prototype.resize = function (w, h) {
     if ("number" != typeof w || "number" != typeof h)
         throw new Error("w and h must be numbers");
+    w = Math.round(w);
+    h = Math.round(h);
     var _this = this;
     var resize = new Resize(this.bitmap.width, this.bitmap.height, w, h, true, true, function (buffer) {
         _this.bitmap.data = new Buffer(buffer);
