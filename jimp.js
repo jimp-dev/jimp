@@ -133,17 +133,58 @@ Jimp.prototype.crop = function (x, y, w, h) {
 
     var bitmap = [];
     this.scan(x, y, w, h, function (x, y, idx) {
-        bitmap = bitmap.concat([
-            this.bitmap.data[idx],
-            this.bitmap.data[idx+1],
-            this.bitmap.data[idx+2],
-            this.bitmap.data[idx+3]
-        ]);
+        bitmap.push(this.bitmap.data[idx]);
+        bitmap.push(this.bitmap.data[idx+1]);
+        bitmap.push(this.bitmap.data[idx+2]);
+        bitmap.push(this.bitmap.data[idx+3]); 
     });
     
     this.bitmap.data = new Buffer(bitmap);
     this.bitmap.width = w;
     this.bitmap.height = h;
+    
+    return this;
+};
+
+/**
+ * Flips or mirrors image horizontaly
+ */
+Jimp.prototype.horizontalFlip = function () {
+    var bitmap = [];
+    for (var y = 0; y < this.bitmap.height; y++) {
+        for (var x = this.bitmap.width; x > 0; x--) {
+            var idx = (this.bitmap.width * y + x) << 2;
+            
+            bitmap.push(this.bitmap.data[idx]);
+            bitmap.push(this.bitmap.data[idx+1]);
+            bitmap.push(this.bitmap.data[idx+2]);
+            bitmap.push(this.bitmap.data[idx+3]);            
+        }
+    }
+
+    this.bitmap.data = new Buffer(bitmap);
+
+    return this;
+};
+
+
+/**
+ * Flips or mirrors image vertically
+ */
+Jimp.prototype.verticalFlip = function () {
+    var bitmap = [];
+    for (var y = this.bitmap.height; y > 0;  y--) {
+        for (var x = 0; x < this.bitmap.width; x++) {
+            var idx = (this.bitmap.width * y + x) << 2;
+            
+            bitmap.push(this.bitmap.data[idx]);
+            bitmap.push(this.bitmap.data[idx+1]);
+            bitmap.push(this.bitmap.data[idx+2]);
+            bitmap.push(this.bitmap.data[idx+3]);            
+        }
+    }
+
+    this.bitmap.data = new Buffer(bitmap);
     
     return this;
 };
