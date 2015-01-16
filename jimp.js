@@ -30,14 +30,16 @@ process.on("exit", clear);
  * @param (optional) cb a function to call when the image is parsed to a bitmap
  */
 function Jimp(path, cb) {
-    if ("string" != typeof path)
-        throw new Error("path must be a string");
+    //if ("string" != typeof path)
+    //    throw new Error("path must be a string");
     if ("undefined" == typeof cb) cb = function () {};
     if ("function" != typeof cb)
         throw new Error("cb must be a function");
     
     var _this = this;
-    var mime = MIME.lookup(path);
+    // EK: this is based on file extension
+    //var mime = MIME.lookup(path);
+    var mime = MIME_JPEG;
 
     switch (mime) {
         case MIME_PNG:
@@ -51,11 +53,18 @@ function Jimp(path, cb) {
             });
             break;
         case MIME_JPEG:
-            FS.readFile(path, function (err, data) {
-                if (err) throw err;
+            function decode(data) {
                 _this.bitmap = JPEG.decode(data);
                 cb.call(_this);
-            });
+            }
+            if ("string" === typeof path) {
+                FS.readFile(path, function (err, data) {
+                    if (err) throw err;
+                    decode(data);
+                });
+            } else {
+                decode(path);
+            }
             break;
         default:
             throw new Error("Unsupported MIME type: " + mime);
@@ -133,17 +142,82 @@ Jimp.prototype.crop = function (x, y, w, h) {
 
     var bitmap = [];
     this.scan(x, y, w, h, function (x, y, idx) {
-        bitmap = bitmap.concat([
-            this.bitmap.data[idx],
-            this.bitmap.data[idx+1],
-            this.bitmap.data[idx+2],
-            this.bitmap.data[idx+3]
-        ]);
+        bitmap.push(this.bitmap.data[idx]);
+        bitmap.push(this.bitmap.data[idx+1]);
+        bitmap.push(this.bitmap.data[idx+2]);
+        bitmap.push(this.bitmap.data[idx+3]); 
     });
     
     this.bitmap.data = new Buffer(bitmap);
     this.bitmap.width = w;
     this.bitmap.height = h;
+    
+    return this;
+};
+
+/**
+ * Flips or mirrors image horizontaly
+ */
+Jimp.prototype.horizontalFlip = function () {
+    var bitmap = [];
+    for (var y = 0; y < this.bitmap.height; y++) {
+        for (var x = this.bitmap.width; x > 0; x--) {
+            var idx = (this.bitmap.width * y + x) << 2;
+            
+            bitmap.push(this.bitmap.data[idx]);
+            bitmap.push(this.bitmap.data[idx+1]);
+            bitmap.push(this.bitmap.data[idx+2]);
+            bitmap.push(this.bitmap.data[idx+3]);            
+        }
+    }
+
+    this.bitmap.data = new Buffer(bitmap);
+
+    return this;
+};
+
+
+/**
+ * Flips or mirrors image vertically
+ */
+Jimp.prototype.verticalFlip = function () {
+    var bitmap = [];
+    for (var y = this.bitmap.height; y > 0;  y--) {
+        for (var x = 0; x < this.bitmap.width; x++) {
+            var idx = (this.bitmap.width * y + x) << 2;
+            
+            bitmap.push(this.bitmap.data[idx]);
+            bitmap.push(this.bitmap.data[idx+1]);
+            bitmap.push(this.bitmap.data[idx+2]);
+            bitmap.push(this.bitmap.data[idx+3]);            
+        }
+    }
+
+    this.bitmap.data = new Buffer(bitmap);
+    
+    return this;
+};
+
+/**
+ * Rotates image clock wise by 90 degree
+ */
+Jimp.prototype.rotateCW = function () {
+    var bitmap = [];
+    for (var x = 0; x < this.bitmap.width; x++) {
+        for (var y = this.bitmap.height; y > 0;  y--) {
+            var idx = (this.bitmap.width * y + x) << 2;
+            
+            bitmap.push(this.bitmap.data[idx]);
+            bitmap.push(this.bitmap.data[idx+1]);
+            bitmap.push(this.bitmap.data[idx+2]);
+            bitmap.push(this.bitmap.data[idx+3]);            
+        }
+    }
+
+    this.bitmap.data = new Buffer(bitmap);
+    var newHeight = this.bitmap.width;
+    this.bitmap.width = this.bitmap.height;
+    this.bitmap.height = newHeight;
     
     return this;
 };
