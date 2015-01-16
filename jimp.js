@@ -30,14 +30,16 @@ process.on("exit", clear);
  * @param (optional) cb a function to call when the image is parsed to a bitmap
  */
 function Jimp(path, cb) {
-    if ("string" != typeof path)
-        throw new Error("path must be a string");
+    //if ("string" != typeof path)
+    //    throw new Error("path must be a string");
     if ("undefined" == typeof cb) cb = function () {};
     if ("function" != typeof cb)
         throw new Error("cb must be a function");
     
     var _this = this;
-    var mime = MIME.lookup(path);
+    // EK: this is based on file extension
+    //var mime = MIME.lookup(path);
+    var mime = MIME_JPEG;
 
     switch (mime) {
         case MIME_PNG:
@@ -51,11 +53,18 @@ function Jimp(path, cb) {
             });
             break;
         case MIME_JPEG:
-            FS.readFile(path, function (err, data) {
-                if (err) throw err;
+            function decode(data) {
                 _this.bitmap = JPEG.decode(data);
                 cb.call(_this);
-            });
+            }
+            if ("string" === typeof path) {
+                FS.readFile(path, function (err, data) {
+                    if (err) throw err;
+                    decode(data);
+                });
+            } else {
+                decode(path);
+            }
             break;
         default:
             throw new Error("Unsupported MIME type: " + mime);
