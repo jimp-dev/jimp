@@ -41,6 +41,7 @@ Once the callback has fired the following methods can be called on the image:
     image.gaussian( r ); // Gaussian blur the image by r pixels (VERY slow)
     image.horizontalFlip(); // horizontally mirror the image
     image.verticalFlip(); // vertically mirror the image
+    image.rotateCW(); // rotates image clock wise by 90 degree
 
 (Contributions of more methods are welcome!)
 

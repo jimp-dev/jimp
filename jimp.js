@@ -190,6 +190,30 @@ Jimp.prototype.verticalFlip = function () {
 };
 
 /**
+ * Rotates image clock wise by 90 degree
+ */
+Jimp.prototype.rotateCW = function () {
+    var bitmap = [];
+    for (var x = 0; x < this.bitmap.width; x++) {
+        for (var y = this.bitmap.height; y > 0;  y--) {
+            var idx = (this.bitmap.width * y + x) << 2;
+            
+            bitmap.push(this.bitmap.data[idx]);
+            bitmap.push(this.bitmap.data[idx+1]);
+            bitmap.push(this.bitmap.data[idx+2]);
+            bitmap.push(this.bitmap.data[idx+3]);            
+        }
+    }
+
+    this.bitmap.data = new Buffer(bitmap);
+    var newHeight = this.bitmap.width;
+    this.bitmap.width = this.bitmap.height;
+    this.bitmap.height = newHeight;
+    
+    return this;
+};
+
+/**
  * Inverts the image
  * @returns this for chaining of methods
  */
