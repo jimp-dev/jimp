@@ -28,49 +28,77 @@ process.on("exit", clear);
 
 /**
  * Jimp constructor
- * @param path a path to a JPEG or PNG file
+ * @param path a path to the image
  * @param (optional) cb a function to call when the image is parsed to a bitmap
  */
-function Jimp(path, cb) {
-    if ("string" != typeof path)
-        throw new Error("path must be a string");
-    if ("undefined" == typeof cb) cb = function () {};
-    if ("function" != typeof cb)
-        throw new Error("cb must be a function");
-    
-    var _this = this;
-    var mime = MIME.lookup(path);
 
-    switch (mime) {
+/**
+ * Jimp constructor
+ * @param data a Buffer containing the image data
+ * @param mime the mime type of the image
+ * @param (optional) cb a function to call when the image is parsed to a bitmap
+ */
+
+function Jimp() {
+    if ("string" == typeof arguments[0]) {
+        var path = arguments[0];
+        var mime = MIME.lookup(path);
+        var cb = arguments[1];
+        
+        if ("undefined" == typeof cb) cb = function () {};
+        if ("function" != typeof cb)
+            throw new Error("cb must be a function");
+        
+        var _this = this;
+        FS.readFile(path, function (err, data) {
+            if (err) throw err;
+            parseBitmap.call(_this, data, mime, cb);
+        });
+    } else {
+        var data = arguments[0];
+        var mime = arguments[1];
+        var cb = arguments[2];
+        
+        if (Buffer != data.constructor)
+            throw new Error("data must be a Buffer");
+        if ("string" != typeof mime)
+            throw new Error("mime must be a string");
+        if ("undefined" == typeof cb) cb = function () {};
+        if ("function" != typeof cb)
+            throw new Error("cb must be a function");
+        
+        var _this = this;
+        parseBitmap.call(_this, data, mime, cb);
+    }
+}
+
+// parses a bitmap from the constructor to the JIMP bitmap property
+function parseBitmap(data, mime, cb) {
+    var _this = this;
+    switch (mime.toLowerCase()) {
         case MIME_PNG:
             var png = new PNG();
-            var reader = FS.createReadStream(path);
-            reader.pipe(png).on("parsed", function() {
-                _this.bitmap.data = new Buffer(this.data);
-                _this.bitmap.width = this.width;
-                _this.bitmap.height = this.height;
+            png.parse(data, function(err, data) {
+                if (err) throw err;
+                _this.bitmap.data = new Buffer(data.data);
+                _this.bitmap.width = data.width;
+                _this.bitmap.height = data.height;
                 cb.call(_this);
             });
             break;
         case MIME_JPEG:
-            FS.readFile(path, function (err, data) {
-                if (err) throw err;
-                _this.bitmap = JPEG.decode(data);
-                cb.call(_this);
-            });
+            _this.bitmap = JPEG.decode(data);
+            cb.call(_this);
             break;
 //        case MIME_BMP:
-//            FS.readFile(path, function (err, data) {
-//                if (err) throw err;
-//                var bmp = new Bitmap(data);
-//                bmp.init();
-//                _this.bitmap = {
-//                    data: bmp.getData(false),
-//                    width: bmp.getWidth(),
-//                    height: bmp.getHeight()
-//                }
-//                cb.call(_this);
-//            });
+//            var bmp = new Bitmap(data);
+//            bmp.init();
+//            _this.bitmap = {
+//                data: bmp.getData(false),
+//                width: bmp.getWidth(),
+//                height: bmp.getHeight()
+//            }
+//            cb.call(_this);
 //            break;
         default:
             throw new Error("Unsupported MIME type: " + mime);
