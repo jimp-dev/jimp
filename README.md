@@ -28,6 +28,12 @@ The Jimp constructor takes two arugments, the path to a JPEG or PNG image and an
         // ready
     });
 
+Alternatively, the Jimp constructor can take a Buffer object containing the image data and the string MIME type:
+
+    var image = new Jimp(data, "image/png", function () {
+        // ready
+    });
+
 Once the callback has fired the following methods can be called on the image:
 
     image.crop( x, y, w, h ); // crop to the given region
