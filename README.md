@@ -32,13 +32,14 @@ Once the callback has fired the following methods can be called on the image:
 
     image.crop( x, y, w, h ); // crop to the given region
     image.invert(); // invert the image colours
+    image.flip( horz, vert); // flip the image horizontally or vertically
+    image.gaussian( r ); // Gaussian blur the image by r pixels (VERY slow)
+    image.blur( r ); // fast blur the image by r pixels
     image.greyscale(); // remove colour from the image
     image.sepia(); // apply a sepia wash to the image
     image.opacity( f ); // apply an opacity of 0-1 to the image
     image.resize( w, h ); // resize the image
     image.scale( f ); // scale the image by the factor f
-    image.blur( r ); // fast blur the image by r pixels
-    image.gaussian( r ); // Gaussian blur the image by r pixels (VERY slow)
 
 (Contributions of more methods are welcome!)
 
