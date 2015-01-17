@@ -1,11 +1,13 @@
 var FS = require("fs");
 var PNG = require("pngjs").PNG;
 var JPEG = require("jpeg-js");
+var Bitmap = require("node-bitmap");
 var MIME = require("mime");
 var Resize = require("./resize.js");
 
 var MIME_PNG = "image/png";
 var MIME_JPEG = "image/jpeg";
+var MIME_BMP = "image/bmp";
 
 
 var chars = 0;
@@ -57,6 +59,19 @@ function Jimp(path, cb) {
                 cb.call(_this);
             });
             break;
+//        case MIME_BMP:
+//            FS.readFile(path, function (err, data) {
+//                if (err) throw err;
+//                var bmp = new Bitmap(data);
+//                bmp.init();
+//                _this.bitmap = {
+//                    data: bmp.getData(false),
+//                    width: bmp.getWidth(),
+//                    height: bmp.getHeight()
+//                }
+//                cb.call(_this);
+//            });
+//            break;
         default:
             throw new Error("Unsupported MIME type: " + mime);
     }
@@ -133,12 +148,10 @@ Jimp.prototype.crop = function (x, y, w, h) {
 
     var bitmap = [];
     this.scan(x, y, w, h, function (x, y, idx) {
-        bitmap = bitmap.concat([
-            this.bitmap.data[idx],
-            this.bitmap.data[idx+1],
-            this.bitmap.data[idx+2],
-            this.bitmap.data[idx+3]
-        ]);
+        bitmap.push(this.bitmap.data[idx]);
+        bitmap.push(this.bitmap.data[idx+1]);
+        bitmap.push(this.bitmap.data[idx+2]);
+        bitmap.push(this.bitmap.data[idx+3]);
     });
     
     this.bitmap.data = new Buffer(bitmap);
@@ -159,6 +172,29 @@ Jimp.prototype.invert = function () {
         this.bitmap.data[idx+2] = 255 - this.bitmap.data[idx+2];
     });
     
+    return this;
+};
+
+/**
+ * Flip the image horizontally
+ * @param horizontal a Boolean, if true the image will be flipped horizontally
+ * @param vertical a Boolean, if true the image will be flipped vertically
+ * @returns this for chaining of methods
+ */
+Jimp.prototype.flip = function (horizontal, vertical) {
+    var bitmap = [];
+    this.scan(0, 0, this.bitmap.width, this.bitmap.height, function (x, y, idx) {
+        var _x = (horizontal) ? (this.bitmap.width - x) : x;
+        var _y = (vertical) ? (this.bitmap.height - y) : y;
+        var _idx = (this.bitmap.width * _y + _x) << 2;
+        
+        bitmap.push(this.bitmap.data[_idx]);
+        bitmap.push(this.bitmap.data[_idx+1]);
+        bitmap.push(this.bitmap.data[_idx+2]);
+        bitmap.push(this.bitmap.data[_idx+3]);
+    });
+    
+    this.bitmap.data = new Buffer(bitmap);
     return this;
 };
 
@@ -467,11 +503,11 @@ Jimp.prototype.write = function (path, cb) {
     if ("function" != typeof cb)
         throw new Error("cb must be a function");
 
-    var _this = this;
     var mime = MIME.lookup(path);
     
     switch (mime) {
         case MIME_PNG:
+            var _this = this;
             var png = new PNG();
             png.data = new Buffer(this.bitmap.data);
             png.width = this.bitmap.width;
@@ -482,11 +518,11 @@ Jimp.prototype.write = function (path, cb) {
             });
             break;
         case MIME_JPEG:
-            var jpeg = JPEG.encode(_this.bitmap, _this._quality);
+            var jpeg = JPEG.encode(this.bitmap, this._quality);
             var stream = FS.createWriteStream(path);
             stream.write(jpeg.data);
             stream.end();
-            cb.call(_this);
+            cb.call(this);
             break;
         default:
             throw new Error("Unsupported MIME type: " + mime);
