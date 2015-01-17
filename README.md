@@ -40,6 +40,7 @@ Once the callback has fired the following methods can be called on the image:
     image.opacity( f ); // apply an opacity of 0-1 to the image
     image.resize( w, h ); // resize the image
     image.scale( f ); // scale the image by the factor f
+    image.rotate( deg ); // rotate the image clockwise by a number of degrees (rounded to multiples of 90)
 
 (Contributions of more methods are welcome!)
 
