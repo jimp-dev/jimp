@@ -491,6 +491,42 @@ Jimp.prototype.scale = function (f) {
 };
 
 /**
+ * Rotates the image clockwise by a number of degrees rounded to the nearest 90 degrees
+ * @param deg the number of degress to rotate the image by
+ * @returns this for chaining of methods
+ */
+Jimp.prototype.rotate = function (deg) {
+    if ("number" != typeof deg)
+        throw new Error("deg must be a number");
+    
+    var i = Math.round(deg / 90) % 4;
+    if (i < 0) i += 4;
+    
+    while ( i > 0 ) {
+        var bitmap = [];
+        for (var x = 0; x < this.bitmap.width; x++) {
+            for (var y = this.bitmap.height; y > 0; y--) {
+                var idx = (this.bitmap.width * y + x) << 2;
+
+                bitmap.push(this.bitmap.data[idx]);
+                bitmap.push(this.bitmap.data[idx+1]);
+                bitmap.push(this.bitmap.data[idx+2]);
+                bitmap.push(this.bitmap.data[idx+3]);
+            }
+        }
+        
+        this.bitmap.data = new Buffer(bitmap);
+        var tmp = this.bitmap.width;
+        this.bitmap.width = this.bitmap.height;
+        this.bitmap.height = tmp;
+
+        i--;
+    }
+
+    return this;
+};
+    
+/**
  * Writes the image to a file
  * @param path a path to the destination file (either PNG or JPEG)
  * @param (optional) cb a function to call when the image is saved to disk
