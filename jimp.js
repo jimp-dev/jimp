@@ -5,10 +5,9 @@ var Bitmap = require("node-bitmap");
 var MIME = require("mime");
 var Resize = require("./resize.js");
 
-var MIME_PNG = "image/png";
-var MIME_JPEG = "image/jpeg";
-var MIME_BMP = "image/bmp";
+var StreamToBuffer = require('stream-to-buffer')
 
+// logging methods
 
 var chars = 0;
 
@@ -72,11 +71,16 @@ function Jimp() {
     }
 }
 
+// supported mime types
+Jimp.MIME_PNG = "image/png";
+Jimp.MIME_JPEG = "image/jpeg";
+// Jimp.MIME_BMP = "image/bmp";
+
 // parses a bitmap from the constructor to the JIMP bitmap property
 function parseBitmap(data, mime, cb) {
     var _this = this;
     switch (mime.toLowerCase()) {
-        case MIME_PNG:
+        case Jimp.MIME_PNG:
             var png = new PNG();
             png.parse(data, function(err, data) {
                 if (err) throw err;
@@ -86,11 +90,11 @@ function parseBitmap(data, mime, cb) {
                 cb.call(_this);
             });
             break;
-        case MIME_JPEG:
+        case Jimp.MIME_JPEG:
             _this.bitmap = JPEG.decode(data);
             cb.call(_this);
             break;
-//        case MIME_BMP:
+//        case Jimp.MIME_BMP:
 //            var bmp = new Bitmap(data);
 //            bmp.init();
 //            _this.bitmap = {
@@ -553,7 +557,42 @@ Jimp.prototype.rotate = function (deg) {
 
     return this;
 };
+
+/**
+ * Converts the image to a buffer
+ * @param mime the mime type of the image buffer to be created
+ * @param cb a function to call when the image is saved to disk
+ * @returns this for chaining of methods
+ */
+Jimp.prototype.getBuffer = function (mime, cb) {
+    if ("string" != typeof mime)
+        throw new Error("mime must be a string");
+    if ("function" != typeof cb)
+        throw new Error("cb must be a function");
+
+    switch (mime.toLowerCase()) {
+        case Jimp.MIME_PNG:
+            var _this = this;
+            var png = new PNG();
+            png.data = new Buffer(this.bitmap.data);
+            png.width = this.bitmap.width;
+            png.height = this.bitmap.height;
+            StreamToBuffer(png.pack(), function (err, buffer) {
+                cb.call(_this, buffer);
+            })
+            break;
+        case Jimp.MIME_JPEG:
+            var jpeg = JPEG.encode(this.bitmap, this._quality);
+            cb.call(this, jpeg.data);
+            break;
+        default:
+            throw new Error("Unsupported MIME type: " + mime);
+    }
     
+    return this;
+};
+
+
 /**
  * Writes the image to a file
  * @param path a path to the destination file (either PNG or JPEG)
@@ -567,31 +606,16 @@ Jimp.prototype.write = function (path, cb) {
     if ("function" != typeof cb)
         throw new Error("cb must be a function");
 
+    var _this = this;
     var mime = MIME.lookup(path);
     
-    switch (mime) {
-        case MIME_PNG:
-            var _this = this;
-            var png = new PNG();
-            png.data = new Buffer(this.bitmap.data);
-            png.width = this.bitmap.width;
-            png.height = this.bitmap.height;
-            png.pack().pipe(FS.createWriteStream(path), {end: false});
-            png.on("end", function () {
-                cb.call(_this);
-            });
-            break;
-        case MIME_JPEG:
-            var jpeg = JPEG.encode(this.bitmap, this._quality);
-            var stream = FS.createWriteStream(path);
-            stream.write(jpeg.data);
-            stream.end();
-            cb.call(this);
-            break;
-        default:
-            throw new Error("Unsupported MIME type: " + mime);
-    }
-    
+    this.getBuffer(mime, function(buffer) {
+        var stream = FS.createWriteStream(path);
+        stream.write(buffer);
+        stream.end();
+        cb.call(_this);
+    });
+
     return this;
 };
 
