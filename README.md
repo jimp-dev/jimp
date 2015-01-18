@@ -58,6 +58,19 @@ The quality of saved JPEGs can be set with:
 
     image.quality( n ); // set the quality of saved JPEG, 0 - 100
 
+A Buffer of the image (for storage in a database) in can to got using:
+
+    image.getBuffer( mime, cb ); // callback wil be fired with the Buffer as the first argument
+
+## Properties ##
+
+For convenience, upported MIME types are available as static properties:
+
+    Jimp.MIME_PNG; // "image/png"
+    Jimp.MIME_JPEG; // "image/jpeg"
+
+These can be used with the Jimp construtor and getBuffer method.
+
 ## Advanced ##
 
 The library enables low-level manipulation of images in memory through the bitmap property of each Jimp object:
