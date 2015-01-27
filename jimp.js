@@ -4,8 +4,7 @@ var JPEG = require("jpeg-js");
 var Bitmap = require("node-bitmap");
 var MIME = require("mime");
 var Resize = require("./resize.js");
-
-var StreamToBuffer = require('stream-to-buffer')
+var StreamToBuffer = require('stream-to-buffer');
 
 // logging methods
 
@@ -610,11 +609,13 @@ Jimp.prototype.write = function (path, cb) {
     var mime = MIME.lookup(path);
     
     this.getBuffer(mime, function(buffer) {
-        var stream = FS.createWriteStream(path);
-        stream.write(buffer);
-        stream.end();
-        cb.call(_this);
-    });
+		var stream = FS.createWriteStream(path);
+		stream.on("open", function(fh) {
+			stream.write(buffer);
+			stream.end();
+			return cb.call(_this);
+		});
+	});
 
     return this;
 };
