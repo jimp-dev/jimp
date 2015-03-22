@@ -164,6 +164,16 @@ Jimp.prototype.scan = function (x, y, w, h, cb) {
 };
 
 /**
+ * Returns the pixel index in the bitmap
+ * @param x the x coordinate
+ * @param y the y coordinate
+ * @returns the index of the pixel
+*/
+Jimp.prototype.getPixelIndex = function (x, y) {
+    return (this.bitmap.width * y + x) << 2;
+};
+
+/**
  * Crops the image at a given point to a give size
  * @param x the x coordinate to crop form
  * @param y the y coordiante to crop form
@@ -188,6 +198,28 @@ Jimp.prototype.crop = function (x, y, w, h) {
     this.bitmap.data = new Buffer(bitmap);
     this.bitmap.width = w;
     this.bitmap.height = h;
+    
+    return this;
+};
+
+/**
+ * Copies rectangle of pixels from current image to dst
+ * @param dst destination Jimp instance
+ * @param sx source x
+ * @param sy source y
+ * @param w width
+ * @param h height
+ * @param dx destination x
+ * @param dy destination y
+ * @returns this for chaining of methods
+*/
+Jimp.prototype.blit = function (dst, sx, sy, w, h, dx, dy) {
+    this.scan(sx, sy, w, h, function(x, y, idx) {
+        var dstIdx = dst.getPixelIndex(dx+x-sx, dy+y-sy)
+        dst.bitmap.data[dstIdx] = this.bitmap.data[idx];
+        dst.bitmap.data[dstIdx+1] = this.bitmap.data[idx+1];
+        dst.bitmap.data[dstIdx+2] = this.bitmap.data[idx+2];
+    });
     
     return this;
 };
