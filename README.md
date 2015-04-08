@@ -64,7 +64,7 @@ A Buffer of the image (for storage in a database) in can to got using:
 
 ## Properties ##
 
-For convenience, upported MIME types are available as static properties:
+For convenience, supported MIME types are available as static properties:
 
     Jimp.MIME_PNG; // "image/png"
     Jimp.MIME_JPEG; // "image/jpeg"
