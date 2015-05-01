@@ -20,11 +20,10 @@
   "author": "Oliver Moran <oliver.moran@gmail.com>",
   "license": "MIT",
   "dependencies": {
-    "pngjs": "~0.4.0",
     "jpeg-js": "0.0.4",
     "mime": "~1.2.11",
-    "node-bitmap": "0.0.1",
-    "stream-to-buffer": "~0.1.0"
+    "stream-to-buffer": "~0.1.0",
+    "node-png": "~0.4.3"
   },
   "repository": {
     "type": "git",
