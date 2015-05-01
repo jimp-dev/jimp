@@ -23,7 +23,9 @@
     "jpeg-js": "0.0.4",
     "mime": "~1.2.11",
     "stream-to-buffer": "~0.1.0",
-    "node-png": "~0.4.3"
+    "node-png": "~0.4.3",
+    "file-type": "~2.5.0",
+    "read-chunk": "~1.0.1"
   },
   "repository": {
     "type": "git",

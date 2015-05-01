@@ -4,6 +4,8 @@ var JPEG = require("jpeg-js");
 var MIME = require("mime");
 var Resize = require("./resize.js");
 var StreamToBuffer = require('stream-to-buffer');
+var ReadChunk = require('read-chunk'); // npm install read-chunk
+var FileType = require('file-type');
 
 // logging methods
 
@@ -38,6 +40,19 @@ function throwError(error, cb) {
     else throw error;
 }
 
+// MIME type methods
+
+function getMIMEFromBuffer(buffer) {
+    return FileType(buffer).mime;
+}
+
+function getMIMEFromPath(path) {
+    var buffer = ReadChunk.sync(path, 0, 262);
+    return FileType(buffer).mime;
+}
+
+//=> {ext: 'png', mime: 'image/png'}
+
 /**
  * Jimp constructor
  * @param path a path to the image
@@ -47,14 +62,13 @@ function throwError(error, cb) {
 /**
  * Jimp constructor
  * @param data a Buffer containing the image data
- * @param mime the mime type of the image
  * @param (optional) cb a function to call when the image is parsed to a bitmap
  */
 
 function Jimp() {
     if ("string" == typeof arguments[0]) {
         var path = arguments[0];
-        var mime = MIME.lookup(path);
+        var mime = getMIMEFromPath(path);
         var cb = arguments[1];
         
         if ("undefined" == typeof cb) cb = function () {};
@@ -68,8 +82,8 @@ function Jimp() {
         });
     } else {
         var data = arguments[0];
-        var mime = arguments[1];
-        var cb = arguments[2];
+        var mime = getMIMEFromBuffer(data);
+        var cb = arguments[1];
         
         if (Buffer != data.constructor)
             throwError.call(this, "data must be a Buffer", cb);

@@ -24,13 +24,13 @@ Example usage:
 
 The Jimp constructor takes two arugments, the path to a JPEG or PNG image and an optional call back for when the image is parsed:
 
-    var image = new Jimp("./path/to/image.jpg", function () {
+    var image = new Jimp("./path/to/image.jpg", function (err) {
         // ready
     });
 
 Alternatively, the Jimp constructor can take a Buffer object containing the image data and the string MIME type:
 
-    var image = new Jimp(data, Jimp.MIME_PNG, function () {
+    var image = new Jimp(data, function (err) {
         // ready
     });
 
