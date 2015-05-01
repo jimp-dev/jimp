@@ -109,15 +109,17 @@ function parseBitmap(data, mime, cb) {
             var png = new PNG();
             png.parse(data, function(err, data) {
                 if (err) throwError.call(that, err, cb);
-                that.bitmap.data = new Buffer(data.data);
-                that.bitmap.width = data.width;
-                that.bitmap.height = data.height;
-                cb.call(that, null, this);
+                that.bitmap = {
+                    data: new Buffer(data.data),
+                    width: data.width,
+                    height: data.height
+                }
+                cb.call(that, null, that);
             });
             break;
         case Jimp.MIME_JPEG:
-            that.bitmap = JPEG.decode(data);
-            cb.call(that, null, this);
+            this.bitmap = JPEG.decode(data);
+            cb.call(this, null, this);
             break;
         default:
             throwError.call(this, "Unsupported MIME type: " + mime, cb);
@@ -140,7 +142,7 @@ Jimp.prototype._quality = 100;
 /**
  * Sets the quality of the image when saving as JPEG format
  * @param n The quality to use 0-100
- * @param cb A callback for when complete
+ * @param (optional) cb A callback for when complete
  * @returns this for chaining of methods
  */
 Jimp.prototype.quality = function (n, cb) {
@@ -163,7 +165,7 @@ Jimp.prototype.quality = function (n, cb) {
  * @param h the height of the scan region
  * @param f a function to call on even pixel; the (x, y) position of the pixel
  * and the index of the pixel in the bitmap buffer are passed to the function
- * @param cb A callback for when complete
+ * @param (optional) cb A callback for when complete
  * @returns this for chaining of methods
  */
 Jimp.prototype.scan = function (x, y, w, h, f, cb) {
@@ -189,14 +191,18 @@ Jimp.prototype.scan = function (x, y, w, h, f, cb) {
  * Returns the pixel index in the bitmap
  * @param x the x coordinate
  * @param y the y coordinate
- * @param cb A callback for when complete
- * @returns the index of the pixel
+ * @param (optional) cb A callback for when complete
+ * @returns the index of the pixel or -1 if not found
 */
 Jimp.prototype.getPixelIndex = function (x, y, cb) {
     if ("number" != typeof x || "number" != typeof y)
         throwError.call(this, "x and y must be numbers", cb);
     
     var i = (this.bitmap.width * y + x) << 2;
+    
+    // if out of bounds index is -1
+    if (x < 0 || x > this.bitmap.width) i = -1;
+    if (y < 0 || y > this.bitmap.height) i = -1;
     
     if (isNodePattern(cb)) cb.call(this, null, i);
     else return i;
@@ -208,7 +214,7 @@ Jimp.prototype.getPixelIndex = function (x, y, cb) {
  * @param y the y coordiante to crop form
  * @param w the width of the crop region
  * @param h the height of the crop region
- * @param cb A callback for when complete
+ * @param (optional) cb A callback for when complete
  * @returns this for chaining of methods
  */
 Jimp.prototype.crop = function (x, y, w, h, cb) {
@@ -234,18 +240,37 @@ Jimp.prototype.crop = function (x, y, w, h, cb) {
 };
 
 /**
- * Copies rectangle of pixels from current image to dst
+ * Copies rectangle of pixels from this image to a destination image
  * @param dst destination Jimp instance
- * @param sx source x
- * @param sy source y
- * @param w width
- * @param h height
  * @param dx destination x
  * @param dy destination y
- * @param cb A callback for when complete
+ * @param (optional) sx source x
+ * @param (optional) sy source y
+ * @param (optional) w width
+ * @param (optional) h height
+ * @param (optional) cb A callback for when complete
  * @returns this for chaining of methods
 */
-Jimp.prototype.blit = function (dst, sx, sy, w, h, dx, dy, cb) {
+Jimp.prototype.blit = function (dst, dx, dy, sx, sy, w, h, cb) {
+    if ("object" != typeof dst && dst.constructor != Jimp)
+        throwError.call(this, "Destination must be a Jimp image", cb);
+    if ("number" != typeof dx || "number" != typeof dy)
+        throwError.call(this, "x and y must be numbers", cb);
+    
+    if ("undefined" == typeof sx) sx = 0;
+    if ("undefined" == typeof sy) sy = 0;
+    if ("number" != typeof sx || "number" != typeof sy)
+        throwError.call(this, "Source x and y must be numbers", cb);
+    
+    if ("undefined" == typeof w) w = this.bitmap.width;
+    if ("undefined" == typeof h) h = this.bitmap.height;
+    
+    if ("number" != typeof w || "number" != typeof h)
+        throwError.call(this, "Width and height must be numbers", cb);
+    
+    if (w < 0 || h < 0 || w > this.bitmap.width || h > this.bitmap.height)
+        throwError.call(this, "Width and height must be greater than 0 and not larger than the image", cb);
+    
     this.scan(sx, sy, w, h, function(x, y, idx) {
         var dstIdx = dst.getPixelIndex(dx+x-sx, dy+y-sy)
         dst.bitmap.data[dstIdx] = this.bitmap.data[idx];
@@ -259,7 +284,7 @@ Jimp.prototype.blit = function (dst, sx, sy, w, h, dx, dy, cb) {
 
 /**
  * Inverts the image
- * @param cb A callback for when complete
+ * @param (optional) cb A callback for when complete
  * @returns this for chaining of methods
  */
 Jimp.prototype.invert = function (cb) {
@@ -277,7 +302,7 @@ Jimp.prototype.invert = function (cb) {
  * Flip the image horizontally
  * @param horizontal a Boolean, if true the image will be flipped horizontally
  * @param vertical a Boolean, if true the image will be flipped vertically
- * @param cb A callback for when complete
+ * @param (optional) cb A callback for when complete
  * @returns this for chaining of methods
  */
 Jimp.prototype.flip = function (horizontal, vertical, cb) {
@@ -302,7 +327,7 @@ Jimp.prototype.flip = function (horizontal, vertical, cb) {
 /**
  * Applies a true Gaussian blur to the image (warning: this is VERY slow)
  * @param r the pixel radius of the blur
- * @param cb A callback for when complete
+ * @param (optional) cb A callback for when complete
  * @returns this for chaining of methods
  */
 Jimp.prototype.gaussian = function (r, cb) {
@@ -383,7 +408,7 @@ var shg_table = [0,9,10,10,14,12,14,14,16,15,16,15,16,15,15,17,18,17,12,18,16,17
 /**
  * A fast blur algorithm that produces similar effect to a Gausian blur - but MUCH quicker
  * @param r the pixel radius of the blur
- * @param cb A callback for when complete
+ * @param (optional) cb A callback for when complete
  * @returns this for chaining of methods
  */
 Jimp.prototype.blur = function (r, cb) {
@@ -504,7 +529,7 @@ Jimp.prototype.blur = function (r, cb) {
 
 /**
  * Removes colour from the image
- * @param cb A callback for when complete
+ * @param (optional) cb A callback for when complete
  * @returns this for chaining of methods
  */
 Jimp.prototype.greyscale = function (cb) {
@@ -521,7 +546,7 @@ Jimp.prototype.greyscale = function (cb) {
 
 /**
  * Applies a sepia tone to the image
- * @param cb A callback for when complete
+ * @param (optional) cb A callback for when complete
  * @returns this for chaining of methods
  */
 Jimp.prototype.sepia = function (cb) {
@@ -545,7 +570,7 @@ Jimp.prototype.sepia = function (cb) {
 /**
  * Multiplies the opacity of each pixel by a factor between 0 and 1
  * @param f A number, the factor by wich to multiply the opacity of each pixel
- * @param cb A callback for when complete
+ * @param (optional) cb A callback for when complete
  * @returns this for chaining of methods
  */
 Jimp.prototype.opacity = function (f, cb) {
@@ -567,7 +592,7 @@ Jimp.prototype.opacity = function (f, cb) {
  * Resizes the image to a set width and height using a 2-pass bilinear algorithm
  * @param w the width to resize the image to
  * @param h the height to resize the image to
- * @param cb A callback for when complete
+ * @param (optional) cb A callback for when complete
  * @returns this for chaining of methods
  */
 Jimp.prototype.resize = function (w, h, cb) {
@@ -591,7 +616,7 @@ Jimp.prototype.resize = function (w, h, cb) {
 /**
  * Uniformly scales the image by a factor.
  * @param f the factor to scale the image by
- * @param cb A callback for when complete
+ * @param (optional) cb A callback for when complete
  * @returns this for chaining of methods
  */
 Jimp.prototype.scale = function (f, cb) {
@@ -611,7 +636,7 @@ Jimp.prototype.scale = function (f, cb) {
 /**
  * Rotates the image clockwise by a number of degrees rounded to the nearest 90 degrees
  * @param deg the number of degress to rotate the image by
- * @param cb A callback for when complete
+ * @param (optional) cb A callback for when complete
  * @returns this for chaining of methods
  */
 Jimp.prototype.rotate = function (deg, cb) {
