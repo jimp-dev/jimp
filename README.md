@@ -47,6 +47,7 @@ Once the callback has fired the following methods can be called on the image:
     image.resize( w, h ); // resize the image
     image.scale( f ); // scale the image by the factor f
     image.rotate( deg ); // rotate the image clockwise by a number of degrees (rounded to multiples of 90)
+    image.blit(dst, 0, 0); // blit the image onto another Jimp image
 
 (Contributions of more methods are welcome!)
 
