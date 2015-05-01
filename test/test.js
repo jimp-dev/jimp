@@ -10,6 +10,7 @@ var lenna = new Jimp("lenna.png", function () {
         .flip(true, false).write("./output/lenna-flip-horizontal.png").flip(true, false) // flip horizontal
         .flip(false, true).write("./output/lenna-flip-vertical.png").flip(false, true) // flip vertical
 
+    // greyscale (destructive)
     this.getBuffer(Jimp.MIME_PNG, function(err, buffer) {
         if (err) throw err;
         var img = new Jimp(buffer, function () {
@@ -17,6 +18,7 @@ var lenna = new Jimp("lenna.png", function () {
         });
     }); 
     
+    // blur (destructive)
     this.getBuffer(Jimp.MIME_PNG, function(err, buffer) {
         if (err) throw err;
         var img = new Jimp(buffer, function () {
@@ -24,6 +26,7 @@ var lenna = new Jimp("lenna.png", function () {
         });
     }); 
     
+    // Gaussian blur (destructive)
     this.getBuffer(Jimp.MIME_PNG, function(err, buffer) {
         if (err) throw err;
         var img = new Jimp(buffer, function () {
@@ -31,6 +34,7 @@ var lenna = new Jimp("lenna.png", function () {
         });
     }); 
     
+    // resize (destructive)
     this.getBuffer(Jimp.MIME_PNG, function(err, buffer) {
         if (err) throw err;
         var img = new Jimp(buffer, function () {
@@ -38,6 +42,7 @@ var lenna = new Jimp("lenna.png", function () {
         });
     }); 
     
+    // sepia (destructive)
     this.getBuffer(Jimp.MIME_PNG, function(err, buffer) {
         if (err) throw err;
         var img = new Jimp(buffer, function () {
@@ -45,6 +50,7 @@ var lenna = new Jimp("lenna.png", function () {
         });
     }); 
     
+    // opacity (destructive)
     this.getBuffer(Jimp.MIME_JPEG, function(err, buffer) {
         if (err) throw err;
         var img = new Jimp(buffer, function () {
@@ -52,6 +58,7 @@ var lenna = new Jimp("lenna.png", function () {
         });
     }); 
     
+    // crop (destructive)
     this.getBuffer(Jimp.MIME_JPEG, function(err, buffer) {
         if (err) throw err;
         var img = new Jimp(buffer, function () {
@@ -59,6 +66,7 @@ var lenna = new Jimp("lenna.png", function () {
         });
     }); 
     
+    // scale and blit (destructive)
     this.getBuffer(Jimp.MIME_PNG, function(err, buffer) {
         if (err) throw err;
         var img = new Jimp(buffer, function () {
