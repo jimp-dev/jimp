@@ -73,8 +73,8 @@ var lenna = new Jimp("lenna.png", function (err) {
         if (err) throw err;
         var img = new Jimp(buffer, function () {
             this.scale(0.5).write("./output/lenna-scale.png") // scale
-            lenna.greyscale().blit(this, Math.round(lenna.bitmap.width / 4), Math.round(lenna.bitmap.height / 4));
-            lenna.write("./output/lenna-blitted.png")
+            lenna.greyscale().blit(this, lenna.bitmap.width / 4, lenna.bitmap.height / 4);
+            lenna.write("./output/lenna-blit.png")
         });
     });
 
