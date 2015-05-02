@@ -36,7 +36,7 @@ function isNodePattern(cb) {
 
 function throwError(error, cb) {
     if ("string" == typeof error) error = new Error(error);
-    if ("function" == typeof cb) cb.call(this, error);
+    if ("function" == typeof cb) return cb.call(this, error);
     else throw error;
 }
 
@@ -63,12 +63,40 @@ function getMIMEFromPath(path) {
 
 /**
  * Jimp constructor
+ * @param image a Jimp image to clone
+ * @param (optional) cb a function to call when the image is parsed to a bitmap
+ */
+
+/**
+ * Jimp constructor
  * @param data a Buffer containing the image data
  * @param (optional) cb a function to call when the image is parsed to a bitmap
  */
 
 function Jimp() {
-    if ("string" == typeof arguments[0]) {
+    if ("object" == typeof arguments[0] && arguments[0].constructor == Jimp) {
+        var original = arguments[0];
+        
+        if ("undefined" == typeof cb) cb = function () {};
+        if ("function" != typeof cb)
+            throwError.call(this, "cb must be a function", cb);
+
+        var bitmap = new Buffer(original.bitmap.data.length);
+        original.scan(0, 0, original.bitmap.width, original.bitmap.height, function (x, y, idx) {
+            var data = original.bitmap.data.readUInt32BE(idx, true);
+            bitmap.writeUInt32BE(data, idx, true);
+        });
+
+        this.bitmap = {
+            data: bitmap,
+            width: original.bitmap.width,
+            height: original.bitmap.height
+        };
+        
+        this._quality = original._quality;
+        
+        cb.call(that, null, that);
+    } else if ("string" == typeof arguments[0]) {
         var path = arguments[0];
         var mime = getMIMEFromPath(path);
         var cb = arguments[1];
@@ -119,12 +147,12 @@ function parseBitmap(data, mime, cb) {
                     width: data.width,
                     height: data.height
                 }
-                cb.call(that, null, that);
+                return cb.call(that, null, that);
             });
             break;
         case Jimp.MIME_JPEG:
             this.bitmap = JPEG.decode(data);
-            cb.call(this, null, this);
+            return cb.call(this, null, this);
             break;
         default:
             throwError.call(this, "Unsupported MIME type: " + mime, cb);
@@ -146,22 +174,14 @@ Jimp.prototype._quality = 100;
 
 /**
  * Creates a new image that is a clone of this one.
- * @param cb A callback for when complete
+ * @param cb (optional) A callback for when complete
  * @returns the new image
  */
 Jimp.prototype.clone = function(cb){
-    if ("function" != typeof cb)
-        throwError.call(this, "cb must be a function", cb);
-    
-    var clone;
-    
-    this.getBuffer(Jimp.MIME_PNG, function (err, buffer) {
-        clone = new Jimp(buffer, function (err, image) {
-            cb.call(clone, null, image);
-        });
-    });
-        
-    return clone;
+    var clone = new Jimp(this);
+
+    if (isNodePattern(cb)) return cb.call(clone, null, clone);
+    else return clone;
 }
 
 /**
@@ -248,12 +268,12 @@ Jimp.prototype.crop = function (x, y, w, h, cb) {
     if ("number" != typeof w || "number" != typeof h)
         throwError.call(this, "w and h must be numbers", cb);
 
-    var bitmap = [];
+    var bitmap = new Buffer(this.bitmap.data.length);
+    var offset = 0;
     this.scan(x, y, w, h, function (x, y, idx) {
-        bitmap.push(this.bitmap.data[idx]);
-        bitmap.push(this.bitmap.data[idx+1]);
-        bitmap.push(this.bitmap.data[idx+2]);
-        bitmap.push(this.bitmap.data[idx+3]);
+        var data = this.bitmap.data.readUInt32BE(idx, true);
+        bitmap.writeUInt32BE(data, offset, true);
+        offset += 4;
     });
     
     this.bitmap.data = new Buffer(bitmap);
@@ -265,57 +285,26 @@ Jimp.prototype.crop = function (x, y, w, h, cb) {
 };
 
 /**
- * Copies rectangle of pixels from this image to a destination image
- * @param dst destination Jimp instance
- * @param dx destination x
- * @param dy destination y
- * @param (optional) sx source x
- * @param (optional) sy source y
- * @param (optional) w width
- * @param (optional) h height
+ * Blits a source image on to this image
+ * @param src the source Jimp instance
+ * @param x the x position to blit the image
+ * @param y the y position to blit the image
  * @param (optional) cb A callback for when complete
  * @returns this for chaining of methods
 */
-Jimp.prototype.blit = function () {
-    var dst = arguments[0];
-    var dx = arguments[1];
-    var dy = arguments[2];
-    
-    var sx, sy, w, h, cb;
-    if ("function" == typeof arguments[3]) {
-        cb = arguments[3];
-    } else {
-        sx = arguments[3];
-        sy = arguments[4];
-        w = arguments[5];
-        h = arguments[6];
-        cb = arguments[7];
-    }
-    
-    if ("object" != typeof dst && dst.constructor != Jimp)
-        throwError.call(this, "Destination must be a Jimp image", cb);
-    if ("number" != typeof dx || "number" != typeof dy)
+Jimp.prototype.blit = function (src, x, y, cb) {
+    if ("object" != typeof src || src.constructor != Jimp)
+        throwError.call(this, "The source must be a Jimp image", cb);
+    if ("number" != typeof x || "number" != typeof y)
         throwError.call(this, "x and y must be numbers", cb);
     
-    if ("undefined" == typeof sx) sx = 0;
-    if ("undefined" == typeof sy) sy = 0;
-    if ("number" != typeof sx || "number" != typeof sy)
-        throwError.call(this, "Source x and y must be numbers", cb);
-    
-    if ("undefined" == typeof w) w = this.bitmap.width;
-    if ("undefined" == typeof h) h = this.bitmap.height;
-    
-    if ("number" != typeof w || "number" != typeof h)
-        throwError.call(this, "Width and height must be numbers", cb);
-    
-    if (w < 0 || h < 0 || w > this.bitmap.width || h > this.bitmap.height)
-        throwError.call(this, "Width and height must be greater than 0 and not larger than the image", cb);
-    
-    this.scan(sx, sy, w, h, function(x, y, idx) {
-        var dstIdx = dst.getPixelIndex(dx+x-sx, dy+y-sy)
-        dst.bitmap.data[dstIdx] = this.bitmap.data[idx];
-        dst.bitmap.data[dstIdx+1] = this.bitmap.data[idx+1];
-        dst.bitmap.data[dstIdx+2] = this.bitmap.data[idx+2];
+    var that = this;
+    src.scan(0, 0, src.bitmap.width, src.bitmap.height, function(sx, sy, idx) {
+        var dstIdx = that.getPixelIndex(x+sx, y+sy)
+        that.bitmap.data[dstIdx] = this.bitmap.data[idx];
+        that.bitmap.data[dstIdx+1] = this.bitmap.data[idx+1];
+        that.bitmap.data[dstIdx+2] = this.bitmap.data[idx+2];
+        that.bitmap.data[dstIdx+3] = this.bitmap.data[idx+3];
     });
     
     if (isNodePattern(cb)) return cb.call(this, null, this);
@@ -346,16 +335,14 @@ Jimp.prototype.invert = function (cb) {
  * @returns this for chaining of methods
  */
 Jimp.prototype.flip = function (horizontal, vertical, cb) {
-    var bitmap = [];
+    var bitmap = new Buffer(this.bitmap.data.length);
     this.scan(0, 0, this.bitmap.width, this.bitmap.height, function (x, y, idx) {
         var _x = (horizontal) ? (this.bitmap.width - x) : x;
         var _y = (vertical) ? (this.bitmap.height - y) : y;
         var _idx = (this.bitmap.width * _y + _x) << 2;
         
-        bitmap.push(this.bitmap.data[_idx]);
-        bitmap.push(this.bitmap.data[_idx+1]);
-        bitmap.push(this.bitmap.data[_idx+2]);
-        bitmap.push(this.bitmap.data[_idx+3]);
+        var data = this.bitmap.data.readUInt32BE(idx, true);
+        bitmap.writeUInt32BE(data, _idx, true);
     });
     
     this.bitmap.data = new Buffer(bitmap);
@@ -687,15 +674,15 @@ Jimp.prototype.rotate = function (deg, cb) {
     if (i < 0) i += 4;
     
     while ( i > 0 ) {
-        var bitmap = [];
+        // https://github.com/ekulabuhov/jimp/commit/9a0c7cff88292d88c32a424b11256c76f1e20e46
+        var bitmap = new Buffer(this.bitmap.data.length);
+        var offset = 0;
         for (var x = 0; x < this.bitmap.width; x++) {
-            for (var y = this.bitmap.height; y > 0; y--) {
+            for (var y = this.bitmap.height - 1; y >= 0; y--) {
                 var idx = (this.bitmap.width * y + x) << 2;
-
-                bitmap.push(this.bitmap.data[idx]);
-                bitmap.push(this.bitmap.data[idx+1]);
-                bitmap.push(this.bitmap.data[idx+2]);
-                bitmap.push(this.bitmap.data[idx+3]);
+                var data = this.bitmap.data.readUInt32BE(idx, true);
+                bitmap.writeUInt32BE(data, offset, true);
+                offset += 4;
             }
         }
         
@@ -731,15 +718,15 @@ Jimp.prototype.getBuffer = function (mime, cb) {
             png.width = this.bitmap.width;
             png.height = this.bitmap.height;
             StreamToBuffer(png.pack(), function (err, buffer) {
-                cb.call(that, null, buffer);
+                return cb.call(that, null, buffer);
             })
             break;
         case Jimp.MIME_JPEG:
             var jpeg = JPEG.encode(this.bitmap, this._quality);
-            cb.call(this, null, jpeg.data);
+            return cb.call(this, null, jpeg.data);
             break;
         default:
-            cb.call(this, "Unsupported MIME type: " + mime);
+            return cb.call(this, "Unsupported MIME type: " + mime);
     }
     
     return this;
