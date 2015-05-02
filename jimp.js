@@ -196,7 +196,7 @@ Jimp.prototype.quality = function (n, cb) {
     if (n < 0 || n > 100)
         throwError.call(this, "n must be a number 0 - 100", cb);
     
-    this._quality = n;
+    this._quality = Math.round(n);
     
     if (isNodePattern(cb)) return cb.call(this, null, this);
     else return this;
@@ -221,6 +221,12 @@ Jimp.prototype.scan = function (x, y, w, h, f, cb) {
     if ("function" != typeof f)
         throwError.call(this, "f must be a function", cb);
     
+    // round input
+    x = Math.round(x);
+    y = Math.round(y);
+    w = Math.round(w);
+    h = Math.round(h);
+    
     for (var _y = y; _y < (y + h); _y++) {
         for (var _x = x; _x < (x + w); _x++) {
             var idx = (this.bitmap.width * _y + _x) << 2;
@@ -242,6 +248,10 @@ Jimp.prototype.scan = function (x, y, w, h, f, cb) {
 Jimp.prototype.getPixelIndex = function (x, y, cb) {
     if ("number" != typeof x || "number" != typeof y)
         throwError.call(this, "x and y must be numbers", cb);
+    
+    // round input
+    x = Math.round(x);
+    y = Math.round(y);
     
     var i = (this.bitmap.width * y + x) << 2;
     
@@ -267,6 +277,12 @@ Jimp.prototype.crop = function (x, y, w, h, cb) {
         throwError.call(this, "x and y must be numbers", cb);
     if ("number" != typeof w || "number" != typeof h)
         throwError.call(this, "w and h must be numbers", cb);
+
+    // round input
+    x = Math.round(x);
+    y = Math.round(y);
+    w = Math.round(w);
+    h = Math.round(h);
 
     var bitmap = new Buffer(this.bitmap.data.length);
     var offset = 0;
@@ -298,6 +314,10 @@ Jimp.prototype.blit = function (src, x, y, cb) {
     if ("number" != typeof x || "number" != typeof y)
         throwError.call(this, "x and y must be numbers", cb);
     
+    // round input
+    x = Math.round(x);
+    y = Math.round(y);
+
     var that = this;
     src.scan(0, 0, src.bitmap.width, src.bitmap.height, function(sx, sy, idx) {
         var dstIdx = that.getPixelIndex(x+sx, y+sy)
@@ -626,8 +646,10 @@ Jimp.prototype.resize = function (w, h, cb) {
     if ("number" != typeof w || "number" != typeof h)
         throwError.call(this, "w and h must be numbers", cb);
     
+    // round inputs
     w = Math.round(w);
     h = Math.round(h);
+    
     var that = this;
     var resize = new Resize(this.bitmap.width, this.bitmap.height, w, h, true, true, function (buffer) {
         that.bitmap.data = new Buffer(buffer);
