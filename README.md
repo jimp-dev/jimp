@@ -9,7 +9,7 @@ Example usage:
     var Jimp = require("jimp");
 
     // open a file called "lenna.png"
-    var lenna = new Jimp("lenna.png", function () {
+    var lenna = new Jimp("lenna.png", function (err, image) {
         this.resize(220, 220) // resize
             .write("lenna-small.png") // save
             .quality(60) // set JPEG quality
@@ -22,15 +22,15 @@ Example usage:
 
 ## Methods ##
 
-The Jimp constructor takes two arugments, the path to a JPEG or PNG image and an optional call back for when the image is parsed:
+The Jimp constructor takes two arguments, the path to a JPEG or PNG image and an optional call back for when the image is parsed:
 
-    var image = new Jimp("./path/to/image.jpg", function (err) {
+    var image = new Jimp("./path/to/image.jpg", function (err, image) {
         // ready
     });
 
 Alternatively, the Jimp constructor can take a Buffer object containing the image data and the string MIME type:
 
-    var image = new Jimp(data, function (err) {
+    var image = new Jimp(buffer, function (err, image) {
         // ready
     });
 
@@ -61,7 +61,7 @@ The quality of saved JPEGs can be set with:
 
 A Buffer of the image (for storage in a database) in can to got using:
 
-    image.getBuffer( mime, cb ); // callback wil be fired with the Buffer as the first argument
+    image.getBuffer( mime, cb ); // callback wil be fired with the Buffer as the second argument
 
 ## Properties ##
 
@@ -99,6 +99,16 @@ Example usage:
         
         // rgba values run from 0 - 255
         // e.g. this.bitmap.data[idx] = 0; // removes red from this pixel
+    });
+
+To clone a Jimp image to a new Jimp image, you can use:
+
+    image.clone(); // returns the clone
+
+The Jimp constructor can also be called using an existing image and clone that image:
+
+    var clone = new Jimp(image, function (err, clone) {
+        // ready
     });
 
 ## License ##
