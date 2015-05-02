@@ -1,7 +1,9 @@
 var Jimp = require("../jimp.js");
 
 // open a file called "lenna.png"
-var lenna = new Jimp("lenna.png", function () {
+var lenna = new Jimp("lenna.png", function (err) {
+    if (err) throw err;
+    
     this.write("./output/lenna-copy.png") // PNG copy
         .write("./output/lenna-copy.jpg") // JPEG copy
         .quality(10).write("./output/lenna-copy-low.jpg").quality(100) // JPEG copy at 10 quality
