@@ -18,12 +18,15 @@ for (var op in operations) process(op);
 
 function process(op) {
     new Jimp("lenna.png", function(err, image) {
+        var clone = image.clone().scale(0.25);
+        
         image.name = "lenna-" + op;
         image[op].apply(this, operations[op].concat(save));
+        
+        image.name = image.name + "-blit";
+        image.blit(clone, 0, 0, save);
     });
 }
-
-// TODO: blit example
 
 function save(err, image) {
     if (err) throw err;
