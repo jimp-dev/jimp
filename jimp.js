@@ -43,12 +43,14 @@ function throwError(error, cb) {
 // MIME type methods
 
 function getMIMEFromBuffer(buffer) {
-    return FileType(buffer).mime;
+    if (FileType(buffer)) return FileType(buffer).mime;
+    else return "";
 }
 
 function getMIMEFromPath(path) {
     var buffer = ReadChunk.sync(path, 0, 262);
-    return FileType(buffer).mime;
+    if (FileType(buffer)) return FileType(buffer).mime;
+    else return "";
 }
 
 //=> {ext: 'png', mime: 'image/png'}
@@ -80,7 +82,7 @@ function Jimp() {
             if (err) throwError.call(that, err, cb);
             parseBitmap.call(that, data, mime, cb);
         });
-    } else {
+    } else if ("object" == typeof arguments[0]) {
         var data = arguments[0];
         var mime = getMIMEFromBuffer(data);
         var cb = arguments[1];
@@ -94,6 +96,8 @@ function Jimp() {
             throwError.call(this, "cb must be a function", cb);
         
         parseBitmap.call(this, data, mime, cb);
+    } else {
+        throwError.call(this, "You must pass a path to an image file or a image buffer.", cb);
     }
 }
 
@@ -104,6 +108,7 @@ Jimp.MIME_JPEG = "image/jpeg";
 // parses a bitmap from the constructor to the JIMP bitmap property
 function parseBitmap(data, mime, cb) {
     var that = this;
+
     switch (mime.toLowerCase()) {
         case Jimp.MIME_PNG:
             var png = new PNG();
@@ -140,6 +145,26 @@ Jimp.prototype.bitmap = {
 Jimp.prototype._quality = 100;
 
 /**
+ * Creates a new image that is a clone of this one.
+ * @param cb A callback for when complete
+ * @returns the new image
+ */
+Jimp.prototype.clone = function(cb){
+    if ("function" != typeof cb)
+        throwError.call(this, "cb must be a function", cb);
+    
+    var clone;
+    
+    this.getBuffer(Jimp.MIME_PNG, function (err, buffer) {
+        clone = new Jimp(buffer, function (err, image) {
+            cb.call(clone, null, image);
+        });
+    });
+        
+    return clone;
+}
+
+/**
  * Sets the quality of the image when saving as JPEG format
  * @param n The quality to use 0-100
  * @param (optional) cb A callback for when complete
@@ -153,7 +178,7 @@ Jimp.prototype.quality = function (n, cb) {
     
     this._quality = n;
     
-    if (isNodePattern(cb)) cb.call(this, null, this);
+    if (isNodePattern(cb)) return cb.call(this, null, this);
     else return this;
 };
 
@@ -183,7 +208,7 @@ Jimp.prototype.scan = function (x, y, w, h, f, cb) {
         }
     }
     
-    if (isNodePattern(cb)) cb.call(this, null, this);
+    if (isNodePattern(cb)) return cb.call(this, null, this);
     else return this;
 };
 
@@ -204,7 +229,7 @@ Jimp.prototype.getPixelIndex = function (x, y, cb) {
     if (x < 0 || x > this.bitmap.width) i = -1;
     if (y < 0 || y > this.bitmap.height) i = -1;
     
-    if (isNodePattern(cb)) cb.call(this, null, i);
+    if (isNodePattern(cb)) return cb.call(this, null, i);
     else return i;
 };
 
@@ -235,7 +260,7 @@ Jimp.prototype.crop = function (x, y, w, h, cb) {
     this.bitmap.width = w;
     this.bitmap.height = h;
     
-    if (isNodePattern(cb)) cb.call(this, null, this);
+    if (isNodePattern(cb)) return cb.call(this, null, this);
     else return this;
 };
 
@@ -251,7 +276,22 @@ Jimp.prototype.crop = function (x, y, w, h, cb) {
  * @param (optional) cb A callback for when complete
  * @returns this for chaining of methods
 */
-Jimp.prototype.blit = function (dst, dx, dy, sx, sy, w, h, cb) {
+Jimp.prototype.blit = function () {
+    var dst = arguments[0];
+    var dx = arguments[1];
+    var dy = arguments[2];
+    
+    var sx, sy, w, h, cb;
+    if ("function" == typeof arguments[3]) {
+        cb = arguments[3];
+    } else {
+        sx = arguments[3];
+        sy = arguments[4];
+        w = arguments[5];
+        h = arguments[6];
+        cb = arguments[7];
+    }
+    
     if ("object" != typeof dst && dst.constructor != Jimp)
         throwError.call(this, "Destination must be a Jimp image", cb);
     if ("number" != typeof dx || "number" != typeof dy)
@@ -278,7 +318,7 @@ Jimp.prototype.blit = function (dst, dx, dy, sx, sy, w, h, cb) {
         dst.bitmap.data[dstIdx+2] = this.bitmap.data[idx+2];
     });
     
-    if (isNodePattern(cb)) cb.call(this, null, this);
+    if (isNodePattern(cb)) return cb.call(this, null, this);
     else return this;
 };
 
@@ -294,7 +334,7 @@ Jimp.prototype.invert = function (cb) {
         this.bitmap.data[idx+2] = 255 - this.bitmap.data[idx+2];
     });
     
-    if (isNodePattern(cb)) cb.call(this, null, this);
+    if (isNodePattern(cb)) return cb.call(this, null, this);
     else return this;
 };
 
@@ -320,7 +360,7 @@ Jimp.prototype.flip = function (horizontal, vertical, cb) {
     
     this.bitmap.data = new Buffer(bitmap);
     
-    if (isNodePattern(cb)) cb.call(this, null, this);
+    if (isNodePattern(cb)) return cb.call(this, null, this);
     else return this;
 };
 
@@ -369,7 +409,7 @@ Jimp.prototype.gaussian = function (r, cb) {
         }
     }
     
-    if (isNodePattern(cb)) cb.call(this, null, this);
+    if (isNodePattern(cb)) return cb.call(this, null, this);
     else return this;
 };
 
@@ -523,7 +563,7 @@ Jimp.prototype.blur = function (r, cb) {
         }
     }
 
-    if (isNodePattern(cb)) cb.call(this, null, this);
+    if (isNodePattern(cb)) return cb.call(this, null, this);
     else return this;
 }
 
@@ -540,7 +580,7 @@ Jimp.prototype.greyscale = function (cb) {
         this.bitmap.data[idx+2] = grey;
     });
     
-    if (isNodePattern(cb)) cb.call(this, null, this);
+    if (isNodePattern(cb)) return cb.call(this, null, this);
     else return this;
 };
 
@@ -563,7 +603,7 @@ Jimp.prototype.sepia = function (cb) {
         this.bitmap.data[idx+2] = (blue < 255) ? blue : 255;
     });
     
-    if (isNodePattern(cb)) cb.call(this, null, this);
+    if (isNodePattern(cb)) return cb.call(this, null, this);
     else return this;
 }
 
@@ -584,7 +624,7 @@ Jimp.prototype.opacity = function (f, cb) {
         this.bitmap.data[idx+3] = v;
     });
     
-    if (isNodePattern(cb)) cb.call(this, null, this);
+    if (isNodePattern(cb)) return cb.call(this, null, this);
     else return this;
 };
 
@@ -609,7 +649,7 @@ Jimp.prototype.resize = function (w, h, cb) {
     });
     resize.resize(this.bitmap.data);
     
-    if (isNodePattern(cb)) cb.call(this, null, this);
+    if (isNodePattern(cb)) return cb.call(this, null, this);
     else return this;
 };
 
@@ -629,7 +669,7 @@ Jimp.prototype.scale = function (f, cb) {
     var h = this.bitmap.height * f;
     this.resize(w, h);
     
-    if (isNodePattern(cb)) cb.call(this, null, this);
+    if (isNodePattern(cb)) return cb.call(this, null, this);
     else return this;
 };
 
@@ -667,7 +707,7 @@ Jimp.prototype.rotate = function (deg, cb) {
         i--;
     }
 
-    if (isNodePattern(cb)) cb.call(this, null, this);
+    if (isNodePattern(cb)) return cb.call(this, null, this);
     else return this;
 };
 
