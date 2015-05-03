@@ -47,7 +47,7 @@ Once the callback has fired the following methods can be called on the image:
     image.resize( w, h ); // resize the image
     image.scale( f ); // scale the image by the factor f
     image.rotate( deg ); // rotate the image clockwise by a number of degrees (rounded to multiples of 90)
-    image.blit(src, x, y); // blit the image with another Jimp image at x, y
+    image.blit( src, x, y ); // blit the image with another Jimp image at x, y
 
 (Contributions of more methods are welcome!)
 
@@ -63,6 +63,16 @@ A Buffer of the image (for storage in a database) in can to got using:
 
     image.getBuffer( mime, cb ); // callback wil be fired with the Buffer as the second argument
 
+To clone a Jimp image to a new Jimp image, you can use:
+
+    image.clone(); // returns the clone
+
+The Jimp constructor can also be called using an existing image and clone that image:
+
+    var clone = new Jimp(image, function (err, clone) {
+        // ready
+    });
+
 ## Properties ##
 
 For convenience, supported MIME types are available as static properties:
@@ -70,7 +80,7 @@ For convenience, supported MIME types are available as static properties:
     Jimp.MIME_PNG; // "image/png"
     Jimp.MIME_JPEG; // "image/jpeg"
 
-These can be used with the Jimp construtor and getBuffer method.
+These can be used with the getBuffer method.
 
 ## Advanced ##
 
@@ -99,16 +109,6 @@ Example usage:
         
         // rgba values run from 0 - 255
         // e.g. this.bitmap.data[idx] = 0; // removes red from this pixel
-    });
-
-To clone a Jimp image to a new Jimp image, you can use:
-
-    image.clone(); // returns the clone
-
-The Jimp constructor can also be called using an existing image and clone that image:
-
-    var clone = new Jimp(image, function (err, clone) {
-        // ready
     });
 
 ## License ##
