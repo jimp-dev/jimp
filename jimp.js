@@ -330,6 +330,141 @@ Jimp.prototype.blit = function (src, x, y, cb) {
 };
 
 /**
+ * Composites a source image over to this image respecting alpha channels
+ * @param src the source Jimp instance
+ * @param x the x position to blit the image
+ * @param y the y position to blit the image
+ * @param (optional) cb A callback for when complete
+ * @returns this for chaining of methods
+*/
+Jimp.prototype.composite = function (src, x, y, cb) {
+    if ("object" != typeof src || src.constructor != Jimp)
+        throwError.call(this, "The source must be a Jimp image", cb);
+    if ("number" != typeof x || "number" != typeof y)
+        throwError.call(this, "x and y must be numbers", cb);
+    
+    // round input
+    x = Math.round(x);
+    y = Math.round(y);
+
+    var that = this;
+    src.scan(0, 0, src.bitmap.width, src.bitmap.height, function(sx, sy, idx) {
+        var dstIdx = that.getPixelIndex(x+sx, y+sy)
+        
+        that.bitmap.data[dstIdx] = (this.bitmap.data[idx] * this.bitmap.data[idx+3] / 255) + (that.bitmap.data[dstIdx] * (1 - this.bitmap.data[idx+3] / 255))
+        that.bitmap.data[dstIdx+1] = (this.bitmap.data[idx+1] * this.bitmap.data[idx+3] / 255) + (that.bitmap.data[dstIdx+1] * (1 - this.bitmap.data[idx+3] / 255))
+        that.bitmap.data[dstIdx+2] = (this.bitmap.data[idx+2] * this.bitmap.data[idx+3] / 255) + (that.bitmap.data[dstIdx+2] * (1 - this.bitmap.data[idx+3] / 255))
+        
+        that.bitmap.data[dstIdx+3] = this.bitmap.data[idx+3] + that.bitmap.data[dstIdx+3] * (1 - this.bitmap.data[idx+3] / 255);
+    });
+    
+    if (isNodePattern(cb)) return cb.call(this, null, this);
+    else return this;
+};
+
+
+/**
+ * Adjusts the brightness of the image
+ * val the amount to adjust the brightness, a number between -1 and +1
+ * @param (optional) cb A callback for when complete
+ * @returns this for chaining of methods
+ */
+Jimp.prototype.brightness = function (val, cb) {
+    if ("number" != typeof val)
+        throwError.call(this, "val must be numbers", cb);
+    if (val < -1 || val > +1)
+        throwError.call(this, "val must be a number between -1 and +1", cb);
+
+    this.scan(0, 0, this.bitmap.width, this.bitmap.height, function (x, y, idx) {
+        if (val < 0.0)  {
+            this.bitmap.data[idx] = this.bitmap.data[idx] * (1 + val);
+            this.bitmap.data[idx+1] = this.bitmap.data[idx+1] * (1 + val);
+            this.bitmap.data[idx+2] = this.bitmap.data[idx+2] * (1 + val);
+        } else {
+            this.bitmap.data[idx] = this.bitmap.data[idx] + ((255 - this.bitmap.data[idx]) * val);
+            this.bitmap.data[idx+1] = this.bitmap.data[idx+1] + ((255 - this.bitmap.data[idx+1]) * val);
+            this.bitmap.data[idx+2] = this.bitmap.data[idx+2] + ((255 - this.bitmap.data[idx+2]) * val);
+        }
+    });
+    
+    if (isNodePattern(cb)) return cb.call(this, null, this);
+    else return this;
+};
+
+/**
+ * Adjusts the contrast of the image
+ * val the amount to adjust the contrast, a number between -1 and +1
+ * @param (optional) cb A callback for when complete
+ * @returns this for chaining of methods
+ */
+Jimp.prototype.contrast = function (val, cb) {
+    if ("number" != typeof val)
+        throwError.call(this, "val must be numbers", cb);
+    if (val < -1 || val > +1)
+        throwError.call(this, "val must be a number between -1 and +1", cb);
+
+    function adjust(value) {
+        var nvalue;
+        value = value / 255;
+        if (val < 0.0) {
+            if (value > 0.5) nvalue = 1.0 - value;
+            else nvalue = value;
+
+            if (nvalue < 0.0) nvalue = 0.0;
+            nvalue = 0.5 * Math.pow (nvalue * 2.0 , (1.0 + val));
+
+            if (value > 0.5) value = 1.0 - nvalue;
+            else value = nvalue;
+        } else {
+            if (value > 0.5) nvalue = 1.0 - value;
+            else nvalue = value;
+
+            if (nvalue < 0.0)
+            nvalue = 0.0;
+
+            power = (val == 1.0) ? 127 : 1.0 / (1.0 - val);
+            nvalue = 0.5 * Math.pow (2.0 * nvalue, power);
+
+            if (value > 0.5) value = 1.0 - nvalue;
+            else value = nvalue;
+        }
+        return value * 255;
+    }
+    
+    this.scan(0, 0, this.bitmap.width, this.bitmap.height, function (x, y, idx) {
+        this.bitmap.data[idx] = adjust(this.bitmap.data[idx]);
+        this.bitmap.data[idx+1] = adjust(this.bitmap.data[idx+1]);
+        this.bitmap.data[idx+2] = adjust(this.bitmap.data[idx+2]);
+    });
+    
+    if (isNodePattern(cb)) return cb.call(this, null, this);
+    else return this;
+};
+
+
+/**
+ * Apply a posterize effect
+ * val the amount to adjust the contrast, minimum threshold is two
+ * @param (optional) cb A callback for when complete
+ * @returns this for chaining of methods
+ */
+Jimp.prototype.posterize = function (n, cb) {
+    if ("number" != typeof n)
+        throwError.call(this, "n must be numbers", cb);
+    
+    if (n < 2) n = 2; // minumum of 2 levels
+    
+    this.scan(0, 0, this.bitmap.width, this.bitmap.height, function (x, y, idx) {
+        this.bitmap.data[idx] = (Math.floor(this.bitmap.data[idx] / 255 * (n - 1)) / (n - 1)) * 255;
+        this.bitmap.data[idx+1] = (Math.floor(this.bitmap.data[idx+1] / 255 * (n - 1)) / (n - 1)) * 255;
+        this.bitmap.data[idx+2] = (Math.floor(this.bitmap.data[idx+2] / 255 * (n - 1)) / (n - 1)) * 255;
+    });
+    
+    if (isNodePattern(cb)) return cb.call(this, null, this);
+    else return this;
+}
+
+/**
  * Inverts the image
  * @param (optional) cb A callback for when complete
  * @returns this for chaining of methods
@@ -416,6 +551,8 @@ Jimp.prototype.gaussian = function (r, cb) {
             }
         }
     }
+    
+    clear(); // clear the log
     
     if (isNodePattern(cb)) return cb.call(this, null, this);
     else return this;
