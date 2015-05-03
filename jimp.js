@@ -64,13 +64,13 @@ function getMIMEFromPath(path) {
 /**
  * Jimp constructor
  * @param image a Jimp image to clone
- * @param (optional) cb a function to call when the image is parsed to a bitmap
+ * @param cb a function to call when the image is parsed to a bitmap
  */
 
 /**
  * Jimp constructor
  * @param data a Buffer containing the image data
- * @param (optional) cb a function to call when the image is parsed to a bitmap
+ * @param cb a function to call when the image is parsed to a bitmap
  */
 
 function Jimp() {
@@ -101,7 +101,6 @@ function Jimp() {
         var mime = getMIMEFromPath(path);
         var cb = arguments[1];
         
-        if ("undefined" == typeof cb) cb = function () {};
         if ("function" != typeof cb)
             throwError.call(this, "cb must be a function", cb);
         
@@ -119,7 +118,6 @@ function Jimp() {
             throwError.call(this, "data must be a Buffer", cb);
         if ("string" != typeof mime)
             throwError.call(this, "mime must be a string", cb);
-        if ("undefined" == typeof cb) cb = function () {};
         if ("function" != typeof cb)
             throwError.call(this, "cb must be a function", cb);
         
