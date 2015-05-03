@@ -355,10 +355,13 @@ Jimp.prototype.invert = function (cb) {
  * @returns this for chaining of methods
  */
 Jimp.prototype.flip = function (horizontal, vertical, cb) {
+    if ("boolean" != typeof horizontal || "boolean" != typeof vertical)
+        throwError.call(this, "horizontal and vertical must be Booleans", cb);
+
     var bitmap = new Buffer(this.bitmap.data.length);
     this.scan(0, 0, this.bitmap.width, this.bitmap.height, function (x, y, idx) {
-        var _x = (horizontal) ? (this.bitmap.width - x) : x;
-        var _y = (vertical) ? (this.bitmap.height - y) : y;
+        var _x = (horizontal) ? (this.bitmap.width - 1 - x) : x;
+        var _y = (vertical) ? (this.bitmap.height - 1 - y) : y;
         var _idx = (this.bitmap.width * _y + _x) << 2;
         
         var data = this.bitmap.data.readUInt32BE(idx, true);
