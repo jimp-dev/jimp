@@ -11,7 +11,10 @@ var operations = {
     "opacity": [0.5],
     "resize": [64, 64],
     "scale": [0.5],
-    "rotate": [90]
+    "rotate": [90],
+    "brightness": [0.75],
+    "contrast": [0.75],
+    "posterize": [5]
 };
 
 for (var op in operations) process(op);
@@ -23,8 +26,11 @@ function process(op) {
         image.name = "lenna-" + op;
         image[op].apply(this, operations[op].concat(save));
         
-        image.name = image.name + "-blit";
+        image.name = "lenna-" + op + "-blit";
         image.blit(clone, 0, 0, save);
+        
+        image.name = "lenna-" + op + "-composite";
+        image.composite(clone, 0, 0, save);
     });
 }
 

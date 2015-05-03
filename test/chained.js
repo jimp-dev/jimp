@@ -11,6 +11,21 @@ var lenna = new Jimp("lenna.png", function (err) {
         .rotate(90).write("./output/lenna-rotate.png").rotate(-90) // rotate
         .flip(true, false).write("./output/lenna-flip-horizontal.png").flip(true, false) // flip horizontal
         .flip(false, true).write("./output/lenna-flip-vertical.png").flip(false, true); // flip vertical
+
+    // brightness (destructive)
+    this.clone().brightness(+0.75).write("./output/lenna-brightness-higher.png");
+
+    // brightness (destructive)
+    this.clone().brightness(-0.75).write("./output/lenna-brightness-lower.png");
+    
+    // contrast (destructive)
+    this.clone().contrast(0.75).write("./output/lenna-contrast-higher.png");
+
+    // contrast (destructive)
+    this.clone().contrast(-0.75).write("./output/lenna-contrast-lower.png");
+    
+    // posterize (destructive)
+    this.clone().posterize(4).write("./output/lenna-posterize.png");
     
     // greyscale (destructive)
     this.clone().greyscale().write("./output/lenna-greyscale.png");
@@ -19,7 +34,7 @@ var lenna = new Jimp("lenna.png", function (err) {
     this.clone().blur(5).write("./output/lenna-blur.png");
     
     // Gaussian blur (destructive)
-    this.clone().gaussian(5).write("./output/lenna-gaussian.png");
+    // this.clone().gaussian(5).write("./output/lenna-gaussian.png");
     
     // resize (destructive)
     this.clone().resize(64, 64).write("./output/lenna-resized.png");
@@ -35,5 +50,11 @@ var lenna = new Jimp("lenna.png", function (err) {
     
     // scale and blit (destructive)
     this.clone().blit(this.clone().scale(0.5).write("./output/lenna-scale.png"), this.bitmap.width / 4, this.bitmap.height / 4).write("./output/lenna-blit.png");
+
+    // compositing (destructive)
+    var dice = new Jimp("dice.png", function (err) {
+        lenna.clone().composite(this.scale(0.5), lenna.bitmap.width / 2 - this.bitmap.width / 2, lenna.bitmap.height / 2 - this.bitmap.height / 2).write("./output/lenna-composite.png");
+    });
+    
 
 });
