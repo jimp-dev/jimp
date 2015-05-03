@@ -10,73 +10,30 @@ var lenna = new Jimp("lenna.png", function (err) {
         .invert().write("./output/lenna-invert.png").invert() // invert
         .rotate(90).write("./output/lenna-rotate.png").rotate(-90) // rotate
         .flip(true, false).write("./output/lenna-flip-horizontal.png").flip(true, false) // flip horizontal
-        .flip(false, true).write("./output/lenna-flip-vertical.png").flip(false, true) // flip vertical
-
+        .flip(false, true).write("./output/lenna-flip-vertical.png").flip(false, true); // flip vertical
+    
     // greyscale (destructive)
-    this.getBuffer(Jimp.MIME_PNG, function(err, buffer) {
-        if (err) throw err;
-        var img = new Jimp(buffer, function () {
-            this.greyscale().write("./output/lena-greyscale.png") // black and white
-        });
-    }); 
+    this.clone().greyscale().write("./output/lenna-greyscale.png");
     
     // blur (destructive)
-    this.getBuffer(Jimp.MIME_PNG, function(err, buffer) {
-        if (err) throw err;
-        var img = new Jimp(buffer, function () {
-            this.blur(5).write("./output/lena-blur.png") // blur
-        });
-    }); 
+    this.clone().blur(5).write("./output/lenna-blur.png");
     
     // Gaussian blur (destructive)
-    this.getBuffer(Jimp.MIME_PNG, function(err, buffer) {
-        if (err) throw err;
-        var img = new Jimp(buffer, function () {
-            this.gaussian(5).write("./output/lena-gaussian.png") // gaussian
-        });
-    }); 
+    this.clone().gaussian(5).write("./output/lenna-gaussian.png");
     
     // resize (destructive)
-    this.getBuffer(Jimp.MIME_PNG, function(err, buffer) {
-        if (err) throw err;
-        var img = new Jimp(buffer, function () {
-            this.resize(64, 64).write("./output/lenna-resized.png") // resize
-        });
-    }); 
+    this.clone().resize(64, 64).write("./output/lenna-resized.png");
     
     // sepia (destructive)
-    this.getBuffer(Jimp.MIME_PNG, function(err, buffer) {
-        if (err) throw err;
-        var img = new Jimp(buffer, function () {
-            this.sepia().write("./output/lenna-sepia.png") // sepia
-        });
-    }); 
+    this.clone().sepia().write("./output/lenna-sepia.png");
     
     // opacity (destructive)
-    this.getBuffer(Jimp.MIME_JPEG, function(err, buffer) {
-        if (err) throw err;
-        var img = new Jimp(buffer, function () {
-            this.opacity(0.5).write("./output/lenna-opacity.png") // opacity
-        });
-    }); 
+    this.clone().opacity(0.5).write("./output/lenna-opacity.png");
     
     // crop (destructive)
-    this.getBuffer(Jimp.MIME_JPEG, function(err, buffer) {
-        if (err) throw err;
-        var img = new Jimp(buffer, function () {
-            this.crop(128, 192, 256, 128).write("./output/lenna-cropped.png") // opacity
-        });
-    }); 
+    this.clone().crop(128, 192, 256, 128).write("./output/lenna-cropped.png");
     
     // scale and blit (destructive)
-    this.getBuffer(Jimp.MIME_PNG, function(err, buffer) {
-        if (err) throw err;
-        var img = new Jimp(buffer, function () {
-            this.scale(0.5).write("./output/lenna-scale.png") // scale
-            lenna.greyscale().blit(this, lenna.bitmap.width / 4, lenna.bitmap.height / 4);
-            lenna.write("./output/lenna-blit.png")
-        });
-    });
-
+    this.clone().blit(this.clone().scale(0.5).write("./output/lenna-scale.png"), this.bitmap.width / 4, this.bitmap.height / 4).write("./output/lenna-blit.png");
 
 });
