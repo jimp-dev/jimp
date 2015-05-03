@@ -592,6 +592,9 @@ Jimp.prototype.greyscale = function (cb) {
     else return this;
 };
 
+// Alias of greyscale for our American friends
+Jimp.prototype.grayscale = Jimp.prototype.greyscale;
+
 /**
  * Applies a sepia tone to the image
  * @param (optional) cb A callback for when complete
