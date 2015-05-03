@@ -10,28 +10,22 @@ Example usage:
 
     // open a file called "lenna.png"
     var lenna = new Jimp("lenna.png", function (err, image) {
-        this.resize(220, 220) // resize
+        this.resize(512, 512) // resize
             .write("lenna-small.png") // save
             .quality(60) // set JPEG quality
             .write("lenna-small.jpg") // save as JPEG
             .greyscale() // set greyscale
             .write("lena-small-bw.png") // save again
-            .crop(80, 100, 80, 50) // crop
+            .crop(128, 192, 256, 128) // crop
             .write("lena-small-bw-cropped.png"); // save again
     });
 
-## Methods ##
+## Basic usage ##
 
-The Jimp constructor takes two arguments, the path to a JPEG or PNG image and an optional call back for when the image is parsed:
+The Jimp constructor takes two arguments, the path to a JPEG or PNG image and a Node-style callback for when the image is parsed:
 
     var image = new Jimp("./path/to/image.jpg", function (err, image) {
-        // ready
-    });
-
-Alternatively, the Jimp constructor can take a Buffer object containing the image data and the string MIME type:
-
-    var image = new Jimp(buffer, function (err, image) {
-        // ready
+        // this is the image
     });
 
 Once the callback has fired the following methods can be called on the image:
@@ -51,46 +45,52 @@ Once the callback has fired the following methods can be called on the image:
 
 (Contributions of more methods are welcome!)
 
-The image can be written to disk in JPEG or PNG format using:
+The image can be written to disk in JPEG or PNG format (determined by the file extension) using:
 
-    image.write( path, cb ); // callback will be fired when write is successful
+    image.write( path, cb ); // Node-style callback will be fired when write is successful
 
 The quality of saved JPEGs can be set with:
 
     image.quality( n ); // set the quality of saved JPEG, 0 - 100
 
-A Buffer of the image (for storage in a database) in can to got using:
+## Cloning images ##
 
-    image.getBuffer( mime, cb ); // callback wil be fired with the Buffer as the second argument
-
-To clone a Jimp image to a new Jimp image, you can use:
+To clone a Jimp image, you can use:
 
     image.clone(); // returns the clone
 
-The Jimp constructor can also be called using an existing image and clone that image:
+Alternatively, the Jimp constructor can also be called using an existing image create a clone of that image:
 
     var clone = new Jimp(image, function (err, clone) {
-        // ready
+        // this is the clone
     });
 
-## Properties ##
+## Working with Buffers ##
+
+A PNG or JPEG binary Buffer of an image (e.g. for storage in a database) can to got using:
+
+    image.getBuffer( mime, cb ); // Node-style callback wil be fired with result
 
 For convenience, supported MIME types are available as static properties:
 
     Jimp.MIME_PNG; // "image/png"
     Jimp.MIME_JPEG; // "image/jpeg"
 
-These can be used with the getBuffer method.
+A Jimp image can be instantiated from a Buffer by passing the Buffer as the first argument to the Jimp constructor:
 
-## Advanced ##
+    var image = new Jimp(buffer, function (err, image) {
+        // this is the image
+    });
 
-The library enables low-level manipulation of images in memory through the bitmap property of each Jimp object:
+## Direct manipulation ##
 
-    image.bitmap.data; // a buffer of the raw bitmap data
+Jimp enables low-level manipulation of images in memory through the bitmap property of each Jimp object:
+
+    image.bitmap.data; // a Buffer of the raw bitmap data
     image.bitmap.width; // the width of the image
     image.bitmap.height // the height of the image
 
-This can be manipulated directory, but remember: garbage in, garbage out.
+This data can be manipulated directly but remember: garbage in, garbage out.
 
 A helper method is available to scan a region of the bitmap:
 
@@ -100,7 +100,8 @@ Example usage:
 
     image.scan(0, 0, image.bitmap.width, image.bitmap.height, function (x, y, idx) {
         // x, y is the position of this pixel on the image
-        // idx is the position start position of this rgba tuple in the bitmap buffer
+        // idx is the position start position of this rgba tuple in the bitmap Buffer
+        // this is the image
         
         var red = this.bitmap.data[idx];
         var green = this.bitmap.data[idx+1];
@@ -110,6 +111,26 @@ Example usage:
         // rgba values run from 0 - 255
         // e.g. this.bitmap.data[idx] = 0; // removes red from this pixel
     });
+
+## Chaining or callbacks ##
+
+All methods can be chained together, for example as follows:
+
+    var lenna = new Jimp("lenna.png", function (err, image) {
+        this.greyscale().scale(0.5).write("lena-half-bw.png");
+    });
+
+Alternatively, methods can be called Node-style callbacks:
+
+    var lenna = new Jimp("lenna.png", function (err, image) {
+        this.greyscale(function(err, image) {
+            image.scale(0.5, function (err, image) {
+                image.write("lena-half-bw.png");
+            });
+        });
+    });
+
+Among other things, the Node-style callback pattern allows Jimp to be used with frameworks that expect or build on the Node-style callback pattern.
 
 ## License ##
 
