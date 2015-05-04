@@ -404,31 +404,17 @@ Jimp.prototype.contrast = function (val, cb) {
         throwError.call(this, "val must be a number between -1 and +1", cb);
 
     function adjust(value) {
-        var nvalue;
-        value = value / 255;
-        if (val < 0.0) {
-            if (value > 0.5) nvalue = 1.0 - value;
-            else nvalue = value;
-
-            if (nvalue < 0.0) nvalue = 0.0;
-            nvalue = 0.5 * Math.pow (nvalue * 2.0 , (1.0 + val));
-
-            if (value > 0.5) value = 1.0 - nvalue;
-            else value = nvalue;
+        if (val < 0) {
+            var x = (value > 127) ? 1 - value / 255 : value / 255;
+            if (x < 0) x = 0;
+            x = 0.5 * Math.pow (x * 2, 1 + val);
+            return (value > 127) ? (1.0 - x) * 255 : x * 255;
         } else {
-            if (value > 0.5) nvalue = 1.0 - value;
-            else nvalue = value;
-
-            if (nvalue < 0.0)
-            nvalue = 0.0;
-
-            power = (val == 1.0) ? 127 : 1.0 / (1.0 - val);
-            nvalue = 0.5 * Math.pow (2.0 * nvalue, power);
-
-            if (value > 0.5) value = 1.0 - nvalue;
-            else value = nvalue;
+            var x = (value > 127) ? 1 - value / 255 : value / 255;
+            if (x < 0) x = 0;
+            x = 0.5 * Math.pow (2 * x, ((val == 1) ? 127 : 1 / (1 - val)));
+            return (value > 127) ? (1 - x) * 255 : x * 255;
         }
-        return value * 255;
     }
     
     this.scan(0, 0, this.bitmap.width, this.bitmap.height, function (x, y, idx) {
