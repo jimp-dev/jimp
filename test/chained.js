@@ -34,7 +34,7 @@ var lenna = new Jimp("lenna.png", function (err) {
     this.clone().blur(5).write("./output/lenna-blur.png");
     
     // Gaussian blur (destructive)
-    // this.clone().gaussian(5).write("./output/lenna-gaussian.png");
+    this.clone().gaussian(5).write("./output/lenna-gaussian.png");
     
     // resize (destructive)
     this.clone().resize(64, 64).write("./output/lenna-resized.png");
