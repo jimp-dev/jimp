@@ -22,7 +22,7 @@ Example usage:
 
 ## Basic usage ##
 
-The Jimp constructor takes two arguments, the path to a JPEG or PNG image and a Node-style callback for when the image is parsed:
+The Jimp constructor takes two arguments, the path to a JPEG, PNG or BMP image and a Node-style callback for when the image is parsed:
 
     var image = new Jimp("./path/to/image.jpg", function (err, image) {
         // this is the image
@@ -49,7 +49,7 @@ Once the callback has fired the following methods can be called on the image:
 
 (Contributions of more methods are welcome!)
 
-The image can be written to disk in JPEG or PNG format (determined by the file extension) using:
+The image can be written to disk in JPEG, PNG or BMP format (determined by the file extension) using:
 
     image.write( path, cb ); // Node-style callback will be fired when write is successful
 
@@ -71,7 +71,7 @@ Alternatively, the Jimp constructor can also be called using an existing image c
 
 ## Working with Buffers ##
 
-A PNG or JPEG binary Buffer of an image (e.g. for storage in a database) can to got using:
+A JPEG, PNG or BMP binary Buffer of an image (e.g. for storage in a database) can to got using:
 
     image.getBuffer( mime, cb ); // Node-style callback wil be fired with result
 
@@ -79,6 +79,7 @@ For convenience, supported MIME types are available as static properties:
 
     Jimp.MIME_PNG; // "image/png"
     Jimp.MIME_JPEG; // "image/jpeg"
+    Jimp.BMP; // "image/bmp"
 
 A Jimp image can be instantiated from a Buffer by passing the Buffer as the first argument to the Jimp constructor:
 

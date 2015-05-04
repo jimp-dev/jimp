@@ -1,6 +1,7 @@
 var FS = require("fs");
 var PNG = require("node-png").PNG;
 var JPEG = require("jpeg-js");
+var BMP = require("bmp-js");
 var MIME = require("mime");
 var Resize = require("./resize.js");
 var StreamToBuffer = require('stream-to-buffer');
@@ -130,6 +131,7 @@ function Jimp() {
 // supported mime types
 Jimp.MIME_PNG = "image/png";
 Jimp.MIME_JPEG = "image/jpeg";
+Jimp.MIME_BMP = "image/bmp";
 
 // parses a bitmap from the constructor to the JIMP bitmap property
 function parseBitmap(data, mime, cb) {
@@ -150,6 +152,10 @@ function parseBitmap(data, mime, cb) {
             break;
         case Jimp.MIME_JPEG:
             this.bitmap = JPEG.decode(data);
+            return cb.call(this, null, this);
+            break;
+        case Jimp.MIME_BMP:
+            this.bitmap = BMP.decode(data);
             return cb.call(this, null, this);
             break;
         default:
@@ -873,6 +879,10 @@ Jimp.prototype.getBuffer = function (mime, cb) {
         case Jimp.MIME_JPEG:
             var jpeg = JPEG.encode(this.bitmap, this._quality);
             return cb.call(this, null, jpeg.data);
+            break;
+        case Jimp.MIME_BMP:
+            var bmp = BMP.encode(this.bitmap);
+            return cb.call(this, null, bmp.data);
             break;
         default:
             return cb.call(this, "Unsupported MIME type: " + mime);
