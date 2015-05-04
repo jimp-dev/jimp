@@ -13,6 +13,7 @@
     "png",
     "jpg",
     "jpeg",
+    "bmp",
     "resize",
     "scale",
     "crop"
