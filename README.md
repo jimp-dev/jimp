@@ -2,7 +2,7 @@
 
 The "JavaScript Image Manipulation Program" :-)
 
-An image processing library written entirely in JavaScript for Node, with zero external or native dependencies.
+An image processing library for Node written entirely in JavaScript, with zero external or native dependencies.
 
 Example usage:
 
@@ -22,13 +22,13 @@ Example usage:
 
 ## Basic usage ##
 
-The Jimp constructor takes two arguments, the path to a JPEG, PNG or BMP image and a Node-style callback for when the image is parsed:
+The Jimp constructor takes two arguments, the path to a PNG, JPEG or BMP image and a Node-style callback:
 
     var image = new Jimp("./path/to/image.jpg", function (err, image) {
         // this is the image
     });
 
-Once the callback has fired the following methods can be called on the image:
+Once the callback has fired, the following methods can be called on the image:
 
     image.crop( x, y, w, h ); // crop to the given region
     image.invert(); // invert the image colours
@@ -37,7 +37,7 @@ Once the callback has fired the following methods can be called on the image:
     image.blur( r ); // fast blur the image by r pixels
     image.greyscale(); // remove colour from the image
     image.sepia(); // apply a sepia wash to the image
-    image.opacity( f ); // apply an opacity of 0-1 to the image
+    image.opacity( f ); // multiply the alpha channel by each pixel by the factor f, 0 - 1
     image.resize( w, h ); // resize the image
     image.scale( f ); // scale the image by the factor f
     image.rotate( deg ); // rotate the image clockwise by a number of degrees (rounded to multiples of 90)
@@ -49,7 +49,7 @@ Once the callback has fired the following methods can be called on the image:
 
 (Contributions of more methods are welcome!)
 
-The image can be written to disk in JPEG, PNG or BMP format (determined by the file extension) using:
+The image can be written to disk in PNG, JPEG or BMP format (determined by the file extension) using:
 
     image.write( path, cb ); // Node-style callback will be fired when write is successful
 
@@ -63,7 +63,7 @@ To clone a Jimp image, you can use:
 
     image.clone(); // returns the clone
 
-Alternatively, the Jimp constructor can also be called using an existing image create a clone of that image:
+The Jimp constructor can also be called using an existing image create a clone of that image:
 
     var clone = new Jimp(image, function (err, clone) {
         // this is the clone
@@ -71,7 +71,7 @@ Alternatively, the Jimp constructor can also be called using an existing image c
 
 ## Working with Buffers ##
 
-A JPEG, PNG or BMP binary Buffer of an image (e.g. for storage in a database) can to got using:
+A PNG, JPEG or BMP binary Buffer of an image (e.g. for storage in a database) can to got using:
 
     image.getBuffer( mime, cb ); // Node-style callback wil be fired with result
 
@@ -81,7 +81,7 @@ For convenience, supported MIME types are available as static properties:
     Jimp.MIME_JPEG; // "image/jpeg"
     Jimp.BMP; // "image/bmp"
 
-A Jimp image can be instantiated from a Buffer by passing the Buffer as the first argument to the Jimp constructor:
+The Jimp constructor can also be called passing a valid Buffer as the first argument to the Jimp constructor:
 
     var image = new Jimp(buffer, function (err, image) {
         // this is the image
@@ -125,17 +125,17 @@ All methods can be chained together, for example as follows:
         this.greyscale().scale(0.5).write("lena-half-bw.png");
     });
 
-Alternatively, methods can be called Node-style callbacks:
+Alternatively, methods can be passed Node-style callbacks:
 
     var lenna = new Jimp("lenna.png", function (err, image) {
-        this.greyscale(function(err, image) {
+        image.greyscale(function(err, image) {
             image.scale(0.5, function (err, image) {
                 image.write("lena-half-bw.png");
             });
         });
     });
 
-Among other things, the Node-style callback pattern allows Jimp to be used with frameworks that expect or build on the Node-style callback pattern.
+The Node-style callback pattern allows Jimp to be used with frameworks that expect or build on the Node-style callback pattern.
 
 ## License ##
 
