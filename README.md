@@ -43,9 +43,9 @@ Once the callback has fired the following methods can be called on the image:
     image.rotate( deg ); // rotate the image clockwise by a number of degrees (rounded to multiples of 90)
     image.blit( src, x, y ); // blit the image with another Jimp image at x, y
     image.composite( src, x, y ); // composites another Jimp image over this iamge at x, y
-    this.brightness( val ); // adjust the brighness by a value -1 to +1
-    this.contrast( val ); // adjust the contrast by a value -1 to +1
-    this.posterize( n ); // apply a posterization effect with n level
+    image.brightness( val ); // adjust the brighness by a value -1 to +1
+    image.contrast( val ); // adjust the contrast by a value -1 to +1
+    image.posterize( n ); // apply a posterization effect with n level
 
 (Contributions of more methods are welcome!)
 
