@@ -57,26 +57,54 @@ function getMIMEFromPath(path) {
 //=> {ext: 'png', mime: 'image/png'}
 
 /**
- * Jimp constructor
+ * Jimp constructor (from a file)
  * @param path a path to the image
  * @param (optional) cb a function to call when the image is parsed to a bitmap
  */
 
 /**
- * Jimp constructor
+ * Jimp constructor (from another Jimp image)
  * @param image a Jimp image to clone
  * @param cb a function to call when the image is parsed to a bitmap
  */
 
 /**
- * Jimp constructor
+ * Jimp constructor (from a Buffer)
  * @param data a Buffer containing the image data
  * @param cb a function to call when the image is parsed to a bitmap
  */
 
+/**
+ * Jimp constructor (to generate a new image)
+ * @param w the width of the image
+ * @param h the height of the image
+ * @param (optional) cb a function to call when the image is parsed to a bitmap
+ */
+
 function Jimp() {
-    if ("object" == typeof arguments[0] && arguments[0].constructor == Jimp) {
+    if ("number" == typeof arguments[0] && "number" == typeof arguments[1]) {
+        var w = arguments[0];
+        var h = arguments[1];
+        var cb = arguments[2];
+        
+        if ("undefined" == typeof cb) cb = function () {};
+        if ("function" != typeof cb)
+            throwError.call(this, "cb must be a function", cb);
+
+        this.bitmap = {
+            data: new Buffer(w * h * 4),
+            width: w,
+            height: h
+        };
+        
+        for (var i = 0; i < this.bitmap.data.length; i++) {
+            this.bitmap.data[i] = 0;
+        }
+
+        cb.call(this, null, this);
+    } else if ("object" == typeof arguments[0] && arguments[0].constructor == Jimp) {
         var original = arguments[0];
+        var cb = arguments[1];
         
         if ("undefined" == typeof cb) cb = function () {};
         if ("function" != typeof cb)
@@ -96,7 +124,7 @@ function Jimp() {
         
         this._quality = original._quality;
         
-        cb.call(that, null, that);
+        cb.call(this, null, this);
     } else if ("string" == typeof arguments[0]) {
         var path = arguments[0];
         var mime = getMIMEFromPath(path);
@@ -124,7 +152,7 @@ function Jimp() {
         
         parseBitmap.call(this, data, mime, cb);
     } else {
-        throwError.call(this, "You must pass a path to an image file or a image buffer.", cb);
+        throwError.call(this, "No matching constructor overloading was found. Please see the docs for how to call the Jimp constructor.", cb);
     }
 }
 

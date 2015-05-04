@@ -117,6 +117,12 @@ Example usage:
         // e.g. this.bitmap.data[idx] = 0; // removes red from this pixel
     });
 
+If you want to begin with an empty Jimp image, you can call the Jimp constructor passing the width and height of the image to create:
+
+    var image = new Jimp(256, 256, function (err, image) {
+        // this image is 256 x 256, every pixel is set to 0x0
+    });
+
 ## Chaining or callbacks ##
 
 All methods can be chained together, for example as follows:
