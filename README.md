@@ -46,6 +46,7 @@ Once the callback has fired, the following methods can be called on the image:
     image.brightness( val ); // adjust the brighness by a value -1 to +1
     image.contrast( val ); // adjust the contrast by a value -1 to +1
     image.posterize( n ); // apply a posterization effect with n level
+    image.ordereddithering565(); //ordered dithering the image and reduce color space to RGB565
 
 (Contributions of more methods are welcome!)
 
