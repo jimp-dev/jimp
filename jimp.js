@@ -924,7 +924,7 @@ Jimp.prototype.getBuffer = function (mime, cb) {
  * @param (optional) cb A callback for when complete
  * @returns this for chaining of methods
  */
-Jimp.prototype.ordereddithering656 = function (cb) {
+Jimp.prototype.ordereddithering565 = function (cb) {
     var rgb565_matrix = [
       0, 4, 1, 5, 0, 4, 1, 5,
       6, 2, 7, 3, 6, 2, 7, 3,
