@@ -1,5 +1,5 @@
 var FS = require("fs");
-var PNG = require("node-png").PNG;
+var PNG = require("pngjs2").PNG;
 var JPEG = require("jpeg-js");
 var BMP = require("bmp-js");
 var MIME = require("mime");
