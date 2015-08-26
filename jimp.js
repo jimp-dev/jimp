@@ -48,10 +48,12 @@ function getMIMEFromBuffer(buffer) {
     else return "";
 }
 
-function getMIMEFromPath(path) {
-    var buffer = ReadChunk.sync(path, 0, 262);
-    if (FileType(buffer)) return FileType(buffer).mime;
-    else return "";
+function getMIMEFromPath(path, cb) {
+    ReadChunk(path, 0, 262, function (err, buffer) {
+        if (err) { cb(null, ""); }
+        var fileType = FileType(buffer);
+        return cb && cb(null, fileType && fileType.mime || "");
+    });
 }
 
 //=> {ext: 'png', mime: 'image/png'}
@@ -127,16 +129,17 @@ function Jimp() {
         cb.call(this, null, this);
     } else if ("string" == typeof arguments[0]) {
         var path = arguments[0];
-        var mime = getMIMEFromPath(path);
         var cb = arguments[1];
         
         if ("function" != typeof cb)
             throwError.call(this, "cb must be a function", cb);
         
         var that = this;
-        FS.readFile(path, function (err, data) {
-            if (err) throwError.call(that, err, cb);
-            parseBitmap.call(that, data, mime, cb);
+        getMIMEFromPath(path, function (err, mime) {
+            FS.readFile(path, function (err, data) {
+                if (err) throwError.call(that, err, cb);
+                parseBitmap.call(that, data, mime, cb);
+            });
         });
     } else if ("object" == typeof arguments[0]) {
         var data = arguments[0];
