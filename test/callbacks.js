@@ -34,6 +34,13 @@ function process(op) {
     });
 }
 
+var mask = new Jimp("mask.png", function(err, image) {
+    var lenna = new Jimp("lenna.png", function(err, image) {
+        lenna.name = "lenna-mask";
+        lenna.mask(mask, 0, 0, save)
+    });
+});
+
 function save(err, image) {
     if (err) throw err;
     image.write("./output/" + image.name + ".png");

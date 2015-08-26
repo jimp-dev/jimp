@@ -53,7 +53,12 @@ var lenna = new Jimp("lenna.png", function (err) {
 
     // compositing (destructive)
     var dice = new Jimp("dice.png", function (err) {
-        lenna.clone().composite(this.scale(0.5), lenna.bitmap.width / 2 - this.bitmap.width / 2, lenna.bitmap.height / 2 - this.bitmap.height / 2).write("./output/lenna-composite.png");
+        lenna.clone().composite(dice.scale(0.5), lenna.bitmap.width / 2 - dice.bitmap.width / 2, lenna.bitmap.height / 2 - dice.bitmap.height / 2).write("./output/lenna-composite.png");
+    });
+    
+    // masking (destructive)
+    var mask = new Jimp("mask.png", function (err) {
+        lenna.clone().mask(mask, 0, 0).write("./output/lenna-mask.png");
     });
     
 

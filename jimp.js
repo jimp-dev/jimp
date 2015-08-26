@@ -364,7 +364,7 @@ Jimp.prototype.blit = function (src, x, y, cb) {
 };
 
 /**
- * Masks a source image on to this image, black areas (R + G + B === 0) are made transparent
+ * Masks a source image on to this image. A completely opaque pixel on the mask will turn a pixel in the image completely transparent. Partially opaque pixels on the mask will increase the transparancy of pixels on the image.
  * @param src the source Jimp instance
  * @param x the x position to blit the image
  * @param y the y position to blit the image
@@ -384,13 +384,7 @@ Jimp.prototype.mask = function (src, x, y, cb) {
     var that = this;
     src.scan(0, 0, src.bitmap.width, src.bitmap.height, function(sx, sy, idx) {
         var dstIdx = that.getPixelIndex(x+sx, y+sy);
-        if( 
-                this.bitmap.data[idx] +
-                this.bitmap.data[idx+1] +
-                this.bitmap.data[idx+2] === 0 
-            ) {
-            that.bitmap.data[dstIdx+3] = 1;    
-        }
+        that.bitmap.data[dstIdx+3] *= 1 - (this.bitmap.data[idx+3] / 255);
     });
     
     if (isNodePattern(cb)) return cb.call(this, null, this);

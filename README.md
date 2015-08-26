@@ -46,6 +46,7 @@ Once the callback has fired, the following methods can be called on the image:
     image.brightness( val ); // adjust the brighness by a value -1 to +1
     image.contrast( val ); // adjust the contrast by a value -1 to +1
     image.posterize( n ); // apply a posterization effect with n level
+    image.mask( src, x, y ); // masks the image with another Jimp image at x, y using the src alpha channel
 
 (Contributions of more methods are welcome!)
 
