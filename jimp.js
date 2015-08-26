@@ -364,6 +364,44 @@ Jimp.prototype.blit = function (src, x, y, cb) {
 };
 
 /**
+ * Masks a source image on to this image, black areas (R + G + B === 0) are made transparent
+ * @param src the source Jimp instance
+ * @param x the x position to blit the image
+ * @param y the y position to blit the image
+ * @param (optional) cb A callback for when complete
+ * @returns this for chaining of methods
+*/
+Jimp.prototype.mask = function (src, x, y, cb) {
+    if ("object" != typeof src || src.constructor != Jimp)
+        throwError.call(this, "The source must be a Jimp image", cb);
+    if ("number" != typeof x || "number" != typeof y)
+        throwError.call(this, "x and y must be numbers", cb);
+    
+    // round input
+    x = Math.round(x);
+    y = Math.round(y);
+
+    var that = this;
+    src.scan(0, 0, src.bitmap.width, src.bitmap.height, function(sx, sy, idx) {
+        var dstIdx = that.getPixelIndex(x+sx, y+sy);
+        if( 
+                this.bitmap.data[idx] +
+                this.bitmap.data[idx+1] +
+                this.bitmap.data[idx+2] === 0 
+            ) {
+            that.bitmap.data[dstIdx+3] = 1;    
+        }
+    });
+    
+    if (isNodePattern(cb)) return cb.call(this, null, this);
+    else return this;
+};
+
+
+
+
+
+/**
  * Composites a source image over to this image respecting alpha channels
  * @param src the source Jimp instance
  * @param x the x position to blit the image
