@@ -14,7 +14,8 @@ var operations = {
     "rotate": [90],
     "brightness": [0.75],
     "contrast": [0.75],
-    "posterize": [5]
+    "posterize": [5],
+    "dither64": []
 };
 
 for (var op in operations) process(op);

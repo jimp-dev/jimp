@@ -47,7 +47,7 @@ Once the callback has fired, the following methods can be called on the image:
     image.contrast( val ); // adjust the contrast by a value -1 to +1
     image.posterize( n ); // apply a posterization effect with n level
     image.mask( src, x, y ); // masks the image with another Jimp image at x, y using the src alpha channel
-    image.ordereddithering565(); //ordered dithering the image and reduce color space to RGB565
+    image.dither64(); // ordered dithering of the image and reduce color space to 64-bits (RGB565)
 
 (Contributions of more methods are welcome!)
 

@@ -61,5 +61,7 @@ var lenna = new Jimp("lenna.png", function (err) {
         lenna.clone().mask(mask, 0, 0).write("./output/lenna-mask.png");
     });
     
+    this.clone().dither64().write("./output/lenna-64-bit.png");
+    
 
 });

@@ -952,11 +952,11 @@ Jimp.prototype.getBuffer = function (mime, cb) {
 };
 
 /**
- * Apply a ordered dithering effect - and reduce colorspace to 656
+ * Apply a ordered dithering effect and reduce colorspace to 656
  * @param (optional) cb A callback for when complete
  * @returns this for chaining of methods
  */
-Jimp.prototype.ordereddithering565 = function (cb) {
+Jimp.prototype.dither64 = function (cb) {
     var rgb565_matrix = [
       0, 4, 1, 5, 0, 4, 1, 5,
       6, 2, 7, 3, 6, 2, 7, 3,
