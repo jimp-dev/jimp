@@ -15,7 +15,7 @@ var operations = {
     "brightness": [0.75],
     "contrast": [0.75],
     "posterize": [5],
-    "dither64": []
+    "dither565": []
 };
 
 for (var op in operations) process(op);

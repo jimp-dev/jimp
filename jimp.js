@@ -960,7 +960,7 @@ Jimp.prototype.getBuffer = function (mime, cb) {
  * @param (optional) cb A callback for when complete
  * @returns this for chaining of methods
  */
-Jimp.prototype.dither64 = function (cb) {
+Jimp.prototype.dither565 = function (cb) {
     var rgb565_matrix = [
       0, 4, 1, 5, 0, 4, 1, 5,
       6, 2, 7, 3, 6, 2, 7, 3,
@@ -983,6 +983,9 @@ Jimp.prototype.dither64 = function (cb) {
     if (isNodePattern(cb)) return cb.call(this, null, this);
     else return this;
 }
+
+// alternative reference
+Jimp.prototype.dither16 = Jimp.prototype.dither565;
 
 /**
  * Writes the image to a file
