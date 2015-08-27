@@ -936,7 +936,7 @@ Jimp.prototype.rotate = function (deg, cb) {
         return specialRoation_0_90_180_270.call(this, deg, cb);
     } else {
         var dstBuffer = new Buffer(this.bitmap.data.length);
-        var rad = deg * Math.PI / 180;
+        var rad = (deg % 360) * Math.PI / 180;
         var cosine = Math.cos(rad);
         var sine = Math.sin(rad);
         var translate2Cartesian = createTranslationFunction(-(this.bitmap.width / 2), -(this.bitmap.height / 2));
