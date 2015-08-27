@@ -177,7 +177,7 @@ function parseBitmap(data, mime, cb) {
                     data: new Buffer(data.data),
                     width: data.width,
                     height: data.height
-                }
+                };
                 return cb.call(that, null, that);
             });
             break;
@@ -212,12 +212,12 @@ Jimp.prototype._quality = 100;
  * @param cb (optional) A callback for when complete
  * @returns the new image
  */
-Jimp.prototype.clone = function(cb){
+Jimp.prototype.clone = function (cb) {
     var clone = new Jimp(this);
 
     if (isNodePattern(cb)) return cb.call(clone, null, clone);
     else return clone;
-}
+};
 
 /**
  * Sets the quality of the image when saving as JPEG format
@@ -355,7 +355,7 @@ Jimp.prototype.blit = function (src, x, y, cb) {
 
     var that = this;
     src.scan(0, 0, src.bitmap.width, src.bitmap.height, function(sx, sy, idx) {
-        var dstIdx = that.getPixelIndex(x+sx, y+sy)
+        var dstIdx = that.getPixelIndex(x + sx, y + sy);
         that.bitmap.data[dstIdx] = this.bitmap.data[idx];
         that.bitmap.data[dstIdx+1] = this.bitmap.data[idx+1];
         that.bitmap.data[dstIdx+2] = this.bitmap.data[idx+2];
@@ -419,7 +419,7 @@ Jimp.prototype.composite = function (src, x, y, cb) {
 
     var that = this;
     src.scan(0, 0, src.bitmap.width, src.bitmap.height, function(sx, sy, idx) {
-        var dstIdx = that.getPixelIndex(x+sx, y+sy)
+        var dstIdx = that.getPixelIndex(x + sx, y + sy);
 
         that.bitmap.data[dstIdx] = (this.bitmap.data[idx] * this.bitmap.data[idx+3] / 255) + (that.bitmap.data[dstIdx] * (1 - this.bitmap.data[idx+3] / 255))
         that.bitmap.data[dstIdx+1] = (this.bitmap.data[idx+1] * this.bitmap.data[idx+3] / 255) + (that.bitmap.data[dstIdx+1] * (1 - this.bitmap.data[idx+3] / 255))
@@ -518,7 +518,7 @@ Jimp.prototype.posterize = function (n, cb) {
 
     if (isNodePattern(cb)) return cb.call(this, null, this);
     else return this;
-}
+};
 
 /**
  * Inverts the image
@@ -766,7 +766,7 @@ Jimp.prototype.blur = function (r, cb) {
 
     if (isNodePattern(cb)) return cb.call(this, null, this);
     else return this;
-}
+};
 
 /**
  * Removes colour from the image
@@ -809,7 +809,7 @@ Jimp.prototype.sepia = function (cb) {
 
     if (isNodePattern(cb)) return cb.call(this, null, this);
     else return this;
-}
+};
 
 /**
  * Multiplies the opacity of each pixel by a factor between 0 and 1
@@ -985,7 +985,7 @@ Jimp.prototype.getBuffer = function (mime, cb) {
             png.height = this.bitmap.height;
             StreamToBuffer(png.pack(), function (err, buffer) {
                 return cb.call(that, null, buffer);
-            })
+            });
             break;
         case Jimp.MIME_JPEG:
             var jpeg = JPEG.encode(this.bitmap, this._quality);
