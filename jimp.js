@@ -943,14 +943,14 @@ Jimp.prototype.rotate = function (deg, cb) {
         var translate2Screen = createTranslationFunction(this.bitmap.width / 2, this.bitmap.height / 2);
         for (var y = 0; y < this.bitmap.height; y++) {
             for (var x = 0; x < this.bitmap.width; x++) {
-                var cartesian = translate2Cartesian(x, 512 - y);
+                var cartesian = translate2Cartesian(x, this.image.height - y);
                 var source = translate2Screen(
                     cosine * cartesian.x - sine * cartesian.y,
                     cosine * cartesian.y + sine * cartesian.x
                 );
                 if (source.x >= 0 && source.x < this.bitmap.width
                     && source.y >= 0 && source.y < this.bitmap.height) {
-                    var srcIdx = (this.bitmap.width * (512 - source.y | 0) + source.x | 0) << 2;
+                    var srcIdx = (this.bitmap.width * (this.image.height - source.y | 0) + source.x | 0) << 2;
                     var pixelRGBA = this.bitmap.data.readUInt32BE(srcIdx, true);
                     var dstIdx = (this.bitmap.width * y + x) << 2;
                     dstBuffer.writeUInt32BE(pixelRGBA, dstIdx);
