@@ -245,7 +245,7 @@ Jimp.prototype.quality = function (n, cb) {
 Jimp.prototype.pngFormat = function (n, cb) {
     if ("number" != typeof n)
         throwError.call(this, "n must be a number", cb);
-    if (n !== 2 || n !== 6)
+    if (!(n === 2 || n === 6))
         throwError.call(this, "n must be a number 2 (RGB) or 6 (RGBA)", cb);
 
     this._pngFormat = Math.round(n);
