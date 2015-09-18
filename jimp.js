@@ -949,13 +949,12 @@ Jimp.prototype.getBuffer = function (mime, cb) {
     switch (mime.toLowerCase()) {
         case Jimp.MIME_PNG:
             var that = this;
-            var imageHasAlphaChannel = this.bitmap.data.length === this.bitmap.width * this.bitmap.height * 4;
             var png = new PNG({
               width: this.bitmap.width,
               height:this.bitmap.height,
               bitDepth: 8,
               colorType: this._pngFormat,
-              inputHasAlpha: imageHasAlphaChannel
+              inputHasAlpha: true
             });
             png.data = new Buffer(this.bitmap.data);
             StreamToBuffer(png.pack(), function (err, buffer) {
