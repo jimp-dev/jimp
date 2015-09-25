@@ -53,6 +53,8 @@ image.contrast( val ); // adjust the contrast by a value -1 to +1
 image.posterize( n ); // apply a posterization effect with n level
 image.mask( src, x, y ); // masks the image with another Jimp image at x, y using average pixel value
 image.dither565(); // ordered dithering of the image and reduce color space to 16-bits (RGB565)
+image.cover( w, h ); // scale the image so that it fills the given width and height
+image.contain( w, h ); // scale the image to the largest size so that fits inside the given width and height
 ```
 
 (Contributions of more methods are welcome!)
@@ -66,13 +68,13 @@ image.write( path, cb ); // Node-style callback will be fired when write is succ
 The quality of saved JPEGs can be set with:
 
 ```js
-image.setQuality( n ); // set the quality of saved JPEG, 0 - 100
+image.quality( n ); // set the quality of saved JPEG, 0 - 100
 ```
 
 The format of saved PNGs can be set with:
 
 ```js
-image.setAlpha( b ); // set whether PNGs are saved as RGBA (true, default) or RGB (false)
+image.rgba( b ); // set whether PNGs are saved as RGBA (true, default) or RGB (false)
 ```
 
 ## Cloning images ##

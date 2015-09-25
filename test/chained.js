@@ -6,7 +6,7 @@ var lenna = new Jimp("lenna.png", function (err) {
     
     this.write("./output/lenna-copy.png") // PNG copy
         .write("./output/lenna-copy.jpg") // JPEG copy
-        .setQuality(10).write("./output/lenna-copy-low.jpg").setQuality(100) // JPEG copy at 10 quality
+        .quality(10).write("./output/lenna-copy-low.jpg").quality(100) // JPEG copy at 10 quality
         .invert().write("./output/lenna-invert.png").invert() // invert
         .rotate(90).write("./output/lenna-rotate.png").rotate(-90) // rotate
         .flip(true, false).write("./output/lenna-flip-horizontal.png").flip(true, false) // flip horizontal
@@ -54,8 +54,8 @@ var lenna = new Jimp("lenna.png", function (err) {
     var dice = new Jimp("dice.png", function (err) {
         // compositing (destructive)
         lenna.clone().composite(dice.clone().scale(0.5), lenna.bitmap.width / 2 - dice.bitmap.width / 2, lenna.bitmap.height / 2 - dice.bitmap.height / 2).write("./output/lenna-composite.png");
-        dice.clone().setAlpha(false).write("./output/dice-noalpha.png");
-        dice.clone().setAlpha(true).write("./output/dice-alpha.png");
+        dice.clone().rgba(false).write("./output/dice-noalpha.png");
+        dice.clone().rgba(true).write("./output/dice-alpha.png");
     });
     
     // masking (destructive)
@@ -64,6 +64,17 @@ var lenna = new Jimp("lenna.png", function (err) {
     });
     
     this.clone().dither565().write("./output/lenna-565-bit.png");
-    
+
+    this.clone().cover(250, 125).write("./output/lenna-cover-250x125.png");
+    this.clone().cover(125, 250).write("./output/lenna-cover-125x250.png");
+    this.clone().cover(750, 500).write("./output/lenna-cover-750x500.png");
+    this.clone().cover(500, 750).write("./output/lenna-cover-500x750.png");
+    this.clone().cover(750, 750).write("./output/lenna-cover-750x750.png");
+
+    this.clone().contain(250, 125).write("./output/lenna-contain-250x125.png");
+    this.clone().contain(125, 250).write("./output/lenna-contain-125x250.png");
+    this.clone().contain(750, 500).write("./output/lenna-contain-750x500.png");
+    this.clone().contain(500, 750).write("./output/lenna-contain-500x750.png");
+    this.clone().contain(750, 750).write("./output/lenna-contain-750x750.png");
 
 });

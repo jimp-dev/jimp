@@ -125,7 +125,7 @@ function Jimp() {
         };
 
         this._quality = original._quality;
-        this._alpha = original._alpha;
+        this._rgba = original._rgba;
 
         cb.call(this, null, this);
     } else if ("string" == typeof arguments[0]) {
@@ -210,7 +210,7 @@ Jimp.prototype.bitmap = {
 Jimp.prototype._quality = 100;
 
 // Whether PNGs will be exported as RGB or RGBA
-Jimp.prototype._alpha = true;
+Jimp.prototype._rgba = true;
 
 /**
  * Creates a new image that is a clone of this one.
@@ -230,7 +230,7 @@ Jimp.prototype.clone = function(cb){
  * @param (optional) cb A callback for when complete
  * @returns this for chaining of methods
  */
-Jimp.prototype.quality = Jimp.prototype.setQuality = function (n, cb) {
+Jimp.prototype.quality = function (n, cb) {
     if ("number" != typeof n)
         throwError.call(this, "n must be a number", cb);
     if (n < 0 || n > 100)
@@ -242,11 +242,11 @@ Jimp.prototype.quality = Jimp.prototype.setQuality = function (n, cb) {
     else return this;
 };
 
-Jimp.prototype.setAlpha = function (b, cb) {
+Jimp.prototype.rgba = function (b, cb) {
     if ("boolean" != typeof b)
         throwError.call(this, "b must be a boolean, true for RGBA or false for RGB", cb);
 
-    this._alpha = b;
+    this._rgba = b;
 
     if (isNodePattern(cb)) return cb.call(this, null, this);
     else return this;
@@ -410,10 +410,6 @@ Jimp.prototype.mask = function (src, x, y, cb) {
     else return this;
 };
 
-
-
-
-
 /**
  * Composites a source image over to this image respecting alpha channels
  * @param src the source Jimp instance
@@ -446,7 +442,6 @@ Jimp.prototype.composite = function (src, x, y, cb) {
     if (isNodePattern(cb)) return cb.call(this, null, this);
     else return this;
 };
-
 
 /**
  * Adjusts the brightness of the image
@@ -875,6 +870,54 @@ Jimp.prototype.resize = function (w, h, cb) {
 };
 
 /**
+ * Scale the image so that it fills the given width and height. Some parts of the image may be clipped.
+ * @param w the width to resize the image to
+ * @param h the height to resize the image to
+ * @param (optional) cb A callback for when complete
+ * @returns this for chaining of methods
+ */
+Jimp.prototype.cover = function (w, h, cb) {
+    if ("number" != typeof w || "number" != typeof h)
+        throwError.call(this, "w and h must be numbers", cb);
+
+    var f = (w/h > this.bitmap.width/this.bitmap.height) ?
+        w/this.bitmap.width : h/this.bitmap.height;
+    this.scale(f);
+    this.crop(this.bitmap.width / 2 - w / 2, this.bitmap.height / 2 - h / 2, w, h);
+    
+    if (isNodePattern(cb)) return cb.call(this, null, this);
+    else return this;
+};
+
+/**
+ * Scale the image to the largest size so that its width and height fits inside the given width and height.
+ * @param w the width to resize the image to
+ * @param h the height to resize the image to
+ * @param (optional) cb A callback for when complete
+ * @returns this for chaining of methods
+ */
+Jimp.prototype.contain = function (w, h, cb) {
+    if ("number" != typeof w || "number" != typeof h)
+        throwError.call(this, "w and h must be numbers", cb);
+
+    var f = (w/h > this.bitmap.width/this.bitmap.height) ?
+        h/this.bitmap.height : w/this.bitmap.width;
+    var c = this.clone().scale(f);
+    
+    this.resize(w, h);
+    this.scan(0, 0, this.bitmap.width, this.bitmap.height, function (x, y, idx) {
+        this.bitmap.data[idx  ] = 0x00;
+        this.bitmap.data[idx+1] = 0x00;
+        this.bitmap.data[idx+2] = 0x00;
+        this.bitmap.data[idx+3] = 0x00;
+    });
+    this.blit(c, this.bitmap.width / 2 - c.bitmap.width / 2, this.bitmap.height / 2 - c.bitmap.height / 2);
+    
+    if (isNodePattern(cb)) return cb.call(this, null, this);
+    else return this;
+};
+
+/**
  * Uniformly scales the image by a factor.
  * @param f the factor to scale the image by
  * @param (optional) cb A callback for when complete
@@ -951,7 +994,7 @@ Jimp.prototype.getBuffer = function (mime, cb) {
               width: this.bitmap.width,
               height:this.bitmap.height,
               bitDepth: 8,
-              colorType: (this._alpha) ? 6 : 2,
+              colorType: (this._rgba) ? 6 : 2,
               inputHasAlpha: true
             });
             png.data = new Buffer(this.bitmap.data);
