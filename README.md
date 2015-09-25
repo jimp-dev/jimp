@@ -69,6 +69,12 @@ The quality of saved JPEGs can be set with:
 image.quality( n ); // set the quality of saved JPEG, 0 - 100
 ```
 
+The format of saved PNGs can be set with:
+
+```js
+image.pngFormat( pngColorType ); // set the format of saved PNG, 2: RGB or 6: RGBA (default)
+```
+
 ## Cloning images ##
 
 To clone a Jimp image, you can use:
@@ -126,7 +132,7 @@ A helper method is available to scan a region of the bitmap:
 ```js
 image.scan(x, y, w, h, cb); // scan a given region of the bitmap and call cb on every pixel
 ```
-    
+
 Example usage:
 
 ```js
@@ -134,12 +140,12 @@ image.scan(0, 0, image.bitmap.width, image.bitmap.height, function (x, y, idx) {
     // x, y is the position of this pixel on the image
     // idx is the position start position of this rgba tuple in the bitmap Buffer
     // this is the image
-    
+
     var red = this.bitmap.data[idx];
     var green = this.bitmap.data[idx+1];
     var blue = this.bitmap.data[idx+2];
     var alpha = this.bitmap.data[idx+3];
-    
+
     // rgba values run from 0 - 255
     // e.g. this.bitmap.data[idx] = 0; // removes red from this pixel
 });
