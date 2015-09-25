@@ -6,7 +6,7 @@ var lenna = new Jimp("lenna.png", function (err) {
     
     this.write("./output/lenna-copy.png") // PNG copy
         .write("./output/lenna-copy.jpg") // JPEG copy
-        .quality(10).write("./output/lenna-copy-low.jpg").quality(100) // JPEG copy at 10 quality
+        .setQuality(10).write("./output/lenna-copy-low.jpg").setQuality(100) // JPEG copy at 10 quality
         .invert().write("./output/lenna-invert.png").invert() // invert
         .rotate(90).write("./output/lenna-rotate.png").rotate(-90) // rotate
         .flip(true, false).write("./output/lenna-flip-horizontal.png").flip(true, false) // flip horizontal
@@ -51,9 +51,11 @@ var lenna = new Jimp("lenna.png", function (err) {
     // scale and blit (destructive)
     this.clone().blit(this.clone().scale(0.5).write("./output/lenna-scale.png"), this.bitmap.width / 4, this.bitmap.height / 4).write("./output/lenna-blit.png");
 
-    // compositing (destructive)
     var dice = new Jimp("dice.png", function (err) {
-        lenna.clone().composite(dice.scale(0.5), lenna.bitmap.width / 2 - dice.bitmap.width / 2, lenna.bitmap.height / 2 - dice.bitmap.height / 2).write("./output/lenna-composite.png");
+        // compositing (destructive)
+        lenna.clone().composite(dice.clone().scale(0.5), lenna.bitmap.width / 2 - dice.bitmap.width / 2, lenna.bitmap.height / 2 - dice.bitmap.height / 2).write("./output/lenna-composite.png");
+        dice.clone().setAlpha(false).write("./output/dice-noalpha.png");
+        dice.clone().setAlpha(true).write("./output/dice-alpha.png");
     });
     
     // masking (destructive)

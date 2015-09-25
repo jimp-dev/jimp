@@ -125,7 +125,7 @@ function Jimp() {
         };
 
         this._quality = original._quality;
-        this._pngFormat = original._pngFormat;
+        this._alpha = original._alpha;
 
         cb.call(this, null, this);
     } else if ("string" == typeof arguments[0]) {
@@ -209,8 +209,8 @@ Jimp.prototype.bitmap = {
 // The quality to be used when saving JPEG images
 Jimp.prototype._quality = 100;
 
-// The PNG format to export
-Jimp.prototype._pngFormat = 6;
+// Whether PNGs will be exported as RGB or RGBA
+Jimp.prototype._alpha = true;
 
 /**
  * Creates a new image that is a clone of this one.
@@ -230,7 +230,7 @@ Jimp.prototype.clone = function(cb){
  * @param (optional) cb A callback for when complete
  * @returns this for chaining of methods
  */
-Jimp.prototype.quality = function (n, cb) {
+Jimp.prototype.quality = Jimp.prototype.setQuality = function (n, cb) {
     if ("number" != typeof n)
         throwError.call(this, "n must be a number", cb);
     if (n < 0 || n > 100)
@@ -242,13 +242,11 @@ Jimp.prototype.quality = function (n, cb) {
     else return this;
 };
 
-Jimp.prototype.pngFormat = function (n, cb) {
-    if ("number" != typeof n)
-        throwError.call(this, "n must be a number", cb);
-    if (!(n === 2 || n === 6))
-        throwError.call(this, "n must be a number 2 (RGB) or 6 (RGBA)", cb);
+Jimp.prototype.setAlpha = function (b, cb) {
+    if ("boolean" != typeof b)
+        throwError.call(this, "b must be a boolean, true for RGBA or false for RGB", cb);
 
-    this._pngFormat = Math.round(n);
+    this._alpha = b;
 
     if (isNodePattern(cb)) return cb.call(this, null, this);
     else return this;
@@ -953,7 +951,7 @@ Jimp.prototype.getBuffer = function (mime, cb) {
               width: this.bitmap.width,
               height:this.bitmap.height,
               bitDepth: 8,
-              colorType: this._pngFormat,
+              colorType: (this._alpha) ? 6 : 2,
               inputHasAlpha: true
             });
             png.data = new Buffer(this.bitmap.data);

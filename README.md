@@ -13,7 +13,7 @@ var Jimp = require("jimp");
 var lenna = new Jimp("lenna.png", function (err, image) {
     this.resize(512, 512) // resize
         .write("lenna-small.png") // save
-        .quality(60) // set JPEG quality
+        .setQuality(60) // set JPEG quality
         .write("lenna-small.jpg") // save as JPEG
         .greyscale() // set greyscale
         .write("lena-small-bw.png") // save again
@@ -66,13 +66,13 @@ image.write( path, cb ); // Node-style callback will be fired when write is succ
 The quality of saved JPEGs can be set with:
 
 ```js
-image.quality( n ); // set the quality of saved JPEG, 0 - 100
+image.setQuality( n ); // set the quality of saved JPEG, 0 - 100
 ```
 
 The format of saved PNGs can be set with:
 
 ```js
-image.pngFormat( pngColorType ); // set the format of saved PNG, 2: RGB or 6: RGBA (default)
+image.setAlpha( b ); // set whether PNGs are saved as RGBA (true, default) or RGB (false)
 ```
 
 ## Cloning images ##
