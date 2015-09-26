@@ -217,7 +217,7 @@ Jimp.prototype._rgba = true;
  * @param cb (optional) A callback for when complete
  * @returns the new image
  */
-Jimp.prototype.clone = function(cb){
+Jimp.prototype.clone = function (cb) {
     var clone = new Jimp(this);
 
     if (isNodePattern(cb)) return cb.call(clone, null, clone);
@@ -225,7 +225,7 @@ Jimp.prototype.clone = function(cb){
 };
 
 /**
- * Sets the quality of the image when saving as JPEG format
+ * Sets the quality of the image when saving as JPEG format (default is 100)
  * @param n The quality to use 0-100
  * @param (optional) cb A callback for when complete
  * @returns this for chaining of methods
@@ -242,6 +242,12 @@ Jimp.prototype.quality = function (n, cb) {
     else return this;
 };
 
+/**
+ * Sets the type of the image (RGB or RGBA) when saving as PNG format (default is RGBA)
+ * @param b A Boolean, true to use RGBA or false to use RGB
+ * @param (optional) cb A callback for when complete
+ * @returns this for chaining of methods
+ */
 Jimp.prototype.rgba = function (b, cb) {
     if ("boolean" != typeof b)
         throwError.call(this, "b must be a boolean, true for RGBA or false for RGB", cb);
@@ -943,33 +949,80 @@ Jimp.prototype.scale = function (f, cb) {
  * @param (optional) cb A callback for when complete
  * @returns this for chaining of methods
  */
-Jimp.prototype.rotate = function (deg, cb) {
+Jimp.prototype.rotate = function(deg, cb) {
     if ("number" != typeof deg)
         throwError.call(this, "deg must be a number", cb);
 
     var i = Math.round(deg / 90) % 4;
     if (i < 0) i += 4;
 
-    while ( i > 0 ) {
+    while (i > 0) {
         // https://github.com/ekulabuhov/jimp/commit/9a0c7cff88292d88c32a424b11256c76f1e20e46
-        var bitmap = new Buffer(this.bitmap.data.length);
-        var offset = 0;
+        var dstBuffer = new Buffer(this.bitmap.data.length);
+        var dstOffset = 0;
         for (var x = 0; x < this.bitmap.width; x++) {
             for (var y = this.bitmap.height - 1; y >= 0; y--) {
-                var idx = (this.bitmap.width * y + x) << 2;
-                var data = this.bitmap.data.readUInt32BE(idx, true);
-                bitmap.writeUInt32BE(data, offset, true);
-                offset += 4;
+                var srcOffset = (this.bitmap.width * y + x) << 2;
+                var data = this.bitmap.data.readUInt32BE(srcOffset, true);
+                dstBuffer.writeUInt32BE(data, dstOffset, true);
+                dstOffset += 4;
             }
         }
 
-        this.bitmap.data = new Buffer(bitmap);
+        this.bitmap.data = new Buffer(dstBuffer);
         var tmp = this.bitmap.width;
         this.bitmap.width = this.bitmap.height;
         this.bitmap.height = tmp;
 
         i--;
     }
+
+    if (isNodePattern(cb)) return cb.call(this, null, this);
+    else return this;
+}
+
+function createTranslationFunction(deltaX, deltaY) {
+    return function(x, y) {
+        return {
+            x : (x + deltaX),
+            y : (y + deltaY)
+        };
+    }
+}
+
+/**
+ * Rotates the image clockwise by a number of degrees
+ * @param deg the number of degress to rotate the image by
+ * @param (optional) cb A callback for when complete
+ * @returns this for chaining of methods
+ */
+Jimp.prototype.rotate2 = function (deg, cb) {
+    if ("number" != typeof deg)
+        throwError.call(this, "deg must be a number", cb);
+
+    var dstBuffer = new Buffer(this.bitmap.data.length);
+    var rad = (deg % 360) * Math.PI / 180;
+    var cosine = Math.cos(rad);
+    var sine = Math.sin(rad);
+    var translate2Cartesian = createTranslationFunction(-(this.bitmap.width / 2), -(this.bitmap.height / 2));
+    var translate2Screen = createTranslationFunction(this.bitmap.width / 2, this.bitmap.height / 2);
+    for (var y = 0; y < this.bitmap.height; y++) {
+        for (var x = 0; x < this.bitmap.width; x++) {
+            var cartesian = translate2Cartesian(x, this.bitmap.height - y);
+            var source = translate2Screen(
+                cosine * cartesian.x - sine * cartesian.y,
+                cosine * cartesian.y + sine * cartesian.x
+            );
+            if (source.x >= 0 && source.x < this.bitmap.width
+                && source.y >= 0 && source.y < this.bitmap.height) {
+                var srcIdx = (this.bitmap.width * (this.bitmap.height - source.y | 0) + source.x | 0) << 2;
+                var pixelRGBA = this.bitmap.data.readUInt32BE(srcIdx, true);
+                var dstIdx = (this.bitmap.width * y + x) << 2;
+                dstBuffer.writeUInt32BE(pixelRGBA, dstIdx);
+            }
+        }
+    }
+    this.bitmap.data = dstBuffer;
 
     if (isNodePattern(cb)) return cb.call(this, null, this);
     else return this;

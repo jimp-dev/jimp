@@ -1,2 +1,6 @@
 node_modules
 .project
+.idea
+*.iml
+/test/output/*.png
+/test/output/*.jpg
