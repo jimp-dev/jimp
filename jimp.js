@@ -993,13 +993,13 @@ function advancedRotate(deg, resize) {
         var h = Math.round(Math.abs(this.bitmap.width * cosine) + Math.abs(this.bitmap.height * sine));
 
         var c = this.clone();
-        this.resize(w, h);
         this.scan(0, 0, this.bitmap.width, this.bitmap.height, function (x, y, idx) {
             this.bitmap.data[idx  ] = 0x00;
             this.bitmap.data[idx+1] = 0x00;
             this.bitmap.data[idx+2] = 0x00;
             this.bitmap.data[idx+3] = 0x00;
         });
+        this.resize(w, h);
         this.blit(c, this.bitmap.width / 2 - c.bitmap.width / 2, this.bitmap.height / 2 - c.bitmap.height / 2);
     }
 
@@ -1030,6 +1030,13 @@ function advancedRotate(deg, resize) {
                 var pixelRGBA = this.bitmap.data.readUInt32BE(srcIdx, true);
                 var dstIdx = (this.bitmap.width * y + x) << 2;
                 dstBuffer.writeUInt32BE(pixelRGBA, dstIdx);
+            } else {
+                // reset off-image pixels
+                var idx = (this.bitmap.width * y + x) << 2;
+                dstBuffer[idx  ] = 0x00;
+                dstBuffer[idx+1] = 0x00;
+                dstBuffer[idx+2] = 0x00;
+                dstBuffer[idx+3] = 0x00;
             }
         }
     }
