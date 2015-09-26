@@ -227,7 +227,7 @@ Jimp.prototype.clone = function (cb) {
 /**
  * Sets the quality of the image when saving as JPEG format (default is 100)
  * @param n The quality to use 0-100
- * @param (optional) cb A callback for when complete
+ * @param (optional) cb a callback for when complete
  * @returns this for chaining of methods
  */
 Jimp.prototype.quality = function (n, cb) {
@@ -245,7 +245,7 @@ Jimp.prototype.quality = function (n, cb) {
 /**
  * Sets the type of the image (RGB or RGBA) when saving as PNG format (default is RGBA)
  * @param b A Boolean, true to use RGBA or false to use RGB
- * @param (optional) cb A callback for when complete
+ * @param (optional) cb a callback for when complete
  * @returns this for chaining of methods
  */
 Jimp.prototype.rgba = function (b, cb) {
@@ -266,7 +266,7 @@ Jimp.prototype.rgba = function (b, cb) {
  * @param h the height of the scan region
  * @param f a function to call on even pixel; the (x, y) position of the pixel
  * and the index of the pixel in the bitmap buffer are passed to the function
- * @param (optional) cb A callback for when complete
+ * @param (optional) cb a callback for when complete
  * @returns this for chaining of methods
  */
 Jimp.prototype.scan = function (x, y, w, h, f, cb) {
@@ -298,7 +298,7 @@ Jimp.prototype.scan = function (x, y, w, h, f, cb) {
  * Returns the pixel index in the bitmap
  * @param x the x coordinate
  * @param y the y coordinate
- * @param (optional) cb A callback for when complete
+ * @param (optional) cb a callback for when complete
  * @returns the index of the pixel or -1 if not found
 */
 Jimp.prototype.getPixelIndex = function (x, y, cb) {
@@ -325,7 +325,7 @@ Jimp.prototype.getPixelIndex = function (x, y, cb) {
  * @param y the y coordiante to crop form
  * @param w the width of the crop region
  * @param h the height of the crop region
- * @param (optional) cb A callback for when complete
+ * @param (optional) cb a callback for when complete
  * @returns this for chaining of methods
  */
 Jimp.prototype.crop = function (x, y, w, h, cb) {
@@ -361,7 +361,7 @@ Jimp.prototype.crop = function (x, y, w, h, cb) {
  * @param src the source Jimp instance
  * @param x the x position to blit the image
  * @param y the y position to blit the image
- * @param (optional) cb A callback for when complete
+ * @param (optional) cb a callback for when complete
  * @returns this for chaining of methods
 */
 Jimp.prototype.blit = function (src, x, y, cb) {
@@ -392,7 +392,7 @@ Jimp.prototype.blit = function (src, x, y, cb) {
  * @param src the source Jimp instance
  * @param x the x position to blit the image
  * @param y the y position to blit the image
- * @param (optional) cb A callback for when complete
+ * @param (optional) cb a callback for when complete
  * @returns this for chaining of methods
 */
 Jimp.prototype.mask = function (src, x, y, cb) {
@@ -421,7 +421,7 @@ Jimp.prototype.mask = function (src, x, y, cb) {
  * @param src the source Jimp instance
  * @param x the x position to blit the image
  * @param y the y position to blit the image
- * @param (optional) cb A callback for when complete
+ * @param (optional) cb a callback for when complete
  * @returns this for chaining of methods
 */
 Jimp.prototype.composite = function (src, x, y, cb) {
@@ -452,7 +452,7 @@ Jimp.prototype.composite = function (src, x, y, cb) {
 /**
  * Adjusts the brightness of the image
  * val the amount to adjust the brightness, a number between -1 and +1
- * @param (optional) cb A callback for when complete
+ * @param (optional) cb a callback for when complete
  * @returns this for chaining of methods
  */
 Jimp.prototype.brightness = function (val, cb) {
@@ -480,7 +480,7 @@ Jimp.prototype.brightness = function (val, cb) {
 /**
  * Adjusts the contrast of the image
  * val the amount to adjust the contrast, a number between -1 and +1
- * @param (optional) cb A callback for when complete
+ * @param (optional) cb a callback for when complete
  * @returns this for chaining of methods
  */
 Jimp.prototype.contrast = function (val, cb) {
@@ -517,7 +517,7 @@ Jimp.prototype.contrast = function (val, cb) {
 /**
  * Apply a posterize effect
  * val the amount to adjust the contrast, minimum threshold is two
- * @param (optional) cb A callback for when complete
+ * @param (optional) cb a callback for when complete
  * @returns this for chaining of methods
  */
 Jimp.prototype.posterize = function (n, cb) {
@@ -538,7 +538,7 @@ Jimp.prototype.posterize = function (n, cb) {
 
 /**
  * Inverts the image
- * @param (optional) cb A callback for when complete
+ * @param (optional) cb a callback for when complete
  * @returns this for chaining of methods
  */
 Jimp.prototype.invert = function (cb) {
@@ -556,7 +556,7 @@ Jimp.prototype.invert = function (cb) {
  * Flip the image horizontally
  * @param horizontal a Boolean, if true the image will be flipped horizontally
  * @param vertical a Boolean, if true the image will be flipped vertically
- * @param (optional) cb A callback for when complete
+ * @param (optional) cb a callback for when complete
  * @returns this for chaining of methods
  */
 Jimp.prototype.flip = function (horizontal, vertical, cb) {
@@ -582,7 +582,7 @@ Jimp.prototype.flip = function (horizontal, vertical, cb) {
 /**
  * Applies a true Gaussian blur to the image (warning: this is VERY slow)
  * @param r the pixel radius of the blur
- * @param (optional) cb A callback for when complete
+ * @param (optional) cb a callback for when complete
  * @returns this for chaining of methods
  */
 Jimp.prototype.gaussian = function (r, cb) {
@@ -665,7 +665,7 @@ var shg_table = [0,9,10,10,14,12,14,14,16,15,16,15,16,15,15,17,18,17,12,18,16,17
 /**
  * A fast blur algorithm that produces similar effect to a Gausian blur - but MUCH quicker
  * @param r the pixel radius of the blur
- * @param (optional) cb A callback for when complete
+ * @param (optional) cb a callback for when complete
  * @returns this for chaining of methods
  */
 Jimp.prototype.blur = function (r, cb) {
@@ -786,7 +786,7 @@ Jimp.prototype.blur = function (r, cb) {
 
 /**
  * Removes colour from the image
- * @param (optional) cb A callback for when complete
+ * @param (optional) cb a callback for when complete
  * @returns this for chaining of methods
  */
 Jimp.prototype.greyscale = function (cb) {
@@ -806,7 +806,7 @@ Jimp.prototype.grayscale = Jimp.prototype.greyscale;
 
 /**
  * Applies a sepia tone to the image
- * @param (optional) cb A callback for when complete
+ * @param (optional) cb a callback for when complete
  * @returns this for chaining of methods
  */
 Jimp.prototype.sepia = function (cb) {
@@ -830,7 +830,7 @@ Jimp.prototype.sepia = function (cb) {
 /**
  * Multiplies the opacity of each pixel by a factor between 0 and 1
  * @param f A number, the factor by wich to multiply the opacity of each pixel
- * @param (optional) cb A callback for when complete
+ * @param (optional) cb a callback for when complete
  * @returns this for chaining of methods
  */
 Jimp.prototype.opacity = function (f, cb) {
@@ -852,7 +852,7 @@ Jimp.prototype.opacity = function (f, cb) {
  * Resizes the image to a set width and height using a 2-pass bilinear algorithm
  * @param w the width to resize the image to
  * @param h the height to resize the image to
- * @param (optional) cb A callback for when complete
+ * @param (optional) cb a callback for when complete
  * @returns this for chaining of methods
  */
 Jimp.prototype.resize = function (w, h, cb) {
@@ -879,7 +879,7 @@ Jimp.prototype.resize = function (w, h, cb) {
  * Scale the image so that it fills the given width and height. Some parts of the image may be clipped.
  * @param w the width to resize the image to
  * @param h the height to resize the image to
- * @param (optional) cb A callback for when complete
+ * @param (optional) cb a callback for when complete
  * @returns this for chaining of methods
  */
 Jimp.prototype.cover = function (w, h, cb) {
@@ -899,7 +899,7 @@ Jimp.prototype.cover = function (w, h, cb) {
  * Scale the image to the largest size so that its width and height fits inside the given width and height.
  * @param w the width to resize the image to
  * @param h the height to resize the image to
- * @param (optional) cb A callback for when complete
+ * @param (optional) cb a callback for when complete
  * @returns this for chaining of methods
  */
 Jimp.prototype.contain = function (w, h, cb) {
@@ -926,7 +926,7 @@ Jimp.prototype.contain = function (w, h, cb) {
 /**
  * Uniformly scales the image by a factor.
  * @param f the factor to scale the image by
- * @param (optional) cb A callback for when complete
+ * @param (optional) cb a callback for when complete
  * @returns this for chaining of methods
  */
 Jimp.prototype.scale = function (f, cb) {
@@ -946,10 +946,9 @@ Jimp.prototype.scale = function (f, cb) {
 /**
  * Rotates an image clockwise by a number of degrees rounded to the nearest 90 degrees. NB: 'this' must be a Jimp object.
  * @param deg the number of degress to rotate the image by
- * @param (optional) cb A callback for when complete
- * @returns this for chaining of methods
+ * @returns nothing
  */
-function simpleRotate(deg, cb) {
+function simpleRotate(deg) {
     var i = Math.round(deg / 90) % 4;
     while (i < 0) i += 4;
 
@@ -979,29 +978,30 @@ function simpleRotate(deg, cb) {
 /**
  * Rotates an image clockwise by an arbitary number of degrees. NB: 'this' must be a Jimp object.
  * @param deg the number of degress to rotate the image by
- * @param (optional) cb A callback for when complete
- * @returns this for chaining of methods
+ * @returns nothing
  */
-function advancedRotate(deg, cb) {
+function advancedRotate(deg, resize) {
     var rad = (deg % 360) * Math.PI / 180;
     var cosine = Math.cos(rad);
     var sine = Math.sin(rad);
-    
-    // resize the image and blit the existing image onto the centre so that when it is rotated the image is kept in bounds
 
-    // http://stackoverflow.com/questions/3231176/how-to-get-size-of-a-rotated-rectangle
-    var w = Math.round(Math.abs(this.bitmap.width * sine) + Math.abs(this.bitmap.height * cosine));
-    var h = Math.round(Math.abs(this.bitmap.width * cosine) + Math.abs(this.bitmap.height * sine));
+    if (resize == true) {
+        // resize the image and blit the existing image onto the centre so that when it is rotated the image is kept in bounds
 
-    var c = this.clone();
-    this.resize(w, h);
-    this.scan(0, 0, this.bitmap.width, this.bitmap.height, function (x, y, idx) {
-        this.bitmap.data[idx  ] = 0x00;
-        this.bitmap.data[idx+1] = 0x00;
-        this.bitmap.data[idx+2] = 0x00;
-        this.bitmap.data[idx+3] = 0x00;
-    });
-    this.blit(c, this.bitmap.width / 2 - c.bitmap.width / 2, this.bitmap.height / 2 - c.bitmap.height / 2);
+        // http://stackoverflow.com/questions/3231176/how-to-get-size-of-a-rotated-rectangle
+        var w = Math.round(Math.abs(this.bitmap.width * sine) + Math.abs(this.bitmap.height * cosine));
+        var h = Math.round(Math.abs(this.bitmap.width * cosine) + Math.abs(this.bitmap.height * sine));
+
+        var c = this.clone();
+        this.resize(w, h);
+        this.scan(0, 0, this.bitmap.width, this.bitmap.height, function (x, y, idx) {
+            this.bitmap.data[idx  ] = 0x00;
+            this.bitmap.data[idx+1] = 0x00;
+            this.bitmap.data[idx+2] = 0x00;
+            this.bitmap.data[idx+3] = 0x00;
+        });
+        this.blit(c, this.bitmap.width / 2 - c.bitmap.width / 2, this.bitmap.height / 2 - c.bitmap.height / 2);
+    }
 
     var dstBuffer = new Buffer(this.bitmap.data.length);
     
@@ -1038,17 +1038,34 @@ function advancedRotate(deg, cb) {
 
 
 /**
- * Rotates the image clockwise by a number of degrees. The width and height of the image change correspondingly.
+ * Rotates the image clockwise by a number of degrees. By default the width and height of the image will be resized appropriately.
  * @param deg the number of degress to rotate the image by
- * @param (optional) cb A callback for when complete
+ * @param (optional) resize a boolean, if false then the width and height of the image will not be changed
+ * @param (optional) cb a callback for when complete
  * @returns this for chaining of methods
  */
-Jimp.prototype.rotate = function (deg, cb) {
+Jimp.prototype.rotate = function (deg, resize, cb) {
+    // enable overloading
+    if ("undefined" == typeof resize || resize === null) {
+        // e.g. image.resize(120);
+        // e.g. image.resize(120, null, cb);
+        // e.g. image.resize(120, undefined, cb);
+        resize = true;
+    }
+    if ("function" == typeof resize && "undefined" == typeof cb) {
+        // e.g. image.resize(120, cb);
+        cb = resize;
+        resize = true;
+    }
+    
     if ("number" != typeof deg)
         throwError.call(this, "deg must be a number", cb);
+    
+    if ("boolean" != typeof resize)
+        throwError.call(this, "resize must be a boolean", cb);
 
-    if (deg % 90 == 0) simpleRotate.call(this, deg, cb);
-    else advancedRotate.call(this, deg, cb);
+    if (deg % 90 == 0 && resize !== false) simpleRotate.call(this, deg, cb);
+    else advancedRotate.call(this, deg, resize, cb);
     
     if (isNodePattern(cb)) return cb.call(this, null, this);
     else return this;
@@ -1099,7 +1116,7 @@ Jimp.prototype.getBuffer = function (mime, cb) {
 
 /**
  * Apply a ordered dithering effect and reduce colorspace to 656
- * @param (optional) cb A callback for when complete
+ * @param (optional) cb a callback for when complete
  * @returns this for chaining of methods
  */
 Jimp.prototype.dither565 = function (cb) {

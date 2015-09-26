@@ -45,7 +45,7 @@ image.sepia(); // apply a sepia wash to the image
 image.opacity( f ); // multiply the alpha channel by each pixel by the factor f, 0 - 1
 image.resize( w, h ); // resize the image
 image.scale( f ); // scale the image by the factor f
-image.rotate( deg ); // rotate the image clockwise by a number of degrees. Note: The width and height of the image will be changed appropriately.
+image.rotate( deg[, resize] ); // rotate the image clockwise by a number of degrees. Unless `false` is passed as the second parameter, the image width and height will be resized appropriately.
 image.blit( src, x, y ); // blit the image with another Jimp image at x, y
 image.composite( src, x, y ); // composites another Jimp image over this iamge at x, y
 image.brightness( val ); // adjust the brighness by a value -1 to +1
