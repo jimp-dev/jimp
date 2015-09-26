@@ -5,7 +5,7 @@ var Jimp = require("../jimp.js");
         var clone = image.clone().scale(0.25);
 
         image.name = "lenna-rot-118";
-        image.rotate2(118, save);
+        image.rotate(118, save);
     });
 })();
 

@@ -944,17 +944,14 @@ Jimp.prototype.scale = function (f, cb) {
 };
 
 /**
- * Rotates the image clockwise by a number of degrees rounded to the nearest 90 degrees
+ * Rotates an image clockwise by a number of degrees rounded to the nearest 90 degrees. NB: 'this' must be a Jimp object.
  * @param deg the number of degress to rotate the image by
  * @param (optional) cb A callback for when complete
  * @returns this for chaining of methods
  */
-Jimp.prototype.rotate = function(deg, cb) {
-    if ("number" != typeof deg)
-        throwError.call(this, "deg must be a number", cb);
-
+function simpleRotate(deg, cb) {
     var i = Math.round(deg / 90) % 4;
-    if (i < 0) i += 4;
+    while (i < 0) i += 4;
 
     while (i > 0) {
         // https://github.com/ekulabuhov/jimp/commit/9a0c7cff88292d88c32a424b11256c76f1e20e46
@@ -970,42 +967,56 @@ Jimp.prototype.rotate = function(deg, cb) {
         }
 
         this.bitmap.data = new Buffer(dstBuffer);
+        
         var tmp = this.bitmap.width;
         this.bitmap.width = this.bitmap.height;
         this.bitmap.height = tmp;
 
         i--;
     }
-
-    if (isNodePattern(cb)) return cb.call(this, null, this);
-    else return this;
-}
-
-function createTranslationFunction(deltaX, deltaY) {
-    return function(x, y) {
-        return {
-            x : (x + deltaX),
-            y : (y + deltaY)
-        };
-    }
 }
 
 /**
- * Rotates the image clockwise by a number of degrees
+ * Rotates an image clockwise by an arbitary number of degrees. NB: 'this' must be a Jimp object.
  * @param deg the number of degress to rotate the image by
  * @param (optional) cb A callback for when complete
  * @returns this for chaining of methods
  */
-Jimp.prototype.rotate2 = function (deg, cb) {
-    if ("number" != typeof deg)
-        throwError.call(this, "deg must be a number", cb);
-
-    var dstBuffer = new Buffer(this.bitmap.data.length);
+function advancedRotate(deg, cb) {
     var rad = (deg % 360) * Math.PI / 180;
     var cosine = Math.cos(rad);
     var sine = Math.sin(rad);
+    
+    // resize the image and blit the existing image onto the centre so that when it is rotated the image is kept in bounds
+
+    // http://stackoverflow.com/questions/3231176/how-to-get-size-of-a-rotated-rectangle
+    var w = Math.round(Math.abs(this.bitmap.width * sine) + Math.abs(this.bitmap.height * cosine));
+    var h = Math.round(Math.abs(this.bitmap.width * cosine) + Math.abs(this.bitmap.height * sine));
+
+    var c = this.clone();
+    this.resize(w, h);
+    this.scan(0, 0, this.bitmap.width, this.bitmap.height, function (x, y, idx) {
+        this.bitmap.data[idx  ] = 0x00;
+        this.bitmap.data[idx+1] = 0x00;
+        this.bitmap.data[idx+2] = 0x00;
+        this.bitmap.data[idx+3] = 0x00;
+    });
+    this.blit(c, this.bitmap.width / 2 - c.bitmap.width / 2, this.bitmap.height / 2 - c.bitmap.height / 2);
+
+    var dstBuffer = new Buffer(this.bitmap.data.length);
+    
+    function createTranslationFunction(deltaX, deltaY) {
+        return function(x, y) {
+            return {
+                x : (x + deltaX),
+                y : (y + deltaY)
+            };
+        }
+    }
+
     var translate2Cartesian = createTranslationFunction(-(this.bitmap.width / 2), -(this.bitmap.height / 2));
     var translate2Screen = createTranslationFunction(this.bitmap.width / 2, this.bitmap.height / 2);
+    
     for (var y = 0; y < this.bitmap.height; y++) {
         for (var x = 0; x < this.bitmap.width; x++) {
             var cartesian = translate2Cartesian(x, this.bitmap.height - y);
@@ -1023,7 +1034,22 @@ Jimp.prototype.rotate2 = function (deg, cb) {
         }
     }
     this.bitmap.data = dstBuffer;
+};
 
+
+/**
+ * Rotates the image clockwise by a number of degrees. The width and height of the image change correspondingly.
+ * @param deg the number of degress to rotate the image by
+ * @param (optional) cb A callback for when complete
+ * @returns this for chaining of methods
+ */
+Jimp.prototype.rotate = function (deg, cb) {
+    if ("number" != typeof deg)
+        throwError.call(this, "deg must be a number", cb);
+
+    if (deg % 90 == 0) simpleRotate.call(this, deg, cb);
+    else advancedRotate.call(this, deg, cb);
+    
     if (isNodePattern(cb)) return cb.call(this, null, this);
     else return this;
 };
@@ -1031,7 +1057,7 @@ Jimp.prototype.rotate2 = function (deg, cb) {
 /**
  * Converts the image to a buffer
  * @param mime the mime type of the image buffer to be created
- * @param cb a function to call when the image is saved to disk
+ * @param cb a Node-style function to call with the buffer as the second argument
  * @returns this for chaining of methods
  */
 Jimp.prototype.getBuffer = function (mime, cb) {
