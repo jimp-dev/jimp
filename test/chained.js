@@ -76,5 +76,8 @@ var lenna = new Jimp("lenna.png", function (err) {
     this.clone().background(0x0000FFFF).contain(750, 500).write("./output/lenna-contain-750x500.png");
     this.clone().background(0xFFFF00FF).contain(500, 750).write("./output/lenna-contain-500x750.png");
     this.clone().background(0xFF00FFFF).contain(750, 750).write("./output/lenna-contain-750x750.png");
+    
+    this.clone().rotate(45).write("./output/lenna-rotate-45.png");
+    this.clone().rotate(-45, false).write("./output/lenna-rotate-45ccw-noresize.png");
 
 });

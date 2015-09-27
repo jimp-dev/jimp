@@ -11,11 +11,12 @@ var operations = {
     "opacity": [0.5],
     "resize": [64, 64],
     "scale": [0.5],
-    "rotate": [90],
+    "rotate": [-45, false],
     "brightness": [0.75],
     "contrast": [0.75],
     "posterize": [5],
     "dither565": [],
+    "background": [0xFF000000],
     "cover": [250, 125],
     "contain": [250, 125]
 };
@@ -26,13 +27,14 @@ function process(op) {
     new Jimp("lenna.png", function(err, image) {
         var clone = image.clone().scale(0.25);
         
-        image.name = "lenna-" + op;
+        var args = ((operations[op].length > 0) ? "-" + operations[op].join("-") : "")
+        image.name = "lenna-" + op + args;
         image[op].apply(this, operations[op].concat(save));
         
-        image.name = "lenna-" + op + "-blit";
+        image.name = "lenna-" + op + args + "-blit";
         image.blit(clone, 0, 0, save);
         
-        image.name = "lenna-" + op + "-composite";
+        image.name = "lenna-" + op + args + "-composite";
         image.composite(clone, 0, 0, save);
     });
 }
@@ -47,5 +49,7 @@ var mask = new Jimp("mask.png", function(err, image) {
 function save(err, image) {
     if (err) throw err;
     image.write("./output/" + image.name + ".png");
+    image.rgba(false).write("./output/" + image.name + "-noalpha.png");
     image.write("./output/" + image.name + ".jpg");
+    image.write("./output/" + image.name + ".bmp");
 }
