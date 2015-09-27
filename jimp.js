@@ -84,13 +84,15 @@ function getMIMEFromPath(path, cb) {
  */
 
 function Jimp() {
-    // set background colour to the default
-    this._background = Jimp.background;
-    
     if ("number" == typeof arguments[0] && "number" == typeof arguments[1]) {
         var w = arguments[0];
         var h = arguments[1];
         var cb = arguments[2];
+        
+        if ("number" == typeof arguments[2]) {
+            this._background = arguments[2];
+            var cb = arguments[3];
+        }
 
         if ("undefined" == typeof cb) cb = function () {};
         if ("function" != typeof cb)
@@ -103,7 +105,7 @@ function Jimp() {
         };
 
         for (var i = 0; i < this.bitmap.data.length; i=i+4) {
-            this.bitmap.data.writeUInt32BE(Jimp.background, i);
+            this.bitmap.data.writeUInt32BE(this._background, i);
         }
 
         cb.call(this, null, this);
@@ -217,9 +219,7 @@ Jimp.prototype._quality = 100;
 Jimp.prototype._rgba = true;
 
 // Default colour to use for new pixels
-Jimp.background = 0x00000000;
-// same as above but used by instances
-Jimp.prototype._background = Jimp.background;
+Jimp.prototype._background = 0x00000000;
 
 /**
  * Creates a new image that is a clone of this one.

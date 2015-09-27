@@ -13,7 +13,6 @@ var bars = new Jimp(256, 256, function(err, image) {
     this.write("./output/bars.png");
 });
 
-Jimp.background = 0xFF0000FF;
-var square = new Jimp(256, 256, function(err, image) {
+var square = new Jimp(256, 256, 0xFF0000FF,function(err, image) {
     this.background(0x0000FFFF).rotate(45).write("./output/square.jpg");
 });

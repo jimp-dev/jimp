@@ -158,16 +158,17 @@ If you want to begin with an empty Jimp image, you can call the Jimp constructor
 
 ```js
 var image = new Jimp(256, 256, function (err, image) {
-    // this image is 256 x 256, every pixel is set to the default background colour
+    // this image is 256 x 256, every pixel is set to 0x00000000
 });
 ```
 
-To change the default background colour (0x00000000), use:
+You can optionally set the pixel colour as follows:
 
 ```js
-Jimp.background = 0xFF0000FF; // red
+var image = new Jimp(256, 256, 0xFF0000FF, function (err, image) {
+    // this image is 256 x 256, every pixel is set to 0xFF0000FF
+});
 ```
-
 
 ## Chaining or callbacks ##
 
