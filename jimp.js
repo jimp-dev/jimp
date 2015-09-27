@@ -171,6 +171,53 @@ Jimp.MIME_PNG = "image/png";
 Jimp.MIME_JPEG = "image/jpeg";
 Jimp.MIME_BMP = "image/bmp";
 
+/**
+ * A static helper method that converts RGBA values to a single integer value
+ * @param r the red value (0-255)
+ * @param g the green value (0-255)
+ * @param b the blue value (0-255)
+ * @param a the alpha value (0-255)
+ * @param cb (optional) A callback for when complete
+ * @returns an single integer colour value
+ */
+Jimp.rgbaToInt = function(r, g, b, a, cb){
+    if ("number" != typeof r || "number" != typeof g || "number" != typeof b || "number" != typeof a)
+        throwError.call(this, "r, g, b and a must be numbers", cb);
+    if (r < 0 || r > 255)
+        throwError.call(this, "r must be between 0 and 255", cb);
+    if (g < 0 || g > 255)
+        throwError.call(this, "g must be between 0 and 255", cb);
+    if (b < 0 || b > 255)
+        throwError.call(this, "b must be between 0 and 255", cb);
+    if (a < 0 || a > 255)
+        throwError.call(this, "a must be between 0 and 255", cb);
+    
+    var i = (r * Math.pow(256, 3)) + (g * Math.pow(256, 2)) + (b *  Math.pow(256, 1)) + (a * Math.pow(256, 0));
+    
+    if (isNodePattern(cb)) return cb.call(this, null, i);
+    else return i;
+}
+
+/**
+ * A static helper method that converts RGBA values to a single integer value
+ * @param i a single integer value representing an RGBA colour (e.g. 0xFF0000FF for red)
+ * @param cb (optional) A callback for when complete
+ * @returns an object with the properties r, g, b and a representing RGBA values
+ */
+Jimp.intToRGBA = function(i, cb){
+    if ("number" != typeof i)
+        throwError.call(this, "i must be a number", cb);
+    
+    var rgba = {}
+    rgba.r = Math.floor(i / Math.pow(256, 3));
+    rgba.g = Math.floor((i - (rgba.r * Math.pow(256, 3))) / Math.pow(256, 2));
+    rgba.b = Math.floor((i - (rgba.r * Math.pow(256, 3)) - (rgba.g * Math.pow(256, 2))) / Math.pow(256, 1));
+    rgba.a = Math.floor((i - (rgba.r * Math.pow(256, 3)) - (rgba.g * Math.pow(256, 2)) - (rgba.b * Math.pow(256, 1))) / Math.pow(256, 0));
+    
+    if (isNodePattern(cb)) return cb.call(this, null, rgba);
+    else return rgba;
+}
+
 // parses a bitmap from the constructor to the JIMP bitmap property
 function parseBitmap(data, mime, cb) {
     var that = this;
@@ -320,7 +367,7 @@ Jimp.prototype.scan = function (x, y, w, h, f, cb) {
 };
 
 /**
- * Returns the pixel index in the bitmap
+ * Returns the offset of a pixel in the bitmap buffer
  * @param x the x coordinate
  * @param y the y coordinate
  * @param (optional) cb a callback for when complete
@@ -343,6 +390,51 @@ Jimp.prototype.getPixelIndex = function (x, y, cb) {
     if (isNodePattern(cb)) return cb.call(this, null, i);
     else return i;
 };
+
+/**
+ * Returns the hex colour value of a pixel
+ * @param x the x coordinate
+ * @param y the y coordinate
+ * @param (optional) cb a callback for when complete
+ * @returns the index of the pixel or -1 if not found
+*/
+Jimp.prototype.getPixelColor = Jimp.prototype.getPixelColour = function (x, y, cb) {
+    if ("number" != typeof x || "number" != typeof y)
+        throwError.call(this, "x and y must be numbers", cb);
+
+    // round input
+    x = Math.round(x);
+    y = Math.round(y);
+    
+    var idx = this.getPixelIndex(x, y);
+    var hex = this.bitmap.data.readUInt32BE(idx);
+    
+    if (isNodePattern(cb)) return cb.call(this, null, hex);
+    else return hex;
+};
+
+/**
+ * Returns the hex colour value of a pixel
+ * @param x the x coordinate
+ * @param y the y coordinate
+ * @param (optional) cb a callback for when complete
+ * @returns the index of the pixel or -1 if not found
+*/
+Jimp.prototype.setPixelColor = Jimp.prototype.setPixelColour = function (hex, x, y, cb) {
+    if ("number" != typeof hex || "number" != typeof x || "number" != typeof y)
+        throwError.call(this, "hex, x and y must be numbers", cb);
+
+    // round input
+    x = Math.round(x);
+    y = Math.round(y);
+    
+    var idx = this.getPixelIndex(x, y);
+    this.bitmap.data.writeUInt32BE(hex, idx, true);
+    
+    if (isNodePattern(cb)) return cb.call(this, null, this);
+    else return this;
+};
+
 
 /**
  * Crops the image at a given point to a give size
@@ -584,7 +676,7 @@ Jimp.prototype.invert = function (cb) {
  * @param (optional) cb a callback for when complete
  * @returns this for chaining of methods
  */
-Jimp.prototype.flip = function (horizontal, vertical, cb) {
+Jimp.prototype.mirror = Jimp.prototype.flip = function (horizontal, vertical, cb) {
     if ("boolean" != typeof horizontal || "boolean" != typeof vertical)
         throwError.call(this, "horizontal and vertical must be Booleans", cb);
 
@@ -867,6 +959,39 @@ Jimp.prototype.opacity = function (f, cb) {
     this.scan(0, 0, this.bitmap.width, this.bitmap.height, function (x, y, idx) {
         var v = this.bitmap.data[idx+3] * f;
         this.bitmap.data[idx+3] = v;
+    });
+
+    if (isNodePattern(cb)) return cb.call(this, null, this);
+    else return this;
+};
+
+/**
+ * Fades each pixel by a factor between 0 and 1
+ * @param f A number from 0 to 1. 0 will haven no effect. 1 will turn the image completely transparent.
+ * @param (optional) cb a callback for when complete
+ * @returns this for chaining of methods
+ */
+Jimp.prototype.fade = function (f, cb) {
+    if ("number" != typeof f)
+        throwError.call(this, "f must be a number", cb);
+    if (f < 0 || f > 1)
+        throwError.call(this, "f must be a number from 0 to 1", cb);
+
+    // this method is an alternative to opacity (which may be deprecated)
+    this.opacity(1 - f);
+    
+    if (isNodePattern(cb)) return cb.call(this, null, this);
+    else return this;
+};
+
+/**
+ * Set the alpha channel on every pixel to fully opaque
+ * @param (optional) cb a callback for when complete
+ * @returns this for chaining of methods
+ */
+Jimp.prototype.opaque = function (cb) {
+    this.scan(0, 0, this.bitmap.width, this.bitmap.height, function (x, y, idx) {
+        this.bitmap.data[idx+3] = 255;
     });
 
     if (isNodePattern(cb)) return cb.call(this, null, this);

@@ -56,6 +56,8 @@ image.dither565(); // ordered dithering of the image and reduce color space to 1
 image.cover( w, h ); // scale the image so that it fills the given width and height
 image.contain( w, h ); // scale the image to the largest size so that fits inside the given width and height
 image.background( hex ); // set the default new pixel colour (e.g. 0xFFFFFFFF or 0x00000000) for by some operations (e.g. image.contain and image.rotate) and when writing formats that don't support alpha channels
+image.mirror( horz, vert); // an alias for flip
+image.fade( f ); // an alternative to opacity, fades the image by a factor 0 - 1. 0 will haven no effect. 1 will turn the image image.opaque(); // set the alpha channel on every pixel to fully opaque
 ```
 
 (Contributions of more methods are welcome!)
@@ -153,6 +155,20 @@ image.scan(0, 0, image.bitmap.width, image.bitmap.height, function (x, y, idx) {
     // e.g. this.bitmap.data[idx] = 0; // removes red from this pixel
 });
 ```
+
+Alternatively, you can manipulate individual pixels using the following these functions:
+
+```js
+image.getPixelColor(x, y); // returns the colour of that pixel e.g. 0xFFFFFFFF
+image.setPixelColor(hex, x, y); // sets the colour of that pixel
+```
+
+Two static helper functions exist to convert RGBA values into single integer (hex) values:
+
+```js
+Jimp.rgbaToInt(r, g, b, a); // e.g. converts 255, 255, 255, 255 to 0xFFFFFFFF
+Jimp.intToRGBA(hex); // e.g. converts 0xFFFFFFFF to {r: 255, g: 255, b: 255, a:255}
+````
 
 If you want to begin with an empty Jimp image, you can call the Jimp constructor passing the width and height of the image to create:
 

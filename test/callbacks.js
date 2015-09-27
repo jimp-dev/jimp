@@ -18,7 +18,10 @@ var operations = {
     "dither565": [],
     "background": [0xFF000000],
     "cover": [250, 125],
-    "contain": [250, 125]
+    "contain": [250, 125],
+    "opaque": [],
+    "mirror": [false, true],
+    "fade": [0.75]
 };
 
 for (var op in operations) process(op);
