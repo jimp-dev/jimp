@@ -4,3 +4,4 @@ node_modules
 *.iml
 /test/output/*.png
 /test/output/*.jpg
+/test/output/*.bmp
