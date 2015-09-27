@@ -1116,18 +1116,23 @@ Jimp.prototype.getBuffer = function (mime, cb) {
               colorType: (this._rgba) ? 6 : 2,
               inputHasAlpha: true
             });
-            png.data = new Buffer(this.bitmap.data);
+            
+            if (this._rgba) png.data = new Buffer(this.bitmap.data);
+            else png.data = compositeBitmapOverBackground(this).data; // when PNG doesn't support alpha
+            
             StreamToBuffer(png.pack(), function (err, buffer) {
                 return cb.call(that, null, buffer);
             });
             break;
 
         case Jimp.MIME_JPEG:
-            var jpeg = JPEG.encode(this.bitmap, this._quality);
+            // composite onto a new image so that the background shows through alpha channels
+            var jpeg = JPEG.encode(compositeBitmapOverBackground(this), this._quality);
             return cb.call(this, null, jpeg.data);
 
         case Jimp.MIME_BMP:
-            var bmp = BMP.encode(this.bitmap);
+            // composite onto a new image so that the background shows through alpha channels
+            var bmp = BMP.encode(compositeBitmapOverBackground(this));
             return cb.call(this, null, bmp.data);
 
         default:
@@ -1136,6 +1141,10 @@ Jimp.prototype.getBuffer = function (mime, cb) {
 
     return this;
 };
+
+function compositeBitmapOverBackground(image){
+    return (new Jimp(image.bitmap.width, image.bitmap.height, image._background)).composite(image, 0, 0).bitmap;
+}
 
 /**
  * Apply a ordered dithering effect and reduce colorspace to 656
