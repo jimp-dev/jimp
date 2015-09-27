@@ -13,7 +13,7 @@ var Jimp = require("jimp");
 var lenna = new Jimp("lenna.png", function (err, image) {
     this.resize(512, 512) // resize
         .write("lenna-small.png") // save
-        .setQuality(60) // set JPEG quality
+        .quality(60) // set JPEG quality
         .write("lenna-small.jpg") // save as JPEG
         .greyscale() // set greyscale
         .write("lena-small-bw.png") // save again
