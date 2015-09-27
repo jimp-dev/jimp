@@ -71,10 +71,10 @@ var lenna = new Jimp("lenna.png", function (err) {
     this.clone().cover(500, 750).write("./output/lenna-cover-500x750.png");
     this.clone().cover(750, 750).write("./output/lenna-cover-750x750.png");
 
-    this.clone().contain(250, 125).write("./output/lenna-contain-250x125.png");
-    this.clone().contain(125, 250).write("./output/lenna-contain-125x250.png");
-    this.clone().contain(750, 500).write("./output/lenna-contain-750x500.png");
-    this.clone().contain(500, 750).write("./output/lenna-contain-500x750.png");
-    this.clone().contain(750, 750).write("./output/lenna-contain-750x750.png");
+    this.clone().background(0xFF0000FF).contain(250, 125).write("./output/lenna-contain-250x125.png");
+    this.clone().background(0x00FF00FF).contain(125, 250).write("./output/lenna-contain-125x250.png");
+    this.clone().background(0x0000FFFF).contain(750, 500).write("./output/lenna-contain-750x500.png");
+    this.clone().background(0xFFFF00FF).contain(500, 750).write("./output/lenna-contain-500x750.png");
+    this.clone().background(0xFF00FFFF).contain(750, 750).write("./output/lenna-contain-750x750.png");
 
 });

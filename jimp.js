@@ -84,6 +84,9 @@ function getMIMEFromPath(path, cb) {
  */
 
 function Jimp() {
+    // set background colour to the default
+    this._background = Jimp.background;
+    
     if ("number" == typeof arguments[0] && "number" == typeof arguments[1]) {
         var w = arguments[0];
         var h = arguments[1];
@@ -99,8 +102,8 @@ function Jimp() {
             height: h
         };
 
-        for (var i = 0; i < this.bitmap.data.length; i++) {
-            this.bitmap.data[i] = 0;
+        for (var i = 0; i < this.bitmap.data.length; i=i+4) {
+            this.bitmap.data.writeUInt32BE(Jimp.background, i);
         }
 
         cb.call(this, null, this);
@@ -126,6 +129,7 @@ function Jimp() {
 
         this._quality = original._quality;
         this._rgba = original._rgba;
+        this._background = original._background;
 
         cb.call(this, null, this);
     } else if ("string" == typeof arguments[0]) {
@@ -212,6 +216,11 @@ Jimp.prototype._quality = 100;
 // Whether PNGs will be exported as RGB or RGBA
 Jimp.prototype._rgba = true;
 
+// Default colour to use for new pixels
+Jimp.background = 0x00000000;
+// same as above but used by instances
+Jimp.prototype._background = Jimp.background;
+
 /**
  * Creates a new image that is a clone of this one.
  * @param cb (optional) A callback for when complete
@@ -244,15 +253,31 @@ Jimp.prototype.quality = function (n, cb) {
 
 /**
  * Sets the type of the image (RGB or RGBA) when saving as PNG format (default is RGBA)
+ * @param bool A Boolean, true to use RGBA or false to use RGB
+ * @param (optional) cb a callback for when complete
+ * @returns this for chaining of methods
+ */
+Jimp.prototype.rgba = function (bool, cb) {
+    if ("boolean" != typeof bool)
+        throwError.call(this, "bool must be a boolean, true for RGBA or false for RGB", cb);
+
+    this._rgba = bool;
+
+    if (isNodePattern(cb)) return cb.call(this, null, this);
+    else return this;
+};
+
+/**
+ * Sets the type of the image (RGB or RGBA) when saving as PNG format (default is RGBA)
  * @param b A Boolean, true to use RGBA or false to use RGB
  * @param (optional) cb a callback for when complete
  * @returns this for chaining of methods
  */
-Jimp.prototype.rgba = function (b, cb) {
-    if ("boolean" != typeof b)
-        throwError.call(this, "b must be a boolean, true for RGBA or false for RGB", cb);
+Jimp.prototype.background = function (hex, cb) {
+    if ("number" != typeof hex)
+        throwError.call(this, "hex must be a hexadecimal rgba value", cb);
 
-    this._rgba = b;
+    this._background = hex;
 
     if (isNodePattern(cb)) return cb.call(this, null, this);
     else return this;
@@ -912,10 +937,7 @@ Jimp.prototype.contain = function (w, h, cb) {
     
     this.resize(w, h);
     this.scan(0, 0, this.bitmap.width, this.bitmap.height, function (x, y, idx) {
-        this.bitmap.data[idx  ] = 0x00;
-        this.bitmap.data[idx+1] = 0x00;
-        this.bitmap.data[idx+2] = 0x00;
-        this.bitmap.data[idx+3] = 0x00;
+        this.bitmap.data.writeUInt32BE(this._background, idx);
     });
     this.blit(c, this.bitmap.width / 2 - c.bitmap.width / 2, this.bitmap.height / 2 - c.bitmap.height / 2);
     
@@ -994,10 +1016,7 @@ function advancedRotate(deg, resize) {
 
         var c = this.clone();
         this.scan(0, 0, this.bitmap.width, this.bitmap.height, function (x, y, idx) {
-            this.bitmap.data[idx  ] = 0x00;
-            this.bitmap.data[idx+1] = 0x00;
-            this.bitmap.data[idx+2] = 0x00;
-            this.bitmap.data[idx+3] = 0x00;
+            this.bitmap.data.writeUInt32BE(this._background, idx);
         });
         this.resize(w, h);
         this.blit(c, this.bitmap.width / 2 - c.bitmap.width / 2, this.bitmap.height / 2 - c.bitmap.height / 2);
@@ -1032,11 +1051,8 @@ function advancedRotate(deg, resize) {
                 dstBuffer.writeUInt32BE(pixelRGBA, dstIdx);
             } else {
                 // reset off-image pixels
-                var idx = (this.bitmap.width * y + x) << 2;
-                dstBuffer[idx  ] = 0x00;
-                dstBuffer[idx+1] = 0x00;
-                dstBuffer[idx+2] = 0x00;
-                dstBuffer[idx+3] = 0x00;
+                var dstIdx = (this.bitmap.width * y + x) << 2;
+                dstBuffer.writeUInt32BE(this._background, dstIdx);
             }
         }
     }
