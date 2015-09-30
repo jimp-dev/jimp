@@ -80,14 +80,24 @@ module.exports = function resize(image, sizes, options) {
 		var outputBasename = options.outFile
 			|| path.basename(image, extension);
 
+		var outputDirectory = options.outDir
+			? options.outDir + '/'
+			: '';
+
 		validSizes.forEach(function (size) {
 			if (typeof img[size.mode] === 'function') {
+				var outputFile = [
+					outputDirectory + outputBasename,
+					size.mode,
+					size.width + 'x' + size.height + extension
+				].join('-');
+
 				img.clone()[size.mode](size.width, size.height)
-					.write(outputBasename + '-' + size.width + 'x' + size.height + extension);
+					.write(outputFile);
 			}
 		});
 
-		console.log('Image %s resized to the following size configurations!', image);
+		console.log('Image %s resized to the following size configurations:', image);
 		validSizes.forEach(function (size) {
 			console.log(
 				'mode', size.mode,
