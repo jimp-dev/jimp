@@ -1,5 +1,5 @@
-var path = require('path');
 var Jimp = require('../index');
+var utils = require('./utils');
 
 
 /**
@@ -53,11 +53,11 @@ function parseSizes(sizes, defaultMode) {
  * a given image to the
  * specified sizes
  *
- * @param image
+ * @param src
  * @param sizes
  * @param options
  */
-module.exports = function resize(image, sizes, options) {
+module.exports = function resize(src, sizes, options) {
 	if (options.crop && options.fill) {
 		throw new Error('Image resize cannot have both the crop and fill flags set');
 	}
@@ -71,35 +71,20 @@ module.exports = function resize(image, sizes, options) {
 		throw new Error('Image resize rules were not valid');
 	}
 
-	new Jimp(image, function (err, img) {
+	var getOutputFile = utils.getOutputFileGenerator(src, options);
+	new Jimp(src, function (err, image) {
 		if (err) {
 			throw (err);
 		}
 
-		var extension = path.extname(image);
-		var outputBasename = options.outFile
-			|| path.basename(image, extension);
-
-		var outputDirectory = options.outDir
-			? options.outDir + '/'
-			: '';
-
 		validSizes.forEach(function (size) {
-			if (typeof img[size.mode] === 'function') {
-				var outputFile = [
-					outputDirectory + outputBasename,
-					size.mode,
-					size.width + 'x' + size.height + extension
-				].join('-');
-
-				img.clone()[size.mode](size.width, size.height)
-					.write(outputFile);
+			if (typeof image[size.mode] === 'function') {
+				image.clone()[size.mode](size.width, size.height)
+					.write(getOutputFile(src, [size.mode, size.width + 'x' + size.height]));
 			}
-		});
 
-		console.log('Image %s resized to the following size configurations:', image);
-		validSizes.forEach(function (size) {
 			console.log(
+				'Image %s resized:', src,
 				'mode', size.mode,
 				'width', size.width,
 				'height', size.height
