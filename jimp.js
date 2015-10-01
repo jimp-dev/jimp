@@ -130,6 +130,8 @@ function Jimp() {
         };
 
         this._quality = original._quality;
+        this._deflateLevel = original._deflateLevel;
+        this._filterType = original._filterType;
         this._rgba = original._rgba;
         this._background = original._background;
 
@@ -261,6 +263,8 @@ Jimp.prototype.bitmap = {
 
 // The quality to be used when saving JPEG images
 Jimp.prototype._quality = 100;
+Jimp.prototype._deflateLevel = 9;
+Jimp.prototype._filterType = -1;
 
 // Whether PNGs will be exported as RGB or RGBA
 Jimp.prototype._rgba = true;
@@ -293,6 +297,42 @@ Jimp.prototype.quality = function (n, cb) {
         throwError.call(this, "n must be a number 0 - 100", cb);
 
     this._quality = Math.round(n);
+
+    if (isNodePattern(cb)) return cb.call(this, null, this);
+    else return this;
+};
+
+/**
+ * Sets the deflate level used when saving as PNG format (default is 9)
+ * @param l Deflate level to use 0-9
+ * @param (optional) cb a callback for when complete
+ * @returns this for chaining of methods
+ */
+Jimp.prototype.deflateLevel = function (l, cb) {
+    if ("number" != typeof l)
+        throwError.call(this, "l must be a number", cb);
+    if (l < 0 || l > 9)
+        throwError.call(this, "l must be a number 0 - 9", cb);
+
+    this._deflateLevel = Math.round(l);
+
+    if (isNodePattern(cb)) return cb.call(this, null, this);
+    else return this;
+};
+
+/**
+ * Sets the filter type used when saving as PNG format (default is automatic filters)
+ * @param f The quality to use -1-4
+ * @param (optional) cb a callback for when complete
+ * @returns this for chaining of methods
+ */
+Jimp.prototype.filterType = function (f, cb) {
+    if ("number" != typeof f)
+        throwError.call(this, "n must be a number", cb);
+    if (f < -1 || f > 4)
+        throwError.call(this, "n must be -1 (auto) or a number 0 - 4", cb);
+
+    this._filterType = Math.round(f);
 
     if (isNodePattern(cb)) return cb.call(this, null, this);
     else return this;
@@ -1238,6 +1278,8 @@ Jimp.prototype.getBuffer = function (mime, cb) {
               width: this.bitmap.width,
               height:this.bitmap.height,
               bitDepth: 8,
+              deflateLevel: this._deflateLevel,
+              filterType: this._filterType,
               colorType: (this._rgba) ? 6 : 2,
               inputHasAlpha: true
             });
