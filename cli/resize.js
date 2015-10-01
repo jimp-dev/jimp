@@ -11,7 +11,7 @@ var Jimp = require('../index');
  */
 function getMode(alias) {
 	var modes = [
-		{ mode: 'contain', aliases: ['contain', 'cn']   },
+		{ mode: 'contain', aliases: ['contain', 'cn'] },
 		{ mode: 'cover',   aliases: ['cover', 'crop', 'cr', 'c'] },
 		{ mode: 'resize',  aliases: ['resize', 'fill', 'fl', 'f'] }
 	];
