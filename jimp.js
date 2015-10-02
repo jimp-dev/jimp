@@ -902,13 +902,13 @@ Jimp.prototype.blur = function (r, cb) {
 };
 
 /**
- * Removes colour from the image
+ * Removes colour from the image using ITU Rec 709 luminance values
  * @param (optional) cb a callback for when complete
  * @returns this for chaining of methods
  */
 Jimp.prototype.greyscale = function (cb) {
     this.scan(0, 0, this.bitmap.width, this.bitmap.height, function (x, y, idx) {
-        var grey = (this.bitmap.data[idx] + this.bitmap.data[idx+1] + this.bitmap.data[idx+2] ) / 3;
+        var grey = parseInt(.2126 * this.bitmap.data[idx] + .7152 * this.bitmap.data[idx+1] + .0722 * this.bitmap.data[idx+2], 10);
         this.bitmap.data[idx] = grey;
         this.bitmap.data[idx+1] = grey;
         this.bitmap.data[idx+2] = grey;
