@@ -168,6 +168,9 @@ function Jimp() {
     }
 }
 
+// used to auto resizing etc.
+Jimp.AUTO = -1;
+
 // supported mime types
 Jimp.MIME_PNG = "image/png";
 Jimp.MIME_JPEG = "image/jpeg";
@@ -1048,15 +1051,21 @@ Jimp.prototype.opaque = function (cb) {
 
 /**
  * Resizes the image to a set width and height using a 2-pass bilinear algorithm
- * @param w the width to resize the image to
- * @param h the height to resize the image to
+ * @param w the width to resize the image to (or Jimp.AUTO)
+ * @param h the height to resize the image to (or Jimp.AUTO)
  * @param (optional) cb a callback for when complete
  * @returns this for chaining of methods
  */
 Jimp.prototype.resize = function (w, h, cb) {
     if ("number" != typeof w || "number" != typeof h)
         throwError.call(this, "w and h must be numbers", cb);
+    
+    if (w == Jimp.AUTO && h == Jimp.AUTO)
+        throwError.call(this, "w and h cannot both the set to auto", cb);        
 
+    if (w == Jimp.AUTO) w = this.bitmap.width * (h / this.bitmap.height);
+    if (h == Jimp.AUTO) h = this.bitmap.height * (w / this.bitmap.width);
+    
     // round inputs
     w = Math.round(w);
     h = Math.round(h);

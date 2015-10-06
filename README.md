@@ -43,7 +43,7 @@ image.blur( r ); // fast blur the image by r pixels
 image.greyscale(); // remove colour from the image
 image.sepia(); // apply a sepia wash to the image
 image.opacity( f ); // multiply the alpha channel by each pixel by the factor f, 0 - 1
-image.resize( w, h ); // resize the image
+image.resize( w, h ); // resize the image. Jimp.AUTO can be passed as one of the values.
 image.scale( f ); // scale the image by the factor f
 image.rotate( deg[, resize] ); // rotate the image clockwise by a number of degrees. Unless `false` is passed as the second parameter, the image width and height will be resized appropriately.
 image.blit( src, x, y ); // blit the image with another Jimp image at x, y
