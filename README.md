@@ -78,6 +78,8 @@ The format of saved PNGs can be set with:
 
 ```js
 image.rgba( bool ); // set whether PNGs are saved as RGBA (true, default) or RGB (false)
+image.filterType( number ); // set the filter type for the saved PNG
+image.deflateLevel( number ); // set the deflate level for the saved PNG
 ```
 
 ## Cloning images ##

@@ -7,7 +7,7 @@ var lenna = new Jimp("lenna.png", function(err, image) {
 
 function loadJPEG(){
     var jpg = new Jimp("./output/lenna-copy.jpg", function(err, image) {
-        jpg.invert().write("./output/lenna-invert.png");
+        jpg.filterType(1).deflateLevel(0).invert().write("./output/lenna-invert.png");
     });
 }
 
