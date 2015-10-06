@@ -1,4 +1,4 @@
-var Jimp = require("../jimp.js");
+var Jimp = require("../index.js");
 
 // open a file called "lenna.png"
 var lenna = new Jimp("lenna.png", function (err) {

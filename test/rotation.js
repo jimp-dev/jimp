@@ -1,4 +1,4 @@
-var Jimp = require("../jimp.js");
+var Jimp = require("../index.js");
 
 new Jimp("lenna.png", function (err, image) {
     var clone1 = image.clone().scale(0.75);

@@ -1,4 +1,4 @@
-var Jimp = require("../jimp.js");
+var Jimp = require("../index.js");
 
 var bars = new Jimp(256, 256, function(err, image) {
     this.scan(0, 0, image.bitmap.width, image.bitmap.height, function (x, y, idx) {

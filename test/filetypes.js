@@ -1,4 +1,4 @@
-var Jimp = require("../jimp.js");
+var Jimp = require("../index.js");
 
 var lenna = new Jimp("lenna.png", function(err, image) {
     this.quality(1).write("./output/lenna-copy.jpg", loadJPEG); // JPEG copy
@@ -7,7 +7,7 @@ var lenna = new Jimp("lenna.png", function(err, image) {
 
 function loadJPEG(){
     var jpg = new Jimp("./output/lenna-copy.jpg", function(err, image) {
-        jpg.filterType(1).deflateLevel(0).invert().write("./output/lenna-invert.png");
+        jpg.filterType(Jimp.PNG_FILTER_NONE).deflateLevel(0).invert().write("./output/lenna-invert.png");
     });
 }
 

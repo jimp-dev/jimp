@@ -1,4 +1,4 @@
-var Jimp = require("../jimp.js");
+var Jimp = require("../index.js");
 
 var operations = {
     "crop": [128, 192, 256, 128],
