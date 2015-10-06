@@ -173,6 +173,14 @@ Jimp.MIME_PNG = "image/png";
 Jimp.MIME_JPEG = "image/jpeg";
 Jimp.MIME_BMP = "image/bmp";
 
+// PNG filter types
+Jimp.PNG_FILTER_AUTO = -1;
+Jimp.PNG_FILTER_NONE = 0;
+Jimp.PNG_FILTER_SUB = 1;
+Jimp.PNG_FILTER_UP = 2;
+Jimp.PNG_FILTER_AVERAGE = 3;
+Jimp.PNG_FILTER_PAETH = 4;
+
 /**
  * A static helper method that converts RGBA values to a single integer value
  * @param r the red value (0-255)
@@ -264,7 +272,7 @@ Jimp.prototype.bitmap = {
 // The quality to be used when saving JPEG images
 Jimp.prototype._quality = 100;
 Jimp.prototype._deflateLevel = 9;
-Jimp.prototype._filterType = -1;
+Jimp.prototype._filterType = Jimp.PNG_FILTER_AUTO;
 
 // Whether PNGs will be exported as RGB or RGBA
 Jimp.prototype._rgba = true;
@@ -304,7 +312,7 @@ Jimp.prototype.quality = function (n, cb) {
 
 /**
  * Sets the deflate level used when saving as PNG format (default is 9)
- * @param l Deflate level to use 0-9
+ * @param l Deflate level to use 0-9. 0 is no compression. 9 (default) is maximum compression.
  * @param (optional) cb a callback for when complete
  * @returns this for chaining of methods
  */
@@ -322,7 +330,7 @@ Jimp.prototype.deflateLevel = function (l, cb) {
 
 /**
  * Sets the filter type used when saving as PNG format (default is automatic filters)
- * @param f The quality to use -1-4
+ * @param f The quality to use -1-4.
  * @param (optional) cb a callback for when complete
  * @returns this for chaining of methods
  */

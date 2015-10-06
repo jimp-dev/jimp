@@ -82,6 +82,17 @@ image.filterType( number ); // set the filter type for the saved PNG
 image.deflateLevel( number ); // set the deflate level for the saved PNG
 ```
 
+For convenience, supported filter types are available as static properties:
+
+```js
+Jimp.PNG_FILTER_AUTO; // -1;
+Jimp.PNG_FILTER_NONE; // 0;
+Jimp.PNG_FILTER_SUB; // 1;
+Jimp.PNG_FILTER_UP; // 2;
+Jimp.PNG_FILTER_AVERAGE; // 3;
+Jimp.PNG_FILTER_PAETH; // 4;
+```
+
 ## Cloning images ##
 
 To clone a Jimp image, you can use:
@@ -170,7 +181,7 @@ Two static helper functions exist to convert RGBA values into single integer (he
 ```js
 Jimp.rgbaToInt(r, g, b, a); // e.g. converts 255, 255, 255, 255 to 0xFFFFFFFF
 Jimp.intToRGBA(hex); // e.g. converts 0xFFFFFFFF to {r: 255, g: 255, b: 255, a:255}
-````
+```
 
 If you want to begin with an empty Jimp image, you can call the Jimp constructor passing the width and height of the image to create:
 
