@@ -1189,19 +1189,24 @@ function advancedRotate(deg, resize) {
     var rad = (deg % 360) * Math.PI / 180;
     var cosine = Math.cos(rad);
     var sine = Math.sin(rad);
+    
+    var w, h; // the final width and height if resize == true
 
     if (resize == true) {
-        // resize the image and blit the existing image onto the centre so that when it is rotated the image is kept in bounds
+        // resize the image to it maximum dimention and blit the existing image onto the centre so that when it is rotated the image is kept in bounds
 
         // http://stackoverflow.com/questions/3231176/how-to-get-size-of-a-rotated-rectangle
-        var w = Math.round(Math.abs(this.bitmap.width * sine) + Math.abs(this.bitmap.height * cosine));
-        var h = Math.round(Math.abs(this.bitmap.width * cosine) + Math.abs(this.bitmap.height * sine));
+        w = Math.round(Math.abs(this.bitmap.width * cosine) + Math.abs(this.bitmap.height * sine));
+        h = Math.round(Math.abs(this.bitmap.width * sine) + Math.abs(this.bitmap.height * cosine));
 
         var c = this.clone();
         this.scan(0, 0, this.bitmap.width, this.bitmap.height, function (x, y, idx) {
             this.bitmap.data.writeUInt32BE(this._background, idx);
         });
-        this.resize(w, h);
+        
+        var max = (this.bitmap.width > this.bitmap.height) ? this.bitmap.width : this.bitmap.height;
+        this.resize(max, max);
+        
         this.blit(c, this.bitmap.width / 2 - c.bitmap.width / 2, this.bitmap.height / 2 - c.bitmap.height / 2);
     }
 
@@ -1240,6 +1245,13 @@ function advancedRotate(deg, resize) {
         }
     }
     this.bitmap.data = dstBuffer;
+    
+    if (resize == true) {
+        // now crop the image to the final size
+        var x = (this.bitmap.width / 2) - (w/2);
+        var y = (this.bitmap.height / 2) - (h/2);
+        this.crop(x, y, w, h);
+    }
 };
 
 
