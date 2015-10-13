@@ -97,7 +97,7 @@ function Jimp() {
 
         if ("undefined" == typeof cb) cb = function () {};
         if ("function" != typeof cb)
-            throwError.call(this, "cb must be a function", cb);
+            return throwError.call(this, "cb must be a function", cb);
 
         this.bitmap = {
             data: new Buffer(w * h * 4),
@@ -116,7 +116,7 @@ function Jimp() {
 
         if ("undefined" == typeof cb) cb = function () {};
         if ("function" != typeof cb)
-            throwError.call(this, "cb must be a function", cb);
+            return throwError.call(this, "cb must be a function", cb);
 
         var bitmap = new Buffer(original.bitmap.data.length);
         original.scan(0, 0, original.bitmap.width, original.bitmap.height, function (x, y, idx) {
@@ -142,12 +142,12 @@ function Jimp() {
         var cb = arguments[1];
 
         if ("function" != typeof cb)
-            throwError.call(this, "cb must be a function", cb);
+            return throwError.call(this, "cb must be a function", cb);
 
         var that = this;
         getMIMEFromPath(path, function (err, mime) {
             FS.readFile(path, function (err, data) {
-                if (err) throwError.call(that, err, cb);
+                if (err) return throwError.call(that, err, cb);
                 parseBitmap.call(that, data, mime, cb);
             });
         });
@@ -157,15 +157,15 @@ function Jimp() {
         var cb = arguments[1];
 
         if (Buffer != data.constructor)
-            throwError.call(this, "data must be a Buffer", cb);
+            return throwError.call(this, "data must be a Buffer", cb);
         if ("string" != typeof mime)
-            throwError.call(this, "mime must be a string", cb);
+            return throwError.call(this, "mime must be a string", cb);
         if ("function" != typeof cb)
-            throwError.call(this, "cb must be a function", cb);
+            return throwError.call(this, "cb must be a function", cb);
 
         parseBitmap.call(this, data, mime, cb);
     } else {
-        throwError.call(this, "No matching constructor overloading was found. Please see the docs for how to call the Jimp constructor.", cb);
+        return throwError.call(this, "No matching constructor overloading was found. Please see the docs for how to call the Jimp constructor.", cb);
     }
 }
 
@@ -196,15 +196,15 @@ Jimp.PNG_FILTER_PAETH = 4;
  */
 Jimp.rgbaToInt = function(r, g, b, a, cb){
     if ("number" != typeof r || "number" != typeof g || "number" != typeof b || "number" != typeof a)
-        throwError.call(this, "r, g, b and a must be numbers", cb);
+        return throwError.call(this, "r, g, b and a must be numbers", cb);
     if (r < 0 || r > 255)
-        throwError.call(this, "r must be between 0 and 255", cb);
+        return throwError.call(this, "r must be between 0 and 255", cb);
     if (g < 0 || g > 255)
         throwError.call(this, "g must be between 0 and 255", cb);
     if (b < 0 || b > 255)
-        throwError.call(this, "b must be between 0 and 255", cb);
+        return throwError.call(this, "b must be between 0 and 255", cb);
     if (a < 0 || a > 255)
-        throwError.call(this, "a must be between 0 and 255", cb);
+        return throwError.call(this, "a must be between 0 and 255", cb);
     
     var i = (r * Math.pow(256, 3)) + (g * Math.pow(256, 2)) + (b *  Math.pow(256, 1)) + (a * Math.pow(256, 0));
     
@@ -220,7 +220,7 @@ Jimp.rgbaToInt = function(r, g, b, a, cb){
  */
 Jimp.intToRGBA = function(i, cb){
     if ("number" != typeof i)
-        throwError.call(this, "i must be a number", cb);
+        return throwError.call(this, "i must be a number", cb);
     
     var rgba = {}
     rgba.r = Math.floor(i / Math.pow(256, 3));
@@ -240,7 +240,7 @@ function parseBitmap(data, mime, cb) {
         case Jimp.MIME_PNG:
             var png = new PNG();
             png.parse(data, function(err, data) {
-                if (err) throwError.call(that, err, cb);
+                if (err) return throwError.call(that, err, cb);
                 that.bitmap = {
                     data: new Buffer(data.data),
                     width: data.width,
@@ -259,7 +259,7 @@ function parseBitmap(data, mime, cb) {
             return cb.call(this, null, this);
 
         default:
-            throwError.call(this, "Unsupported MIME type: " + mime, cb);
+            return throwError.call(this, "Unsupported MIME type: " + mime, cb);
     }
 }
 
@@ -304,9 +304,9 @@ Jimp.prototype.clone = function (cb) {
  */
 Jimp.prototype.quality = function (n, cb) {
     if ("number" != typeof n)
-        throwError.call(this, "n must be a number", cb);
+        return throwError.call(this, "n must be a number", cb);
     if (n < 0 || n > 100)
-        throwError.call(this, "n must be a number 0 - 100", cb);
+        return throwError.call(this, "n must be a number 0 - 100", cb);
 
     this._quality = Math.round(n);
 
@@ -322,9 +322,9 @@ Jimp.prototype.quality = function (n, cb) {
  */
 Jimp.prototype.deflateLevel = function (l, cb) {
     if ("number" != typeof l)
-        throwError.call(this, "l must be a number", cb);
+        return throwError.call(this, "l must be a number", cb);
     if (l < 0 || l > 9)
-        throwError.call(this, "l must be a number 0 - 9", cb);
+        return throwError.call(this, "l must be a number 0 - 9", cb);
 
     this._deflateLevel = Math.round(l);
 
@@ -340,9 +340,9 @@ Jimp.prototype.deflateLevel = function (l, cb) {
  */
 Jimp.prototype.filterType = function (f, cb) {
     if ("number" != typeof f)
-        throwError.call(this, "n must be a number", cb);
+        return throwError.call(this, "n must be a number", cb);
     if (f < -1 || f > 4)
-        throwError.call(this, "n must be -1 (auto) or a number 0 - 4", cb);
+        return throwError.call(this, "n must be -1 (auto) or a number 0 - 4", cb);
 
     this._filterType = Math.round(f);
 
@@ -358,7 +358,7 @@ Jimp.prototype.filterType = function (f, cb) {
  */
 Jimp.prototype.rgba = function (bool, cb) {
     if ("boolean" != typeof bool)
-        throwError.call(this, "bool must be a boolean, true for RGBA or false for RGB", cb);
+        return throwError.call(this, "bool must be a boolean, true for RGBA or false for RGB", cb);
 
     this._rgba = bool;
 
@@ -374,7 +374,7 @@ Jimp.prototype.rgba = function (bool, cb) {
  */
 Jimp.prototype.background = function (hex, cb) {
     if ("number" != typeof hex)
-        throwError.call(this, "hex must be a hexadecimal rgba value", cb);
+        return throwError.call(this, "hex must be a hexadecimal rgba value", cb);
 
     this._background = hex;
 
@@ -395,11 +395,11 @@ Jimp.prototype.background = function (hex, cb) {
  */
 Jimp.prototype.scan = function (x, y, w, h, f, cb) {
     if ("number" != typeof x || "number" != typeof y)
-        throwError.call(this, "x and y must be numbers", cb);
+        return throwError.call(this, "x and y must be numbers", cb);
     if ("number" != typeof w || "number" != typeof h)
-        throwError.call(this, "w and h must be numbers", cb);
+        return throwError.call(this, "w and h must be numbers", cb);
     if ("function" != typeof f)
-        throwError.call(this, "f must be a function", cb);
+        return throwError.call(this, "f must be a function", cb);
 
     // round input
     x = Math.round(x);
@@ -427,7 +427,7 @@ Jimp.prototype.scan = function (x, y, w, h, f, cb) {
 */
 Jimp.prototype.getPixelIndex = function (x, y, cb) {
     if ("number" != typeof x || "number" != typeof y)
-        throwError.call(this, "x and y must be numbers", cb);
+        return throwError.call(this, "x and y must be numbers", cb);
 
     // round input
     x = Math.round(x);
@@ -452,7 +452,7 @@ Jimp.prototype.getPixelIndex = function (x, y, cb) {
 */
 Jimp.prototype.getPixelColor = Jimp.prototype.getPixelColour = function (x, y, cb) {
     if ("number" != typeof x || "number" != typeof y)
-        throwError.call(this, "x and y must be numbers", cb);
+        return throwError.call(this, "x and y must be numbers", cb);
 
     // round input
     x = Math.round(x);
@@ -474,7 +474,7 @@ Jimp.prototype.getPixelColor = Jimp.prototype.getPixelColour = function (x, y, c
 */
 Jimp.prototype.setPixelColor = Jimp.prototype.setPixelColour = function (hex, x, y, cb) {
     if ("number" != typeof hex || "number" != typeof x || "number" != typeof y)
-        throwError.call(this, "hex, x and y must be numbers", cb);
+        return throwError.call(this, "hex, x and y must be numbers", cb);
 
     // round input
     x = Math.round(x);
@@ -499,9 +499,9 @@ Jimp.prototype.setPixelColor = Jimp.prototype.setPixelColour = function (hex, x,
  */
 Jimp.prototype.crop = function (x, y, w, h, cb) {
     if ("number" != typeof x || "number" != typeof y)
-        throwError.call(this, "x and y must be numbers", cb);
+        return throwError.call(this, "x and y must be numbers", cb);
     if ("number" != typeof w || "number" != typeof h)
-        throwError.call(this, "w and h must be numbers", cb);
+        return throwError.call(this, "w and h must be numbers", cb);
 
     // round input
     x = Math.round(x);
@@ -535,9 +535,9 @@ Jimp.prototype.crop = function (x, y, w, h, cb) {
 */
 Jimp.prototype.blit = function (src, x, y, cb) {
     if ("object" != typeof src || src.constructor != Jimp)
-        throwError.call(this, "The source must be a Jimp image", cb);
+        return throwError.call(this, "The source must be a Jimp image", cb);
     if ("number" != typeof x || "number" != typeof y)
-        throwError.call(this, "x and y must be numbers", cb);
+        return throwError.call(this, "x and y must be numbers", cb);
 
     // round input
     x = Math.round(x);
@@ -566,9 +566,9 @@ Jimp.prototype.blit = function (src, x, y, cb) {
 */
 Jimp.prototype.mask = function (src, x, y, cb) {
     if ("object" != typeof src || src.constructor != Jimp)
-        throwError.call(this, "The source must be a Jimp image", cb);
+        return throwError.call(this, "The source must be a Jimp image", cb);
     if ("number" != typeof x || "number" != typeof y)
-        throwError.call(this, "x and y must be numbers", cb);
+        return throwError.call(this, "x and y must be numbers", cb);
 
     // round input
     x = Math.round(x);
@@ -595,9 +595,9 @@ Jimp.prototype.mask = function (src, x, y, cb) {
 */
 Jimp.prototype.composite = function (src, x, y, cb) {
     if ("object" != typeof src || src.constructor != Jimp)
-        throwError.call(this, "The source must be a Jimp image", cb);
+        return throwError.call(this, "The source must be a Jimp image", cb);
     if ("number" != typeof x || "number" != typeof y)
-        throwError.call(this, "x and y must be numbers", cb);
+        return throwError.call(this, "x and y must be numbers", cb);
 
     // round input
     x = Math.round(x);
@@ -626,9 +626,9 @@ Jimp.prototype.composite = function (src, x, y, cb) {
  */
 Jimp.prototype.brightness = function (val, cb) {
     if ("number" != typeof val)
-        throwError.call(this, "val must be numbers", cb);
+        return throwError.call(this, "val must be numbers", cb);
     if (val < -1 || val > +1)
-        throwError.call(this, "val must be a number between -1 and +1", cb);
+        return throwError.call(this, "val must be a number between -1 and +1", cb);
 
     this.scan(0, 0, this.bitmap.width, this.bitmap.height, function (x, y, idx) {
         if (val < 0.0)  {
@@ -654,9 +654,9 @@ Jimp.prototype.brightness = function (val, cb) {
  */
 Jimp.prototype.contrast = function (val, cb) {
     if ("number" != typeof val)
-        throwError.call(this, "val must be numbers", cb);
+        return throwError.call(this, "val must be numbers", cb);
     if (val < -1 || val > +1)
-        throwError.call(this, "val must be a number between -1 and +1", cb);
+        return throwError.call(this, "val must be a number between -1 and +1", cb);
 
     function adjust(value) {
         if (val < 0) {
@@ -691,7 +691,7 @@ Jimp.prototype.contrast = function (val, cb) {
  */
 Jimp.prototype.posterize = function (n, cb) {
     if ("number" != typeof n)
-        throwError.call(this, "n must be numbers", cb);
+        return throwError.call(this, "n must be numbers", cb);
 
     if (n < 2) n = 2; // minumum of 2 levels
 
@@ -730,7 +730,7 @@ Jimp.prototype.invert = function (cb) {
  */
 Jimp.prototype.mirror = Jimp.prototype.flip = function (horizontal, vertical, cb) {
     if ("boolean" != typeof horizontal || "boolean" != typeof vertical)
-        throwError.call(this, "horizontal and vertical must be Booleans", cb);
+        return throwError.call(this, "horizontal and vertical must be Booleans", cb);
 
     var bitmap = new Buffer(this.bitmap.data.length);
     this.scan(0, 0, this.bitmap.width, this.bitmap.height, function (x, y, idx) {
@@ -757,9 +757,9 @@ Jimp.prototype.mirror = Jimp.prototype.flip = function (horizontal, vertical, cb
 Jimp.prototype.gaussian = function (r, cb) {
     // http://blog.ivank.net/fastest-gaussian-blur.html
     if ("number" != typeof r)
-        throwError.call(this, "r must be a number", cb);
+        return throwError.call(this, "r must be a number", cb);
     if (r < 1)
-        throwError.call(this, "r must be greater than 0", cb);
+        return throwError.call(this, "r must be greater than 0", cb);
 
     var rs = Math.ceil(r * 2.57); // significant radius
 
@@ -839,9 +839,9 @@ var shg_table = [0,9,10,10,14,12,14,14,16,15,16,15,16,15,15,17,18,17,12,18,16,17
  */
 Jimp.prototype.blur = function (r, cb) {
     if ("number" != typeof r)
-        throwError.call(this, "r must be a number", cb);
+        return throwError.call(this, "r must be a number", cb);
     if (r < 1)
-        throwError.call(this, "r must be greater than 0", cb);
+        return throwError.call(this, "r must be greater than 0", cb);
 
     var rsum, gsum, bsum, asum, x, y, i, p, p1, p2, yp, yi, yw, idx, pa;
     var wm = this.bitmap.width - 1;
@@ -1004,9 +1004,9 @@ Jimp.prototype.sepia = function (cb) {
  */
 Jimp.prototype.opacity = function (f, cb) {
     if ("number" != typeof f)
-        throwError.call(this, "f must be a number", cb);
+        return throwError.call(this, "f must be a number", cb);
     if (f < 0 || f > 1)
-        throwError.call(this, "f must be a number from 0 to 1", cb);
+        return throwError.call(this, "f must be a number from 0 to 1", cb);
 
     this.scan(0, 0, this.bitmap.width, this.bitmap.height, function (x, y, idx) {
         var v = this.bitmap.data[idx+3] * f;
@@ -1025,9 +1025,9 @@ Jimp.prototype.opacity = function (f, cb) {
  */
 Jimp.prototype.fade = function (f, cb) {
     if ("number" != typeof f)
-        throwError.call(this, "f must be a number", cb);
+        return throwError.call(this, "f must be a number", cb);
     if (f < 0 || f > 1)
-        throwError.call(this, "f must be a number from 0 to 1", cb);
+        return throwError.call(this, "f must be a number from 0 to 1", cb);
 
     // this method is an alternative to opacity (which may be deprecated)
     this.opacity(1 - f);
@@ -1059,10 +1059,10 @@ Jimp.prototype.opaque = function (cb) {
  */
 Jimp.prototype.resize = function (w, h, cb) {
     if ("number" != typeof w || "number" != typeof h)
-        throwError.call(this, "w and h must be numbers", cb);
+        return throwError.call(this, "w and h must be numbers", cb);
     
     if (w == Jimp.AUTO && h == Jimp.AUTO)
-        throwError.call(this, "w and h cannot both the set to auto", cb);        
+        return throwError.call(this, "w and h cannot both the set to auto", cb);
 
     if (w == Jimp.AUTO) w = this.bitmap.width * (h / this.bitmap.height);
     if (h == Jimp.AUTO) h = this.bitmap.height * (w / this.bitmap.width);
@@ -1092,7 +1092,7 @@ Jimp.prototype.resize = function (w, h, cb) {
  */
 Jimp.prototype.cover = function (w, h, cb) {
     if ("number" != typeof w || "number" != typeof h)
-        throwError.call(this, "w and h must be numbers", cb);
+        return throwError.call(this, "w and h must be numbers", cb);
 
     var f = (w/h > this.bitmap.width/this.bitmap.height) ?
         w/this.bitmap.width : h/this.bitmap.height;
@@ -1112,7 +1112,7 @@ Jimp.prototype.cover = function (w, h, cb) {
  */
 Jimp.prototype.contain = function (w, h, cb) {
     if ("number" != typeof w || "number" != typeof h)
-        throwError.call(this, "w and h must be numbers", cb);
+        return throwError.call(this, "w and h must be numbers", cb);
 
     var f = (w/h > this.bitmap.width/this.bitmap.height) ?
         h/this.bitmap.height : w/this.bitmap.width;
@@ -1136,9 +1136,9 @@ Jimp.prototype.contain = function (w, h, cb) {
  */
 Jimp.prototype.scale = function (f, cb) {
     if ("number" != typeof f)
-        throwError.call(this, "f must be a number", cb);
+        return throwError.call(this, "f must be a number", cb);
     if (f < 0)
-        throwError.call(this, "f must be a positive number", cb);
+        return throwError.call(this, "f must be a positive number", cb);
 
     var w = this.bitmap.width * f;
     var h = this.bitmap.height * f;
@@ -1265,10 +1265,10 @@ Jimp.prototype.rotate = function (deg, resize, cb) {
     }
     
     if ("number" != typeof deg)
-        throwError.call(this, "deg must be a number", cb);
+        return throwError.call(this, "deg must be a number", cb);
     
     if ("boolean" != typeof resize)
-        throwError.call(this, "resize must be a boolean", cb);
+        return throwError.call(this, "resize must be a boolean", cb);
 
     if (deg % 90 == 0 && resize !== false) simpleRotate.call(this, deg, cb);
     else advancedRotate.call(this, deg, resize, cb);
@@ -1285,9 +1285,9 @@ Jimp.prototype.rotate = function (deg, resize, cb) {
  */
 Jimp.prototype.getBuffer = function (mime, cb) {
     if ("string" != typeof mime)
-        throwError.call(this, "mime must be a string", cb);
+        return throwError.call(this, "mime must be a string", cb);
     if ("function" != typeof cb)
-        throwError.call(this, "cb must be a function", cb);
+        return throwError.call(this, "cb must be a function", cb);
 
     switch (mime.toLowerCase()) {
         case Jimp.MIME_PNG:
@@ -1432,23 +1432,23 @@ Jimp.prototype.color = function (actions, cb) {
  */
 Jimp.prototype.write = function (path, cb) {
     if ("string" != typeof path)
-        throwError.call(this, "path must be a string", cb);
+        return throwError.call(this, "path must be a string", cb);
     if ("undefined" == typeof cb) cb = function () {};
     if ("function" != typeof cb)
-        throwError.call(this, "cb must be a function", cb);
+        return throwError.call(this, "cb must be a function", cb);
 
     var that = this;
     var mime = MIME.lookup(path);
 
     this.getBuffer(mime, function(err, buffer) {
-        if (err) throwError.call(that, err, cb);
-		var stream = FS.createWriteStream(path);
-		stream.on("open", function(fh) {
-			stream.write(buffer);
-			stream.end();
-			return cb.call(that, null, that);
-		});
-	});
+        if (err) return throwError.call(that, err, cb);
+        var stream = FS.createWriteStream(path);
+        stream.on("open", function(fh) {
+            stream.write(buffer);
+            stream.end();
+            return cb.call(that, null, that);
+        });
+    });
 
     return this;
 };
