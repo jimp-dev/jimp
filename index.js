@@ -3,6 +3,7 @@ var PNG = require("pngjs2").PNG;
 var JPEG = require("jpeg-js");
 var BMP = require("bmp-js");
 var MIME = require("mime");
+var tinycolor = require("tinycolor2");
 var Resize = require("./resize.js");
 var StreamToBuffer = require('stream-to-buffer');
 var ReadChunk = require('read-chunk'); // npm install read-chunk
@@ -1361,6 +1362,67 @@ Jimp.prototype.dither565 = function (cb) {
 
 // alternative reference
 Jimp.prototype.dither16 = Jimp.prototype.dither565;
+
+/**
+ * Apply multiple color modification rules
+ * @param actions list of color modification rules, in following format: { apply: '<rule-name>', params: [ <rule-parameters> ]  }
+ * @param (optional) cb a callback for when complete
+ * @returns this for chaining of methods
+ */
+Jimp.prototype.color = function (actions, cb) {
+    if (!actions | actions.constructor !== Array)
+      throwError.call(this, "actions must be an array", cb);
+
+    var originalScope = this;
+    this.scan(0, 0, this.bitmap.width, this.bitmap.height, function (x, y, idx) {
+        var clr = tinycolor({r: this.bitmap.data[idx], g: this.bitmap.data[idx + 1], b: this.bitmap.data[idx + 2]});
+
+        var colorModifier = function (i, amount) {
+          c = clr.toRgb();
+          c[i] = Math.max(0, Math.min(c[i] + amount, 255));
+          return tinycolor(c);
+        }
+
+        actions.forEach(function (action) {
+            if (action.apply === 'mix') {
+                clr = tinycolor.mix(clr, action.params[0], action.params[1]);
+            } else if (action.apply === 'tint') {
+              clr = tinycolor.mix(clr, 'white', action.params[0]);
+            } else if (action.apply === 'shade') {
+              clr = tinycolor.mix(clr, 'black', action.params[0]);
+            } else if (action.apply === 'xor') {
+              var clr2 = tinycolor(action.params[0]).toRgb();
+              clr = clr.toRgb();
+              clr = tinycolor({ r: clr.r ^ clr2.r, g: clr.g ^ clr2.g, b: clr.b ^ clr2.b});
+            } else if (action.apply === 'red') {
+              clr = colorModifier('r', action.params[0]);
+            } else if (action.apply === 'green') {
+              clr = colorModifier('g', action.params[0]);
+            } else if (action.apply === 'blue') {
+              clr = colorModifier('b', action.params[0]);
+            } else {
+                if (action.apply === 'hue') {
+                    action.apply = 'spin';
+                }
+
+                var fn = clr[action.apply];
+                if (!fn) {
+                    throwError.call(originalScope, "action " + action.apply + " not supported", cb);
+                }
+                clr = fn.apply(clr, action.params);
+            }
+        });
+
+        clr = clr.toRgb();
+        this.bitmap.data[idx  ] = clr.r;
+        this.bitmap.data[idx+1] = clr.g;
+        this.bitmap.data[idx+2] = clr.b;
+    });
+
+    if (isNodePattern(cb)) return cb.call(this, null, this);
+    else return this;
+}
+
 
 /**
  * Writes the image to a file
