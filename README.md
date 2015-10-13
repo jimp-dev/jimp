@@ -62,6 +62,26 @@ image.fade( f ); // an alternative to opacity, fades the image by a factor 0 - 1
 
 (Contributions of more methods are welcome!)
 
+### Cloning images ###
+
+To clone a Jimp image, you can use:
+
+```js
+image.clone(); // returns the clone
+```
+
+The Jimp constructor can also be called using an existing image create a clone of that image:
+
+```js
+var clone = new Jimp(image, function (err, clone) {
+    // this is the clone
+});
+```
+
+## Writing to files and buffers ##
+
+### Saving images ###
+
 The image can be written to disk in PNG, JPEG or BMP format (determined by the file extension) using:
 
 ```js
@@ -93,23 +113,7 @@ Jimp.PNG_FILTER_AVERAGE; // 3;
 Jimp.PNG_FILTER_PAETH; // 4;
 ```
 
-## Cloning images ##
-
-To clone a Jimp image, you can use:
-
-```js
-image.clone(); // returns the clone
-```
-
-The Jimp constructor can also be called using an existing image create a clone of that image:
-
-```js
-var clone = new Jimp(image, function (err, clone) {
-    // this is the clone
-});
-```
-
-## Working with Buffers ##
+### Working with Buffers ###
 
 A PNG, JPEG or BMP binary Buffer of an image (e.g. for storage in a database) can to got using:
 
@@ -133,7 +137,41 @@ var image = new Jimp(buffer, function (err, image) {
 });
 ```
 
-## Direct manipulation ##
+## Advanced usage ##
+
+### Colour manipulation ##
+
+Jimp supports advanced colour manipulation using a single method as follows:
+
+```js
+image.color([
+    { apply: 'hue', params: [ -90 ] },
+    { apply: 'lighten', params: [ 50 ] },
+    { apply: 'xor', params: [ '#06D' ] }
+]);
+```
+
+The method supports the following modifiers:
+
+Modifier                | Description
+----------------------- | -----------------------
+**lighten** {amount}    | Lighten the color a given amount, from 0 to 100. Providing 100 will always return white (works through [TinyColor](https://github.com/bgrins/TinyColor))
+**brighten** {amount}   | Brighten the color a given amount, from 0 to 100 (works through [TinyColor](https://github.com/bgrins/TinyColor))
+**darken** {amount}     | Darken the color a given amount, from 0 to 100. Providing 100 will always return black (works through [TinyColor](https://github.com/bgrins/TinyColor))
+**desaturate** {amount} | Desaturate the color a given amount, from 0 to 100. Providing 100 will is the same as calling greyscale (works through [TinyColor](https://github.com/bgrins/TinyColor))
+**saturate** {amount}   | Saturate the color a given amount, from 0 to 100 (works through [TinyColor](https://github.com/bgrins/TinyColor))
+**greyscale** {amount}  | Completely desaturates a color into greyscale (works through [TinyColor](https://github.com/bgrins/TinyColor))
+**spin** {degree}       | Spin the hue a given amount, from -360 to 360. Calling with 0, 360, or -360 will do nothing - since it sets the hue back to what it was before. (works through [TinyColor](https://github.com/bgrins/TinyColor))
+**hue** {degree}        | Alias for **spin**
+**mix** {color, amount} | Mixes colors by their RGB component values. Amount is opacity of overlaying color
+**tint** {amount}       | Same as applying **mix** with white color
+**shade** {amount}      | Same as applying **mix** with black color
+**xor** {color}         | Treats the two colors as bitfields and applies an XOR operation to the red, green, and blue components
+**red** {amount}        | Modify Red component by a given amount
+**green** {amount}      | Modify Green component by a given amount
+**blue** {amount}       | Modify Blue component by a given amount
+
+### Low-level manipulation ###
 
 Jimp enables low-level manipulation of images in memory through the bitmap property of each Jimp object:
 

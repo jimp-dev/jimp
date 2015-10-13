@@ -1381,7 +1381,7 @@ Jimp.prototype.dither16 = Jimp.prototype.dither565;
  * @param (optional) cb a callback for when complete
  * @returns this for chaining of methods
  */
-Jimp.prototype.color = function (actions, cb) {
+Jimp.prototype.color = Jimp.prototype.colour = function (actions, cb) {
     if (!actions | actions.constructor !== Array)
       throwError.call(this, "actions must be an array", cb);
 
