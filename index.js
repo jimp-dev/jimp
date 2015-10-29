@@ -1204,7 +1204,7 @@ function advancedRotate(deg, resize) {
             this.bitmap.data.writeUInt32BE(this._background, idx);
         });
         
-        var max = (this.bitmap.width > this.bitmap.height) ? this.bitmap.width : this.bitmap.height;
+        var max= Math.max(w,h,this.bitmap.width,this.bitmap.height)
         this.resize(max, max);
         
         this.blit(c, this.bitmap.width / 2 - c.bitmap.width / 2, this.bitmap.height / 2 - c.bitmap.height / 2);
