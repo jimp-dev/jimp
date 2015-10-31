@@ -606,12 +606,10 @@ Jimp.prototype.composite = function (src, x, y, cb) {
     var that = this;
     src.scan(0, 0, src.bitmap.width, src.bitmap.height, function(sx, sy, idx) {
         var dstIdx = that.getPixelIndex(x+sx, y+sy);
-
-        that.bitmap.data[dstIdx] = (this.bitmap.data[idx] * this.bitmap.data[idx+3] / 255) + (that.bitmap.data[dstIdx] * (1 - this.bitmap.data[idx+3] / 255));
-        that.bitmap.data[dstIdx+1] = (this.bitmap.data[idx+1] * this.bitmap.data[idx+3] / 255) + (that.bitmap.data[dstIdx+1] * (1 - this.bitmap.data[idx+3] / 255));
-        that.bitmap.data[dstIdx+2] = (this.bitmap.data[idx+2] * this.bitmap.data[idx+3] / 255) + (that.bitmap.data[dstIdx+2] * (1 - this.bitmap.data[idx+3] / 255));
-
-        that.bitmap.data[dstIdx+3] = this.bitmap.data[idx+3] + that.bitmap.data[dstIdx+3] * (1 - this.bitmap.data[idx+3] / 255);
+        that.bitmap.data[dstIdx] = sourceOver(this.bitmap.data[idx], this.bitmap.data[idx+3], that.bitmap.data[dstIdx], that.bitmap.data[dstIdx + 3]);
+        that.bitmap.data[dstIdx+1] = sourceOver(this.bitmap.data[idx+1], this.bitmap.data[idx+3], that.bitmap.data[dstIdx+1], that.bitmap.data[dstIdx + 3]);
+        that.bitmap.data[dstIdx+2] = sourceOver(this.bitmap.data[idx+2], this.bitmap.data[idx+3], that.bitmap.data[dstIdx+2], that.bitmap.data[dstIdx + 3]);
+        that.bitmap.data[dstIdx+3] = that.bitmap.data[dstIdx + 3] + this.bitmap.data[idx+3] - that.bitmap.data[dstIdx + 3] * this.bitmap.data[idx+3];
     });
 
     if (isNodePattern(cb)) return cb.call(this, null, this);
@@ -619,8 +617,30 @@ Jimp.prototype.composite = function (src, x, y, cb) {
 };
 
 /**
+ * Calculated the colour component for "source over" alpha compositing
+ * @param fgC the foreground colour value
+ * @param fgA the foreground alpha value
+ * @param bgC the background colour value
+ * @param bgA the background alpha value
+ * @returns the colour value of the composite
+ */
+function sourceOver(fgC, fgA, bgC, bgA) {
+    // http://stackoverflow.com/questions/7438263/alpha-compositing-algorithm-blend-modes
+    var fg = fgC * fgA;
+    var bg = bgC * bgA;
+    
+    var c = fg + bg * (1 - fgA / 255);
+    var a = bgA + fgA - bgA * fgA;
+    var val = (c / a);
+    
+    if (val < 0) val = 0;
+    if (val > 255) val = 255;
+    return val;
+}
+
+/**
  * Adjusts the brightness of the image
- * val the amount to adjust the brightness, a number between -1 and +1
+ * @param val the amount to adjust the brightness, a number between -1 and +1
  * @param (optional) cb a callback for when complete
  * @returns this for chaining of methods
  */
