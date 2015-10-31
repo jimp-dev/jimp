@@ -232,6 +232,18 @@ Jimp.intToRGBA = function(i, cb){
     else return rgba;
 }
 
+
+/**
+ * Limits a number to between 0 or 255
+ * @param n a number
+ * @returns the number limited to between 0 or 255
+ */
+Jimp.limit255 = function(n) {
+    n = Math.max(n, 0);
+    n = Math.min(n, 255);
+    return n;
+}
+
 // parses a bitmap from the constructor to the JIMP bitmap property
 function parseBitmap(data, mime, cb) {
     var that = this;
@@ -487,7 +499,6 @@ Jimp.prototype.setPixelColor = Jimp.prototype.setPixelColour = function (hex, x,
     else return this;
 };
 
-
 /**
  * Crops the image at a given point to a give size
  * @param x the x coordinate to crop form
@@ -605,38 +616,38 @@ Jimp.prototype.composite = function (src, x, y, cb) {
 
     var that = this;
     src.scan(0, 0, src.bitmap.width, src.bitmap.height, function(sx, sy, idx) {
+        // http://stackoverflow.com/questions/7438263/alpha-compositing-algorithm-blend-modes
         var dstIdx = that.getPixelIndex(x+sx, y+sy);
-        that.bitmap.data[dstIdx] = sourceOver(this.bitmap.data[idx], this.bitmap.data[idx+3], that.bitmap.data[dstIdx], that.bitmap.data[dstIdx + 3]);
-        that.bitmap.data[dstIdx+1] = sourceOver(this.bitmap.data[idx+1], this.bitmap.data[idx+3], that.bitmap.data[dstIdx+1], that.bitmap.data[dstIdx + 3]);
-        that.bitmap.data[dstIdx+2] = sourceOver(this.bitmap.data[idx+2], this.bitmap.data[idx+3], that.bitmap.data[dstIdx+2], that.bitmap.data[dstIdx + 3]);
-        that.bitmap.data[dstIdx+3] = that.bitmap.data[dstIdx + 3] + this.bitmap.data[idx+3] - that.bitmap.data[dstIdx + 3] * this.bitmap.data[idx+3];
+        
+        var fg = {
+            r: this.bitmap.data[idx + 0] / 255,
+            g: this.bitmap.data[idx + 1] / 255,
+            b: this.bitmap.data[idx + 2] / 255,
+            a: this.bitmap.data[idx + 3] / 255
+        }
+        
+        var bg = {
+            r: that.bitmap.data[dstIdx + 0] / 255,
+            g: that.bitmap.data[dstIdx + 1] / 255,
+            b: that.bitmap.data[dstIdx + 2] / 255,
+            a: that.bitmap.data[dstIdx + 3] / 255
+        }
+        
+        var a = bg.a + fg.a - bg.a * fg.a;
+        
+        var r = ((fg.r * fg.a) + (bg.r * bg.a) * (1 - fg.a)) / a;
+        var g = ((fg.g * fg.a) + (bg.g * bg.a) * (1 - fg.a)) / a;
+        var b = ((fg.b * fg.a) + (bg.b * bg.a) * (1 - fg.a)) / a;
+        
+        that.bitmap.data[dstIdx + 0] = Jimp.limit255(r * 255);
+        that.bitmap.data[dstIdx + 1] = Jimp.limit255(g * 255);
+        that.bitmap.data[dstIdx + 2] = Jimp.limit255(b * 255);
+        that.bitmap.data[dstIdx + 3] = Jimp.limit255(a * 255);
     });
 
     if (isNodePattern(cb)) return cb.call(this, null, this);
     else return this;
 };
-
-/**
- * Calculated the colour component for "source over" alpha compositing
- * @param fgC the foreground colour value
- * @param fgA the foreground alpha value
- * @param bgC the background colour value
- * @param bgA the background alpha value
- * @returns the colour value of the composite
- */
-function sourceOver(fgC, fgA, bgC, bgA) {
-    // http://stackoverflow.com/questions/7438263/alpha-compositing-algorithm-blend-modes
-    var fg = fgC * fgA;
-    var bg = bgC * bgA;
-    
-    var c = fg + bg * (1 - fgA / 255);
-    var a = bgA + fgA - bgA * fgA;
-    var val = (c / a);
-    
-    if (val < 0) val = 0;
-    if (val > 255) val = 255;
-    return val;
-}
 
 /**
  * Adjusts the brightness of the image
