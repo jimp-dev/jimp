@@ -15,7 +15,7 @@ Jimp.read("lenna.png", function (err, lenna) {
     lenna.resize(512, 512)            // resize
          .quality(60)                 // set JPEG quality
          .greyscale()                 // set greyscale
-         .write("lena-small-bw.jpg"); // save again
+         .write("lena-small-bw.jpg"); // save
 });
 ```
 
@@ -26,7 +26,7 @@ Jimp.read("lenna.png").then(function (lenna) {
     lenna.resize(512, 512)           // resize
          .quality(60)                // set JPEG quality
          .greyscale()                // set greyscale
-         .write("lena-small-bw.jpg") // save again
+         .write("lena-small-bw.jpg") // save
 }).catch(function (err) {
     console.error(err);
 });
