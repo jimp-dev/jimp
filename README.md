@@ -35,7 +35,7 @@ Jimp.read("lenna.png").then(function (lenna) {
 
 ## Basic usage ##
 
-The static `Jimp.read` method takes the path to a PNG, JPEG or BMP image and (optionally) a Node-style callback and returns a Promise:
+The static `Jimp.read` method takes the path to a PNG, JPEG or BMP file and (optionally) a Node-style callback and returns a Promise:
 
 ```js
 Jimp.read("./path/to/image.jpg", function (err, image) {
@@ -46,6 +46,15 @@ Jimp.read("./path/to/image.jpg").then(function (image) {
     // do stuff with the image
 }).catch(function (err) {
     // handle an exception
+});
+```
+
+The method can also read a PNG, JPEG or BMP buffer:
+
+
+```js
+Jimp.read(buffer, function (err, image) {
+    // do stuff with the image (if no exception)
 });
 ```
 
@@ -82,7 +91,7 @@ image.clone();                 // returns a clone of the image
 
 ## Writing to files and buffers ##
 
-### Writing to file ###
+### Writing to files ###
 
 The image can be written to disk in PNG, JPEG or BMP format (determined by the file extension) using:
 
@@ -90,13 +99,31 @@ The image can be written to disk in PNG, JPEG or BMP format (determined by the f
 image.write( path, cb ); // Node-style callback will be fired when write is successful
 ```
 
-The quality of saved JPEGs can be set with:
+### Writing to Buffers ###
+
+A PNG, JPEG or BMP binary Buffer of an image (e.g. for storage in a database) can to got using:
+
+```js
+image.getBuffer( mime, cb ); // Node-style callback wil be fired with result
+```
+
+For convenience, supported MIME types are available as static properties:
+
+```js
+Jimp.MIME_PNG;  // "image/png"
+Jimp.MIME_JPEG; // "image/jpeg"
+Jimp.BMP;       // "image/bmp"
+```
+
+### PNG and JPEG quality ###
+
+The quality of JPEGs can be set with:
 
 ```js
 image.quality( n ); // set the quality of saved JPEG, 0 - 100
 ```
 
-The format of saved PNGs can be set with:
+The format of PNGs can be set with:
 
 ```js
 image.rgba( bool );           // set whether PNGs are saved as RGBA (true, default) or RGB (false)
@@ -113,22 +140,6 @@ Jimp.PNG_FILTER_SUB;     //  1
 Jimp.PNG_FILTER_UP;      //  2
 Jimp.PNG_FILTER_AVERAGE; //  3
 Jimp.PNG_FILTER_PAETH;   //  4
-```
-
-### Writing to Buffer ###
-
-A PNG, JPEG or BMP binary Buffer of an image (e.g. for storage in a database) can to got using:
-
-```js
-image.getBuffer( mime, cb ); // Node-style callback wil be fired with result
-```
-
-For convenience, supported MIME types are available as static properties:
-
-```js
-Jimp.MIME_PNG;  // "image/png"
-Jimp.MIME_JPEG; // "image/jpeg"
-Jimp.BMP;       // "image/bmp"
 ```
 
 ## Advanced usage ##
