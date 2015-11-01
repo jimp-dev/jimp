@@ -10,77 +10,78 @@ Example usage:
 var Jimp = require("jimp");
 
 // open a file called "lenna.png"
-var lenna = new Jimp("lenna.png", function (err, image) {
-    this.resize(512, 512) // resize
-        .write("lenna-small.png") // save
-        .quality(60) // set JPEG quality
-        .write("lenna-small.jpg") // save as JPEG
-        .greyscale() // set greyscale
-        .write("lena-small-bw.png") // save again
-        .crop(128, 192, 256, 128) // crop
-        .write("lena-small-bw-cropped.png"); // save again
+Jimp.read("lenna.png", function (err, lenna) {
+    lenna.resize(512, 512)            // resize
+         .quality(60)                 // set JPEG quality
+         .greyscale()                 // set greyscale
+         .write("lena-small-bw.jpg"); // save again
 });
 ```
+
+Using promises:
+
+```js
+Jimp.read("lenna.png").then(function (lenna) {
+    lenna.resize(512, 512)           // resize
+         .quality(60)                // set JPEG quality
+         .greyscale()                // set greyscale
+         .write("lena-small-bw.jpg") // save again
+}).catch(function (err) {
+    console.error(err);
+});
+```
+
 
 ## Basic usage ##
 
-The Jimp constructor takes two arguments, the path to a PNG, JPEG or BMP image and a Node-style callback:
+The static `Jimp.read` method takes the path to a PNG, JPEG or BMP image and (optionally) a Node-style callback and returns a Promise:
 
 ```js
-var image = new Jimp("./path/to/image.jpg", function (err, image) {
-    // this is the image
+Jimp.read("./path/to/image.jpg", function (err, image) {
+    // do stuff with the image (if no exception)
+});
+
+Jimp.read("./path/to/image.jpg").then(function (image) {
+    // do stuff with the image
+}).catch(function (err) {
+    // handle an exception
 });
 ```
 
-Once the callback has fired, the following methods can be called on the image:
+Once the callback is filed or the promise fulfilled, the following methods can be called on the image:
 
 ```js
-image.crop( x, y, w, h ); // crop to the given region
-image.invert(); // invert the image colours
-image.flip( horz, vert); // flip the image horizontally or vertically
-image.gaussian( r ); // Gaussian blur the image by r pixels (VERY slow)
-image.blur( r ); // fast blur the image by r pixels
-image.greyscale(); // remove colour from the image
-image.sepia(); // apply a sepia wash to the image
-image.opacity( f ); // multiply the alpha channel by each pixel by the factor f, 0 - 1
-image.resize( w, h ); // resize the image. Jimp.AUTO can be passed as one of the values.
-image.scale( f ); // scale the image by the factor f
+image.crop( x, y, w, h );      // crop to the given region
+image.invert();                // invert the image colours
+image.flip( horz, vert);       // flip the image horizontally or vertically
+image.gaussian( r );           // Gaussian blur the image by r pixels (VERY slow)
+image.blur( r );               // fast blur the image by r pixels
+image.greyscale();             // remove colour from the image
+image.sepia();                 // apply a sepia wash to the image
+image.opacity( f );            // multiply the alpha channel by each pixel by the factor f, 0 - 1
+image.resize( w, h );          // resize the image. Jimp.AUTO can be passed as one of the values.
+image.scale( f );              // scale the image by the factor f
 image.rotate( deg[, resize] ); // rotate the image clockwise by a number of degrees. Unless `false` is passed as the second parameter, the image width and height will be resized appropriately.
-image.blit( src, x, y ); // blit the image with another Jimp image at x, y
-image.composite( src, x, y ); // composites another Jimp image over this iamge at x, y
-image.brightness( val ); // adjust the brighness by a value -1 to +1
-image.contrast( val ); // adjust the contrast by a value -1 to +1
-image.posterize( n ); // apply a posterization effect with n level
-image.mask( src, x, y ); // masks the image with another Jimp image at x, y using average pixel value
-image.dither565(); // ordered dithering of the image and reduce color space to 16-bits (RGB565)
-image.cover( w, h ); // scale the image so that it fills the given width and height
-image.contain( w, h ); // scale the image to the largest size so that fits inside the given width and height
-image.background( hex ); // set the default new pixel colour (e.g. 0xFFFFFFFF or 0x00000000) for by some operations (e.g. image.contain and image.rotate) and when writing formats that don't support alpha channels
-image.mirror( horz, vert); // an alias for flip
-image.fade( f ); // an alternative to opacity, fades the image by a factor 0 - 1. 0 will haven no effect. 1 will turn the image image.opaque(); // set the alpha channel on every pixel to fully opaque
+image.blit( src, x, y );       // blit the image with another Jimp image at x, y
+image.composite( src, x, y );  // composites another Jimp image over this iamge at x, y
+image.brightness( val );       // adjust the brighness by a value -1 to +1
+image.contrast( val );         // adjust the contrast by a value -1 to +1
+image.posterize( n );          // apply a posterization effect with n level
+image.mask( src, x, y );       // masks the image with another Jimp image at x, y using average pixel value
+image.dither565();             // ordered dithering of the image and reduce color space to 16-bits (RGB565)
+image.cover( w, h );           // scale the image so that it fills the given width and height
+image.contain( w, h );         // scale the image to the largest size so that fits inside the given width and height
+image.background( hex );       // set the default new pixel colour (e.g. 0xFFFFFFFF or 0x00000000) for by some operations (e.g. image.contain and image.rotate) and when writing formats that don't support alpha channels
+image.mirror( horz, vert);     // an alias for flip
+image.fade( f );               // an alternative to opacity, fades the image by a factor 0 - 1. 0 will haven no effect. 1 will turn the image image.opaque();                // set the alpha channel on every pixel to fully opaque
+image.clone();                 // returns a clone of the image
 ```
 
 (Contributions of more methods are welcome!)
 
-### Cloning images ###
-
-To clone a Jimp image, you can use:
-
-```js
-image.clone(); // returns the clone
-```
-
-The Jimp constructor can also be called using an existing image create a clone of that image:
-
-```js
-var clone = new Jimp(image, function (err, clone) {
-    // this is the clone
-});
-```
-
 ## Writing to files and buffers ##
 
-### Saving images ###
+### Writing to file ###
 
 The image can be written to disk in PNG, JPEG or BMP format (determined by the file extension) using:
 
@@ -97,23 +98,23 @@ image.quality( n ); // set the quality of saved JPEG, 0 - 100
 The format of saved PNGs can be set with:
 
 ```js
-image.rgba( bool ); // set whether PNGs are saved as RGBA (true, default) or RGB (false)
-image.filterType( number ); // set the filter type for the saved PNG
+image.rgba( bool );           // set whether PNGs are saved as RGBA (true, default) or RGB (false)
+image.filterType( number );   // set the filter type for the saved PNG
 image.deflateLevel( number ); // set the deflate level for the saved PNG
 ```
 
 For convenience, supported filter types are available as static properties:
 
 ```js
-Jimp.PNG_FILTER_AUTO; // -1;
-Jimp.PNG_FILTER_NONE; // 0;
-Jimp.PNG_FILTER_SUB; // 1;
-Jimp.PNG_FILTER_UP; // 2;
-Jimp.PNG_FILTER_AVERAGE; // 3;
-Jimp.PNG_FILTER_PAETH; // 4;
+Jimp.PNG_FILTER_AUTO;    // -1
+Jimp.PNG_FILTER_NONE;    //  0
+Jimp.PNG_FILTER_SUB;     //  1
+Jimp.PNG_FILTER_UP;      //  2
+Jimp.PNG_FILTER_AVERAGE; //  3
+Jimp.PNG_FILTER_PAETH;   //  4
 ```
 
-### Working with Buffers ###
+### Writing to Buffer ###
 
 A PNG, JPEG or BMP binary Buffer of an image (e.g. for storage in a database) can to got using:
 
@@ -124,17 +125,9 @@ image.getBuffer( mime, cb ); // Node-style callback wil be fired with result
 For convenience, supported MIME types are available as static properties:
 
 ```js
-Jimp.MIME_PNG; // "image/png"
+Jimp.MIME_PNG;  // "image/png"
 Jimp.MIME_JPEG; // "image/jpeg"
-Jimp.BMP; // "image/bmp"
-```
-
-The Jimp constructor can also be called passing a valid Buffer as the first argument to the Jimp constructor:
-
-```js
-var image = new Jimp(buffer, function (err, image) {
-    // this is the image
-});
+Jimp.BMP;       // "image/bmp"
 ```
 
 ## Advanced usage ##
@@ -221,7 +214,9 @@ Jimp.rgbaToInt(r, g, b, a); // e.g. converts 255, 255, 255, 255 to 0xFFFFFFFF
 Jimp.intToRGBA(hex); // e.g. converts 0xFFFFFFFF to {r: 255, g: 255, b: 255, a:255}
 ```
 
-If you want to begin with an empty Jimp image, you can call the Jimp constructor passing the width and height of the image to create:
+### Creating new images ###
+
+If you want to begin with an empty Jimp image, you can call the Jimp constructor passing the width and height of the image to create and (optionally) a Node-style callback:
 
 ```js
 var image = new Jimp(256, 256, function (err, image) {
@@ -239,10 +234,10 @@ var image = new Jimp(256, 256, 0xFF0000FF, function (err, image) {
 
 ## Chaining or callbacks ##
 
-All methods can be chained together, for example as follows:
+All instance methods can be chained together, for example as follows:
 
 ```js
-var lenna = new Jimp("lenna.png", function (err, image) {
+Jimp.read("lenna.png", function (err, image) {
     this.greyscale().scale(0.5).write("lena-half-bw.png");
 });
 ```
@@ -250,7 +245,7 @@ var lenna = new Jimp("lenna.png", function (err, image) {
 Alternatively, methods can be passed Node-style callbacks:
 
 ```js
-var lenna = new Jimp("lenna.png", function (err, image) {
+Jimp.read("lenna.png", function (err, image) {
     image.greyscale(function(err, image) {
         image.scale(0.5, function (err, image) {
             image.write("lena-half-bw.png");

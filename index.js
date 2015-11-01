@@ -27,6 +27,9 @@ function clear() {
 
 process.on("exit", clear);
 
+// no operation
+function noop(){};
+
 // error checking methods
 
 function isNodePattern(cb) {
@@ -41,23 +44,6 @@ function throwError(error, cb) {
     if ("function" == typeof cb) return cb.call(this, error);
     else throw error;
 }
-
-// MIME type methods
-
-function getMIMEFromBuffer(buffer) {
-    if (FileType(buffer)) return FileType(buffer).mime;
-    else return "";
-}
-
-function getMIMEFromPath(path, cb) {
-    ReadChunk(path, 0, 262, function (err, buffer) {
-        if (err) { cb(null, ""); }
-        var fileType = FileType(buffer);
-        return cb && cb(null, fileType && fileType.mime || "");
-    });
-}
-
-//=> {ext: 'png', mime: 'image/png'}
 
 /**
  * Jimp constructor (from a file)
@@ -86,6 +72,7 @@ function getMIMEFromPath(path, cb) {
 
 function Jimp() {
     if ("number" == typeof arguments[0] && "number" == typeof arguments[1]) {
+        // create a new image
         var w = arguments[0];
         var h = arguments[1];
         var cb = arguments[2];
@@ -95,7 +82,7 @@ function Jimp() {
             var cb = arguments[3];
         }
 
-        if ("undefined" == typeof cb) cb = function () {};
+        if ("undefined" == typeof cb) cb = noop;
         if ("function" != typeof cb)
             return throwError.call(this, "cb must be a function", cb);
 
@@ -111,10 +98,11 @@ function Jimp() {
 
         cb.call(this, null, this);
     } else if ("object" == typeof arguments[0] && arguments[0].constructor == Jimp) {
+        // clone an existing Jimp
         var original = arguments[0];
         var cb = arguments[1];
 
-        if ("undefined" == typeof cb) cb = function () {};
+        if ("undefined" == typeof cb) cb = noop;
         if ("function" != typeof cb)
             return throwError.call(this, "cb must be a function", cb);
 
@@ -138,9 +126,11 @@ function Jimp() {
 
         cb.call(this, null, this);
     } else if ("string" == typeof arguments[0]) {
+        // read from a path
         var path = arguments[0];
         var cb = arguments[1];
-
+        
+        if ("undefined" == typeof cb) cb = noop;
         if ("function" != typeof cb)
             return throwError.call(this, "cb must be a function", cb);
 
@@ -152,6 +142,7 @@ function Jimp() {
             });
         });
     } else if ("object" == typeof arguments[0]) {
+        // read from a buffer
         var data = arguments[0];
         var mime = getMIMEFromBuffer(data);
         var cb = arguments[1];
@@ -166,6 +157,76 @@ function Jimp() {
         parseBitmap.call(this, data, mime, cb);
     } else {
         return throwError.call(this, "No matching constructor overloading was found. Please see the docs for how to call the Jimp constructor.", cb);
+    }
+}
+
+/**
+ * Read an image from a file or a Buffer
+ * @param src the path to the file or a Buffer containing the file data
+ * @param cb (optional) a callback function when the file is read
+ * @retuns a promise
+ */
+Jimp.read = function(src, cb) {
+    var promise = new Promise(
+        function(resolve, reject) {
+            cb = cb || function(err, image) {
+                if (err) reject(err);
+                else resolve(image);
+            }
+            if ("string" != typeof src && ("object" != typeof src || Buffer != src.constructor))
+                return throwError.call(this, "src must be a string or a Buffer", cb);
+            var img = new Jimp(src, cb);
+        }
+    );
+    return promise;
+}
+
+// MIME type methods
+
+function getMIMEFromBuffer(buffer) {
+    if (FileType(buffer)) return FileType(buffer).mime;
+    else return "";
+}
+
+// gets a MIME type of a file from the path to it
+function getMIMEFromPath(path, cb) {
+    ReadChunk(path, 0, 262, function (err, buffer) {
+        if (err) { cb(null, ""); }
+        var fileType = FileType(buffer);
+        return cb && cb(null, fileType && fileType.mime || "");
+    });
+}
+
+//=> {ext: 'png', mime: 'image/png'}
+
+// parses a bitmap from the constructor to the JIMP bitmap property
+function parseBitmap(data, mime, cb) {
+    var that = this;
+
+    switch (mime.toLowerCase()) {
+        case Jimp.MIME_PNG:
+            var png = new PNG();
+            png.parse(data, function(err, data) {
+                if (err) return throwError.call(that, err, cb);
+                that.bitmap = {
+                    data: new Buffer(data.data),
+                    width: data.width,
+                    height: data.height
+                };
+                return cb.call(that, null, that);
+            });
+            break;
+
+        case Jimp.MIME_JPEG:
+            this.bitmap = JPEG.decode(data);
+            return cb.call(this, null, this);
+
+        case Jimp.MIME_BMP:
+            this.bitmap = BMP.decode(data);
+            return cb.call(this, null, this);
+
+        default:
+            return throwError.call(this, "Unsupported MIME type: " + mime, cb);
     }
 }
 
@@ -242,37 +303,6 @@ Jimp.limit255 = function(n) {
     n = Math.max(n, 0);
     n = Math.min(n, 255);
     return n;
-}
-
-// parses a bitmap from the constructor to the JIMP bitmap property
-function parseBitmap(data, mime, cb) {
-    var that = this;
-
-    switch (mime.toLowerCase()) {
-        case Jimp.MIME_PNG:
-            var png = new PNG();
-            png.parse(data, function(err, data) {
-                if (err) return throwError.call(that, err, cb);
-                that.bitmap = {
-                    data: new Buffer(data.data),
-                    width: data.width,
-                    height: data.height
-                };
-                return cb.call(that, null, that);
-            });
-            break;
-
-        case Jimp.MIME_JPEG:
-            this.bitmap = JPEG.decode(data);
-            return cb.call(this, null, this);
-
-        case Jimp.MIME_BMP:
-            this.bitmap = BMP.decode(data);
-            return cb.call(this, null, this);
-
-        default:
-            return throwError.call(this, "Unsupported MIME type: " + mime, cb);
-    }
 }
 
 // An object representing a bitmap in memory, comprising:

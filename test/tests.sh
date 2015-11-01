@@ -11,27 +11,31 @@ function clean {
 }
 
 clean
-echo "callbacks.js (1/6)"
+echo "promise.js (1/7)"
+node promise.js
+
+clean
+echo "callbacks.js (2/7)"
 node callbacks.js
 
 clean
-echo "chained.js (2/6)"
+echo "chained.js (3/7)"
 node chained.js
 
 clean
-echo "create.js (3/6)"
+echo "create.js (4/7)"
 node create.js
 
 clean
-echo "rotation.js (4/6)"
+echo "rotation.js (5/7)"
 node rotation.js
 
 clean
-echo "filetype.js (5/6)"
+echo "filetype.js (6/7)"
 node filetypes.js
 
 clean
-echo "color.js (6/6)"
+echo "color.js (7/7)"
 node color.js
 
 clean
