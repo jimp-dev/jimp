@@ -11,6 +11,7 @@ var Jimp = require("jimp");
 
 // open a file called "lenna.png"
 Jimp.read("lenna.png", function (err, lenna) {
+    if (err) throw err;
     lenna.resize(512, 512)            // resize
          .quality(60)                 // set JPEG quality
          .greyscale()                 // set greyscale
