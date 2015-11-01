@@ -63,7 +63,7 @@ Once the callback is filed or the promise fulfilled, the following methods can b
 ```js
 image.crop( x, y, w, h );      // crop to the given region
 image.invert();                // invert the image colours
-image.flip( horz, vert);       // flip the image horizontally or vertically
+image.flip( horz, vert );      // flip the image horizontally or vertically
 image.gaussian( r );           // Gaussian blur the image by r pixels (VERY slow)
 image.blur( r );               // fast blur the image by r pixels
 image.greyscale();             // remove colour from the image
@@ -82,7 +82,7 @@ image.dither565();             // ordered dithering of the image and reduce colo
 image.cover( w, h );           // scale the image so that it fills the given width and height
 image.contain( w, h );         // scale the image to the largest size so that fits inside the given width and height
 image.background( hex );       // set the default new pixel colour (e.g. 0xFFFFFFFF or 0x00000000) for by some operations (e.g. image.contain and image.rotate) and when writing formats that don't support alpha channels
-image.mirror( horz, vert);     // an alias for flip
+image.mirror( horz, vert );    // an alias for flip
 image.fade( f );               // an alternative to opacity, fades the image by a factor 0 - 1. 0 will haven no effect. 1 will turn the image
 image.opaque();                // set the alpha channel on every pixel to fully opaque
 image.clone();                 // returns a clone of the image
