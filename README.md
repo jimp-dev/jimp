@@ -245,6 +245,16 @@ var image = new Jimp(256, 256, 0xFF0000FF, function (err, image) {
 });
 ```
 
+## Diffing images ##
+
+Jimp allows the diffing of two Jimp images using [PixelMatch](https://github.com/mapbox/pixelmatch) as follows:
+
+```js
+var diff = Jimp.diff(image1, image2, threshold); // threshold ranges 0-1
+diff.image;   // a Jimp image showing differences
+diff.percent; // the amount of different pixels (0-1)
+```
+
 ## Chaining or callbacks ##
 
 All instance methods can be chained together, for example as follows:

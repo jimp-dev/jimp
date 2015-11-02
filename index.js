@@ -5,12 +5,13 @@ var BMP = require("bmp-js");
 var MIME = require("mime");
 var tinycolor = require("tinycolor2");
 var Resize = require("./resize.js");
-var StreamToBuffer = require('stream-to-buffer');
-var ReadChunk = require('read-chunk'); // npm install read-chunk
-var FileType = require('file-type');
+var StreamToBuffer = require("stream-to-buffer");
+var ReadChunk = require("read-chunk");
+var FileType = require("file-type");
+var PixelMatch = require("pixelmatch");
 
 // polyfill Promise for Node < 0.12
-require('es6-promise').polyfill();
+require("es6-promise").polyfill();
 
 // logging methods
 
@@ -307,6 +308,42 @@ Jimp.limit255 = function(n) {
     n = Math.min(n, 255);
     return n;
 }
+
+
+/**
+ * Compares two images and returns
+ * @param img1 a Jimp image to compare
+ * @param img2 a Jimp image to compare
+ * @param (optional) threshold a number, 0 to 1, the smaller the value the more sensitive the comparison (default: 0.1)
+ * @returns an object { percent: percent similar, diff: a Jimp image highlighting differences }
+ */
+Jimp.diff = function (img1, img2, threshold) {
+    if ("object" != typeof img1 || img1.constructor != Jimp || "object" != typeof img2 || img2.constructor != Jimp)
+        return throwError.call(this, "img1 and img2 must be an Jimp images");
+    if (img1.bitmap.width != img2.bitmap.width || img1.bitmap.height != img2.bitmap.height)
+        return throwError.call(this, "img1 and img2 must be the same width and height");
+    
+    threshold = threshold || 0.1;
+    if ("number" != typeof threshold || threshold < 0 || threshold > 1)
+        return throwError.call(this, "threshold must be a number between 0 and 1");
+
+    var diff = new Jimp(img1.bitmap.width, img1.bitmap.height, 0xFFFFFFFF);
+
+    var numDiffPixels = PixelMatch(
+        img1.bitmap.data,
+        img2.bitmap.data,
+        diff.bitmap.data,
+        diff.bitmap.width,
+        diff.bitmap.height,
+        {threshold: threshold}
+    );
+    
+    return {
+        percent: numDiffPixels / (diff.bitmap.width * diff.bitmap.height),
+        image: diff
+    };
+}
+
 
 // An object representing a bitmap in memory, comprising:
 //  - data: a buffer of the bitmap data
@@ -1447,7 +1484,7 @@ Jimp.prototype.dither16 = Jimp.prototype.dither565;
  */
 Jimp.prototype.color = Jimp.prototype.colour = function (actions, cb) {
     if (!actions | actions.constructor !== Array)
-      throwError.call(this, "actions must be an array", cb);
+        return throwError.call(this, "actions must be an array", cb);
 
     var originalScope = this;
     this.scan(0, 0, this.bitmap.width, this.bitmap.height, function (x, y, idx) {
@@ -1483,7 +1520,7 @@ Jimp.prototype.color = Jimp.prototype.colour = function (actions, cb) {
 
                 var fn = clr[action.apply];
                 if (!fn) {
-                    throwError.call(originalScope, "action " + action.apply + " not supported", cb);
+                    return throwError.call(originalScope, "action " + action.apply + " not supported", cb);
                 }
                 clr = fn.apply(clr, action.params);
             }
