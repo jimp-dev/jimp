@@ -9,6 +9,9 @@ var StreamToBuffer = require('stream-to-buffer');
 var ReadChunk = require('read-chunk'); // npm install read-chunk
 var FileType = require('file-type');
 
+// polyfill Promise for Node < 0.12
+require('es6-promise').polyfill();
+
 // logging methods
 
 var chars = 0;
