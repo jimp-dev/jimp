@@ -12,7 +12,7 @@ var Jimp = require("jimp");
 // open a file called "lenna.png"
 Jimp.read("lenna.png", function (err, lenna) {
     if (err) throw err;
-    lenna.resize(512, 512)            // resize
+    lenna.resize(256, 256)            // resize
          .quality(60)                 // set JPEG quality
          .greyscale()                 // set greyscale
          .write("lena-small-bw.jpg"); // save
@@ -23,7 +23,7 @@ Using promises:
 
 ```js
 Jimp.read("lenna.png").then(function (lenna) {
-    lenna.resize(512, 512)           // resize
+    lenna.resize(256, 256)           // resize
          .quality(60)                // set JPEG quality
          .greyscale()                // set greyscale
          .write("lena-small-bw.jpg") // save
