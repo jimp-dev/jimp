@@ -1559,6 +1559,8 @@ Jimp.prototype.write = function (path, cb) {
         stream.on("open", function(fh) {
             stream.write(buffer);
             stream.end();
+        });
+        stream.on("finish", function(fh) {
             return cb.call(that, null, that);
         });
     });
