@@ -9,6 +9,7 @@ var StreamToBuffer = require("stream-to-buffer");
 var ReadChunk = require("read-chunk");
 var FileType = require("file-type");
 var PixelMatch = require("pixelmatch");
+var EXIFParser = require("exif-parser");
 
 // polyfill Promise for Node < 0.12
 require("es6-promise").polyfill();
@@ -223,6 +224,7 @@ function parseBitmap(data, mime, cb) {
 
         case Jimp.MIME_JPEG:
             this.bitmap = JPEG.decode(data);
+            exifRotate(this, data); // EXIF data
             return cb.call(this, null, this);
 
         case Jimp.MIME_BMP:
@@ -231,6 +233,43 @@ function parseBitmap(data, mime, cb) {
 
         default:
             return throwError.call(this, "Unsupported MIME type: " + mime, cb);
+    }
+}
+
+/*
+ * Automagically rotates a JPEG image based on its EXIF data
+ * @params image a Jimp image
+ * @params buffer a buffer array of the raw JPEG data
+ * @returns nothing
+ */
+function exifRotate(image, buffer) {
+    var exif = EXIFParser.create(buffer).parse();
+    if (!exif || !exif.tags || !exif.tags.Orientation) return;
+    switch (exif.tags.Orientation) {
+        case 1: // Horizontal (normal)
+            // do nothing
+            break;
+        case 2: // Mirror horizontal
+            image.mirror(true, false);
+            break;
+        case 3: // Rotate 180
+            image.rotate(180);
+            break;
+        case 4: // Mirror vertical
+            image.mirror(false, true);
+            break;
+        case 5: // Mirror horizontal and rotate 270 CW
+            image.mirror(true, false).rotate(270);
+            break;
+        case 6: // Rotate 90 CW
+            image.rotate(90);
+            break;
+        case 7: // Mirror horizontal and rotate 90 CW
+            image.mirror(true, false).rotate(90);
+            break;
+        case 8: // Rotate 270 CW
+            image.rotate(270);
+            break;
     }
 }
 
@@ -1497,25 +1536,25 @@ Jimp.prototype.color = Jimp.prototype.colour = function (actions, cb) {
         }
 
         actions.forEach(function (action) {
-            if (action.apply === 'mix') {
+            if (action.apply === "mix") {
                 clr = tinycolor.mix(clr, action.params[0], action.params[1]);
-            } else if (action.apply === 'tint') {
-              clr = tinycolor.mix(clr, 'white', action.params[0]);
-            } else if (action.apply === 'shade') {
-              clr = tinycolor.mix(clr, 'black', action.params[0]);
-            } else if (action.apply === 'xor') {
+            } else if (action.apply === "tint") {
+              clr = tinycolor.mix(clr, "white", action.params[0]);
+            } else if (action.apply === "shade") {
+              clr = tinycolor.mix(clr, "black", action.params[0]);
+            } else if (action.apply === "xor") {
               var clr2 = tinycolor(action.params[0]).toRgb();
               clr = clr.toRgb();
               clr = tinycolor({ r: clr.r ^ clr2.r, g: clr.g ^ clr2.g, b: clr.b ^ clr2.b});
-            } else if (action.apply === 'red') {
-              clr = colorModifier('r', action.params[0]);
-            } else if (action.apply === 'green') {
-              clr = colorModifier('g', action.params[0]);
-            } else if (action.apply === 'blue') {
-              clr = colorModifier('b', action.params[0]);
+            } else if (action.apply === "red") {
+              clr = colorModifier("r", action.params[0]);
+            } else if (action.apply === "green") {
+              clr = colorModifier("g", action.params[0]);
+            } else if (action.apply === "blue") {
+              clr = colorModifier("b", action.params[0]);
             } else {
-                if (action.apply === 'hue') {
-                    action.apply = 'spin';
+                if (action.apply === "hue") {
+                    action.apply = "spin";
                 }
 
                 var fn = clr[action.apply];

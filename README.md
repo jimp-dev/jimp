@@ -58,6 +58,8 @@ Jimp.read(buffer, function (err, image) {
 });
 ```
 
+JPEG images with EXIF orientation data will be automatically re-orientated as appropriate.
+
 Once the callback is filed or the promise fulfilled, the following methods can be called on the image:
 
 ```js
