@@ -709,8 +709,8 @@ Jimp.prototype.blit = function (src, x, y, cb) {
  * @param src the source Jimp instance
  * @param x the x position to blit the image
  * @param y the y position to blit the image
- * @param srcx the x position to blit the image
- * @param srcy the y position to blit the image
+ * @param srcx the x position in the source image
+ * @param srcy the y position in the source image
  * @param srcw the width size of the source image
  * @param srch the height size of the source image
  * @param (optional) cb a callback for when complete
