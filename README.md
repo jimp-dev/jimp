@@ -247,19 +247,31 @@ var image = new Jimp(256, 256, 0xFF0000FF, function (err, image) {
 });
 ```
 
-## Diffing images ##
+## Comparing images ##
 
-Jimp allows the diffing of two Jimp images using [PixelMatch](https://github.com/mapbox/pixelmatch) as follows:
+To generate a [perceptual hash](https://en.wikipedia.org/wiki/Perceptual_hashing) of a Jimp image, use:
+
+```js
+image.hash(); // aHgG4GgoFjA
+```
+
+To compared two Jimp images based on their perceptual hash (using the hammering stances of the binary hash), use:
+
+```js
+Jimp.compare(image1, image2); // returns a number 0-1, where 1 means the images percieved to be identical
+```
+
+Jimp also allows the diffing of two Jimp images using [PixelMatch](https://github.com/mapbox/pixelmatch) as follows:
 
 ```js
 var diff = Jimp.diff(image1, image2, threshold); // threshold ranges 0-1
 diff.image;   // a Jimp image showing differences
-diff.percent; // the amount of different pixels (0-1)
+diff.percent; // the proportion of different pixels (0-1), where 0 means the images are pixel identical
 ```
 
 ## Chaining or callbacks ##
 
-All instance methods can be chained together, for example as follows:
+Most instance methods can be chained together, for example as follows:
 
 ```js
 Jimp.read("lenna.png", function (err, image) {

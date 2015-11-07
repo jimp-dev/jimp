@@ -10,6 +10,8 @@ var ReadChunk = require("read-chunk");
 var FileType = require("file-type");
 var PixelMatch = require("pixelmatch");
 var EXIFParser = require("exif-parser");
+var ImagePHash = require("./phash.js");
+var BigNumber = require('bignumber.js');
 
 // polyfill Promise for Node < 0.12
 require("es6-promise").polyfill();
@@ -350,7 +352,7 @@ Jimp.limit255 = function(n) {
 
 
 /**
- * Compares two images and returns
+ * Diffs two images and returns
  * @param img1 a Jimp image to compare
  * @param img2 a Jimp image to compare
  * @param (optional) threshold a number, 0 to 1, the smaller the value the more sensitive the comparison (default: 0.1)
@@ -381,6 +383,20 @@ Jimp.diff = function (img1, img2, threshold) {
         percent: numDiffPixels / (diff.bitmap.width * diff.bitmap.height),
         image: diff
     };
+}
+
+
+/**
+ * Diffs two images and returns
+ * @param img1 a Jimp image to compare
+ * @param img2 a Jimp image to compare
+ * @returns a number ranging from 0 to 1, where 0 means the two images are completely different and 1 means they are identical
+ */
+Jimp.compare = function (img1, img2) {
+    var phash = new ImagePHash();
+    var hash1 = phash.getHash(img1);
+    var hash2 = phash.getHash(img2);
+    return phash.distance(hash1, hash2);
 }
 
 
@@ -607,6 +623,18 @@ Jimp.prototype.setPixelColor = Jimp.prototype.setPixelColour = function (hex, x,
     if (isNodePattern(cb)) return cb.call(this, null, this);
     else return this;
 };
+
+
+/**
+ * Generates a perceptual hash of the image <https://en.wikipedia.org/wiki/Perceptual_hashing>. Theoretically, there are 18,446,744,073,709,551,615 potential hashes.
+ * @returns a string representing the hash in base 64.
+ */
+Jimp.prototype.hash = function(){
+    var hash = (new ImagePHash()).getHash(this);
+    var base64 = (new BigNumber(hash, 2)).toString(64);
+    return base64;
+}
+
 
 /**
  * Crops the image at a given point to a give size
@@ -1574,7 +1602,6 @@ Jimp.prototype.color = Jimp.prototype.colour = function (actions, cb) {
     if (isNodePattern(cb)) return cb.call(this, null, this);
     else return this;
 }
-
 
 /**
  * Writes the image to a file
