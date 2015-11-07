@@ -387,12 +387,12 @@ Jimp.diff = function (img1, img2, threshold) {
 
 
 /**
- * Diffs two images and returns
+ * Calculates the hammering distance of two images based on their perceptual hash
  * @param img1 a Jimp image to compare
  * @param img2 a Jimp image to compare
- * @returns a number ranging from 0 to 1, where 0 means the two images are completely different and 1 means they are identical
+ * @returns a number ranging from 0 to 1, 0 means they are believed to be identical
  */
-Jimp.compare = function (img1, img2) {
+Jimp.distance = function (img1, img2) {
     var phash = new ImagePHash();
     var hash1 = phash.getHash(img1);
     var hash2 = phash.getHash(img2);

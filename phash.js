@@ -46,7 +46,7 @@ ImagePHash.prototype.distance = function(s1, s2) {
             counter++;
         }
     }
-    return 1 - (counter / s1.length);
+    return (counter / s1.length);
 }
 
 // Returns a 'binary string' (like. 001010111011100010) which is easy to do a hamming distance on. 

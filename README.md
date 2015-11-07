@@ -255,19 +255,22 @@ To generate a [perceptual hash](https://en.wikipedia.org/wiki/Perceptual_hashing
 image.hash(); // aHgG4GgoFjA
 ```
 
-To compared two Jimp images based on their perceptual hash (using the hammering stances of the binary hash), use:
+To compare two Jimp images based on their perceptual hash (using the hammering distance between their binary hashes), use:
 
 ```js
-Jimp.compare(image1, image2); // returns a number 0-1, where 1 means the images percieved to be identical
+Jimp.distance(image1, image2); // returns a number 0-1, where 0 means the two images are percieved to be identical
 ```
 
 Jimp also allows the diffing of two Jimp images using [PixelMatch](https://github.com/mapbox/pixelmatch) as follows:
 
 ```js
-var diff = Jimp.diff(image1, image2, threshold); // threshold ranges 0-1
+var diff = Jimp.diff(image1, image2, threshold); // threshold ranges 0-1 (default: 0.1)
 diff.image;   // a Jimp image showing differences
 diff.percent; // the proportion of different pixels (0-1), where 0 means the images are pixel identical
 ```
+
+Using a mix of hammering distance and pixel diffing to comare images taking 0.15 as a cut off point, testing on 23 sample images under various conditions achieves a 95% success rate.
+
 
 ## Chaining or callbacks ##
 

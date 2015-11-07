@@ -7,7 +7,7 @@ Promise.all([p1, p2]).then(function(images){
     var diff = Jimp.diff(images[0], images[1], 0.5);
     
     if ("number" != typeof diff.percent)
-        throw("Percent is not a number!s");
+        throw("Percent is not a number");
     
     diff.image.write("./output/diff.png");
 }).catch(function (err) {
