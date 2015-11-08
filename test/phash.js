@@ -51,17 +51,20 @@ function testFile(file1, file2) {
 
     Promise.all([p1, p2]).then(function(images){
         var c = Jimp.distance(images[0], images[1]);
-        var diff = Jimp.diff(images[0], images[1].clone().resize(images[0].bitmap.width, images[0].bitmap.height)).percent;
-        if (c < 0.15 || diff < 0.15) {
+//        var diff = Jimp.diff(images[0], images[1].clone().resize(images[0].bitmap.width, images[0].bitmap.height)).percent;
+//        if (c < 0.15 || diff < 0.15) {
+        if (c < 0.15) {
             if (file1 != file2) {
-                console.log("False positive: ", file1, file2, c, diff);
+//                console.log("False positive: ", file1, file2, c, diff);
+                console.log("False positive: ", file1, file2, c);
                 false_p++;
             } else {
                 correct++;
             }
         } else {
             if (file1 == file2) {
-                console.log("False negative: ", file1, c, diff);
+//                console.log("False negative: ", file1, c, diff);
+                console.log("False negative: ", file1, c);
                 false_n++;
             } else {
                 correct++;
