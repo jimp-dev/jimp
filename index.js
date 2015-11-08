@@ -14,7 +14,7 @@ var ImagePHash = require("./phash.js");
 var BigNumber = require('bignumber.js');
 
 // polyfill Promise for Node < 0.12
-require("es6-promise").polyfill();
+var Promise = Promise || require('es6-promise').Promise;
 
 // logging methods
 
