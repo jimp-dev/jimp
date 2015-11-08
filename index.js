@@ -626,7 +626,7 @@ Jimp.prototype.setPixelColor = Jimp.prototype.setPixelColour = function (hex, x,
 
 
 /**
- * Generates a perceptual hash of the image <https://en.wikipedia.org/wiki/Perceptual_hashing>. Theoretically, there are 18,446,744,073,709,551,615 potential hashes.
+ * Generates a perceptual hash of the image <https://en.wikipedia.org/wiki/Perceptual_hashing>.
  * @returns a string representing the hash in base 64.
  */
 Jimp.prototype.hash = function(){

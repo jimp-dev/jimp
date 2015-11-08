@@ -249,13 +249,15 @@ var image = new Jimp(256, 256, 0xFF0000FF, function (err, image) {
 
 ## Comparing images ##
 
-To generate a [perceptual hash](https://en.wikipedia.org/wiki/Perceptual_hashing) of a Jimp image, use:
+To generate a [perceptual hash](https://en.wikipedia.org/wiki/Perceptual_hashing) of a Jimp image, based on the [pHash](http://phash.org/) algorithm, use:
 
 ```js
 image.hash(); // aHgG4GgoFjA
 ```
 
-To compare two Jimp images based on their perceptual hash (using the hammering distance between their binary hashes), use:
+There are 18,446,744,073,709,551,615 unique hashes. The hammering distance between the binary representation of these hashes can be used to find similar-looking images.
+
+To calculate the hammering distance between two Jimp images based on their perceptual hash use:
 
 ```js
 Jimp.distance(image1, image2); // returns a number 0-1, where 0 means the two images are percieved to be identical
@@ -269,7 +271,20 @@ diff.image;   // a Jimp image showing differences
 diff.percent; // the proportion of different pixels (0-1), where 0 means the images are pixel identical
 ```
 
-Using a mix of hammering distance and pixel diffing to comare images taking 0.15 as a cut off point, testing on 23 sample images under various conditions achieves a 95% success rate.
+Using a mix of hammering distance and pixel diffing to comare images, the following code has a 99% success rate (with 1% false positives) of detecting the same image between 120 PNGs and JPEG (and a quality setting of 60):
+
+```js
+var distance = Jimp.distance(image1, image2); // percieved difference
+
+var image2_c = image2.clone().resize(image1.bitmap.width, image1.bitmap.height);
+var diff = Jimp.diff(image1, image2_c);       // pixel difference
+
+if (distance < 0.15 || diff.percent < 0.15) {
+    // images match
+} else {
+    // not a match
+}
+```
 
 
 ## Chaining or callbacks ##
