@@ -271,7 +271,7 @@ diff.image;   // a Jimp image showing differences
 diff.percent; // the proportion of different pixels (0-1), where 0 means the images are pixel identical
 ```
 
-Using a mix of hammering distance and pixel diffing to comare images, the following code has a 99% success rate of detecting the same image from a random sample (with 1% false positives):*
+Using a mix of hammering distance and pixel diffing to comare images, the following code has a 99% success rate of detecting the same image from a random sample (with 1% false positives). The test this figure is drawn from attempts to match each image from sample of 120 PNGs against 120 corresponing JPEGs saved at a quality setting of 60.
 
 ```js
 var distance = Jimp.distance(png, jpeg); // percieved distance
@@ -285,8 +285,6 @@ if (distance < 0.15 || diff.percent < 0.15) {
     // not a match
 }
 ```
-
-* The test attempts to match each image from sample of 120 PNGs against 120 corresponing JPEGs saved at a quality setting of 60.
 
 ## Chaining or callbacks ##
 
