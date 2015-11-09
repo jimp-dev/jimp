@@ -270,7 +270,7 @@ There are 18,446,744,073,709,551,615 unique hashes. The hammering distance betwe
 To calculate the hammering distance between two Jimp images based on their perceptual hash use:
 
 ```js
-Jimp.distance(image1, image2); // returns a number 0-1, where 0 means the two images are percieved to be identical
+Jimp.distance(image1, image2); // returns a number 0-1, where 0 means the two images are perceived to be identical
 ```
 
 Jimp also allows the diffing of two Jimp images using [PixelMatch](https://github.com/mapbox/pixelmatch) as follows:
