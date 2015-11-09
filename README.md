@@ -255,6 +255,12 @@ To generate a [perceptual hash](https://en.wikipedia.org/wiki/Perceptual_hashing
 image.hash(); // aHgG4GgoFjA
 ```
 
+By default the hash is returned as base 64. The hash can be returned at another base by passing a number from 2 to 64 to the method:
+
+```js
+image.hash(2); // 1010101011010000101010000100101010010000011001001001010011100100
+```
+
 There are 18,446,744,073,709,551,615 unique hashes. The hammering distance between the binary representation of these hashes can be used to find similar-looking images.
 
 To calculate the hammering distance between two Jimp images based on their perceptual hash use:

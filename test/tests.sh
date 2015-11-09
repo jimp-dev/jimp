@@ -39,8 +39,8 @@ echo "color.js (7/9)"
 node color.js
 
 clean
-echo "diff.js (8/9)"
-node diff.js
+echo "compare.js (8/9)"
+node compare.js
 
 clean
 echo "exif.js (9/9)"

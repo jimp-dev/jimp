@@ -627,12 +627,26 @@ Jimp.prototype.setPixelColor = Jimp.prototype.setPixelColour = function (hex, x,
 
 /**
  * Generates a perceptual hash of the image <https://en.wikipedia.org/wiki/Perceptual_hashing>.
- * @returns a string representing the hash in base 64.
+ * @param base (optional) a number between 2 and 64 representing the base for the hash (e.g. 2 is binary, 10 is decimaal, 16 is hex, 64 is base 64). Defaults to 64.
+ * @param (optional) cb a callback for when complete
+ * @returns a string representing the hash
  */
-Jimp.prototype.hash = function(){
+Jimp.prototype.hash = function(base, cb){
+    base = base || 64;
+    if ("function" == typeof base) {
+        cb = base;
+        base = 64;
+    }
+    if ("number" != typeof base)
+        return throwError.call(this, "base must be a number", cb);
+    if (base < 2 || base > 64)
+        return throwError.call(this, "base must be a number between 2 and 64", cb);
+    
     var hash = (new ImagePHash()).getHash(this);
-    var base64 = (new BigNumber(hash, 2)).toString(64);
-    return base64;
+    var base64 = (new BigNumber(hash, 2)).toString(base);
+    
+    if (isNodePattern(cb)) return cb.call(this, null, base64);
+    else return base64;
 }
 
 
