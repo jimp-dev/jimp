@@ -656,6 +656,13 @@ Jimp.prototype.setPixelColor = Jimp.prototype.setPixelColour = function (hex, x,
 };
 
 
+// an array storing the maximum string length of hashes at various bases
+var maxHashLength = [];
+for (var i = 0; i < 65; i++) {
+    var l = (i > 1) ? (new BigNumber(Array(64 + 1).join("1"), 2)).toString(i) : NaN;
+    maxHashLength.push(l.length);
+}
+
 /**
  * Generates a perceptual hash of the image <https://en.wikipedia.org/wiki/Perceptual_hashing>.
  * @param base (optional) a number between 2 and 64 representing the base for the hash (e.g. 2 is binary, 10 is decimaal, 16 is hex, 64 is base 64). Defaults to 64.
@@ -674,10 +681,14 @@ Jimp.prototype.hash = function(base, cb){
         return throwError.call(this, "base must be a number between 2 and 64", cb);
     
     var hash = (new ImagePHash()).getHash(this);
-    var base64 = (new BigNumber(hash, 2)).toString(base);
+    hash = (new BigNumber(hash, 2)).toString(base);
     
-    if (isNodePattern(cb)) return cb.call(this, null, base64);
-    else return base64;
+    while (hash.length < maxHashLength[base]) {
+        hash = "0" + hash; // pad out with leading zeros
+    }
+    
+    if (isNodePattern(cb)) return cb.call(this, null, hash);
+    else return hash;
 }
 
 

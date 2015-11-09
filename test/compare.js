@@ -18,6 +18,12 @@ Promise.all([p1, p2]).then(function(images){
     var hash_b = images[1].hash(2, function(err, hash){
         return hash;
     });
+    
+//    var white = new Jimp(256, 256, 0xFFFFFFFF);
+//    console.log("W: " + white.hash(2));
+//    var black = new Jimp(256, 256, 0x000000FF);
+//    console.log("B: " + black.hash(2));
+    
 //    console.log("A: " + hash_a);
 //    console.log("B: " + hash_b);
     if ("string" != typeof hash_a)
