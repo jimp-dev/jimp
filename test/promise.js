@@ -1,18 +1,17 @@
 var Jimp = require("../index.js");
 
-Jimp.read("lenna.png", function (err, lenna) {
-    if (err) throw err;
-    lenna.getBuffer(Jimp.MIME_PNG, function(err, data){
-        Jimp.read(data).then(function(lenna2){
-            lenna2.invert().write("./output/lenna-invert2.png"); // invert
+var p1 = Jimp.read("lenna.png");
+var p2 = Jimp.read("https://upload.wikimedia.org/wikipedia/commons/0/01/Bot-Test.jpg");
+
+Promise.all([p1, p2]).then(function (images) {
+    images[0].getBuffer(Jimp.MIME_PNG, function(err, data){
+        Jimp.read(data).then(function(lenna){
+            lenna.invert().write("./output/lenna-buffer.jpg"); // save buffer
         }).catch(function(err) {
             console.log(err);
         });
     });
-});
-
-Jimp.read("lenna.png").then(function (lenna) {
-    lenna.invert().write("./output/lenna-invert.png"); // invert
+    images[1].write("./output/test-from-url.png");
 }).catch(function (err) {
     console.log(err);
 });

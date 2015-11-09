@@ -31,8 +31,10 @@
     "pixelmatch": "^4.0.0",
     "pngjs": "^2.1.0",
     "read-chunk": "^1.0.1",
+    "request": "^2.65.0",
     "stream-to-buffer": "^0.1.0",
-    "tinycolor2": "^1.1.2"
+    "tinycolor2": "^1.1.2",
+    "url-regex": "^3.0.0"
   },
   "repository": {
     "type": "git",

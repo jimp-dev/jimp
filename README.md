@@ -49,11 +49,15 @@ Jimp.read("./path/to/image.jpg").then(function (image) {
 });
 ```
 
-The method can also read a PNG, JPEG or BMP buffer:
+The method can also read a PNG, JPEG or BMP buffer or from a URL:
 
 
 ```js
-Jimp.read(buffer, function (err, image) {
+Jimp.read(lenna.buffer, function (err, image) {
+    // do stuff with the image (if no exception)
+});
+
+Jimp.read("http://www.example.com/path/to/lenna.jpg", function (err, image) {
     // do stuff with the image (if no exception)
 });
 ```

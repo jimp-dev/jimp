@@ -12,6 +12,8 @@ var PixelMatch = require("pixelmatch");
 var EXIFParser = require("exif-parser");
 var ImagePHash = require("./phash.js");
 var BigNumber = require('bignumber.js');
+var URLRegEx = require("url-regex");
+var Request = require('request').defaults({ encoding: null });
 
 // polyfill Promise for Node < 0.12
 var Promise = Promise || require('es6-promise').Promise;
@@ -132,6 +134,25 @@ function Jimp() {
         this._background = original._background;
 
         cb.call(this, null, this);
+    } else if (URLRegEx({exact: true}).test(arguments[0])) {
+        // read from a URL
+        var url = arguments[0];
+        var cb = arguments[1];
+        
+        if ("undefined" == typeof cb) cb = noop;
+        if ("function" != typeof cb)
+            return throwError.call(this, "cb must be a function", cb);
+        
+        var that = this;
+        Request(url, function (err, response, data) {
+            if (err) return throwError.call(that, err, cb);
+            if ("object" == typeof data && Buffer == data.constructor) {
+                var mime = getMIMEFromBuffer(data);
+                if ("string" != typeof mime)
+                    return throwError.call(that, "Could not find MIME for Buffer <" + url + "> (HTTP: " + response.statusCode + ")", cb);
+                parseBitmap.call(that, data, mime, cb);
+            } else return throwError.call(that, "Could not load Buffer from URL <" + url + "> (HTTP: " + response.statusCode + ")", cb);
+        });
     } else if ("string" == typeof arguments[0]) {
         // read from a path
         var path = arguments[0];
