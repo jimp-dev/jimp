@@ -361,8 +361,18 @@ Jimp.limit255 = function(n) {
 Jimp.diff = function (img1, img2, threshold) {
     if ("object" != typeof img1 || img1.constructor != Jimp || "object" != typeof img2 || img2.constructor != Jimp)
         return throwError.call(this, "img1 and img2 must be an Jimp images");
-    if (img1.bitmap.width != img2.bitmap.width || img1.bitmap.height != img2.bitmap.height)
-        return throwError.call(this, "img1 and img2 must be the same width and height");
+
+    if (img1.bitmap.width != img2.bitmap.width || img1.bitmap.height != img2.bitmap.height) {
+        switch (img1.bitmap.width * img1.bitmap.height > img2.bitmap.width * img2.bitmap.height) {
+            case true: // img1 is bigger
+                img1 = img1.clone().resize(img2.bitmap.width, img2.bitmap.height);
+                break;
+            default:
+                // img2 is bigger (or they are the same in area)
+                img2 = img2.clone().resize(img1.bitmap.width, img1.bitmap.height);
+                break;
+        }
+    }
     
     threshold = threshold || 0.1;
     if ("number" != typeof threshold || threshold < 0 || threshold > 1)
