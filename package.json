@@ -42,5 +42,6 @@
   },
   "bugs": {
     "url": "https://github.com/oliver-moran/jimp/issues"
-  }
+  },
+  "tonicExampleFilename": "example.js"
 }
