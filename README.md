@@ -209,10 +209,10 @@ image.scan(0, 0, image.bitmap.width, image.bitmap.height, function (x, y, idx) {
     // idx is the position start position of this rgba tuple in the bitmap Buffer
     // this is the image
 
-    var red = this.bitmap.data[idx];
-    var green = this.bitmap.data[idx+1];
-    var blue = this.bitmap.data[idx+2];
-    var alpha = this.bitmap.data[idx+3];
+    var red   = this.bitmap.data[ idx + 0 ];
+    var green = this.bitmap.data[ idx + 1 ];
+    var blue  = this.bitmap.data[ idx + 2 ];
+    var alpha = this.bitmap.data[ idx + 3 ];
 
     // rgba values run from 0 - 255
     // e.g. this.bitmap.data[idx] = 0; // removes red from this pixel
