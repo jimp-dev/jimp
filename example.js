@@ -1,4 +1,4 @@
-var Jimp = require("./index.js");
+var Jimp = require("jimp");
 
 var url = "https://upload.wikimedia.org/wikipedia/commons/0/01/Bot-Test.jpg";
 
