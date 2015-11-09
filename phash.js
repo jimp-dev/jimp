@@ -57,7 +57,7 @@ ImagePHash.prototype.getHash = function(img) {
      * This is really done to simplify the DCT computation and not 
      * because it is needed to reduce the high frequencies.
      */
-    img.clone().resize(this.size, this.size);
+    img = img.clone().resize(this.size, this.size);
 
     /* 2. Reduce color. 
      * The image is reduced to a grayscale just to further simplify 
@@ -99,9 +99,8 @@ ImagePHash.prototype.getHash = function(img) {
             total += dctVals[x][y];
         }
     }
-    total -= dctVals[0][0];
 
-    var avg = total / ((this.smallerSize * this.smallerSize) - 1);
+    var avg = total / (this.smallerSize * this.smallerSize);
 
     /* 6. Further reduce the DCT. 
      * This is the magic step. Set the 64 hash bits to 0 or 1 
@@ -115,11 +114,9 @@ ImagePHash.prototype.getHash = function(img) {
      */
     var hash = "";
 
+	var count = 0;
     for (var x = 0; x < this.smallerSize; x++) {
         for (var y = 0; y < this.smallerSize; y++) {
-//            if (x != 0 && y != 0) {
-//                hash += (dctVals[x][y] > avg?"1":"0");
-//            }
             hash += (dctVals[x][y] > avg?"1":"0");
         }
     }
