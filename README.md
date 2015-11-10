@@ -285,9 +285,7 @@ Using a mix of hammering distance and pixel diffing to comare images, the follow
 
 ```js
 var distance = Jimp.distance(png, jpeg); // perceived distance
-
-var jpeg_r = jpeg.clone().resize(png.bitmap.width, png.bitmap.height);
-var diff = Jimp.diff(png, jpeg_r);       // pixel difference
+var diff = Jimp.diff(png, jpeg);         // pixel difference
 
 if (distance < 0.15 || diff.percent < 0.15) {
     // images match
