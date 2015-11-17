@@ -730,11 +730,7 @@ Jimp.prototype.crop = function (x, y, w, h, cb) {
 };
 
 /**
- * Autocrop same color borders from this image.
- * All borders must be of the same color as the top left pixel, to be cropped.
- * It should be possible to crop borders each with a different color,
- * but since there are many ways for corners to intersect, it would
- * introduce unnecessary complexity to the algorithm.
+ * Autocrop same color borders from this image
  * @param (optional) cb a callback for when complete
  * @returns this for chaining of methods
  */
@@ -747,11 +743,17 @@ Jimp.prototype.autocrop = function (cb) {
     var westPixelsToCrop = 0;
     
     var color = this.getPixelColor(0, 0); // get top left pixel color
+    /**
+     * All borders must be of the same color as the top left pixel, to be cropped.
+     * It should be possible to crop borders each with a different color,
+     * but since there are many ways for corners to intersect, it would
+     * introduce unnecessary complexity to the algorithm.
+     */
 
     // scan each side for same color borders
-    north: // north side
-    for (var y = northPixelsToCrop; y < h - (northPixelsToCrop + southPixelsToCrop); y++) {
-        for (var x = westPixelsToCrop; x < w - (eastPixelsToCrop + westPixelsToCrop); x++) {
+    north: // north side (scan rows from north to south)
+    for (var y = 0; y < h; y++) {
+        for (var x = 0; x < w; x++) {
             if (this.getPixelColor(x, y) !== color) {
                 // this pixel is not the same color as the first one: abort this side scan
                 break north;
@@ -761,9 +763,9 @@ Jimp.prototype.autocrop = function (cb) {
         northPixelsToCrop++;
     }
 
-    east: // east side
-    for (var x = westPixelsToCrop; x < w - (eastPixelsToCrop + westPixelsToCrop); x++) {
-        for (var y = northPixelsToCrop; y < h - (northPixelsToCrop + southPixelsToCrop); y++) {
+    east: // east side (scan columns from east to west)
+    for (var x = 0; x < w; x++) {
+        for (var y = 0; y < h; y++) {
             if (this.getPixelColor(x, y) !== color) {
                 // this pixel is not the same color as the first one: abort this side scan
                 break east;
@@ -773,7 +775,7 @@ Jimp.prototype.autocrop = function (cb) {
         eastPixelsToCrop++;
     }
 
-    south: // south side
+    south: // south side (scan rows from south to north)
     for (var y = h - 1; y >= 0; y--) {
         for (var x = w - 1; x >= 0; x--) {
             if (this.getPixelColor(x, y) !== color) {
@@ -785,7 +787,7 @@ Jimp.prototype.autocrop = function (cb) {
         southPixelsToCrop++;
     }
 
-    west: // west side
+    west: // west side (scan columns from west to east)
     for (var x = w - 1; x >= 0; x--) {
         for (var y = h - 1; y >= 0; y--) {
             if (this.getPixelColor(x, y) !== color) {
@@ -801,15 +803,22 @@ Jimp.prototype.autocrop = function (cb) {
     var widthOfPixelsToCrop = w - (westPixelsToCrop + eastPixelsToCrop);
     widthOfPixelsToCrop >= 0 ? widthOfPixelsToCrop : 0;
     var heightOfPixelsToCrop = h - (southPixelsToCrop + northPixelsToCrop);
-    heightOfPixelsToCrop >= 0 ? heightOfPixelsToCrop : 0
+    heightOfPixelsToCrop >= 0 ? heightOfPixelsToCrop : 0;
 
-    // crop image 
-    this.crop(
-        westPixelsToCrop,
-        northPixelsToCrop,
-        widthOfPixelsToCrop,
-        heightOfPixelsToCrop
-    );
+    // crop image, if at least one side should be cropped
+    if (
+        westPixelsToCrop !== 0 ||
+        northPixelsToCrop !== 0 ||
+        widthOfPixelsToCrop !== w ||
+        heightOfPixelsToCrop !== h
+    ) {
+        this.crop(
+            westPixelsToCrop,
+            northPixelsToCrop,
+            widthOfPixelsToCrop,
+            heightOfPixelsToCrop
+        );
+    }
 
     if (isNodePattern(cb)) return cb.call(this, null, this);
     else return this;
