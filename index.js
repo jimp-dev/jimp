@@ -730,6 +730,92 @@ Jimp.prototype.crop = function (x, y, w, h, cb) {
 };
 
 /**
+ * Autocrop same color borders from this image.
+ * All borders must be of the same color as the top left pixel, to be cropped.
+ * It should be possible to crop borders each with a different color,
+ * but since there are many ways for corners to intersect, it would
+ * introduce unnecessary complexity to the algorithm.
+ * @param (optional) cb a callback for when complete
+ * @returns this for chaining of methods
+ */
+Jimp.prototype.autocrop = function (cb) {
+    var w = this.bitmap.width;
+    var h = this.bitmap.height;
+    var northPixelsToCrop = 0;
+    var eastPixelsToCrop = 0;
+    var southPixelsToCrop = 0;
+    var westPixelsToCrop = 0;
+    
+    var color = this.getPixelColor(0, 0); // get top left pixel color
+
+    // scan each side for same color borders
+    north: // north side
+    for (var y = northPixelsToCrop; y < h - (northPixelsToCrop + southPixelsToCrop); y++) {
+        for (var x = westPixelsToCrop; x < w - (eastPixelsToCrop + westPixelsToCrop); x++) {
+            if (this.getPixelColor(x, y) !== color) {
+                // this pixel is not the same color as the first one: abort this side scan
+                break north;
+            }
+        }
+        // this row contains all pixels with the same color: increment this side pixels to crop
+        northPixelsToCrop++;
+    }
+
+    east: // east side
+    for (var x = westPixelsToCrop; x < w - (eastPixelsToCrop + westPixelsToCrop); x++) {
+        for (var y = northPixelsToCrop; y < h - (northPixelsToCrop + southPixelsToCrop); y++) {
+            if (this.getPixelColor(x, y) !== color) {
+                // this pixel is not the same color as the first one: abort this side scan
+                break east;
+            }
+        }
+        // this column contains all pixels with the same color: increment this side pixels to crop
+        eastPixelsToCrop++;
+    }
+
+    south: // south side
+    for (var y = h - 1; y >= 0; y--) {
+        for (var x = w - 1; x >= 0; x--) {
+            if (this.getPixelColor(x, y) !== color) {
+                // this pixel is not the same color as the first one: abort this side scan
+                break south;
+            }
+        }
+        // this row contains all pixels with the same color: increment this side pixels to crop
+        southPixelsToCrop++;
+    }
+
+    west: // west side
+    for (var x = w - 1; x >= 0; x--) {
+        for (var y = h - 1; y >= 0; y--) {
+            if (this.getPixelColor(x, y) !== color) {
+                // this pixel is not the same color as the first one: abort this side scan
+                break west;
+            }
+        }
+        // this column contains all pixels with the same color: increment this side pixels to crop
+        westPixelsToCrop++;
+    }
+
+    // safety checks
+    var widthOfPixelsToCrop = w - (westPixelsToCrop + eastPixelsToCrop);
+    widthOfPixelsToCrop >= 0 ? widthOfPixelsToCrop : 0;
+    var heightOfPixelsToCrop = h - (southPixelsToCrop + northPixelsToCrop);
+    heightOfPixelsToCrop >= 0 ? heightOfPixelsToCrop : 0
+
+    // crop image 
+    this.crop(
+        westPixelsToCrop,
+        northPixelsToCrop,
+        widthOfPixelsToCrop,
+        heightOfPixelsToCrop
+    );
+
+    if (isNodePattern(cb)) return cb.call(this, null, this);
+    else return this;
+};
+
+/**
  * Blits a source image on to this image
  * @param src the source Jimp instance
  * @param x the x position to blit the image
