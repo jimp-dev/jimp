@@ -5,7 +5,6 @@ var imageTransparent = "peace-transparent.png";
 var imageWithOneColorBorder = "peace-with-border.png";
 var imageWithManyColorsBorder = "peace-with-different-borders.png";
 
-/*
 new Jimp(imageWithOneColorBorder, function (err, image) {
 	if (err) {
   	  	return console.error("Error reading image", imageWithOneColorBorder, ":", err);
@@ -28,7 +27,7 @@ new Jimp(imageWithOneColorBorder, function (err, image) {
         });
     });
 });
-*/
+
 new Jimp(imageTransparent, function (err, image) {
     if (err) {
         return console.error("Error reading image", imageTransparent, ":", err);
