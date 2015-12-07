@@ -1,4 +1,4 @@
-var FS = require("fs");
+var FS = require("browserify-fs");
 var PNG = require("pngjs").PNG;
 var JPEG = require("jpeg-js");
 var BMP = require("bmp-js");
@@ -172,6 +172,21 @@ function Jimp() {
     } else if ("object" == typeof arguments[0]) {
         // read from a buffer
         var data = arguments[0];
+
+        // Data could also be an ArrayBuffer when run in a Browser Context. Attempt conversion to Buffer.
+        if (Buffer != data.constructor) {
+            try {
+                var buffer = new Buffer(data.byteLength);
+                var view = new Uint8Array(data);
+                for (var i = 0; i < buffer.length; ++i) {
+                    buffer[i] = view[i];
+                }
+                data = buffer;
+            } catch (e) {
+                return throwError.call(this, "Failed to convert ArrayBuffer to Buffer", cb);
+            }
+        }
+
         var mime = getMIMEFromBuffer(data);
         var cb = arguments[1];
 
@@ -201,7 +216,7 @@ Jimp.read = function(src, cb) {
                 if (err) reject(err);
                 else resolve(image);
             }
-            if ("string" != typeof src && ("object" != typeof src || Buffer != src.constructor))
+            if ("string" != typeof src && ("object" != typeof src))
                 return throwError.call(this, "src must be a string or a Buffer", cb);
             var img = new Jimp(src, cb);
         }
@@ -1784,5 +1799,9 @@ Jimp.prototype.write = function (path, cb) {
 
     return this;
 };
+
+// For use in a web browser or web worker
+if (window) window.Jimp = Jimp;
+if (self) self.Jimp = Jimp;
 
 module.exports = Jimp;

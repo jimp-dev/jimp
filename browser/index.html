@@ -1,0 +1,59 @@
+<html>
+<head>
+    <title>JIMP + Web Worker Proof of Concept</title>
+    <script src="bundle.js" type="text/javascript"></script>
+    <script type="text/javascript">
+
+        function toBuffer(ab) {
+            var buffer = new Buffer(ab.byteLength);
+            var view = new Uint8Array(ab);
+            for (var i = 0; i < buffer.length; ++i) {
+                buffer[i] = view[i];
+            }
+            return buffer;
+        }
+
+        function newFile(element){
+            var file = element.files[0];
+
+            var reader = new FileReader();
+
+            reader.onload = function(e) {
+                var arrayBuffer = reader.result;
+
+                Jimp.read(arrayBuffer, function (err, image) {
+                    console.log('done reading',image);
+                    if (err) throw err;
+                    image.resize(256, 256)            // resize
+                            .quality(60)                 // set JPEG quality
+                            .greyscale()                 // set greyscale
+                            .quality(80)
+                            .getBuffer(Jimp.MIME_JPEG,function(a,arrayValues){
+                                console.log("PROCESSED!",arrayValues);
+                            });
+                });
+            };
+
+            reader.readAsArrayBuffer(file);
+        }
+//        function handleFileSelect(evt) {
+//            var files = evt.target.files; // FileList object
+//
+//            // files is a FileList of File objects. List some properties.
+//            var output = [];
+//            for (var i = 0, f; f = files[i]; i++) {
+//                output.push('<li><strong>', escape(f.name), '</strong> (', f.type || 'n/a', ') - ',
+//                        f.size, ' bytes, last modified: ',
+//                        f.lastModifiedDate ? f.lastModifiedDate.toLocaleDateString() : 'n/a',
+//                        '</li>');
+//            }
+//            document.getElementById('list').innerHTML = '<ul>' + output.join('') + '</ul>';
+//        }
+//
+//        document.getElementById('files').addEventListener('change', handleFileSelect, false);
+    </script>
+</head>
+<body>
+<input type="file" onchange="newFile(this);">
+</body>
+</html>
