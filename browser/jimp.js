@@ -1339,13 +1339,27 @@ Jimp.prototype.contain = function (w, h, cb) {
     var f = (w/h > this.bitmap.width/this.bitmap.height) ?
         h/this.bitmap.height : w/this.bitmap.width;
     var c = this.clone().scale(f);
-    
+
     this.resize(w, h);
     this.scan(0, 0, this.bitmap.width, this.bitmap.height, function (x, y, idx) {
         this.bitmap.data.writeUInt32BE(this._background, idx);
     });
     this.blit(c, this.bitmap.width / 2 - c.bitmap.width / 2, this.bitmap.height / 2 - c.bitmap.height / 2);
     
+    if (isNodePattern(cb)) return cb.call(this, null, this);
+    else return this;
+};
+
+Jimp.prototype.containWithoutBackground = function (w, h, cb) {
+    if ("number" != typeof w || "number" != typeof h)
+        return throwError.call(this, "w and h must be numbers", cb);
+
+    var f = (w/h > this.bitmap.width/this.bitmap.height) ?
+    h/this.bitmap.height : w/this.bitmap.width;
+    //var c = this.clone().scale(f);
+
+    this.scale(f);
+
     if (isNodePattern(cb)) return cb.call(this, null, this);
     else return this;
 };
@@ -1595,8 +1609,8 @@ Jimp.prototype.dither565 = function (cb) {
 }
 
 // For use in a web browser or web worker
-if (window) window.Jimp = Jimp;
-if (self) self.Jimp = Jimp;
+if (typeof window == "object") window.Jimp = Jimp;
+if (typeof self == "object") self.Jimp = Jimp;
 
 module.exports = Jimp;
 
