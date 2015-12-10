@@ -120,7 +120,7 @@ For convenience, supported MIME types are available as static properties:
 ```js
 Jimp.MIME_PNG;  // "image/png"
 Jimp.MIME_JPEG; // "image/jpeg"
-Jimp.MIME_BMP;       // "image/bmp"
+Jimp.MIME_BMP;  // "image/bmp"
 ```
 
 ### PNG and JPEG quality ###
