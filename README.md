@@ -12,10 +12,10 @@ var Jimp = require("jimp");
 // open a file called "lenna.png"
 Jimp.read("lenna.png", function (err, lenna) {
     if (err) throw err;
-    lenna.resize(256, 256)            // resize
-         .quality(60)                 // set JPEG quality
-         .greyscale()                 // set greyscale
-         .write("lena-small-bw.jpg"); // save
+    lenna.resize(256, 256)           // resize
+        .quality(60)                 // set JPEG quality
+        .greyscale()                 // set greyscale
+        .write("lena-small-bw.jpg"); // save
 });
 ```
 
@@ -23,10 +23,10 @@ Using promises:
 
 ```js
 Jimp.read("lenna.png").then(function (lenna) {
-    lenna.resize(256, 256)            // resize
-         .quality(60)                 // set JPEG quality
-         .greyscale()                 // set greyscale
-         .write("lena-small-bw.jpg"); // save
+    lenna.resize(256, 256)           // resize
+        .quality(60)                 // set JPEG quality
+        .greyscale()                 // set greyscale
+        .write("lena-small-bw.jpg"); // save
 }).catch(function (err) {
     console.error(err);
 });
@@ -120,7 +120,7 @@ For convenience, supported MIME types are available as static properties:
 ```js
 Jimp.MIME_PNG;  // "image/png"
 Jimp.MIME_JPEG; // "image/jpeg"
-Jimp.BMP;       // "image/bmp"
+Jimp.MIME_BMP;       // "image/bmp"
 ```
 
 ### PNG and JPEG quality ###
