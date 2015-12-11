@@ -1,11 +1,19 @@
+var FS = require("fs");
 var PNG = require("pngjs").PNG;
 var JPEG = require("jpeg-js");
 var BMP = require("bmp-js");
+var MIME = require("mime");
+var tinycolor = require("tinycolor2");
 var Resize = require("./resize.js");
 var StreamToBuffer = require("stream-to-buffer");
+var ReadChunk = require("read-chunk");
 var FileType = require("file-type");
+var PixelMatch = require("pixelmatch");
 var EXIFParser = require("exif-parser");
+var ImagePHash = require("./phash.js");
+var BigNumber = require('bignumber.js');
 var URLRegEx = require("url-regex");
+var Request = require('request').defaults({ encoding: null });
 
 // polyfill Promise for Node < 0.12
 var Promise = Promise || require('es6-promise').Promise;
@@ -145,24 +153,25 @@ function Jimp() {
                 parseBitmap.call(that, data, mime, cb);
             } else return throwError.call(that, "Could not load Buffer from URL <" + url + "> (HTTP: " + response.statusCode + ")", cb);
         });
+    } else if ("string" == typeof arguments[0]) {
+        // read from a path
+        var path = arguments[0];
+        var cb = arguments[1];
+        
+        if ("undefined" == typeof cb) cb = noop;
+        if ("function" != typeof cb)
+            return throwError.call(this, "cb must be a function", cb);
+
+        var that = this;
+        getMIMEFromPath(path, function (err, mime) {
+            FS.readFile(path, function (err, data) {
+                if (err) return throwError.call(that, err, cb);
+                parseBitmap.call(that, data, mime, cb);
+            });
+        });
     } else if ("object" == typeof arguments[0]) {
         // read from a buffer
         var data = arguments[0];
-
-        // Data could also be an ArrayBuffer when run in a Browser Context. Attempt conversion to Buffer.
-        if (Buffer != data.constructor) {
-            try {
-                var buffer = new Buffer(data.byteLength);
-                var view = new Uint8Array(data);
-                for (var i = 0; i < buffer.length; ++i) {
-                    buffer[i] = view[i];
-                }
-                data = buffer;
-            } catch (e) {
-                return throwError.call(this, "Failed to convert ArrayBuffer to Buffer", cb);
-            }
-        }
-
         var mime = getMIMEFromBuffer(data);
         var cb = arguments[1];
 
@@ -192,7 +201,7 @@ Jimp.read = function(src, cb) {
                 if (err) reject(err);
                 else resolve(image);
             }
-            if ("string" != typeof src && ("object" != typeof src))
+            if ("string" != typeof src && ("object" != typeof src || Buffer != src.constructor))
                 return throwError.call(this, "src must be a string or a Buffer", cb);
             var img = new Jimp(src, cb);
         }
@@ -205,6 +214,15 @@ Jimp.read = function(src, cb) {
 function getMIMEFromBuffer(buffer) {
     if (FileType(buffer)) return FileType(buffer).mime;
     else return "";
+}
+
+// gets a MIME type of a file from the path to it
+function getMIMEFromPath(path, cb) {
+    ReadChunk(path, 0, 262, function (err, buffer) {
+        if (err) { cb(null, ""); }
+        var fileType = FileType(buffer);
+        return cb && cb(null, fileType && fileType.mime || "");
+    });
 }
 
 //=> {ext: 'png', mime: 'image/png'}
@@ -352,6 +370,66 @@ Jimp.limit255 = function(n) {
     n = Math.min(n, 255);
     return n;
 }
+
+
+/**
+ * Diffs two images and returns
+ * @param img1 a Jimp image to compare
+ * @param img2 a Jimp image to compare
+ * @param (optional) threshold a number, 0 to 1, the smaller the value the more sensitive the comparison (default: 0.1)
+ * @returns an object { percent: percent similar, diff: a Jimp image highlighting differences }
+ */
+Jimp.diff = function (img1, img2, threshold) {
+    if ("object" != typeof img1 || img1.constructor != Jimp || "object" != typeof img2 || img2.constructor != Jimp)
+        return throwError.call(this, "img1 and img2 must be an Jimp images");
+
+    if (img1.bitmap.width != img2.bitmap.width || img1.bitmap.height != img2.bitmap.height) {
+        switch (img1.bitmap.width * img1.bitmap.height > img2.bitmap.width * img2.bitmap.height) {
+            case true: // img1 is bigger
+                img1 = img1.clone().resize(img2.bitmap.width, img2.bitmap.height);
+                break;
+            default:
+                // img2 is bigger (or they are the same in area)
+                img2 = img2.clone().resize(img1.bitmap.width, img1.bitmap.height);
+                break;
+        }
+    }
+    
+    threshold = threshold || 0.1;
+    if ("number" != typeof threshold || threshold < 0 || threshold > 1)
+        return throwError.call(this, "threshold must be a number between 0 and 1");
+
+    var diff = new Jimp(img1.bitmap.width, img1.bitmap.height, 0xFFFFFFFF);
+
+    var numDiffPixels = PixelMatch(
+        img1.bitmap.data,
+        img2.bitmap.data,
+        diff.bitmap.data,
+        diff.bitmap.width,
+        diff.bitmap.height,
+        {threshold: threshold}
+    );
+    
+    return {
+        percent: numDiffPixels / (diff.bitmap.width * diff.bitmap.height),
+        image: diff
+    };
+}
+
+
+/**
+ * Calculates the hammering distance of two images based on their perceptual hash
+ * @param img1 a Jimp image to compare
+ * @param img2 a Jimp image to compare
+ * @returns a number ranging from 0 to 1, 0 means they are believed to be identical
+ */
+Jimp.distance = function (img1, img2) {
+    var phash = new ImagePHash();
+    var hash1 = phash.getHash(img1);
+    var hash2 = phash.getHash(img2);
+    return phash.distance(hash1, hash2);
+}
+
 
 // An object representing a bitmap in memory, comprising:
 //  - data: a buffer of the bitmap data
@@ -576,6 +654,43 @@ Jimp.prototype.setPixelColor = Jimp.prototype.setPixelColour = function (hex, x,
     if (isNodePattern(cb)) return cb.call(this, null, this);
     else return this;
 };
+
+
+// an array storing the maximum string length of hashes at various bases
+var maxHashLength = [];
+for (var i = 0; i < 65; i++) {
+    var l = (i > 1) ? (new BigNumber(Array(64 + 1).join("1"), 2)).toString(i) : NaN;
+    maxHashLength.push(l.length);
+}
+
+/**
+ * Generates a perceptual hash of the image <https://en.wikipedia.org/wiki/Perceptual_hashing>.
+ * @param base (optional) a number between 2 and 64 representing the base for the hash (e.g. 2 is binary, 10 is decimaal, 16 is hex, 64 is base 64). Defaults to 64.
+ * @param (optional) cb a callback for when complete
+ * @returns a string representing the hash
+ */
+Jimp.prototype.hash = function(base, cb){
+    base = base || 64;
+    if ("function" == typeof base) {
+        cb = base;
+        base = 64;
+    }
+    if ("number" != typeof base)
+        return throwError.call(this, "base must be a number", cb);
+    if (base < 2 || base > 64)
+        return throwError.call(this, "base must be a number between 2 and 64", cb);
+    
+    var hash = (new ImagePHash()).getHash(this);
+    hash = (new BigNumber(hash, 2)).toString(base);
+    
+    while (hash.length < maxHashLength[base]) {
+        hash = "0" + hash; // pad out with leading zeros
+    }
+    
+    if (isNodePattern(cb)) return cb.call(this, null, hash);
+    else return hash;
+}
+
 
 /**
  * Crops the image at a given point to a give size
@@ -1321,26 +1436,13 @@ Jimp.prototype.contain = function (w, h, cb) {
     var f = (w/h > this.bitmap.width/this.bitmap.height) ?
         h/this.bitmap.height : w/this.bitmap.width;
     var c = this.clone().scale(f);
-
+    
     this.resize(w, h);
     this.scan(0, 0, this.bitmap.width, this.bitmap.height, function (x, y, idx) {
         this.bitmap.data.writeUInt32BE(this._background, idx);
     });
     this.blit(c, this.bitmap.width / 2 - c.bitmap.width / 2, this.bitmap.height / 2 - c.bitmap.height / 2);
     
-    if (isNodePattern(cb)) return cb.call(this, null, this);
-    else return this;
-};
-
-Jimp.prototype.containWithoutBackground = function (w, h, cb) {
-    if ("number" != typeof w || "number" != typeof h)
-        return throwError.call(this, "w and h must be numbers", cb);
-
-    var f = (w/h > this.bitmap.width/this.bitmap.height) ?
-    h/this.bitmap.height : w/this.bitmap.width;
-
-    this.scale(f);
-
     if (isNodePattern(cb)) return cb.call(this, null, this);
     else return this;
 };
@@ -1589,8 +1691,98 @@ Jimp.prototype.dither565 = function (cb) {
     else return this;
 }
 
-// For use in a web browser or web worker
-if (typeof window == "object") window.Jimp = Jimp;
-if (typeof self == "object") self.Jimp = Jimp;
+// alternative reference
+Jimp.prototype.dither16 = Jimp.prototype.dither565;
+
+/**
+ * Apply multiple color modification rules
+ * @param actions list of color modification rules, in following format: { apply: '<rule-name>', params: [ <rule-parameters> ]  }
+ * @param (optional) cb a callback for when complete
+ * @returns this for chaining of methods
+ */
+Jimp.prototype.color = Jimp.prototype.colour = function (actions, cb) {
+    if (!actions || !Array.isArray(actions))
+        return throwError.call(this, "actions must be an array", cb);
+
+    var originalScope = this;
+    this.scan(0, 0, this.bitmap.width, this.bitmap.height, function (x, y, idx) {
+        var clr = tinycolor({r: this.bitmap.data[idx], g: this.bitmap.data[idx + 1], b: this.bitmap.data[idx + 2]});
+
+        var colorModifier = function (i, amount) {
+          c = clr.toRgb();
+          c[i] = Math.max(0, Math.min(c[i] + amount, 255));
+          return tinycolor(c);
+        }
+
+        actions.forEach(function (action) {
+            if (action.apply === "mix") {
+                clr = tinycolor.mix(clr, action.params[0], action.params[1]);
+            } else if (action.apply === "tint") {
+              clr = tinycolor.mix(clr, "white", action.params[0]);
+            } else if (action.apply === "shade") {
+              clr = tinycolor.mix(clr, "black", action.params[0]);
+            } else if (action.apply === "xor") {
+              var clr2 = tinycolor(action.params[0]).toRgb();
+              clr = clr.toRgb();
+              clr = tinycolor({ r: clr.r ^ clr2.r, g: clr.g ^ clr2.g, b: clr.b ^ clr2.b});
+            } else if (action.apply === "red") {
+              clr = colorModifier("r", action.params[0]);
+            } else if (action.apply === "green") {
+              clr = colorModifier("g", action.params[0]);
+            } else if (action.apply === "blue") {
+              clr = colorModifier("b", action.params[0]);
+            } else {
+                if (action.apply === "hue") {
+                    action.apply = "spin";
+                }
+
+                var fn = clr[action.apply];
+                if (!fn) {
+                    return throwError.call(originalScope, "action " + action.apply + " not supported", cb);
+                }
+                clr = fn.apply(clr, action.params);
+            }
+        });
+
+        clr = clr.toRgb();
+        this.bitmap.data[idx  ] = clr.r;
+        this.bitmap.data[idx+1] = clr.g;
+        this.bitmap.data[idx+2] = clr.b;
+    });
+
+    if (isNodePattern(cb)) return cb.call(this, null, this);
+    else return this;
+}
+
+/**
+ * Writes the image to a file
+ * @param path a path to the destination file (either PNG or JPEG)
+ * @param (optional) cb a function to call when the image is saved to disk
+ * @returns this for chaining of methods
+ */
+Jimp.prototype.write = function (path, cb) {
+    if ("string" != typeof path)
+        return throwError.call(this, "path must be a string", cb);
+    if ("undefined" == typeof cb) cb = function () {};
+    if ("function" != typeof cb)
+        return throwError.call(this, "cb must be a function", cb);
+
+    var that = this;
+    var mime = MIME.lookup(path);
+
+    this.getBuffer(mime, function(err, buffer) {
+        if (err) return throwError.call(that, err, cb);
+        var stream = FS.createWriteStream(path);
+        stream.on("open", function(fh) {
+            stream.write(buffer);
+            stream.end();
+        });
+        stream.on("finish", function(fh) {
+            return cb.call(that, null, that);
+        });
+    });
+
+    return this;
+};
 
 module.exports = Jimp;
