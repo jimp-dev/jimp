@@ -1,5 +1,4 @@
-//importScripts("./jimp.js");
-importScripts("./test-without-requests-uglified.js");
+importScripts("./jimp.js");
 
 if (!self.Jimp) {
     throw new Error("Could not load jimp.js in jimp-worker.js");
