@@ -1,19 +1,19 @@
-var FS = require("fs");
+if (process.env.ENVIRONMENT !== 'BROWSER') var FS = require("fs");
 var PNG = require("pngjs").PNG;
 var JPEG = require("jpeg-js");
 var BMP = require("bmp-js");
 var MIME = require("mime");
-var tinycolor = require("tinycolor2");
+if (process.env.ENVIRONMENT !== 'BROWSER') var tinycolor = require("tinycolor2");
 var Resize = require("./resize.js");
 var StreamToBuffer = require("stream-to-buffer");
-var ReadChunk = require("read-chunk");
+if (process.env.ENVIRONMENT !== 'BROWSER') var ReadChunk = require("read-chunk");
 var FileType = require("file-type");
-var PixelMatch = require("pixelmatch");
+if (process.env.ENVIRONMENT !== 'BROWSER') var PixelMatch = require("pixelmatch");
 var EXIFParser = require("exif-parser");
-var ImagePHash = require("./phash.js");
-var BigNumber = require('bignumber.js');
+if (process.env.ENVIRONMENT !== 'BROWSER') var ImagePHash = require("./phash.js");
+if (process.env.ENVIRONMENT !== 'BROWSER') var BigNumber = require('bignumber.js');
 var URLRegEx = require("url-regex");
-var Request = require('request').defaults({ encoding: null });
+if (process.env.ENVIRONMENT !== 'BROWSER') var Request = require('request').defaults({ encoding: null });
 
 // polyfill Promise for Node < 0.12
 var Promise = Promise || require('es6-promise').Promise;
@@ -153,7 +153,7 @@ function Jimp() {
                 parseBitmap.call(that, data, mime, cb);
             } else return throwError.call(that, "Could not load Buffer from URL <" + url + "> (HTTP: " + response.statusCode + ")", cb);
         });
-    } else if ("string" == typeof arguments[0]) {
+    } else if (process.env.ENVIRONMENT !== 'BROWSER' && "string" == typeof arguments[0]) {
         // read from a path
         var path = arguments[0];
         var cb = arguments[1];
@@ -172,6 +172,21 @@ function Jimp() {
     } else if ("object" == typeof arguments[0]) {
         // read from a buffer
         var data = arguments[0];
+
+        // Data could also be an ArrayBuffer when run in a Browser Context. Attempt conversion to Buffer.
+        if (process.env.ENVIRONMENT === 'BROWSER' && Buffer != data.constructor) {
+            try {
+                var buffer = new Buffer(data.byteLength);
+                var view = new Uint8Array(data);
+                for (var i = 0; i < buffer.length; ++i) {
+                    buffer[i] = view[i];
+                }
+                data = buffer;
+            } catch (e) {
+                return throwError.call(this, "Failed to convert ArrayBuffer to Buffer", cb);
+            }
+        }
+
         var mime = getMIMEFromBuffer(data);
         var cb = arguments[1];
 
@@ -201,7 +216,7 @@ Jimp.read = function(src, cb) {
                 if (err) reject(err);
                 else resolve(image);
             }
-            if ("string" != typeof src && ("object" != typeof src || Buffer != src.constructor))
+            if ("string" != typeof src && ("object" != typeof src))
                 return throwError.call(this, "src must be a string or a Buffer", cb);
             var img = new Jimp(src, cb);
         }
@@ -379,7 +394,7 @@ Jimp.limit255 = function(n) {
  * @param (optional) threshold a number, 0 to 1, the smaller the value the more sensitive the comparison (default: 0.1)
  * @returns an object { percent: percent similar, diff: a Jimp image highlighting differences }
  */
-Jimp.diff = function (img1, img2, threshold) {
+if (process.env.ENVIRONMENT !== 'BROWSER') Jimp.diff = function (img1, img2, threshold) {
     if ("object" != typeof img1 || img1.constructor != Jimp || "object" != typeof img2 || img2.constructor != Jimp)
         return throwError.call(this, "img1 and img2 must be an Jimp images");
 
@@ -423,7 +438,7 @@ Jimp.diff = function (img1, img2, threshold) {
  * @param img2 a Jimp image to compare
  * @returns a number ranging from 0 to 1, 0 means they are believed to be identical
  */
-Jimp.distance = function (img1, img2) {
+if (process.env.ENVIRONMENT !== 'BROWSER') Jimp.distance = function (img1, img2) {
     var phash = new ImagePHash();
     var hash1 = phash.getHash(img1);
     var hash2 = phash.getHash(img2);
@@ -658,9 +673,11 @@ Jimp.prototype.setPixelColor = Jimp.prototype.setPixelColour = function (hex, x,
 
 // an array storing the maximum string length of hashes at various bases
 var maxHashLength = [];
-for (var i = 0; i < 65; i++) {
-    var l = (i > 1) ? (new BigNumber(Array(64 + 1).join("1"), 2)).toString(i) : NaN;
-    maxHashLength.push(l.length);
+if (process.env.ENVIRONMENT !== 'BROWSER') {
+    for (var i = 0; i < 65; i++) {
+        var l = (i > 1) ? (new BigNumber(Array(64 + 1).join("1"), 2)).toString(i) : NaN;
+        maxHashLength.push(l.length);
+    }
 }
 
 /**
@@ -669,7 +686,7 @@ for (var i = 0; i < 65; i++) {
  * @param (optional) cb a callback for when complete
  * @returns a string representing the hash
  */
-Jimp.prototype.hash = function(base, cb){
+if (process.env.ENVIRONMENT !== 'BROWSER') Jimp.prototype.hash = function(base, cb){
     base = base || 64;
     if ("function" == typeof base) {
         cb = base;
@@ -1448,6 +1465,27 @@ Jimp.prototype.contain = function (w, h, cb) {
 };
 
 /**
+ * Scale the image to the largest size so that its width and height fits inside the given width and height. Crop to image area.
+ * @param w the width to resize the image to
+ * @param h the height to resize the image to
+ * @param (optional) cb a callback for when complete
+ * @returns this for chaining of methods
+ */
+Jimp.prototype.containWithoutBackground = function (w, h, cb) {
+    if ("number" != typeof w || "number" != typeof h)
+        return throwError.call(this, "w and h must be numbers", cb);
+
+    var f = (w/h > this.bitmap.width/this.bitmap.height) ?
+    h/this.bitmap.height : w/this.bitmap.width;
+
+    this.scale(f);
+
+    if (isNodePattern(cb)) return cb.call(this, null, this);
+    else return this;
+};
+
+
+/**
  * Uniformly scales the image by a factor.
  * @param f the factor to scale the image by
  * @param (optional) cb a callback for when complete
@@ -1667,7 +1705,7 @@ function compositeBitmapOverBackground(image){
  * @param (optional) cb a callback for when complete
  * @returns this for chaining of methods
  */
-Jimp.prototype.dither565 = function (cb) {
+if (process.env.ENVIRONMENT !== 'BROWSER') Jimp.prototype.dither565 = function (cb) {
     var rgb565_matrix = [
       0, 4, 1, 5, 0, 4, 1, 5,
       6, 2, 7, 3, 6, 2, 7, 3,
@@ -1692,7 +1730,7 @@ Jimp.prototype.dither565 = function (cb) {
 }
 
 // alternative reference
-Jimp.prototype.dither16 = Jimp.prototype.dither565;
+if (process.env.ENVIRONMENT !== 'BROWSER') Jimp.prototype.dither16 = Jimp.prototype.dither565;
 
 /**
  * Apply multiple color modification rules
@@ -1700,7 +1738,7 @@ Jimp.prototype.dither16 = Jimp.prototype.dither565;
  * @param (optional) cb a callback for when complete
  * @returns this for chaining of methods
  */
-Jimp.prototype.color = Jimp.prototype.colour = function (actions, cb) {
+if (process.env.ENVIRONMENT !== 'BROWSER') Jimp.prototype.color = Jimp.prototype.colour = function (actions, cb) {
     if (!actions || !Array.isArray(actions))
         return throwError.call(this, "actions must be an array", cb);
 
@@ -1760,7 +1798,7 @@ Jimp.prototype.color = Jimp.prototype.colour = function (actions, cb) {
  * @param (optional) cb a function to call when the image is saved to disk
  * @returns this for chaining of methods
  */
-Jimp.prototype.write = function (path, cb) {
+if (process.env.ENVIRONMENT !== 'BROWSER') Jimp.prototype.write = function (path, cb) {
     if ("string" != typeof path)
         return throwError.call(this, "path must be a string", cb);
     if ("undefined" == typeof cb) cb = function () {};
@@ -1785,4 +1823,9 @@ Jimp.prototype.write = function (path, cb) {
     return this;
 };
 
+if (process.env.ENVIRONMENT === 'BROWSER') {
+    // For use in a web browser or web worker
+    if (typeof window == "object") window.Jimp = Jimp;
+    if (typeof self == "object") self.Jimp = Jimp;
+}
 module.exports = Jimp;
