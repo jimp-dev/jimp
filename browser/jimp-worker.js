@@ -1,7 +1,7 @@
-importScripts("./jimp.js");
+importScripts("./jimp.min.js");
 
 if (!self.Jimp) {
-    throw new Error("Could not load jimp.js in jimp-worker.js");
+    throw new Error("Could not load jimp.min.js in jimp-worker.js");
 }
 
 //function toArrayBuffer(buffer) {
@@ -24,7 +24,7 @@ self.addEventListener('message', function(e) {
     //    var arrayBuffer = reader.readAsArrayBuffer(file);
 
 // testing mozilla!!
-var arrayBuffer = e;
+var arrayBuffer = e.data;
         Jimp.read(arrayBuffer, function (err, image) {
             console.log('read complete');
             if (err) throw err;
