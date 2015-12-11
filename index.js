@@ -6,7 +6,6 @@ var StreamToBuffer = require("stream-to-buffer");
 var FileType = require("file-type");
 var EXIFParser = require("exif-parser");
 var URLRegEx = require("url-regex");
-var Request = require('request').defaults({ encoding: null });
 
 // polyfill Promise for Node < 0.12
 var Promise = Promise || require('es6-promise').Promise;
@@ -353,21 +352,6 @@ Jimp.limit255 = function(n) {
     n = Math.min(n, 255);
     return n;
 }
-
-
-/**
- * Calculates the hammering distance of two images based on their perceptual hash
- * @param img1 a Jimp image to compare
- * @param img2 a Jimp image to compare
- * @returns a number ranging from 0 to 1, 0 means they are believed to be identical
- */
-Jimp.distance = function (img1, img2) {
-    var phash = new ImagePHash();
-    var hash1 = phash.getHash(img1);
-    var hash2 = phash.getHash(img2);
-    return phash.distance(hash1, hash2);
-}
-
 
 // An object representing a bitmap in memory, comprising:
 //  - data: a buffer of the bitmap data
