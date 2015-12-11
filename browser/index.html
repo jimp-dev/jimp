@@ -11,7 +11,7 @@
 
         var worker = new Worker("jimp-worker.js");
         worker.onmessage = function(e) {
-            console.log("RETURN TO MAIN APP!");
+            console.log("RETURN TO MAIN APP!",e);
             console.log(e.data); // e.data should be an array of ArrayBuffers.
 
             // display the return data by drawing in a canvas:
@@ -37,13 +37,23 @@
 
         };
         worker.onerror = function(e) {
-            console.log("Error in the worker");
+            console.log("Error in the worker!!",e);
 //            document.querySelector('#error').textContent = [
 //                'ERROR: Line ', e.lineno, ' in ', e.filename, ': ', e.message].join('');
         };
 
         function newFile(element){
-            worker.postMessage(element.files);
+            // Chrome allows direct transfer of element.files, but that object is not a
+            // "transferable" object in mozilla's world.
+            // To speed file transfer in a cross-browser way, readAsArrayBuffer here on the main thread
+            // then pass the arraybuffer to the worker thread.
+            var fr = new FileReader()
+            fr.addEventListener("load",function(){
+
+                worker.postMessage(fr.result);
+            });
+            fr.readAsArrayBuffer(element.files[0]);
+
         }
 
     </script>

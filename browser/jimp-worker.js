@@ -1,4 +1,5 @@
-importScripts("./jimp.js");
+//importScripts("./jimp.js");
+importScripts("./test-without-requests-uglified.js");
 
 if (!self.Jimp) {
     throw new Error("Could not load jimp.js in jimp-worker.js");
@@ -14,24 +15,28 @@ if (!self.Jimp) {
 //}
 
 self.addEventListener('message', function(e) {
-    var files = e.data;
+    //var files = e.data;
     var buffers = [];
 
     // Read each file synchronously as an ArrayBuffer and
     // stash it in a global array to return to the main app.
-    [].forEach.call(files, function(file) {
-        var reader = new FileReaderSync();
-        var arrayBuffer = reader.readAsArrayBuffer(file);
+    //[].forEach.call(files, function(file) {
+    //    var reader = new FileReaderSync();
+    //    var arrayBuffer = reader.readAsArrayBuffer(file);
 
+// testing mozilla!!
+var arrayBuffer = e;
         Jimp.read(arrayBuffer, function (err, image) {
+            console.log('read complete');
             if (err) throw err;
             image.containWithoutBackground(256, 256)            // resize
                 .quality(60)                 // set JPEG quality
                 .greyscale();                 // set greyscale
             buffers.push(image.bitmap); // includes width and height attributes
         });
-    });
+    //});
 
+    console.log("DONE HERE!!!");
     postMessage(buffers);
 }, false);
 
