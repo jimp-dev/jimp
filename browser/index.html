@@ -2,30 +2,35 @@
 <head>
     <title>JIMP + Web Worker Proof of Concept</title>
     <script src="jimp.js" type="text/javascript"></script>
-    <!-- Minify the script using: -->
-    <!-- $ uglifyjs --compress --mangle -o jimp.min.js -- jimp.js-->
-    <!-- Install uglify via $ npm install uglify-js -g-->
-    <!-- minified and gzipped, the whole image processing mess is down to 306kb... fine, I think, considering how much server load it saves. -->
-
     <script type="text/javascript">
 
         var worker = new Worker("jimp-worker.js");
         worker.onmessage = function(e) {
-            console.log("RETURN TO MAIN APP!",e);
-            console.log(e.data); // e.data should be an array of ArrayBuffers.
+            if (typeof e.data.image === "undefined" ||  typeof  e.data.dataUri === "undefined") {
+                alert('Worker did not return the expected data');
+            }
 
-            // display the return data by drawing in a canvas:
-            var firstImage = e.data[0];
-            console.log("firstimage: ",firstImage);
+            // display the processed image by drawing in a canvas:
+            paintImageToCanvas(e.data.image);
+
+            // display processed image by data URI:
+            paintImageFromDataUri(e.data.dataUri);
+        };
+
+        worker.onerror = function(e) {
+            alert('WORKER ERROR: Line '+ e.lineno+ ' in '+ e.filename+ ': '+ e.message);
+        };
+
+        function paintImageToCanvas(image){
             var canvas = document.createElement("canvas");
-            canvas.width = firstImage.width;
-            canvas.height = firstImage.height;
+            canvas.width = image.width;
+            canvas.height = image.height;
             document.body.appendChild(canvas);
 
             var ctx = canvas.getContext("2d");
-            var imgData = ctx.createImageData(firstImage.width,firstImage.height);
+            var imgData = ctx.createImageData(image.width,image.height);
 
-            var ubuf = firstImage.data;
+            var ubuf = image.data;
             for (var i=0;i < ubuf.length; i+=4) {
                 imgData.data[i]   = ubuf[i];   //red
                 imgData.data[i+1] = ubuf[i+1]; //green
@@ -34,26 +39,22 @@
             }
 
             ctx.putImageData(imgData,0,0);
+        }
 
-        };
-        worker.onerror = function(e) {
-            console.log("Error in the worker!!",e);
-//            document.querySelector('#error').textContent = [
-//                'ERROR: Line ', e.lineno, ' in ', e.filename, ': ', e.message].join('');
-        };
+        function paintImageFromDataUri(dataUri){
+
+        }
 
         function newFile(element){
             // Chrome allows direct transfer of element.files, but that object is not a
             // "transferable" object in mozilla's world.
             // To speed file transfer in a cross-browser way, readAsArrayBuffer here on the main thread
             // then pass the arraybuffer to the worker thread.
-            var fr = new FileReader()
+            var fr = new FileReader();
             fr.addEventListener("load",function(){
-
                 worker.postMessage(fr.result);
             });
             fr.readAsArrayBuffer(element.files[0]);
-
         }
 
     </script>
