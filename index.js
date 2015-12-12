@@ -829,22 +829,48 @@ Jimp.prototype.autocrop = function (cb) {
  * @param src the source Jimp instance
  * @param x the x position to blit the image
  * @param y the y position to blit the image
+ * @param srcx (optional) the x position from which to crop the source image
+ * @param srcy (optional) the y position from which to crop the source image
+ * @param srcw (optional) the width to which to crop the source image
+ * @param srch (optional) the height to which to crop the source image
  * @param (optional) cb a callback for when complete
  * @returns this for chaining of methods
 */
-Jimp.prototype.blit = function (src, x, y, cb) {
+Jimp.prototype.blit = function (src, x, y, srcx, srcy, srcw, srch, cb) {
     if ("object" != typeof src || src.constructor != Jimp)
         return throwError.call(this, "The source must be a Jimp image", cb);
     if ("number" != typeof x || "number" != typeof y)
         return throwError.call(this, "x and y must be numbers", cb);
 
+    if ("function" == typeof srcx) {
+        cb = srcx;
+        srcx = 0;
+        srcy = 0;
+        srcw = src.bitmap.width;
+        srch = src.bitmap.height;
+    } else if (typeof srcx == typeof srcy && typeof srcy == typeof srcw && typeof srcw == typeof srch) {
+        srcx = srcx || 0;
+        srcy = srcy || 0;
+        srcw = srcw || src.bitmap.width;
+        srch = srch || src.bitmap.height;
+    } else {
+        return throwError.call(this, "srcx, srcy, srcw, srch must be numbers", cb);
+    }
+
+
     // round input
     x = Math.round(x);
     y = Math.round(y);
 
+    // round input
+    srcx = Math.round(srcx);
+    srcy = Math.round(srcy);
+    srcw = Math.round(srcw);
+    srch = Math.round(srch);
+
     var that = this;
-    src.scan(0, 0, src.bitmap.width, src.bitmap.height, function(sx, sy, idx) {
-        var dstIdx = that.getPixelIndex(x+sx, y+sy);
+    src.scan(srcx, srcy, srcw, srch, function(sx, sy, idx) {
+        var dstIdx = that.getPixelIndex(x+sx-srcx, y+sy-srcy);
         that.bitmap.data[dstIdx] = this.bitmap.data[idx];
         that.bitmap.data[dstIdx+1] = this.bitmap.data[idx+1];
         that.bitmap.data[dstIdx+2] = this.bitmap.data[idx+2];

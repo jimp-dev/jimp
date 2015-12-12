@@ -79,7 +79,8 @@ image.opacity( f );            // multiply the alpha channel by each pixel by th
 image.resize( w, h );          // resize the image. Jimp.AUTO can be passed as one of the values.
 image.scale( f );              // scale the image by the factor f
 image.rotate( deg[, resize] ); // rotate the image clockwise by a number of degrees. Unless `false` is passed as the second parameter, the image width and height will be resized appropriately.
-image.blit( src, x, y );       // blit the image with another Jimp image at x, y
+image.blit( src, x, y[, srcx, srcy, srcw, srch] );
+                               // blit the image with another Jimp image at x, y, optionally cropped.
 image.composite( src, x, y );  // composites another Jimp image over this iamge at x, y
 image.brightness( val );       // adjust the brighness by a value -1 to +1
 image.contrast( val );         // adjust the contrast by a value -1 to +1
