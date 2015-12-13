@@ -153,7 +153,7 @@ function Jimp() {
                 parseBitmap.call(that, data, mime, cb);
             } else return throwError.call(that, "Could not load Buffer from URL <" + url + "> (HTTP: " + response.statusCode + ")", cb);
         });
-    } else if (process.env.ENVIRONMENT !== 'BROWSER' && "string" == typeof arguments[0]) {
+    } else if ("string" == typeof arguments[0]) {
         // read from a path
         var path = arguments[0];
         var cb = arguments[1];
@@ -201,7 +201,7 @@ Jimp.read = function(src, cb) {
                 if (err) reject(err);
                 else resolve(image);
             }
-            if ("string" != typeof src && ("object" != typeof src))
+            if ("string" != typeof src && ("object" != typeof src || Buffer != src.constructor))
                 return throwError.call(this, "src must be a string or a Buffer", cb);
             var img = new Jimp(src, cb);
         }
