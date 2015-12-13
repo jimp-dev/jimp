@@ -3,8 +3,7 @@
 # This mechanism could offer simple variations on the build.
 # Features could be productively grouped for smaller file size
 # eg: I/O, Affine Transforms, Bitmap Operations, Gamma Curves, and Layers
-# Initial Build includes only functionality useful for thumbnailing:
-# Resize, (auto)rotate, mime, encoding/decoding jpg/png
+# Initial Build includes everything except file IO, which is browser-incompatible
 cd ${0%/*}
 echo "Browserifying browser/jimp.js..."
 ENVIRONMENT=BROWSER \
