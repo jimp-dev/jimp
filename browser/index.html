@@ -1,25 +1,44 @@
 <html>
 <head>
     <title>JIMP + Web Worker Proof of Concept</title>
-    <script src="jimp.js" type="text/javascript"></script>
     <script type="text/javascript">
 
-        var worker = new Worker("jimp-worker.js");
-        worker.onmessage = function(e) {
-            if (typeof e.data.image === "undefined" ||  typeof  e.data.dataUri === "undefined") {
-                alert('Worker did not return the expected data');
+        // Example jimp-worker.js returns an object of this form to the main thread
+        // following a successful processing
+        // {
+        //    type: "IMAGE" or "DATA_URI",
+        //    data: data,
+        //    width: w,
+        //    height: h
+        // }
+        function workerMessageHandler(e) {
+            var returnObject = e.data;
+
+            if (returnObject.type === "IMAGE") {
+                // display the processed image by drawing in a canvas:
+                paintImageToCanvas(returnObject.data);
+            } else if (e.data.type === "DATA_URI") {
+                // display processed image by data URI:
+                paintImageFromDataUri(returnObject.data,returnObject.width,returnObject.height);
+            } else {
+                console.warn("postMessage returned unexpected data:",returnObject);
             }
+        }
 
-            // display the processed image by drawing in a canvas:
-            paintImageToCanvas(e.data.image);
-
-            // display processed image by data URI:
-            paintImageFromDataUri(e.data.dataUri);
-        };
-
-        worker.onerror = function(e) {
+        function workerErrorHandler(e) {
             alert('WORKER ERROR: Line '+ e.lineno+ ' in '+ e.filename+ ': '+ e.message);
-        };
+        }
+
+        function createWorkerForArrayBuffer(arrayBuffer){
+            console.log(arrayBuffer);
+            var worker = new Worker("jimp-worker.js");
+            worker.onmessage = function(e){
+                console.log(e.data.data.length);
+                workerMessageHandler(e);
+            };
+            worker.onerror = workerErrorHandler;
+            worker.postMessage(arrayBuffer);
+        }
 
         function paintImageToCanvas(image){
             var canvas = document.createElement("canvas");
@@ -41,30 +60,46 @@
             ctx.putImageData(imgData,0,0);
         }
 
-        function paintImageFromDataUri(dataUri){
-
+        function paintImageFromDataUri(dataUri,w,h){
+            var imagesrc = document.createElement("img");
+            imagesrc.src = dataUri;
+            imagesrc.width = w;
+            imagesrc.height = h;
+            document.body.appendChild(imagesrc);
         }
 
-        function newFile(element){
+        function newFiles(element){
+            document.getElementById("resultLabel").style.display = "block";
+
             // Chrome allows direct transfer of element.files, but that object is not a
             // "transferable" object in mozilla's world.
             // To speed file transfer in a cross-browser way, readAsArrayBuffer here on the main thread
             // then pass the arraybuffer to the worker thread.
-            var fr = new FileReader();
-            fr.addEventListener("load",function(){
-                worker.postMessage(fr.result);
-            });
-            fr.readAsArrayBuffer(element.files[0]);
+            for (var i=0; i<element.files.length; i++) {
+                var fr = new FileReader();
+                fr.addEventListener("load",function(){
+                    createWorkerForArrayBuffer(this.result);
+                });
+                var readfile = element.files[i];
+                fr.readAsArrayBuffer(readfile);
+            }
         }
 
     </script>
     <style>
-        canvas {
-            display: block;
+        body {
+            font-family: Helvetica Neue, Helvetica, Arial, sans-serif;
+        }
+        canvas,img {
+            display: inline;
+            margin: 20px;
+            vertical-align: middle;
         }
     </style>
 </head>
 <body>
-<input type="file" onchange="newFile(this);">
+<input type="file" multiple="multiple" onchange="newFiles(this);">
+<br>
+<h3 id="resultLabel" style="display: none;">Generated &lt;img&gt; and &lt;canvas&gt; thumbnails:</h3>
 </body>
 </html>
