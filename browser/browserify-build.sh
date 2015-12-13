@@ -8,7 +8,10 @@
 cd ${0%/*}
 echo "Browserifying browser/jimp.js..."
 ENVIRONMENT=BROWSER \
-browserify -t envify -t uglifyify ../index.js > jimp.js
+browserify -t envify -t uglifyify ../index.js > tmp.js
+echo "Adding Web Worker wrapper functions..."
+cat tmp.js src/jimp-wrapper.js > lib/jimp.js
 echo "Minifying browser/jimp.min.js..."
-uglifyjs jimp.js --compress warnings=false --mangle -o jimp.min.js
-echo "Done."
+uglifyjs lib/jimp.js --compress warnings=false --mangle -o lib/jimp.min.js
+echo "Cleaning up...."
+rm tmp.js
