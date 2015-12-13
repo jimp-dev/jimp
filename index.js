@@ -3,15 +3,15 @@ var PNG = require("pngjs").PNG;
 var JPEG = require("jpeg-js");
 var BMP = require("bmp-js");
 var MIME = require("mime");
-if (process.env.ENVIRONMENT !== 'BROWSER') var tinycolor = require("tinycolor2");
+var tinycolor = require("tinycolor2");
 var Resize = require("./resize.js");
 var StreamToBuffer = require("stream-to-buffer");
-if (process.env.ENVIRONMENT !== 'BROWSER') var ReadChunk = require("read-chunk");
+var ReadChunk = require("read-chunk");
 var FileType = require("file-type");
-if (process.env.ENVIRONMENT !== 'BROWSER') var PixelMatch = require("pixelmatch");
+var PixelMatch = require("pixelmatch");
 var EXIFParser = require("exif-parser");
-if (process.env.ENVIRONMENT !== 'BROWSER') var ImagePHash = require("./phash.js");
-if (process.env.ENVIRONMENT !== 'BROWSER') var BigNumber = require('bignumber.js');
+var ImagePHash = require("./phash.js");
+var BigNumber = require('bignumber.js');
 var URLRegEx = require("url-regex");
 if (process.env.ENVIRONMENT !== 'BROWSER') var Request = require('request').defaults({ encoding: null });
 
@@ -395,7 +395,7 @@ Jimp.limit255 = function(n) {
  * @param (optional) threshold a number, 0 to 1, the smaller the value the more sensitive the comparison (default: 0.1)
  * @returns an object { percent: percent similar, diff: a Jimp image highlighting differences }
  */
-if (process.env.ENVIRONMENT !== 'BROWSER') Jimp.diff = function (img1, img2, threshold) {
+Jimp.diff = function (img1, img2, threshold) {
     if ("object" != typeof img1 || img1.constructor != Jimp || "object" != typeof img2 || img2.constructor != Jimp)
         return throwError.call(this, "img1 and img2 must be an Jimp images");
 
@@ -439,7 +439,7 @@ if (process.env.ENVIRONMENT !== 'BROWSER') Jimp.diff = function (img1, img2, thr
  * @param img2 a Jimp image to compare
  * @returns a number ranging from 0 to 1, 0 means they are believed to be identical
  */
-if (process.env.ENVIRONMENT !== 'BROWSER') Jimp.distance = function (img1, img2) {
+Jimp.distance = function (img1, img2) {
     var phash = new ImagePHash();
     var hash1 = phash.getHash(img1);
     var hash2 = phash.getHash(img2);
@@ -674,11 +674,9 @@ Jimp.prototype.setPixelColor = Jimp.prototype.setPixelColour = function (hex, x,
 
 // an array storing the maximum string length of hashes at various bases
 var maxHashLength = [];
-if (process.env.ENVIRONMENT !== 'BROWSER') {
-    for (var i = 0; i < 65; i++) {
-        var l = (i > 1) ? (new BigNumber(Array(64 + 1).join("1"), 2)).toString(i) : NaN;
-        maxHashLength.push(l.length);
-    }
+for (var i = 0; i < 65; i++) {
+    var l = (i > 1) ? (new BigNumber(Array(64 + 1).join("1"), 2)).toString(i) : NaN;
+    maxHashLength.push(l.length);
 }
 
 /**
@@ -687,7 +685,7 @@ if (process.env.ENVIRONMENT !== 'BROWSER') {
  * @param (optional) cb a callback for when complete
  * @returns a string representing the hash
  */
-if (process.env.ENVIRONMENT !== 'BROWSER') Jimp.prototype.hash = function(base, cb){
+Jimp.prototype.hash = function(base, cb){
     base = base || 64;
     if ("function" == typeof base) {
         cb = base;
@@ -1706,7 +1704,7 @@ function compositeBitmapOverBackground(image){
  * @param (optional) cb a callback for when complete
  * @returns this for chaining of methods
  */
-if (process.env.ENVIRONMENT !== 'BROWSER') Jimp.prototype.dither565 = function (cb) {
+Jimp.prototype.dither565 = function (cb) {
     var rgb565_matrix = [
       0, 4, 1, 5, 0, 4, 1, 5,
       6, 2, 7, 3, 6, 2, 7, 3,
@@ -1731,7 +1729,7 @@ if (process.env.ENVIRONMENT !== 'BROWSER') Jimp.prototype.dither565 = function (
 }
 
 // alternative reference
-if (process.env.ENVIRONMENT !== 'BROWSER') Jimp.prototype.dither16 = Jimp.prototype.dither565;
+Jimp.prototype.dither16 = Jimp.prototype.dither565;
 
 /**
  * Apply multiple color modification rules
@@ -1739,7 +1737,7 @@ if (process.env.ENVIRONMENT !== 'BROWSER') Jimp.prototype.dither16 = Jimp.protot
  * @param (optional) cb a callback for when complete
  * @returns this for chaining of methods
  */
-if (process.env.ENVIRONMENT !== 'BROWSER') Jimp.prototype.color = Jimp.prototype.colour = function (actions, cb) {
+Jimp.prototype.color = Jimp.prototype.colour = function (actions, cb) {
     if (!actions || !Array.isArray(actions))
         return throwError.call(this, "actions must be an array", cb);
 
