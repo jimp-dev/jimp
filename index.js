@@ -1472,7 +1472,7 @@ Jimp.prototype.contain = function (w, h, cb) {
  * @param (optional) cb a callback for when complete
  * @returns this for chaining of methods
  */
-Jimp.prototype.containWithoutBackground = function (w, h, cb) {
+Jimp.prototype.containCropped = function (w, h, cb) {
     if ("number" != typeof w || "number" != typeof h)
         return throwError.call(this, "w and h must be numbers", cb);
 

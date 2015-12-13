@@ -6,9 +6,9 @@ if (!self.Jimp) {
 
 function processImageData(image){
     // Do some image processing in Jimp. This is why we want to use a Web Worker!
-    image.containWithoutBackground(200, 200)            // resize thumbnail
-        .quality(60)                                    // set JPEG quality
-        .greyscale();                                   // set greyscale
+    image.containCropped(200, 200)            // resize thumbnail
+        .quality(60)                          // set JPEG quality
+        .greyscale();                         // set greyscale
 }
 
 var RETURN = {
