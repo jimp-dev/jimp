@@ -23,6 +23,11 @@ function done(type,data,w,h) {
     });
 }
 
+function error(err){
+    console.log('throwing an error now...',err.message);
+    throw new Error(err.message);
+}
+
 self.addEventListener('message', function(e) {
     // Some browsers allow passing of file objects directly from inputs, which would
     // enable doing the file I/O on the worker thread. Browser support is patchy however,
@@ -44,8 +49,14 @@ self.addEventListener('message', function(e) {
 }, false);
 
 function doImageProcessing(arrayBuffer,cb){
+    var workerError;
     Jimp.read(arrayBuffer, function (err, image) {
-        if (err) throw err;
+        if (err) {
+            workerError = err;
+            throw err;
+        }
+
+        var originalMime = image.mime;
 
         // Do some image processing in Jimp. This is why we want to use a Web Worker!
         image.containWithoutBackground(200, 200)            // resize thumbnail
@@ -61,7 +72,7 @@ function doImageProcessing(arrayBuffer,cb){
             image.bitmap.height
         );
 
-        var targetMimeType = Jimp.MIME_PNG;
+        var targetMimeType = originalMime || Jimp.MIME_JPEG;
         image.getBuffer(targetMimeType,function(mime,data){
             // With access to node's Buffer objects, it's easy to get a base64 string:
             var dataUri = "data:" + targetMimeType + ";base64,"  + data.toString('base64');
@@ -79,4 +90,6 @@ function doImageProcessing(arrayBuffer,cb){
             if (typeof cb === "function") cb();
         });
     });
+
+    if (workerError) throw workerError;
 }

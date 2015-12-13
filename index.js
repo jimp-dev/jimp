@@ -245,6 +245,7 @@ function getMIMEFromPath(path, cb) {
 // parses a bitmap from the constructor to the JIMP bitmap property
 function parseBitmap(data, mime, cb) {
     var that = this;
+    this.mime = mime;
 
     switch (mime.toLowerCase()) {
         case Jimp.MIME_PNG:

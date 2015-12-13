@@ -25,18 +25,16 @@
             }
         }
 
-        function workerErrorHandler(e) {
-            alert('WORKER ERROR: Line '+ e.lineno+ ' in '+ e.filename+ ': '+ e.message);
-        }
-
-        function createWorkerForArrayBuffer(arrayBuffer){
-            console.log(arrayBuffer);
-            var worker = new Worker("jimp-worker.js");
+        function createWorkerForArrayBuffer(arrayBuffer,file){
+            var worker = new Worker("jimp-worker.js?r="+(new Date()).getTime()),
+                start = (new Date()).getTime();
             worker.onmessage = function(e){
-                console.log(e.data.data.length);
+                console.log(file + " processed to "+ e.data.type +" in " + ((new Date()).getTime() - start) + "ms");
                 workerMessageHandler(e);
             };
-            worker.onerror = workerErrorHandler;
+            worker.onerror = function(e){
+                console.error("Could not process "+ file + ': Line '+ e.lineno+ ' in '+ e.filename+ ': '+ e.message);
+            }
             worker.postMessage(arrayBuffer);
         }
 
@@ -76,11 +74,16 @@
             // To speed file transfer in a cross-browser way, readAsArrayBuffer here on the main thread
             // then pass the arraybuffer to the worker thread.
             for (var i=0; i<element.files.length; i++) {
-                var fr = new FileReader();
+                readFileAndProcess(element.files[i]);
+            }
+
+            // Closure needed to keep all those filereader variables separate
+            function readFileAndProcess(readfile){
+                var fr = new FileReader(),
+                    filename = readfile.name.toString();
                 fr.addEventListener("load",function(){
-                    createWorkerForArrayBuffer(this.result);
+                    createWorkerForArrayBuffer(this.result,filename);
                 });
-                var readfile = element.files[i];
                 fr.readAsArrayBuffer(readfile);
             }
         }
@@ -98,6 +101,7 @@
     </style>
 </head>
 <body>
+<h3>Select images to be thumbnailed and greyscaled:</h3>
 <input type="file" multiple="multiple" onchange="newFiles(this);">
 <br>
 <h3 id="resultLabel" style="display: none;">Generated &lt;img&gt; and &lt;canvas&gt; thumbnails:</h3>
