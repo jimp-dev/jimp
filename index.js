@@ -172,21 +172,6 @@ function Jimp() {
     } else if ("object" == typeof arguments[0]) {
         // read from a buffer
         var data = arguments[0];
-
-        // Data could also be an ArrayBuffer when run in a Browser Context. Attempt conversion to Buffer.
-        if (process.env.ENVIRONMENT === 'BROWSER' && Buffer != data.constructor) {
-            try {
-                var buffer = new Buffer(data.byteLength);
-                var view = new Uint8Array(data);
-                for (var i = 0; i < buffer.length; ++i) {
-                    buffer[i] = view[i];
-                }
-                data = buffer;
-            } catch (e) {
-                return throwError.call(this, "Failed to convert ArrayBuffer to Buffer", cb);
-            }
-        }
-
         var mime = getMIMEFromBuffer(data);
         var cb = arguments[1];
 
@@ -245,7 +230,7 @@ function getMIMEFromPath(path, cb) {
 // parses a bitmap from the constructor to the JIMP bitmap property
 function parseBitmap(data, mime, cb) {
     var that = this;
-    this.mime = mime;
+    this._originalMime = mime;
 
     switch (mime.toLowerCase()) {
         case Jimp.MIME_PNG:
@@ -1824,7 +1809,11 @@ if (process.env.ENVIRONMENT !== 'BROWSER') Jimp.prototype.write = function (path
 
 if (process.env.ENVIRONMENT === 'BROWSER') {
     // For use in a web browser or web worker
-    if (typeof window == "object") window.Jimp = Jimp;
-    if (typeof self == "object") self.Jimp = Jimp;
+    var gl;
+    if (typeof window == "object") gl = window;
+    if (typeof self == "object") gl = self;
+
+    gl.Jimp = Jimp;
+    gl.Buffer = Buffer;
 }
 module.exports = Jimp;

@@ -1,7 +1,9 @@
-importScripts("./jimp.min.js");
+importScripts("./jimp.min.js?r="+((new Date()).getTime()));
 
 if (!self.Jimp) {
     throw new Error("Could not load jimp.min.js in jimp-worker.js");
+} else if (!self.Buffer){
+    throw new Error("Node's Buffer() not available in jimp-worker.js");
 }
 
 function processImageData(image){
@@ -78,15 +80,27 @@ function processArrayBuffer(arrayBuffer){
     });
 }
 
+function bufferFromArrayBuffer(arrayBuffer){
+    // Prepare a Buffer object from the arrayBuffer. Necessary in the browser > node conversion,
+    // But this function is not useful when running in node directly
+    var buffer = new Buffer(arrayBuffer.byteLength);
+    var view = new Uint8Array(arrayBuffer);
+    for (var i = 0; i < buffer.length; ++i) {
+        buffer[i] = view[i];
+    }
+
+    return buffer;
+}
+
 function doImageProcessing(arrayBuffer,cb){
     var workerError;
-    Jimp.read(arrayBuffer, function (err, image) {
+    Jimp.read(bufferFromArrayBuffer(arrayBuffer), function (err, image) {
         if (err) {
             workerError = err;
             throw err;
         }
 
-        var originalMime = image.mime;
+        var originalMime = image._originalMime;
 
         // The meat of the image processing occurs here!
         processImageData(image);

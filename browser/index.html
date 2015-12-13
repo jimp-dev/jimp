@@ -26,7 +26,7 @@
         }
 
         function createWorkerForImageInput(input,filename){
-            var worker = new Worker("jimp-worker.js"),
+            var worker = new Worker("jimp-worker.js?r="+((new Date()).getTime())),
                 start = (new Date()).getTime();
             worker.onmessage = function(e){
                 console.log(filename + " processed to "+ e.data.type +" in " + ((new Date()).getTime() - start) + "ms");
