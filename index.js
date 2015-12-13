@@ -1,4 +1,4 @@
-var FS = require("fs");
+if (process.env.ENVIRONMENT !== 'BROWSER') var FS = require("fs");
 var PNG = require("pngjs").PNG;
 var JPEG = require("jpeg-js");
 var BMP = require("bmp-js");
@@ -13,7 +13,7 @@ var EXIFParser = require("exif-parser");
 var ImagePHash = require("./phash.js");
 var BigNumber = require('bignumber.js');
 var URLRegEx = require("url-regex");
-var Request = require('request').defaults({ encoding: null });
+if (process.env.ENVIRONMENT !== 'BROWSER') var Request = require('request').defaults({ encoding: null });
 
 // polyfill Promise for Node < 0.12
 var Promise = Promise || require('es6-promise').Promise;
@@ -153,7 +153,7 @@ function Jimp() {
                 parseBitmap.call(that, data, mime, cb);
             } else return throwError.call(that, "Could not load Buffer from URL <" + url + "> (HTTP: " + response.statusCode + ")", cb);
         });
-    } else if ("string" == typeof arguments[0]) {
+    } else if (process.env.ENVIRONMENT !== 'BROWSER' && "string" == typeof arguments[0]) {
         // read from a path
         var path = arguments[0];
         var cb = arguments[1];
@@ -172,6 +172,21 @@ function Jimp() {
     } else if ("object" == typeof arguments[0]) {
         // read from a buffer
         var data = arguments[0];
+
+        // Data could also be an ArrayBuffer when run in a Browser Context. Attempt conversion to Buffer.
+        if (process.env.ENVIRONMENT === 'BROWSER' && Buffer != data.constructor) {
+            try {
+                var buffer = new Buffer(data.byteLength);
+                var view = new Uint8Array(data);
+                for (var i = 0; i < buffer.length; ++i) {
+                    buffer[i] = view[i];
+                }
+                data = buffer;
+            } catch (e) {
+                return throwError.call(this, "Failed to convert ArrayBuffer to Buffer", cb);
+            }
+        }
+
         var mime = getMIMEFromBuffer(data);
         var cb = arguments[1];
 
@@ -201,7 +216,7 @@ Jimp.read = function(src, cb) {
                 if (err) reject(err);
                 else resolve(image);
             }
-            if ("string" != typeof src && ("object" != typeof src || Buffer != src.constructor))
+            if ("string" != typeof src && ("object" != typeof src))
                 return throwError.call(this, "src must be a string or a Buffer", cb);
             var img = new Jimp(src, cb);
         }
@@ -230,6 +245,7 @@ function getMIMEFromPath(path, cb) {
 // parses a bitmap from the constructor to the JIMP bitmap property
 function parseBitmap(data, mime, cb) {
     var that = this;
+    this.mime = mime;
 
     switch (mime.toLowerCase()) {
         case Jimp.MIME_PNG:
@@ -1474,6 +1490,27 @@ Jimp.prototype.contain = function (w, h, cb) {
 };
 
 /**
+ * Scale the image to the largest size so that its width and height fits inside the given width and height. Crop to image area.
+ * @param w the width to resize the image to
+ * @param h the height to resize the image to
+ * @param (optional) cb a callback for when complete
+ * @returns this for chaining of methods
+ */
+Jimp.prototype.containCropped = function (w, h, cb) {
+    if ("number" != typeof w || "number" != typeof h)
+        return throwError.call(this, "w and h must be numbers", cb);
+
+    var f = (w/h > this.bitmap.width/this.bitmap.height) ?
+    h/this.bitmap.height : w/this.bitmap.width;
+
+    this.scale(f);
+
+    if (isNodePattern(cb)) return cb.call(this, null, this);
+    else return this;
+};
+
+
+/**
  * Uniformly scales the image by a factor.
  * @param f the factor to scale the image by
  * @param (optional) cb a callback for when complete
@@ -1786,7 +1823,7 @@ Jimp.prototype.color = Jimp.prototype.colour = function (actions, cb) {
  * @param (optional) cb a function to call when the image is saved to disk
  * @returns this for chaining of methods
  */
-Jimp.prototype.write = function (path, cb) {
+if (process.env.ENVIRONMENT !== 'BROWSER') Jimp.prototype.write = function (path, cb) {
     if ("string" != typeof path)
         return throwError.call(this, "path must be a string", cb);
     if ("undefined" == typeof cb) cb = function () {};
@@ -1813,4 +1850,9 @@ Jimp.prototype.write = function (path, cb) {
     return this;
 };
 
+if (process.env.ENVIRONMENT === 'BROWSER') {
+    // For use in a web browser or web worker
+    if (typeof window == "object") window.Jimp = Jimp;
+    if (typeof self == "object") self.Jimp = Jimp;
+}
 module.exports = Jimp;
