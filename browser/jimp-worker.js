@@ -4,6 +4,13 @@ if (!self.Jimp) {
     throw new Error("Could not load jimp.min.js in jimp-worker.js");
 }
 
+function processImageData(image){
+    // Do some image processing in Jimp. This is why we want to use a Web Worker!
+    image.containWithoutBackground(200, 200)            // resize thumbnail
+        .quality(60)                                    // set JPEG quality
+        .greyscale();                                   // set greyscale
+}
+
 var RETURN = {
     IMAGE: "IMAGE",
     DATA_URI: "DATA_URI"
@@ -28,6 +35,22 @@ function error(err){
     throw new Error(err.message);
 }
 
+function fetchImageDataFromUrl(url){
+    // Fetch image data via xhr. Note that this will not work
+    // without cross-domain allow-origin headers because of CORS restrictions
+    var xhr = new XMLHttpRequest();
+    xhr.open( "GET", url, true );
+    xhr.responseType = "arraybuffer";
+    xhr.onload = function() {
+        processArrayBuffer(this.response);
+    };
+    xhr.onerror = function(e){
+        error(e);
+    };
+
+    xhr.send();
+}
+
 self.addEventListener('message', function(e) {
     // Some browsers allow passing of file objects directly from inputs, which would
     // enable doing the file I/O on the worker thread. Browser support is patchy however,
@@ -37,16 +60,23 @@ self.addEventListener('message', function(e) {
     //
     // See https://developer.mozilla.org/en-US/docs/Web/API/Transferable for support of transferables
     // Note that passing an array of Transferables makes the worker incompatible with IE10.
-    var arrayBuffer = e.data;
-    if (arrayBuffer.constructor.name !== "ArrayBuffer") {
-        throw new Error("jimp-worker.js expects to be passed a single ArrayBuffer");
+    if (e.data.constructor.name === "ArrayBuffer") {
+        // Process the image, then terminate the worker instance
+        processArrayBuffer(e.data);
+    } else if (e.data.constructor.name === "String") {
+        // Load resource from URL
+        fetchImageDataFromUrl(e.data);
+    } else {
+        throw new Error("jimp-worker.js expects to be passed a single ArrayBuffer or image URL");
     }
 
-    // Process the image, then terminate the worker instance
+}, false);
+
+function processArrayBuffer(arrayBuffer){
     doImageProcessing(arrayBuffer,function(){
         self.close();
     });
-}, false);
+}
 
 function doImageProcessing(arrayBuffer,cb){
     var workerError;
@@ -58,10 +88,8 @@ function doImageProcessing(arrayBuffer,cb){
 
         var originalMime = image.mime;
 
-        // Do some image processing in Jimp. This is why we want to use a Web Worker!
-        image.containWithoutBackground(200, 200)            // resize thumbnail
-            .quality(60)                                    // set JPEG quality
-            .greyscale();                                   // set greyscale
+        // The meat of the image processing occurs here!
+        processImageData(image);
 
         // Return image data directly to the main thread.
         // <canvas> is required to paint it

@@ -25,17 +25,19 @@
             }
         }
 
-        function createWorkerForArrayBuffer(arrayBuffer,file){
+        function createWorkerForImageInput(input,filename){
             var worker = new Worker("jimp-worker.js?r="+(new Date()).getTime()),
                 start = (new Date()).getTime();
             worker.onmessage = function(e){
-                console.log(file + " processed to "+ e.data.type +" in " + ((new Date()).getTime() - start) + "ms");
+                console.log(filename + " processed to "+ e.data.type +" in " + ((new Date()).getTime() - start) + "ms");
                 workerMessageHandler(e);
             };
             worker.onerror = function(e){
-                console.error("Could not process "+ file + ': Line '+ e.lineno+ ' in '+ e.filename+ ': '+ e.message);
-            }
-            worker.postMessage(arrayBuffer);
+                var message = "Could not process "+ filename + ': Line '+ e.lineno+ ' in '+ e.filename+ ': '+ e.message;
+                alert(message);
+                console.error(message);
+            };
+            worker.postMessage(input);
         }
 
         function paintImageToCanvas(image){
@@ -82,9 +84,26 @@
                 var fr = new FileReader(),
                     filename = readfile.name.toString();
                 fr.addEventListener("load",function(){
-                    createWorkerForArrayBuffer(this.result,filename);
+                    createWorkerForImageInput(this.result,filename);
                 });
                 fr.readAsArrayBuffer(readfile);
+            }
+        }
+
+        function loadStaticFiles(){
+            document.getElementById("resultLabel").style.display = "block";
+            var localFiles = [];
+            localFiles.push("Landscape_1.jpg");
+            localFiles.push("Landscape_2.jpg");
+            localFiles.push("Landscape_3.jpg");
+            localFiles.push("Landscape_4.jpg");
+            localFiles.push("Portrait_1.jpg");
+            localFiles.push("Portrait_2.jpg");
+            localFiles.push("Portrait_3.jpg");
+            localFiles.push("Portrait_4.jpg");
+            for (var i=0; i<localFiles.length; i++) {
+                var name = localFiles[i];
+                createWorkerForImageInput("../test/exif-orientation/"+name,name);
             }
         }
 
@@ -103,7 +122,21 @@
 <body>
 <h3>Select images to be thumbnailed and greyscaled:</h3>
 <input type="file" multiple="multiple" onchange="newFiles(this);">
+<br><br>
+or, just <a href="#" onclick="event.preventDefault(); loadStaticFiles();">load some images via xhr for the demo.</a>
 <br>
 <h3 id="resultLabel" style="display: none;">Generated &lt;img&gt; and &lt;canvas&gt; thumbnails:</h3>
+<script type="text/javascript">
+    function getParameterByName(name) {
+        name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
+        var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
+            results = regex.exec(location.search);
+        return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
+    }
+
+    if (getParameterByName("test") === "true"){
+        loadStaticFiles();
+    }
+</script>
 </body>
 </html>
