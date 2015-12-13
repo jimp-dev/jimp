@@ -118,6 +118,12 @@
             margin: 20px;
             vertical-align: middle;
         }
+        h3, h4, h5, h6 {
+            margin: 0;
+        }
+        div#resultLabel {
+            margin: 30px 0 0 0;
+        }
     </style>
 </head>
 <body>
@@ -126,7 +132,10 @@
 <br><br>
 or, just <a href="#" onclick="event.preventDefault(); loadStaticFiles();">load some images via xhr for the demo.</a>
 <br>
-<h3 id="resultLabel" style="display: none;">Generated &lt;img&gt; and &lt;canvas&gt; thumbnails:</h3>
+<div id="resultLabel" style="display: none;">
+    <h3 >Generated &lt;img&gt; and &lt;canvas&gt; thumbnails:</h3>
+    <h5 >(Color images displayed on canvas, black and white displayed on img. See <jimp-worker class="js"></jimp-worker> to customize)</h5>
+</div>
 <script type="text/javascript">
     function getParameterByName(name) {
         name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
