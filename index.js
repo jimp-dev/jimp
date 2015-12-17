@@ -731,9 +731,11 @@ Jimp.prototype.crop = function (x, y, w, h, cb) {
 
 /**
  * Autocrop same color borders from this image
- * @param (optional) tolerance: a percent value of tolerance
- *                   for pixels color difference (default: 0.001%)
- * @param (optional) cb: a callback for when complete
+ * @param (optional) tolerance: a percent value of tolerance for
+ *                              pixels color difference (default: 0.0002%)
+ * param (optional) cropOnlyFrames: flag to crop only real frames:
+ *                                  all 4 sides of the image must have some border (default: true)
+ * @param (optional) cb: a callback for when complete (default: no callback)
  * @returns this for chaining of methods
  */
 Jimp.prototype.autocrop = function() {
@@ -745,18 +747,27 @@ Jimp.prototype.autocrop = function() {
     var westPixelsToCrop = 0;
     
     var cb; // callback
-    var tolerance = 0.001; // percent of color difference tolerance (default value)
-    var minPixelsPerSide = 1; // to avoid cropping the full image
+    var tolerance = 0.0002; // percent of color difference tolerance (default value)
+    var cropOnlyFrames = true; // flag to force cropping only if the image has a real "frame"
+                               // i.e. all 4 sides have some border (default value)
+    var minPixelsPerSide = 1; // to avoid cropping completely the image, resulting in an invalid 0 sized image
 
-    if ("number" == typeof arguments[0]) { // tolerance value passed as first argument
-        tolerance = arguments[0];
-        cb = arguments[1];
-    } else { // first argument is callback (or undefined)
-        cb = arguments[0];
+    // parse arguments
+    for (var a = 0, len = arguments.length; a < len; a++) {
+        if ("number" == typeof arguments[a]) { // tolerance value passed
+            tolerance = arguments[a];
+        }
+        if ("boolean" == typeof arguments[a]) { // tolerance value passed
+            cropOnlyFrames = arguments[a];
+        }
+        if ("function" == typeof arguments[a]) { // callback value passed
+            cb = arguments[a];
+        }
     }
 
     /**
-     * All borders must be of the same color as the top left pixel, to be cropped.
+     * North and East borders must be of the same color as the top left pixel, to be cropped.
+     * South and West borders must be of the same color as the bottom right pixel, to be cropped.
      * It should be possible to crop borders each with a different color,
      * but since there are many ways for corners to intersect, it would
      * introduce unnecessary complexity to the algorithm.
@@ -859,19 +870,31 @@ Jimp.prototype.autocrop = function() {
     var heightOfPixelsToCrop = h - (southPixelsToCrop + northPixelsToCrop);
     heightOfPixelsToCrop >= 0 ? heightOfPixelsToCrop : 0;
 
-    // crop image, if at least one side should be cropped
-    if (
-        eastPixelsToCrop !== 0 ||
-        northPixelsToCrop !== 0 ||
-        widthOfPixelsToCrop !== w ||
-        heightOfPixelsToCrop !== h
-    ) {
-        this.crop(
-            eastPixelsToCrop,
-            northPixelsToCrop,
-            widthOfPixelsToCrop,
-            heightOfPixelsToCrop
+    // decide if a crop is needed
+    var doCrop = false;
+    if (cropOnlyFrames) { // crop image if all sides should be cropped
+        doCrop = (
+            eastPixelsToCrop !== 0 &&
+            northPixelsToCrop !== 0 &&
+            westPixelsToCrop !== 0 &&
+            southPixelsToCrop !== 0
         );
+    } else { // crop image if at least one side should be cropped
+        doCrop = (
+            eastPixelsToCrop !== 0 ||
+            northPixelsToCrop !== 0 ||
+            westPixelsToCrop !== 0 ||
+            southPixelsToCrop !== 0
+        );
+    }
+
+    if (doCrop) { // do the real crop
+       this.crop(
+           eastPixelsToCrop,
+           northPixelsToCrop,
+           widthOfPixelsToCrop,
+           heightOfPixelsToCrop
+       );
     }
 
     if (isNodePattern(cb)) return cb.call(this, null, this);
