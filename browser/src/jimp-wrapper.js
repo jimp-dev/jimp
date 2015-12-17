@@ -53,7 +53,7 @@ self.addEventListener('message', function(e) {
     //
     // See https://developer.mozilla.org/en-US/docs/Web/API/Transferable for support of transferables
     // Note that passing an array of Transferables makes the worker incompatible with IE10.
-    if (e.data.constructor.name === "ArrayBuffer") {
+    if (Object.prototype.toString.call(e.data).toLowerCase().indexOf("arraybuffer") > -1) {
         // Process the image, then terminate the worker instance
         createJimpObjectAndProcess(e.data);
     } else if (e.data.constructor.name === "String") {
