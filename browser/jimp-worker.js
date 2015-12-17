@@ -1,6 +1,4 @@
-var DEBUG = false,
-    cachebuster = DEBUG ? "?r="+((new Date()).getTime()) : "";
-importScripts("lib/jimp.min.js"+cachebuster);
+importScripts("lib/jimp.min.js");
 
 if (!self.Jimp && !window.Jimp) {
     throw new Error("Could not load jimp.min.js in jimp-worker.js");
@@ -10,45 +8,57 @@ if (!self.Jimp && !window.Jimp) {
 // https://github.com/oliver-moran/jimp
 // Reading and writing functions are replaced for browser context.
 // See readme at https://github.com/strandedcity/jimp
-function processImageData(image){
-    // EXAMPLE 1:
-    // Resize the image and return the pixel data back to the main thread
-    // <canvas> is required to paint it
-    image.containCropped(200, 200);
+self.addEventListener('message', function(e) {
+    // Some browsers allow passing of file objects directly from inputs, which would
+    // enable doing the file I/O on the worker thread. Browser support is patchy however,
+    // so the most compatible strategy is to read the file on the main thread asynchronously,
+    // then pass the data here. File I/O is asynchronous on the main thread, and represents
+    // a generally small part of the total image-processing task.
+    //
+    // See https://developer.mozilla.org/en-US/docs/Web/API/Transferable for support of transferables
+    // Note that passing an array of Transferables makes the worker incompatible with IE10.
+    Jimp.read(e.data,function(err,image){
 
-    done(
-        RETURN.IMAGE,
-        image.bitmap,
-        image.bitmap.width,
-        image.bitmap.height
-    );
+        // EXAMPLE 1:
+        // Resize the image and return the pixel data back to the main thread
+        // <canvas> is required to paint it
+        image.containCropped(200, 200);
 
-    // EXAMPLE 2:
-    // Continue processing the same image to make more versions!
-    // Return a data URI back to the main thread
-    var originalMime = image._originalMime,
-        targetMimeType = originalMime || Jimp.MIME_JPEG;
-    image.contrast(0.6)         // Increase contrast
-        .brightness(0.1)        // Increase brightness a little
-        .greyscale()            // make it B&W
-        .quality(60)            // set JPEG quality (only applies to jpegs)
-        .getBuffer(targetMimeType,function(mime,data){
-            // With access to node's Buffer objects, it's easy to get a base64 string:
-            var dataUri = "data:" + targetMimeType + ";base64,"  + data.toString('base64');
+        done(
+            RETURN.IMAGE,
+            image.bitmap,
+            image.bitmap.width,
+            image.bitmap.height
+        );
 
-            // Return data uri to the main thread.
-            // Data URIs can be displayed in <img> tags, without <canvas>
-            done(
-                RETURN.DATA_URI,
-                dataUri,
-                image.bitmap.width,
-                image.bitmap.height
-            );
+        // EXAMPLE 2:
+        // Continue processing the same image to make more versions!
+        // Return a data URI back to the main thread
+        var originalMime = image._originalMime,
+            targetMimeType = originalMime || Jimp.MIME_JPEG;
+        image.contrast(0.6)         // Increase contrast
+            .brightness(0.1)        // Increase brightness a little
+            .greyscale()            // make it B&W
+            .quality(60)            // set JPEG quality (only applies to jpegs)
+            .getBuffer(targetMimeType,function(mime,data){
+                // With access to node's Buffer objects, it's easy to get a base64 string:
+                var dataUri = "data:" + targetMimeType + ";base64,"  + data.toString('base64');
 
-            // Good idea to close the worker when you're done
-            self.close();
-        });
-}
+                // Return data uri to the main thread.
+                // Data URIs can be displayed in <img> tags, without <canvas>
+                done(
+                    RETURN.DATA_URI,
+                    dataUri,
+                    image.bitmap.width,
+                    image.bitmap.height
+                );
+
+                // Good idea to close the worker when you're done
+                self.close();
+            });
+    });
+
+}, false);
 
 // Helpers to Return to the main thread
 var RETURN = {

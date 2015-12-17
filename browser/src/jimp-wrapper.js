@@ -22,72 +22,75 @@
 
 if (!self.Buffer && !window.Buffer){
     throw new Error("Node's Buffer() not available in jimp-worker.js");
+} else if (!self.Jimp && !window.Jimp) {
+    throw new Error("Could not load jimp.min.js in jimp-worker.js");
 }
 
-function error(err){
-    throw new Error(err.message);
-}
+// Utility methods for loading images into Jimp in a web worker context
+Jimp.WebWorkerUtils = {
+    fetchImageDataFromUrl: function(url,cb){
+        // Fetch image data via xhr. Note that this will not work
+        // without cross-domain allow-origin headers because of CORS restrictions
+        var xhr = new XMLHttpRequest();
+        xhr.open( "GET", url, true );
+        xhr.responseType = "arraybuffer";
+        xhr.onload = function() {
+            cb(this.response,null);
+        };
+        xhr.onerror = function(e){
+            cb(null,e);
+        };
 
-function fetchImageDataFromUrl(url){
-    // Fetch image data via xhr. Note that this will not work
-    // without cross-domain allow-origin headers because of CORS restrictions
-    var xhr = new XMLHttpRequest();
-    xhr.open( "GET", url, true );
-    xhr.responseType = "arraybuffer";
-    xhr.onload = function() {
-        createJimpObjectAndProcess(this.response);
-    };
-    xhr.onerror = function(e){
-        error(e);
-    };
-
-    xhr.send();
-}
-
-self.addEventListener('message', function(e) {
-    // Some browsers allow passing of file objects directly from inputs, which would
-    // enable doing the file I/O on the worker thread. Browser support is patchy however,
-    // so the most compatible strategy is to read the file on the main thread asynchronously,
-    // then pass the data here. File I/O is asynchronous on the main thread, and represents
-    // a generally small part of the total image-processing task.
-    //
-    // See https://developer.mozilla.org/en-US/docs/Web/API/Transferable for support of transferables
-    // Note that passing an array of Transferables makes the worker incompatible with IE10.
-    if (Object.prototype.toString.call(e.data).toLowerCase().indexOf("arraybuffer") > -1) {
-        // Process the image, then terminate the worker instance
-        createJimpObjectAndProcess(e.data);
-    } else if (e.data.constructor.name === "String") {
-        // Load resource from URL
-        fetchImageDataFromUrl(e.data);
-    } else {
-        throw new Error("jimp-worker.js expects to be passed a single ArrayBuffer or image URL");
-    }
-
-}, false);
-
-function bufferFromArrayBuffer(arrayBuffer){
-    // Prepare a Buffer object from the arrayBuffer. Necessary in the browser > node conversion,
-    // But this function is not useful when running in node directly
-    var buffer = new Buffer(arrayBuffer.byteLength);
-    var view = new Uint8Array(arrayBuffer);
-    for (var i = 0; i < buffer.length; ++i) {
-        buffer[i] = view[i];
-    }
-
-    return buffer;
-}
-
-function createJimpObjectAndProcess(arrayBuffer){
-    var workerError;
-    Jimp.read(bufferFromArrayBuffer(arrayBuffer), function (err, image) {
-        if (err) {
-            workerError = err;
-            throw err;
+        xhr.send();
+    },
+    bufferFromArrayBuffer: function(arrayBuffer){
+        // Prepare a Buffer object from the arrayBuffer. Necessary in the browser > node conversion,
+        // But this function is not useful when running in node directly
+        var buffer = new Buffer(arrayBuffer.byteLength);
+        var view = new Uint8Array(arrayBuffer);
+        for (var i = 0; i < buffer.length; ++i) {
+            buffer[i] = view[i];
         }
 
-        // The meat of the image processing occurs here!
-        processImageData(image);
-    });
+        return buffer;
+    },
+    isArrayBuffer: function(test){
+        return Object.prototype.toString.call(test).toLowerCase().indexOf("arraybuffer") > -1;
+    }
+};
 
-    if (workerError) throw workerError;
+// Override the nodejs implementation of Jimp.read()
+delete Jimp.read;
+Jimp.read = function(src, cb) {
+    var utils = Jimp.WebWorkerUtils;
+
+    return new Promise(
+        function(resolve, reject) {
+            cb = cb || function(err, image) {
+                if (err) reject(err);
+                else resolve(image);
+            };
+
+            if ("string" == typeof src) {
+                // Download via xhr
+                return utils.fetchImageDataFromUrl(src,function(arrayBuffer,error){
+                    if (arrayBuffer) {
+                        if (!utils.isArrayBuffer(arrayBuffer)) {
+                            return throwError.call(this, "Unrecognized data received for " + src, cb);
+                        } else {
+                            return new Jimp(utils.bufferFromArrayBuffer(arrayBuffer),cb);
+                        }
+                    } else if (error) {
+                        return throwError.call(this, error, cb);
+                    }
+                });
+            } else if (utils.isArrayBuffer(src)) {
+                // src is an ArrayBuffer already
+                return new Jimp(utils.bufferFromArrayBuffer(src), cb);
+            } else {
+                // src is not a string or ArrayBuffer
+                return throwError.call(this, "Jimp expects a single ArrayBuffer or image URL", cb);
+            }
+        }
+    );
 }
