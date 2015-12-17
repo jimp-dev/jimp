@@ -731,10 +731,12 @@ Jimp.prototype.crop = function (x, y, w, h, cb) {
 
 /**
  * Autocrop same color borders from this image
- * @param (optional) cb a callback for when complete
+ * @param (optional) tolerance: a percent value of tolerance
+ *                   for pixels color difference (default: 0.001%)
+ * @param (optional) cb: a callback for when complete
  * @returns this for chaining of methods
  */
-Jimp.prototype.autocrop = function (cb) {
+Jimp.prototype.autocrop = function() {
     var w = this.bitmap.width;
     var h = this.bitmap.height;
     var northPixelsToCrop = 0;
@@ -742,7 +744,17 @@ Jimp.prototype.autocrop = function (cb) {
     var southPixelsToCrop = 0;
     var westPixelsToCrop = 0;
     
-    var color = this.getPixelColor(0, 0); // get top left pixel color
+    var cb; // callback
+    var tolerance = 0.001; // percent of color difference tolerance (default value)
+    var minPixelsPerSide = 1; // to avoid cropping the full image
+
+    if ("number" == typeof arguments[0]) { // tolerance value passed as first argument
+        tolerance = arguments[0];
+        cb = arguments[1];
+    } else { // first argument is callback (or undefined)
+        cb = arguments[0];
+    }
+
     /**
      * All borders must be of the same color as the top left pixel, to be cropped.
      * It should be possible to crop borders each with a different color,
@@ -751,11 +763,24 @@ Jimp.prototype.autocrop = function (cb) {
      */
 
     // scan each side for same color borders
+    var colorTarget = this.getPixelColor(0, 0); // top left pixel color is the target color
+                                                // for north and east sides
+    var rgba1 = Jimp.intToRGBA(colorTarget);
+
     north: // north side (scan rows from north to south)
-    for (var y = 0; y < h; y++) {
+    for (var y = 0; y < h - minPixelsPerSide; y++) {
         for (var x = 0; x < w; x++) {
-            if (this.getPixelColor(x, y) !== color) {
-                // this pixel is not the same color as the first one: abort this side scan
+            var colorXY = this.getPixelColor(x, y);
+            var rgba2 = Jimp.intToRGBA(colorXY);
+            var difference =
+                Math.abs(
+                    Math.max((rgba1.r - rgba2.r) ^ 2, (rgba1.r - rgba2.r - rgba1.a + rgba2.a) ^ 2) +
+                    Math.max((rgba1.g - rgba2.g) ^ 2, (rgba1.g - rgba2.g - rgba1.a + rgba2.a) ^ 2) +
+                    Math.max((rgba1.b - rgba2.b) ^ 2, (rgba1.b - rgba2.b - rgba1.a + rgba2.a) ^ 2)
+                ) / (256 * 256 * 3)
+            ;
+            if (difference > tolerance) {
+                // this pixel is too distant from the first one: abort this side scan
                 break north;
             }
         }
@@ -764,10 +789,19 @@ Jimp.prototype.autocrop = function (cb) {
     }
 
     east: // east side (scan columns from east to west)
-    for (var x = 0; x < w; x++) {
-        for (var y = 0; y < h; y++) {
-            if (this.getPixelColor(x, y) !== color) {
-                // this pixel is not the same color as the first one: abort this side scan
+    for (var x = 0; x < w - minPixelsPerSide; x++) {
+        for (var y = 0 + northPixelsToCrop; y < h; y++) {
+            var colorXY = this.getPixelColor(x, y);
+            var rgba2 = Jimp.intToRGBA(colorXY);
+            var difference =
+                Math.abs(
+                    Math.max((rgba1.r - rgba2.r) ^ 2, (rgba1.r - rgba2.r - rgba1.a + rgba2.a) ^ 2) +
+                    Math.max((rgba1.g - rgba2.g) ^ 2, (rgba1.g - rgba2.g - rgba1.a + rgba2.a) ^ 2) +
+                    Math.max((rgba1.b - rgba2.b) ^ 2, (rgba1.b - rgba2.b - rgba1.a + rgba2.a) ^ 2)
+                ) / (256 * 256 * 3) 
+            ;
+            if (difference > tolerance) {
+                // this pixel is too distant from the first one: abort this side scan
                 break east;
             }
         }
@@ -775,11 +809,22 @@ Jimp.prototype.autocrop = function (cb) {
         eastPixelsToCrop++;
     }
 
+    colorTarget = this.getPixelColor(w - 1, h - 1); // bottom right pixel color is the target color
+                                                    // for south and west sides
     south: // south side (scan rows from south to north)
-    for (var y = h - 1; y >= 0; y--) {
-        for (var x = w - 1; x >= 0; x--) {
-            if (this.getPixelColor(x, y) !== color) {
-                // this pixel is not the same color as the first one: abort this side scan
+    for (var y = h - 1; y >= 0 + northPixelsToCrop + minPixelsPerSide; y--) {
+        for (var x = w - eastPixelsToCrop - 1; x >= 0; x--) {
+            var colorXY = this.getPixelColor(x, y);
+            var rgba2 = Jimp.intToRGBA(colorXY);
+            var difference =
+                Math.abs(
+                    Math.max((rgba1.r - rgba2.r) ^ 2, (rgba1.r - rgba2.r - rgba1.a + rgba2.a) ^ 2) +
+                    Math.max((rgba1.g - rgba2.g) ^ 2, (rgba1.g - rgba2.g - rgba1.a + rgba2.a) ^ 2) +
+                    Math.max((rgba1.b - rgba2.b) ^ 2, (rgba1.b - rgba2.b - rgba1.a + rgba2.a) ^ 2)
+                ) / (256 * 256 * 3) 
+            ;
+            if (difference > tolerance) {
+                // this pixel is too distant from the first one: abort this side scan
                 break south;
             }
         }
@@ -788,10 +833,19 @@ Jimp.prototype.autocrop = function (cb) {
     }
 
     west: // west side (scan columns from west to east)
-    for (var x = w - 1; x >= 0; x--) {
-        for (var y = h - 1; y >= 0; y--) {
-            if (this.getPixelColor(x, y) !== color) {
-                // this pixel is not the same color as the first one: abort this side scan
+    for (var x = w - 1; x >= 0 + eastPixelsToCrop + minPixelsPerSide; x--) {
+        for (var y = h - 1; y >= 0 + northPixelsToCrop; y--) {
+            var colorXY = this.getPixelColor(x, y);
+            var rgba2 = Jimp.intToRGBA(colorXY);
+            var difference =
+                Math.abs(
+                    Math.max((rgba1.r - rgba2.r) ^ 2, (rgba1.r - rgba2.r - rgba1.a + rgba2.a) ^ 2) +
+                    Math.max((rgba1.g - rgba2.g) ^ 2, (rgba1.g - rgba2.g - rgba1.a + rgba2.a) ^ 2) +
+                    Math.max((rgba1.b - rgba2.b) ^ 2, (rgba1.b - rgba2.b - rgba1.a + rgba2.a) ^ 2)
+                ) / (256 * 256 * 3) 
+            ;
+            if (difference > tolerance) {
+                // this pixel is too distant from the first one: abort this side scan
                 break west;
             }
         }
@@ -807,13 +861,13 @@ Jimp.prototype.autocrop = function (cb) {
 
     // crop image, if at least one side should be cropped
     if (
-        westPixelsToCrop !== 0 ||
+        eastPixelsToCrop !== 0 ||
         northPixelsToCrop !== 0 ||
         widthOfPixelsToCrop !== w ||
         heightOfPixelsToCrop !== h
     ) {
         this.crop(
-            westPixelsToCrop,
+            eastPixelsToCrop,
             northPixelsToCrop,
             widthOfPixelsToCrop,
             heightOfPixelsToCrop
@@ -829,22 +883,48 @@ Jimp.prototype.autocrop = function (cb) {
  * @param src the source Jimp instance
  * @param x the x position to blit the image
  * @param y the y position to blit the image
+ * @param srcx (optional) the x position from which to crop the source image
+ * @param srcy (optional) the y position from which to crop the source image
+ * @param srcw (optional) the width to which to crop the source image
+ * @param srch (optional) the height to which to crop the source image
  * @param (optional) cb a callback for when complete
  * @returns this for chaining of methods
 */
-Jimp.prototype.blit = function (src, x, y, cb) {
+Jimp.prototype.blit = function (src, x, y, srcx, srcy, srcw, srch, cb) {
     if ("object" != typeof src || src.constructor != Jimp)
         return throwError.call(this, "The source must be a Jimp image", cb);
     if ("number" != typeof x || "number" != typeof y)
         return throwError.call(this, "x and y must be numbers", cb);
 
+    if ("function" == typeof srcx) {
+        cb = srcx;
+        srcx = 0;
+        srcy = 0;
+        srcw = src.bitmap.width;
+        srch = src.bitmap.height;
+    } else if (typeof srcx == typeof srcy && typeof srcy == typeof srcw && typeof srcw == typeof srch) {
+        srcx = srcx || 0;
+        srcy = srcy || 0;
+        srcw = srcw || src.bitmap.width;
+        srch = srch || src.bitmap.height;
+    } else {
+        return throwError.call(this, "srcx, srcy, srcw, srch must be numbers", cb);
+    }
+
+
     // round input
     x = Math.round(x);
     y = Math.round(y);
 
+    // round input
+    srcx = Math.round(srcx);
+    srcy = Math.round(srcy);
+    srcw = Math.round(srcw);
+    srch = Math.round(srch);
+
     var that = this;
-    src.scan(0, 0, src.bitmap.width, src.bitmap.height, function(sx, sy, idx) {
-        var dstIdx = that.getPixelIndex(x+sx, y+sy);
+    src.scan(srcx, srcy, srcw, srch, function(sx, sy, idx) {
+        var dstIdx = that.getPixelIndex(x+sx-srcx, y+sy-srcy);
         that.bitmap.data[dstIdx] = this.bitmap.data[idx];
         that.bitmap.data[dstIdx+1] = this.bitmap.data[idx+1];
         that.bitmap.data[dstIdx+2] = this.bitmap.data[idx+2];
@@ -1701,7 +1781,7 @@ Jimp.prototype.dither16 = Jimp.prototype.dither565;
  * @returns this for chaining of methods
  */
 Jimp.prototype.color = Jimp.prototype.colour = function (actions, cb) {
-    if (!actions | actions.constructor !== Array)
+    if (!actions || !Array.isArray(actions))
         return throwError.call(this, "actions must be an array", cb);
 
     var originalScope = this;
@@ -1776,6 +1856,8 @@ Jimp.prototype.write = function (path, cb) {
         stream.on("open", function(fh) {
             stream.write(buffer);
             stream.end();
+        }).on("error", function(err) {
+            return throwError.call(that, err, cb);
         });
         stream.on("finish", function(fh) {
             return cb.call(that, null, that);
