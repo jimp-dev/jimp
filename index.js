@@ -462,8 +462,8 @@ Jimp.prototype._rgba = true;
 Jimp.prototype._background = 0x00000000;
 
 // Default align factors
-Jimp.prototype._align_h = 0.5;
-Jimp.prototype._align_v = 0.5;
+Jimp.prototype._align_h = 1;
+Jimp.prototype._align_v = 1;
 
 /**
  * Creates a new image that is a clone of this one.
