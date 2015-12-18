@@ -35,7 +35,8 @@ Jimp.WebWorkerUtils = {
         xhr.open( "GET", url, true );
         xhr.responseType = "arraybuffer";
         xhr.onload = function() {
-            cb(this.response,null);
+            if (xhr.status < 400) cb(this.response,null);
+            else cb(null,"HTTP Status " + xhr.status + " for url "+url);
         };
         xhr.onerror = function(e){
             cb(null,e);
@@ -61,7 +62,7 @@ Jimp.WebWorkerUtils = {
 
 // Override the nodejs implementation of Jimp.read()
 delete Jimp.read;
-Jimp.read = function(src, cb) {
+Jimp.read = function(src,cb) {
     var utils = Jimp.WebWorkerUtils;
 
     return new Promise(
@@ -73,23 +74,23 @@ Jimp.read = function(src, cb) {
 
             if ("string" == typeof src) {
                 // Download via xhr
-                return utils.fetchImageDataFromUrl(src,function(arrayBuffer,error){
+                utils.fetchImageDataFromUrl(src,function(arrayBuffer,error){
                     if (arrayBuffer) {
                         if (!utils.isArrayBuffer(arrayBuffer)) {
-                            return throwError.call(this, "Unrecognized data received for " + src, cb);
+                            cb(new Error("Unrecognized data received for " + src));
                         } else {
-                            return new Jimp(utils.bufferFromArrayBuffer(arrayBuffer),cb);
+                            new Jimp(utils.bufferFromArrayBuffer(arrayBuffer),cb);
                         }
                     } else if (error) {
-                        return throwError.call(this, error, cb);
+                        cb(error);
                     }
                 });
             } else if (utils.isArrayBuffer(src)) {
                 // src is an ArrayBuffer already
-                return new Jimp(utils.bufferFromArrayBuffer(src), cb);
+                new Jimp(utils.bufferFromArrayBuffer(src), cb);
             } else {
                 // src is not a string or ArrayBuffer
-                return throwError.call(this, "Jimp expects a single ArrayBuffer or image URL", cb);
+                cb(new Error("Jimp expects a single ArrayBuffer or image URL"));
             }
         }
     );

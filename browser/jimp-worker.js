@@ -17,19 +17,26 @@ self.addEventListener('message', function(e) {
     //
     // See https://developer.mozilla.org/en-US/docs/Web/API/Transferable for support of transferables
     // Note that passing an array of Transferables makes the worker incompatible with IE10.
-    Jimp.read(e.data,function(err,image){
 
+    // Helpers to Return to the main thread
+    var RETURN = {
+        IMAGE: "IMAGE",
+        DATA_URI: "DATA_URI"
+    };
+
+    Jimp.read(e.data).then(function(image){
         // EXAMPLE 1:
         // Resize the image and return the pixel data back to the main thread
         // <canvas> is required to paint it
         image.containCropped(200, 200);
 
-        done(
-            RETURN.IMAGE,
-            image.bitmap,
-            image.bitmap.width,
-            image.bitmap.height
-        );
+        // Return resized image data to the main thread:
+        self.postMessage({
+            type: RETURN.IMAGE,
+            data: image.bitmap,
+            width: image.bitmap.width,
+            height: image.bitmap.height
+        });
 
         // EXAMPLE 2:
         // Continue processing the same image to make more versions!
@@ -46,36 +53,19 @@ self.addEventListener('message', function(e) {
 
                 // Return data uri to the main thread.
                 // Data URIs can be displayed in <img> tags, without <canvas>
-                done(
-                    RETURN.DATA_URI,
-                    dataUri,
-                    image.bitmap.width,
-                    image.bitmap.height
-                );
+                self.postMessage({
+                    type: RETURN.DATA_URI,
+                    data: dataUri,
+                    width: image.bitmap.width,
+                    height: image.bitmap.height
+                });
 
                 // Good idea to close the worker when you're done
                 self.close();
             });
+    }).catch(function(err){
+        // Prevent the error from getting swallowed in the promise
+        setTimeout(function() { throw err; },0);
     });
 
 }, false);
-
-// Helpers to Return to the main thread
-var RETURN = {
-    IMAGE: "IMAGE",
-    DATA_URI: "DATA_URI"
-};
-
-function done(type,data,w,h) {
-    if (typeof RETURN[type] === "undefined") throw new Error("Illegal return type");
-
-    // Return processed image to main thread
-    // Several data formats included here for example only.
-    // You should only process and return the ones you need!
-    self.postMessage({
-        type: type,
-        data: data,
-        width: w,
-        height: h
-    });
-}

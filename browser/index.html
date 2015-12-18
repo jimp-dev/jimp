@@ -35,7 +35,7 @@
             worker.onerror = function(e){
                 var message = "Could not process "+ filename + ': Line '+ e.lineno+ ' in '+ e.filename+ ': '+ e.message;
                 alert(message);
-                console.error(message);
+                console.warn(message);
             };
             worker.postMessage(input);
         }
