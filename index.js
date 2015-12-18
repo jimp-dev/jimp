@@ -731,26 +731,21 @@ Jimp.prototype.crop = function (x, y, w, h, cb) {
 
 /**
  * Autocrop same color borders from this image
- * @param (optional) tolerance: a percent value of tolerance for
- *                              pixels color difference (default: 0.0002%)
- * param (optional) cropOnlyFrames: flag to crop only real frames:
- *                                  all 4 sides of the image must have some border (default: true)
- * @param (optional) cb: a callback for when complete (default: no callback)
- * @returns this for chaining of methods
+ * @param (optional) tolerance:      a percent value of tolerance for
+ *                                   pixels color difference (default: 0.0002%)
+ * @param (optional) cropOnlyFrames: flag to crop only real frames:
+ *                                   all 4 sides of the image must have some border (default: true)
+ * @param (optional) cb:             a callback for when complete (default: no callback)
+ * @returns this                     for chaining of methods
  */
 Jimp.prototype.autocrop = function() {
     var w = this.bitmap.width;
     var h = this.bitmap.height;
-    var northPixelsToCrop = 0;
-    var eastPixelsToCrop = 0;
-    var southPixelsToCrop = 0;
-    var westPixelsToCrop = 0;
-    
+    var minPixelsPerSide = 1; // to avoid cropping completely the image, resulting in an invalid 0 sized image
     var cb; // callback
     var tolerance = 0.0002; // percent of color difference tolerance (default value)
     var cropOnlyFrames = true; // flag to force cropping only if the image has a real "frame"
                                // i.e. all 4 sides have some border (default value)
-    var minPixelsPerSide = 1; // to avoid cropping completely the image, resulting in an invalid 0 sized image
 
     // parse arguments
     for (var a = 0, len = arguments.length; a < len; a++) {
@@ -776,6 +771,11 @@ Jimp.prototype.autocrop = function() {
     // scan each side for same color borders
     var colorTarget = this.getPixelColor(0, 0); // top left pixel color is the target color
                                                 // for north and east sides
+    var northPixelsToCrop = 0;
+    var eastPixelsToCrop = 0;
+    var southPixelsToCrop = 0;
+    var westPixelsToCrop = 0;
+
     var rgba1 = Jimp.intToRGBA(colorTarget);
 
     north: // north side (scan rows from north to south)
