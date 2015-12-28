@@ -20,8 +20,23 @@ echo "Removing Strict Mode."
 sed "s/^\"use strict\";//" tmp.js > tmp-nostrict.js
 
 echo "Adding Web Worker wrapper functions..."
-cat tmp-nostrict.js src/jimp-wrapper.js > lib/jimp.js
+cat tmp-nostrict.js src/jimp-wrapper.js > tmp.jimp.js
 echo "Minifying browser/jimp.min.js..."
-uglifyjs lib/jimp.js --compress warnings=false --mangle -o lib/jimp.min.js
+uglifyjs tmp.jimp.js --compress warnings=false --mangle -o tmp.jimp.min.js
+
+echo "Including the License and version number in the jimp.js and jimp.min.js"
+PACKAGE_VERSION=$(cat ../package.json | grep version | head -1 | awk -F: '{ print $2 }' | sed 's/[",]//g')
+{ echo "/*";
+echo "Jimp v$PACKAGE_VERSION";
+echo "https://github.com/oliver-moran/jimp";
+echo "Ported for the Web by Phil Seaton";
+echo "";
+cat ../LICENSE;
+echo "*/";
+echo ""; } > tmp.web_license.txt
+
+cat tmp.web_license.txt tmp.jimp.js > lib/jimp.js
+cat tmp.web_license.txt tmp.jimp.min.js > lib/jimp.min.js
+
 echo "Cleaning up...."
 rm tmp*
