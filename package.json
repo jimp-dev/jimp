@@ -38,7 +38,9 @@
     "url-regex": "^3.0.0"
   },
   "devDependencies": {
-    "browserify": { "transform": [ "uglifyify", "envify" ] },
+    "browserify": "^12.0.1",
+    "envify": "^3.4.0",
+    "uglifyify": "^3.0.1",
     "uglify-js": "^2.6.1",
     "babel": "^6.0.14",
     "babel-cli": "^6.0.0",
