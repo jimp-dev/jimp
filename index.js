@@ -1480,7 +1480,7 @@ Jimp.prototype.cover = function (w, h, cb) {
     var f = (w/h > this.bitmap.width/this.bitmap.height) ?
         w/this.bitmap.width : h/this.bitmap.height;
     this.scale(f);
-    this.crop(((this.bitmap.width - w) / 2) * this._align_h, ((this.bitmap.height - h) / 2) * this._align_v, w, h);
+    this.crop(this.bitmap.width / 2 - w / 2, this.bitmap.height / 2 - h / 2, w, h);
     
     if (isNodePattern(cb)) return cb.call(this, null, this);
     else return this;
@@ -1505,7 +1505,7 @@ Jimp.prototype.contain = function (w, h, cb) {
     this.scan(0, 0, this.bitmap.width, this.bitmap.height, function (x, y, idx) {
         this.bitmap.data.writeUInt32BE(this._background, idx);
     });
-    this.blit(c, ((this.bitmap.width - c.bitmap.width) / 2) * this._align_h, ((this.bitmap.height - c.bitmap.height) / 2) * this._align_v);
+    this.blit(c, this.bitmap.width / 2 - c.bitmap.width / 2, this.bitmap.height / 2 - c.bitmap.height / 2);
     
     if (isNodePattern(cb)) return cb.call(this, null, this);
     else return this;
