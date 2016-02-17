@@ -4,7 +4,7 @@ var JPEG = require("jpeg-js");
 var BMP = require("bmp-js");
 var MIME = require("mime");
 var tinycolor = require("tinycolor2");
-var Resize = require("./resize.js");
+var ImageJS = require("imagejs");
 var StreamToBuffer = require("stream-to-buffer");
 var ReadChunk = require("read-chunk");
 var FileType = require("file-type");
@@ -312,6 +312,14 @@ Jimp.PNG_FILTER_UP = 2;
 Jimp.PNG_FILTER_AVERAGE = 3;
 Jimp.PNG_FILTER_PAETH = 4;
 
+// Resize modes for imagejs
+Jimp.RESIZE_NEAREST_NEIGHBOR = 'nearestNeighbor';
+Jimp.RESIZE_BILINEAR = 'bilinearInterpolation';
+Jimp.RESIZE_BICUBIC = 'bicubicInterpolation';
+Jimp.RESIZE_HERMITE = 'hermiteInterpolation';
+Jimp.RESIZE_BEZIER = 'bezierInterpolation';
+
+Jimp.allResizeModes = [Jimp.RESIZE_NEAREST_NEIGHBOR, Jimp.RESIZE_BILINEAR, Jimp.RESIZE_BICUBIC, Jimp.RESIZE_HERMITE, Jimp.RESIZE_BEZIER];
 /**
  * A static helper method that converts RGBA values to a single integer value
  * @param r the red value (0-255)
@@ -452,6 +460,9 @@ Jimp.prototype._rgba = true;
 // Default colour to use for new pixels
 Jimp.prototype._background = 0x00000000;
 
+// Default resize mode
+Jimp.prototype._resizeMode = Jimp.RESIZE_BICUBIC;
+
 /**
  * Creates a new image that is a clone of this one.
  * @param cb (optional) A callback for when complete
@@ -546,6 +557,24 @@ Jimp.prototype.background = function (hex, cb) {
 
     this._background = hex;
 
+    if (isNodePattern(cb)) return cb.call(this, null, this);
+    else return this;
+};
+
+/**
+ * Sets the resize interpolation mode
+ * @param mode A string with the interpolation mode
+ * @param (optional) cb a callback for when complete
+ * @returns this for chaining of methods
+ */
+Jimp.prototype.resizeMode = function (mode, cb) {
+    if ("string" != typeof mode)
+        return throwError.call(this, "mode must be a string", cb);
+    if (Jimp.allResizeModes.indexOf(mode) == -1)
+        return throwError.call(this, "unknown resize mode", cb);
+    
+    this._resizeMode = mode
+    
     if (isNodePattern(cb)) return cb.call(this, null, this);
     else return this;
 };
@@ -1415,14 +1444,23 @@ Jimp.prototype.resize = function (w, h, cb) {
     // round inputs
     w = Math.round(w);
     h = Math.round(h);
+    
 
-    var that = this;
-    var resize = new Resize(this.bitmap.width, this.bitmap.height, w, h, true, true, function (buffer) {
-        that.bitmap.data = new Buffer(buffer);
-        that.bitmap.width = w;
-        that.bitmap.height = h;
+    resize = new ImageJS.Bitmap({
+        width: this.bitmap.width,
+        height: this.bitmap.height,
+        data: this.bitmap.data
     });
-    resize.resize(this.bitmap.data);
+    
+    var resized = resize.resize({
+        width: w, height: h,
+        algorithm: this._resizeMode
+    });
+    
+    this.bitmap.width = w;
+    this.bitmap.height = h;
+    this.bitmap.data = new Buffer(resized.detach().data);
+
 
     if (isNodePattern(cb)) return cb.call(this, null, this);
     else return this;
@@ -1442,7 +1480,7 @@ Jimp.prototype.cover = function (w, h, cb) {
     var f = (w/h > this.bitmap.width/this.bitmap.height) ?
         w/this.bitmap.width : h/this.bitmap.height;
     this.scale(f);
-    this.crop(this.bitmap.width / 2 - w / 2, this.bitmap.height / 2 - h / 2, w, h);
+    this.crop(((this.bitmap.width - w) / 2) * this._align_h, ((this.bitmap.height - h) / 2) * this._align_v, w, h);
     
     if (isNodePattern(cb)) return cb.call(this, null, this);
     else return this;
@@ -1467,7 +1505,7 @@ Jimp.prototype.contain = function (w, h, cb) {
     this.scan(0, 0, this.bitmap.width, this.bitmap.height, function (x, y, idx) {
         this.bitmap.data.writeUInt32BE(this._background, idx);
     });
-    this.blit(c, this.bitmap.width / 2 - c.bitmap.width / 2, this.bitmap.height / 2 - c.bitmap.height / 2);
+    this.blit(c, ((this.bitmap.width - c.bitmap.width) / 2) * this._align_h, ((this.bitmap.height - c.bitmap.height) / 2) * this._align_v);
     
     if (isNodePattern(cb)) return cb.call(this, null, this);
     else return this;

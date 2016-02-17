@@ -34,7 +34,8 @@
     "request": "^2.65.0",
     "stream-to-buffer": "^0.1.0",
     "tinycolor2": "^1.1.2",
-    "url-regex": "^3.0.0"
+    "url-regex": "^3.0.0",
+    "imagejs": "^0.0.9"
   },
   "repository": {
     "type": "git",
