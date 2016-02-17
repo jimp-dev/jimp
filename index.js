@@ -4,7 +4,7 @@ var JPEG = require("jpeg-js");
 var BMP = require("bmp-js");
 var MIME = require("mime");
 var tinycolor = require("tinycolor2");
-var ImageJS = require("imagejs");
+var Resize = require("./resize.js");
 var StreamToBuffer = require("stream-to-buffer");
 var ReadChunk = require("read-chunk");
 var FileType = require("file-type");
@@ -321,14 +321,6 @@ Jimp.VERTICAL_ALIGN_TOP = 8;
 Jimp.VERTICAL_ALIGN_MIDDLE = 16;
 Jimp.VERTICAL_ALIGN_BOTTOM = 32;
 
-// Resize modes for imagejs
-Jimp.RESIZE_NEAREST_NEIGHBOR = 'nearestNeighbor';
-Jimp.RESIZE_BILINEAR = 'bilinearInterpolation';
-Jimp.RESIZE_BICUBIC = 'bicubicInterpolation';
-Jimp.RESIZE_HERMITE = 'hermiteInterpolation';
-Jimp.RESIZE_BEZIER = 'bezierInterpolation';
-
-Jimp._allResizeModes = [Jimp.RESIZE_NEAREST_NEIGHBOR, Jimp.RESIZE_BILINEAR, Jimp.RESIZE_BICUBIC, Jimp.RESIZE_HERMITE, Jimp.RESIZE_BEZIER];
 /**
  * A static helper method that converts RGBA values to a single integer value
  * @param r the red value (0-255)
@@ -473,9 +465,6 @@ Jimp.prototype._background = 0x00000000;
 Jimp.prototype._align_h = 1;
 Jimp.prototype._align_v = 1;
 
-// Default resize mode
-Jimp.prototype._resizeMode = Jimp.RESIZE_NEAREST_NEIGHBOR;
-
 /**
  * Creates a new image that is a clone of this one.
  * @param cb (optional) A callback for when complete
@@ -601,23 +590,8 @@ Jimp.prototype.align = function (bits, cb) {
     else return this;
 };
 
-/**
- * Sets the resize interpolation mode
- * @param mode A string with the interpolation mode
- * @param (optional) cb a callback for when complete
- * @returns this for chaining of methods
- */
-Jimp.prototype.resizeMode = function (mode, cb) {
-    if ("string" != typeof mode)
-        return throwError.call(this, "mode must be a string", cb);
-    if (Jimp._allResizeModes.indexOf(mode) == -1)
-        return throwError.call(this, "unknown resize mode", cb);
-    
-    this._resizeMode = mode
-    
-    if (isNodePattern(cb)) return cb.call(this, null, this);
-    else return this;
-};
+
+
 
 /**
  * Scanes through a region of the bitmap, calling a function for each pixel.
@@ -1485,23 +1459,13 @@ Jimp.prototype.resize = function (w, h, cb) {
     w = Math.round(w);
     h = Math.round(h);
 
-    var resize = new ImageJS.Bitmap({
-        width: this.bitmap.width,
-        height: this.bitmap.height,
-        data: this.bitmap.data
+    var that = this;
+    var resize = new Resize(this.bitmap.width, this.bitmap.height, w, h, true, true, function (buffer) {
+        that.bitmap.data = new Buffer(buffer);
+        that.bitmap.width = w;
+        that.bitmap.height = h;
     });
-    
-    var resized = resize.resize({
-        width: w, height: h,
-        algorithm: this._resizeMode
-    });
-    
-    
-    
-    this.bitmap.width = w;
-    this.bitmap.height = h;
-    this.bitmap.data = new Buffer(resized.detach().data);
-    
+    resize.resize(this.bitmap.data);
 
     if (isNodePattern(cb)) return cb.call(this, null, this);
     else return this;
