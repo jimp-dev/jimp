@@ -312,6 +312,22 @@ Jimp.PNG_FILTER_UP = 2;
 Jimp.PNG_FILTER_AVERAGE = 3;
 Jimp.PNG_FILTER_PAETH = 4;
 
+// Align modes for cover, contain, bit masks
+Jimp.HORIZONTAL_ALIGN_LEFT = 1;
+Jimp.HORIZONTAL_ALIGN_CENTER = 2;
+Jimp.HORIZONTAL_ALIGN_RIGHT = 4;
+
+Jimp.VERTICAL_ALIGN_TOP = 8;
+Jimp.VERTICAL_ALIGN_MIDDLE = 16;
+Jimp.VERTICAL_ALIGN_BOTTOM = 32;
+
+// Resize modes for imagejs
+Jimp.RESIZE_NEAREST_NEIGHBOR = 'nearestNeighbor';
+Jimp.RESIZE_BILINEAR = 'bilinearInterpolation';
+Jimp.RESIZE_BICUBIC = 'bicubicInterpolation';
+Jimp.RESIZE_HERMITE = 'hermiteInterpolation';
+Jimp.RESIZE_BEZIER = 'bezierInterpolation';
+
 /**
  * A static helper method that converts RGBA values to a single integer value
  * @param r the red value (0-255)
@@ -452,6 +468,10 @@ Jimp.prototype._rgba = true;
 // Default colour to use for new pixels
 Jimp.prototype._background = 0x00000000;
 
+// Default align factors
+Jimp.prototype._align_h = 1;
+Jimp.prototype._align_v = 1;
+
 /**
  * Creates a new image that is a clone of this one.
  * @param cb (optional) A callback for when complete
@@ -549,6 +569,34 @@ Jimp.prototype.background = function (hex, cb) {
     if (isNodePattern(cb)) return cb.call(this, null, this);
     else return this;
 };
+
+
+/**
+ * Sets the alignment mode for cover and contain
+ * @param bits A bitmask for horizontal and vertical alignment
+ * @param (optional) cb a callback for when complete
+ * @returns this for chaining of methods
+ */
+Jimp.prototype.align = function (bits, cb) {
+    if ("number" != typeof bits)
+        return throwError.call(this, "bits must be a bit mask", cb);
+    if (bits < 1 || bits > 36)
+        return throwError.call(this, "bits must be a number 1 - 36", cb);
+    
+    var hbits = ((bits) & ((1<<(3))-1));
+    var vbits = bits >> 3;
+    
+    // check if more flags than one is in the bit sets
+    if(!(((hbits != 0) && !(hbits & (hbits - 1))) || ((vbits != 0) && !(vbits & (vbits - 1)))))
+        return throwError.call(this, "only use one flag per alignment direction", cb);
+    
+    this._align_h = (hbits >> 1); // 0, 1, 2
+    this._align_v = (vbits >> 1); // 0, 1, 2
+    
+    if (isNodePattern(cb)) return cb.call(this, null, this);
+    else return this;
+};
+
 
 /**
  * Scanes through a region of the bitmap, calling a function for each pixel.
@@ -1423,7 +1471,7 @@ Jimp.prototype.resize = function (w, h, cb) {
         that.bitmap.height = h;
     });
     resize.resize(this.bitmap.data);
-
+    
     if (isNodePattern(cb)) return cb.call(this, null, this);
     else return this;
 };
@@ -1442,7 +1490,7 @@ Jimp.prototype.cover = function (w, h, cb) {
     var f = (w/h > this.bitmap.width/this.bitmap.height) ?
         w/this.bitmap.width : h/this.bitmap.height;
     this.scale(f);
-    this.crop(this.bitmap.width / 2 - w / 2, this.bitmap.height / 2 - h / 2, w, h);
+    this.crop(((this.bitmap.width - w) / 2) * this._align_h, ((this.bitmap.height - h) / 2) * this._align_v, w, h);
     
     if (isNodePattern(cb)) return cb.call(this, null, this);
     else return this;
@@ -1467,7 +1515,7 @@ Jimp.prototype.contain = function (w, h, cb) {
     this.scan(0, 0, this.bitmap.width, this.bitmap.height, function (x, y, idx) {
         this.bitmap.data.writeUInt32BE(this._background, idx);
     });
-    this.blit(c, this.bitmap.width / 2 - c.bitmap.width / 2, this.bitmap.height / 2 - c.bitmap.height / 2);
+    this.blit(c, ((this.bitmap.width - c.bitmap.width) / 2) * this._align_h, ((this.bitmap.height - c.bitmap.height) / 2) * this._align_v);
     
     if (isNodePattern(cb)) return cb.call(this, null, this);
     else return this;
