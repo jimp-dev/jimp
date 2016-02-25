@@ -267,9 +267,9 @@ By default the hash is returned as base 64. The hash can be returned at another 
 image.hash(2); // 1010101011010000101010000100101010010000011001001001010011100100
 ```
 
-There are 18,446,744,073,709,551,615 unique hashes. The hammering distance between the binary representation of these hashes can be used to find similar-looking images.
+There are 18,446,744,073,709,551,615 unique hashes. The Hamming distance between the binary representation of these hashes can be used to find similar-looking images.
 
-To calculate the hammering distance between two Jimp images based on their perceptual hash use:
+To calculate the Hamming distance between two Jimp images based on their perceptual hash use:
 
 ```js
 Jimp.distance(image1, image2); // returns a number 0-1, where 0 means the two images are perceived to be identical
@@ -283,7 +283,7 @@ diff.image;   // a Jimp image showing differences
 diff.percent; // the proportion of different pixels (0-1), where 0 means the images are pixel identical
 ```
 
-Using a mix of hammering distance and pixel diffing to comare images, the following code has a 99% success rate of detecting the same image from a random sample (with 1% false positives). The test this figure is drawn from attempts to match each image from a sample of 120 PNGs against 120 corresponing JPEGs saved at a quality setting of 60.
+Using a mix of Hamming distance and pixel diffing to comare images, the following code has a 99% success rate of detecting the same image from a random sample (with 1% false positives). The test this figure is drawn from attempts to match each image from a sample of 120 PNGs against 120 corresponing JPEGs saved at a quality setting of 60.
 
 ```js
 var distance = Jimp.distance(png, jpeg); // perceived distance
