@@ -1461,6 +1461,26 @@ Jimp.prototype.contain = function (w, h, cb) {
 
     var f = (w/h > this.bitmap.width/this.bitmap.height) ?
         h/this.bitmap.height : w/this.bitmap.width;
+    this.scale(f);
+    
+    if (isNodePattern(cb)) return cb.call(this, null, this);
+    else return this;
+};
+
+/**
+ * Scale the image to the largest size so that its width and height fits inside the given width and height.
+ * Add new (background-filled) areas so that the image starts to cover the whole w×h container.
+ * @param w the width to resize the image to
+ * @param h the height to resize the image to
+ * @param (optional) cb a callback for when complete
+ * @returns this for chaining of methods
+ */
+Jimp.prototype.container = function (w, h, cb) {
+    if ("number" != typeof w || "number" != typeof h)
+        return throwError.call(this, "w and h must be numbers", cb);
+
+    var f = (w/h > this.bitmap.width/this.bitmap.height) ?
+        h/this.bitmap.height : w/this.bitmap.width;
     var c = this.clone().scale(f);
     
     this.resize(w, h);
