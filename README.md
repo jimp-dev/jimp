@@ -90,6 +90,7 @@ image.dither565();             // ordered dithering of the image and reduce colo
 image.cover( w, h );           // scale the image so that it fills the given width and height
 image.contain( w, h );         // scale the image to the largest size so that fits inside the given width and height
 image.background( hex );       // set the default new pixel colour (e.g. 0xFFFFFFFF or 0x00000000) for by some operations (e.g. image.contain and image.rotate) and when writing formats that don't support alpha channels
+image.align( bits );           // sets the alignment mode for cover and contain, default is Jimp.HORIZONTAL_ALIGN_CENTER | Jimp.VERTICAL_ALIGN_MIDDLE
 image.mirror( horz, vert );    // an alias for flip
 image.fade( f );               // an alternative to opacity, fades the image by a factor 0 - 1. 0 will haven no effect. 1 will turn the image
 image.opaque();                // set the alpha channel on every pixel to fully opaque
