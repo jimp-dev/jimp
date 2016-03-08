@@ -88,7 +88,6 @@ image.mask( src, x, y );       // masks the image with another Jimp image at x, 
 image.dither565();             // ordered dithering of the image and reduce color space to 16-bits (RGB565)
 image.cover( w, h );           // scale the image so that it fills the given width and height
 image.contain( w, h );         // scale the image to the largest size so that fits inside the given width and height
-image.containCropped( w, h );  // same as .contain(), but returns an image without "blank" pixels filled with a background color
 image.background( hex );       // set the default new pixel colour (e.g. 0xFFFFFFFF or 0x00000000) for by some operations (e.g. image.contain and image.rotate) and when writing formats that don't support alpha channels
 image.mirror( horz, vert );    // an alias for flip
 image.fade( f );               // an alternative to opacity, fades the image by a factor 0 - 1. 0 will haven no effect. 1 will turn the image

@@ -28,7 +28,7 @@ self.addEventListener('message', function(e) {
         // EXAMPLE 1:
         // Resize the image and return the pixel data back to the main thread
         // <canvas> is required to paint it
-        image.containCropped(200, 200);
+        image.contain(200, 200);
 
         // Return resized image data to the main thread:
         self.postMessage({
