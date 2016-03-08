@@ -76,7 +76,7 @@ image.blur( r );               // fast blur the image by r pixels
 image.greyscale();             // remove colour from the image
 image.sepia();                 // apply a sepia wash to the image
 image.opacity( f );            // multiply the alpha channel by each pixel by the factor f, 0 - 1
-image.resize( w, h );          // resize the image. Jimp.AUTO can be passed as one of the values.
+image.resize( w, h[, mode] );  // resize the image. Jimp.AUTO can be passed as one of the values. Optionally, a resize mode can be passed.
 image.scale( f );              // scale the image by the factor f
 image.rotate( deg[, resize] ); // rotate the image clockwise by a number of degrees. Unless `false` is passed as the second parameter, the image width and height will be resized appropriately.
 image.blit( src, x, y[, srcx, srcy, srcw, srch] );
@@ -149,6 +149,32 @@ Jimp.PNG_FILTER_SUB;     //  1
 Jimp.PNG_FILTER_UP;      //  2
 Jimp.PNG_FILTER_AVERAGE; //  3
 Jimp.PNG_FILTER_PAETH;   //  4
+```
+
+### Resize modes ###
+
+The default rezing algorithm uses a bilinear method as follows:
+
+```js
+image.resize(250, 250);       // resize the image to 250 x 250
+image.resize(Jimp.AUTO, 250); // resize the height to 250 and scale the width accordingly
+image.resize(250, Jimp.AUTO); // resize the width to 250 and scale the height accordingly
+```
+
+Optionally, the following constants can be passed to choose a particular resizing algorithm:
+
+```js
+Jimp.RESIZE_NEAREST_NEIGHBOR;
+Jimp.RESIZE_BILINEAR;
+Jimp.RESIZE_BICUBIC;
+Jimp.RESIZE_HERMITE;
+Jimp.RESIZE_BEZIER;
+```
+
+For example:
+
+```js
+image.resize(250, 250, Jimp.RESIZE_BEZIER);
 ```
 
 ## Advanced usage ##

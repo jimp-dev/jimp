@@ -5,6 +5,7 @@ var BMP = require("bmp-js");
 var MIME = require("mime");
 var tinycolor = require("tinycolor2");
 var Resize = require("./resize.js");
+var Resize2 = require("./resize2.js");
 var StreamToBuffer = require("stream-to-buffer");
 var ReadChunk = require("read-chunk");
 var FileType = require("file-type");
@@ -311,6 +312,12 @@ Jimp.PNG_FILTER_SUB = 1;
 Jimp.PNG_FILTER_UP = 2;
 Jimp.PNG_FILTER_AVERAGE = 3;
 Jimp.PNG_FILTER_PAETH = 4;
+
+Jimp.RESIZE_NEAREST_NEIGHBOR = 'nearestNeighbor';
+Jimp.RESIZE_BILINEAR = 'bilinearInterpolation';
+Jimp.RESIZE_BICUBIC = 'bicubicInterpolation';
+Jimp.RESIZE_HERMITE = 'hermiteInterpolation';
+Jimp.RESIZE_BEZIER = 'bezierInterpolation';
 
 /**
  * A static helper method that converts RGBA values to a single integer value
@@ -1476,12 +1483,18 @@ Jimp.prototype.opaque = function (cb) {
  * Resizes the image to a set width and height using a 2-pass bilinear algorithm
  * @param w the width to resize the image to (or Jimp.AUTO)
  * @param h the height to resize the image to (or Jimp.AUTO)
+ * @param (optional) mode a scaling method (e.g. Jimp.RESIZE_BEZIER)
  * @param (optional) cb a callback for when complete
  * @returns this for chaining of methods
  */
-Jimp.prototype.resize = function (w, h, cb) {
+Jimp.prototype.resize = function (w, h, mode, cb) {
     if ("number" != typeof w || "number" != typeof h)
         return throwError.call(this, "w and h must be numbers", cb);
+    
+    if ("function" == typeof mode && "undefined" == typeof cb) {
+        cb = mode;
+        mode = null;
+    }
     
     if (w == Jimp.AUTO && h == Jimp.AUTO)
         return throwError.call(this, "w and h cannot both the set to auto", cb);
@@ -1493,13 +1506,23 @@ Jimp.prototype.resize = function (w, h, cb) {
     w = Math.round(w);
     h = Math.round(h);
 
-    var that = this;
-    var resize = new Resize(this.bitmap.width, this.bitmap.height, w, h, true, true, function (buffer) {
-        that.bitmap.data = new Buffer(buffer);
-        that.bitmap.width = w;
-        that.bitmap.height = h;
-    });
-    resize.resize(this.bitmap.data);
+    if ("function" == typeof Resize2[mode]) {
+        var dst = {
+            data: new Buffer(w * h * 4),
+            width: w,
+            height: h
+        };
+        Resize2[mode](this.bitmap, dst);
+        this.bitmap = dst;
+    } else {
+        var that = this;
+        var resize = new Resize(this.bitmap.width, this.bitmap.height, w, h, true, true, function (buffer) {
+            that.bitmap.data = new Buffer(buffer);
+            that.bitmap.width = w;
+            that.bitmap.height = h;
+        });
+        resize.resize(this.bitmap.data);
+    }
 
     if (isNodePattern(cb)) return cb.call(this, null, this);
     else return this;
