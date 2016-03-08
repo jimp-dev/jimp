@@ -2,7 +2,7 @@
 
 The "JavaScript Image Manipulation Program" :-)
 
-An image processing library for Node written entirely in JavaScript, with zero external or native dependencies. Also available for use in the browser for image manipulation in web workers without ```<canvas>```
+An image processing library for Node written entirely in JavaScript, with zero external or native dependencies.
 
 Example usage:
 
@@ -32,6 +32,8 @@ Jimp.read("lenna.png").then(function (lenna) {
 });
 ```
 
+Now also available for use in the browser for image manipulation in web workers without `<canvas>`. See [`browser/README.md`](https://github.com/oliver-moran/jimp/browser/README.md).
+
 
 ## Basic usage ##
 
@@ -50,7 +52,6 @@ Jimp.read("./path/to/image.jpg").then(function (image) {
 ```
 
 The method can also read a PNG, JPEG or BMP buffer or from a URL:
-
 
 ```js
 Jimp.read(lenna.buffer, function (err, image) {
@@ -98,9 +99,31 @@ image.clone();                 // returns a clone of the image
 
 (Contributions of more methods are welcome!)
 
-## Usage in a Browser Context ##
+### Resize modes ###
 
-See Readme in the fork at https://github.com/strandedcity/jimp for documentation of code examples in the /browser path. The API is unchanged from above, but there are differences in how Jimp can be used.
+The default rezing algorithm uses a bilinear method as follows:
+
+```js
+image.resize(250, 250);       // resize the image to 250 x 250
+image.resize(Jimp.AUTO, 250); // resize the height to 250 and scale the width accordingly
+image.resize(250, Jimp.AUTO); // resize the width to 250 and scale the height accordingly
+```
+
+Optionally, the following constants can be passed to choose a particular resizing algorithm:
+
+```js
+Jimp.RESIZE_NEAREST_NEIGHBOR;
+Jimp.RESIZE_BILINEAR;
+Jimp.RESIZE_BICUBIC;
+Jimp.RESIZE_HERMITE;
+Jimp.RESIZE_BEZIER;
+```
+
+For example:
+
+```js
+image.resize(250, 250, Jimp.RESIZE_BEZIER);
+```
 
 ## Writing to files and buffers ##
 
@@ -153,32 +176,6 @@ Jimp.PNG_FILTER_SUB;     //  1
 Jimp.PNG_FILTER_UP;      //  2
 Jimp.PNG_FILTER_AVERAGE; //  3
 Jimp.PNG_FILTER_PAETH;   //  4
-```
-
-### Resize modes ###
-
-The default rezing algorithm uses a bilinear method as follows:
-
-```js
-image.resize(250, 250);       // resize the image to 250 x 250
-image.resize(Jimp.AUTO, 250); // resize the height to 250 and scale the width accordingly
-image.resize(250, Jimp.AUTO); // resize the width to 250 and scale the height accordingly
-```
-
-Optionally, the following constants can be passed to choose a particular resizing algorithm:
-
-```js
-Jimp.RESIZE_NEAREST_NEIGHBOR;
-Jimp.RESIZE_BILINEAR;
-Jimp.RESIZE_BICUBIC;
-Jimp.RESIZE_HERMITE;
-Jimp.RESIZE_BEZIER;
-```
-
-For example:
-
-```js
-image.resize(250, 250, Jimp.RESIZE_BEZIER);
 ```
 
 ## Advanced usage ##
