@@ -4,7 +4,8 @@
   "description": "An image processing library written entirely in JavaScript (i.e. zero external or native dependencies).",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "prepublish": "./browser/browserify-build.sh"
   },
   "keywords": [
     "image",
@@ -35,6 +36,16 @@
     "stream-to-buffer": "^0.1.0",
     "tinycolor2": "^1.1.2",
     "url-regex": "^3.0.0"
+  },
+  "devDependencies": {
+    "browserify": "^13.0.0",
+    "envify": "^3.4.0",
+    "uglifyify": "^3.0.1",
+    "uglify-js": "^2.6.1",
+    "babel": "^6.0.14",
+    "babel-cli": "^6.0.0",
+    "babel-preset-es2015": "^6.0.14",
+    "babel-preset-stage-0": "^6.0.14"
   },
   "repository": {
     "type": "git",

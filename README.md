@@ -2,7 +2,7 @@
 
 The "JavaScript Image Manipulation Program" :-)
 
-An image processing library for Node written entirely in JavaScript, with zero external or native dependencies.
+An image processing library for Node written entirely in JavaScript, with zero external or native dependencies. Also available for use in the browser for image manipulation in web workers without ```<canvas>```
 
 Example usage:
 
@@ -97,6 +97,10 @@ image.clone();                 // returns a clone of the image
 ```
 
 (Contributions of more methods are welcome!)
+
+## Usage in a Browser Context ##
+
+See Readme in the fork at https://github.com/strandedcity/jimp for documentation of code examples in the /browser path. The API is unchanged from above, but there are differences in how Jimp can be used.
 
 ## Writing to files and buffers ##
 
