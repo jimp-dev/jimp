@@ -1,6 +1,4 @@
-var isBrowser = (process.env.ENVIRONMENT == 'BROWSER');
-
-var FS = (isBrowser) ? null : require("fs");
+if (process.env.ENVIRONMENT !== 'BROWSER') var FS = require("fs");
 var PNG = require("pngjs").PNG;
 var JPEG = require("jpeg-js");
 var BMP = require("bmp-js");
@@ -16,7 +14,7 @@ var EXIFParser = require("exif-parser");
 var ImagePHash = require("./phash.js");
 var BigNumber = require('bignumber.js');
 var URLRegEx = require("url-regex");
-var Request = (isBrowser) ? null : require("request").defaults({ encoding: null });
+if (process.env.ENVIRONMENT !== 'BROWSER') var Request = require('request').defaults({ encoding: null });
 
 // polyfill Promise for Node < 0.12
 var Promise = Promise || require('es6-promise').Promise;
@@ -1889,7 +1887,7 @@ Jimp.prototype.color = Jimp.prototype.colour = function (actions, cb) {
  * @param (optional) cb a function to call when the image is saved to disk
  * @returns this for chaining of methods
  */
-Jimp.prototype.write = (isBrowser) ? null : function (path, cb) {
+if (process.env.ENVIRONMENT !== 'BROWSER') Jimp.prototype.write = function (path, cb) {
     if ("string" != typeof path)
         return throwError.call(this, "path must be a string", cb);
     if ("undefined" == typeof cb) cb = function () {};
