@@ -79,6 +79,7 @@ image.sepia();                 // apply a sepia wash to the image
 image.opacity( f );            // multiply the alpha channel by each pixel by the factor f, 0 - 1
 image.resize( w, h[, mode] );  // resize the image. Jimp.AUTO can be passed as one of the values. Optionally, a resize mode can be passed.
 image.scale( f );              // scale the image by the factor f
+image.scaleToFit( w, h );      // scale the image to the largest size that fits inside the given width and height
 image.rotate( deg[, resize] ); // rotate the image clockwise by a number of degrees. Unless `false` is passed as the second parameter, the image width and height will be resized appropriately.
 image.blit( src, x, y[, srcx, srcy, srcw, srch] );
                                // blit the image with another Jimp image at x, y, optionally cropped.
