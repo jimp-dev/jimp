@@ -206,7 +206,7 @@ Jimp.read = function(src, cb) {
             }
             if ("string" != typeof src && ("object" != typeof src || Buffer != src.constructor))
                 return throwError.call(this, "src must be a string or a Buffer", cb);
-            var img = new Jimp(src, cb);
+            cb(null, new Jimp(src, cb));
         }
     );
     return promise;
