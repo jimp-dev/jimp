@@ -17,7 +17,7 @@ var URLRegEx = require("url-regex");
 if (process.env.ENVIRONMENT !== 'BROWSER') var Request = require('request').defaults({ encoding: null });
 
 // polyfill Promise for Node < 0.12
-var Promise = Promise || require('es6-promise').Promise;
+var Promise_ = Promise || require('es6-promise').Promise;
 
 // logging methods
 
@@ -196,7 +196,7 @@ function Jimp() {
  * @retuns a promise
  */
 Jimp.read = function(src, cb) {
-    var promise = new Promise(
+    var promise = new Promise_(
         function(resolve, reject) {
             cb = cb || function(err, image) {
                 if (err) reject(err);
