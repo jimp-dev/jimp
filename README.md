@@ -70,6 +70,7 @@ Once the callback is filed or the promise fulfilled, the following methods can b
 ```js
 image.crop( x, y, w, h );      // crop to the given region
 image.autocrop();              // automatically crop same-color borders from image (if any)
+image.normalize();             // normalize the channels in an image
 image.invert();                // invert the image colours
 image.flip( horz, vert );      // flip the image horizontally or vertically
 image.gaussian( r );           // Gaussian blur the image by r pixels (VERY slow)
