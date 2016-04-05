@@ -147,7 +147,7 @@ function Jimp() {
         var that = this;
         Request(url, function (err, response, data) {
             if (err) return throwError.call(that, err, cb);
-            if ("object" == typeof data && Buffer == data.constructor) {
+            if ("object" == typeof data && Buffer.isBuffer(data)) {
                 var mime = getMIMEFromBuffer(data);
                 if ("string" != typeof mime)
                     return throwError.call(that, "Could not find MIME for Buffer <" + url + "> (HTTP: " + response.statusCode + ")", cb);
@@ -176,7 +176,7 @@ function Jimp() {
         var mime = getMIMEFromBuffer(data);
         var cb = arguments[1];
 
-        if (Buffer != data.constructor)
+        if (!Buffer.isBuffer(data))
             return throwError.call(this, "data must be a Buffer", cb);
         if ("string" != typeof mime)
             return throwError.call(this, "mime must be a string", cb);
@@ -202,7 +202,7 @@ Jimp.read = function(src, cb) {
                 if (err) reject(err);
                 else resolve(image);
             }
-            if ("string" != typeof src && ("object" != typeof src || Buffer != src.constructor))
+            if ("string" != typeof src && ("object" != typeof src || !Buffer.isBuffer(src)))
                 return throwError.call(this, "src must be a string or a Buffer", cb);
             var img = new Jimp(src, cb);
         }
