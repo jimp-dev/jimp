@@ -1,4 +1,5 @@
-#!/bin/bash 
+#!/bin/bash
+cd ${0%/*}
 
 function quit {
     exit

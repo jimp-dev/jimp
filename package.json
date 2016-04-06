@@ -4,7 +4,7 @@
   "description": "An image processing library written entirely in JavaScript (i.e. zero external or native dependencies).",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "./test/tests.sh",
     "prepublish": "./browser/browserify-build.sh"
   },
   "keywords": [
