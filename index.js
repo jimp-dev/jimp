@@ -248,9 +248,13 @@ function parseBitmap(data, mime, cb) {
             break;
 
         case Jimp.MIME_JPEG:
-            this.bitmap = JPEG.decode(data);
-            exifRotate(this, data); // EXIF data
-            return cb.call(this, null, this);
+            try {
+                this.bitmap = JPEG.decode(data);
+                exifRotate(this, data); // EXIF data
+                return cb.call(this, null, this);
+            } catch(err) {
+                return cb.call(this, err, this);
+            }
 
         case Jimp.MIME_BMP:
             this.bitmap = BMP.decode(data);
