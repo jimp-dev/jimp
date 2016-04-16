@@ -17,7 +17,7 @@ babel tmp1.js -o tmp.js --presets es2015,stage-0
 # module.exports = decode = function(bmpData) { ...
 # For some reason, babeljs misses this "error" but IE can parse the code fine without strict mode.
 echo "Removing Strict Mode."
-sed "s/^\"use strict\";\|ret=Z_BUF_ERROR;//" tmp.js > tmp-nostrict.js
+sed -E "s/^\"use strict\";|ret=Z_BUF_ERROR;//" tmp.js > tmp-nostrict.js
 
 echo "Adding Web Worker wrapper functions..."
 cat tmp-nostrict.js src/jimp-wrapper.js > tmp.jimp.js
