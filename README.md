@@ -2,7 +2,7 @@
 
 The "JavaScript Image Manipulation Program" :-)
 
-An image processing library for Node written entirely in JavaScript, with zero external or native dependencies.
+An image processing library for Node written entirely in JavaScript, with zero external or native dependencies. Install using `npm install --save jimp`.
 
 Example usage:
 
