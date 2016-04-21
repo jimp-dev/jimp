@@ -430,7 +430,7 @@ Jimp.diff = function (img1, img2, threshold) {
 
 
 /**
- * Calculates the hammering distance of two images based on their perceptual hash
+ * Calculates the hamming distance of two images based on their perceptual hash
  * @param img1 a Jimp image to compare
  * @param img2 a Jimp image to compare
  * @returns a number ranging from 0 to 1, 0 means they are believed to be identical
