@@ -1,5 +1,5 @@
 /*
-Jimp v 0.2.21
+Jimp v 0.2.22
 https://github.com/oliver-moran/jimp
 Ported for the Web by Phil Seaton
 
