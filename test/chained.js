@@ -87,4 +87,5 @@ var lenna = new Jimp("lenna.png", function (err) {
     this.clone().resize(Jimp.AUTO, 1024).write("./output/lenna-resize-auto-2014.png");
     this.clone().resize(128, Jimp.AUTO).write("./output/lenna-resize-128-auto.png");
 
+    this.clone().scaleToFit(256, 128).write("./output/lenna-scaleToFit-256-128.png");
 });

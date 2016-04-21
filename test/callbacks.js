@@ -21,7 +21,8 @@ var operations = {
     "contain": [250, 125],
     "opaque": [],
     "mirror": [false, true],
-    "fade": [0.75]
+    "fade": [0.75],
+    "scaleToFit": [256, 128]
 };
 
 for (var op in operations) process(op);
