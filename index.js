@@ -1534,7 +1534,7 @@ Jimp.prototype.resize = function (w, h, mode, cb) {
 };
 
 /**
- * Scale the image so that it fills the given width and height. Some parts of the image may be clipped.
+ * Scale the image so the given width and height keeping the aspect ratio. Some parts of the image may be clipped.
  * @param w the width to resize the image to
  * @param h the height to resize the image to
  * @param (optional) cb a callback for when complete
@@ -1554,7 +1554,7 @@ Jimp.prototype.cover = function (w, h, cb) {
 };
 
 /**
- * Scale the image to the largest size so that its width and height fits inside the given width and height.
+ * Scale the image to the given width and height keeping the aspect ratio. Some parts of the image may be letter boxed.
  * @param w the width to resize the image to
  * @param h the height to resize the image to
  * @param (optional) cb a callback for when complete
