@@ -22,7 +22,9 @@ sed -E "s/^\"use strict\";|ret=Z_BUF_ERROR;//" tmp.js > tmp-nostrict.js
 echo "Adding Web Worker wrapper functions..."
 cat tmp-nostrict.js src/jimp-wrapper.js > tmp.jimp.js
 echo "Minifying browser/jimp.min.js..."
-uglifyjs tmp.jimp.js --compress warnings=false --mangle -o tmp.jimp.min.js
+# uglifyjs tmp.jimp.js --compress warnings=false --mangle -o tmp.jimp.min.js
+$PWD/../node_modules/uglify-js/bin/uglifyjs tmp.jimp.js --compress warnings=false --mangle -o tmp.jimp.min.js
+
 
 echo "Including the License and version number in the jimp.js and jimp.min.js"
 PACKAGE_VERSION=$(cat ../package.json | grep version | head -1 | awk -F: '{ print $2 }' | sed 's/[",]//g')
