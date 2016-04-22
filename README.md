@@ -96,6 +96,7 @@ image.mirror( horz, vert );    // an alias for flip
 image.fade( f );               // an alternative to opacity, fades the image by a factor 0 - 1. 0 will haven no effect. 1 will turn the image
 image.opaque();                // set the alpha channel on every pixel to fully opaque
 image.clone();                 // returns a clone of the image
+image.normalize();             // normalize the channels in an image
 ```
 
 (Contributions of more methods are welcome!)
@@ -125,6 +126,42 @@ For example:
 ```js
 image.resize(250, 250, Jimp.RESIZE_BEZIER);
 ```
+
+### Writing text ###
+
+Jimp supports basic typography using BMFont format (.fnt) [bitmap fonts](https://en.wikipedia.org/wiki/Bitmap_fonts) as follows:
+
+```js
+Jimp.loadFont( path ).then(function (font) { // load font from .fnt file
+    image.print(font, x, y, str); // print a message on an image
+});
+```
+
+BMFont fonts are fixed in size and colour. Jimp comes with a set of fonts that can be used on images:
+
+```js
+Jimp.FONT_SANS_8_BLACK;   // Open Sans, 8px, black
+Jimp.FONT_SANS_16_BLACK;  // Open Sans, 16px, black
+Jimp.FONT_SANS_32_BLACK;  // Open Sans, 32px, black
+Jimp.FONT_SANS_64_BLACK;  // Open Sans, 64px, black
+Jimp.FONT_SANS_128_BLACK; // Open Sans, 128px, black
+
+Jimp.FONT_SANS_8_WHITE;   // Open Sans, 8px, white
+Jimp.FONT_SANS_16_WHITE;  // Open Sans, 16px, white
+Jimp.FONT_SANS_32_WHITE;  // Open Sans, 32px, white
+Jimp.FONT_SANS_64_WHITE;  // Open Sans, 64px, white
+Jimp.FONT_SANS_128_WHITE; // Open Sans, 128px, white
+```
+
+These can be used as follows:
+
+```js
+Jimp.loadFont(Jimp.FONT_SANS_32_BLACK).then(function (font) {
+    image.print(font, 10, 10, "Hello world!");
+});
+```
+
+Online tools are also available to convert TTF fonts to BMFont format (e.g. [Littera](http://kvazars.com/littera/)).
 
 ## Writing to files and buffers ##
 

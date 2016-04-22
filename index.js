@@ -3,7 +3,7 @@ var PNG = require("pngjs").PNG;
 var JPEG = require("jpeg-js");
 var BMP = require("bmp-js");
 var MIME = require("mime");
-var tinycolor = require("tinycolor2");
+var TinyColor = require("tinycolor2");
 var Resize = require("./resize.js");
 var Resize2 = require("./resize2.js");
 var StreamToBuffer = require("stream-to-buffer");
@@ -14,6 +14,9 @@ var EXIFParser = require("exif-parser");
 var ImagePHash = require("./phash.js");
 var BigNumber = require('bignumber.js');
 var URLRegEx = require("url-regex");
+var BMFont = require("load-bmfont");
+var Path = require("path");
+
 if (process.env.ENVIRONMENT !== 'BROWSER') var Request = require('request').defaults({ encoding: null });
 
 // polyfill Promise for Node < 0.12
@@ -323,6 +326,19 @@ Jimp.RESIZE_BILINEAR = 'bilinearInterpolation';
 Jimp.RESIZE_BICUBIC = 'bicubicInterpolation';
 Jimp.RESIZE_HERMITE = 'hermiteInterpolation';
 Jimp.RESIZE_BEZIER = 'bezierInterpolation';
+
+// Font locations
+Jimp.FONT_SANS_8_BLACK = Path.join(__dirname, "fonts/open-sans/open-sans-8-black/open-sans-8-black.fnt");
+Jimp.FONT_SANS_16_BLACK = Path.join(__dirname, "fonts/open-sans/open-sans-16-black/open-sans-16-black.fnt");
+Jimp.FONT_SANS_32_BLACK = Path.join(__dirname, "fonts/open-sans/open-sans-32-black/open-sans-32-black.fnt");
+Jimp.FONT_SANS_64_BLACK = Path.join(__dirname, "fonts/open-sans/open-sans-64-black/open-sans-64-black.fnt");
+Jimp.FONT_SANS_128_BLACK = Path.join(__dirname, "fonts/open-sans/open-sans-128-black/open-sans-128-black.fnt");
+
+Jimp.FONT_SANS_8_WHITE = Path.join(__dirname, "fonts/open-sans/open-sans-8-white/open-sans-8-white.fnt");
+Jimp.FONT_SANS_16_WHITE = Path.join(__dirname, "fonts/open-sans/open-sans-16-white/open-sans-16-white.fnt");
+Jimp.FONT_SANS_32_WHITE = Path.join(__dirname, "fonts/open-sans/open-sans-32-white/open-sans-32-white.fnt");
+Jimp.FONT_SANS_64_WHITE = Path.join(__dirname, "fonts/open-sans/open-sans-64-white/open-sans-64-white.fnt");
+Jimp.FONT_SANS_128_WHITE = Path.join(__dirname, "fonts/open-sans/open-sans-128-white/open-sans-128-white.fnt");
 
 /**
  * A static helper method that converts RGBA values to a single integer value
@@ -1140,6 +1156,79 @@ Jimp.prototype.posterize = function (n, cb) {
 };
 
 /**
+ * Get an image's histogram
+ * @return {object} An object with an array of color occurence counts for each channel (r,g,b)
+ */
+function histogram() {
+    var histogram = {
+        r: new Array(256).fill(0),
+        g: new Array(256).fill(0),
+        b: new Array(256).fill(0)
+    };
+
+    this.scan(0, 0, this.bitmap.width, this.bitmap.height, (x, y, index) => {
+        histogram.r[this.bitmap.data[index+0]]++;
+        histogram.g[this.bitmap.data[index+1]]++;
+        histogram.b[this.bitmap.data[index+2]]++;
+    });
+
+    return histogram;
+}
+
+/**
+ * Normalizes the image
+ * @param (optional) cb a callback for when complete
+ * @returns this for chaining of methods
+ */
+Jimp.prototype.normalize = function (cb) {
+    var h = histogram.call(this);
+
+    /**
+     * Normalize values
+     * @param  {integer} value Pixel channel value.
+     * @param  {integer} min   Minimum value for channel
+     * @param  {integer} max   Maximum value for channel
+     * @return {integer}
+     */
+    var normalize = function (value, min, max) {
+        return (value - min) * 255 / (max - min);
+    };
+
+    var getBounds = function (histogramChannel) {
+        return [
+            histogramChannel.findIndex(function(value) {
+                return value > 0;
+            }),
+            255 - histogramChannel.slice().reverse().findIndex(function(value) {
+                return value > 0;
+            })
+        ];
+    };
+
+    // store bounds (minimum and maximum values)
+    var bounds = {
+        r: getBounds(h.r),
+        g: getBounds(h.g),
+        b: getBounds(h.b)
+    };
+
+    // apply value transformations
+    this.scan(0, 0, this.bitmap.width, this.bitmap.height, function (x, y, idx) {
+        var r = this.bitmap.data[idx + 0];
+        var g = this.bitmap.data[idx + 1];
+        var b = this.bitmap.data[idx + 2];
+
+        this.bitmap.data[idx + 0] = normalize(r, bounds.r[0], bounds.r[1]);
+        this.bitmap.data[idx + 1] = normalize(g, bounds.g[0], bounds.g[1]);
+        this.bitmap.data[idx + 2] = normalize(b, bounds.b[0], bounds.b[1]);
+    });
+
+    if (isNodePattern(cb)) return cb.call(this, null, this);
+    else return this;
+}
+
+
+/**
  * Inverts the image
  * @param (optional) cb a callback for when complete
  * @returns this for chaining of methods
@@ -1856,25 +1945,25 @@ Jimp.prototype.color = Jimp.prototype.colour = function (actions, cb) {
 
     var originalScope = this;
     this.scan(0, 0, this.bitmap.width, this.bitmap.height, function (x, y, idx) {
-        var clr = tinycolor({r: this.bitmap.data[idx], g: this.bitmap.data[idx + 1], b: this.bitmap.data[idx + 2]});
+        var clr = TinyColor({r: this.bitmap.data[idx], g: this.bitmap.data[idx + 1], b: this.bitmap.data[idx + 2]});
 
         var colorModifier = function (i, amount) {
           c = clr.toRgb();
           c[i] = Math.max(0, Math.min(c[i] + amount, 255));
-          return tinycolor(c);
+          return TinyColor(c);
         }
 
         actions.forEach(function (action) {
             if (action.apply === "mix") {
-                clr = tinycolor.mix(clr, action.params[0], action.params[1]);
+                clr = TinyColor.mix(clr, action.params[0], action.params[1]);
             } else if (action.apply === "tint") {
-              clr = tinycolor.mix(clr, "white", action.params[0]);
+              clr = TinyColor.mix(clr, "white", action.params[0]);
             } else if (action.apply === "shade") {
-              clr = tinycolor.mix(clr, "black", action.params[0]);
+              clr = TinyColor.mix(clr, "black", action.params[0]);
             } else if (action.apply === "xor") {
-              var clr2 = tinycolor(action.params[0]).toRgb();
+              var clr2 = TinyColor(action.params[0]).toRgb();
               clr = clr.toRgb();
-              clr = tinycolor({ r: clr.r ^ clr2.r, g: clr.g ^ clr2.g, b: clr.b ^ clr2.b});
+              clr = TinyColor({ r: clr.r ^ clr2.r, g: clr.g ^ clr2.g, b: clr.b ^ clr2.b});
             } else if (action.apply === "red") {
               clr = colorModifier("r", action.params[0]);
             } else if (action.apply === "green") {
@@ -1902,6 +1991,98 @@ Jimp.prototype.color = Jimp.prototype.colour = function (actions, cb) {
 
     if (isNodePattern(cb)) return cb.call(this, null, this);
     else return this;
+}
+
+/**
+ * Loads a bitmap font from a file
+ * @param file the file path of a .fnt file
+ * @param (optional) cb a function to call when the font is loaded
+ * @returns a promise
+ */
+Jimp.loadFont = function (file, cb) {
+    if ("string" != typeof file)
+        return throwError.call(this, "file must be a string", cb);
+
+    var that = this;
+
+    return new Promise(function (resolve, reject) { 
+        cb = cb || function(err, font) {
+            if (err) reject(err);
+            else resolve(font);
+        }
+
+        BMFont(file, function(err, font) {
+            var chars = {}, kernings = {};
+
+            if (err) return throwError.call(that, err, cb);
+
+            for (var i = 0; i < font.chars.length; i++) {
+                chars[String.fromCharCode(font.chars[i].id)] = font.chars[i];
+            }
+
+            for (var i = 0; i < font.kernings.length; i++) {
+                var firstString = String.fromCharCode(font.kernings[i].first);
+                kernings[firstString] = kernings[firstString] || {};
+                kernings[firstString][String.fromCharCode(font.kernings[i].second)] = font.kernings[i].amount;
+            }
+
+            loadPages(Path.dirname(file), font.pages).then(function (pages) {
+                cb(null, {
+                    chars: chars,
+                    kernings: kernings,
+                    pages: pages,
+                    common: font.common,
+                    info: font.info
+                });
+            });
+        });
+    });
+};
+
+function loadPages(dir, pages) {
+  var newPages = pages.map(function (page) {
+    return Jimp.read(dir + '/' + page);
+  });
+
+  return Promise.all(newPages);
+}
+
+/**
+ * Draws a text on a image
+ * @param font a bitmap font loaded from `Jimp.loadFont` command
+ * @param x the x position to start drawing the text
+ * @param y the y position to start drawing the text
+ * @param text the text to draw
+ * @param (optional) cb a function to call when the text is written
+ * @returns this for chaining of methods
+ */
+Jimp.prototype.print = function (font, x, y, text, cb) {
+    if ("object" != typeof font)
+        return throwError.call(this, "font must be a Jimp loadFont", cb);
+    if ("number" != typeof x || "number" != typeof y)
+        return throwError.call(this, "x and y must be numbers", cb);
+    if ("string" != typeof text)
+        return throwError.call(this, "text must be a string", cb);
+
+    var that = this;
+
+    for (var i = 0; i < text.length; i++) {
+      if (font.chars[text[i]]) {
+        that = drawCharacter(that, font, x, y, font.chars[text[i]]);
+        x += (font.kernings[text[i]] && font.kernings[text[i]][text[i+1]] ? font.kernings[text[i]][text[i+1]] : 0) + (font.chars[text[i]].xadvance || 0);
+      }
+    }
+
+    if (isNodePattern(cb)) return cb.call(this, null, that);
+    else return that;
+};
+
+function drawCharacter(image, font, x, y, char) {
+    if (char.width > 0 && char.height > 0) {
+        var imageChar = font.pages[char.page].clone().crop(char.x, char.y, char.width, char.height);
+        return image.composite(imageChar, x + char.xoffset, y + char.yoffset);
+    }
+    return image;
 }
 
 /**
