@@ -17,7 +17,7 @@ var URLRegEx = require("url-regex");
 if (process.env.ENVIRONMENT !== 'BROWSER') var Request = require('request').defaults({ encoding: null });
 
 // polyfill Promise for Node < 0.12
-var Promise = Promise || require('es6-promise').Promise;
+var Promise = global.Promise || require('es6-promise').Promise;
 
 // logging methods
 
