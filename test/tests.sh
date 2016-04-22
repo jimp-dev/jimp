@@ -12,52 +12,60 @@ function clean {
 }
 
 clean
-echo "promise.js (1/12)"
+echo "promise.js (1/14)"
 node promise.js
 
 clean
-echo "callbacks.js (2/12)"
+echo "callbacks.js (2/14)"
 node callbacks.js
 
 clean
-echo "chained.js (3/12)"
+echo "chained.js (3/14)"
 node chained.js
 
 clean
-echo "create.js (4/12)"
+echo "create.js (4/14)"
 node create.js
 
 clean
-echo "rotation.js (5/12)"
+echo "rotation.js (5/14)"
 node rotation.js
 
 clean
-echo "filetype.js (6/12)"
+echo "filetype.js (6/14)"
 node filetypes.js
 
 clean
-echo "color.js (7/12)"
+echo "color.js (7/14)"
 node color.js
 
 clean
-echo "compare.js (8/12)"
+echo "compare.js (8/14)"
 node compare.js
 
 clean
-echo "exif.js (9/12)"
+echo "exif.js (9/14)"
 node exif.js
 
 clean
-echo "autocrop.js (10/12)"
+echo "autocrop.js (10/14)"
 node autocrop.js
 
 clean
-echo "autocrop.js (11/12)"
+echo "autocrop.js (11/14)"
 node autocrop.js
 
 clean
-echo "resize.js (12/12)"
+echo "resize.js (13/14)"
 node resize.js
+
+clean
+echo "normalize.js (13/14)"
+node normalize.js
+
+clean
+echo "print.js (14/14)"
+node print.js
 
 clean
 echo "done :-)"
