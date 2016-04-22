@@ -23,7 +23,7 @@ echo "Adding Web Worker wrapper functions..."
 cat tmp-nostrict.js src/jimp-wrapper.js > tmp.jimp.js
 echo "Minifying browser/jimp.min.js..."
 # uglifyjs tmp.jimp.js --compress warnings=false --mangle -o tmp.jimp.min.js
-"$PWD/../node_modules/uglify-js/bin/uglifyjs" tmp.jimp.js --compress warnings=false --mangle -o tmp.jimp.min.js
+npm run-script minify-jimp
 
 
 echo "Including the License and version number in the jimp.js and jimp.min.js"
