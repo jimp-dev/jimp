@@ -136,7 +136,7 @@ Jimp.loadFont( path ).then(function (font) { // load font from .fnt file
     image.print(font, x, y, str); // print a message on an image
 });
 
-Jimp.loadFont( path, cb); // using a callback pattern
+Jimp.loadFont( path, cb ); // using a callback pattern
 ```
 
 BMFont fonts are raster based and fixed in size and colour. Jimp comes with a set of fonts that can be used on images:
