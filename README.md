@@ -255,7 +255,7 @@ Modifier                | Description
 Jimp enables low-level manipulation of images in memory through the bitmap property of each Jimp object:
 
 ```js
-image.bitmap.data; // a Buffer of the raw bitmap data
+image.bitmap.data;  // a Buffer of the raw bitmap data
 image.bitmap.width; // the width of the image
 image.bitmap.height // the height of the image
 ```
@@ -289,7 +289,7 @@ image.scan(0, 0, image.bitmap.width, image.bitmap.height, function (x, y, idx) {
 Alternatively, you can manipulate individual pixels using the following these functions:
 
 ```js
-image.getPixelColor(x, y); // returns the colour of that pixel e.g. 0xFFFFFFFF
+image.getPixelColor(x, y);      // returns the colour of that pixel e.g. 0xFFFFFFFF
 image.setPixelColor(hex, x, y); // sets the colour of that pixel
 ```
 
@@ -297,7 +297,7 @@ Two static helper functions exist to convert RGBA values into single integer (he
 
 ```js
 Jimp.rgbaToInt(r, g, b, a); // e.g. converts 255, 255, 255, 255 to 0xFFFFFFFF
-Jimp.intToRGBA(hex); // e.g. converts 0xFFFFFFFF to {r: 255, g: 255, b: 255, a:255}
+Jimp.intToRGBA(hex);        // e.g. converts 0xFFFFFFFF to {r: 255, g: 255, b: 255, a:255}
 ```
 
 ### Creating new images ###
