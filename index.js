@@ -1629,13 +1629,18 @@ Jimp.prototype.resize = function (w, h, mode, cb) {
  * @param (optional) cb a callback for when complete
  * @returns this for chaining of methods
  */
-Jimp.prototype.cover = function (w, h, cb) {
+Jimp.prototype.cover = function (w, h, mode, cb) {
     if ("number" != typeof w || "number" != typeof h)
         return throwError.call(this, "w and h must be numbers", cb);
 
+    if ("function" == typeof mode && "undefined" == typeof cb) {
+        cb = mode;
+        mode = null;
+    }
+    
     var f = (w/h > this.bitmap.width/this.bitmap.height) ?
         w/this.bitmap.width : h/this.bitmap.height;
-    this.scale(f);
+    this.scale(f, mode);
     this.crop(this.bitmap.width / 2 - w / 2, this.bitmap.height / 2 - h / 2, w, h);
     
     if (isNodePattern(cb)) return cb.call(this, null, this);
@@ -1646,18 +1651,24 @@ Jimp.prototype.cover = function (w, h, cb) {
  * Scale the image to the given width and height keeping the aspect ratio. Some parts of the image may be letter boxed.
  * @param w the width to resize the image to
  * @param h the height to resize the image to
+ * @param (optional) mode a scaling method (e.g. Jimp.RESIZE_BEZIER)
  * @param (optional) cb a callback for when complete
  * @returns this for chaining of methods
  */
-Jimp.prototype.contain = function (w, h, cb) {
+Jimp.prototype.contain = function (w, h, mode, cb) {
     if ("number" != typeof w || "number" != typeof h)
         return throwError.call(this, "w and h must be numbers", cb);
 
+    if ("function" == typeof mode && "undefined" == typeof cb) {
+        cb = mode;
+        mode = null;
+    }
+    
     var f = (w/h > this.bitmap.width/this.bitmap.height) ?
         h/this.bitmap.height : w/this.bitmap.width;
-    var c = this.clone().scale(f);
+    var c = this.clone().scale(f, mode);
     
-    this.resize(w, h);
+    this.resize(w, h, mode);
     this.scan(0, 0, this.bitmap.width, this.bitmap.height, function (x, y, idx) {
         this.bitmap.data.writeUInt32BE(this._background, idx);
     });
@@ -1670,18 +1681,24 @@ Jimp.prototype.contain = function (w, h, cb) {
 /**
  * Uniformly scales the image by a factor.
  * @param f the factor to scale the image by
+ * @param (optional) mode a scaling method (e.g. Jimp.RESIZE_BEZIER)
  * @param (optional) cb a callback for when complete
  * @returns this for chaining of methods
  */
-Jimp.prototype.scale = function (f, cb) {
+Jimp.prototype.scale = function (f, mode, cb) {
     if ("number" != typeof f)
         return throwError.call(this, "f must be a number", cb);
     if (f < 0)
         return throwError.call(this, "f must be a positive number", cb);
 
+    if ("function" == typeof mode && "undefined" == typeof cb) {
+        cb = mode;
+        mode = null;
+    }
+    
     var w = this.bitmap.width * f;
     var h = this.bitmap.height * f;
-    this.resize(w, h);
+    this.resize(w, h, mode);
 
     if (isNodePattern(cb)) return cb.call(this, null, this);
     else return this;
@@ -1691,16 +1708,22 @@ Jimp.prototype.scale = function (f, cb) {
  * Scale the image to the largest size that fits inside the rectangle that has the given width and height.
  * @param w the width to resize the image to
  * @param h the height to resize the image to
+ * @param (optional) mode a scaling method (e.g. Jimp.RESIZE_BEZIER)
  * @param (optional) cb a callback for when complete
  * @returns this for chaining of methods
  */
-Jimp.prototype.scaleToFit = function (w, h, cb) {
+Jimp.prototype.scaleToFit = function (w, h, mode, cb) {
     if ("number" != typeof w || "number" != typeof h)
         return throwError.call(this, "w and h must be numbers", cb);
 
+    if ("function" == typeof mode && "undefined" == typeof cb) {
+        cb = mode;
+        mode = null;
+    }
+    
     var f = (w/h > this.bitmap.width/this.bitmap.height) ?
         h/this.bitmap.height : w/this.bitmap.width;
-    this.scale(f);
+    this.scale(f, mode);
 
     if (isNodePattern(cb)) return cb.call(this, null, this);
     else return this;
@@ -1741,16 +1764,17 @@ function simpleRotate(deg) {
 /**
  * Rotates an image clockwise by an arbitary number of degrees. NB: 'this' must be a Jimp object.
  * @param deg the number of degress to rotate the image by
+ * @param (optional) mode resize mode or a boolean, if false then the width and height of the image will not be changed
  * @returns nothing
  */
-function advancedRotate(deg, resize) {
+function advancedRotate(deg, mode) {
     var rad = (deg % 360) * Math.PI / 180;
     var cosine = Math.cos(rad);
     var sine = Math.sin(rad);
     
     var w, h; // the final width and height if resize == true
 
-    if (resize == true) {
+    if (mode == true || "string" == typeof mode) {
         // resize the image to it maximum dimention and blit the existing image onto the centre so that when it is rotated the image is kept in bounds
 
         // http://stackoverflow.com/questions/3231176/how-to-get-size-of-a-rotated-rectangle
@@ -1763,7 +1787,7 @@ function advancedRotate(deg, resize) {
         });
         
         var max= Math.max(w,h,this.bitmap.width,this.bitmap.height)
-        this.resize(max, max);
+        this.resize(max, max, mode);
         
         this.blit(c, this.bitmap.width / 2 - c.bitmap.width / 2, this.bitmap.height / 2 - c.bitmap.height / 2);
     }
@@ -1804,7 +1828,7 @@ function advancedRotate(deg, resize) {
     }
     this.bitmap.data = dstBuffer;
     
-    if (resize == true) {
+    if (mode == true || "string" == typeof mode) {
         // now crop the image to the final size
         var x = (this.bitmap.width / 2) - (w/2);
         var y = (this.bitmap.height / 2) - (h/2);
@@ -1816,32 +1840,32 @@ function advancedRotate(deg, resize) {
 /**
  * Rotates the image clockwise by a number of degrees. By default the width and height of the image will be resized appropriately.
  * @param deg the number of degress to rotate the image by
- * @param (optional) resize a boolean, if false then the width and height of the image will not be changed
+ * @param (optional) mode resize mode or a boolean, if false then the width and height of the image will not be changed
  * @param (optional) cb a callback for when complete
  * @returns this for chaining of methods
  */
-Jimp.prototype.rotate = function (deg, resize, cb) {
+Jimp.prototype.rotate = function (deg, mode, cb) {
     // enable overloading
-    if ("undefined" == typeof resize || resize === null) {
+    if ("undefined" == typeof mode || mode === null) {
         // e.g. image.resize(120);
         // e.g. image.resize(120, null, cb);
         // e.g. image.resize(120, undefined, cb);
-        resize = true;
+        mode = true;
     }
-    if ("function" == typeof resize && "undefined" == typeof cb) {
+    if ("function" == typeof mode && "undefined" == typeof cb) {
         // e.g. image.resize(120, cb);
-        cb = resize;
-        resize = true;
+        cb = mode;
+        mode = true;
     }
     
     if ("number" != typeof deg)
         return throwError.call(this, "deg must be a number", cb);
     
-    if ("boolean" != typeof resize)
-        return throwError.call(this, "resize must be a boolean", cb);
+    if ("boolean" != typeof mode && "string" != typeof mode)
+        return throwError.call(this, "mode must be a boolean or a string", cb);
 
-    if (deg % 90 == 0 && resize !== false) simpleRotate.call(this, deg, cb);
-    else advancedRotate.call(this, deg, resize, cb);
+    if (deg % 90 == 0 && mode !== false) simpleRotate.call(this, deg, cb);
+    else advancedRotate.call(this, deg, mode, cb);
     
     if (isNodePattern(cb)) return cb.call(this, null, this);
     else return this;
