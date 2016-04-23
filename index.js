@@ -816,8 +816,8 @@ Jimp.prototype.autocrop = function() {
                     Math.max((rgba1.r - rgba2.r) ^ 2, (rgba1.r - rgba2.r - rgba1.a + rgba2.a) ^ 2) +
                     Math.max((rgba1.g - rgba2.g) ^ 2, (rgba1.g - rgba2.g - rgba1.a + rgba2.a) ^ 2) +
                     Math.max((rgba1.b - rgba2.b) ^ 2, (rgba1.b - rgba2.b - rgba1.a + rgba2.a) ^ 2)
-                ) / (256 * 256 * 3)
-            ;
+                ) / (256 * 256 * 3);
+
             if (difference > tolerance) {
                 // this pixel is too distant from the first one: abort this side scan
                 break north;
@@ -837,8 +837,8 @@ Jimp.prototype.autocrop = function() {
                     Math.max((rgba1.r - rgba2.r) ^ 2, (rgba1.r - rgba2.r - rgba1.a + rgba2.a) ^ 2) +
                     Math.max((rgba1.g - rgba2.g) ^ 2, (rgba1.g - rgba2.g - rgba1.a + rgba2.a) ^ 2) +
                     Math.max((rgba1.b - rgba2.b) ^ 2, (rgba1.b - rgba2.b - rgba1.a + rgba2.a) ^ 2)
-                ) / (256 * 256 * 3) 
-            ;
+                ) / (256 * 256 * 3);
+
             if (difference > tolerance) {
                 // this pixel is too distant from the first one: abort this side scan
                 break east;
@@ -860,8 +860,8 @@ Jimp.prototype.autocrop = function() {
                     Math.max((rgba1.r - rgba2.r) ^ 2, (rgba1.r - rgba2.r - rgba1.a + rgba2.a) ^ 2) +
                     Math.max((rgba1.g - rgba2.g) ^ 2, (rgba1.g - rgba2.g - rgba1.a + rgba2.a) ^ 2) +
                     Math.max((rgba1.b - rgba2.b) ^ 2, (rgba1.b - rgba2.b - rgba1.a + rgba2.a) ^ 2)
-                ) / (256 * 256 * 3) 
-            ;
+                ) / (256 * 256 * 3);
+
             if (difference > tolerance) {
                 // this pixel is too distant from the first one: abort this side scan
                 break south;
@@ -881,8 +881,8 @@ Jimp.prototype.autocrop = function() {
                     Math.max((rgba1.r - rgba2.r) ^ 2, (rgba1.r - rgba2.r - rgba1.a + rgba2.a) ^ 2) +
                     Math.max((rgba1.g - rgba2.g) ^ 2, (rgba1.g - rgba2.g - rgba1.a + rgba2.a) ^ 2) +
                     Math.max((rgba1.b - rgba2.b) ^ 2, (rgba1.b - rgba2.b - rgba1.a + rgba2.a) ^ 2)
-                ) / (256 * 256 * 3) 
-            ;
+                ) / (256 * 256 * 3);
+
             if (difference > tolerance) {
                 // this pixel is too distant from the first one: abort this side scan
                 break west;
@@ -2083,7 +2083,7 @@ function drawCharacter(image, font, x, y, char) {
         return image.composite(imageChar, x + char.xoffset, y + char.yoffset);
     }
     return image;
-}
+};
 
 /**
  * Writes the image to a file
