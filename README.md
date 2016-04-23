@@ -2,7 +2,9 @@
 
 The "JavaScript Image Manipulation Program" :-)
 
-An image processing library for Node written entirely in JavaScript, with zero external or native dependencies. Install using `npm install --save jimp`.
+An image processing library for Node written entirely in JavaScript, with zero external or native dependencies.
+
+Installation: `npm install --save jimp`
 
 Example usage:
 
@@ -63,40 +65,65 @@ Jimp.read("http://www.example.com/path/to/lenna.jpg", function (err, image) {
 });
 ```
 
-JPEG images with EXIF orientation data will be automatically re-orientated as appropriate.
+
+### Basic methods ###
 
 Once the callback is filed or the promise fulfilled, the following methods can be called on the image:
 
 ```js
-image.crop( x, y, w, h );      // crop to the given region
-image.autocrop();              // automatically crop same-color borders from image (if any)
-image.invert();                // invert the image colours
-image.flip( horz, vert );      // flip the image horizontally or vertically
-image.gaussian( r );           // Gaussian blur the image by r pixels (VERY slow)
-image.blur( r );               // fast blur the image by r pixels
-image.greyscale();             // remove colour from the image
-image.sepia();                 // apply a sepia wash to the image
-image.opacity( f );            // multiply the alpha channel by each pixel by the factor f, 0 - 1
-image.resize( w, h[, mode] );  // resize the image. Jimp.AUTO can be passed as one of the values. Optionally, a resize mode can be passed.
-image.scale( f );              // scale the image by the factor f
-image.scaleToFit( w, h );      // scale the image to the largest size that fits inside the given width and height
-image.rotate( deg[, resize] ); // rotate the image clockwise by a number of degrees. Unless `false` is passed as the second parameter, the image width and height will be resized appropriately.
+/* Resize */
+image.contain( w, h[, mode] );    // scale the image to the given width and height, some parts of the image may be letter boxed
+image.cover( w, h[, mode] );      // scale the image to the given width and height, some parts of the image may be clipped
+image.resize( w, h[, mode] );     // resize the image. Jimp.AUTO can be passed as one of the values.
+image.scale( f[, mode] );         // scale the image by the factor f
+image.scaleToFit( w, h[, mode] ); // scale the image to the largest size that fits inside the given width and height
+
+// An optional resize mode can be passed with all resize methods.
+
+/* Crop */
+image.autocrop();                 // automatically crop same-color borders from image (if any)
+image.crop( x, y, w, h );         // crop to the given region
+
+/* Composing */
 image.blit( src, x, y[, srcx, srcy, srcw, srch] );
-                               // blit the image with another Jimp image at x, y, optionally cropped.
-image.composite( src, x, y );  // composites another Jimp image over this iamge at x, y
-image.brightness( val );       // adjust the brighness by a value -1 to +1
-image.contrast( val );         // adjust the contrast by a value -1 to +1
-image.posterize( n );          // apply a posterization effect with n level
-image.mask( src, x, y );       // masks the image with another Jimp image at x, y using average pixel value
-image.dither565();             // ordered dithering of the image and reduce color space to 16-bits (RGB565)
-image.cover( w, h );           // scale the image to the given width and height, some parts of the image may be clipped
-image.contain( w, h );         // scale the image to the given width and height, some parts of the image may be letter boxed
-image.background( hex );       // set the default new pixel colour (e.g. 0xFFFFFFFF or 0x00000000) for by some operations (e.g. image.contain and image.rotate) and when writing formats that don't support alpha channels
-image.mirror( horz, vert );    // an alias for flip
-image.fade( f );               // an alternative to opacity, fades the image by a factor 0 - 1. 0 will haven no effect. 1 will turn the image
-image.opaque();                // set the alpha channel on every pixel to fully opaque
-image.clone();                 // returns a clone of the image
-image.normalize();             // normalize the channels in an image
+                                  // blit the image with another Jimp image at x, y, optionally cropped.
+image.composite( src, x, y );     // composites another Jimp image over this iamge at x, y
+image.mask( src, x, y );          // masks the image with another Jimp image at x, y using average pixel value image.rotate) and when writing formats that don't support alpha channels
+
+/* Flip and rotate */
+image.flip( horz, vert );         // flip the image horizontally or vertically
+image.mirror( horz, vert );       // an alias for flip
+image.rotate( deg[, mode] );      // rotate the image clockwise by a number of degrees. Optionally, a resize mode can be passed. If `false` is passed as the second parameter, the image width and height will not be resized.
+
+// JPEG images with EXIF orientation data will be automatically re-orientated as appropriate.
+
+/* Colour */
+image.brightness( val );          // adjust the brighness by a value -1 to +1
+image.contrast( val );            // adjust the contrast by a value -1 to +1
+image.dither565();                // ordered dithering of the image and reduce color space to 16-bits (RGB565)
+image.greyscale();                // remove colour from the image
+image.invert();                   // invert the image colours
+image.normalize();                // normalize the channels in an image
+
+/* Alpha channel */
+image.fade( f );                  // an alternative to opacity, fades the image by a factor 0 - 1. 0 will haven no effect. 1 will turn the image
+image.opacity( f );               // multiply the alpha channel by each pixel by the factor f, 0 - 1
+image.opaque();                   // set the alpha channel on every pixel to fully opaque
+image.background( hex );          // set the default new pixel colour (e.g. 0xFFFFFFFF or 0x00000000) for by some operations (e.g. image.contain and 
+
+/* Blurs */
+image.gaussian( r );              // Gaussian blur the image by r pixels (VERY slow)
+image.blur( r );                  // fast blur the image by r pixels
+
+/* Effects */
+image.posterize( n );             // apply a posterization effect with n level
+image.sepia();                    // apply a sepia wash to the image
+```
+
+Some of these methods are irreversable, so it can be useful to perform them on a clone of the original image:
+
+```js
+image.clone();                    // returns a clone of the image
 ```
 
 (Contributions of more methods are welcome!)
@@ -106,9 +133,9 @@ image.normalize();             // normalize the channels in an image
 The default rezing algorithm uses a bilinear method as follows:
 
 ```js
-image.resize(250, 250);       // resize the image to 250 x 250
-image.resize(Jimp.AUTO, 250); // resize the height to 250 and scale the width accordingly
-image.resize(250, Jimp.AUTO); // resize the width to 250 and scale the height accordingly
+image.resize(250, 250);           // resize the image to 250 x 250
+image.resize(Jimp.AUTO, 250);     // resize the height to 250 and scale the width accordingly
+image.resize(250, Jimp.AUTO);     // resize the width to 250 and scale the height accordingly
 ```
 
 Optionally, the following constants can be passed to choose a particular resizing algorithm:
