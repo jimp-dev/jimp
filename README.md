@@ -387,4 +387,4 @@ The Node-style callback pattern allows Jimp to be used with frameworks that expe
 
 ## License ##
 
-Jimp is licensed under the MIT license.
+Jimp is licensed under the MIT license. Open Sans is licensed under the Apache license.
