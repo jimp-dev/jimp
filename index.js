@@ -1166,7 +1166,7 @@ function histogram() {
         b: new Array(256).fill(0)
     };
 
-    this.scan(0, 0, this.bitmap.width, this.bitmap.height, (x, y, index) => {
+    this.scan(0, 0, this.bitmap.width, this.bitmap.height, function(x, y, index){
         histogram.r[this.bitmap.data[index+0]]++;
         histogram.g[this.bitmap.data[index+1]]++;
         histogram.b[this.bitmap.data[index+2]]++;
