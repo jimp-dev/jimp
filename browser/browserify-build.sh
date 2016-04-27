@@ -37,8 +37,8 @@ cat ../LICENSE;
 echo "*/";
 echo ""; } > tmp.web_license.txt
 
-cat tmp.web_license.txt tmp.jimp.js > lib/jimp.js
-cat tmp.web_license.txt tmp.jimp.min.js > lib/jimp.min.js
+(cat tmp.web_license.txt ; echo "var window = window || self;" ; cat tmp.jimp.js; ) > lib/jimp.js
+(cat tmp.web_license.txt ; echo "var window = window || self;" ; cat tmp.jimp.min.js; ) > lib/jimp.min.js
 
 echo "Cleaning up...."
 rm tmp*
