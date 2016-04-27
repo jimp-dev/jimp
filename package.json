@@ -1,6 +1,6 @@
 {
   "name": "jimp",
-  "version": "0.2.23",
+  "version": "0.2.24",
   "description": "An image processing library written entirely in JavaScript (i.e. zero external or native dependencies).",
   "main": "index.js",
   "scripts": {
@@ -32,7 +32,7 @@
     "load-bmfont": "^1.2.3",
     "mime": "^1.3.4",
     "pixelmatch": "^4.0.0",
-    "pngjs": "2.2.0",
+    "pngjs": "^2.3.1",
     "read-chunk": "^1.0.1",
     "request": "^2.65.0",
     "stream-to-buffer": "^0.1.0",
