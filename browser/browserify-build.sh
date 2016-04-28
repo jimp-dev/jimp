@@ -7,7 +7,7 @@
 cd ${0%/*}
 echo "Browserifying browser/jimp.js..."
 ENVIRONMENT=BROWSER \
-browserify -t envify -t uglifyify ../index.js > tmp1.js
+browserify --ignore-missing -t envify -t uglifyify ../index.js > tmp1.js
 echo "Translating for ES5..."
 babel tmp1.js -o tmp.js --presets es2015,stage-0
 
