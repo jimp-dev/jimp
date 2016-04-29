@@ -72,8 +72,8 @@ Once the callback is filed or the promise fulfilled, the following methods can b
 
 ```js
 /* Resize */
-image.contain( w, h[, mode] );    // scale the image to the given width and height, some parts of the image may be letter boxed
-image.cover( w, h[, mode] );      // scale the image to the given width and height, some parts of the image may be clipped
+image.contain( w, h[, alignBits || mode, mode] );    // scale the image to the given width and height, some parts of the image may be letter boxed
+image.cover( w, h[, alignBits || mode, mode] );      // scale the image to the given width and height, some parts of the image may be clipped
 image.resize( w, h[, mode] );     // resize the image. Jimp.AUTO can be passed as one of the values.
 image.scale( f[, mode] );         // scale the image by the factor f
 image.scaleToFit( w, h[, mode] ); // scale the image to the largest size that fits inside the given width and height
@@ -152,6 +152,32 @@ For example:
 
 ```js
 image.resize(250, 250, Jimp.RESIZE_BEZIER);
+```
+
+### Align modes ###
+
+The following constants can be passed to image.cover and image.contain methods:
+
+```js
+Jimp.HORIZONTAL_ALIGN_LEFT;
+Jimp.HORIZONTAL_ALIGN_CENTER;
+Jimp.HORIZONTAL_ALIGN_RIGHT;
+
+Jimp.VERTICAL_ALIGN_TOP;
+Jimp.VERTICAL_ALIGN_MIDDLE;
+Jimp.VERTICAL_ALIGN_BOTTOM;
+```
+
+For example:
+
+```js
+image.contain(250, 250, Jimp.HORIZONTAL_ALIGN_LEFT | Jimp.VERTICAL_ALIGN_TOP);
+```
+
+Default align modes are :
+
+```js
+Jimp.HORIZONTAL_ALIGN_CENTER | Jimp.VERTICAL_ALIGN_MIDDLE;
 ```
 
 ### Writing text ###

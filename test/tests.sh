@@ -70,6 +70,10 @@ echo "print.js (14/$TOTALTESTS)"
 node print.js
 
 clean
+echo "align.js (15/$TOTALTESTS)"
+node align.js
+
+clean
 echo "done :-)"
 
 quit
