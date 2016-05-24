@@ -215,9 +215,19 @@ Jimp.read = function(src, cb) {
 
 // MIME type methods
 
-function getMIMEFromBuffer(buffer) {
-    if (FileType(buffer)) return FileType(buffer).mime;
-    else return "";
+function getMIMEFromBuffer(buffer, path) {
+    var fileTypeFromBuffer = FileType(buffer);
+    if (fileTypeFromBuffer) {
+        // If FileType returns something for buffer, then return the mime given
+        return fileTypeFromBuffer.mime;
+    }
+    else if (path) {
+        // If a path is supplied, and FileType yields no results, then retry with MIME
+        // Path can be either a file path or a url
+        return MIME.lookup(path)
+    } else {
+        return null;
+    }
 }
 
 // gets a MIME type of a file from the path to it
