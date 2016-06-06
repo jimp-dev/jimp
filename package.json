@@ -28,7 +28,7 @@
     "es6-promise": "^3.0.2",
     "exif-parser": "^0.1.9",
     "file-type": "^3.1.0",
-    "jpeg-js": "^0.1.2",
+    "jpeg-js": "^0.2.0",
     "load-bmfont": "^1.2.3",
     "mime": "^1.3.4",
     "pixelmatch": "^4.0.0",
