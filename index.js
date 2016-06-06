@@ -1926,33 +1926,29 @@ function compositeBitmapOverBackground(image){
 }
 
 /**
- * Apply a ordered dithering effect and reduce colorspace to 656
+ * Apply a ordered dithering effect
  * @param (optional) cb a callback for when complete
  * @returns this for chaining of methods
  */
 Jimp.prototype.dither565 = function (cb) {
     var rgb565_matrix = [
-      0, 4, 1, 5, 0, 4, 1, 5,
-      6, 2, 7, 3, 6, 2, 7, 3,
-      1, 5, 0, 4, 1, 5, 0, 4,
-      7, 3, 6, 2, 7, 3, 6, 2,
-      0, 4, 1, 5, 0, 4, 1, 5,
-      6, 2, 7, 3, 6, 2, 7, 3,
-      1, 5, 0, 4, 1, 5, 0, 4,
-      7, 3, 6, 2, 7, 3, 6, 2
+      1, 9, 3, 11,
+      13, 5, 15, 7,
+      4, 12, 2, 10,
+      16, 8, 14, 6
     ];
-
     this.scan(0, 0, this.bitmap.width, this.bitmap.height, function (x, y, idx) {
-        var tresshold_id = ((y % 4) * 8) + (x % 4);
+        var tresshold_id = ((y & 3) << 2) + (x % 4);
         var dither = rgb565_matrix[tresshold_id];
-        this.bitmap.data[idx  ] = Math.min(this.bitmap.data[idx]   + dither, 0xff) & 0xF8;
-        this.bitmap.data[idx+1] = Math.min(this.bitmap.data[idx+1] + dither, 0xff) & 0xFC;
-        this.bitmap.data[idx+2] = Math.min(this.bitmap.data[idx+2] + dither, 0xff) & 0xF8;
+        this.bitmap.data[idx  ] = Math.min(this.bitmap.data[idx]   + dither, 0xff);
+        this.bitmap.data[idx+1] = Math.min(this.bitmap.data[idx+1] + dither, 0xff);
+        this.bitmap.data[idx+2] = Math.min(this.bitmap.data[idx+2] + dither, 0xff);
     });
 
     if (isNodePattern(cb)) return cb.call(this, null, this);
     else return this;
 }
+
 
 // alternative reference
 Jimp.prototype.dither16 = Jimp.prototype.dither565;
