@@ -87,7 +87,7 @@ image.crop( x, y, w, h );         // crop to the given region
 /* Composing */
 image.blit( src, x, y[, srcx, srcy, srcw, srch] );
                                   // blit the image with another Jimp image at x, y, optionally cropped.
-image.composite( src, x, y );     // composites another Jimp image over this iamge at x, y
+image.composite( src, x, y );     // composites another Jimp image over this image at x, y
 image.mask( src, x, y );          // masks the image with another Jimp image at x, y using average pixel value image.rotate) and when writing formats that don't support alpha channels
 
 /* Flip and rotate */
