@@ -16,3 +16,9 @@ function loadBMP(){
         jpg.invert().write("./output/lenna-invert.bmp");
     });
 }
+
+function loadJPEGfromURL(){
+    var jpg = new Jimp("https://pbs.twimg.com/profile_images/576731845196386304/NbMtcjUb.jpeg", function(err, image) {
+        jpg.filterType(Jimp.PNG_FILTER_NONE).deflateLevel(0).invert().write("./output/url-invert.png");
+    });
+}
