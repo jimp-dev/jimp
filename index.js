@@ -327,6 +327,15 @@ Jimp.RESIZE_BICUBIC = 'bicubicInterpolation';
 Jimp.RESIZE_HERMITE = 'hermiteInterpolation';
 Jimp.RESIZE_BEZIER = 'bezierInterpolation';
 
+// Align modes for cover, contain, bit masks
+Jimp.HORIZONTAL_ALIGN_LEFT = 1;
+Jimp.HORIZONTAL_ALIGN_CENTER = 2;
+Jimp.HORIZONTAL_ALIGN_RIGHT = 4;
+
+Jimp.VERTICAL_ALIGN_TOP = 8;
+Jimp.VERTICAL_ALIGN_MIDDLE = 16;
+Jimp.VERTICAL_ALIGN_BOTTOM = 32;
+
 // Font locations
 Jimp.FONT_SANS_8_BLACK = Path.join(__dirname, "fonts/open-sans/open-sans-8-black/open-sans-8-black.fnt");
 Jimp.FONT_SANS_16_BLACK = Path.join(__dirname, "fonts/open-sans/open-sans-16-black/open-sans-16-black.fnt");
@@ -1626,22 +1635,39 @@ Jimp.prototype.resize = function (w, h, mode, cb) {
  * Scale the image so the given width and height keeping the aspect ratio. Some parts of the image may be clipped.
  * @param w the width to resize the image to
  * @param h the height to resize the image to
+ * @param (optional) alignBits A bitmask for horizontal and vertical alignment
+ * @param (optional) mode a scaling method (e.g. Jimp.RESIZE_BEZIER)
  * @param (optional) cb a callback for when complete
  * @returns this for chaining of methods
  */
-Jimp.prototype.cover = function (w, h, mode, cb) {
+Jimp.prototype.cover = function (w, h, alignBits, mode, cb) {
     if ("number" != typeof w || "number" != typeof h)
         return throwError.call(this, "w and h must be numbers", cb);
 
-    if ("function" == typeof mode && "undefined" == typeof cb) {
+    if (alignBits && "function" == typeof alignBits && "undefined" == typeof cb) {
+        cb = alignBits;
+        alignBits = null;
+        mode = null;
+    } else if ("function" == typeof mode && "undefined" == typeof cb) {
         cb = mode;
         mode = null;
     }
+
+    alignBits = alignBits || (Jimp.HORIZONTAL_ALIGN_CENTER | Jimp.VERTICAL_ALIGN_MIDDLE);
+    var hbits = ((alignBits) & ((1<<(3))-1));
+    var vbits = alignBits >> 3;
+
+    // check if more flags than one is in the bit sets
+    if(!(((hbits != 0) && !(hbits & (hbits - 1))) || ((vbits != 0) && !(vbits & (vbits - 1)))))
+        return throwError.call(this, "only use one flag per alignment direction", cb);
+
+    var align_h = (hbits >> 1); // 0, 1, 2
+    var align_v = (vbits >> 1); // 0, 1, 2
     
     var f = (w/h > this.bitmap.width/this.bitmap.height) ?
         w/this.bitmap.width : h/this.bitmap.height;
     this.scale(f, mode);
-    this.crop(this.bitmap.width / 2 - w / 2, this.bitmap.height / 2 - h / 2, w, h);
+    this.crop(((this.bitmap.width - w) / 2) * align_h, ((this.bitmap.height - h) / 2) * align_v, w, h);
     
     if (isNodePattern(cb)) return cb.call(this, null, this);
     else return this;
@@ -1651,19 +1677,43 @@ Jimp.prototype.cover = function (w, h, mode, cb) {
  * Scale the image to the given width and height keeping the aspect ratio. Some parts of the image may be letter boxed.
  * @param w the width to resize the image to
  * @param h the height to resize the image to
+ * @param (optional) alignBits A bitmask for horizontal and vertical alignment
  * @param (optional) mode a scaling method (e.g. Jimp.RESIZE_BEZIER)
  * @param (optional) cb a callback for when complete
  * @returns this for chaining of methods
  */
-Jimp.prototype.contain = function (w, h, mode, cb) {
+Jimp.prototype.contain = function (w, h, alignBits, mode, cb) {
     if ("number" != typeof w || "number" != typeof h)
         return throwError.call(this, "w and h must be numbers", cb);
 
-    if ("function" == typeof mode && "undefined" == typeof cb) {
-        cb = mode;
-        mode = null;
+    //permit any sort of optional parameters combination
+    switch (typeof alignBits) {
+        case 'string':
+            if ("function" == typeof mode && "undefined" == typeof cb) cb = mode;
+            mode = alignBits;
+            alignBits = null;
+        case 'function':
+            if ("undefined" == typeof cb) cb = alignBits;
+            mode = null;
+            alignBits = null;
+        default:
+            if ("function" == typeof mode && "undefined" == typeof cb) {
+                cb = mode;
+                mode = null;
+            }
     }
     
+    alignBits = alignBits || (Jimp.HORIZONTAL_ALIGN_CENTER | Jimp.VERTICAL_ALIGN_MIDDLE);
+    var hbits = ((alignBits) & ((1<<(3))-1));
+    var vbits = alignBits >> 3;
+
+    // check if more flags than one is in the bit sets
+    if(!(((hbits != 0) && !(hbits & (hbits - 1))) || ((vbits != 0) && !(vbits & (vbits - 1)))))
+        return throwError.call(this, "only use one flag per alignment direction", cb);
+
+    var align_h = (hbits >> 1); // 0, 1, 2
+    var align_v = (vbits >> 1); // 0, 1, 2
+
     var f = (w/h > this.bitmap.width/this.bitmap.height) ?
         h/this.bitmap.height : w/this.bitmap.width;
     var c = this.clone().scale(f, mode);
@@ -1672,8 +1722,8 @@ Jimp.prototype.contain = function (w, h, mode, cb) {
     this.scan(0, 0, this.bitmap.width, this.bitmap.height, function (x, y, idx) {
         this.bitmap.data.writeUInt32BE(this._background, idx);
     });
-    this.blit(c, this.bitmap.width / 2 - c.bitmap.width / 2, this.bitmap.height / 2 - c.bitmap.height / 2);
-    
+    this.blit(c, ((this.bitmap.width - c.bitmap.width) / 2) * align_h, ((this.bitmap.height - c.bitmap.height) / 2) * align_v);
+
     if (isNodePattern(cb)) return cb.call(this, null, this);
     else return this;
 };
