@@ -233,9 +233,12 @@ function getMIMEFromBuffer(buffer, path) {
 // gets a MIME type of a file from the path to it
 function getMIMEFromPath(path, cb) {
     ReadChunk(path, 0, 262, function (err, buffer) {
-        if (err) { cb(null, ""); }
-        var fileType = FileType(buffer);
-        return cb && cb(null, fileType && fileType.mime || "");
+        if (err) {
+            cb(null, "");
+        } else {
+            var fileType = FileType(buffer);
+            return cb && cb(null, fileType && fileType.mime || "");
+        }
     });
 }
 
