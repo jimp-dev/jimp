@@ -20,7 +20,7 @@ var Path = require("path");
 if (process.env.ENVIRONMENT !== 'BROWSER') {
     var Request = require('request').defaults({ encoding: null });
     //If we run into electron renderer process, add a method to substitute the request module by xhr method
-    if (process.versions.hasOwnProperty('electron') && process.type === 'renderer') {
+    if (process.versions.hasOwnProperty('electron') && process.type === 'renderer' && typeof XMLHttpRequest === "function") {
         var RequestXHR = function (url,cb) {
             var xhr = new XMLHttpRequest();
             xhr.open( "GET", url, true );
