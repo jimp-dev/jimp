@@ -18,10 +18,9 @@ var BMFont = require("load-bmfont");
 var Path = require("path");
 
 if (process.env.ENVIRONMENT !== 'BROWSER') {
-    var Request = require('request').defaults({ encoding: null });
-    //If we run into electron renderer process, add a method to substitute the request module by xhr method
+    //If we run into electron renderer process, use XHR method instead of Request node module
     if (process.versions.hasOwnProperty('electron') && process.type === 'renderer' && typeof XMLHttpRequest === "function") {
-        var RequestXHR = function (url,cb) {
+        var Request = function (url,cb) {
             var xhr = new XMLHttpRequest();
             xhr.open( "GET", url, true );
             xhr.responseType = "arraybuffer";
@@ -41,12 +40,8 @@ if (process.env.ENVIRONMENT !== 'BROWSER') {
             };
             xhr.send();
         };
-
-        Jimp.useXHR = function (use) {
-            use = typeof use === 'undefined' ? true:use;
-            Request = use ? RequestXHR:require('request');
-            return Jimp;
-        }
+    } else {
+        var Request = require('request').defaults({ encoding: null });
     }
 }
 
