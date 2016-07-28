@@ -17,7 +17,33 @@ var URLRegEx = require("url-regex");
 var BMFont = require("load-bmfont");
 var Path = require("path");
 
-if (process.env.ENVIRONMENT !== 'BROWSER') var Request = require('request').defaults({ encoding: null });
+if (process.env.ENVIRONMENT !== 'BROWSER') {
+    //If we run into electron renderer process, use XHR method instead of Request node module
+    if (process.versions.hasOwnProperty('electron') && process.type === 'renderer' && typeof XMLHttpRequest === "function") {
+        var Request = function (url,cb) {
+            var xhr = new XMLHttpRequest();
+            xhr.open( "GET", url, true );
+            xhr.responseType = "arraybuffer";
+            xhr.onload = function() {
+                if (xhr.status < 400) {
+                    try {
+                        var data = Buffer.from(this.response);
+                    } catch (e) {
+                        return cb("Response is not a buffer for url "+url)
+                    }
+                    cb(null, xhr, data);
+                }
+                else cb("HTTP Status " + xhr.status + " for url "+url);
+            };
+            xhr.onerror = function(e) {
+                cb(e);
+            };
+            xhr.send();
+        };
+    } else {
+        var Request = require('request').defaults({ encoding: null });
+    }
+}
 
 // polyfill Promise for Node < 0.12
 var Promise = global.Promise || require('es6-promise').Promise;
