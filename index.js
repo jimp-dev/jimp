@@ -2168,6 +2168,60 @@ function drawCharacter(image, font, x, y, char) {
     return image;
 };
 
+
+/**
+ * Draws a text on a image on a given boundary
+ * @param font a bitmap font loaded from `Jimp.loadFont` command
+ * @param x the x position to start drawing the text
+ * @param y the y position to start drawing the text
+ * @param text the text to draw
+ * @param maxWidth the boundary width to draw in
+ * @param (optional) cb a function to call when the text is written
+ * @returns this for chaining of methods
+ */
+Jimp.prototype.printWrapped = function (font, x, y, text, maxWidth, cb) {
+    if ("object" != typeof font)
+        return throwError.call(this, "font must be a Jimp loadFont", cb);
+    if ("number" != typeof x || "number" != typeof y || "number" != typeof maxWidth)
+        return throwError.call(this, "x, y and maxWidth must be numbers", cb);
+    if ("string" != typeof text)
+        return throwError.call(this, "text must be a string", cb);
+
+    var that = this;
+
+    var words = text.split(' ');
+    var line = '';
+
+    for (var n = 0; n < words.length; n++) {
+        var testLine = line + words[n] + ' ';
+        var testWidth = measureText(font, testLine);
+        if (testWidth > maxWidth && n > 0) {
+            that = that.print(font, x, y, line);
+            line = words[n] + ' ';
+            y += font.common.lineHeight;
+        }
+        else {
+            line = testLine;
+        }
+    }
+    that = that.print(font, x, y, line);
+
+    if (isNodePattern(cb)) return cb.call(this, null, that);
+    else return that;
+};
+
+function measureText(font, text) {
+  var x = 0;
+  for (var i = 0; i < text.length; i++) {
+      if (font.chars[text[i]]) {
+          x += font.chars[text[i]].xoffset
+            + (font.kernings[text[i]] && font.kernings[text[i]][text[i+1]] ? font.kernings[text[i]][text[i+1]] : 0)
+            + (font.chars[text[i]].xadvance || 0);
+      }
+  }
+  return x;
+};
+
 /**
  * Writes the image to a file
  * @param path a path to the destination file (either PNG or JPEG)
