@@ -315,7 +315,12 @@ function parseBitmap(data, mime, cb) {
  * @returns nothing
  */
 function exifRotate(image, buffer) {
-    var exif = EXIFParser.create(buffer).parse();
+    var exif;
+    try {
+        exif = EXIFParser.create(buffer).parse();
+    } catch (err) {
+        return; // meh
+    }
     if (!exif || !exif.tags || !exif.tags.Orientation) return;
     switch (exif.tags.Orientation) {
         case 1: // Horizontal (normal)
