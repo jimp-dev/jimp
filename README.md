@@ -186,7 +186,8 @@ Jimp supports basic typography using BMFont format (.fnt) [bitmap fonts](https:/
 
 ```js
 Jimp.loadFont( path ).then(function (font) { // load font from .fnt file
-    image.print(font, x, y, str); // print a message on an image
+    image.print(font, x, y, str);        // print a message on an image
+    image.print(font, x, y, str, width); // print a message on an image with text wrapped at width
 });
 
 Jimp.loadFont( path, cb ); // using a callback pattern
