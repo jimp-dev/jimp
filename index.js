@@ -159,6 +159,7 @@ function Jimp() {
 
         this._quality = original._quality;
         this._deflateLevel = original._deflateLevel;
+        this._deflateStrategy = original._deflateStrategy;
         this._filterType = original._filterType;
         this._rgba = original._rgba;
         this._background = original._background;
@@ -520,6 +521,7 @@ Jimp.prototype.bitmap = {
 // The quality to be used when saving JPEG images
 Jimp.prototype._quality = 100;
 Jimp.prototype._deflateLevel = 9;
+Jimp.prototype._deflateStrategy = 3;
 Jimp.prototype._filterType = Jimp.PNG_FILTER_AUTO;
 
 // Whether PNGs will be exported as RGB or RGBA
@@ -571,6 +573,24 @@ Jimp.prototype.deflateLevel = function (l, cb) {
         return throwError.call(this, "l must be a number 0 - 9", cb);
 
     this._deflateLevel = Math.round(l);
+
+    if (isNodePattern(cb)) return cb.call(this, null, this);
+    else return this;
+};
+
+/**
+ * Sets the deflate strategy used when saving as PNG format (default is 3)
+ * @param s Deflate strategy to use 0-3.
+ * @param (optional) cb a callback for when complete
+ * @returns this for chaining of methods
+ */
+Jimp.prototype.deflateStrategy = function (s, cb) {
+    if ("number" != typeof s)
+        return throwError.call(this, "s must be a number", cb);
+    if (s < 0 || s > 3)
+        return throwError.call(this, "s must be a number 0 - 3", cb);
+
+    this._deflateStrategy = Math.round(s);
 
     if (isNodePattern(cb)) return cb.call(this, null, this);
     else return this;
@@ -1980,6 +2000,7 @@ Jimp.prototype.getBuffer = function (mime, cb) {
               height:this.bitmap.height,
               bitDepth: 8,
               deflateLevel: this._deflateLevel,
+              deflateStrategy: this._deflateStrategy,
               filterType: this._filterType,
               colorType: (this._rgba) ? 6 : 2,
               inputHasAlpha: true
