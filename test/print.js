@@ -16,7 +16,7 @@ var promises = [
 Promise.all(promises).then(function (fonts) {
     Jimp.read("lenna.png").then(lenna => {
         fonts.forEach(function(font, i) {
-            lenna.clone().print(font, 10, 10, "This is Lenna.").write("./output/lenna-text-" + i + ".png");
+            lenna.clone().print(font, 10, 10, "This is Lenna.", lenna.bitmap.width).write("./output/lenna-text-" + i + ".png");
         });
     });
 }).catch(function (err) {
