@@ -255,9 +255,10 @@ image.quality( n ); // set the quality of saved JPEG, 0 - 100
 The format of PNGs can be set with:
 
 ```js
-image.rgba( bool );           // set whether PNGs are saved as RGBA (true, default) or RGB (false)
-image.filterType( number );   // set the filter type for the saved PNG
-image.deflateLevel( number ); // set the deflate level for the saved PNG
+image.rgba( bool );             // set whether PNGs are saved as RGBA (true, default) or RGB (false)
+image.filterType( number );     // set the filter type for the saved PNG
+image.deflateLevel( number );   // set the deflate level for the saved PNG
+Jimp.deflateStrategy( number ); // set the deflate for the saved PNG (0-3)
 ```
 
 For convenience, supported filter types are available as static properties:
