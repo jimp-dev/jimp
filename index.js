@@ -2178,64 +2178,35 @@ function loadPages(dir, pages) {
 }
 
 /**
- * Draws a text on a image
- * @param font a bitmap font loaded from `Jimp.loadFont` command
- * @param x the x position to start drawing the text
- * @param y the y position to start drawing the text
- * @param text the text to draw
- * @param (optional) cb a function to call when the text is written
- * @returns this for chaining of methods
- */
-Jimp.prototype.print = function (font, x, y, text, cb) {
-    if ("object" != typeof font)
-        return throwError.call(this, "font must be a Jimp loadFont", cb);
-    if ("number" != typeof x || "number" != typeof y)
-        return throwError.call(this, "x and y must be numbers", cb);
-    if ("string" != typeof text)
-        return throwError.call(this, "text must be a string", cb);
-
-    var that = this;
-
-    for (var i = 0; i < text.length; i++) {
-      if (font.chars[text[i]]) {
-        that = drawCharacter(that, font, x, y, font.chars[text[i]]);
-        x += (font.kernings[text[i]] && font.kernings[text[i]][text[i+1]] ? font.kernings[text[i]][text[i+1]] : 0) + (font.chars[text[i]].xadvance || 0);
-      }
-    }
-
-    if (isNodePattern(cb)) return cb.call(this, null, that);
-    else return that;
-};
-
-function drawCharacter(image, font, x, y, char) {
-    if (char.width > 0 && char.height > 0) {
-        var imageChar = font.pages[char.page].clone().crop(char.x, char.y, char.width, char.height);
-        return image.composite(imageChar, x + char.xoffset, y + char.yoffset);
-    }
-    return image;
-};
-
-
-/**
  * Draws a text on a image on a given boundary
  * @param font a bitmap font loaded from `Jimp.loadFont` command
  * @param x the x position to start drawing the text
  * @param y the y position to start drawing the text
  * @param text the text to draw
- * @param maxWidth the boundary width to draw in
+ * @param maxWidth (optional) the boundary width to draw in
  * @param (optional) cb a function to call when the text is written
  * @returns this for chaining of methods
  */
-Jimp.prototype.printWrapped = function (font, x, y, text, maxWidth, cb) {
+Jimp.prototype.print = function (font, x, y, text, maxWidth, cb) {
+    if ("function" == typeof maxWidth && "undefined" == typeof cb) {
+        cb = maxWidth;
+        maxWidth = Infinity;
+    }
+    if ("undefined" == typeof maxWidth) {
+        maxWidth = Infinity;
+    }
+    
     if ("object" != typeof font)
         return throwError.call(this, "font must be a Jimp loadFont", cb);
     if ("number" != typeof x || "number" != typeof y || "number" != typeof maxWidth)
         return throwError.call(this, "x, y and maxWidth must be numbers", cb);
     if ("string" != typeof text)
         return throwError.call(this, "text must be a string", cb);
+    if ("number" != typeof maxWidth)
+        return throwError.call(this, "maxWidth must be a number", cb);
 
     var that = this;
-
+    
     var words = text.split(' ');
     var line = '';
 
@@ -2246,15 +2217,31 @@ Jimp.prototype.printWrapped = function (font, x, y, text, maxWidth, cb) {
             that = that.print(font, x, y, line);
             line = words[n] + ' ';
             y += font.common.lineHeight;
-        }
-        else {
+        } else {
             line = testLine;
         }
     }
-    that = that.print(font, x, y, line);
+    printText.call(this, font, x, y, line);
 
     if (isNodePattern(cb)) return cb.call(this, null, that);
     else return that;
+};
+
+function printText(font, x, y, text) {
+    for (var i = 0; i < text.length; i++) {
+      if (font.chars[text[i]]) {
+        drawCharacter(this, font, x, y, font.chars[text[i]]);
+        x += (font.kernings[text[i]] && font.kernings[text[i]][text[i+1]] ? font.kernings[text[i]][text[i+1]] : 0) + (font.chars[text[i]].xadvance || 0);
+      }
+    }
+};
+
+function drawCharacter(image, font, x, y, char) {
+    if (char.width > 0 && char.height > 0) {
+        var imageChar = font.pages[char.page].clone().crop(char.x, char.y, char.width, char.height);
+        return image.composite(imageChar, x + char.xoffset, y + char.yoffset);
+    }
+    return image;
 };
 
 function measureText(font, text) {
