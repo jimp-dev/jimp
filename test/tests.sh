@@ -11,7 +11,7 @@ function clean {
     rm -r ./output/*.bmp &>/dev/null
 }
 
-TOTALTESTS=14
+TOTALTESTS=15
 
 clean
 echo "promise.js (1/$TOTALTESTS)"
