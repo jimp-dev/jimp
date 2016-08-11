@@ -1,6 +1,6 @@
 {
   "name": "jimp",
-  "version": "0.2.25",
+  "version": "0.2.26",
   "description": "An image processing library written entirely in JavaScript (i.e. zero external or native dependencies).",
   "main": "index.js",
   "scripts": {
