@@ -1,4 +1,4 @@
-if (process.env.ENVIRONMENT !== 'BROWSER') var FS = require("fs");
+if (process.env.ENVIRONMENT !== "BROWSER") var FS = require("fs");
 var PNG = require("pngjs").PNG;
 var JPEG = require("jpeg-js");
 var BMP = require("bmp-js");
@@ -17,7 +17,7 @@ var URLRegEx = require("url-regex");
 var BMFont = require("load-bmfont");
 var Path = require("path");
 
-if (process.env.ENVIRONMENT !== 'BROWSER') {
+if (process.env.ENVIRONMENT !== "BROWSER") {
     //If we run into electron renderer process, use XHR method instead of Request node module
     if (process.versions.hasOwnProperty('electron') && process.type === 'renderer' && typeof XMLHttpRequest === "function") {
         var Request = function (url,cb) {
@@ -2041,6 +2041,26 @@ function compositeBitmapOverBackground(image){
 }
 
 /**
+ * Converts the image to a base 64 string
+ * @param mime the mime type of the image data to be created
+ * @param cb a Node-style function to call with the buffer as the second argument
+ * @returns this for chaining of methods
+ */
+Jimp.prototype.getBase64 = function (mime, cb) {
+    if ("string" != typeof mime)
+        return throwError.call(this, "mime must be a string", cb);
+    if ("function" != typeof cb)
+        return throwError.call(this, "cb must be a function", cb);
+
+    this.getBuffer(mime, function(mime, data) {
+        var src = "data:" + mime + ";base64,"  + data.toString("base64");
+        return cb.call(this, null, src);
+    });
+    
+    return this;
+};
+
+/**
  * Apply a ordered dithering effect
  * @param (optional) cb a callback for when complete
  * @returns this for chaining of methods
@@ -2267,7 +2287,7 @@ function measureText(font, text) {
  * @param (optional) cb a function to call when the image is saved to disk
  * @returns this for chaining of methods
  */
-if (process.env.ENVIRONMENT !== 'BROWSER') Jimp.prototype.write = function (path, cb) {
+if (process.env.ENVIRONMENT !== "BROWSER") Jimp.prototype.write = function (path, cb) {
     if ("string" != typeof path)
         return throwError.call(this, "path must be a string", cb);
     if ("undefined" == typeof cb) cb = function () {};
@@ -2294,7 +2314,7 @@ if (process.env.ENVIRONMENT !== 'BROWSER') Jimp.prototype.write = function (path
     return this;
 };
 
-if (process.env.ENVIRONMENT === 'BROWSER') {
+if (process.env.ENVIRONMENT === "BROWSER") {
     // For use in a web browser or web worker
     var gl;
     if (typeof window == "object") gl = window;
@@ -2302,5 +2322,6 @@ if (process.env.ENVIRONMENT === 'BROWSER') {
 
     gl.Jimp = Jimp;
     gl.Buffer = Buffer;
+} else {
+    module.exports = Jimp;
 }
-module.exports = Jimp;
