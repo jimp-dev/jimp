@@ -34,8 +34,7 @@ Jimp.read("lenna.png").then(function (lenna) {
 });
 ```
 
-Now also available for use in the browser for image manipulation in web workers without `<canvas>`. See [`browser/README.md`](https://github.com/oliver-moran/jimp/blob/master/browser/README.md).
-
+Also available to use in web browsers and Electron applications. See [`browser/README.md`](https://github.com/oliver-moran/jimp/blob/master/browser/README.md).
 
 ## Basic usage ##
 
