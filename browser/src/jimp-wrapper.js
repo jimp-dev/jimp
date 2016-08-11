@@ -21,14 +21,14 @@
 //    SOFTWARE.
 
 if (!self.Buffer && !window.Buffer){
-    throw new Error("Node's Buffer() not available in jimp-worker.js");
+    throw new Error("Node's Buffer() not available");
 } else if (!self.Jimp && !window.Jimp) {
-    throw new Error("Could not load jimp.min.js in jimp-worker.js");
+    throw new Error("Could not Jimp object");
 }
 
-// Utility methods for loading images into Jimp in a web worker context
-Jimp.WebWorkerUtils = {
-    fetchImageDataFromUrl: function(url,cb){
+(function(){
+    
+    function fetchImageDataFromUrl(url, cb) {
         // Fetch image data via xhr. Note that this will not work
         // without cross-domain allow-origin headers because of CORS restrictions
         var xhr = new XMLHttpRequest();
@@ -43,8 +43,9 @@ Jimp.WebWorkerUtils = {
         };
 
         xhr.send();
-    },
-    bufferFromArrayBuffer: function(arrayBuffer){
+    };
+    
+    function bufferFromArrayBuffer(arrayBuffer) {
         // Prepare a Buffer object from the arrayBuffer. Necessary in the browser > node conversion,
         // But this function is not useful when running in node directly
         var buffer = new Buffer(arrayBuffer.byteLength);
@@ -54,44 +55,42 @@ Jimp.WebWorkerUtils = {
         }
 
         return buffer;
-    },
-    isArrayBuffer: function(test){
+    }
+    
+    function isArrayBuffer(test) {
         return Object.prototype.toString.call(test).toLowerCase().indexOf("arraybuffer") > -1;
     }
-};
 
-// Override the nodejs implementation of Jimp.read()
-delete Jimp.read;
-Jimp.read = function(src,cb) {
-    var utils = Jimp.WebWorkerUtils;
+    // Override the nodejs implementation of Jimp.read()
+    delete Jimp.read;
+    Jimp.read = function(src, cb) {
+        return new Promise(function(resolve, reject) {
+                cb = cb || function(err, image) {
+                    if (err) reject(err);
+                    else resolve(image);
+                };
 
-    return new Promise(
-        function(resolve, reject) {
-            cb = cb || function(err, image) {
-                if (err) reject(err);
-                else resolve(image);
-            };
-
-            if ("string" == typeof src) {
-                // Download via xhr
-                utils.fetchImageDataFromUrl(src,function(arrayBuffer,error){
-                    if (arrayBuffer) {
-                        if (!utils.isArrayBuffer(arrayBuffer)) {
-                            cb(new Error("Unrecognized data received for " + src));
-                        } else {
-                            new Jimp(utils.bufferFromArrayBuffer(arrayBuffer),cb);
+                if ("string" == typeof src) {
+                    // Download via xhr
+                    fetchImageDataFromUrl(src,function(arrayBuffer,error){
+                        if (arrayBuffer) {
+                            if (!isArrayBuffer(arrayBuffer)) {
+                                cb(new Error("Unrecognized data received for " + src));
+                            } else {
+                                new Jimp(bufferFromArrayBuffer(arrayBuffer),cb);
+                            }
+                        } else if (error) {
+                            cb(error);
                         }
-                    } else if (error) {
-                        cb(error);
-                    }
-                });
-            } else if (utils.isArrayBuffer(src)) {
-                // src is an ArrayBuffer already
-                new Jimp(utils.bufferFromArrayBuffer(src), cb);
-            } else {
-                // src is not a string or ArrayBuffer
-                cb(new Error("Jimp expects a single ArrayBuffer or image URL"));
-            }
-        }
-    );
-}
+                    });
+                } else if (isArrayBuffer(src)) {
+                    // src is an ArrayBuffer already
+                    new Jimp(bufferFromArrayBuffer(src), cb);
+                } else {
+                    // src is not a string or ArrayBuffer
+                    cb(new Error("Jimp expects a single ArrayBuffer or image URL"));
+                }
+        });
+    }
+    
+})();
