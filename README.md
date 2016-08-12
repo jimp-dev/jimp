@@ -233,7 +233,7 @@ image.write( path, cb ); // Node-style callback will be fired when write is succ
 A PNG, JPEG or BMP binary Buffer of an image (e.g. for storage in a database) can to got using:
 
 ```js
-image.getBuffer( mime, cb ); // Node-style callback wil be fired with result
+image.getBuffer( mime, cb ); // Node-style callback will be fired with result
 ```
 
 For convenience, supported MIME types are available as static properties:
@@ -242,6 +242,16 @@ For convenience, supported MIME types are available as static properties:
 Jimp.MIME_PNG;  // "image/png"
 Jimp.MIME_JPEG; // "image/jpeg"
 Jimp.MIME_BMP;  // "image/bmp"
+```
+
+If `Jimp.AUTO` is passed as the MIME type then the original MIME type for the image (or "image/png") will be used.
+
+### Data URI ###
+
+A Base64 data URI can be generated in the same way as a Buffer, using:
+
+```js
+image.getBase64( mime, cb ); // Node-style callback will be fired with result
 ```
 
 ### PNG and JPEG quality ###
