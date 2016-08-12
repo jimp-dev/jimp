@@ -27,7 +27,7 @@ npm run-script minify-jimp
 
 
 echo "Including the License and version number in the jimp.js and jimp.min.js"
-PACKAGE_VERSION=$(cat ../package.json | grep version | head -1 | awk -F: '{ print $2 }' | sed 's/[",]//g')
+PACKAGE_VERSION=$(cat ../package.json | grep version | head -1 | awk -F: '{ print $2 }' | sed 's/[", ]//g')
 { echo "/*";
 echo "Jimp v$PACKAGE_VERSION";
 echo "https://github.com/oliver-moran/jimp";
@@ -39,6 +39,9 @@ echo ""; } > tmp.web_license.txt
 
 (cat tmp.web_license.txt ; echo "var window = window || self;" ; cat tmp.jimp.js; ) > lib/jimp.js
 (cat tmp.web_license.txt ; echo "var window = window || self;" ; cat tmp.jimp.min.js; ) > lib/jimp.min.js
+
+echo "Updating package version in README.md"
+sed -i.bak "s/v[0-9][0-9]*.[0-9][0-9]*.[0-9][0-9]*/v$PACKAGE_VERSION/g" README.md; rm README.md.bak
 
 echo "Cleaning up...."
 rm tmp*
