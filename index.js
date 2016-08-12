@@ -1992,6 +1992,10 @@ Jimp.prototype.rotate = function (deg, mode, cb) {
  * @returns this for chaining of methods
  */
 Jimp.prototype.getBuffer = function (mime, cb) {
+    if (mime == Jimp.AUTO) { // allow auto MIME detection
+        mime = this._originalMime || Jimp.MIME_PNG;
+    }
+    
     if ("string" != typeof mime)
         return throwError.call(this, "mime must be a string", cb);
     if ("function" != typeof cb)
@@ -2047,12 +2051,16 @@ function compositeBitmapOverBackground(image){
  * @returns this for chaining of methods
  */
 Jimp.prototype.getBase64 = function (mime, cb) {
+    if (mime == Jimp.AUTO) { // allow auto MIME detection
+        mime = this._originalMime || Jimp.MIME_PNG;
+    }
+    
     if ("string" != typeof mime)
         return throwError.call(this, "mime must be a string", cb);
     if ("function" != typeof cb)
         return throwError.call(this, "cb must be a function", cb);
 
-    this.getBuffer(mime, function(mime, data) {
+    this.getBuffer(mime, function(err, data) {
         var src = "data:" + mime + ";base64,"  + data.toString("base64");
         return cb.call(this, null, src);
     });
@@ -2287,7 +2295,7 @@ function measureText(font, text) {
  * @param (optional) cb a function to call when the image is saved to disk
  * @returns this for chaining of methods
  */
-if (process.env.ENVIRONMENT !== "BROWSER") Jimp.prototype.write = function (path, cb) {
+Jimp.prototype.write = function (path, cb) {
     if ("string" != typeof path)
         return throwError.call(this, "path must be a string", cb);
     if ("undefined" == typeof cb) cb = function () {};
