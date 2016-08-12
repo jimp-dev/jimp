@@ -61,6 +61,9 @@ if (!self.Buffer && !window.Buffer){
         return Object.prototype.toString.call(test).toLowerCase().indexOf("arraybuffer") > -1;
     }
 
+    // delete the write method
+    delete Jimp.prototype.write;
+    
     // Override the nodejs implementation of Jimp.read()
     delete Jimp.read;
     Jimp.read = function(src, cb) {
