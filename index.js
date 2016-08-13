@@ -274,9 +274,9 @@ function getMIMEFromPath(path, cb) {
 // parses a bitmap from the constructor to the JIMP bitmap property
 function parseBitmap(data, mime, cb) {
     var that = this;
-    this._originalMime = mime;
+    this._originalMime = mime.toLowerCase();
 
-    switch (mime.toLowerCase()) {
+    switch (this.getMIME()) {
         case Jimp.MIME_PNG:
             var png = new PNG();
             png.parse(data, function(err, data) {
@@ -535,6 +535,9 @@ Jimp.prototype._rgba = true;
 // Default colour to use for new pixels
 Jimp.prototype._background = 0x00000000;
 
+// Default MIME is PNG
+Jimp.prototype._originalMime = Jimp.MIME_PNG;
+
 /**
  * Creates a new image that is a clone of this one.
  * @param cb (optional) A callback for when complete
@@ -686,6 +689,24 @@ Jimp.prototype.scan = function (x, y, w, h, f, cb) {
     if (isNodePattern(cb)) return cb.call(this, null, this);
     else return this;
 };
+
+/**
+ * Returns the original MIME of the image (default: "image/png")
+ * @returns the MIME as a string
+*/
+Jimp.prototype.getMIME = function(){
+    var mime = this._originalMime || Jimp.MIME_PNG;
+    return mime;
+}
+    
+/**
+ * Returns the appropriate file extension for the original MIME of the image (default: "png")
+ * @returns the file extension as a string
+*/
+Jimp.prototype.getExtension = function(){
+    var mime = this.getMIME();
+    return MIME.extension(mime); 
+}
 
 /**
  * Returns the offset of a pixel in the bitmap buffer
@@ -1993,7 +2014,7 @@ Jimp.prototype.rotate = function (deg, mode, cb) {
  */
 Jimp.prototype.getBuffer = function (mime, cb) {
     if (mime == Jimp.AUTO) { // allow auto MIME detection
-        mime = this._originalMime || Jimp.MIME_PNG;
+        mime = this.getMIME();
     }
     
     if ("string" != typeof mime)
@@ -2052,7 +2073,7 @@ function compositeBitmapOverBackground(image){
  */
 Jimp.prototype.getBase64 = function (mime, cb) {
     if (mime == Jimp.AUTO) { // allow auto MIME detection
-        mime = this._originalMime || Jimp.MIME_PNG;
+        mime = this.getMIME();
     }
     
     if ("string" != typeof mime)

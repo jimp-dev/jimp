@@ -228,6 +228,13 @@ The image can be written to disk in PNG, JPEG or BMP format (determined by the f
 image.write( path, cb ); // Node-style callback will be fired when write is successful
 ```
 
+The original extension for an image (or "png") can accessed as using `image.getExtension()`. The following will save an image using its original format:
+
+```js
+var file = "new_name." + image.getExtension();
+image.write(file)
+```
+
 ### Writing to Buffers ###
 
 A PNG, JPEG or BMP binary Buffer of an image (e.g. for storage in a database) can to got using:
@@ -244,7 +251,7 @@ Jimp.MIME_JPEG; // "image/jpeg"
 Jimp.MIME_BMP;  // "image/bmp"
 ```
 
-If `Jimp.AUTO` is passed as the MIME type then the original MIME type for the image (or "image/png") will be used.
+If `Jimp.AUTO` is passed as the MIME type then the original MIME type for the image (or "image/png") will be used. Alernatively, `image.getMIME()` will return the original MIME type of the image (or "image/png").
 
 ### Data URI ###
 
