@@ -67,7 +67,7 @@ Resize.prototype._resizeWidthInterpolatedRGBChannels = function (buffer, fourthC
     var secondWeight = 0;
     var outputBuffer = this.widthBuffer;
     //Handle for only one interpolation input being valid for start calculation:
-    for (var targetPosition = 0; weight < 1 / channelsNum; targetPosition += channelsNum, weight += ratioWeight) {
+    for (var targetPosition = 0; weight < 1 / 3; targetPosition += channelsNum, weight += ratioWeight) {
         for (finalOffset = targetPosition, pixelOffset = 0; finalOffset < this.widthPassResultSize; pixelOffset += this.originalWidthMultipliedByChannels, finalOffset += this.targetWidthMultipliedByChannels) {
             outputBuffer[finalOffset] = buffer[pixelOffset];
             outputBuffer[finalOffset + 1] = buffer[pixelOffset + 1];
@@ -86,9 +86,9 @@ Resize.prototype._resizeWidthInterpolatedRGBChannels = function (buffer, fourthC
         for (finalOffset = targetPosition, pixelOffset = Math.floor(weight) * channelsNum; finalOffset < this.widthPassResultSize; pixelOffset += this.originalWidthMultipliedByChannels, finalOffset += this.targetWidthMultipliedByChannels) {
             outputBuffer[finalOffset] = (buffer[pixelOffset] * firstWeight) + (buffer[pixelOffset + channelsNum] * secondWeight);
             outputBuffer[finalOffset + 1] = (buffer[pixelOffset + 1] * firstWeight) + (buffer[pixelOffset + channelsNum + 1] * secondWeight);
-            outputBuffer[finalOffset + 2] = (buffer[pixelOffset + 2] * firstWeight) + (buffer[pixelOffset + channelsNum + 1] * secondWeight);
+            outputBuffer[finalOffset + 2] = (buffer[pixelOffset + 2] * firstWeight) + (buffer[pixelOffset + channelsNum + 2] * secondWeight);
             if (!fourthChannel) continue;
-            outputBuffer[finalOffset + 3] = (buffer[pixelOffset + 3] * firstWeight) + (buffer[pixelOffset + channelsNum + 1] * secondWeight);
+            outputBuffer[finalOffset + 3] = (buffer[pixelOffset + 3] * firstWeight) + (buffer[pixelOffset + channelsNum + 3] * secondWeight);
         }
     }
     //Handle for only one interpolation input being valid for end calculation:
@@ -121,9 +121,9 @@ Resize.prototype._resizeWidthRGBChannels = function (buffer, fourthChannel) {
     var outputBuffer = this.widthBuffer;
     var trustworthyColorsCount = this.outputWidthWorkBenchOpaquePixelsCount;
     var multiplier = 1;
-    var r = 0; 
-    var g = 0; 
-    var b = 0; 
+    var r = 0;
+    var g = 0;
+    var b = 0;
     var a = 0;
     do {
         for (line = 0; line < this.originalHeightMultipliedByChannels;) {
