@@ -201,22 +201,29 @@ module.exports = {
                     var g = 0;
                     var b = 0;
                     var a = 0;
+                    var realColors = 0;
                     for (var y = 0; y < hM; y++) {
                         var yPos = i * hM + y;
                         for (var x = 0; x < wM; x++) {
                             var xPos = j * wM + x;
                             var xyPos = (yPos * wDst2 + xPos) * 4;
-                            r += buf2[xyPos];
-                            g += buf2[xyPos+1];
-                            b += buf2[xyPos+2];
-                            a += buf2[xyPos+3];
+                            var pixelAplha = buf2[xyPos+3];
+
+                            if (pixelAplha) {
+                                r += buf2[xyPos];
+                                g += buf2[xyPos+1];
+                                b += buf2[xyPos+2];
+                                realColors++;
+                            }
+
+                            a += pixelAplha;
                         }
                     }
                     
                     var pos = (i*wDst + j) * 4;
-                    bufDst[pos]   = Math.round(r / m);
-                    bufDst[pos+1] = Math.round(g / m);
-                    bufDst[pos+2] = Math.round(b / m);
+                    bufDst[pos]   = realColors ? Math.round(r / realColors) : 0;
+                    bufDst[pos+1] = realColors ? Math.round(g / realColors) : 0;
+                    bufDst[pos+2] = realColors ? Math.round(b / realColors) : 0;
                     bufDst[pos+3] = Math.round(a / m);
                 }
             }
