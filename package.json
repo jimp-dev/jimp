@@ -57,5 +57,6 @@
   "bugs": {
     "url": "https://github.com/oliver-moran/jimp/issues"
   },
-  "tonicExampleFilename": "example.js"
+  "tonicExampleFilename": "example.js",
+  "browser": "browser/lib/jimp.js"
 }
