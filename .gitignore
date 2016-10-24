@@ -35,3 +35,5 @@ node_modules
 /test/output/*.png
 /test/output/*.jpg
 /test/output/*.bmp
+
+.DS_Store
