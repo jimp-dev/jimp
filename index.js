@@ -1950,7 +1950,7 @@ function advancedRotate(deg, mode) {
             );
             if (source.x >= 0 && source.x < this.bitmap.width
                 && source.y >= 0 && source.y < this.bitmap.height) {
-                var srcIdx = (this.bitmap.width * (this.bitmap.height - source.y | 0) + source.x | 0) << 2;
+                var srcIdx = (this.bitmap.width * (this.bitmap.height - source.y - 1 | 0) + source.x | 0) << 2;
                 var pixelRGBA = this.bitmap.data.readUInt32BE(srcIdx, true);
                 var dstIdx = (this.bitmap.width * y + x) << 2;
                 dstBuffer.writeUInt32BE(pixelRGBA, dstIdx);
