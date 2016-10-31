@@ -323,6 +323,19 @@ Modifier                | Description
 **green** {amount}      | Modify Green component by a given amount
 **blue** {amount}       | Modify Blue component by a given amount
 
+### Convolution matrix ###
+
+Sum neighbor pixels weighted by the kernel matrix. You can find a nice explanation with examples at [GIMP's Convolution Matrix plugin](https://docs.gimp.org/en/plug-in-convmatrix.html)
+
+Implement emboss effect:
+```js
+  image.convolution([
+    [-2,-1, 0],
+    [-1, 1, 1],
+    [ 0, 1, 2]
+  ])
+```
+
 ### Low-level manipulation ###
 
 Jimp enables low-level manipulation of images in memory through the bitmap property of each Jimp object:

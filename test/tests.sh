@@ -74,6 +74,10 @@ echo "align.js (15/$TOTALTESTS)"
 node align.js
 
 clean
+echo "convolution.js (1/$TOTALTESTS)"
+node convolution.js
+
+clean
 echo "done :-)"
 
 quit
