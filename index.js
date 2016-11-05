@@ -2312,6 +2312,7 @@ function measureText(font, text) {
 
 /**
  * Writes the image to a file
+ *
  * @param {string} path a path to the destination file (either PNG or JPEG)
  * @param {null|function} cb a function to call when the image is saved to disk
  * @returns {Jimp|Promise} this for chaining of methods  if cb is specified otherwise Promise
@@ -2320,7 +2321,7 @@ Jimp.prototype.write = function (path, cb) {
     if ("undefined" == typeof cb) {
         return new Promise(
             function (resolve, reject) {
-                this.writeBuffer(path, function (err) {
+                this._write(path, function (err) {
                     if (err) {
                         reject(err);
                     } else {
@@ -2330,7 +2331,7 @@ Jimp.prototype.write = function (path, cb) {
             }.bind(this)
         );
     } else {
-        this.writeBuffer(path, cb);
+        this._write(path, cb);
         return this;
     }
 };
@@ -2338,11 +2339,12 @@ Jimp.prototype.write = function (path, cb) {
 /**
  * Writes buffer to a file
  *
+ * @private
  * @param {String} path
  * @param {function} cb Callback when the action is done
  * @return {undefined}
  */
-Jimp.prototype.writeBuffer = function(path, cb) {
+Jimp.prototype._write = function(path, cb) {
     if ("string" != typeof path)
         return throwError.call(this, "path must be a string", cb);
     if ("undefined" == typeof cb) cb = function () {};
