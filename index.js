@@ -400,6 +400,19 @@ Jimp.EDGE_EXTEND = 1;
 Jimp.EDGE_WRAP = 2;
 Jimp.EDGE_CROP = 3;
 
+
+// blend mode
+Jimp.BLEND_SOURCE_OVER = 'srcOver';
+Jimp.BLEND_DESTINATION_OVER = 'dstOver';
+Jimp.BLEND_MULTIPLY = 'multiply';
+Jimp.BLEND_SCREEN = 'screen';
+Jimp.BLEND_OVERLAY = 'overlay';
+Jimp.BLEND_DARKEN = 'darken';
+Jimp.BLEND_LIGHTEN = 'lighten';
+Jimp.BLEND_HARDLIGHT = 'hardLight';
+Jimp.BLEND_DIFFERENCE = 'difference';
+Jimp.BLEND_EXCLUSION = 'exclusion';
+
 /**
  * A static helper method that converts RGBA values to a single integer value
  * @param r the red value (0-255)
@@ -1140,7 +1153,7 @@ Jimp.prototype.mask = function (src, x, y, cb) {
  * @param src the source Jimp instance
  * @param x the x position to blit the image
  * @param y the y position to blit the image
- * @param (optional) mode the blendmode to use, defaults to JIMP.BLEND_SRC_OVER
+ * @param (optional) mode the blendmode to use, defaults to JIMP.BLEND_SOURCE_OVER
  * @param (optional) opacitySource defaults to 1
  * @param (optional) opacityDest defaults to 1
  * @param (optional) cb a callback for when complete
@@ -1154,7 +1167,10 @@ Jimp.prototype.composite = function (src, x, y, mode, opacitySource, opacityDest
 
     if ("function" == typeof mode && "undefined" == typeof cb) {
         cb = mode;
-        mode = 'srcOver';
+    }
+    if ("undefined" == typeof mode || mode == null)
+    {
+        mode = Jimp.BLEND_SOURCE_OVER;
     }
     if ("number" != typeof opacitySource || opacitySource < 0 || opacitySource > 1)
     {
@@ -1165,7 +1181,7 @@ Jimp.prototype.composite = function (src, x, y, mode, opacitySource, opacityDest
         opacityDest = 1.0;
     }
     if ("undefined" == typeof Compositing[mode])
-        return throwError.call(this, "unknown blend mode", cb);
+        return throwError.call(this, "unknown blend mode", mode, cb);
     
     var blendmode = Compositing[mode];
     

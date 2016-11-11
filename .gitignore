@@ -37,3 +37,4 @@ node_modules
 /test/output/*.bmp
 
 .DS_Store
+.settings
