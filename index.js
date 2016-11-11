@@ -16,6 +16,7 @@ var BigNumber = require('bignumber.js');
 var URLRegEx = require("url-regex");
 var BMFont = require("load-bmfont");
 var Path = require("path");
+var Compositing = require("./compositing.js");
 
 if (process.env.ENVIRONMENT !== "BROWSER") {
     //If we run into electron renderer process, use XHR method instead of Request node module
@@ -1139,48 +1140,71 @@ Jimp.prototype.mask = function (src, x, y, cb) {
  * @param src the source Jimp instance
  * @param x the x position to blit the image
  * @param y the y position to blit the image
+ * @param (optional) mode the blendmode to use, defaults to JIMP.BLEND_SRC_OVER
+ * @param (optional) opacitySource defaults to 1
+ * @param (optional) opacityDest defaults to 1
  * @param (optional) cb a callback for when complete
  * @returns this for chaining of methods
 */
-Jimp.prototype.composite = function (src, x, y, cb) {
+Jimp.prototype.composite = function (src, x, y, mode, opacitySource, opacityDest, cb) {
     if ("object" != typeof src || src.constructor != Jimp)
         return throwError.call(this, "The source must be a Jimp image", cb);
     if ("number" != typeof x || "number" != typeof y)
         return throwError.call(this, "x and y must be numbers", cb);
 
+    if ("function" == typeof mode && "undefined" == typeof cb) {
+        cb = mode;
+        mode = 'srcOver';
+    }
+    if ("number" != typeof opacitySource || opacitySource < 0 || opacitySource > 1)
+    {
+        opacitySource = 1.0;
+    }
+    if ("number" != typeof opacityDest || opacityDest < 0 || opacityDest > 1)
+    {
+        opacityDest = 1.0;
+    }
+    if ("undefined" == typeof Compositing[mode])
+        return throwError.call(this, "unknown blend mode", cb);
+    
+    var blendmode = Compositing[mode];
+    
+    
     // round input
     x = Math.round(x);
     y = Math.round(y);
 
     var that = this;
+    
+    if(opacityDest != 1.0)
+    {
+        that.opacity(opacityDest);
+    }
+    
     src.scan(0, 0, src.bitmap.width, src.bitmap.height, function(sx, sy, idx) {
         // http://stackoverflow.com/questions/7438263/alpha-compositing-algorithm-blend-modes
         var dstIdx = that.getPixelIndex(x+sx, y+sy);
         
-        var fg = {
-            r: this.bitmap.data[idx + 0] / 255,
-            g: this.bitmap.data[idx + 1] / 255,
-            b: this.bitmap.data[idx + 2] / 255,
-            a: this.bitmap.data[idx + 3] / 255
-        }
+        var c = blendmode(
+            {
+                r: this.bitmap.data[idx + 0] / 255,
+                g: this.bitmap.data[idx + 1] / 255,
+                b: this.bitmap.data[idx + 2] / 255,
+                a: this.bitmap.data[idx + 3] / 255
+            },
+            {
+                r: that.bitmap.data[dstIdx + 0] / 255,
+                g: that.bitmap.data[dstIdx + 1] / 255,
+                b: that.bitmap.data[dstIdx + 2] / 255,
+                a: that.bitmap.data[dstIdx + 3] / 255
+            },
+            opacitySource
+        );
         
-        var bg = {
-            r: that.bitmap.data[dstIdx + 0] / 255,
-            g: that.bitmap.data[dstIdx + 1] / 255,
-            b: that.bitmap.data[dstIdx + 2] / 255,
-            a: that.bitmap.data[dstIdx + 3] / 255
-        }
-        
-        var a = bg.a + fg.a - bg.a * fg.a;
-        
-        var r = ((fg.r * fg.a) + (bg.r * bg.a) * (1 - fg.a)) / a;
-        var g = ((fg.g * fg.a) + (bg.g * bg.a) * (1 - fg.a)) / a;
-        var b = ((fg.b * fg.a) + (bg.b * bg.a) * (1 - fg.a)) / a;
-        
-        that.bitmap.data[dstIdx + 0] = Jimp.limit255(r * 255);
-        that.bitmap.data[dstIdx + 1] = Jimp.limit255(g * 255);
-        that.bitmap.data[dstIdx + 2] = Jimp.limit255(b * 255);
-        that.bitmap.data[dstIdx + 3] = Jimp.limit255(a * 255);
+        that.bitmap.data[dstIdx + 0] = Jimp.limit255(c.r * 255);
+        that.bitmap.data[dstIdx + 1] = Jimp.limit255(c.g * 255);
+        that.bitmap.data[dstIdx + 2] = Jimp.limit255(c.b * 255);
+        that.bitmap.data[dstIdx + 3] = Jimp.limit255(c.a * 255);
     });
 
     if (isNodePattern(cb)) return cb.call(this, null, this);
