@@ -2243,6 +2243,7 @@ function loadPages(dir, pages) {
  * @param y the y position to start drawing the text
  * @param text the text to draw
  * @param maxWidth (optional) the boundary width to draw in
+ * @param alignment (optional) the direction to align text
  * @param (optional) cb a function to call when the text is written
  * @returns this for chaining of methods
  */
@@ -2253,6 +2254,9 @@ Jimp.prototype.print = function(font, x, y, text, maxWidth, alignment, cb) {
     }
     if ("undefined" == typeof maxWidth) {
         maxWidth = Infinity;
+    }
+    if ("undefined" == typeof alignment) {
+        alignment = Jimp.ALIGN_FONT_LEFT;
     }
 
     if ("object" != typeof font)
@@ -2308,7 +2312,8 @@ Jimp.prototype.print = function(font, x, y, text, maxWidth, alignment, cb) {
         line: line,
         y: y
     });
-    for (var tempLine of lines) {
+    for (var i = 0; i < lines.length; i++) {
+        var tempLine = lines[i];
         var xOffset = 0;
         var text = tempLine.line.trim();
         if (alignment == 0) xOffset = (maxWidth - measureText(font, text)) / 2;
