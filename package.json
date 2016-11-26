@@ -28,6 +28,7 @@
     "es6-promise": "^3.0.2",
     "exif-parser": "^0.1.9",
     "file-type": "^3.1.0",
+    "is-buffer": "^1.1.4",
     "jpeg-js": "^0.2.0",
     "load-bmfont": "^1.2.3",
     "mime": "^1.3.4",
@@ -35,6 +36,7 @@
     "pngjs": "^3.0.0",
     "read-chunk": "^1.0.1",
     "request": "^2.65.0",
+    "safe-buffer": "^5.0.1",
     "stream-to-buffer": "^0.1.0",
     "tinycolor2": "^1.1.2",
     "url-regex": "^3.0.0"
