@@ -831,15 +831,25 @@ Jimp.prototype.crop = function (x, y, w, h, cb) {
     w = Math.round(w);
     h = Math.round(h);
 
-    var bitmap = Buffer.allocUnsafe(this.bitmap.data.length);
-    var offset = 0;
-    this.scan(x, y, w, h, function (x, y, idx) {
-        var data = this.bitmap.data.readUInt32BE(idx, true);
-        bitmap.writeUInt32BE(data, offset, true);
-        offset += 4;
-    });
+    if (x == 0 && w == this.bitmap.width) {
+        // shortcut
+        var start = (w * y + x) << 2;
+        var end = start + h * w << 2 + 1;
+        this.bitmap.data = this.bitmap.data.slice(start, end);
+        this.bitmap.height = h;
+    } else {
+        var bitmap = Buffer.allocUnsafe(w * h * 4);
 
-    this.bitmap.data = Buffer.from(bitmap);
+        var offset = 0;
+        this.scan(x, y, w, h, function (x, y, idx) {
+            var data = this.bitmap.data.readUInt32BE(idx, true);
+            bitmap.writeUInt32BE(data, offset, true);
+            offset += 4;
+        });
+
+        this.bitmap.data = bitmap;
+    }
+
     this.bitmap.width = w;
     this.bitmap.height = h;
 
@@ -1345,6 +1355,11 @@ Jimp.prototype.mirror = Jimp.prototype.flip = function (horizontal, vertical, cb
     if ("boolean" != typeof horizontal || "boolean" != typeof vertical)
         return throwError.call(this, "horizontal and vertical must be Booleans", cb);
 
+    if (horizontal && vertical) {
+        // shortcut
+        return this.rotate(180, true, cb);
+    }
+
     var bitmap = Buffer.allocUnsafe(this.bitmap.data.length);
     this.scan(0, 0, this.bitmap.width, this.bitmap.height, function (x, y, idx) {
         var _x = (horizontal) ? (this.bitmap.width - 1 - x) : x;
@@ -1355,7 +1370,7 @@ Jimp.prototype.mirror = Jimp.prototype.flip = function (horizontal, vertical, cb
         bitmap.writeUInt32BE(data, _idx, true);
     });
 
-    this.bitmap.data = Buffer.from(bitmap);
+    this.bitmap.data = bitmap;
 
     if (isNodePattern(cb)) return cb.call(this, null, this);
     else return this;
@@ -1860,36 +1875,56 @@ Jimp.prototype.scaleToFit = function (w, h, mode, cb) {
     else return this;
 };
 
+// Extracted as a separate function, because otherwise, as a part of simpleRotate function, these two loops
+// get de-optimized by V8 or something like that after rotation by 180 degree and it runs 2.5 times slower.
+// At the same time it's reporting that function is still optimized. Weird.
+function rotate90degrees(bitmap, dstBuffer, clockwise) {
+    var dstOffset = clockwise ? 0 : (dstBuffer.length - 4);
+    var dstOffsetStep = clockwise ? 4 : -4;
+    var tmp, x, y, srcOffset;
+
+    for (x = 0; x < bitmap.width; x++) {
+        for (y = bitmap.height - 1; y >= 0; y--) {
+            srcOffset = (bitmap.width * y + x) << 2;
+            tmp = bitmap.data.readUInt32BE(srcOffset, true);
+            dstBuffer.writeUInt32BE(tmp, dstOffset, true);
+            dstOffset += dstOffsetStep;
+        }
+    }
+}
+
 /**
  * Rotates an image clockwise by a number of degrees rounded to the nearest 90 degrees. NB: 'this' must be a Jimp object.
  * @param deg the number of degress to rotate the image by
  * @returns nothing
  */
 function simpleRotate(deg) {
-    var i = Math.round(deg / 90) % 4;
-    while (i < 0) i += 4;
+    var steps = Math.round(deg / 90) % 4;
+    steps += steps < 0 ? 4 : 0;
 
-    while (i > 0) {
-        // https://github.com/ekulabuhov/jimp/commit/9a0c7cff88292d88c32a424b11256c76f1e20e46
-        var dstBuffer = Buffer.allocUnsafe(this.bitmap.data.length);
-        var dstOffset = 0;
-        for (var x = 0; x < this.bitmap.width; x++) {
-            for (var y = this.bitmap.height - 1; y >= 0; y--) {
-                var srcOffset = (this.bitmap.width * y + x) << 2;
-                var data = this.bitmap.data.readUInt32BE(srcOffset, true);
-                dstBuffer.writeUInt32BE(data, dstOffset, true);
-                dstOffset += 4;
-            }
+    if (steps === 0) return;
+
+    var srcBuffer = this.bitmap.data;
+    var len = srcBuffer.length;
+    var dstBuffer = Buffer.allocUnsafe(len);
+    var tmp, x, y, srcOffset;
+
+    if (steps == 2) {
+        // Upside-down
+        for (srcOffset = 0; srcOffset < len; srcOffset += 4) {
+            tmp = srcBuffer.readUInt32BE(srcOffset, true);
+            dstBuffer.writeUInt32BE(tmp, len - srcOffset - 4, true);
         }
+    } else {
+        // Clockwise or counter-clockwise rotation by 90 degree
+        rotate90degrees(this.bitmap, dstBuffer, steps == 1);
 
-        this.bitmap.data = Buffer.from(dstBuffer);
-        
-        var tmp = this.bitmap.width;
+        tmp = this.bitmap.width;
         this.bitmap.width = this.bitmap.height;
         this.bitmap.height = tmp;
-
-        i--;
     }
+
+    this.bitmap.data = dstBuffer;
 }
 
 /**
