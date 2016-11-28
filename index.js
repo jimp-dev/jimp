@@ -86,6 +86,43 @@ function throwError(error, cb) {
     else throw error;
 }
 
+function isRawRGBAData(obj) {
+	return obj && typeof obj === 'object'
+		&& typeof obj.width === 'number'
+		&& typeof obj.height === 'number'
+		&& (isBuffer(obj.data) || obj.data instanceof Uint8Array)
+		&& (obj.data.length === obj.width * obj.height * 4 || obj.data.length === obj.width * obj.height * 3);
+}
+
+function isJimpStrict(image) {
+	return typeof image === "object" && image.constructor === Jimp;
+}
+
+function isJimpLoose(image) {
+	return isJimpStrict(image) || isRawRGBAData(image.bitmap);
+}
+
+function makeRGBABufferFromRGB(buffer) {
+	if (buffer.length % 3 !== 0) {
+		throw new Error('Buffer length is incorrect');
+	}
+
+	const rgbaBuffer = Buffer.allocUnsafe(buffer.length / 3 * 4);
+	var j = 0;
+
+	for (var i=0; i < buffer.length; i++) {
+		rgbaBuffer[j] = buffer[i];
+
+		if ((i + 1) % 3 === 0) {
+			rgbaBuffer[++j] = 255;
+		}
+
+		j++;
+	}
+
+	return rgbaBuffer;
+}
+
 /**
  * Jimp constructor (from a file)
  * @param path a path to the image
@@ -95,6 +132,15 @@ function throwError(error, cb) {
 /**
  * Jimp constructor (from another Jimp image)
  * @param image a Jimp image to clone
+ * @param cb a function to call when the image is parsed to a bitmap
+ */
+
+/**
+ * Jimp constructor (from another raw image data)
+ * @param {Object} imgData a Jimp image to clone
+ * @param {number} imgData.width a Jimp image to clone
+ * @param {number} imgData.height a Jimp image to clone
+ * @param {Buffer|Uint8Array} imgData.data a Jimp image to clone
  * @param cb a function to call when the image is parsed to a bitmap
  */
 
@@ -138,7 +184,7 @@ function Jimp() {
         }
 
         cb.call(this, null, this);
-    } else if ("object" == typeof arguments[0] && arguments[0].constructor == Jimp) {
+    } else if (isJimpStrict(arguments[0])) {
         // clone an existing Jimp
         var original = arguments[0];
         var cb = arguments[1];
@@ -161,6 +207,37 @@ function Jimp() {
         this._background = original._background;
 
         cb.call(this, null, this);
+    } else if (isJimpLoose(arguments[0])) {
+	    var original = arguments[0];
+	    var cb = arguments[1] || noop;
+
+	    this.bitmap = {
+		    data: Buffer.from(original.bitmap.data),
+		    width: original.bitmap.width,
+		    height: original.bitmap.height
+	    };
+
+	    ['_quality', '_deflateLevel', '_deflateStrategy', '_filterType', '_rgba', '_background'].forEach(function(key) {
+		   if (typeof original[key] === this[key]) {
+			   this[key] = typeof original[key];
+		   }
+	    });
+
+	    cb.call(this, null, this);
+    } else if (isRawRGBAData(arguments[0])) {
+	    var imageData = arguments[0];
+	    var cb = arguments[1] || noop;
+
+	    var isRGBA = imageData.width * imageData.height * 4 === imageData.data.length;
+	    var buffer = isRGBA ? Buffer.from(imageData.data) : makeRGBABufferFromRGB(imageData.data);
+
+	    this.bitmap = {
+		    data: buffer,
+		    width: imageData.width,
+		    height: imageData.height
+	    };
+
+	    cb.call(this, null, this);
     } else if (URLRegEx({exact: true}).test(arguments[0])) {
         // read from a URL
         var url = arguments[0];
@@ -211,7 +288,7 @@ function Jimp() {
 
         parseBitmap.call(this, data, mime, cb);
     } else {
-        return throwError.call(this, "No matching constructor overloading was found. Please see the docs for how to call the Jimp constructor.", cb);
+        return throwError.call(this, "No matching constructor signature. Please see the docs for how to call the Jimp constructor.", cb);
     }
 }
 
