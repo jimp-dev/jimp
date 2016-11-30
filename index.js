@@ -585,6 +585,15 @@ Jimp.distance = function (img1, img2) {
     return phash.distance(hash1, hash2);
 }
 
+/**
+ * Checks if img is a Jimp image
+ * @static
+ * @param {Object} img
+ * @returns {Boolean}
+ */
+Jimp.isJimp = function (img) {
+    return isJimpStrict(img) || isJimpLoose(img);
+}
 
 // An object representing a bitmap in memory, comprising:
 //  - data: a buffer of the bitmap data
