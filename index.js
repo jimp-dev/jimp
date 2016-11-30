@@ -2343,6 +2343,17 @@ Jimp.prototype.write = function (path, cb) {
     return this;
 };
 
+Jimp.prototype.inspect = function () {
+    return '<Jimp ' +
+        (this.bitmap === Jimp.prototype.bitmap ? 'pending...' :
+            this.bitmap.width + 'x' + this.bitmap.height) +
+        '>';
+};
+
+Jimp.prototype.toString = function () {
+    return '[object Jimp]';
+};
+
 if (process.env.ENVIRONMENT === "BROWSER") {
     // For use in a web browser or web worker
     var gl;
