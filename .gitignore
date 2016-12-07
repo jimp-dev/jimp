@@ -38,3 +38,4 @@ node_modules
 
 .DS_Store
 .settings
+/update_from_upstream.bat
