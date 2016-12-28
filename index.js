@@ -2007,6 +2007,35 @@ Jimp.prototype.rotate = function (deg, mode, cb) {
 };
 
 /**
+ * Displaces the image based on the provided displacement map
+ * @param map the source Jimp instance
+ * @param offset the maximum displacement value 
+ * @param (optional) cb a callback for when complete
+ * @returns this for chaining of methods
+ */
+Jimp.prototype.displace = function (map, offset, cb) {
+    if ("object" != typeof map || map.constructor != Jimp)
+        return throwError.call(this, "The source must be a Jimp image", cb);
+    if ("number" != typeof offset)
+        return throwError.call(this, "factor must be a number", cb);
+
+    let source = this.clone();
+    this.scan(0, 0, this.bitmap.width, this.bitmap.height, function (x, y, idx) {
+
+        let displacement = map.bitmap.data[idx] / 256 * offset;
+        displacement = Math.round(displacement);
+
+        let ids = this.getPixelIndex(x + displacement, y);
+        this.bitmap.data[ids] = source.bitmap.data[idx];
+        this.bitmap.data[ids + 1] = source.bitmap.data[idx + 1];
+        this.bitmap.data[ids + 2] = source.bitmap.data[idx + 2];
+    });
+
+    if (isNodePattern(cb)) return cb.call(this, null, this);
+    else return this;
+};
+
+/**
  * Converts the image to a buffer
  * @param mime the mime type of the image buffer to be created
  * @param cb a Node-style function to call with the buffer as the second argument
