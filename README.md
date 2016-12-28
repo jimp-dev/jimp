@@ -118,6 +118,7 @@ image.blur( r );                  // fast blur the image by r pixels
 /* Effects */
 image.posterize( n );             // apply a posterization effect with n level
 image.sepia();                    // apply a sepia wash to the image
+image.pixelate( size );           // apply a pixelation effect to the image or a region 
 
 /* 3D */
 image.displace( map, offset );    // displaces the image pixels based on the provided displacement map. Useful for making stereoscopic 3D images.

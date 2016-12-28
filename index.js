@@ -1865,6 +1865,58 @@ Jimp.prototype.scaleToFit = function (w, h, mode, cb) {
 };
 
 /**
+ * Pixelates the image or a region
+ * @param size the size of the pixels
+ * @param (optional) cb a callback for when complete
+ * @param (optional) x the x position of the region to pixelate
+ * @param (optional) y the y position of the region to pixelate
+ * @param (optional) w the width of the region to pixelate
+ * @param (optional) h the height of the region to pixelate
+ * @returns this for chaining of methods
+ */
+Jimp.prototype.pixelate = function (size, cb, x, y, w, h) {
+    if ("number" != typeof size)
+        return throwError.call(this, "size must be a number", cb);
+    if (x !== undefined)
+        if ("number" != typeof x)
+            return throwError.call(this, "x must be a number", cb);
+    if (y !== undefined)
+        if ("number" != typeof y)
+            return throwError.call(this, "y must be a number", cb);
+    if (w !== undefined)
+        if ("number" != typeof w)
+            return throwError.call(this, "w must be a number", cb);
+    if (h !== undefined)
+        if ("number" != typeof h)
+            return throwError.call(this, "h must be a number", cb);
+
+    let kernel = [
+        [1 / 16, 2 / 16, 1 / 16],
+        [2 / 16, 4 / 16, 2 / 16],
+        [1 / 16, 2 / 16, 1 / 16]
+    ];
+
+    x = x !== undefined ? x : 0;
+    y = y !== undefined ? y : 0;
+    w = w !== undefined ? w : this.bitmap.width - x;
+    h = h !== undefined ? h : this.bitmap.height - y;
+
+    let source = this.clone();
+    this.scan(x, y, w, h, function (xx, yx, idx) {
+
+        xx = size * Math.floor(xx / size);
+        yx = size * Math.floor(yx / size);
+
+        let value = applyKernel(source, kernel, xx, yx);
+
+        this.bitmap.data[idx] = value[0];
+        this.bitmap.data[idx + 1] = value[1];
+        this.bitmap.data[idx + 2] = value[2];
+    });
+
+    if (isNodePattern(cb)) return cb.call(this, null, this);
+    else return this;
+}
 
 /**
  * Applies a convolution kernel to the image or a region
