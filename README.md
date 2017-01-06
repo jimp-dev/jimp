@@ -1,3 +1,8 @@
+<hr>
+**Can you help maintain this project?**
+Collaborators wanted: https://github.com/oliver-moran/jimp/issues/219
+<hr>
+
 # Jimp #
 
 The "JavaScript Image Manipulation Program" :-)
