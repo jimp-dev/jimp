@@ -134,7 +134,7 @@ image.clone();                    // returns a clone of the image
 
 ### Resize modes ###
 
-The default rezing algorithm uses a bilinear method as follows:
+The default resizing algorithm uses a bilinear method as follows:
 
 ```js
 image.resize(250, 250);           // resize the image to 250 x 250
