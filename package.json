@@ -3,6 +3,7 @@
   "version": "0.2.27",
   "description": "An image processing library written entirely in JavaScript (i.e. zero external or native dependencies).",
   "main": "index.js",
+  "types": "./jimp.d.ts",
   "scripts": {
     "test": "./test/tests.sh",
     "prepublish": "./browser/browserify-build.sh",
