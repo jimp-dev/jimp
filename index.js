@@ -394,6 +394,11 @@ Jimp.FONT_SANS_32_WHITE = Path.join(__dirname, "fonts/open-sans/open-sans-32-whi
 Jimp.FONT_SANS_64_WHITE = Path.join(__dirname, "fonts/open-sans/open-sans-64-white/open-sans-64-white.fnt");
 Jimp.FONT_SANS_128_WHITE = Path.join(__dirname, "fonts/open-sans/open-sans-128-white/open-sans-128-white.fnt");
 
+// Font alignments
+Jimp.ALIGN_FONT_LEFT = -1;
+Jimp.ALIGN_FONT_CENTER = 0;
+Jimp.ALIGN_FONT_RIGHT = 1;
+
 /**
  * A static helper method that converts RGBA values to a single integer value
  * @param r the red value (0-255)
@@ -2238,10 +2243,11 @@ function loadPages(dir, pages) {
  * @param y the y position to start drawing the text
  * @param text the text to draw
  * @param maxWidth (optional) the boundary width to draw in
+ * @param alignment (optional) the direction to align text
  * @param (optional) cb a function to call when the text is written
  * @returns this for chaining of methods
  */
-Jimp.prototype.print = function (font, x, y, text, maxWidth, cb) {
+Jimp.prototype.print = function(font, x, y, text, maxWidth, alignment, cb) {
     if ("function" == typeof maxWidth && "undefined" == typeof cb) {
         cb = maxWidth;
         maxWidth = Infinity;
@@ -2249,7 +2255,10 @@ Jimp.prototype.print = function (font, x, y, text, maxWidth, cb) {
     if ("undefined" == typeof maxWidth) {
         maxWidth = Infinity;
     }
-    
+    if ("undefined" == typeof alignment) {
+        alignment = Jimp.ALIGN_FONT_LEFT;
+    }
+
     if ("object" != typeof font)
         return throwError.call(this, "font must be a Jimp loadFont", cb);
     if ("number" != typeof x || "number" != typeof y || "number" != typeof maxWidth)
@@ -2258,24 +2267,60 @@ Jimp.prototype.print = function (font, x, y, text, maxWidth, cb) {
         return throwError.call(this, "text must be a string", cb);
     if ("number" != typeof maxWidth)
         return throwError.call(this, "maxWidth must be a number", cb);
+    if ("number" != typeof maxWidth)
+        return throwError.call(this, "alignment must be a number", cb);
 
     var that = this;
-    
+
     var words = text.split(' ');
+    words.push('');
     var line = '';
+    var cutLine = '';
+    var lines = [];
 
     for (var n = 0; n < words.length; n++) {
         var testLine = line + words[n] + ' ';
         var testWidth = measureText(font, testLine);
-        if (testWidth > maxWidth && n > 0) {
-            that = that.print(font, x, y, line);
-            line = words[n] + ' ';
-            y += font.common.lineHeight;
+        if (testWidth > maxWidth) {
+            if (measureText(font, line) > maxWidth) {
+                cutLine = '';
+                while (measureText(font, line + '-') > maxWidth && line.length > 1) {
+                    cutLine = line[line.length - 1] + cutLine;
+                    line = line.substring(0, line.length - 1);
+                }
+                words.splice(n + 0, 0, words[n]);
+                line += '-';
+                lines.push({
+                    line: line,
+                    y: y
+                });
+                line = cutLine.trim() + ' ';
+            } else {
+                lines.push({
+                    line: line,
+                    y: y
+                });
+                line = words[n] + ' ';
+            }
+            if (lines[lines.length - 1].line != '')
+                y += font.common.lineHeight;
         } else {
             line = testLine;
         }
     }
-    printText.call(this, font, x, y, line);
+    lines.push({
+        line: line,
+        y: y
+    });
+    for (var i = 0; i < lines.length; i++) {
+        var tempLine = lines[i];
+        var xOffset = 0;
+        var text = tempLine.line.trim();
+        if (alignment == 0) xOffset = (maxWidth - measureText(font, text)) / 2;
+        else if (alignment == 1) xOffset = maxWidth - measureText(font, text);
+        if (xOffset < 0) xOffset = 0;
+        printText.call(this, font, x + xOffset, tempLine.y, tempLine.line, maxWidth, alignment);
+    }
 
     if (isNodePattern(cb)) return cb.call(this, null, that);
     else return that;
