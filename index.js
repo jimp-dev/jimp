@@ -419,6 +419,11 @@ Jimp.rgbaToInt = function(r, g, b, a, cb){
         return throwError.call(this, "b must be between 0 and 255", cb);
     if (a < 0 || a > 255)
         return throwError.call(this, "a must be between 0 and 255", cb);
+
+    r = Math.round(r);
+    b = Math.round(b);
+    g = Math.round(g);
+    a = Math.round(a);
     
     var i = (r * Math.pow(256, 3)) + (g * Math.pow(256, 2)) + (b *  Math.pow(256, 1)) + (a * Math.pow(256, 0));
     
