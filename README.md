@@ -91,7 +91,7 @@ image.crop( x, y, w, h );         // crop to the given region
 /* Composing */
 image.blit( src, x, y[, srcx, srcy, srcw, srch] );
                                   // blit the image with another Jimp image at x, y, optionally cropped.
-image.composite( src, x, y );     // composites another Jimp image over this image at x, y
+image.composite( src, x, y, [mode, opacitySource, opacityDest] );     // composites another Jimp image over this image at x, y
 image.mask( src, x, y );          // masks the image with another Jimp image at x, y using average pixel value
 
 /* Flip and rotate */
@@ -182,6 +182,27 @@ Default align modes are :
 
 ```js
 Jimp.HORIZONTAL_ALIGN_CENTER | Jimp.VERTICAL_ALIGN_MIDDLE;
+```
+
+### Compositing and blend modes ###
+
+The following modes can be used for compositing two images together. mode defaults to Jimp.BLEND_SOURCE_OVER.
+
+```js
+Jimp.BLEND_SOURCE_OVER;
+Jimp.BLEND_DESTINATION_OVER;
+Jimp.BLEND_MULTIPLY;
+Jimp.BLEND_SCREEN;
+Jimp.BLEND_OVERLAY;
+Jimp.BLEND_DARKEN;
+Jimp.BLEND_LIGHTEN;
+Jimp.BLEND_HARDLIGHT;
+Jimp.BLEND_DIFFERENCE;
+Jimp.BLEND_EXCLUSION;
+```
+
+```js
+image.composite( srcImage, 100, 0, Jimp.BLEND_MULTIPLY, 0.5, 0.9 );
 ```
 
 ### Writing text ###
