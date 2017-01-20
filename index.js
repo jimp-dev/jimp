@@ -2391,6 +2391,26 @@ function measureText(font, text) {
 };
 
 /**
+ * Appends images
+ * @param image the image to be appended
+ * @param x the x position to start appending
+ * @param y the y position to start appending
+ * @param width the width of the image to append
+ * @param height the height of the image to append
+ * @returns this for chaining of methods
+ */
+Jimp.prototype.appendImage = function (image, x, y, width, height) {
+    image.resize(width, height);
+    for (var _y=0; _y<image.bitmap.height; _y++) {
+        for (var _x=0; _x<image.bitmap.width; _x++) {
+            var hex = image.getPixelColor(_x, _y);
+            this.setPixelColor(hex, x+_x, y+_y);
+        }
+    }
+    return this;
+};
+
+/**
  * Writes the image to a file
  * @param path a path to the destination file (either PNG or JPEG)
  * @param (optional) cb a function to call when the image is saved to disk
