@@ -5,7 +5,10 @@
   "main": "index.js",
   "types": "./jimp.d.ts",
   "scripts": {
-    "test": "./test/tests.sh",
+    "lint": "npm run -s lint-src && npm run -s lint-test",
+    "lint-src": "eslint *.js",
+    "lint-test": "echo new tests WIP",
+    "test": "npm run -s lint && ./test/tests.sh",
     "prepublish": "./browser/browserify-build.sh",
     "minify-jimp": "uglifyjs browser/tmp.jimp.js --compress warnings=false --mangle -o browser/tmp.jimp.min.js"
   },
@@ -48,6 +51,7 @@
     "babel-preset-stage-0": "^6.0.14",
     "browserify": "^14.3.0",
     "envify": "^3.4.0",
+    "eslint": "^3.14.1",
     "express": "^4.13.4",
     "uglify-js": "^2.6.1",
     "uglifyify": "^3.0.1"
