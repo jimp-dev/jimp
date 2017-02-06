@@ -1,3 +1,6 @@
+/* eslint-env worker */
+/* global Jimp */
+
 importScripts("../lib/jimp.min.js");
 
 self.addEventListener("message", function(e) {
@@ -6,8 +9,8 @@ self.addEventListener("message", function(e) {
              .quality(60)                 // set JPEG quality
              .greyscale()                 // set greyscale
              .getBase64(Jimp.AUTO, function (err, src) {
-                self.postMessage(src);
-                self.close();
+                 self.postMessage(src);
+                 self.close();
              });
     });
 });

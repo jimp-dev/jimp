@@ -20,14 +20,16 @@
 //    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 //    SOFTWARE.
 
+/* global Jimp */
+
 if (!self.Buffer && !window.Buffer){
     throw new Error("Node's Buffer() not available");
 } else if (!self.Jimp && !window.Jimp) {
-    throw new Error("Could not Jimp object");
+    throw new Error("Could not find Jimp object");
 }
 
 (function(){
-    
+
     function fetchImageDataFromUrl(url, cb) {
         // Fetch image data via xhr. Note that this will not work
         // without cross-domain allow-origin headers because of CORS restrictions
@@ -43,8 +45,8 @@ if (!self.Buffer && !window.Buffer){
         };
 
         xhr.send();
-    };
-    
+    }
+
     function bufferFromArrayBuffer(arrayBuffer) {
         // Prepare a Buffer object from the arrayBuffer. Necessary in the browser > node conversion,
         // But this function is not useful when running in node directly
@@ -56,44 +58,44 @@ if (!self.Buffer && !window.Buffer){
 
         return buffer;
     }
-    
+
     function isArrayBuffer(test) {
         return Object.prototype.toString.call(test).toLowerCase().indexOf("arraybuffer") > -1;
     }
 
     // delete the write method
     delete Jimp.prototype.write;
-    
+
     // Override the nodejs implementation of Jimp.read()
     delete Jimp.read;
     Jimp.read = function(src, cb) {
         return new Promise(function(resolve, reject) {
-                cb = cb || function(err, image) {
-                    if (err) reject(err);
-                    else resolve(image);
-                };
+            cb = cb || function(err, image) {
+                if (err) reject(err);
+                else resolve(image);
+            };
 
-                if ("string" == typeof src) {
-                    // Download via xhr
-                    fetchImageDataFromUrl(src,function(arrayBuffer,error){
-                        if (arrayBuffer) {
-                            if (!isArrayBuffer(arrayBuffer)) {
-                                cb(new Error("Unrecognized data received for " + src));
-                            } else {
-                                new Jimp(bufferFromArrayBuffer(arrayBuffer),cb);
-                            }
-                        } else if (error) {
-                            cb(error);
+            if ("string" == typeof src) {
+                // Download via xhr
+                fetchImageDataFromUrl(src,function(arrayBuffer,error){
+                    if (arrayBuffer) {
+                        if (isArrayBuffer(arrayBuffer)) {
+                            new Jimp(bufferFromArrayBuffer(arrayBuffer),cb);
+                        } else {
+                            cb(new Error("Unrecognized data received for " + src));
                         }
-                    });
-                } else if (isArrayBuffer(src)) {
-                    // src is an ArrayBuffer already
-                    new Jimp(bufferFromArrayBuffer(src), cb);
-                } else {
-                    // src is not a string or ArrayBuffer
-                    cb(new Error("Jimp expects a single ArrayBuffer or image URL"));
-                }
+                    } else if (error) {
+                        cb(error);
+                    }
+                });
+            } else if (isArrayBuffer(src)) {
+                // src is an ArrayBuffer already
+                new Jimp(bufferFromArrayBuffer(src), cb);
+            } else {
+                // src is not a string or ArrayBuffer
+                cb(new Error("Jimp expects a single ArrayBuffer or image URL"));
+            }
         });
     }
-    
+
 })();
