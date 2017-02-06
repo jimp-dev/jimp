@@ -90,7 +90,9 @@ function isRawRGBAData(obj) {
 	return obj && typeof obj === 'object'
 		&& typeof obj.width === 'number'
 		&& typeof obj.height === 'number'
-		&& (isBuffer(obj.data) || obj.data instanceof Uint8Array)
+		&& (isBuffer(obj.data) || obj.data instanceof Uint8Array
+			|| (typeof Uint8ClampedArray === 'function' && obj.data instanceof Uint8ClampedArray)
+			|| (typeof CanvasPixelArray === 'function' && obj.data instanceof CanvasPixelArray))
 		&& (obj.data.length === obj.width * obj.height * 4 || obj.data.length === obj.width * obj.height * 3);
 }
 
