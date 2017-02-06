@@ -16,6 +16,8 @@ var BigNumber = require('bignumber.js');
 var URLRegEx = require("url-regex");
 var BMFont = require("load-bmfont");
 var Path = require("path");
+var Buffer = require("safe-buffer").Buffer;
+var isBuffer = require("is-buffer");
 
 if (process.env.ENVIRONMENT !== "BROWSER") {
     //If we run into electron renderer process, use XHR method instead of Request node module
@@ -84,6 +86,45 @@ function throwError(error, cb) {
     else throw error;
 }
 
+function isRawRGBAData(obj) {
+	return obj && typeof obj === 'object'
+		&& typeof obj.width === 'number'
+		&& typeof obj.height === 'number'
+		&& (isBuffer(obj.data) || obj.data instanceof Uint8Array
+			|| (typeof Uint8ClampedArray === 'function' && obj.data instanceof Uint8ClampedArray)
+			|| (typeof CanvasPixelArray === 'function' && obj.data instanceof CanvasPixelArray))
+		&& (obj.data.length === obj.width * obj.height * 4 || obj.data.length === obj.width * obj.height * 3);
+}
+
+function isJimpStrict(image) {
+	return typeof image === "object" && image.constructor === Jimp;
+}
+
+function isJimpLoose(image) {
+	return isJimpStrict(image) || isRawRGBAData(image.bitmap);
+}
+
+function makeRGBABufferFromRGB(buffer) {
+	if (buffer.length % 3 !== 0) {
+		throw new Error('Buffer length is incorrect');
+	}
+
+	const rgbaBuffer = Buffer.allocUnsafe(buffer.length / 3 * 4);
+	var j = 0;
+
+	for (var i=0; i < buffer.length; i++) {
+		rgbaBuffer[j] = buffer[i];
+
+		if ((i + 1) % 3 === 0) {
+			rgbaBuffer[++j] = 255;
+		}
+
+		j++;
+	}
+
+	return rgbaBuffer;
+}
+
 /**
  * Jimp constructor (from a file)
  * @param path a path to the image
@@ -93,6 +134,15 @@ function throwError(error, cb) {
 /**
  * Jimp constructor (from another Jimp image)
  * @param image a Jimp image to clone
+ * @param cb a function to call when the image is parsed to a bitmap
+ */
+
+/**
+ * Jimp constructor (from another raw image data)
+ * @param {Object} imgData a Jimp image to clone
+ * @param {number} imgData.width a Jimp image to clone
+ * @param {number} imgData.height a Jimp image to clone
+ * @param {Buffer|Uint8Array} imgData.data a Jimp image to clone
  * @param cb a function to call when the image is parsed to a bitmap
  */
 
@@ -126,7 +176,7 @@ function Jimp() {
             return throwError.call(this, "cb must be a function", cb);
 
         this.bitmap = {
-            data: new Buffer(w * h * 4),
+            data: Buffer.allocUnsafe(w * h * 4),
             width: w,
             height: h
         };
@@ -136,7 +186,7 @@ function Jimp() {
         }
 
         cb.call(this, null, this);
-    } else if ("object" == typeof arguments[0] && arguments[0].constructor == Jimp) {
+    } else if (isJimpStrict(arguments[0])) {
         // clone an existing Jimp
         var original = arguments[0];
         var cb = arguments[1];
@@ -145,14 +195,8 @@ function Jimp() {
         if ("function" != typeof cb)
             return throwError.call(this, "cb must be a function", cb);
 
-        var bitmap = new Buffer(original.bitmap.data.length);
-        original.scan(0, 0, original.bitmap.width, original.bitmap.height, function (x, y, idx) {
-            var data = original.bitmap.data.readUInt32BE(idx, true);
-            bitmap.writeUInt32BE(data, idx, true);
-        });
-
         this.bitmap = {
-            data: bitmap,
+            data: Buffer.from(original.bitmap.data),
             width: original.bitmap.width,
             height: original.bitmap.height
         };
@@ -165,6 +209,37 @@ function Jimp() {
         this._background = original._background;
 
         cb.call(this, null, this);
+    } else if (isJimpLoose(arguments[0])) {
+	    var original = arguments[0];
+	    var cb = arguments[1] || noop;
+
+	    this.bitmap = {
+		    data: Buffer.from(original.bitmap.data),
+		    width: original.bitmap.width,
+		    height: original.bitmap.height
+	    };
+
+	    ['_quality', '_deflateLevel', '_deflateStrategy', '_filterType', '_rgba', '_background'].forEach(function(key) {
+		   if (typeof original[key] === this[key]) {
+			   this[key] = typeof original[key];
+		   }
+	    });
+
+	    cb.call(this, null, this);
+    } else if (isRawRGBAData(arguments[0])) {
+	    var imageData = arguments[0];
+	    var cb = arguments[1] || noop;
+
+	    var isRGBA = imageData.width * imageData.height * 4 === imageData.data.length;
+	    var buffer = isRGBA ? Buffer.from(imageData.data) : makeRGBABufferFromRGB(imageData.data);
+
+	    this.bitmap = {
+		    data: buffer,
+		    width: imageData.width,
+		    height: imageData.height
+	    };
+
+	    cb.call(this, null, this);
     } else if (URLRegEx({exact: true}).test(arguments[0])) {
         // read from a URL
         var url = arguments[0];
@@ -177,7 +252,7 @@ function Jimp() {
         var that = this;
         Request(url, function (err, response, data) {
             if (err) return throwError.call(that, err, cb);
-            if ("object" == typeof data && Buffer.isBuffer(data)) {
+            if ("object" == typeof data && isBuffer(data)) {
                 var mime = getMIMEFromBuffer(data);
                 if ("string" != typeof mime)
                     return throwError.call(that, "Could not find MIME for Buffer <" + url + "> (HTTP: " + response.statusCode + ")", cb);
@@ -206,7 +281,7 @@ function Jimp() {
         var mime = getMIMEFromBuffer(data);
         var cb = arguments[1];
 
-        if (!Buffer.isBuffer(data))
+        if (!isBuffer(data))
             return throwError.call(this, "data must be a Buffer", cb);
         if ("string" != typeof mime)
             return throwError.call(this, "mime must be a string", cb);
@@ -215,7 +290,7 @@ function Jimp() {
 
         parseBitmap.call(this, data, mime, cb);
     } else {
-        return throwError.call(this, "No matching constructor overloading was found. Please see the docs for how to call the Jimp constructor.", cb);
+        return throwError.call(this, "No matching constructor signature. Please see the docs for how to call the Jimp constructor.", cb);
     }
 }
 
@@ -232,7 +307,7 @@ Jimp.read = function(src, cb) {
                 if (err) reject(err);
                 else resolve(image);
             }
-            if ("string" != typeof src && ("object" != typeof src || !Buffer.isBuffer(src)))
+            if ("string" != typeof src && ("object" != typeof src || !isBuffer(src)))
                 return throwError.call(this, "src must be a string or a Buffer", cb);
             var img = new Jimp(src, cb);
         }
@@ -282,7 +357,7 @@ function parseBitmap(data, mime, cb) {
             png.parse(data, function(err, data) {
                 if (err) return throwError.call(that, err, cb);
                 that.bitmap = {
-                    data: new Buffer(data.data),
+                    data: Buffer.from(data.data),
                     width: data.width,
                     height: data.height
                 };
@@ -517,6 +592,15 @@ Jimp.distance = function (img1, img2) {
     return phash.distance(hash1, hash2);
 }
 
+/**
+ * Checks if img is a Jimp image
+ * @static
+ * @param {Object} img
+ * @returns {Boolean}
+ */
+Jimp.isJimp = function (img) {
+    return isJimpStrict(img) || isJimpLoose(img);
+}
 
 // An object representing a bitmap in memory, comprising:
 //  - data: a buffer of the bitmap data
@@ -860,7 +944,7 @@ Jimp.prototype.crop = function (x, y, w, h, cb) {
     w = Math.round(w);
     h = Math.round(h);
 
-    var bitmap = new Buffer(this.bitmap.data.length);
+    var bitmap = Buffer.allocUnsafe(this.bitmap.data.length);
     var offset = 0;
     this.scan(x, y, w, h, function (x, y, idx) {
         var data = this.bitmap.data.readUInt32BE(idx, true);
@@ -868,7 +952,7 @@ Jimp.prototype.crop = function (x, y, w, h, cb) {
         offset += 4;
     });
 
-    this.bitmap.data = new Buffer(bitmap);
+    this.bitmap.data = Buffer.from(bitmap);
     this.bitmap.width = w;
     this.bitmap.height = h;
 
@@ -1374,7 +1458,7 @@ Jimp.prototype.mirror = Jimp.prototype.flip = function (horizontal, vertical, cb
     if ("boolean" != typeof horizontal || "boolean" != typeof vertical)
         return throwError.call(this, "horizontal and vertical must be Booleans", cb);
 
-    var bitmap = new Buffer(this.bitmap.data.length);
+    var bitmap = Buffer.allocUnsafe(this.bitmap.data.length);
     this.scan(0, 0, this.bitmap.width, this.bitmap.height, function (x, y, idx) {
         var _x = (horizontal) ? (this.bitmap.width - 1 - x) : x;
         var _y = (vertical) ? (this.bitmap.height - 1 - y) : y;
@@ -1384,7 +1468,7 @@ Jimp.prototype.mirror = Jimp.prototype.flip = function (horizontal, vertical, cb
         bitmap.writeUInt32BE(data, _idx, true);
     });
 
-    this.bitmap.data = new Buffer(bitmap);
+    this.bitmap.data = Buffer.from(bitmap);
 
     if (isNodePattern(cb)) return cb.call(this, null, this);
     else return this;
@@ -1776,7 +1860,7 @@ Jimp.prototype.resize = function (w, h, mode, cb) {
 
     if ("function" == typeof Resize2[mode]) {
         var dst = {
-            data: new Buffer(w * h * 4),
+            data: Buffer.allocUnsafe(w * h * 4),
             width: w,
             height: h
         };
@@ -1785,7 +1869,7 @@ Jimp.prototype.resize = function (w, h, mode, cb) {
     } else {
         var that = this;
         var resize = new Resize(this.bitmap.width, this.bitmap.height, w, h, true, true, function (buffer) {
-            that.bitmap.data = new Buffer(buffer);
+            that.bitmap.data = Buffer.from(buffer);
             that.bitmap.width = w;
             that.bitmap.height = h;
         });
@@ -1955,7 +2039,7 @@ function simpleRotate(deg) {
 
     while (i > 0) {
         // https://github.com/ekulabuhov/jimp/commit/9a0c7cff88292d88c32a424b11256c76f1e20e46
-        var dstBuffer = new Buffer(this.bitmap.data.length);
+        var dstBuffer = Buffer.allocUnsafe(this.bitmap.data.length);
         var dstOffset = 0;
         for (var x = 0; x < this.bitmap.width; x++) {
             for (var y = this.bitmap.height - 1; y >= 0; y--) {
@@ -1966,7 +2050,7 @@ function simpleRotate(deg) {
             }
         }
 
-        this.bitmap.data = new Buffer(dstBuffer);
+        this.bitmap.data = Buffer.from(dstBuffer);
         
         var tmp = this.bitmap.width;
         this.bitmap.width = this.bitmap.height;
@@ -2007,7 +2091,7 @@ function advancedRotate(deg, mode) {
         this.blit(c, this.bitmap.width / 2 - c.bitmap.width / 2, this.bitmap.height / 2 - c.bitmap.height / 2);
     }
 
-    var dstBuffer = new Buffer(this.bitmap.data.length);
+    var dstBuffer = Buffer.allocUnsafe(this.bitmap.data.length);
     
     function createTranslationFunction(deltaX, deltaY) {
         return function(x, y) {
@@ -2116,7 +2200,7 @@ Jimp.prototype.getBuffer = function (mime, cb) {
               inputHasAlpha: true
             });
             
-            if (this._rgba) png.data = new Buffer(this.bitmap.data);
+            if (this._rgba) png.data = Buffer.from(this.bitmap.data);
             else png.data = compositeBitmapOverBackground(this).data; // when PNG doesn't support alpha
             
             StreamToBuffer(png.pack(), function (err, buffer) {
