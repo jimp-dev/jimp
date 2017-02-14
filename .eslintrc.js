@@ -60,16 +60,13 @@ module.exports = {
         "id-blacklist": "error",
         "id-length": "off",
         "id-match": "error",
-        "indent": ["error", 4],
+        "indent": ["error", 4, { "SwitchCase": 1 }],
         "init-declarations": "off",
         "jsx-quotes": "error",
         "key-spacing": "off",
         "keyword-spacing": "off",
         "line-comment-position": "off",
-        "linebreak-style": [
-            "error",
-            "unix"
-        ],
+        "linebreak-style": ["warn","unix"],
         "lines-around-comment": "error",
         "lines-around-directive": "error",
         "max-depth": ["error", 6],

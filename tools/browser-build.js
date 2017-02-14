@@ -76,36 +76,36 @@ if (!module.parent) {
 
     switch (cmd) {
 
-    case "test":
-        var baseFiles = process.argv.slice(3);
-        if (baseFiles.length == 0) throw Error("No file given.");
-        bundle(baseFiles, {}, function(err, code) {
-            if (err) throw err;
-            process.stdout.write(code);
-            console.error("Done.");
-        });
-        break;
+        case "test":
+            var baseFiles = process.argv.slice(3);
+            if (baseFiles.length == 0) throw Error("No file given.");
+            bundle(baseFiles, {}, function(err, code) {
+                if (err) throw err;
+                process.stdout.write(code);
+                console.error("Done.");
+            });
+            break;
 
-    case "prepublish":
-        bundle("index.js", {}, function(err, code) {
-            if (err) throw err;
-            fs.writeFile(fromRoot("browser/lib/jimp.js"),
-                licence +"\n"+ code, function(err){
-                    if (err) throw err;
-                    console.error("browserifyed jimp.js done.");
-                }
-            );
-            fs.writeFile(fromRoot("browser/lib/jimp.min.js"),
-                licence +"\n"+ minify(code), function(err){
-                    if (err) throw err;
-                    console.error("browserifyed jimp.min.js done.");
-                }
-            );
-        });
-        break;
+        case "prepublish":
+            bundle("index.js", {}, function(err, code) {
+                if (err) throw err;
+                fs.writeFile(fromRoot("browser/lib/jimp.js"),
+                    licence +"\n"+ code, function(err){
+                        if (err) throw err;
+                        console.error("browserifyed jimp.js done.");
+                    }
+                );
+                fs.writeFile(fromRoot("browser/lib/jimp.min.js"),
+                    licence +"\n"+ minify(code), function(err){
+                        if (err) throw err;
+                        console.error("browserifyed jimp.min.js done.");
+                    }
+                );
+            });
+            break;
 
-    default:
-        throw Error("Unknown command given.");
+        default:
+            throw Error("Unknown command given.");
 
     }
 }

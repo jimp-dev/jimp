@@ -368,30 +368,30 @@ function exifRotate(image, buffer) {
     }
     if (!exif || !exif.tags || !exif.tags.Orientation) return;
     switch (exif.tags.Orientation) {
-    case 1: // Horizontal (normal)
-            // do nothing
-        break;
-    case 2: // Mirror horizontal
-        image.mirror(true, false);
-        break;
-    case 3: // Rotate 180
-        image.rotate(180);
-        break;
-    case 4: // Mirror vertical
-        image.mirror(false, true);
-        break;
-    case 5: // Mirror horizontal and rotate 270 CW
-        image.mirror(true, false).rotate(270);
-        break;
-    case 6: // Rotate 90 CW
-        image.rotate(90);
-        break;
-    case 7: // Mirror horizontal and rotate 90 CW
-        image.mirror(true, false).rotate(90);
-        break;
-    case 8: // Rotate 270 CW
-        image.rotate(270);
-        break;
+        case 1: // Horizontal (normal)
+                // do nothing
+            break;
+        case 2: // Mirror horizontal
+            image.mirror(true, false);
+            break;
+        case 3: // Rotate 180
+            image.rotate(180);
+            break;
+        case 4: // Mirror vertical
+            image.mirror(false, true);
+            break;
+        case 5: // Mirror horizontal and rotate 270 CW
+            image.mirror(true, false).rotate(270);
+            break;
+        case 6: // Rotate 90 CW
+            image.rotate(90);
+            break;
+        case 7: // Mirror horizontal and rotate 90 CW
+            image.mirror(true, false).rotate(90);
+            break;
+        case 8: // Rotate 270 CW
+            image.rotate(270);
+            break;
     }
 }
 
@@ -524,14 +524,12 @@ Jimp.diff = function (img1, img2, threshold) {
         return throwError.call(this, "img1 and img2 must be an Jimp images");
 
     if (img1.bitmap.width != img2.bitmap.width || img1.bitmap.height != img2.bitmap.height) {
-        switch (img1.bitmap.width * img1.bitmap.height > img2.bitmap.width * img2.bitmap.height) {
-        case true: // img1 is bigger
+        if (img1.bitmap.width * img1.bitmap.height > img2.bitmap.width * img2.bitmap.height) {
+            // img1 is bigger
             img1 = img1.clone().resize(img2.bitmap.width, img2.bitmap.height);
-            break;
-        default:
-                // img2 is bigger (or they are the same in area)
+        } else {
+            // img2 is bigger (or they are the same in area)
             img2 = img2.clone().resize(img1.bitmap.width, img1.bitmap.height);
-            break;
         }
     }
 
@@ -2361,14 +2359,14 @@ Jimp.prototype.getBuffer = function (mime, cb) {
         case Jimp.MIME_PNG:
             var that = this;
             var png = new PNG({
-              width: this.bitmap.width,
-              height:this.bitmap.height,
-              bitDepth: 8,
-              deflateLevel: this._deflateLevel,
-              deflateStrategy: this._deflateStrategy,
-              filterType: this._filterType,
-              colorType: (this._rgba) ? 6 : 2,
-              inputHasAlpha: true
+                width: this.bitmap.width,
+                height:this.bitmap.height,
+                bitDepth: 8,
+                deflateLevel: this._deflateLevel,
+                deflateStrategy: this._deflateStrategy,
+                filterType: this._filterType,
+                colorType: (this._rgba) ? 6 : 2,
+                inputHasAlpha: true
             });
 
             if (this._rgba) png.data = new Buffer(this.bitmap.data);
