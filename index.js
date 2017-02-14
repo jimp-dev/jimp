@@ -2,7 +2,6 @@ if (process.env.ENVIRONMENT == "BROWSER") window.Buffer = require('buffer');
 else var FS = require("fs");
 var PNG = require("pngjs").PNG;
 var JPEG = require("jpeg-js");
-var JGD = require("./src/jgd");
 var BMP = require("bmp-js");
 var GIF = require("./omggif.js");
 var MIME = require("mime");
@@ -20,11 +19,14 @@ var URLRegEx = require("url-regex");
 var BMFont = require("load-bmfont");
 var Path = require("path");
 var MkDirP = require("mkdirp");
+var Request;
+
+var hasOwnProp = (obj, key)=> Object.prototype.hasOwnProperty.call(obj, key);
 
 if (process.env.ENVIRONMENT !== "BROWSER") {
     //If we run into electron renderer process, use XHR method instead of Request node module
-    if (process.versions.hasOwnProperty("electron") && process.type === "renderer" && typeof XMLHttpRequest === "function") {
-        var Request = function (url,cb) {
+    if (hasOwnProp(process.versions, 'electron') && process.type === 'renderer' && typeof XMLHttpRequest === "function") {
+        Request = function (url,cb) {
             var xhr = new XMLHttpRequest();
             xhr.open( "GET", url, true );
             xhr.responseType = "arraybuffer";
@@ -96,12 +98,6 @@ function throwError(error, cb) {
 /**
  * Jimp constructor (from another Jimp image)
  * @param image a Jimp image to clone
- * @param cb a function to call when the image is parsed to a bitmap
- */
-
-/**
- * Jimp constructor (from a JGD object)
- * @param data a JGD object containing the image data
  * @param cb a function to call when the image is parsed to a bitmap
  */
 
@@ -224,22 +220,59 @@ function Jimp() {
             return throwError.call(this, "cb must be a function", cb);
 
         parseBitmap.call(this, data, mime, cb, options);
-    } else if ("object" == typeof arguments[0]) {
-        // read from JGD object
-        var jgd = arguments[0];
-        cb = arguments[1] || noop;
-
-        if ("function" != typeof cb)
-            return throwError.call(this, "cb must be a function", cb);
-        if (!("number" == typeof jgd.width &&
-              "number" == typeof jgd.height &&
-              "number" == typeof jgd.data.length))
-            return throwError.call(this, "data must have a JGD structure", cb);
-
-        parseBitmap.call(this, jgd, "image/jgd", cb);
     } else {
-        return throwError.call(this, "No matching constructor overloading was found. Please see the docs for how to call the Jimp constructor.", cb);
+        // Allow client libs to add new ways to build a Jimp object.
+        // Extra constructors must be added by `Jimp.appendConstructorOption()`
+
+        // Prepare arguments to pass to each `extraConstructor.test`
+        var args = [];
+        for ( let i=0; i<arguments.length; i++ ) args.push(arguments[i]);
+        // The last arg is the callback to finish the main constructor job:
+        var jimpConstructorCallback = (err, userCallback)=> {
+            if (err) return throwError.call(this, "user callback was missed.");
+            userCallback.call(this, err, this)
+        }
+        jimpConstructorCallback.itIsTheJimpConstructorCallback = true
+        args.push(jimpConstructorCallback);
+
+        // Lets read each registered extraConstructor and try it...
+        var extraConstructorMatch = false;
+        for ( let extraConstructorName in Jimp.__extraConstructors ) {
+            if ( hasOwnProp(Jimp.__extraConstructors, extraConstructorName) ) {
+                var extraConstructor = Jimp.__extraConstructors[extraConstructorName];
+                try {
+                    // it the extraConstructor.test returns true, run it and do not test others.
+                    if ( extraConstructor.test.apply(this, args) ) {
+                        extraConstructorMatch = true;
+                        extraConstructor.run.apply(this, args);
+                        break;
+                    }
+                } catch(err) {
+                    return throwError.call(this,
+                        'Constructor "'+extraConstructorName+'" Fail. ' +
+                        err.message, cb
+                    );
+                }
+            }
+        }
+        if ( !extraConstructorMatch )
+            return throwError.call(this,
+                "No matching constructor overloading was found. " +
+                "Please see the docs for how to call the Jimp constructor.", cb
+            );
     }
+}
+
+Jimp.__extraConstructors = {};
+
+/**
+ * Allow client libs to add new ways to build a Jimp object.
+ * @param name identify the extra constructor.
+ * @param test a function that returns true when it accepts the arguments passed to the main constructor.
+ * @param runner where the magic happens.
+ */
+Jimp.appendConstructorOption = function (name, test, runner) {
+    Jimp.__extraConstructors[name] = { test: test, run: runner };
 }
 
 /**
@@ -342,10 +375,6 @@ function parseBitmap(data, mime, cb) {
 
         case Jimp.MIME_GIF:
             this.bitmap = getBitmapFromGIF(data);
-            return cb.call(this, null, this);
-
-        case Jimp.MIME_JGD:
-            this.bitmap = JGD.decode(data);
             return cb.call(this, null, this);
 
         default:
@@ -2392,30 +2421,6 @@ Jimp.prototype.getBuffer = function (mime, cb) {
             return cb.call(this, "Unsupported MIME type: " + mime);
     }
 
-    return this;
-};
-
-/**
- * Converts the image to a JGD object (sync fashion)
- * @returns JGD object
- */
-Jimp.prototype.getJGDSync = function () {
-    return JGD.encode(this.bitmap);
-};
-
-/**
- * Converts the image to a JGD object (async fashion)
- * @param cb a Node-style function to call with the buffer as the second argument
- * @returns this for chaining of methods
- */
-Jimp.prototype.getJGD = function (cb) {
-    var jgd, error;
-    try {
-        jgd = this.getJGDSync();
-    } catch(err) {
-        error = err;
-    }
-    cb(error, jgd);
     return this;
 };
 

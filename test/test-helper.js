@@ -31,12 +31,9 @@ shouldAssertion.sameJGD = function sameJGD(targetJGD, message) {
     jgdReadableMatrix(testJGD).should.be.equal(jgdReadableMatrix(targetJGD), matrixMsg);
 };
 
-exports.Jimp = (typeof(window)!=="undefined" && window.Jimp)
-               ? window.Jimp
-               : require("..");
+exports.Jimp = require('./jgd-wrapper');
 
-exports.donutJGD = function donutJGD() {
-    var { 0:_, 1:i, 2:X } = arguments;
+exports.donutJGD = function donutJGD(_, i, X) {
     return {
         width: 10,
         height: 10,
