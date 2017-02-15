@@ -1,4 +1,4 @@
-/*eslint no-console: "off"*/
+/* eslint no-console: "off" */
 
 var Jimp = require("jimp");
 
@@ -10,7 +10,7 @@ Jimp.read(url).then(function (image) {
     console.error(err);
 })
 
-function onBuffer(err, buffer) {
+function onBuffer (err, buffer) {
     if (err) throw err;
     console.log(buffer);
 }

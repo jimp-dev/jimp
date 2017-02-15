@@ -6,7 +6,7 @@ var UglifyJS = require("uglify-js");
 var browserify = require("browserify");
 
 var root = normalize(join(__dirname, ".."));
-function fromRoot(subPath) {
+function fromRoot (subPath) {
     return normalize(join(root, subPath));
 }
 
@@ -18,9 +18,9 @@ var licence = "/*\n" +
     "*/";
 
 // Browserify and Babelize.
-function bundle(files, config, callback) {
-    if ('string' === typeof files) files = [files];
-    files = files.map(function(f) {
+function bundle (files, config, callback) {
+    if (typeof files === 'string') files = [files];
+    files = files.map(function (f) {
         return (f[0]==="/") ? f : fromRoot(f); // ensure path.
     });
     console.error("Browserify "+files.join(", ")+"...");
@@ -34,12 +34,12 @@ function bundle(files, config, callback) {
     })
     .exclude(fromRoot("browser/lib/jimp.js"));
     config.exclude = config.exclude || [];
-    for (let f,i=0; (f=config.exclude[i]); i++) {
+    for (let f, i=0; (f=config.exclude[i]); i++) {
         bundler.exclude(fromRoot(f));
     }
-    bundler.bundle(function(err, baseCode) {
+    bundler.bundle(function (err, baseCode) {
         if (err) return callback(err);
-        console.error("Babelize "+files.map((f)=> f.replace(/.*\//,'')).join("+")+"...");
+        console.error("Babelize "+files.map((f)=> f.replace(/.*\//, '')).join("+")+"...");
         var result = babel.transform(
             "if ((typeof(window)=='undefined' || !window) " +
             "&& (typeof(self)!='undefined')) var window = self;\n" +
@@ -50,7 +50,7 @@ function bundle(files, config, callback) {
     });
 }
 
-function bundleSimple(files, config, callback) {
+function bundleSimple (files, config, callback) {
     bundle(files, config, (err, code)=> {
         if (err) {
             var msg = "Can't bundle "+ files.join(" + ") +"\nError: "+ err.message;
@@ -61,7 +61,7 @@ function bundleSimple(files, config, callback) {
     });
 }
 
-function minify(code) {
+function minify (code) {
     console.error("Compressing...");
     var ast = UglifyJS.parse(code);
     ast.figure_out_scope();
@@ -78,8 +78,8 @@ if (!module.parent) {
 
         case "test":
             var baseFiles = process.argv.slice(3);
-            if (baseFiles.length == 0) throw Error("No file given.");
-            bundle(baseFiles, {}, function(err, code) {
+            if (baseFiles.length === 0) throw Error("No file given.");
+            bundle(baseFiles, {}, function (err, code) {
                 if (err) throw err;
                 process.stdout.write(code);
                 console.error("Done.");
@@ -87,16 +87,16 @@ if (!module.parent) {
             break;
 
         case "prepublish":
-            bundle("index.js", {}, function(err, code) {
+            bundle("index.js", {}, function (err, code) {
                 if (err) throw err;
                 fs.writeFile(fromRoot("browser/lib/jimp.js"),
-                    licence +"\n"+ code, function(err){
+                    licence +"\n"+ code, function (err) {
                         if (err) throw err;
                         console.error("browserifyed jimp.js done.");
                     }
                 );
                 fs.writeFile(fromRoot("browser/lib/jimp.min.js"),
-                    licence +"\n"+ minify(code), function(err){
+                    licence +"\n"+ minify(code), function (err) {
                         if (err) throw err;
                         console.error("browserifyed jimp.min.js done.");
                     }

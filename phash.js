@@ -28,7 +28,7 @@ THE SOFTWARE.
  * Based On: http://www.hackerfactor.com/blog/index.php?/archives/432-Looks-Like-It.html
  */
 
-function ImagePHash(size, smallerSize) {
+function ImagePHash (size, smallerSize) {
     this.size = this.size || size;
     this.smallerSize = this.smallerSize || smallerSize;
     initCoefficients(this.size);
@@ -37,10 +37,10 @@ function ImagePHash(size, smallerSize) {
 ImagePHash.prototype.size = 32;
 ImagePHash.prototype.smallerSize = 8;
 
-ImagePHash.prototype.distance = function(s1, s2) {
+ImagePHash.prototype.distance = function (s1, s2) {
     var counter = 0;
     for (let k = 0; k < s1.length; k++) {
-        if (s1[k] != s2[k]) {
+        if (s1[k] !== s2[k]) {
             counter++;
         }
     }
@@ -48,8 +48,7 @@ ImagePHash.prototype.distance = function(s1, s2) {
 };
 
 // Returns a 'binary string' (like. 001010111011100010) which is easy to do a hamming distance on.
-ImagePHash.prototype.getHash = function(img) {
-
+ImagePHash.prototype.getHash = function (img) {
     /* 1. Reduce size.
      * Like Average Hash, pHash starts with a small image.
      * However, the image is larger than 8x8; 32x32 is a good size.
@@ -124,7 +123,7 @@ ImagePHash.prototype.getHash = function(img) {
 
 // DCT function stolen from http://stackoverflow.com/questions/4240490/problems-with-dct-and-idct-algorithm-in-java
 
-function intToRGBA(i){
+function intToRGBA (i) {
     var rgba = {}
     rgba.r = Math.floor(i / Math.pow(256, 3));
     rgba.g = Math.floor((i - (rgba.r * Math.pow(256, 3))) / Math.pow(256, 2));
@@ -135,14 +134,14 @@ function intToRGBA(i){
 }
 
 var c = [];
-function initCoefficients(size) {
+function initCoefficients (size) {
     for (let i=1; i<size; i++) {
         c[i]=1;
     }
     c[0]=1/Math.sqrt(2.0);
 }
 
-function applyDCT(f, size) {
+function applyDCT (f, size) {
     var N = size;
 
     var F = [];

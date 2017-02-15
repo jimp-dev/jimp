@@ -1,4 +1,4 @@
-/*eslint no-console: "off"*/
+/* eslint no-console: "off" */
 
 var path = require("path");
 var express = require("express");

@@ -2,7 +2,7 @@ var {Jimp, donutJGD} = require("./test-helper");
 var should = require("should");
 
 donutJGD = donutJGD(
-        //RRGGBBAA
+       // RRGGBBAA
         0xFFFFFF00,
         0xFF880088,
         0xFF8800FF
@@ -38,6 +38,7 @@ describe("JGD - JS Graphic Description", ()=> {
 
     it("Jimp exports JGD async", (done)=> {
         new Jimp(donutPngBuffer, (err, image)=> {
+            should.not.exist(err);
             image.getJGD((err, jgd)=> {
                 should.not.exist(err);
                 jgd.data.length.should.be.equal(donutJGD.data.length);

@@ -19,6 +19,7 @@ describe("canvas color transformation", ()=> {
 
     it("lighten", (done)=> {
         new Jimp(redDonutJGD, (err, image)=> {
+            should.not.exist(err);
             image.color([{ apply: "lighten", params: [25] }]).getJGDSync()
             .should.be.sameJGD(donutJGD(0x40404000, 0xFF808088, 0xFF8080FF));
             done()
@@ -27,6 +28,7 @@ describe("canvas color transformation", ()=> {
 
     it("brighten", (done)=> {
         new Jimp(redDonutJGD, (err, image)=> {
+            should.not.exist(err);
             image.color([{ apply: "brighten", params: [25] }]).getJGDSync()
             .should.be.sameJGD(donutJGD(0x40404000, 0xFF404088, 0xFF4040FF));
             done()
@@ -35,6 +37,7 @@ describe("canvas color transformation", ()=> {
 
     it("spin hue", (done)=> {
         new Jimp(redDonutJGD, (err, image)=> {
+            should.not.exist(err);
             image.color([{ apply: "hue", params: [150] }]).getJGDSync()
             .should.be.sameJGD(donutJGD(0x00000000, 0x00FF8088, 0x00FF80FF));
             done()

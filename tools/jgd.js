@@ -37,8 +37,8 @@ new Jimp(donutJGD(), function (err, image) {
 });
 */
 
-exports.decode = function(jgd) {
-    var bitmap = { width:jgd.width, height:jgd.height };
+exports.decode = function (jgd) {
+    var bitmap = { width: jgd.width, height: jgd.height };
     var length = jgd.width * jgd.height;
     bitmap.data = new Buffer(length * 4);
     for (var i = 0; i < length; i++) {
@@ -47,20 +47,20 @@ exports.decode = function(jgd) {
     return bitmap;
 };
 
-exports.encode = function(bitmap) {
-    var jgd = { width:bitmap.width, height:bitmap.height, data:[] };
+exports.encode = function (bitmap) {
+    var jgd = { width: bitmap.width, height: bitmap.height, data: [] };
     for (let row=0; row<bitmap.height; row++) {
         for (let col=0; col<bitmap.width; col++) {
-            let i = (bitmap.width * row + col) << 2,
-                r = bitmap.data[i+0],
-                g = bitmap.data[i+1],
-                b = bitmap.data[i+2],
-                a = bitmap.data[i+3],
-                color = (
+            let i = (bitmap.width * row + col) << 2;
+            let r = bitmap.data[i+0];
+            let g = bitmap.data[i+1];
+            let b = bitmap.data[i+2];
+            let a = bitmap.data[i+3];
+            let color = (
                     ((r & 0xFF) << 24 >>> 0) |
-                    ((g & 0xFF) << 16      ) |
-                    ((b & 0xFF) << 8       ) |
-                    ( a & 0xFF)
+                    ((g & 0xFF) << 16) |
+                    ((b & 0xFF) << 8) |
+                    (a & 0xFF)
                 ) >>> 0;
             jgd.data.push(color);
         }
