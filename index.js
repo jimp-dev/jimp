@@ -2,6 +2,7 @@ if (process.env.ENVIRONMENT !== "BROWSER") var FS = require("fs");
 var PNG = require("pngjs").PNG;
 var JPEG = require("jpeg-js");
 var BMP = require("bmp-js");
+var GIF = require("./omggif.js");
 var MIME = require("mime");
 var TinyColor = require("tinycolor2");
 var Resize = require("./resize.js");
@@ -302,6 +303,17 @@ function parseBitmap(data, mime, cb) {
         case Jimp.MIME_BMP:
             this.bitmap = BMP.decode(data);
             return cb.call(this, null, this);
+        
+        case Jimp.MIME_GIF:
+            let gifObj = new GIF.GifReader(data);
+            let gifData = new Buffer(gifObj.width * gifObj.height * 4);
+            gifObj.decodeAndBlitFrameRGBA(0, gifData)
+            this.bitmap = {
+                data: gifData,
+                width: gifObj.width,
+                height: gifObj.height
+            };
+            return cb.call(this, null, this);
 
         default:
             return throwError.call(this, "Unsupported MIME type: " + mime, cb);
@@ -357,6 +369,7 @@ Jimp.AUTO = -1;
 Jimp.MIME_PNG = "image/png";
 Jimp.MIME_JPEG = "image/jpeg";
 Jimp.MIME_BMP = "image/bmp";
+Jimp.MIME_GIF = "image/gif";
 
 // PNG filter types
 Jimp.PNG_FILTER_AUTO = -1;
