@@ -1,6 +1,7 @@
 /**
 ** Test every align bits combinations in contain and cover methods
- **/
+** Move this test cases to cover-and-contain.test.js
+**/
 
 var Jimp = require("../index.js");
 
