@@ -1,7 +1,8 @@
 var should = require("should"); // Ensure should to load in browser through browserify.
 
 var shouldAssertion = {}.should.be.constructor.prototype;
-//var shouldAssertion = should.constructor.prototype;
+
+exports.hasOwnProp = (obj, key)=> Object.prototype.hasOwnProperty.call(obj, key);
 
 var sup = "⁰¹²³⁴⁵⁶⁷⁸⁹ᵃᵇᶜᵈᵉᶠ";
 
@@ -92,7 +93,7 @@ var colors = {
 exports.mkJGD = function mkJGD() {
     var jgd = { width: 0, height: arguments.length, data: [] };
     for (var y=0; y < jgd.height; y++) {
-        line = arguments[y];
+        var line = arguments[y];
         var w = jgd.width = line.length;
         for (var x=0; x < w; x++) {
             if (typeof colors[line[x]] === 'undefined') {

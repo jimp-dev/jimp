@@ -1,4 +1,4 @@
-var {Jimp, mkJGD} = require("./test-helper");
+var {Jimp, mkJGD, hasOwnProp} = require("./test-helper");
 
 describe("All align combinations for cover and contain", ()=> {
 
@@ -27,7 +27,7 @@ describe("All align combinations for cover and contain", ()=> {
         '▾▾▾▾▾▾◆◆◆◆◆◆',
         '▾▾▾▾▾▾◆◆◆◆◆◆'
     );
-    
+
     var vertical, horizontal; // stores the Jimp instances of the JGD images above.
     before((done)=> {
         var img1 = Jimp.read(verticalJGD);
@@ -36,9 +36,7 @@ describe("All align combinations for cover and contain", ()=> {
             vertical = images[0];
             horizontal = images[1];
             done();
-        }).catch((err)=> {
-            done(err);
-        });
+        }).catch(done);
     });
 
     var tests = {}; // Stores the expected result for each alignment combination.
@@ -279,7 +277,7 @@ describe("All align combinations for cover and contain", ()=> {
         }
     };
 
-    for (var align in tests) (function (align) {
+    function runAlignTest (align) {
         var jgdCoverV = tests[align].cover.verti;
         var jgdCoverH = tests[align].cover.horiz;
         var jgdContainV = tests[align].contain.verti;
@@ -298,6 +296,8 @@ describe("All align combinations for cover and contain", ()=> {
             horizontal.clone().contain(6, 6, a)
                 .getJGDSync().should.be.sameJGD(jgdContainH, 'Horizontal image');
         });
-    })(align);
+    }
+
+    for (var align in tests) if (hasOwnProp(tests, align)) runAlignTest(align);
 
 });
