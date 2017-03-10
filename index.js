@@ -31,14 +31,17 @@ var chars = 0;
 
 function log (msg) {
     clear();
-    process.stdout.write(msg);
+    if (typeof process !== 'undefined' && process && process.stdout)
+        process.stdout.write(msg);
+    else if (typeof console !== 'undefined' && console)
+        console.log('Jimp', msg);
     chars = msg.length;
 }
 
 function clear () {
-    while (chars-- > 0) {
-        process.stdout.write("\b");
-    }
+    if (process && process.stdout)
+        while (chars-- > 0)
+            process.stdout.write("\b");
 }
 
 process.on("exit", clear);

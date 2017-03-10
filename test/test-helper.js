@@ -57,17 +57,17 @@ exports.donutJGD = function donutJGD(_, i, X) {
 
 var colors = {
     '▴': 0xFF0000ff, // Red
-    '▵': 0xFF000080, // Red half-alpha
+    '▵': 0xFF00007f, // Red half-alpha
     '▸': 0x00FF00ff, // Green
-    '▹': 0x00FF0080, // Green half-alpha
+    '▹': 0x00FF007f, // Green half-alpha
     '▾': 0x0000FFff, // Blue
-    '▿': 0x0000FF80, // Blue half-alpha
+    '▿': 0x0000FF7f, // Blue half-alpha
     '◆': 0xFFFF00ff, // Yellow
-    '◇': 0xFFFF00ff, // Yellow half-alpha
+    '◇': 0xFFFF007f, // Yellow half-alpha
     '▪': 0x00FFFFff, // Cyan
-    '▫': 0x00FFFF80, // Cyan half-alpha
+    '▫': 0x00FFFF7f, // Cyan half-alpha
     '▰': 0xFF00FFff, // Magenta
-    '▱': 0xFF00FF80, // Magenta half-alpha
+    '▱': 0xFF00FF7f, // Magenta half-alpha
     ' ': 0x00000000, // Transparent black
     '■': 0x000000ff, // Black
     '1': 0x111111ff,
