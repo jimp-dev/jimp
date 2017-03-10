@@ -84,4 +84,30 @@ describe("Blit over image", ()=> {
         ));
     });
 
+    it("blit partially out, on top-left", ()=> {
+        targetImg.clone().blit(srcImg, -1, -1).getJGDSync().should.be.sameJGD(mkJGD(
+            '▥▥▥▥□▸▸▸',
+            '▥■■▥□▸▸▸',
+            '▥■■▥□▸▸▸',
+            '▥▥▥▥□▸▸▸',
+            '□□□□□◆◆◆',
+            '▾▾▾▾◆◆◆◆',
+            '▾▾▾▾◆◆◆◆',
+            '▾▾▾▾◆◆◆◆'
+        ));
+    });
+
+    it("blit partially out, on bottom-right", ()=> {
+        targetImg.clone().blit(srcImg, 3, 3).getJGDSync().should.be.sameJGD(mkJGD(
+            '▴▴▴▴▸▸▸▸',
+            '▴▴▴▴▸▸▸▸',
+            '▴▴▴▴▸▸▸▸',
+            '▴▴▴□□□□□',
+            '▾▾▾□▥▥▥▥',
+            '▾▾▾□▥■■▥',
+            '▾▾▾□▥■■▥',
+            '▾▾▾□▥▥▥▥'
+        ));
+    });
+
 })

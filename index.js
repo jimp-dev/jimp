@@ -1186,13 +1186,17 @@ Jimp.prototype.blit = function (src, x, y, srcx, srcy, srcw, srch, cb) {
     srcw = Math.round(srcw);
     srch = Math.round(srch);
 
+    var maxw = this.bitmap.width;
+    var maxh = this.bitmap.height;
     var that = this;
     src.scan(srcx, srcy, srcw, srch, function (sx, sy, idx) {
-        var dstIdx = that.getPixelIndex(x+sx-srcx, y+sy-srcy);
-        that.bitmap.data[dstIdx] = this.bitmap.data[idx];
-        that.bitmap.data[dstIdx+1] = this.bitmap.data[idx+1];
-        that.bitmap.data[dstIdx+2] = this.bitmap.data[idx+2];
-        that.bitmap.data[dstIdx+3] = this.bitmap.data[idx+3];
+        if (x+sx >= 0 && y+sy >= 0 && maxw-x-sx > 0 && maxh-y-sy > 0) {
+            var dstIdx = that.getPixelIndex(x+sx-srcx, y+sy-srcy);
+            that.bitmap.data[dstIdx] = this.bitmap.data[idx];
+            that.bitmap.data[dstIdx+1] = this.bitmap.data[idx+1];
+            that.bitmap.data[dstIdx+2] = this.bitmap.data[idx+2];
+            that.bitmap.data[dstIdx+3] = this.bitmap.data[idx+3];
+        }
     });
 
     if (isNodePattern(cb)) return cb.call(this, null, this);
