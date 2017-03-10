@@ -73,8 +73,9 @@ function isArrayBuffer (test) {
 delete Jimp.prototype.write;
 
 // Override the nodejs implementation of Jimp.read()
-delete Jimp.read;
+Jimp.__mainRead = Jimp.read;
 Jimp.read = function (src, cb) {
+    var that = this;
     return new Promise(function (resolve, reject) {
         cb = cb || function (err, image) {
             if (err) reject(err);
@@ -97,6 +98,8 @@ Jimp.read = function (src, cb) {
         } else if (isArrayBuffer(src)) {
             // src is an ArrayBuffer already
             new Jimp(bufferFromArrayBuffer(src), cb);
+        } else if (typeof src === "object") {
+            that.__mainRead(src, cb).then(resolve, reject);
         } else {
             // src is not a string or ArrayBuffer
             cb(new Error("Jimp expects a single ArrayBuffer or image URL"));
