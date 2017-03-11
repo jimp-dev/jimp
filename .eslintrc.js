@@ -19,9 +19,11 @@ module.exports = {
         "quotes": "off",
         "semi": "off",
         "space-infix-ops": "off",
+        "standard/array-bracket-even-spacing": "off", // allow matrix alignment
+        "comma-spacing": "warn",  // allow matrix alignment
 
         // extends unset "standard" rules
-        "array-bracket-spacing": ["error", "never"],
+        "array-bracket-spacing": "off",  // allow matrix alignment
         "array-callback-return": "error",
         "arrow-body-style": ["warn", "as-needed"],
         "arrow-parens": "error",

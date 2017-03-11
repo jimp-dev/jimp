@@ -70,6 +70,7 @@ var colors = {
     '▱': 0xFF00FF7f, // Magenta half-alpha
     ' ': 0x00000000, // Transparent black
     '■': 0x000000ff, // Black
+    '0': 0x000000ff, // Black
     '1': 0x111111ff,
     '2': 0x222222ff,
     '3': 0x333333ff,
@@ -87,6 +88,7 @@ var colors = {
     'C': 0xCCCCCCff,
     'D': 0xDDDDDDff,
     'E': 0xEEEEEEff,
+    'F': 0xFFFFFFff, // White
     '□': 0xFFFFFFff, // White
 }
 /* Build a JGD object from a list of strings */
