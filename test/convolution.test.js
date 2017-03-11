@@ -1,6 +1,6 @@
 var {Jimp, mkJGD} = require("./test-helper");
 
-describe("Convolution", (doneDescribe)=> {
+describe("Convolution", ()=> {
 
     var imgs = [
         Jimp.read(mkJGD(
