@@ -6,7 +6,7 @@ exports.hasOwnProp = (obj, key)=> Object.prototype.hasOwnProperty.call(obj, key)
 
 var sup = "⁰¹²³⁴⁵⁶⁷⁸⁹ᵃᵇᶜᵈᵉᶠ";
 
-function jgdReadableMatrix(img) {
+var jgdReadableMatrix = exports.jgdReadableMatrix = function (img) {
     var rMatrix = [], line = [], len = img.data.length;
     for (var i=0; i<len; i++) {
         var pix = img.data[i].toString(16).toUpperCase();

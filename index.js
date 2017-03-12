@@ -206,9 +206,13 @@ function Jimp () {
         // The last arg is the callback to finish the main constructor job:
         var jimpConstructorCallback = (err, userCallback)=> {
             if (err) return throwError.call(this, "user callback was missed.");
-            userCallback.call(this, err, this)
-        }
-        jimpConstructorCallback.itIsTheJimpConstructorCallback = true
+            var that = this;
+            setTimeout( // callback on next tic to escape the try/catch.
+                ()=> { userCallback.call(that, err, that) },
+                1
+            );
+        };
+        jimpConstructorCallback.itIsTheJimpConstructorCallback = true;
         args.push(jimpConstructorCallback);
 
         // Lets read each registered extraConstructor and try it...
