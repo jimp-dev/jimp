@@ -7,15 +7,18 @@ module.exports = function (config) {
     config.set({
 
         // base path that will be used to resolve all patterns (eg. files, exclude)
-        basePath: '',
+        basePath: "",
 
         // frameworks to use
         // available frameworks: https://npmjs.org/browse/keyword/karma-adapter
-        frameworks: ['mocha'],
+        frameworks: ["mocha"],
 
         // list of files / patterns to load in the browser
         files: [
-            '*.js', 'test/*.test.js', 'test/test-helper.js'
+            "*.js",
+            "test/*.test.js",
+            "test/test-helper.js",
+            {pattern: "test/exif-orientation/*.jpg", watched: false, included: false, served: true}
         ],
 
         // list of files to exclude
@@ -45,16 +48,16 @@ module.exports = function (config) {
                 match: "test/*.test.js",
                 process: function (content, file, done, log) {
                     log.debug("Bundle Test "+ file.path +".");
-                    builder.bundleSimple(file.path, {exclude: ['index.js']}, done);
+                    builder.bundleSimple(file.path, {exclude: ["index.js"]}, done);
                 }
             }]
         },
 
         // test results reporter to use
-        // possible values: 'dots', 'progress'
+        // possible values: "dots", "progress"
         // available reporters: https://npmjs.org/browse/keyword/karma-reporter
         reporters: ["mocha-own"],
-        // mochaOwnReporter: { reporter: 'nyan' },
+        // mochaOwnReporter: { reporter: "nyan" },
 
         // web server port
         port: 9876,
@@ -71,7 +74,7 @@ module.exports = function (config) {
 
         // start these browsers
         // available browser launchers: https://npmjs.org/browse/keyword/karma-launcher
-        browsers: ['Firefox', 'Chrome'],
+        browsers: ["Firefox", "Chrome"],
 
         // Continuous Integration mode
         // if true, Karma captures browsers, runs the tests and exits

@@ -4,6 +4,22 @@ var shouldAssertion = {}.should.be.constructor.prototype;
 
 exports.hasOwnProp = (obj, key)=> Object.prototype.hasOwnProperty.call(obj, key);
 
+exports.getTestDir = function () {
+    var testRE = /\/[^\/]+\.test\.js($|\?.*)/;
+    if (typeof document !== 'undefined' && document && document.getElementsByTagName) {
+        var scripts = document.getElementsByTagName('script');
+        for (var i=0; i<scripts.length; i++) {
+            if (scripts[i].src.match(testRE)) {
+                return scripts[i].src.replace(testRE, '');
+            }
+        }
+        throw Error('Cant discover the web test directory');
+    } else {
+        if (typeof __dirname !== 'undefined') return __dirname;
+        else throw Error('Cant discover the env test directory');
+    }
+};
+
 var sup = "⁰¹²³⁴⁵⁶⁷⁸⁹ᵃᵇᶜᵈᵉᶠ";
 
 var jgdReadableMatrix = exports.jgdReadableMatrix = function (img) {
