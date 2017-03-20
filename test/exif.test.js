@@ -2,7 +2,7 @@ var {Jimp, getTestDir} = require("./test-helper");
 
 describe("Exif", ()=> {
 
-    var imagesDir = getTestDir() + "/exif-orientation";
+    var imagesDir = getTestDir() + "/samples/exif-orientation";
 
     var imgs, firstLandscapeImg, firstPortraitImg;
     before((done)=> {

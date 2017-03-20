@@ -18,7 +18,7 @@ module.exports = function (config) {
             "*.js",
             "test/*.test.js",
             "test/test-helper.js",
-            {pattern: "test/exif-orientation/*.jpg", watched: false, included: false, served: true}
+            {pattern: "test/samples/**/*", watched: false, included: false, served: true}
         ],
 
         // list of files to exclude
