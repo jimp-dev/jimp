@@ -20,6 +20,14 @@ exports.getTestDir = function () {
     }
 };
 
+exports.isWeb = function (warn) {
+    if (typeof window !== 'undefined' && window.document) {
+        console.warn(warn);
+        return true;
+    }
+    else return false;
+};
+
 var sup = "⁰¹²³⁴⁵⁶⁷⁸⁹ᵃᵇᶜᵈᵉᶠ";
 
 var jgdReadableMatrix = exports.jgdReadableMatrix = function (img) {
