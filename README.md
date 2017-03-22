@@ -258,6 +258,7 @@ Jimp.MIME_BMP;  // "image/bmp"
 
 If `Jimp.AUTO` is passed as the MIME type then the original MIME type for the image (or "image/png") will be used. Alernatively, `image.getMIME()` will return the original MIME type of the image (or "image/png").
 
+
 ### Data URI ###
 
 A Base64 data URI can be generated in the same way as a Buffer, using:
@@ -408,6 +409,16 @@ var image = new Jimp(256, 256, 0xFF0000FF, function (err, image) {
     // this image is 256 x 256, every pixel is set to 0xFF0000FF
 });
 ```
+
+You can also initialize a new Jimp image with a raw image buffer:
+
+```js
+var image = new Jimp({buffer: buffer, width: 1280, height: 768}, function (err, image) {
+    // this image is 1280 x 768, pixels are loaded from the given buffer.
+});
+```
+
+This can be useful for interoperating with other image processing libraries. `buffer` is expected to be four-channel (rgba) image data.
 
 ## Comparing images ##
 
