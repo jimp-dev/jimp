@@ -202,18 +202,32 @@ function Jimp() {
         });
     } else if ("object" == typeof arguments[0]) {
         // read from a buffer
-        var data = arguments[0];
-        var mime = getMIMEFromBuffer(data);
-        var cb = arguments[1];
+        if (Buffer.isBuffer(arguments[0])) {
+            var data = arguments[0];
+            var mime = getMIMEFromBuffer(data);
+            var cb = arguments[1];
 
-        if (!Buffer.isBuffer(data))
-            return throwError.call(this, "data must be a Buffer", cb);
-        if ("string" != typeof mime)
-            return throwError.call(this, "mime must be a string", cb);
-        if ("function" != typeof cb)
-            return throwError.call(this, "cb must be a function", cb);
+            if (!Buffer.isBuffer(data))
+                return throwError.call(this, "data must be a Buffer", cb);
+            if ("string" != typeof mime)
+                return throwError.call(this, "mime must be a string", cb);
+            if ("function" != typeof cb)
+                return throwError.call(this, "cb must be a function", cb);
 
-        parseBitmap.call(this, data, mime, cb);
+            parseBitmap.call(this, data, mime, cb);
+        }
+        else {
+            // It's a raw image.
+            var rawSpec = arguments[0];
+            var cb = arguments[1];
+
+            this.bitmap = {
+                data: rawSpec.buffer,
+                width: rawSpec.width,
+                height: rawSpec.height
+            };
+            cb.call(this, null, this);
+        }
     } else {
         return throwError.call(this, "No matching constructor overloading was found. Please see the docs for how to call the Jimp constructor.", cb);
     }
