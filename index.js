@@ -93,7 +93,7 @@ function throwError(error, cb) {
 /**
  * Jimp constructor (from another Jimp image)
  * @param image a Jimp image to clone
- * @param cb a function to call when the image is parsed to a bitmapf
+ * @param cb a function to call when the image is parsed to a bitmap
  */
 
 /**
