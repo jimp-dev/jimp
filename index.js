@@ -136,7 +136,7 @@ function Jimp() {
         }
 
         cb.call(this, null, this);
-    } else if ("object" == typeof arguments[0] && arguments[0] instanceof Jimp) {
+    } else if (arguments[0] instanceof Jimp) {
         // clone an existing Jimp
         var original = arguments[0];
         var cb = arguments[1];
@@ -467,7 +467,7 @@ Jimp.limit255 = function(n) {
  * @returns an object { percent: percent similar, diff: a Jimp image highlighting differences }
  */
 Jimp.diff = function (img1, img2, threshold) {
-    if ("object" != typeof img1 || img1 instanceof Jimp || "object" != typeof img2 || img2 instanceof Jimp)
+    if (!(img1 instanceof Jimp) || !(img2 instanceof Jimp))
         return throwError.call(this, "img1 and img2 must be an Jimp images");
 
     if (img1.bitmap.width != img2.bitmap.width || img1.bitmap.height != img2.bitmap.height) {
