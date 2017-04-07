@@ -1061,12 +1061,12 @@ Jimp.prototype.autocrop = function() {
  * @returns this for chaining of methods
 */
 Jimp.prototype.blit = function (src, x, y, srcx, srcy, srcw, srch, cb) {
-    if ("object" != typeof src || src instanceof Jimp)
+    if (!(src instanceof Jimp))
         return throwError.call(this, "The source must be a Jimp image", cb);
     if ("number" != typeof x || "number" != typeof y)
         return throwError.call(this, "x and y must be numbers", cb);
 
-    if ("function" == typeof srcx) {
+    if (srcx instanceof Function) {
         cb = srcx;
         srcx = 0;
         srcy = 0;
@@ -1114,7 +1114,7 @@ Jimp.prototype.blit = function (src, x, y, srcx, srcy, srcw, srch, cb) {
  * @returns this for chaining of methods
 */
 Jimp.prototype.mask = function (src, x, y, cb) {
-    if ("object" != typeof src || src instanceof Jimp)
+    if (!(src instanceof Jimp))
         return throwError.call(this, "The source must be a Jimp image", cb);
     if ("number" != typeof x || "number" != typeof y)
         return throwError.call(this, "x and y must be numbers", cb);
@@ -1143,7 +1143,7 @@ Jimp.prototype.mask = function (src, x, y, cb) {
  * @returns this for chaining of methods
 */
 Jimp.prototype.composite = function (src, x, y, cb) {
-    if ("object" != typeof src || src instanceof Jimp)
+    if (!(src instanceof Jimp))
         return throwError.call(this, "The source must be a Jimp image", cb);
     if ("number" != typeof x || "number" != typeof y)
         return throwError.call(this, "x and y must be numbers", cb);
