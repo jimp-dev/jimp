@@ -136,7 +136,7 @@ function Jimp() {
         }
 
         cb.call(this, null, this);
-    } else if ("object" == typeof arguments[0] && arguments[0].constructor == Jimp) {
+    } else if (arguments[0] instanceof Jimp) {
         // clone an existing Jimp
         var original = arguments[0];
         var cb = arguments[1];
@@ -467,7 +467,7 @@ Jimp.limit255 = function(n) {
  * @returns an object { percent: percent similar, diff: a Jimp image highlighting differences }
  */
 Jimp.diff = function (img1, img2, threshold) {
-    if ("object" != typeof img1 || img1.constructor != Jimp || "object" != typeof img2 || img2.constructor != Jimp)
+    if (!(img1 instanceof Jimp) || !(img2 instanceof Jimp))
         return throwError.call(this, "img1 and img2 must be an Jimp images");
 
     if (img1.bitmap.width != img2.bitmap.width || img1.bitmap.height != img2.bitmap.height) {
@@ -1061,12 +1061,12 @@ Jimp.prototype.autocrop = function() {
  * @returns this for chaining of methods
 */
 Jimp.prototype.blit = function (src, x, y, srcx, srcy, srcw, srch, cb) {
-    if ("object" != typeof src || src.constructor != Jimp)
+    if (!(src instanceof Jimp))
         return throwError.call(this, "The source must be a Jimp image", cb);
     if ("number" != typeof x || "number" != typeof y)
         return throwError.call(this, "x and y must be numbers", cb);
 
-    if ("function" == typeof srcx) {
+    if (typeof srcx === "function") {
         cb = srcx;
         srcx = 0;
         srcy = 0;
@@ -1114,7 +1114,7 @@ Jimp.prototype.blit = function (src, x, y, srcx, srcy, srcw, srch, cb) {
  * @returns this for chaining of methods
 */
 Jimp.prototype.mask = function (src, x, y, cb) {
-    if ("object" != typeof src || src.constructor != Jimp)
+    if (!(src instanceof Jimp))
         return throwError.call(this, "The source must be a Jimp image", cb);
     if ("number" != typeof x || "number" != typeof y)
         return throwError.call(this, "x and y must be numbers", cb);
@@ -1143,7 +1143,7 @@ Jimp.prototype.mask = function (src, x, y, cb) {
  * @returns this for chaining of methods
 */
 Jimp.prototype.composite = function (src, x, y, cb) {
-    if ("object" != typeof src || src.constructor != Jimp)
+    if (!(src instanceof Jimp))
         return throwError.call(this, "The source must be a Jimp image", cb);
     if ("number" != typeof x || "number" != typeof y)
         return throwError.call(this, "x and y must be numbers", cb);
