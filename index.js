@@ -1066,7 +1066,7 @@ Jimp.prototype.blit = function (src, x, y, srcx, srcy, srcw, srch, cb) {
     if ("number" != typeof x || "number" != typeof y)
         return throwError.call(this, "x and y must be numbers", cb);
 
-    if (srcx instanceof Function) {
+    if (typeof srcx === "function") {
         cb = srcx;
         srcx = 0;
         srcy = 0;
