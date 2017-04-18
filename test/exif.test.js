@@ -1,6 +1,8 @@
 var {Jimp, getTestDir, isWeb} = require("./test-helper");
 
-describe("Exif", ()=> {
+describe("Exif", function () {
+
+    this.timeout(5000);
 
     var imagesDir = getTestDir() + "/samples/exif-orientation";
 

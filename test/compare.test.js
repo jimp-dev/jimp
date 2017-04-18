@@ -1,6 +1,6 @@
 var {Jimp, mkJGD} = require("./test-helper");
 
-describe("Compare image difference", (doneDescribe)=> {
+describe("Compare image difference", ()=> {
 
     var imgs = [
         Jimp.read(mkJGD(

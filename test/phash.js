@@ -1,3 +1,5 @@
+// compare.test.js already do the job.
+
 var Jimp = require("../index.js");
 var FS = require("fs");
 var Path = require('path')
@@ -10,7 +12,7 @@ Jimp.read("lenna.png").then(function(image){
 });
 
 
-var files = FS.readdirSync("./samples/original/");
+var files = FS.readdirSync("./samples/original/").slice(0,5);
 files.forEach(function (file, i) {
     files[i] = Path.basename(file, Path.extname(file));
 });
