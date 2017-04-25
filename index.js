@@ -16,6 +16,7 @@ var BigNumber = require('bignumber.js');
 var URLRegEx = require("url-regex");
 var BMFont = require("load-bmfont");
 var Path = require("path");
+var mkdirp = require('mkdirp');
 
 if (process.env.ENVIRONMENT !== "BROWSER") {
     //If we run into electron renderer process, use XHR method instead of Request node module
@@ -2405,6 +2406,11 @@ Jimp.prototype.write = function (path, cb) {
 
     var that = this;
     var mime = MIME.lookup(path);
+
+    var pathObj = Path.parse(path);
+    if (pathObj.dir) {
+        mkdirp.sync(pathObj.dir);
+    }
 
     this.getBuffer(mime, function(err, buffer) {
         if (err) return throwError.call(that, err, cb);
