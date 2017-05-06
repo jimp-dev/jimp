@@ -4,6 +4,10 @@ var shouldAssertion = {}.should.be.constructor.prototype;
 
 exports.hasOwnProp = (obj, key)=> Object.prototype.hasOwnProperty.call(obj, key);
 
+exports.hashForEach = function hashForEach(hash, func) {
+    for (var key in hash) if (exports.hasOwnProp(hash, key)) func(key, hash[key]);
+}
+
 exports.getTestDir = function () {
     var testRE = /\/[^\/]+\.test\.js($|\?.*)/;
     if (typeof document !== 'undefined' && document && document.getElementsByTagName) {
