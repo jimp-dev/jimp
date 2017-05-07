@@ -947,8 +947,8 @@ Jimp.prototype.autocrop = function() {
     }
 
     east: // east side (scan columns from east to west)
-    for (var x = 0; x < w - minPixelsPerSide; x++) {
-        for (var y = 0 + northPixelsToCrop; y < h; y++) {
+    for (var x = w - 1; x >= 0; x--) {
+        for (var y = northPixelsToCrop; y < h; y++) {
             var colorXY = this.getPixelColor(x, y);
             var rgba2 = Jimp.intToRGBA(colorXY);
             var difference =
@@ -970,7 +970,7 @@ Jimp.prototype.autocrop = function() {
     colorTarget = this.getPixelColor(w - 1, h - 1); // bottom right pixel color is the target color
                                                     // for south and west sides
     south: // south side (scan rows from south to north)
-    for (var y = h - 1; y >= 0 + northPixelsToCrop + minPixelsPerSide; y--) {
+    for (var y = h - 1; y >= northPixelsToCrop + minPixelsPerSide; y--) {
         for (var x = w - eastPixelsToCrop - 1; x >= 0; x--) {
             var colorXY = this.getPixelColor(x, y);
             var rgba2 = Jimp.intToRGBA(colorXY);
@@ -991,8 +991,8 @@ Jimp.prototype.autocrop = function() {
     }
 
     west: // west side (scan columns from west to east)
-    for (var x = w - 1; x >= 0 + eastPixelsToCrop + minPixelsPerSide; x--) {
-        for (var y = h - 1; y >= 0 + northPixelsToCrop; y--) {
+    for (var x = 0; x <= w - eastPixelsToCrop - minPixelsPerSide; x++) {
+        for (var y = h - southPixelsToCrop; y >= northPixelsToCrop; y--) {
             var colorXY = this.getPixelColor(x, y);
             var rgba2 = Jimp.intToRGBA(colorXY);
             var difference =
@@ -1037,7 +1037,7 @@ Jimp.prototype.autocrop = function() {
 
     if (doCrop) { // do the real crop
        this.crop(
-           eastPixelsToCrop,
+           westPixelsToCrop,
            northPixelsToCrop,
            widthOfPixelsToCrop,
            heightOfPixelsToCrop
