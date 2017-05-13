@@ -142,3 +142,19 @@ exports.mkJGD = function mkJGD() {
     }
     return jgd;
 };
+
+// Helps to debug image data
+exports.jgdToStr = function jgdToStr(jgd) {
+    var colors2 = {};
+    Object.keys(colors).forEach((k)=> colors2[colors[k]]=k );
+    lines = [];
+    var w = jgd.width;
+    for (var y=0; y < jgd.height; y++) {
+        lines[y] = '';
+        for (var x=0; x < w; x++) {
+            var k = colors2[jgd.data[y*w+x]] || '?';
+            lines[y] += k;
+        }
+    }
+    return lines.map((l)=> "'"+l+"'").join("\n");
+}

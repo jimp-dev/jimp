@@ -127,9 +127,9 @@ describe("Callbacks", ()=> {
         rotate: {
             args: [90, false],
             result: [
-                '▵◆▴',
-                '▹▪▸',
-                '▿▰▾']
+                '▾▰▿',
+                '▸▪▹',
+                '▴◆▵']
         },
         brightness: {
             args: [0.5],
