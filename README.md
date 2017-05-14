@@ -1,6 +1,7 @@
 <hr>
-**Can you help maintain this project?**
-Collaborators wanted: https://github.com/oliver-moran/jimp/issues/219
+
+**Can you help maintain this project?** Collaborators wanted: https://github.com/oliver-moran/jimp/issues/219
+
 <hr>
 
 # Jimp #
