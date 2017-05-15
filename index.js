@@ -991,6 +991,31 @@ Jimp.prototype.crop = function (x, y, w, h, cb) {
 };
 
 /**
+ * Compute color difference
+ * 0 means no difference, 1 means maximum difference.
+ * @param rgba1:    first color to compare.
+ * @param rgba2:    second color to compare.
+ * Both parameters must be an color object {r:val, g:val, b:val, a:val}
+ * Where `a` is optional and `val` is an integer between 0 and 255.
+ * @returns float between 0 and 1.
+ */
+Jimp.colorDiff = (function () {
+    var pow = (n)=> Math.pow(n, 2);
+    var max = Math.max;
+    var maxVal = (255 * 255 * 3);
+
+    return function colorDiff (rgba1, rgba2) {
+        if (rgba1.a!==0 && !rgba1.a) rgba1.a = 255;
+        if (rgba2.a!==0 && !rgba2.a) rgba2.a = 255;
+        return (
+            max(pow(rgba1.r - rgba2.r), pow(rgba1.r - rgba2.r - rgba1.a + rgba2.a)) +
+            max(pow(rgba1.g - rgba2.g), pow(rgba1.g - rgba2.g - rgba1.a + rgba2.a)) +
+            max(pow(rgba1.b - rgba2.b), pow(rgba1.b - rgba2.b - rgba1.a + rgba2.a))
+        ) / maxVal;
+    };
+})();
+
+/**
  * Autocrop same color borders from this image
  * @param (optional) tolerance:      a percent value of tolerance for
  *                                   pixels color difference (default: 0.0002%)
@@ -1013,7 +1038,7 @@ Jimp.prototype.autocrop = function () {
         if (typeof arguments[a] === "number") { // tolerance value passed
             tolerance = arguments[a];
         }
-        if (typeof arguments[a] === "boolean") { // tolerance value passed
+        if (typeof arguments[a] === "boolean") { // cropOnlyFrames value passed
             cropOnlyFrames = arguments[a];
         }
         if (typeof arguments[a] === "function") { // callback value passed
@@ -1022,8 +1047,7 @@ Jimp.prototype.autocrop = function () {
     }
 
     /**
-     * North and East borders must be of the same color as the top left pixel, to be cropped.
-     * South and West borders must be of the same color as the bottom right pixel, to be cropped.
+     * All borders must be of the same color as the top left pixel, to be cropped.
      * It should be possible to crop borders each with a different color,
      * but since there are many ways for corners to intersect, it would
      * introduce unnecessary complexity to the algorithm.
@@ -1044,14 +1068,8 @@ Jimp.prototype.autocrop = function () {
         for (let x = 0; x < w; x++) {
             let colorXY = this.getPixelColor(x, y);
             let rgba2 = Jimp.intToRGBA(colorXY);
-            let difference =
-                Math.abs(
-                    Math.max((rgba1.r - rgba2.r) ^ 2, (rgba1.r - rgba2.r - rgba1.a + rgba2.a) ^ 2) +
-                    Math.max((rgba1.g - rgba2.g) ^ 2, (rgba1.g - rgba2.g - rgba1.a + rgba2.a) ^ 2) +
-                    Math.max((rgba1.b - rgba2.b) ^ 2, (rgba1.b - rgba2.b - rgba1.a + rgba2.a) ^ 2)
-                ) / (256 * 256 * 3);
 
-            if (difference > tolerance) {
+            if (Jimp.colorDiff(rgba1, rgba2) > tolerance) {
                 // this pixel is too distant from the first one: abort this side scan
                 break north;
             }
@@ -1065,14 +1083,8 @@ Jimp.prototype.autocrop = function () {
         for (let y = 0 + northPixelsToCrop; y < h; y++) {
             let colorXY = this.getPixelColor(x, y);
             let rgba2 = Jimp.intToRGBA(colorXY);
-            let difference =
-                Math.abs(
-                    Math.max((rgba1.r - rgba2.r) ^ 2, (rgba1.r - rgba2.r - rgba1.a + rgba2.a) ^ 2) +
-                    Math.max((rgba1.g - rgba2.g) ^ 2, (rgba1.g - rgba2.g - rgba1.a + rgba2.a) ^ 2) +
-                    Math.max((rgba1.b - rgba2.b) ^ 2, (rgba1.b - rgba2.b - rgba1.a + rgba2.a) ^ 2)
-                ) / (256 * 256 * 3);
 
-            if (difference > tolerance) {
+            if (Jimp.colorDiff(rgba1, rgba2) > tolerance) {
                 // this pixel is too distant from the first one: abort this side scan
                 break east;
             }
@@ -1081,21 +1093,13 @@ Jimp.prototype.autocrop = function () {
         eastPixelsToCrop++;
     }
 
-    colorTarget = this.getPixelColor(w - 1, h - 1); // bottom right pixel color is the target color
-                                                    // for south and west sides
     south: // south side (scan rows from south to north)
     for (let y = h - 1; y >= northPixelsToCrop + minPixelsPerSide; y--) {
         for (let x = w - eastPixelsToCrop - 1; x >= 0; x--) {
             let colorXY = this.getPixelColor(x, y);
             let rgba2 = Jimp.intToRGBA(colorXY);
-            let difference =
-                Math.abs(
-                    Math.max((rgba1.r - rgba2.r) ^ 2, (rgba1.r - rgba2.r - rgba1.a + rgba2.a) ^ 2) +
-                    Math.max((rgba1.g - rgba2.g) ^ 2, (rgba1.g - rgba2.g - rgba1.a + rgba2.a) ^ 2) +
-                    Math.max((rgba1.b - rgba2.b) ^ 2, (rgba1.b - rgba2.b - rgba1.a + rgba2.a) ^ 2)
-                ) / (256 * 256 * 3);
 
-            if (difference > tolerance) {
+            if (Jimp.colorDiff(rgba1, rgba2) > tolerance) {
                 // this pixel is too distant from the first one: abort this side scan
                 break south;
             }
@@ -1109,14 +1113,8 @@ Jimp.prototype.autocrop = function () {
         for (let y = h - 1; y >= 0 + northPixelsToCrop; y--) {
             let colorXY = this.getPixelColor(x, y);
             let rgba2 = Jimp.intToRGBA(colorXY);
-            let difference =
-                Math.abs(
-                    Math.max((rgba1.r - rgba2.r) ^ 2, (rgba1.r - rgba2.r - rgba1.a + rgba2.a) ^ 2) +
-                    Math.max((rgba1.g - rgba2.g) ^ 2, (rgba1.g - rgba2.g - rgba1.a + rgba2.a) ^ 2) +
-                    Math.max((rgba1.b - rgba2.b) ^ 2, (rgba1.b - rgba2.b - rgba1.a + rgba2.a) ^ 2)
-                ) / (256 * 256 * 3);
 
-            if (difference > tolerance) {
+            if (Jimp.colorDiff(rgba1, rgba2) > tolerance) {
                 // this pixel is too distant from the first one: abort this side scan
                 break west;
             }

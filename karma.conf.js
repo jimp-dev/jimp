@@ -6,6 +6,9 @@ var builder = require("./tools/browser-build.js");
 module.exports = function (config) {
     config.set({
 
+        browserDisconnectTimeout: 25000,
+        browserNoActivityTimeout: 25000,
+
         // base path that will be used to resolve all patterns (eg. files, exclude)
         basePath: "",
 

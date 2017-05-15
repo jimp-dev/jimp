@@ -38,7 +38,7 @@ module.exports = {
         "default-case": "off",
         "dot-notation": "error",
         "func-name-matching": "error",
-        "func-names": ["error", "never"],
+        //"func-names": ["error", "as-needed"], //TODO: enable on the next refactoring
         "func-style": "off",
         "global-require": "off",
         "guard-for-in": "error",
