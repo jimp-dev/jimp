@@ -1951,6 +1951,121 @@ Jimp.prototype.scaleToFit = function (w, h, mode, cb) {
 };
 
 /**
+ * Pixelates the image or a region
+ * @param size the size of the pixels
+ * @param (optional) cb a callback for when complete
+ * @param (optional) x the x position of the region to pixelate
+ * @param (optional) y the y position of the region to pixelate
+ * @param (optional) w the width of the region to pixelate
+ * @param (optional) h the height of the region to pixelate
+ * @returns this for chaining of methods
+ */
+Jimp.prototype.pixelate = function (size, cb, x, y, w, h) {
+    if ("number" != typeof size)
+        return throwError.call(this, "size must be a number", cb);
+    if (x !== undefined)
+        if ("number" != typeof x)
+            return throwError.call(this, "x must be a number", cb);
+    if (y !== undefined)
+        if ("number" != typeof y)
+            return throwError.call(this, "y must be a number", cb);
+    if (w !== undefined)
+        if ("number" != typeof w)
+            return throwError.call(this, "w must be a number", cb);
+    if (h !== undefined)
+        if ("number" != typeof h)
+            return throwError.call(this, "h must be a number", cb);
+
+    let kernel = [
+        [1 / 16, 2 / 16, 1 / 16],
+        [2 / 16, 4 / 16, 2 / 16],
+        [1 / 16, 2 / 16, 1 / 16]
+    ];
+
+    x = x !== undefined ? x : 0;
+    y = y !== undefined ? y : 0;
+    w = w !== undefined ? w : this.bitmap.width - x;
+    h = h !== undefined ? h : this.bitmap.height - y;
+
+    let source = this.clone();
+    this.scan(x, y, w, h, function (xx, yx, idx) {
+
+        xx = size * Math.floor(xx / size);
+        yx = size * Math.floor(yx / size);
+
+        let value = applyKernel(source, kernel, xx, yx);
+
+        this.bitmap.data[idx] = value[0];
+        this.bitmap.data[idx + 1] = value[1];
+        this.bitmap.data[idx + 2] = value[2];
+    });
+
+    if (isNodePattern(cb)) return cb.call(this, null, this);
+    else return this;
+}
+
+/**
+ * Applies a convolution kernel to the image or a region
+ * @param kernel the convolution kernel
+ * @param (optional) cb a callback for when complete
+ * @param (optional) x the x position of the region to apply convolution to
+ * @param (optional) y the y position of the region to apply convolution to
+ * @param (optional) w the width of the region to apply convolution to
+ * @param (optional) h the height of the region to apply convolution to
+ * @returns this for chaining of methods
+ */
+Jimp.prototype.convolute = function (kernel, cb, x, y, w, h) {
+    if (!Array.isArray(kernel))
+        return throwError.call(this, "the kernel must be an array", cb);
+    if (x !== undefined)
+        if ("number" != typeof x)
+            return throwError.call(this, "x must be a number", cb);
+    if (y !== undefined)
+        if ("number" != typeof y)
+            return throwError.call(this, "y must be a number", cb);
+    if (w !== undefined)
+        if ("number" != typeof w)
+            return throwError.call(this, "w must be a number", cb);
+    if (h !== undefined)
+        if ("number" != typeof h)
+            return throwError.call(this, "h must be a number", cb);
+
+    let ksize = (kernel.length - 1) / 2;
+
+    x = x !== undefined ? x : ksize;
+    y = y !== undefined ? y : ksize;
+    w = w !== undefined ? w : this.bitmap.width - x;
+    h = h !== undefined ? h : this.bitmap.height - y;
+
+    let source = this.clone();
+    this.scan(x, y, w, h, function (xx, yx, idx) {
+        let value = applyKernel(source, kernel, xx, yx);
+
+        this.bitmap.data[idx] = value[0];
+        this.bitmap.data[idx + 1] = value[1];
+        this.bitmap.data[idx + 2] = value[2];
+    });
+
+    if (isNodePattern(cb)) return cb.call(this, null, this);
+    else return this;
+};
+
+function applyKernel(im, kernel, x, y) {
+    let value = [0, 0, 0];
+    let size = (kernel.length - 1) / 2;
+
+    for (let kx = 0; kx < kernel.length; kx += 1) {
+        for (let ky = 0; ky < kernel[kx].length; ky += 1) {
+            let idx = im.getPixelIndex(x + kx - size, y + ky - size);
+            value[0] += im.bitmap.data[idx] * kernel[kx][ky];
+            value[1] += im.bitmap.data[idx + 1] * kernel[kx][ky];
+            value[2] += im.bitmap.data[idx + 2] * kernel[kx][ky];
+        }
+    }
+    return value;
+}
+
+/**
  * Rotates an image clockwise by a number of degrees rounded to the nearest 90 degrees. NB: 'this' must be a Jimp object.
  * @param deg the number of degress to rotate the image by
  * @returns nothing
@@ -2088,6 +2203,35 @@ Jimp.prototype.rotate = function (deg, mode, cb) {
     if (deg % 90 == 0 && mode !== false) simpleRotate.call(this, deg, cb);
     else advancedRotate.call(this, deg, mode, cb);
     
+    if (isNodePattern(cb)) return cb.call(this, null, this);
+    else return this;
+};
+
+/**
+ * Displaces the image based on the provided displacement map
+ * @param map the source Jimp instance
+ * @param offset the maximum displacement value 
+ * @param (optional) cb a callback for when complete
+ * @returns this for chaining of methods
+ */
+Jimp.prototype.displace = function (map, offset, cb) {
+    if ("object" != typeof map || map.constructor != Jimp)
+        return throwError.call(this, "The source must be a Jimp image", cb);
+    if ("number" != typeof offset)
+        return throwError.call(this, "factor must be a number", cb);
+
+    let source = this.clone();
+    this.scan(0, 0, this.bitmap.width, this.bitmap.height, function (x, y, idx) {
+
+        let displacement = map.bitmap.data[idx] / 256 * offset;
+        displacement = Math.round(displacement);
+
+        let ids = this.getPixelIndex(x + displacement, y);
+        this.bitmap.data[ids] = source.bitmap.data[idx];
+        this.bitmap.data[ids + 1] = source.bitmap.data[idx + 1];
+        this.bitmap.data[ids + 2] = source.bitmap.data[idx + 2];
+    });
+
     if (isNodePattern(cb)) return cb.call(this, null, this);
     else return this;
 };

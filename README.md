@@ -96,6 +96,7 @@ image.blit( src, x, y[, srcx, srcy, srcw, srch] );
                                   // blit the image with another Jimp image at x, y, optionally cropped.
 image.composite( src, x, y );     // composites another Jimp image over this image at x, y
 image.mask( src, x, y );          // masks the image with another Jimp image at x, y using average pixel value
+image.convolute( kernel );        // applies a convolution kernel matrix to the image or a region
 
 /* Flip and rotate */
 image.flip( horz, vert );         // flip the image horizontally or vertically
@@ -125,6 +126,10 @@ image.blur( r );                  // fast blur the image by r pixels
 /* Effects */
 image.posterize( n );             // apply a posterization effect with n level
 image.sepia();                    // apply a sepia wash to the image
+image.pixelate( size );           // apply a pixelation effect to the image or a region 
+
+/* 3D */
+image.displace( map, offset );    // displaces the image pixels based on the provided displacement map. Useful for making stereoscopic 3D images.
 ```
 
 Some of these methods are irreversable, so it can be useful to perform them on a clone of the original image:
