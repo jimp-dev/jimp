@@ -1,4 +1,4 @@
-Jimp = (typeof(window)!=="undefined" && window.Jimp) ? window.Jimp : require("..");
+var Jimp = (typeof window !== "undefined" && window.Jimp) ? window.Jimp : require("..");
 var JGD = require("../tools/jgd");
 
 /**
@@ -8,15 +8,16 @@ var JGD = require("../tools/jgd");
  */
 Jimp.appendConstructorOption(
     'build from JGD object',
-    function test(jgd, userCallback, jimpConstructorCallback) {
-        return ( "object"   == typeof jgd             ) &&
-               ( "number"   == typeof jgd.width       ) &&
-               ( "number"   == typeof jgd.height      ) &&
-               ( "number"   == typeof jgd.data.length ) &&
-               ( "function" == typeof userCallback    ) &&
+    function test (jgd, userCallback, jimpConstructorCallback) {
+        /* eslint space-in-parens: off */
+        return (typeof jgd             === "object"  ) &&
+               (typeof jgd.width       === "number"  ) &&
+               (typeof jgd.height      === "number"  ) &&
+               (typeof jgd.data.length === "number"  ) &&
+               (typeof userCallback    === "function") &&
                jimpConstructorCallback.itIsTheJimpConstructorCallback
     },
-    function runner(jgd, userCallback, jimpConstructorCallback) {
+    function runner (jgd, userCallback, jimpConstructorCallback) {
         this.bitmap = JGD.decode(jgd);
         jimpConstructorCallback(null, userCallback);
     }
@@ -39,7 +40,7 @@ Jimp.prototype.getJGD = function (cb) {
     var jgd, error;
     try {
         jgd = this.getJGDSync();
-    } catch(err) {
+    } catch (err) {
         error = err;
     }
     cb(error, jgd);

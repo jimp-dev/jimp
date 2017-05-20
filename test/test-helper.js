@@ -4,12 +4,12 @@ var shouldAssertion = {}.should.be.constructor.prototype;
 
 exports.hasOwnProp = (obj, key)=> Object.prototype.hasOwnProperty.call(obj, key);
 
-exports.hashForEach = function hashForEach(hash, func) {
+var hashForEach = exports.hashForEach = (hash, func)=> {
     for (var key in hash) if (exports.hasOwnProp(hash, key)) func(key, hash[key]);
 }
 
 exports.getTestDir = function () {
-    var testRE = /\/[^\/]+\.test\.js($|\?.*)/;
+    var testRE = /\/[^/]+\.test\.js($|\?.*)/;
     if (typeof document !== 'undefined' && document && document.getElementsByTagName) {
         var scripts = document.getElementsByTagName('script');
         for (var i=0; i<scripts.length; i++) {
@@ -19,8 +19,9 @@ exports.getTestDir = function () {
         }
         throw Error('Cant discover the web test directory');
     } else {
-        if (typeof __dirname !== 'undefined') return __dirname;
-        else throw Error('Cant discover the env test directory');
+        if (typeof __dirname === 'undefined')
+            throw Error('Cant discover the env test directory');
+        return __dirname;
     }
 };
 
@@ -28,8 +29,9 @@ exports.isWeb = function (warn) {
     if (typeof window !== 'undefined' && window.document) {
         console.warn(warn);
         return true;
+    } else {
+        return false;
     }
-    else return false;
 };
 
 var sup = "⁰¹²³⁴⁵⁶⁷⁸⁹ᵃᵇᶜᵈᵉᶠ";
@@ -43,7 +45,7 @@ var jgdReadableMatrix = exports.jgdReadableMatrix = function (img) {
             var a = sup[parseInt(a1,16)] + sup[parseInt(a2,16)];
             return r+"-"+g+"-"+b+a
         }));
-        if (i>0 && (i+1)%img.width==0) {
+        if (i > 0 && (i+1)%img.width === 0) {
             rMatrix.push(line.join(" "));
             line = [];
         }
@@ -51,20 +53,21 @@ var jgdReadableMatrix = exports.jgdReadableMatrix = function (img) {
     return rMatrix.join("\n");
 }
 
-shouldAssertion.sameJGD = function sameJGD(targetJGD, message) {
+shouldAssertion.sameJGD = function sameJGD (targetJGD, message) {
     message = message ? " "+message : "";
     var testJGD = this.obj;
     should.exist(testJGD.width, "Width was not defined."+message);
     should.exist(testJGD.height, "Height was not defined."+message);
     testJGD.width.should.be.equal(targetJGD.width, "Width is not the expected."+message);
     testJGD.height.should.be.equal(targetJGD.height, "Height is not the expected."+message);
-    var matrixMsg = message ? message : "The pixel matrix is not the expected."
+    var matrixMsg = message || "The pixel matrix is not the expected."
     jgdReadableMatrix(testJGD).should.be.equal(jgdReadableMatrix(targetJGD), matrixMsg);
 };
 
 exports.Jimp = require('./jgd-wrapper');
 
-exports.donutJGD = function donutJGD(_, i, X) {
+exports.donutJGD = function donutJGD (_, i, X) {
+    /* eslint comma-spacing: off */
     return {
         width: 10,
         height: 10,
@@ -117,24 +120,29 @@ var colors = {
     'D': 0xDDDDDDff,
     'E': 0xEEEEEEff,
     'F': 0xFFFFFFff, // White
-    '□': 0xFFFFFFff, // White
+    '□': 0xFFFFFFff  // White
 }
+
+function throwUndefinedChar (char) {
+    var cList = [];
+    hashForEach(colors, (k, c)=> {
+        c = c.toString(16);
+        while (c.length<8) c = '0'+c;
+        cList.push(k +'='+ c);
+    });
+    throw Error('The char "'+char+'" do not defines a color. ' +
+                'This are the valid chars: ' + cList.join(' '));
+}
+
 /* Build a JGD object from a list of strings */
-exports.mkJGD = function mkJGD() {
+exports.mkJGD = function mkJGD () {
     var jgd = { width: 0, height: arguments.length, data: [] };
     for (var y=0; y < jgd.height; y++) {
         var line = arguments[y];
         var w = jgd.width = line.length;
         for (var x=0; x < w; x++) {
             if (typeof colors[line[x]] === 'undefined') {
-                var cList = [];
-                for (k in colors) {
-                    c = colors[k].toString(16);
-                    while (c.length<8) c = '0'+c;
-                    cList.push( k +'='+ c );
-                }
-                throw Error('The char "'+line[x]+'" do not defines a color. ' +
-                            'This are the valid chars: ' + cList.join(' '));
+                throwUndefinedChar(line[x]);
             } else {
                 jgd.data[(y*w)+x] = colors[line[x]];
             }
@@ -144,10 +152,12 @@ exports.mkJGD = function mkJGD() {
 };
 
 // Helps to debug image data
-exports.jgdToStr = function jgdToStr(jgd) {
+exports.jgdToStr = function jgdToStr (jgd) {
     var colors2 = {};
-    Object.keys(colors).forEach((k)=> colors2[colors[k]]=k );
-    lines = [];
+    hashForEach(colors, (k, c)=> {
+        colors2[c] = k;
+    });
+    var lines = [];
     var w = jgd.width;
     for (var y=0; y < jgd.height; y++) {
         lines[y] = '';

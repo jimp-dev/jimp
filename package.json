@@ -7,7 +7,7 @@
   "scripts": {
     "lint": "npm run -s lint:src && npm run -s lint:browser && npm run -s lint:tests && npm run -s lint:extra && echo Lint All Success",
     "lint:src": "eslint *.js src/*.js browser/src/*.js && echo Lint Source Success",
-    "lint:tests": "eslint --env 'mocha' --rule '{no-new: \"off\"}' test/*.test.js && echo Lint Tests Success",
+    "lint:tests": "eslint --env 'mocha' --rule '{no-new: \"off\"}' test/*.js && echo Lint Tests Success",
     "lint:browser": "eslint --rule '{no-new: \"off\"}' browser/src/*.js && echo Lint Browser Success",
     "lint:extra": "eslint --rule '{no-console: \"off\"}' {*/,}{tools,examples}/*.js && echo Lint Extras Success",
     "test:karma": "CHROME_BIN=\"$(which chrome || which chromium)\" karma",

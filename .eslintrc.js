@@ -21,6 +21,7 @@ module.exports = {
         "space-infix-ops": "off",
         "standard/array-bracket-even-spacing": "off", // allow matrix alignment
         "comma-spacing": "warn",  // allow matrix alignment
+        "one-var": "off",
 
         // extends unset "standard" rules
         "array-bracket-spacing": "off",  // allow matrix alignment
