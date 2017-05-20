@@ -1223,12 +1223,14 @@ Jimp.prototype.blit = function (src, x, y, srcx, srcy, srcw, srch, cb) {
 /**
  * Masks a source image on to this image using average pixel colour. A completely black pixel on the mask will turn a pixel in the image completely transparent.
  * @param src the source Jimp instance
- * @param x the x position to blit the image
- * @param y the y position to blit the image
+ * @param x the horizontal position to blit the image
+ * @param y the vertical position to blit the image
  * @param (optional) cb a callback for when complete
  * @returns this for chaining of methods
 */
 Jimp.prototype.mask = function (src, x, y, cb) {
+    if (!x) x = 0;
+    if (!y) y = 0;
     if (!(src instanceof Jimp))
         return throwError.call(this, "The source must be a Jimp image", cb);
     if (typeof x !== "number" || typeof y !== "number")
@@ -1238,11 +1240,18 @@ Jimp.prototype.mask = function (src, x, y, cb) {
     x = Math.round(x);
     y = Math.round(y);
 
+    var w = this.bitmap.width;
+    var h = this.bitmap.height;
     var that = this;
     src.scan(0, 0, src.bitmap.width, src.bitmap.height, function (sx, sy, idx) {
-        var dstIdx = that.getPixelIndex(x+sx, y+sy);
-        var avg = (this.bitmap.data[idx+0] + this.bitmap.data[idx+1] + this.bitmap.data[idx+2]) / 3;
-        that.bitmap.data[dstIdx+3] *= avg / 255;
+        let destX = x+sx;
+        let destY = y+sy;
+        if (destX >=0 && destY >=0 && destX < w && destY < h) {
+            let dstIdx = that.getPixelIndex(destX, destY);
+            let data = this.bitmap.data;
+            let avg = (data[idx+0] + data[idx+1] + data[idx+2]) / 3;
+            that.bitmap.data[dstIdx+3] *= avg / 255;
+        }
     });
 
     if (isNodePattern(cb)) return cb.call(this, null, this);
