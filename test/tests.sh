@@ -11,7 +11,7 @@ function clean {
     rm -r ./output/*.bmp &>/dev/null
 }
 
-TOTALTESTS=15
+TOTALTESTS=17
 
 clean
 echo "promise.js (1/$TOTALTESTS)"
@@ -74,8 +74,12 @@ echo "align.js (15/$TOTALTESTS)"
 node align.js
 
 clean
-echo "convolution.js (1/$TOTALTESTS)"
+echo "convolution.js (16/$TOTALTESTS)"
 node convolution.js
+
+clean
+echo "write.js (17/$TOTALTESTS)"
+node write.js
 
 clean
 echo "done :-)"
