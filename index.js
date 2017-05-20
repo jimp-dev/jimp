@@ -170,6 +170,7 @@ function Jimp() {
         // read from a URL
         var url = arguments[0];
         var cb = arguments[1];
+        var options = arguments[2];
         
         if ("undefined" == typeof cb) cb = noop;
         if ("function" != typeof cb)
@@ -182,13 +183,14 @@ function Jimp() {
                 var mime = getMIMEFromBuffer(data);
                 if ("string" != typeof mime)
                     return throwError.call(that, "Could not find MIME for Buffer <" + url + "> (HTTP: " + response.statusCode + ")", cb);
-                parseBitmap.call(that, data, mime, cb);
+                parseBitmap.call(that, data, mime, cb, options);
             } else return throwError.call(that, "Could not load Buffer from URL <" + url + "> (HTTP: " + response.statusCode + ")", cb);
         });
     } else if ("string" == typeof arguments[0]) {
         // read from a path
         var path = arguments[0];
         var cb = arguments[1];
+        var options = arguments[2];
         
         if ("undefined" == typeof cb) cb = noop;
         if ("function" != typeof cb)
@@ -198,7 +200,7 @@ function Jimp() {
         getMIMEFromPath(path, function (err, mime) {
             FS.readFile(path, function (err, data) {
                 if (err) return throwError.call(that, err, cb);
-                parseBitmap.call(that, data, mime, cb);
+                parseBitmap.call(that, data, mime, cb, options);
             });
         });
     } else if ("object" == typeof arguments[0]) {
@@ -206,6 +208,7 @@ function Jimp() {
         var data = arguments[0];
         var mime = getMIMEFromBuffer(data);
         var cb = arguments[1];
+        var options = arguments[2];
 
         if (!Buffer.isBuffer(data))
             return throwError.call(this, "data must be a Buffer", cb);
@@ -214,7 +217,7 @@ function Jimp() {
         if ("function" != typeof cb)
             return throwError.call(this, "cb must be a function", cb);
 
-        parseBitmap.call(this, data, mime, cb);
+        parseBitmap.call(this, data, mime, cb, options);
     } else {
         return throwError.call(this, "No matching constructor overloading was found. Please see the docs for how to call the Jimp constructor.", cb);
     }
@@ -226,7 +229,7 @@ function Jimp() {
  * @param cb (optional) a callback function when the file is read
  * @retuns a promise
  */
-Jimp.read = function(src, cb) {
+Jimp.read = function(src, cb, options) {
     var promise = new Promise(
         function(resolve, reject) {
             cb = cb || function(err, image) {
@@ -235,7 +238,7 @@ Jimp.read = function(src, cb) {
             }
             if ("string" != typeof src && ("object" != typeof src || !Buffer.isBuffer(src)))
                 return throwError.call(this, "src must be a string or a Buffer", cb);
-            var img = new Jimp(src, cb);
+            var img = new Jimp(src, cb, options);
         }
     );
     return promise;
@@ -273,7 +276,7 @@ function getMIMEFromPath(path, cb) {
 //=> {ext: 'png', mime: 'image/png'}
 
 // parses a bitmap from the constructor to the JIMP bitmap property
-function parseBitmap(data, mime, cb) {
+function parseBitmap(data, mime, cb, options) {
     var that = this;
     this._originalMime = mime.toLowerCase();
 
@@ -294,7 +297,9 @@ function parseBitmap(data, mime, cb) {
         case Jimp.MIME_JPEG:
             try {
                 this.bitmap = JPEG.decode(data);
-                exifRotate(this, data); // EXIF data
+                if (!options || options.enableExifRotate === undefined || options.enableExifRotate == true) {
+                    exifRotate(this, data); // EXIF data
+                }
                 return cb.call(this, null, this);
             } catch(err) {
                 return cb.call(this, err, this);
