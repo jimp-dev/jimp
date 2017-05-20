@@ -16,6 +16,8 @@ var BigNumber = require('bignumber.js');
 var URLRegEx = require("url-regex");
 var BMFont = require("load-bmfont");
 var Path = require("path");
+var Buffer = require("safe-buffer").Buffer;
+var isBuffer = require("is-buffer");
 
 if (process.env.ENVIRONMENT !== "BROWSER") {
     //If we run into electron renderer process, use XHR method instead of Request node module
@@ -126,7 +128,7 @@ function Jimp() {
             return throwError.call(this, "cb must be a function", cb);
 
         this.bitmap = {
-            data: new Buffer(w * h * 4),
+            data: Buffer.allocUnsafe(w * h * 4),
             width: w,
             height: h
         };
@@ -145,14 +147,8 @@ function Jimp() {
         if ("function" != typeof cb)
             return throwError.call(this, "cb must be a function", cb);
 
-        var bitmap = new Buffer(original.bitmap.data.length);
-        original.scan(0, 0, original.bitmap.width, original.bitmap.height, function (x, y, idx) {
-            var data = original.bitmap.data.readUInt32BE(idx, true);
-            bitmap.writeUInt32BE(data, idx, true);
-        });
-
         this.bitmap = {
-            data: bitmap,
+            data: Buffer.from(original.bitmap.data),
             width: original.bitmap.width,
             height: original.bitmap.height
         };
@@ -177,7 +173,7 @@ function Jimp() {
         var that = this;
         Request(url, function (err, response, data) {
             if (err) return throwError.call(that, err, cb);
-            if ("object" == typeof data && Buffer.isBuffer(data)) {
+            if ("object" == typeof data && isBuffer(data)) {
                 var mime = getMIMEFromBuffer(data);
                 if ("string" != typeof mime)
                     return throwError.call(that, "Could not find MIME for Buffer <" + url + "> (HTTP: " + response.statusCode + ")", cb);
@@ -206,7 +202,7 @@ function Jimp() {
         var mime = getMIMEFromBuffer(data);
         var cb = arguments[1];
 
-        if (!Buffer.isBuffer(data))
+        if (!isBuffer(data))
             return throwError.call(this, "data must be a Buffer", cb);
         if ("string" != typeof mime)
             return throwError.call(this, "mime must be a string", cb);
@@ -232,7 +228,7 @@ Jimp.read = function(src, cb) {
                 if (err) reject(err);
                 else resolve(image);
             }
-            if ("string" != typeof src && ("object" != typeof src || !Buffer.isBuffer(src)))
+            if ("string" != typeof src && ("object" != typeof src || !isBuffer(src)))
                 return throwError.call(this, "src must be a string or a Buffer", cb);
             var img = new Jimp(src, cb);
         }
@@ -282,7 +278,7 @@ function parseBitmap(data, mime, cb) {
             png.parse(data, function(err, data) {
                 if (err) return throwError.call(that, err, cb);
                 that.bitmap = {
-                    data: new Buffer(data.data),
+                    data: Buffer.from(data.data),
                     width: data.width,
                     height: data.height
                 };
@@ -860,15 +856,25 @@ Jimp.prototype.crop = function (x, y, w, h, cb) {
     w = Math.round(w);
     h = Math.round(h);
 
-    var bitmap = new Buffer(this.bitmap.data.length);
-    var offset = 0;
-    this.scan(x, y, w, h, function (x, y, idx) {
-        var data = this.bitmap.data.readUInt32BE(idx, true);
-        bitmap.writeUInt32BE(data, offset, true);
-        offset += 4;
-    });
+    if (x == 0 && w == this.bitmap.width) {
+        // shortcut
+        var start = (w * y + x) << 2;
+        var end = start + h * w << 2 + 1;
+        this.bitmap.data = this.bitmap.data.slice(start, end);
+        this.bitmap.height = h;
+    } else {
+        var bitmap = Buffer.allocUnsafe(w * h * 4);
 
-    this.bitmap.data = new Buffer(bitmap);
+        var offset = 0;
+        this.scan(x, y, w, h, function (x, y, idx) {
+            var data = this.bitmap.data.readUInt32BE(idx, true);
+            bitmap.writeUInt32BE(data, offset, true);
+            offset += 4;
+        });
+
+        this.bitmap.data = bitmap;
+    }
+
     this.bitmap.width = w;
     this.bitmap.height = h;
 
@@ -1374,7 +1380,12 @@ Jimp.prototype.mirror = Jimp.prototype.flip = function (horizontal, vertical, cb
     if ("boolean" != typeof horizontal || "boolean" != typeof vertical)
         return throwError.call(this, "horizontal and vertical must be Booleans", cb);
 
-    var bitmap = new Buffer(this.bitmap.data.length);
+    if (horizontal && vertical) {
+        // shortcut
+        return this.rotate(180, true, cb);
+    }
+
+    var bitmap = Buffer.allocUnsafe(this.bitmap.data.length);
     this.scan(0, 0, this.bitmap.width, this.bitmap.height, function (x, y, idx) {
         var _x = (horizontal) ? (this.bitmap.width - 1 - x) : x;
         var _y = (vertical) ? (this.bitmap.height - 1 - y) : y;
@@ -1384,7 +1395,7 @@ Jimp.prototype.mirror = Jimp.prototype.flip = function (horizontal, vertical, cb
         bitmap.writeUInt32BE(data, _idx, true);
     });
 
-    this.bitmap.data = new Buffer(bitmap);
+    this.bitmap.data = bitmap;
 
     if (isNodePattern(cb)) return cb.call(this, null, this);
     else return this;
@@ -1776,7 +1787,7 @@ Jimp.prototype.resize = function (w, h, mode, cb) {
 
     if ("function" == typeof Resize2[mode]) {
         var dst = {
-            data: new Buffer(w * h * 4),
+            data: Buffer.allocUnsafe(w * h * 4),
             width: w,
             height: h
         };
@@ -1785,7 +1796,7 @@ Jimp.prototype.resize = function (w, h, mode, cb) {
     } else {
         var that = this;
         var resize = new Resize(this.bitmap.width, this.bitmap.height, w, h, true, true, function (buffer) {
-            that.bitmap.data = new Buffer(buffer);
+            that.bitmap.data = Buffer.from(buffer);
             that.bitmap.width = w;
             that.bitmap.height = h;
         });
@@ -1944,36 +1955,56 @@ Jimp.prototype.scaleToFit = function (w, h, mode, cb) {
     else return this;
 };
 
+// Extracted as a separate function, because otherwise, as a part of simpleRotate function, these two loops
+// get de-optimized by V8 or something like that after rotation by 180 degree and it runs 2.5 times slower.
+// At the same time it's reporting that function is still optimized. Weird.
+function rotate90degrees(bitmap, dstBuffer, clockwise) {
+    var dstOffset = clockwise ? 0 : (dstBuffer.length - 4);
+    var dstOffsetStep = clockwise ? 4 : -4;
+    var tmp, x, y, srcOffset;
+
+    for (x = 0; x < bitmap.width; x++) {
+        for (y = bitmap.height - 1; y >= 0; y--) {
+            srcOffset = (bitmap.width * y + x) << 2;
+            tmp = bitmap.data.readUInt32BE(srcOffset, true);
+            dstBuffer.writeUInt32BE(tmp, dstOffset, true);
+            dstOffset += dstOffsetStep;
+        }
+    }
+}
+
 /**
  * Rotates an image clockwise by a number of degrees rounded to the nearest 90 degrees. NB: 'this' must be a Jimp object.
  * @param deg the number of degress to rotate the image by
  * @returns nothing
  */
 function simpleRotate(deg) {
-    var i = Math.round(deg / 90) % 4;
-    while (i < 0) i += 4;
+    var steps = Math.round(deg / 90) % 4;
+    steps += steps < 0 ? 4 : 0;
 
-    while (i > 0) {
-        // https://github.com/ekulabuhov/jimp/commit/9a0c7cff88292d88c32a424b11256c76f1e20e46
-        var dstBuffer = new Buffer(this.bitmap.data.length);
-        var dstOffset = 0;
-        for (var x = 0; x < this.bitmap.width; x++) {
-            for (var y = this.bitmap.height - 1; y >= 0; y--) {
-                var srcOffset = (this.bitmap.width * y + x) << 2;
-                var data = this.bitmap.data.readUInt32BE(srcOffset, true);
-                dstBuffer.writeUInt32BE(data, dstOffset, true);
-                dstOffset += 4;
-            }
+    if (steps === 0) return;
+
+    var srcBuffer = this.bitmap.data;
+    var len = srcBuffer.length;
+    var dstBuffer = Buffer.allocUnsafe(len);
+    var tmp, x, y, srcOffset;
+
+    if (steps == 2) {
+        // Upside-down
+        for (srcOffset = 0; srcOffset < len; srcOffset += 4) {
+            tmp = srcBuffer.readUInt32BE(srcOffset, true);
+            dstBuffer.writeUInt32BE(tmp, len - srcOffset - 4, true);
         }
+    } else {
+        // Clockwise or counter-clockwise rotation by 90 degree
+        rotate90degrees(this.bitmap, dstBuffer, steps == 1);
 
-        this.bitmap.data = new Buffer(dstBuffer);
-        
-        var tmp = this.bitmap.width;
+        tmp = this.bitmap.width;
         this.bitmap.width = this.bitmap.height;
         this.bitmap.height = tmp;
-
-        i--;
     }
+
+    this.bitmap.data = dstBuffer;
 }
 
 /**
@@ -2007,7 +2038,7 @@ function advancedRotate(deg, mode) {
         this.blit(c, this.bitmap.width / 2 - c.bitmap.width / 2, this.bitmap.height / 2 - c.bitmap.height / 2);
     }
 
-    var dstBuffer = new Buffer(this.bitmap.data.length);
+    var dstBuffer = Buffer.allocUnsafe(this.bitmap.data.length);
     
     function createTranslationFunction(deltaX, deltaY) {
         return function(x, y) {
@@ -2116,7 +2147,7 @@ Jimp.prototype.getBuffer = function (mime, cb) {
               inputHasAlpha: true
             });
             
-            if (this._rgba) png.data = new Buffer(this.bitmap.data);
+            if (this._rgba) png.data = Buffer.from(this.bitmap.data);
             else png.data = compositeBitmapOverBackground(this).data; // when PNG doesn't support alpha
             
             StreamToBuffer(png.pack(), function (err, buffer) {
