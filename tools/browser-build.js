@@ -1,9 +1,15 @@
+#!/usr/bin/env node
+
 var fs = require('fs');
 var {normalize, join} = require('path');
 var babel = require("babel-core");
 var envify = require('envify/custom');
 var UglifyJS = require("uglify-js");
 var browserify = require("browserify");
+
+function debug () {
+    if (process.env.DEBUG) console.error(...arguments);
+}
 
 var root = normalize(join(__dirname, ".."));
 function fromRoot (subPath) {
@@ -24,15 +30,16 @@ function bundle (files, config, callback) {
         return (f[0]==="/") ? f : fromRoot(f); // ensure path.
     });
     console.error("Browserify "+files.join(", ")+"...");
-    var bundler = browserify(files, {
+    config = Object.assign({
         ignoreMissing: true,
         fullPaths: false,
         debug: true,
         paths: [root],
         basedir: root,
         transform: envify({ENVIRONMENT: "BROWSER"})
-    })
-    .exclude(fromRoot("browser/lib/jimp.js"));
+    }, config);
+    debug('browserify config:', config);
+    var bundler = browserify(files, config).exclude(fromRoot("browser/lib/jimp.js"));
     config.exclude = config.exclude || [];
     for (let f, i=0; (f=config.exclude[i]); i++) {
         bundler.exclude(fromRoot(f));
@@ -72,14 +79,22 @@ function minify (code) {
 
 if (!module.parent) {
 
+    var config = process.argv[3];
     var cmd = process.argv[2] || "prepublish";
 
     switch (cmd) {
 
         case "test":
-            var baseFiles = process.argv.slice(3);
+            let baseFiles;
+            if (config[0] === '{') {
+                config = JSON.parse(config);
+                baseFiles = process.argv.slice(4);
+            } else {
+                config = {};
+                baseFiles = process.argv.slice(3);
+            }
             if (baseFiles.length === 0) throw Error("No file given.");
-            bundle(baseFiles, {}, function (err, code) {
+            bundle(baseFiles, config, function (err, code) {
                 if (err) throw err;
                 process.stdout.write(code);
                 console.error("Done.");
@@ -87,7 +102,9 @@ if (!module.parent) {
             break;
 
         case "prepublish":
-            bundle("index.js", {}, function (err, code) {
+            if (config) config = JSON.parse(config);
+            else config = {};
+            bundle("index.js", config, function (err, code) {
                 if (err) throw err;
                 fs.writeFile(fromRoot("browser/lib/jimp.js"),
                     licence +"\n"+ code, function (err) {
@@ -104,8 +121,38 @@ if (!module.parent) {
             });
             break;
 
+        case "help":
+            let toolName = process.argv[1].replace(root, "./").replace(/\/+/g, '/');
+            console.log([
+                'Build Jimp or its modules for the browser environment.',
+                '',
+                'Usage:',
+                `  $ ${toolName} <command> [parameters]`,
+                '',
+                'Prepublish Command',
+                '==================',
+                '',
+                'Builds jimp and updates "browser/lib/jimp.js".',
+                'Usage:',
+                `  $ ${toolName} prepublish [JSON browserify configuration]`,
+                'Example:',
+                `  $ ${toolName} prepublish '{"basedir":"/other/path"}'`,
+                '',
+                'Test Command',
+                '============',
+                '',
+                'Builds a list of modules and output to STDOUT.',
+                'Usage:',
+                `  $ ${toolName} test [JSON browserify configuration] [file1 [file2 [...]]]`,
+                'Example:',
+                `  $ ${toolName} test '{"exclude":["index.js"]}' test/jgd.test.js`,
+                '',
+                'Set DEBUG env var to know the resulting configuration.'
+            ].join('\n'));
+            break;
+
         default:
-            throw Error("Unknown command given.");
+            throw Error(`Unknown command given. Run "$ ${process.argv[1]} help" for more inforation`);
 
     }
 }
