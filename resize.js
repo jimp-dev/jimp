@@ -1,14 +1,14 @@
 // JavaScript Image Resizer (c) 2012 - Grant Galitz
 // Released to public domain 29 July 2013: https://github.com/grantgalitz/JS-Image-Resizer/issues/4
 
-function Resize(widthOriginal, heightOriginal, targetWidth, targetHeight, blendAlpha, interpolationPass, resizeCallback) {
-    this.widthOriginal = Math.abs(parseInt(widthOriginal) || 0);
-    this.heightOriginal = Math.abs(parseInt(heightOriginal) || 0);
-    this.targetWidth = Math.abs(parseInt(targetWidth) || 0);
-    this.targetHeight = Math.abs(parseInt(targetHeight) || 0);
-    this.colorChannels = (!!blendAlpha) ? 4 : 3;
-    this.interpolationPass = !!interpolationPass;
-    this.resizeCallback = (typeof resizeCallback == "function") ? resizeCallback : function (returnedArray) {};
+function Resize (widthOriginal, heightOriginal, targetWidth, targetHeight, blendAlpha, interpolationPass, resizeCallback) {
+    this.widthOriginal = Math.abs(Math.floor(widthOriginal) || 0);
+    this.heightOriginal = Math.abs(Math.floor(heightOriginal) || 0);
+    this.targetWidth = Math.abs(Math.floor(targetWidth) || 0);
+    this.targetHeight = Math.abs(Math.floor(targetHeight) || 0);
+    this.colorChannels = (blendAlpha) ? 4 : 3;
+    this.interpolationPass = Boolean(interpolationPass);
+    this.resizeCallback = (typeof resizeCallback === "function") ? resizeCallback : function () {};
     this.targetWidthMultipliedByChannels = this.targetWidth * this.colorChannels;
     this.originalWidthMultipliedByChannels = this.widthOriginal * this.colorChannels;
     this.originalHeightMultipliedByChannels = this.heightOriginal * this.colorChannels;
@@ -18,7 +18,7 @@ function Resize(widthOriginal, heightOriginal, targetWidth, targetHeight, blendA
 }
 
 Resize.prototype.initialize = function () {
-    //Perform some checks:
+    // Perform some checks:
     if (this.widthOriginal > 0 && this.heightOriginal > 0 && this.targetWidth > 0 && this.targetHeight > 0) {
         this.configurePasses();
     } else {
@@ -27,32 +27,32 @@ Resize.prototype.initialize = function () {
 }
 
 Resize.prototype.configurePasses = function () {
-    if (this.widthOriginal == this.targetWidth) {
-        //Bypass the width resizer pass:
+    if (this.widthOriginal === this.targetWidth) {
+        // Bypass the width resizer pass:
         this.resizeWidth = this.bypassResizer;
     } else {
-        //Setup the width resizer pass:
+        // Setup the width resizer pass:
         this.ratioWeightWidthPass = this.widthOriginal / this.targetWidth;
         if (this.ratioWeightWidthPass < 1 && this.interpolationPass) {
             this.initializeFirstPassBuffers(true);
-            this.resizeWidth = (this.colorChannels == 4) ? this.resizeWidthInterpolatedRGBA : this.resizeWidthInterpolatedRGB;
+            this.resizeWidth = (this.colorChannels === 4) ? this.resizeWidthInterpolatedRGBA : this.resizeWidthInterpolatedRGB;
         } else {
             this.initializeFirstPassBuffers(false);
-            this.resizeWidth = (this.colorChannels == 4) ? this.resizeWidthRGBA : this.resizeWidthRGB;
+            this.resizeWidth = (this.colorChannels === 4) ? this.resizeWidthRGBA : this.resizeWidthRGB;
         }
     }
-    if (this.heightOriginal == this.targetHeight) {
-        //Bypass the height resizer pass:
+    if (this.heightOriginal === this.targetHeight) {
+        // Bypass the height resizer pass:
         this.resizeHeight = this.bypassResizer;
     } else {
-        //Setup the height resizer pass:
+        // Setup the height resizer pass:
         this.ratioWeightHeightPass = this.heightOriginal / this.targetHeight;
         if (this.ratioWeightHeightPass < 1 && this.interpolationPass) {
             this.initializeSecondPassBuffers(true);
             this.resizeHeight = this.resizeHeightInterpolated;
         } else {
             this.initializeSecondPassBuffers(false);
-            this.resizeHeight = (this.colorChannels == 4) ? this.resizeHeightRGBA : this.resizeHeightRGB;
+            this.resizeHeight = (this.colorChannels === 4) ? this.resizeHeightRGBA : this.resizeHeightRGB;
         }
     }
 }
@@ -66,39 +66,46 @@ Resize.prototype._resizeWidthInterpolatedRGBChannels = function (buffer, fourthC
     var firstWeight = 0;
     var secondWeight = 0;
     var outputBuffer = this.widthBuffer;
-    //Handle for only one interpolation input being valid for start calculation:
+    // Handle for only one interpolation input being valid for start calculation:
     for (var targetPosition = 0; weight < 1 / 3; targetPosition += channelsNum, weight += ratioWeight) {
         for (finalOffset = targetPosition, pixelOffset = 0; finalOffset < this.widthPassResultSize; pixelOffset += this.originalWidthMultipliedByChannels, finalOffset += this.targetWidthMultipliedByChannels) {
             outputBuffer[finalOffset] = buffer[pixelOffset];
             outputBuffer[finalOffset + 1] = buffer[pixelOffset + 1];
             outputBuffer[finalOffset + 2] = buffer[pixelOffset + 2];
-            if (!fourthChannel) continue;
-            outputBuffer[finalOffset + 3] = buffer[pixelOffset + 3];
+            if (fourthChannel)
+                outputBuffer[finalOffset + 3] = buffer[pixelOffset + 3];
         }
     }
-    //Adjust for overshoot of the last pass's counter:
+    // Adjust for overshoot of the last pass's counter:
     weight -= 1 / 3;
     for (var interpolationWidthSourceReadStop = this.widthOriginal - 1; weight < interpolationWidthSourceReadStop; targetPosition += channelsNum, weight += ratioWeight) {
-        //Calculate weightings:
+        // Calculate weightings:
         secondWeight = weight % 1;
         firstWeight = 1 - secondWeight;
-        //Interpolate:
-        for (finalOffset = targetPosition, pixelOffset = Math.floor(weight) * channelsNum; finalOffset < this.widthPassResultSize; pixelOffset += this.originalWidthMultipliedByChannels, finalOffset += this.targetWidthMultipliedByChannels) {
-            outputBuffer[finalOffset] = (buffer[pixelOffset] * firstWeight) + (buffer[pixelOffset + channelsNum] * secondWeight);
-            outputBuffer[finalOffset + 1] = (buffer[pixelOffset + 1] * firstWeight) + (buffer[pixelOffset + channelsNum + 1] * secondWeight);
-            outputBuffer[finalOffset + 2] = (buffer[pixelOffset + 2] * firstWeight) + (buffer[pixelOffset + channelsNum + 2] * secondWeight);
-            if (!fourthChannel) continue;
-            outputBuffer[finalOffset + 3] = (buffer[pixelOffset + 3] * firstWeight) + (buffer[pixelOffset + channelsNum + 3] * secondWeight);
+        // Interpolate:
+        for (finalOffset = targetPosition, pixelOffset = Math.floor(weight) * channelsNum;
+             finalOffset < this.widthPassResultSize;
+             pixelOffset += this.originalWidthMultipliedByChannels,
+             finalOffset += this.targetWidthMultipliedByChannels) {
+            outputBuffer[finalOffset + 0] = (buffer[pixelOffset + 0] * firstWeight) +
+                                            (buffer[pixelOffset + channelsNum + 0] * secondWeight);
+            outputBuffer[finalOffset + 1] = (buffer[pixelOffset + 1] * firstWeight) +
+                                            (buffer[pixelOffset + channelsNum + 1] * secondWeight);
+            outputBuffer[finalOffset + 2] = (buffer[pixelOffset + 2] * firstWeight) +
+                                            (buffer[pixelOffset + channelsNum + 2] * secondWeight);
+            if (fourthChannel)
+                outputBuffer[finalOffset + 3] = (buffer[pixelOffset + 3] * firstWeight) +
+                                                (buffer[pixelOffset + channelsNum + 3] * secondWeight);
         }
     }
-    //Handle for only one interpolation input being valid for end calculation:
+    // Handle for only one interpolation input being valid for end calculation:
     for (interpolationWidthSourceReadStop = this.originalWidthMultipliedByChannels - channelsNum; targetPosition < this.targetWidthMultipliedByChannels; targetPosition += channelsNum) {
         for (finalOffset = targetPosition, pixelOffset = interpolationWidthSourceReadStop; finalOffset < this.widthPassResultSize; pixelOffset += this.originalWidthMultipliedByChannels, finalOffset += this.targetWidthMultipliedByChannels) {
             outputBuffer[finalOffset] = buffer[pixelOffset];
             outputBuffer[finalOffset + 1] = buffer[pixelOffset + 1];
             outputBuffer[finalOffset + 2] = buffer[pixelOffset + 2];
-            if (!fourthChannel) continue;
-            outputBuffer[finalOffset + 3] = buffer[pixelOffset + 3];
+            if (fourthChannel)
+                outputBuffer[finalOffset + 3] = buffer[pixelOffset + 3];
         }
     }
     return outputBuffer;
@@ -130,9 +137,10 @@ Resize.prototype._resizeWidthRGBChannels = function (buffer, fourthChannel) {
             output[line++] = 0;
             output[line++] = 0;
             output[line++] = 0;
-            if (!fourthChannel) continue;
-            output[line++] = 0;
-            trustworthyColorsCount[line / channelsNum - 1] = 0;
+            if (fourthChannel) {
+                output[line++] = 0;
+                trustworthyColorsCount[line / channelsNum - 1] = 0;
+            }
         }
         weight = ratioWeight;
         do {
@@ -147,9 +155,10 @@ Resize.prototype._resizeWidthRGBChannels = function (buffer, fourthChannel) {
                 output[line++] += (a ? r : 0) * multiplier;
                 output[line++] += (a ? g : 0) * multiplier;
                 output[line++] += (a ? b : 0) * multiplier;
-                if (!fourthChannel) continue;
-                output[line++] += a * multiplier;
-                trustworthyColorsCount[line / channelsNum - 1] += (a ? multiplier : 0);
+                if (fourthChannel) {
+                    output[line++] += a * multiplier;
+                    trustworthyColorsCount[line / channelsNum - 1] += (a ? multiplier : 0);
+                }
             }
             if (weight >= amountToNext) {
                 currentPosition = actualPosition = actualPosition + channelsNum;
@@ -165,15 +174,15 @@ Resize.prototype._resizeWidthRGBChannels = function (buffer, fourthChannel) {
             outputBuffer[pixelOffset] = output[line++] * multiplier;
             outputBuffer[++pixelOffset] = output[line++] * multiplier;
             outputBuffer[++pixelOffset] = output[line++] * multiplier;
-            if (!fourthChannel) continue;
-            outputBuffer[++pixelOffset] = output[line++] * ratioWeightDivisor;
+            if (fourthChannel)
+                outputBuffer[++pixelOffset] = output[line++] * ratioWeightDivisor;
         }
         outputOffset += channelsNum;
     } while (outputOffset < this.targetWidthMultipliedByChannels);
     return outputBuffer;
 }
 
-Resize.prototype._resizeHeightRGBChannels = function(buffer, fourthChannel) {
+Resize.prototype._resizeHeightRGBChannels = function (buffer, fourthChannel) {
     var ratioWeight = this.ratioWeightHeightPass;
     var ratioWeightDivisor = 1 / ratioWeight;
     var weight = 0;
@@ -196,9 +205,10 @@ Resize.prototype._resizeHeightRGBChannels = function(buffer, fourthChannel) {
             output[pixelOffset++] = 0;
             output[pixelOffset++] = 0;
             output[pixelOffset++] = 0;
-            if (!fourthChannel) continue;
-            output[pixelOffset++] = 0;
-            trustworthyColorsCount[pixelOffset / 4 - 1] = 0;
+            if (fourthChannel) {
+                output[pixelOffset++] = 0;
+                trustworthyColorsCount[pixelOffset / 4 - 1] = 0;
+            }
         }
         weight = ratioWeight;
         do {
@@ -214,9 +224,10 @@ Resize.prototype._resizeHeightRGBChannels = function(buffer, fourthChannel) {
                 output[pixelOffset++] += (a ? r : 0) * multiplier;
                 output[pixelOffset++] += (a ? g : 0) * multiplier;
                 output[pixelOffset++] += (a ? b : 0) * multiplier;
-                if (!fourthChannel) continue;
-                output[pixelOffset++] += a * multiplier;
-                trustworthyColorsCount[pixelOffset / 4 - 1] += (a ? multiplier : 0);
+                if (fourthChannel) {
+                    output[pixelOffset++] += a * multiplier;
+                    trustworthyColorsCount[pixelOffset / 4 - 1] += (a ? multiplier : 0);
+                }
             }
             if (weight >= amountToNext) {
                 currentPosition = actualPosition = caret;
@@ -232,11 +243,11 @@ Resize.prototype._resizeHeightRGBChannels = function(buffer, fourthChannel) {
             outputBuffer[outputOffset++] = Math.round(output[pixelOffset++] * multiplier);
             outputBuffer[outputOffset++] = Math.round(output[pixelOffset++] * multiplier);
             outputBuffer[outputOffset++] = Math.round(output[pixelOffset++] * multiplier);
-            if (!fourthChannel) continue;
-            outputBuffer[outputOffset++] = Math.round(output[pixelOffset++] * ratioWeightDivisor);
+            if (fourthChannel)
+                outputBuffer[outputOffset++] = Math.round(output[pixelOffset++] * ratioWeightDivisor);
         }
     } while (outputOffset < this.finalResultSize);
-    
+
     return outputBuffer;
 }
 
@@ -266,26 +277,26 @@ Resize.prototype.resizeHeightInterpolated = function (buffer) {
     var firstWeight = 0;
     var secondWeight = 0;
     var outputBuffer = this.heightBuffer;
-    //Handle for only one interpolation input being valid for start calculation:
+    // Handle for only one interpolation input being valid for start calculation:
     for (; weight < 1 / 3; weight += ratioWeight) {
         for (pixelOffset = 0; pixelOffset < this.targetWidthMultipliedByChannels;) {
             outputBuffer[finalOffset++] = Math.round(buffer[pixelOffset++]);
         }
     }
-    //Adjust for overshoot of the last pass's counter:
+    // Adjust for overshoot of the last pass's counter:
     weight -= 1 / 3;
     for (var interpolationHeightSourceReadStop = this.heightOriginal - 1; weight < interpolationHeightSourceReadStop; weight += ratioWeight) {
-        //Calculate weightings:
+        // Calculate weightings:
         secondWeight = weight % 1;
         firstWeight = 1 - secondWeight;
-        //Interpolate:
+        // Interpolate:
         pixelOffsetAccumulated = Math.floor(weight) * this.targetWidthMultipliedByChannels;
         pixelOffsetAccumulated2 = pixelOffsetAccumulated + this.targetWidthMultipliedByChannels;
         for (pixelOffset = 0; pixelOffset < this.targetWidthMultipliedByChannels; ++pixelOffset) {
             outputBuffer[finalOffset++] = Math.round((buffer[pixelOffsetAccumulated++] * firstWeight) + (buffer[pixelOffsetAccumulated2++] * secondWeight));
         }
     }
-    //Handle for only one interpolation input being valid for end calculation:
+    // Handle for only one interpolation input being valid for end calculation:
     while (finalOffset < this.finalResultSize) {
         for (pixelOffset = 0, pixelOffsetAccumulated = interpolationHeightSourceReadStop * this.targetWidthMultipliedByChannels; pixelOffset < this.targetWidthMultipliedByChannels; ++pixelOffset) {
             outputBuffer[finalOffset++] = Math.round(buffer[pixelOffsetAccumulated++]);
@@ -307,12 +318,12 @@ Resize.prototype.resize = function (buffer) {
 }
 
 Resize.prototype.bypassResizer = function (buffer) {
-    //Just return the buffer passsed:
+    // Just return the buffer passsed:
     return buffer;
 }
 
 Resize.prototype.initializeFirstPassBuffers = function (BILINEARAlgo) {
-    //Initialize the internal width pass buffers:
+    // Initialize the internal width pass buffers:
     this.widthBuffer = this.generateFloatBuffer(this.widthPassResultSize);
     if (!BILINEARAlgo) {
         this.outputWidthWorkBench = this.generateFloatBuffer(this.originalHeightMultipliedByChannels);
@@ -323,7 +334,7 @@ Resize.prototype.initializeFirstPassBuffers = function (BILINEARAlgo) {
 }
 
 Resize.prototype.initializeSecondPassBuffers = function (BILINEARAlgo) {
-    //Initialize the internal height pass buffers:
+    // Initialize the internal height pass buffers:
     this.heightBuffer = this.generateUint8Buffer(this.finalResultSize);
     if (!BILINEARAlgo) {
         this.outputHeightWorkBench = this.generateFloatBuffer(this.targetWidthMultipliedByChannels);
@@ -334,7 +345,7 @@ Resize.prototype.initializeSecondPassBuffers = function (BILINEARAlgo) {
 }
 
 Resize.prototype.generateFloatBuffer = function (bufferLength) {
-    //Generate a float32 typed array buffer:
+    // Generate a float32 typed array buffer:
     try {
         return new Float32Array(bufferLength);
     } catch (error) {
@@ -343,7 +354,7 @@ Resize.prototype.generateFloatBuffer = function (bufferLength) {
 }
 
 Resize.prototype.generateFloat64Buffer = function (bufferLength) {
-    //Generate a float64 typed array buffer:
+    // Generate a float64 typed array buffer:
     try {
         return new Float64Array(bufferLength);
     } catch (error) {
@@ -352,7 +363,7 @@ Resize.prototype.generateFloat64Buffer = function (bufferLength) {
 }
 
 Resize.prototype.generateUint8Buffer = function (bufferLength) {
-    //Generate a uint8 typed array buffer:
+    // Generate a uint8 typed array buffer:
     try {
         return new Uint8Array(bufferLength);
     } catch (error) {

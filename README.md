@@ -494,6 +494,34 @@ Jimp.read("lenna.png", function (err, image) {
 
 The Node-style callback pattern allows Jimp to be used with frameworks that expect or build on the Node-style callback pattern.
 
+## Contributing ##
+
+Basicaly clone, change, test, push and pull request.
+For more details, read the [Community Maintainer Guidelines](https://github.com/oliver-moran/jimp/issues/223)
+
+### Testing ###
+
+The test framework runs at node.js and browsers environments. Just run `npm test` to test in all environments.
+
+While developing you may want to test only on node.js:
+```
+$ run test:node:once
+```
+...or only one test file:
+```
+$ run test:node:run test/some.test.js
+```
+...or run each time a file changes:
+```
+$ run test:node:whatch
+```
+...or test only in a specific browser:
+```
+$ npm run test:browser:once -- --browsers Firefox
+```
+For more options and project management tools see: `npm run`
+
+
 ## License ##
 
 Jimp is licensed under the MIT license. Open Sans is licensed under the Apache license.
