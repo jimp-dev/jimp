@@ -42,8 +42,6 @@ Jimp.read("lenna.png").then(function (lenna) {
 });
 ```
 
-Also available to use in web browsers and Electron applications. See [`browser/README.md`](https://github.com/oliver-moran/jimp/blob/master/browser/README.md).
-
 ## Basic usage ##
 
 The static `Jimp.read` method takes the path to a PNG, JPEG or BMP file and (optionally) a Node-style callback and returns a Promise:
