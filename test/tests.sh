@@ -9,6 +9,7 @@ function clean {
     rm -r ./output/*.png &>/dev/null
     rm -r ./output/*.jpg &>/dev/null
     rm -r ./output/*.bmp &>/dev/null
+    rm -r ./output/subdir &>/dev/null
 }
 
 TOTALTESTS=17
@@ -34,7 +35,7 @@ echo "rotation.js (5/$TOTALTESTS)"
 node rotation.js
 
 clean
-echo "filetype.js (6/$TOTALTESTS)"
+echo "filetypes.js (6/$TOTALTESTS)"
 node filetypes.js
 
 clean
@@ -54,32 +55,32 @@ echo "autocrop.js (10/$TOTALTESTS)"
 node autocrop.js
 
 clean
-echo "autocrop.js (11/$TOTALTESTS)"
-node autocrop.js
-
-clean
-echo "resize.js (13/$TOTALTESTS)"
+echo "resize.js (11/$TOTALTESTS)"
 node resize.js
 
 clean
-echo "normalize.js (13/$TOTALTESTS)"
+echo "normalize.js (12/$TOTALTESTS)"
 node normalize.js
 
 clean
-echo "print.js (14/$TOTALTESTS)"
+echo "print.js (13/$TOTALTESTS)"
 node print.js
 
 clean
-echo "align.js (15/$TOTALTESTS)"
+echo "align.js (14/$TOTALTESTS)"
 node align.js
 
 clean
-echo "convolution.js (16/$TOTALTESTS)"
+echo "convolution.js (15/$TOTALTESTS)"
 node convolution.js
 
 clean
-echo "write.js (17/$TOTALTESTS)"
+echo "write.js (16/$TOTALTESTS)"
 node write.js
+
+clean
+echo "pixelate.js (17/$TOTALTESTS)"
+node pixelate.js
 
 clean
 echo "done :-)"

@@ -1,7 +1,7 @@
 var Jimp = require("../index.js");
 
 var lenna = new Jimp("lenna.png", function(err, image) {
-    this.quality(1).write("./output/lenna-copy.jpg", loadJPEG); // JPEG copy
+    this.exifRotate().quality(60).write("./output/lenna-copy.jpg", loadJPEG); // JPEG copy
     this.write("./output/lenna-copy.bmp", loadBMP); // BMP copy
 });
 
@@ -12,13 +12,22 @@ function loadJPEG(){
 }
 
 function loadBMP(){
-    var jpg = new Jimp("./output/lenna-copy.bmp", function(err, image) {
-        jpg.invert().write("./output/lenna-invert.bmp");
+    var bmp = new Jimp("./output/lenna-copy.bmp", function(err, image) {
+        bmp.invert().write("./output/lenna-invert.gif");
     });
 }
 
 function loadJPEGfromURL(){
-    var jpg = new Jimp("https://pbs.twimg.com/profile_images/576731845196386304/NbMtcjUb.jpeg", function(err, image) {
+    var jpg = new Jimp("https://upload.wikimedia.org/wikipedia/commons/0/01/Bot-Test.jpg", function(err, image) {
         jpg.filterType(Jimp.PNG_FILTER_NONE).deflateLevel(0).invert().write("./output/url-invert.png");
     });
 }
+
+loadJPEGfromURL();
+
+
+var moon = new Jimp("moon.gif", function(err, image) {
+    this.write("./output/moon.png"); // BMP copy
+    this.write("./output/moon.jpg"); // BMP copy
+    this.write("./output/moon.bmp"); // BMP copy
+});

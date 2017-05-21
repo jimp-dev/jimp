@@ -19,7 +19,7 @@ Promise.all([
     Jimp.read("./exif-orientation/Portrait_8.jpg")
 ]).then(function(images){
     for (var i = 0; i < images.length; i++) {
-        images[i].write("./output/exif-" + i + ".png");
+        images[i].exifRotate().write("./output/exif-" + i + ".png");
     }
 }).catch(function (err) {
     console.error(err);

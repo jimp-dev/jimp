@@ -5,9 +5,9 @@
 # eg: I/O, Affine Transforms, Bitmap Operations, Gamma Curves, and Layers
 # Initial Build includes everything except file IO, which is browser-incompatible
 cd ${0%/*}
-echo "Browserifying browser/jimp.js..."
+echo "Browserifying index.js..."
 ENVIRONMENT=BROWSER \
-browserify --ignore-missing -t envify -t uglifyify ../index.js > tmp1.js
+browserify --ignore-missing Buffer -t envify -t uglifyify ../index.js > tmp1.js
 echo "Translating for ES5..."
 babel tmp1.js -o tmp.js --presets es2015,stage-0
 

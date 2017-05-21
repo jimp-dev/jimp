@@ -1,6 +1,6 @@
 <hr>
 
-**Can you help maintain this project?** 
+**Can you help maintain this project?**
 
 Collaborators wanted: https://github.com/oliver-moran/jimp/issues/219
 
@@ -88,7 +88,7 @@ image.scaleToFit( w, h[, mode] ); // scale the image to the largest size that fi
 // An optional resize mode can be passed with all resize methods.
 
 /* Crop */
-image.autocrop();                 // automatically crop same-color borders from image (if any)
+image.autocrop([tolerance, frames]); // automatically crop same-color borders from image (if any), frames must be a Boolean
 image.crop( x, y, w, h );         // crop to the given region
 
 /* Composing */
@@ -102,8 +102,7 @@ image.convolute( kernel );        // applies a convolution kernel matrix to the 
 image.flip( horz, vert );         // flip the image horizontally or vertically
 image.mirror( horz, vert );       // an alias for flip
 image.rotate( deg[, mode] );      // rotate the image clockwise by a number of degrees. Optionally, a resize mode can be passed. If `false` is passed as the second parameter, the image width and height will not be resized.
-
-// JPEG images with EXIF orientation data will be automatically re-orientated as appropriate.
+image.exifRotate();               // JPEG images with EXIF orientation data will be automatically re-orientated as appropriate.
 
 /* Colour */
 image.brightness( val );          // adjust the brighness by a value -1 to +1
@@ -117,7 +116,7 @@ image.normalize();                // normalize the channels in an image
 image.fade( f );                  // an alternative to opacity, fades the image by a factor 0 - 1. 0 will haven no effect. 1 will turn the image
 image.opacity( f );               // multiply the alpha channel by each pixel by the factor f, 0 - 1
 image.opaque();                   // set the alpha channel on every pixel to fully opaque
-image.background( hex );          // set the default new pixel colour (e.g. 0xFFFFFFFF or 0x00000000) for by some operations (e.g. image.contain and 
+image.background( hex );          // set the default new pixel colour (e.g. 0xFFFFFFFF or 0x00000000) for by some operations (e.g. image.contain and
 
 /* Blurs */
 image.gaussian( r );              // Gaussian blur the image by r pixels (VERY slow)
@@ -126,7 +125,7 @@ image.blur( r );                  // fast blur the image by r pixels
 /* Effects */
 image.posterize( n );             // apply a posterization effect with n level
 image.sepia();                    // apply a sepia wash to the image
-image.pixelate( size );           // apply a pixelation effect to the image or a region 
+image.pixelate( size[, x, y, w, h ]);  // apply a pixelation effect to the image or a region
 
 /* 3D */
 image.displace( map, offset );    // displaces the image pixels based on the provided displacement map. Useful for making stereoscopic 3D images.
@@ -364,7 +363,7 @@ This data can be manipulated directly but remember: garbage in, garbage out.
 A helper method is available to scan a region of the bitmap:
 
 ```js
-image.scan(x, y, w, h, cb); // scan a given region of the bitmap and call cb on every pixel
+image.scan(x, y, w, h, f); // scan a given region of the bitmap and call the function f on every pixel
 ```
 
 Example usage:
@@ -383,6 +382,19 @@ image.scan(0, 0, image.bitmap.width, image.bitmap.height, function (x, y, idx) {
     // rgba values run from 0 - 255
     // e.g. this.bitmap.data[idx] = 0; // removes red from this pixel
 });
+```
+A helper to locate a particular pixel within the raw bitmap buffer:
+
+```js
+image.getPixelIndex(x, y); // returns the index within image.bitmap.data
+```
+
+One of the following may be optionally passed as a third parameter to indicate a strategy for x, y positions that are outside of boundaries of the image:
+
+```js
+Jimp.EDGE_EXTEND = 1;
+Jimp.EDGE_WRAP = 2;
+Jimp.EDGE_CROP = 3;
 ```
 
 Alternatively, you can manipulate individual pixels using the following these functions:
