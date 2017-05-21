@@ -20,10 +20,10 @@ var Path = require("path");
 var MkDirP = require("mkdirp");
 var Request = require("./src/request");
 
-var hasOwnProp = (obj, key)=> Object.prototype.hasOwnProperty.call(obj, key);
-
 // polyfill Promise for Node < 0.12
 var Promise = global.Promise || require('es6-promise').Promise;
+
+var isDef = (v)=> typeof v !== "undefined" && v !== null;
 
 // logging methods
 
@@ -90,7 +90,7 @@ function throwError (error, cb) {
  */
 
 function Jimp () {
-    var cb = function () {};
+    var options, cb = function () {};
     var that = this;
     if (typeof arguments[0] === "number" && typeof arguments[1] === "number") {
         // create a new image
@@ -150,14 +150,13 @@ function Jimp () {
     } else if (URLRegEx({exact: true}).test(arguments[0])) {
         // read from a URL
         var url = arguments[0];
-        var cb = arguments[1];
-        var options = arguments[2];
+        cb = arguments[1];
+        options = arguments[2]; // TODO: args after cb sux.
 
         if (typeof cb === "undefined") cb = noop;
         if (typeof cb !== "function")
             return throwError.call(this, "cb must be a function", cb);
 
-        var that = this;
         Request(url, function (err, response, data) {
             if (err) return throwError.call(that, err, cb);
             if (typeof data === "object" && Buffer.isBuffer(data)) {
@@ -170,8 +169,8 @@ function Jimp () {
     } else if (typeof arguments[0] === "string") {
         // read from a path
         var path = arguments[0];
-        var cb = arguments[1];
-        var options = arguments[2];
+        cb = arguments[1];
+        options = arguments[2]; // TODO: args after cb sux.
 
         if (typeof cb === "undefined") cb = noop;
         if (typeof cb !== "function")
@@ -188,7 +187,8 @@ function Jimp () {
         // read from a buffer
         var data = arguments[0];
         var mime = getMIMEFromBuffer(data);
-        var cb = arguments[1];
+        cb = arguments[1];
+        options = arguments[2]; // TODO: args after cb sux.
 
         if (typeof mime !== "string")
             return throwError.call(this, "mime must be a string", cb);
@@ -200,50 +200,26 @@ function Jimp () {
         // Allow client libs to add new ways to build a Jimp object.
         // Extra constructors must be added by `Jimp.appendConstructorOption()`
 
-        // Prepare arguments to pass to each `extraConstructor.test`
-        var args = [];
-        for (let i=0; i<arguments.length; i++) args.push(arguments[i]);
-        // The last arg is the callback to finish the main constructor job:
-        var jimpConstructorCallback = (err, userCallback)=> {
-            if (err) return throwError.call(this, "user callback was missed.");
-            var that = this;
-            setTimeout( // callback on next tic to escape the try/catch.
-                ()=> { userCallback.call(that, err, that) },
-                1
-            );
-        };
-        jimpConstructorCallback.itIsTheJimpConstructorCallback = true;
-        args.push(jimpConstructorCallback);
-
-        // Lets read each registered extraConstructor and try it...
-        var extraConstructorMatch = false;
-        for (let extraConstructorName in Jimp.__extraConstructors) {
-            if (hasOwnProp(Jimp.__extraConstructors, extraConstructorName)) {
-                var extraConstructor = Jimp.__extraConstructors[extraConstructorName];
-                try {
-                    // it the extraConstructor.test returns true, run it and do not test others.
-                    if (extraConstructor.test.apply(this, args)) {
-                        extraConstructorMatch = true;
-                        extraConstructor.run.apply(this, args);
-                        break;
-                    }
-                } catch (err) {
-                    return throwError.call(this,
-                        'Constructor "'+extraConstructorName+'" Fail. ' +
-                        err.message, cb
-                    );
-                }
-            }
+        cb = arguments[arguments.length-1];
+        if (typeof cb !== "function") {
+            cb = arguments[arguments.length-2]; // TODO: try to solve the args after cb problem.
+            if (typeof cb !== "function") cb = function () {};
         }
-        if (!extraConstructorMatch)
-            return throwError.call(this,
-                "No matching constructor overloading was found. " +
-                "Please see the docs for how to call the Jimp constructor.", cb
-            );
+        var extraConstructor = Jimp.__extraConstructors.find((c)=> c.test(...arguments));
+        if (extraConstructor)
+            new Promise(
+                (resolve, reject)=> extraConstructor.run.call(this, resolve, reject, ...arguments)
+            )
+            .then(()=> cb.call(this, null, this))
+            .catch(cb);
+        else return throwError.call(this,
+            "No matching constructor overloading was found. " +
+            "Please see the docs for how to call the Jimp constructor.", cb
+        );
     }
 }
 
-Jimp.__extraConstructors = {};
+Jimp.__extraConstructors = [];
 
 /**
  * Allow client libs to add new ways to build a Jimp object.
@@ -252,7 +228,7 @@ Jimp.__extraConstructors = {};
  * @param runner where the magic happens.
  */
 Jimp.appendConstructorOption = function (name, test, runner) {
-    Jimp.__extraConstructors[name] = { test: test, run: runner };
+    Jimp.__extraConstructors.push({ name: name, test: test, run: runner });
 }
 
 /**
@@ -261,7 +237,7 @@ Jimp.appendConstructorOption = function (name, test, runner) {
  * @param cb (optional) a callback function when the file is read
  * @retuns a promise
  */
-Jimp.read = function (src, cb, options) {
+Jimp.read = function (src, cb, options) { // TODO: args after cb sux.
     var promise = new Promise(
         function (resolve, reject) {
             cb = cb || function (err, image) {
@@ -307,20 +283,20 @@ function getMIMEFromPath (path, cb) {
 // => {ext: 'png', mime: 'image/png'}
 
 // gets image data from a GIF buffer
-function getBitmapFromGIF(data){
-  var gifObj = new GIF.GifReader(data);
-  var gifData = new Buffer(gifObj.width * gifObj.height * 4);
+function getBitmapFromGIF (data) {
+    var gifObj = new GIF.GifReader(data);
+    var gifData = new Buffer(gifObj.width * gifObj.height * 4);
 
-  gifObj.decodeAndBlitFrameRGBA(0, gifData);
-  return {
-    data: gifData,
-    width: gifObj.width,
-    height: gifObj.height
-  };
+    gifObj.decodeAndBlitFrameRGBA(0, gifData);
+    return {
+        data: gifData,
+        width: gifObj.width,
+        height: gifObj.height
+    };
 }
 
 // parses a bitmap from the constructor to the JIMP bitmap property
-function parseBitmap(data, mime, cb) {
+function parseBitmap (data, mime, cb) {
     var that = this;
     this._originalMime = mime.toLowerCase();
 
@@ -341,8 +317,12 @@ function parseBitmap(data, mime, cb) {
         case Jimp.MIME_JPEG:
             try {
                 this.bitmap = JPEG.decode(data);
-                try { this._exif = EXIFParser.create(data).parse(); }
-                catch (err) { /* meh */ }
+                try {
+                    this._exif = EXIFParser.create(data).parse();
+                    exifRotate(this); // EXIF data
+                } catch (err) {
+                    /* meh */
+                }
                 return cb.call(this, null, this);
             } catch (err) {
                 return cb.call(this, err, this);
@@ -350,8 +330,8 @@ function parseBitmap(data, mime, cb) {
 
         case Jimp.MIME_BMP:
         case Jimp.MIME_X_MS_BMP:
-              this.bitmap = BMP.decode(data);
-              return cb.call(this, null, this);
+            this.bitmap = BMP.decode(data);
+            return cb.call(this, null, this);
 
         case Jimp.MIME_GIF:
             this.bitmap = getBitmapFromGIF(data);
@@ -363,45 +343,41 @@ function parseBitmap(data, mime, cb) {
 }
 
 /*
- * Automagically rotates a JPEG image based on its EXIF data
- * @params image a Jimp image
- * @params buffer a buffer array of the raw JPEG data
- * @returns nothing
- */
-function exifRotate (image, buffer) {
-    var exif;
-    try {
-        exif = EXIFParser.create(buffer).parse();
-    } catch (err) {
-        return; // meh
-    }
-    if (!exif || !exif.tags || !exif.tags.Orientation) return;
-    switch (exif.tags.Orientation) {
-        case 1: // Horizontal (normal)
+ * Automagically rotates an image based on its EXIF data (if present)
+ * @param img a Jimp object
+*/
+function exifRotate (img) {
+    var exif = img._exif;
+    if (exif && exif.tags && exif.tags.Orientation) {
+        switch (img._exif.tags.Orientation) {
+            case 1: // Horizontal (normal)
                 // do nothing
-            break;
-        case 2: // Mirror horizontal
-            image.mirror(true, false);
-            break;
-        case 3: // Rotate 180
-            image.rotate(180, false);
-            break;
-        case 4: // Mirror vertical
-            image.mirror(false, true);
-            break;
-        case 5: // Mirror horizontal and rotate 270 CW
-            image.mirror(true, false).rotate(-270, false);
-            break;
-        case 6: // Rotate 90 CW
-            image.rotate(-90, false);
-            break;
-        case 7: // Mirror horizontal and rotate 90 CW
-            image.mirror(true, false).rotate(-90, false);
-            break;
-        case 8: // Rotate 270 CW
-            image.rotate(-270, false);
-            break;
+                break;
+            case 2: // Mirror horizontal
+                img.mirror(true, false);
+                break;
+            case 3: // Rotate 180
+                img.rotate(180, false);
+                break;
+            case 4: // Mirror vertical
+                img.mirror(false, true);
+                break;
+            case 5: // Mirror horizontal and rotate 270 CW
+                img.rotate(-90, false).mirror(true, false);
+                break;
+            case 6: // Rotate 90 CW
+                img.rotate(-90, false);
+                break;
+            case 7: // Mirror horizontal and rotate 90 CW
+                img.rotate(90, false).mirror(true, false);
+                break;
+            case 8: // Rotate 270 CW
+                img.rotate(-270, false);
+                break;
+        }
     }
+
+    return img;
 }
 
 // used to auto resizing etc.
@@ -911,47 +887,6 @@ Jimp.prototype.hash = function (base, cb) {
     if (isNodePattern(cb)) return cb.call(this, null, hash);
     else return hash;
 }
-
-
-/*
- * Automagically rotates an image based on its EXIF data (if present)
- * @param (optional) cb a callback for when complete
- * @returns this for chaining of methods
-*/
-Jimp.prototype.exifRotate = function (cb) {
-    if (this._exif && this._exif.tags && this._exif.tags.Orientation) {
-      switch (this._exif.tags.Orientation) {
-          case 1: // Horizontal (normal)
-              // do nothing
-              break;
-          case 2: // Mirror horizontal
-              this.mirror(true, false);
-              break;
-          case 3: // Rotate 180
-              this.rotate(180);
-              break;
-          case 4: // Mirror vertical
-              this.mirror(false, true);
-              break;
-          case 5: // Mirror horizontal and rotate 270 CW
-              this.mirror(true, false).rotate(270);
-              break;
-          case 6: // Rotate 90 CW
-              this.rotate(90);
-              break;
-          case 7: // Mirror horizontal and rotate 90 CW
-              this.mirror(true, false).rotate(90);
-              break;
-          case 8: // Rotate 270 CW
-              this.rotate(270);
-              break;
-      }
-    }
-
-    if (isNodePattern(cb)) return cb.call(this, null, this);
-    else return this;
-}
-
 
 /**
  * Crops the image at a given point to a give size
@@ -2082,37 +2017,31 @@ Jimp.prototype.scaleToFit = function (w, h, mode, cb) {
  */
 Jimp.prototype.pixelate = function (size, x, y, w, h, cb) {
 
-    if ("function" == typeof x) {
-      cb = x;
-      x = y = w = h = undefined;
+    if (typeof x === "function") {
+        cb = x;
+        x = y = w = h = null;
     } else {
-      if ("number" != typeof size)
-          return throwError.call(this, "size must be a number", cb);
-      if (x !== undefined)
-          if ("number" != typeof x)
-              return throwError.call(this, "x must be a number", cb);
-      if (y !== undefined)
-          if ("number" != typeof y)
-              return throwError.call(this, "y must be a number", cb);
-      if (w !== undefined)
-          if ("number" != typeof w)
-              return throwError.call(this, "w must be a number", cb);
-      if (h !== undefined)
-          if ("number" != typeof h)
-              return throwError.call(this, "h must be a number", cb);
+        if (typeof size !== "number")
+            return throwError.call(this, "size must be a number", cb);
+        if (isDef(x) && typeof x !== "number")
+            return throwError.call(this, "x must be a number", cb);
+        if (isDef(y) && typeof y !== "number")
+            return throwError.call(this, "y must be a number", cb);
+        if (isDef(w) && typeof w !== "number")
+            return throwError.call(this, "w must be a number", cb);
+        if (isDef(h) && typeof h !== "number")
+            return throwError.call(this, "h must be a number", cb);
     }
-
-
-    var kernel = [
+    let kernel = [
         [1 / 16, 2 / 16, 1 / 16],
         [2 / 16, 4 / 16, 2 / 16],
         [1 / 16, 2 / 16, 1 / 16]
     ];
 
-    x = x !== undefined ? x : 0;
-    y = y !== undefined ? y : 0;
-    w = w !== undefined ? w : this.bitmap.width - x;
-    h = h !== undefined ? h : this.bitmap.height - y;
+    x = x || 0;
+    y = y || 0;
+    w = isDef(w) ? x : this.bitmap.width - x;
+    h = isDef(h) ? h : this.bitmap.height - y;
 
     var source = this.clone();
     this.scan(x, y, w, h, function (xx, yx, idx) {
@@ -2145,30 +2074,26 @@ Jimp.prototype.convolute = function (kernel, x, y, w, h, cb) {
     if (!Array.isArray(kernel))
         return throwError.call(this, "the kernel must be an array", cb);
 
-    if ("function" == typeof x) {
-      cb = x;
-      x = y = w = h = undefined;
+    if (typeof x === "function") {
+        cb = x;
+        x = y = w = h = null;
     } else {
-      if (x !== undefined)
-          if ("number" != typeof x)
-              return throwError.call(this, "x must be a number", cb);
-      if (y !== undefined)
-          if ("number" != typeof y)
-              return throwError.call(this, "y must be a number", cb);
-      if (w !== undefined)
-          if ("number" != typeof w)
-              return throwError.call(this, "w must be a number", cb);
-      if (h !== undefined)
-          if ("number" != typeof h)
-              return throwError.call(this, "h must be a number", cb);
+        if (isDef(x) && typeof x !== "number")
+            return throwError.call(this, "x must be a number", cb);
+        if (isDef(y) && typeof y !== "number")
+            return throwError.call(this, "y must be a number", cb);
+        if (isDef(w) && typeof w !== "number")
+            return throwError.call(this, "w must be a number", cb);
+        if (isDef(h) && typeof h !== "number")
+            return throwError.call(this, "h must be a number", cb);
     }
 
-    var ksize = (kernel.length - 1) / 2;
+    let ksize = (kernel.length - 1) / 2;
 
-    x = x !== undefined ? x : ksize;
-    y = y !== undefined ? y : ksize;
-    w = w !== undefined ? w : this.bitmap.width - x;
-    h = h !== undefined ? h : this.bitmap.height - y;
+    x = isDef(x) ? x : ksize;
+    y = isDef(y) ? y : ksize;
+    w = isDef(w) ? w : this.bitmap.width - x;
+    h = isDef(h) ? h : this.bitmap.height - y;
 
     var source = this.clone();
     this.scan(x, y, w, h, function (xx, yx, idx) {
@@ -2183,9 +2108,9 @@ Jimp.prototype.convolute = function (kernel, x, y, w, h, cb) {
     else return this;
 };
 
-function applyKernel(im, kernel, x, y) {
-    var value = [0, 0, 0];
-    var size = (kernel.length - 1) / 2;
+function applyKernel (im, kernel, x, y) {
+    let value = [0, 0, 0];
+    let size = (kernel.length - 1) / 2;
 
     for (var kx = 0; kx < kernel.length; kx += 1) {
         for (var ky = 0; ky < kernel[kx].length; ky += 1) {
@@ -2359,9 +2284,9 @@ Jimp.prototype.rotate = function (deg, mode, cb) {
  * @returns this for chaining of methods
  */
 Jimp.prototype.displace = function (map, offset, cb) {
-    if ("object" != typeof map || map.constructor != Jimp)
+    if (typeof map !== "object" || map.constructor !== Jimp)
         return throwError.call(this, "The source must be a Jimp image", cb);
-    if ("number" != typeof offset)
+    if (typeof offset !== "number")
         return throwError.call(this, "factor must be a number", cb);
 
     var source = this.clone();
@@ -2728,15 +2653,13 @@ Jimp.prototype.write = function (path, cb) {
     return this;
 };
 
-
 /* Nicely format Jimp object when sent to the console e.g. console.log(imgage) */
 Jimp.prototype.inspect = function () {
     return '<Jimp ' +
-        (this.bitmap === Jimp.prototype.bitmap ? 'pending...' :
-            this.bitmap.width + 'x' + this.bitmap.height) +
+        (this.bitmap === Jimp.prototype.bitmap ? 'pending...'
+            : this.bitmap.width + 'x' + this.bitmap.height) +
         '>';
 };
-
 
 // Nicely format Jimp object when converted to a string
 Jimp.prototype.toString = function () {
@@ -2745,9 +2668,10 @@ Jimp.prototype.toString = function () {
 
 if (process.env.ENVIRONMENT === "BROWSER") {
     // For use in a web browser or web worker
+    /* global self */
     var gl;
-    if (typeof window == "object") gl = window;
-    if (typeof self == "object") gl = self;
+    if (typeof window !== "undefined" && typeof window === "object") gl = window;
+    if (typeof self !== "undefined" && typeof self === "object") gl = self;
 
     gl.Jimp = Jimp;
     gl.Buffer = Buffer;

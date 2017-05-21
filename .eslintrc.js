@@ -22,6 +22,7 @@ module.exports = {
         "standard/array-bracket-even-spacing": "off", // allow matrix alignment
         "comma-spacing": "warn",  // allow matrix alignment
         "one-var": "off",
+        "spaced-comment": ["error", "always", { "exceptions": ["*"] }],
 
         // extends unset "standard" rules
         "array-bracket-spacing": "off",  // allow matrix alignment
@@ -105,7 +106,7 @@ module.exports = {
         "no-useless-concat": "error",
         "no-var": "off",
         "no-void": "error",
-        "no-warning-comments": "error",
+        "no-warning-comments": "warn",
         "object-curly-newline": "error",
         "object-curly-spacing": "off",
         "object-shorthand": "off",

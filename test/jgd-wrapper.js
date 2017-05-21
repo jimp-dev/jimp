@@ -8,18 +8,14 @@ var JGD = require("../tools/jgd");
  */
 Jimp.appendConstructorOption(
     'build from JGD object',
-    function test (jgd, userCallback, jimpConstructorCallback) {
-        /* eslint space-in-parens: off */
-        return (typeof jgd             === "object"  ) &&
-               (typeof jgd.width       === "number"  ) &&
-               (typeof jgd.height      === "number"  ) &&
-               (typeof jgd.data.length === "number"  ) &&
-               (typeof userCallback    === "function") &&
-               jimpConstructorCallback.itIsTheJimpConstructorCallback
-    },
-    function runner (jgd, userCallback, jimpConstructorCallback) {
+    (jgd)=> (typeof jgd             === "object") &&
+            (typeof jgd.width       === "number") &&
+            (typeof jgd.height      === "number") &&
+            (typeof jgd.data.length === "number")
+    ,
+    function (resolve, reject, jgd) { // `this` points to a Jimp instance
         this.bitmap = JGD.decode(jgd);
-        jimpConstructorCallback(null, userCallback);
+        resolve();
     }
 );
 

@@ -42,7 +42,7 @@ describe("FileType", ()=> {
             0xFF0080ff, 0xFF00FFff, 0x8000FFff,
             0xFF00FFff, 0x8000FFff, 0x0000FFff
         ]
-    }
+    };
 
     it("export PNG", (done)=> {
         new Jimp(simpleJGD, function (err, image) {

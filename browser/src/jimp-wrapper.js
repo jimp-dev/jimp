@@ -22,15 +22,15 @@
 
 /* global self, XMLHttpRequest */
 
-var Jimp = require("../../index");
-
 // For use in a web browser or web worker
 var globals;
 if (typeof window === "object") globals = window;
 else if (typeof self === "object") globals = self;
 else throw Error("Here is not is not a browser! Where am i?");
 
-globals.Jimp = Jimp;
+// var Jimp = require("../../index");
+// globals.Jimp = Jimp;
+var Jimp = globals.Jimp;
 globals.Buffer = require("buffer");
 
 if (!globals.Buffer) throw Error("Node's Buffer() not available");
