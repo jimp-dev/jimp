@@ -2526,11 +2526,41 @@ function measureText(font, text) {
 
 /**
  * Writes the image to a file
- * @param path a path to the destination file (either PNG or JPEG)
- * @param (optional) cb a function to call when the image is saved to disk
- * @returns this for chaining of methods
+ *
+ * @param {string} path a path to the destination file (either PNG or JPEG)
+ * @param {null|function} cb a function to call when the image is saved to disk
+ * @param {boolean} returnPromise
+ * @returns {Jimp|Promise} if returnPromise is true then returns a Promise otherwise `this` for chaining methods
  */
-Jimp.prototype.write = function (path, cb) {
+Jimp.prototype.write = function (path, cb, returnPromise) {
+    returnPromise = returnPromise || false;
+    if (returnPromise) {
+        return new Promise(
+            function (resolve, reject) {
+                this._write(path, function (err) {
+                    if (err) {
+                        reject(err);
+                    } else {
+                        resolve(null);
+                    }
+                });
+            }.bind(this)
+        );
+    } else {
+        this._write(path, cb);
+        return this;
+    }
+};
+
+/**
+ * Writes buffer to a file
+ *
+ * @private
+ * @param {String} path
+ * @param {function} cb Callback when the action is done
+ * @return {undefined}
+ */
+Jimp.prototype._write = function(path, cb) {
     if ("string" != typeof path)
         return throwError.call(this, "path must be a string", cb);
     if ("undefined" == typeof cb) cb = function () {};
@@ -2556,8 +2586,6 @@ Jimp.prototype.write = function (path, cb) {
             return cb.call(that, null, that);
         });
     });
-
-    return this;
 };
 
 
