@@ -249,16 +249,14 @@ Jimp.appendConstructorOption = function (name, test, runner) {
 /**
  * Read an image from a file or a Buffer
  * @param src the path to the file or a Buffer containing the file data
- * @param cb (optional) a callback function when the file is read
  * @retuns a promise
  */
-Jimp.read = function (src, cb) {
+Jimp.read = function (src) {
     return new Promise(function (resolve, reject) {
-        cb = cb || function (err, image) {
+        new Jimp(src, (err, image)=> {
             if (err) reject(err);
             else resolve(image);
-        };
-        new Jimp(src, cb);
+        });
     });
 }
 
