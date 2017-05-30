@@ -16,6 +16,7 @@
     "test:browser:watch": "npm run -s test:karma start -- --auto-watch",
     "test:node:run": "mocha",
     "test:node:once": "istanbul cover _mocha ./test/*.test.js",
+    "test:node:once:nocover": "mocha ./test/*.test.js",
     "test:node:watch": "mocha --reporter min --watch ./test/*.test.js",
     "test:without-lint": "npm run -s test:node:once && npm run -s test:browser:once",
     "test": "npm run -s lint && npm run -s test:without-lint",
@@ -50,11 +51,9 @@
     "mkdirp": "0.5.1",
     "pixelmatch": "^4.0.0",
     "pngjs": "^3.0.0",
-    "read-chunk": "^1.0.1",
     "request": "^2.65.0",
     "stream-to-buffer": "^0.1.0",
-    "tinycolor2": "^1.1.2",
-    "url-regex": "^3.0.0"
+    "tinycolor2": "^1.1.2"
   },
   "devDependencies": {
     "babel": "^6.0.14",

@@ -19,7 +19,7 @@ module.exports = function (config) {
         // list of files / patterns to load in the browser
         files: [
             "*.js",
-            "test/*.test.js",
+            process.env.TEST || "test/*.test.js",
             "test/test-helper.js",
             {pattern: "test/samples/**/*", watched: false, included: false, served: true},
             {pattern: "fonts/open-sans/**/*", watched: false, included: false, served: true}
