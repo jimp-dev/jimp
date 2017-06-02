@@ -96,6 +96,58 @@ function loadBufferFromPath (src, cb) {
 }
 
 /**
+ * Helper to create Jimp methods that emit events before and after its execution.
+ * @param methodName   The name to be appended to Jimp prototype.
+ * @param evName       The event name to be called.
+ *                     It will be prefixed by `before-` and emited when on method call.
+ *                     It will be appended by `ed` and emited after the method run.
+ * @param method       A function implementing the method itself.
+ * It will also create a quiet version that will not emit events, to not
+ * mess the user code with many `changed` event calls. You can call with
+ * `methodName + "Quiet"`.
+ *
+ * The emited event comes with a object parameter to the listener with the
+ * `methodName` as one attribute.
+ */
+function JimpEvMethod (methodName, evName, method) {
+    var evNameBefore = "before-"+evName;
+    var evNameAfter = evName.replace(/e$/, "") + "ed";
+    Jimp.prototype[methodName] = function () {
+        var wrapedCb, cb = arguments[method.length-1];
+        if (typeof cb === "function") {
+            wrapedCb = function (err) {
+                if (err) {
+                    this.emit("error", err);
+                } else {
+                    this.emit(evNameAfter, {methodName});
+                }
+                cb.apply(this, arguments);
+            };
+            arguments[arguments.length-1] = wrapedCb;
+        } else {
+            wrapedCb = false;
+        }
+        this.emit(evNameBefore, {methodName});
+        try {
+            var result = method.apply(this, arguments);
+            if (!wrapedCb) this.emit(evNameAfter, {methodName});
+        } catch (err) {
+            err.methodName = methodName;
+            this.emit("error", err);
+        }
+        return result;
+    }
+    Jimp.prototype[methodName+"Quiet"] = method;
+}
+
+/**
+ * Simplify JimpEvMethod call for the common `change` evName.
+ */
+function JimpEvChange (methodName, method) {
+    JimpEvMethod(methodName, "change", method);
+}
+
+/**
  * Jimp constructor (from a file)
  * @param path a path to the image
  * @param (optional) cb a function to call when the image is parsed to a bitmap
@@ -128,8 +180,10 @@ class Jimp extends EventEmitter {
         if (isArrayBuffer(arguments[0]))
             arguments[0] = bufferFromArrayBuffer(arguments[0]);
         function finish (err, ...args) {
+            var evData = err || {};
+            evData.methodName = "constructor";
             setTimeout(()=> { // run on next tick.
-                that.emit(err ? "error" : "initialized", err);
+                that.emit(err ? "error" : "initialized", evData);
                 cb.call(that, ...arguments);
             }, 1);
         }
@@ -169,7 +223,7 @@ class Jimp extends EventEmitter {
                 return throwError.call(this, "cb must be a function", finish);
 
             var bitmap = new Buffer(original.bitmap.data.length);
-            original.scan(0, 0, original.bitmap.width, original.bitmap.height, function (x, y, idx) {
+            original.scanQuiet(0, 0, original.bitmap.width, original.bitmap.height, function (x, y, idx) {
                 var data = original.bitmap.data.readUInt32BE(idx, true);
                 bitmap.writeUInt32BE(data, idx, true);
             });
@@ -697,7 +751,7 @@ Jimp.prototype.rgba = function (bool, cb) {
  * @param (optional) cb a callback for when complete
  * @returns this for chaining of methods
  */
-Jimp.prototype.background = function (hex, cb) {
+JimpEvChange("background", function background (hex, cb) {
     if (typeof hex !== "number")
         return throwError.call(this, "hex must be a hexadecimal rgba value", cb);
 
@@ -705,7 +759,7 @@ Jimp.prototype.background = function (hex, cb) {
 
     if (isNodePattern(cb)) return cb.call(this, null, this);
     else return this;
-};
+});
 
 /**
  * Scanes through a region of the bitmap, calling a function for each pixel.
@@ -718,7 +772,7 @@ Jimp.prototype.background = function (hex, cb) {
  * @param (optional) cb a callback for when complete
  * @returns this for chaining of methods
  */
-Jimp.prototype.scan = function (x, y, w, h, f, cb) {
+JimpEvChange("scan", function scan (x, y, w, h, f, cb) {
     if (typeof x !== "number" || typeof y !== "number")
         return throwError.call(this, "x and y must be numbers", cb);
     if (typeof w !== "number" || typeof h !== "number")
@@ -741,7 +795,7 @@ Jimp.prototype.scan = function (x, y, w, h, f, cb) {
 
     if (isNodePattern(cb)) return cb.call(this, null, this);
     else return this;
-};
+});
 
 /**
  * Returns the original MIME of the image (default: "image/png")
@@ -895,7 +949,7 @@ Jimp.prototype.hash = function (base, cb) {
  * @param (optional) cb a callback for when complete
  * @returns this for chaining of methods
  */
-Jimp.prototype.crop = function (x, y, w, h, cb) {
+JimpEvChange("crop", function crop (x, y, w, h, cb) {
     if (typeof x !== "number" || typeof y !== "number")
         return throwError.call(this, "x and y must be numbers", cb);
     if (typeof w !== "number" || typeof h !== "number")
@@ -909,7 +963,7 @@ Jimp.prototype.crop = function (x, y, w, h, cb) {
 
     var bitmap = new Buffer(this.bitmap.data.length);
     var offset = 0;
-    this.scan(x, y, w, h, function (x, y, idx) {
+    this.scanQuiet(x, y, w, h, function (x, y, idx) {
         var data = this.bitmap.data.readUInt32BE(idx, true);
         bitmap.writeUInt32BE(data, offset, true);
         offset += 4;
@@ -921,7 +975,7 @@ Jimp.prototype.crop = function (x, y, w, h, cb) {
 
     if (isNodePattern(cb)) return cb.call(this, null, this);
     else return this;
-};
+});
 
 /**
  * Compute color difference
@@ -1139,7 +1193,7 @@ Jimp.prototype.blit = function (src, x, y, srcx, srcy, srcw, srch, cb) {
     var maxw = this.bitmap.width;
     var maxh = this.bitmap.height;
     var that = this;
-    src.scan(srcx, srcy, srcw, srch, function (sx, sy, idx) {
+    src.scanQuiet(srcx, srcy, srcw, srch, function (sx, sy, idx) {
         if (x+sx >= 0 && y+sy >= 0 && maxw-x-sx > 0 && maxh-y-sy > 0) {
             var dstIdx = that.getPixelIndex(x+sx-srcx, y+sy-srcy);
             that.bitmap.data[dstIdx] = this.bitmap.data[idx];
@@ -1176,7 +1230,7 @@ Jimp.prototype.mask = function (src, x, y, cb) {
     var w = this.bitmap.width;
     var h = this.bitmap.height;
     var that = this;
-    src.scan(0, 0, src.bitmap.width, src.bitmap.height, function (sx, sy, idx) {
+    src.scanQuiet(0, 0, src.bitmap.width, src.bitmap.height, function (sx, sy, idx) {
         let destX = x+sx;
         let destY = y+sy;
         if (destX >=0 && destY >=0 && destX < w && destY < h) {
@@ -1210,7 +1264,7 @@ Jimp.prototype.composite = function (src, x, y, cb) {
     y = Math.round(y);
 
     var that = this;
-    src.scan(0, 0, src.bitmap.width, src.bitmap.height, function (sx, sy, idx) {
+    src.scanQuiet(0, 0, src.bitmap.width, src.bitmap.height, function (sx, sy, idx) {
         // http://stackoverflow.com/questions/7438263/alpha-compositing-algorithm-blend-modes
         var dstIdx = that.getPixelIndex(x+sx, y+sy);
 
@@ -1256,7 +1310,7 @@ Jimp.prototype.brightness = function (val, cb) {
     if (val < -1 || val > +1)
         return throwError.call(this, "val must be a number between -1 and +1", cb);
 
-    this.scan(0, 0, this.bitmap.width, this.bitmap.height, function (x, y, idx) {
+    this.scanQuiet(0, 0, this.bitmap.width, this.bitmap.height, function (x, y, idx) {
         if (val < 0.0) {
             this.bitmap.data[idx] = this.bitmap.data[idx] * (1 + val);
             this.bitmap.data[idx+1] = this.bitmap.data[idx+1] * (1 + val);
@@ -1299,7 +1353,7 @@ Jimp.prototype.contrast = function (val, cb) {
         }
     }
 
-    this.scan(0, 0, this.bitmap.width, this.bitmap.height, function (x, y, idx) {
+    this.scanQuiet(0, 0, this.bitmap.width, this.bitmap.height, function (x, y, idx) {
         this.bitmap.data[idx] = adjust(this.bitmap.data[idx]);
         this.bitmap.data[idx+1] = adjust(this.bitmap.data[idx+1]);
         this.bitmap.data[idx+2] = adjust(this.bitmap.data[idx+2]);
@@ -1321,7 +1375,7 @@ Jimp.prototype.posterize = function (n, cb) {
 
     if (n < 2) n = 2; // minumum of 2 levels
 
-    this.scan(0, 0, this.bitmap.width, this.bitmap.height, function (x, y, idx) {
+    this.scanQuiet(0, 0, this.bitmap.width, this.bitmap.height, function (x, y, idx) {
         this.bitmap.data[idx] = (Math.floor(this.bitmap.data[idx] / 255 * (n - 1)) / (n - 1)) * 255;
         this.bitmap.data[idx+1] = (Math.floor(this.bitmap.data[idx+1] / 255 * (n - 1)) / (n - 1)) * 255;
         this.bitmap.data[idx+2] = (Math.floor(this.bitmap.data[idx+2] / 255 * (n - 1)) / (n - 1)) * 255;
@@ -1342,7 +1396,7 @@ function histogram () {
         b: new Array(256).fill(0)
     };
 
-    this.scan(0, 0, this.bitmap.width, this.bitmap.height, function (x, y, index) {
+    this.scanQuiet(0, 0, this.bitmap.width, this.bitmap.height, function (x, y, index) {
         histogram.r[this.bitmap.data[index+0]]++;
         histogram.g[this.bitmap.data[index+1]]++;
         histogram.b[this.bitmap.data[index+2]]++;
@@ -1389,7 +1443,7 @@ Jimp.prototype.normalize = function (cb) {
     };
 
     // apply value transformations
-    this.scan(0, 0, this.bitmap.width, this.bitmap.height, function (x, y, idx) {
+    this.scanQuiet(0, 0, this.bitmap.width, this.bitmap.height, function (x, y, idx) {
         var r = this.bitmap.data[idx + 0];
         var g = this.bitmap.data[idx + 1];
         var b = this.bitmap.data[idx + 2];
@@ -1409,7 +1463,7 @@ Jimp.prototype.normalize = function (cb) {
  * @returns this for chaining of methods
  */
 Jimp.prototype.invert = function (cb) {
-    this.scan(0, 0, this.bitmap.width, this.bitmap.height, function (x, y, idx) {
+    this.scanQuiet(0, 0, this.bitmap.width, this.bitmap.height, function (x, y, idx) {
         this.bitmap.data[idx] = 255 - this.bitmap.data[idx];
         this.bitmap.data[idx+1] = 255 - this.bitmap.data[idx+1];
         this.bitmap.data[idx+2] = 255 - this.bitmap.data[idx+2];
@@ -1431,7 +1485,7 @@ Jimp.prototype.mirror = Jimp.prototype.flip = function (horizontal, vertical, cb
         return throwError.call(this, "horizontal and vertical must be Booleans", cb);
 
     var bitmap = new Buffer(this.bitmap.data.length);
-    this.scan(0, 0, this.bitmap.width, this.bitmap.height, function (x, y, idx) {
+    this.scanQuiet(0, 0, this.bitmap.width, this.bitmap.height, function (x, y, idx) {
         var _x = (horizontal) ? (this.bitmap.width - 1 - x) : x;
         var _y = (vertical) ? (this.bitmap.height - 1 - y) : y;
         var _idx = (this.bitmap.width * _y + _x) << 2;
@@ -1670,7 +1724,7 @@ Jimp.prototype.convolution = function (kernel, edgeHandling, cb) {
     var colEnd = Math.floor(kCols/2);
     var rowIni = -rowEnd;
     var colIni = -colEnd;
-    this.scan(0, 0, this.bitmap.width, this.bitmap.height, function (x, y, idx) {
+    this.scanQuiet(0, 0, this.bitmap.width, this.bitmap.height, function (x, y, idx) {
         rSum = gSum = bSum = 0;
         for (let row=rowIni; row<=rowEnd; row++) {
             for (let col=colIni; col<=colEnd; col++) {
@@ -1710,7 +1764,7 @@ Jimp.prototype.convolution = function (kernel, edgeHandling, cb) {
  * @returns this for chaining of methods
  */
 Jimp.prototype.greyscale = function (cb) {
-    this.scan(0, 0, this.bitmap.width, this.bitmap.height, function (x, y, idx) {
+    this.scanQuiet(0, 0, this.bitmap.width, this.bitmap.height, function (x, y, idx) {
         var grey = parseInt(0.2126 * this.bitmap.data[idx] + 0.7152 * this.bitmap.data[idx+1] + 0.0722 * this.bitmap.data[idx+2], 10);
         this.bitmap.data[idx] = grey;
         this.bitmap.data[idx+1] = grey;
@@ -1730,7 +1784,7 @@ Jimp.prototype.grayscale = Jimp.prototype.greyscale;
  * @returns this for chaining of methods
  */
 Jimp.prototype.sepia = function (cb) {
-    this.scan(0, 0, this.bitmap.width, this.bitmap.height, function (x, y, idx) {
+    this.scanQuiet(0, 0, this.bitmap.width, this.bitmap.height, function (x, y, idx) {
         var red = this.bitmap.data[idx];
         var green = this.bitmap.data[idx+1];
         var blue = this.bitmap.data[idx+2];
@@ -1759,7 +1813,7 @@ Jimp.prototype.opacity = function (f, cb) {
     if (f < 0 || f > 1)
         return throwError.call(this, "f must be a number from 0 to 1", cb);
 
-    this.scan(0, 0, this.bitmap.width, this.bitmap.height, function (x, y, idx) {
+    this.scanQuiet(0, 0, this.bitmap.width, this.bitmap.height, function (x, y, idx) {
         var v = this.bitmap.data[idx+3] * f;
         this.bitmap.data[idx+3] = v;
     });
@@ -1793,7 +1847,7 @@ Jimp.prototype.fade = function (f, cb) {
  * @returns this for chaining of methods
  */
 Jimp.prototype.opaque = function (cb) {
-    this.scan(0, 0, this.bitmap.width, this.bitmap.height, function (x, y, idx) {
+    this.scanQuiet(0, 0, this.bitmap.width, this.bitmap.height, function (x, y, idx) {
         this.bitmap.data[idx+3] = 255;
     });
 
@@ -1943,7 +1997,7 @@ Jimp.prototype.contain = function (w, h, alignBits, mode, cb) {
     var c = this.clone().scale(f, mode);
 
     this.resize(w, h, mode);
-    this.scan(0, 0, this.bitmap.width, this.bitmap.height, function (x, y, idx) {
+    this.scanQuiet(0, 0, this.bitmap.width, this.bitmap.height, function (x, y, idx) {
         this.bitmap.data.writeUInt32BE(this._background, idx);
     });
     this.blit(c, ((this.bitmap.width - c.bitmap.width) / 2) * alignH, ((this.bitmap.height - c.bitmap.height) / 2) * alignV);
@@ -2042,7 +2096,7 @@ Jimp.prototype.pixelate = function (size, x, y, w, h, cb) {
     h = isDef(h) ? h : this.bitmap.height - y;
 
     var source = this.clone();
-    this.scan(x, y, w, h, function (xx, yx, idx) {
+    this.scanQuiet(x, y, w, h, function (xx, yx, idx) {
 
         xx = size * Math.floor(xx / size);
         yx = size * Math.floor(yx / size);
@@ -2094,7 +2148,7 @@ Jimp.prototype.convolute = function (kernel, x, y, w, h, cb) {
     h = isDef(h) ? h : this.bitmap.height - y;
 
     var source = this.clone();
-    this.scan(x, y, w, h, function (xx, yx, idx) {
+    this.scanQuiet(x, y, w, h, function (xx, yx, idx) {
         var value = applyKernel(source, kernel, xx, yx);
 
         this.bitmap.data[idx] = value[0];
@@ -2182,7 +2236,7 @@ function advancedRotate (deg, mode) {
         if (h%2 !== 0) h++;
 
         var c = this.clone();
-        this.scan(0, 0, this.bitmap.width, this.bitmap.height, function (x, y, idx) {
+        this.scanQuiet(0, 0, this.bitmap.width, this.bitmap.height, function (x, y, idx) {
             this.bitmap.data.writeUInt32BE(this._background, idx);
         });
 
@@ -2288,7 +2342,7 @@ Jimp.prototype.displace = function (map, offset, cb) {
         return throwError.call(this, "factor must be a number", cb);
 
     var source = this.clone();
-    this.scan(0, 0, this.bitmap.width, this.bitmap.height, function (x, y, idx) {
+    this.scanQuiet(0, 0, this.bitmap.width, this.bitmap.height, function (x, y, idx) {
 
         var displacement = map.bitmap.data[idx] / 256 * offset;
         displacement = Math.round(displacement);
@@ -2401,7 +2455,7 @@ Jimp.prototype.dither565 = function (cb) {
         4, 12, 2, 10,
         16, 8, 14, 6
     ];
-    this.scan(0, 0, this.bitmap.width, this.bitmap.height, function (x, y, idx) {
+    this.scanQuiet(0, 0, this.bitmap.width, this.bitmap.height, function (x, y, idx) {
         var tressholdId = ((y & 3) << 2) + (x % 4);
         var dither = rgb565Matrix[tressholdId];
         this.bitmap.data[idx]   = Math.min(this.bitmap.data[idx]   + dither, 0xff);
@@ -2427,7 +2481,7 @@ Jimp.prototype.color = Jimp.prototype.colour = function (actions, cb) {
         return throwError.call(this, "actions must be an array", cb);
 
     var originalScope = this;
-    this.scan(0, 0, this.bitmap.width, this.bitmap.height, function (x, y, idx) {
+    this.scanQuiet(0, 0, this.bitmap.width, this.bitmap.height, function (x, y, idx) {
         var clr = TinyColor({r: this.bitmap.data[idx], g: this.bitmap.data[idx + 1], b: this.bitmap.data[idx + 2]});
 
         var colorModifier = function (i, amount) {
