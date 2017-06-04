@@ -154,4 +154,64 @@ describe("Events", ()=> {
 
     });
 
+    describe("on clone", ()=> {
+
+        it("emit clone events without callback", (done)=> {
+            var evBeforeCloneEmited = false;
+            var eventsEmited = [];
+            Jimp.read(mkJGD('▴▵')).then((img)=> {
+                img.on("clone", function (data) {
+                    eventsEmited.push(data.eventName);
+                })
+                img.on("before-clone", function (data) {
+                    this.should.be.instanceof(Jimp);
+                    data.methodName.should.be.equal("clone");
+                    evBeforeCloneEmited = true;
+                });
+                img.on("cloned", function (data) {
+                    evBeforeCloneEmited.should.be.ok();
+                    eventsEmited.should.be.deepEqual(["before-clone", "cloned"]);
+                    this.should.be.equal(img, "this is NOT the clone! Is the emitter.");
+                    data.methodName.should.be.equal("clone");
+                    data.clone.should.be.instanceof(Jimp);
+                    data.clone.getJGDSync().should.be.sameJGD(mkJGD('▴▵'));
+                    done();
+                });
+                img.clone();
+            })
+            .catch(done);
+        });
+
+        it("emit clone events with callback", (done)=> {
+            var evBeforeCloneEmited = false;
+            var evClonedEmited = false;
+            var eventsEmited = [];
+            Jimp.read(mkJGD('▴▵')).then((img)=> {
+                img.on("clone", function (data) {
+                    eventsEmited.push(data.eventName);
+                })
+                .on("before-clone", function (data) {
+                    this.should.be.instanceof(Jimp);
+                    data.methodName.should.be.equal("clone");
+                    evBeforeCloneEmited = true;
+                })
+                .on("cloned", function (data) {
+                    this.should.be.equal(img, "this is NOT the clone! Is the emitter.");
+                    data.methodName.should.be.equal("clone");
+                    data.clone.should.be.instanceof(Jimp);
+                    data.clone.getJGDSync().should.be.sameJGD(mkJGD('▴▵'));
+                    evClonedEmited = true;
+                });
+                img.clone(function (clone) {
+                    evBeforeCloneEmited.should.be.ok();
+                    evClonedEmited.should.be.ok();
+                    eventsEmited.should.be.deepEqual(["before-clone", "cloned"]);
+                    done();
+                });
+            })
+            .catch(done);
+        });
+
+    });
+
 });

@@ -114,12 +114,13 @@ function JimpEvMethod (methodName, evName, method) {
     var evNameAfter = evName.replace(/e$/, "") + "ed";
     Jimp.prototype[methodName] = function () {
         var wrapedCb, cb = arguments[method.length-1];
+        var that = this;
         if (typeof cb === "function") {
-            wrapedCb = function (err) {
+            wrapedCb = function (err, data) {
                 if (err) {
-                    this.emit("error", err);
+                    that.emitError(methodName, err);
                 } else {
-                    this.emit(evNameAfter, {methodName});
+                    that.emitMulti(methodName, evNameAfter, {[methodName]: data});
                 }
                 cb.apply(this, arguments);
             };
@@ -127,13 +128,13 @@ function JimpEvMethod (methodName, evName, method) {
         } else {
             wrapedCb = false;
         }
-        this.emit(evNameBefore, {methodName});
+        this.emitMulti(methodName, evNameBefore);
         try {
             var result = method.apply(this, arguments);
-            if (!wrapedCb) this.emit(evNameAfter, {methodName});
+            if (!wrapedCb) this.emitMulti(methodName, evNameAfter, {[methodName]: result});
         } catch (err) {
             err.methodName = methodName;
-            this.emit("error", err);
+            this.emitError(methodName, err);
         }
         return result;
     }
@@ -183,7 +184,8 @@ class Jimp extends EventEmitter {
             var evData = err || {};
             evData.methodName = "constructor";
             setTimeout(()=> { // run on next tick.
-                that.emit(err ? "error" : "initialized", evData);
+                if (err) that.emitError("constructor", err);
+                else that.emitMulti("constructor", "initialized");
                 cb.call(that, ...arguments);
             }, 1);
         }
@@ -299,6 +301,20 @@ Jimp.__extraConstructors = [];
 Jimp.appendConstructorOption = function (name, test, runner) {
     Jimp.__extraConstructors.push({ name: name, test: test, run: runner });
 }
+
+/**
+ * Emit for multiple listeners
+ */
+Jimp.prototype.emitMulti = function emitMulti (methodName, eventName, data={}) {
+    data = Object.assign(data, {methodName, eventName});
+    this.emit("any", data);
+    if (methodName) this.emit(methodName, data);
+    this.emit(eventName, data);
+};
+
+Jimp.prototype.emitError = function emitError (methodName, err) {
+    this.emitMulti(methodName, "error", err);
+};
 
 /**
  * Read an image from a file or a Buffer
@@ -576,10 +592,10 @@ Jimp.diff = function (img1, img2, threshold) {
     if (bmp1.width !== bmp2.width || bmp1.height !== bmp2.height) {
         if (bmp1.width * bmp1.height > bmp2.width * bmp2.height) {
             // img1 is bigger
-            img1 = img1.clone().resize(bmp2.width, bmp2.height);
+            img1 = img1.cloneQuiet().resize(bmp2.width, bmp2.height);
         } else {
             // img2 is bigger (or they are the same in area)
-            img2 = img2.clone().resize(bmp1.width, bmp1.height);
+            img2 = img2.cloneQuiet().resize(bmp1.width, bmp1.height);
         }
     }
 
@@ -650,12 +666,12 @@ Jimp.prototype._exif = null;
  * @param cb (optional) A callback for when complete
  * @returns the new image
  */
-Jimp.prototype.clone = function (cb) {
+JimpEvMethod("clone", "clone", function (cb) {
     var clone = new Jimp(this);
 
     if (isNodePattern(cb)) return cb.call(clone, null, clone);
     else return clone;
-};
+});
 
 /**
  * Sets the quality of the image when saving as JPEG format (default is 100)
@@ -1994,7 +2010,7 @@ Jimp.prototype.contain = function (w, h, alignBits, mode, cb) {
 
     var f = (w/h > this.bitmap.width/this.bitmap.height)
         ? h/this.bitmap.height : w/this.bitmap.width;
-    var c = this.clone().scale(f, mode);
+    var c = this.cloneQuiet().scale(f, mode);
 
     this.resize(w, h, mode);
     this.scanQuiet(0, 0, this.bitmap.width, this.bitmap.height, function (x, y, idx) {
@@ -2095,7 +2111,7 @@ Jimp.prototype.pixelate = function (size, x, y, w, h, cb) {
     w = isDef(w) ? x : this.bitmap.width - x;
     h = isDef(h) ? h : this.bitmap.height - y;
 
-    var source = this.clone();
+    var source = this.cloneQuiet();
     this.scanQuiet(x, y, w, h, function (xx, yx, idx) {
 
         xx = size * Math.floor(xx / size);
@@ -2147,7 +2163,7 @@ Jimp.prototype.convolute = function (kernel, x, y, w, h, cb) {
     w = isDef(w) ? w : this.bitmap.width - x;
     h = isDef(h) ? h : this.bitmap.height - y;
 
-    var source = this.clone();
+    var source = this.cloneQuiet();
     this.scanQuiet(x, y, w, h, function (xx, yx, idx) {
         var value = applyKernel(source, kernel, xx, yx);
 
@@ -2235,7 +2251,7 @@ function advancedRotate (deg, mode) {
         if (w%2 !== 0) w++;
         if (h%2 !== 0) h++;
 
-        var c = this.clone();
+        var c = this.cloneQuiet();
         this.scanQuiet(0, 0, this.bitmap.width, this.bitmap.height, function (x, y, idx) {
             this.bitmap.data.writeUInt32BE(this._background, idx);
         });
@@ -2341,7 +2357,7 @@ Jimp.prototype.displace = function (map, offset, cb) {
     if (typeof offset !== "number")
         return throwError.call(this, "factor must be a number", cb);
 
-    var source = this.clone();
+    var source = this.cloneQuiet();
     this.scanQuiet(0, 0, this.bitmap.width, this.bitmap.height, function (x, y, idx) {
 
         var displacement = map.bitmap.data[idx] / 256 * offset;
@@ -2650,7 +2666,7 @@ function printText (font, x, y, text) {
 
 function drawCharacter (image, font, x, y, char) {
     if (char.width > 0 && char.height > 0) {
-        var imageChar = font.pages[char.page].clone().crop(char.x, char.y, char.width, char.height);
+        var imageChar = font.pages[char.page].cloneQuiet().crop(char.x, char.y, char.width, char.height);
         return image.composite(imageChar, x + char.xoffset, y + char.yoffset);
     }
     return image;
