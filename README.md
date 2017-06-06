@@ -202,6 +202,20 @@ Jimp.loadFont( path ).then(function (font) { // load font from .fnt file
 Jimp.loadFont( path, cb ); // using a callback pattern
 ```
 
+### Appending an image ###
+
+Jimp can also append images
+
+```js
+jimp.read('imageA.png', function (err, imageA) { // load main image
+    if (err) throw err;
+    jimp.read('imageB.png', function (err, imageB) { // load image to be appended
+        if (err) throw err;
+        imageA.appendImage(imageB, 10, 10, 100, 100); // appends imageB to imageA
+    });
+});
+```
+
 BMFont fonts are raster based and fixed in size and colour. Jimp comes with a set of fonts that can be used on images:
 
 ```js
