@@ -49,4 +49,79 @@ describe("Write text over image", function () {
         }).catch(done);
     });
 
+    it("left-align text by default", function (done) {
+        Jimp.loadFont(Jimp.FONT_SANS_16_BLACK).then(function (font) {
+            var expected = getTestDir()+"/samples/text-samples/left-aligned.png";
+            new Jimp(expected, function (err, expectedImg) {
+                if (err) return done(err);
+                new Jimp(320, 240, function (err, image) {
+                    if (err) return done(err);
+                    image.print(font, 0, 0, "This is only a test.", 100)
+                         .bitmap.should.be.deepEqual(expectedImg.bitmap);
+                    done()
+                });
+            });
+        }).catch(done);
+    });
+
+    it("left-align text by default when passing object", function (done) {
+        Jimp.loadFont(Jimp.FONT_SANS_16_BLACK).then(function (font) {
+            var expected = getTestDir()+"/samples/text-samples/left-aligned.png";
+            new Jimp(expected, function (err, expectedImg) {
+                if (err) return done(err);
+                new Jimp(320, 240, function (err, image) {
+                    if (err) return done(err);
+                    image.print(font, 0, 0, {text:"This is only a test."}, 100)
+                         .bitmap.should.be.deepEqual(expectedImg.bitmap);
+                    done()
+                });
+            });
+        }).catch(done);
+    });
+
+    it("left-align text when passing object with alignment", function (done) {
+        Jimp.loadFont(Jimp.FONT_SANS_16_BLACK).then(function (font) {
+            var expected = getTestDir()+"/samples/text-samples/left-aligned.png";
+            new Jimp(expected, function (err, expectedImg) {
+                if (err) return done(err);
+                new Jimp(320, 240, function (err, image) {
+                    if (err) return done(err);
+                    image.print(font, 0, 0, {text:"This is only a test.", alignment:Jimp.HORIZONTAL_ALIGN_LEFT}, 100)
+                         .bitmap.should.be.deepEqual(expectedImg.bitmap);
+                    done()
+                });
+            });
+        }).catch(done);
+    });
+
+    it("center-align text when passing object with alignment", function (done) {
+        Jimp.loadFont(Jimp.FONT_SANS_16_BLACK).then(function (font) {
+            var expected = getTestDir()+"/samples/text-samples/center-aligned.png";
+            new Jimp(expected, function (err, expectedImg) {
+                if (err) return done(err);
+                new Jimp(320, 240, function (err, image) {
+                    if (err) return done(err);
+                    image.print(font, 0, 0, {text:"This is only a test.", alignment:Jimp.HORIZONTAL_ALIGN_CENTER}, 100)
+                         .bitmap.should.be.deepEqual(expectedImg.bitmap);
+                    done()
+                });
+            });
+        }).catch(done);
+    });
+
+    it("right-align text when passing object with alignment", function (done) {
+        Jimp.loadFont(Jimp.FONT_SANS_16_BLACK).then(function (font) {
+            var expected = getTestDir()+"/samples/text-samples/right-aligned.png";
+            new Jimp(expected, function (err, expectedImg) {
+                if (err) return done(err);
+                new Jimp(320, 240, function (err, image) {
+                    if (err) return done(err);
+                    image.print(font, 0, 0, {text:"This is only a test.", alignment:Jimp.HORIZONTAL_ALIGN_RIGHT}, 100)
+                         .bitmap.should.be.deepEqual(expectedImg.bitmap);
+                    done()
+                });
+            });
+        }).catch(done);
+    });
+
 });
