@@ -2610,7 +2610,7 @@ function loadPages (dir, pages) {
  * @param font a bitmap font loaded from `Jimp.loadFont` command
  * @param x the x position to start drawing the text
  * @param y the y position to start drawing the text
- * @param text the text to draw
+ * @param text the text to draw (string or object with `text` and `alignment`)
  * @param maxWidth (optional) the boundary width to draw in
  * @param (optional) cb a function to call when the text is written
  * @returns this for chaining of methods
@@ -2628,13 +2628,22 @@ Jimp.prototype.print = function (font, x, y, text, maxWidth, cb) {
         return throwError.call(this, "font must be a Jimp loadFont", cb);
     if (typeof x !== "number" || typeof y !== "number" || typeof maxWidth !== "number")
         return throwError.call(this, "x, y and maxWidth must be numbers", cb);
-    if (typeof text !== "string")
-        return throwError.call(this, "text must be a string", cb);
+    if (typeof text !== "string" && typeof text !== "object")
+        return throwError.call(this, "text must be a string or an object", cb);
     if (typeof maxWidth !== "number")
         return throwError.call(this, "maxWidth must be a number", cb);
 
     var that = this;
 
+    var alignment;
+    if (typeof text === "object") {
+        alignment = text.alignment || Jimp.HORIZONTAL_ALIGN_LEFT;
+        text = text.text;
+    }
+    else {
+        alignment = Jimp.HORIZONTAL_ALIGN_LEFT;
+    }
+    
     var words = text.split(' ');
     var line = '';
 
@@ -2642,18 +2651,30 @@ Jimp.prototype.print = function (font, x, y, text, maxWidth, cb) {
         var testLine = line + words[n] + ' ';
         var testWidth = measureText(font, testLine);
         if (testWidth > maxWidth && n > 0) {
-            that = that.print(font, x, y, line);
+            that = that.print(font, x + xOffsetBasedOnAlignment(font, line, maxWidth, alignment), y, line);
             line = words[n] + ' ';
             y += font.common.lineHeight;
         } else {
             line = testLine;
         }
     }
-    printText.call(this, font, x, y, line);
+    printText.call(this, font, x + xOffsetBasedOnAlignment(font, line, maxWidth, alignment), y, line);
 
     if (isNodePattern(cb)) return cb.call(this, null, that);
     else return that;
 };
+
+function xOffsetBasedOnAlignment(font, line, maxWidth, alignment) {
+    if (alignment === Jimp.HORIZONTAL_ALIGN_LEFT) {
+        return 0;
+    }
+    
+    if (alignment === Jimp.HORIZONTAL_ALIGN_CENTER) {
+        return (maxWidth - measureText(font, line)) / 2;
+    }
+    
+    return maxWidth - measureText(font, line);
+}
 
 function printText (font, x, y, text) {
     for (let i = 0; i < text.length; i++) {
