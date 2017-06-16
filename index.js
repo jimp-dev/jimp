@@ -2610,18 +2610,26 @@ function loadPages (dir, pages) {
  * @param font a bitmap font loaded from `Jimp.loadFont` command
  * @param x the x position to start drawing the text
  * @param y the y position to start drawing the text
- * @param text the text to draw (string or object with `text` and `alignment`)
+ * @param text the text to draw (string or object with `text`, `alignmentX`, and/or `alignmentY`)
  * @param maxWidth (optional) the boundary width to draw in
+ * @param maxHeight (optional) the boundary height to draw in
  * @param (optional) cb a function to call when the text is written
  * @returns this for chaining of methods
  */
-Jimp.prototype.print = function (font, x, y, text, maxWidth, cb) {
+Jimp.prototype.print = function (font, x, y, text, maxWidth, maxHeight, cb) {
     if (typeof maxWidth === "function" && typeof cb === "undefined") {
         cb = maxWidth;
         maxWidth = Infinity;
     }
     if (typeof maxWidth === "undefined") {
         maxWidth = Infinity;
+    }
+    if (typeof maxHeight === "function" && typeof cb === "undefined") {
+        cb = maxHeight;
+        maxWidth = Infinity;
+    }
+    if (typeof maxHeight === "undefined") {
+        maxHeight = Infinity;
     }
 
     if (typeof font !== "object")
@@ -2632,16 +2640,26 @@ Jimp.prototype.print = function (font, x, y, text, maxWidth, cb) {
         return throwError.call(this, "text must be a string or an object", cb);
     if (typeof maxWidth !== "number")
         return throwError.call(this, "maxWidth must be a number", cb);
+    if (typeof maxHeight !== "number")
+        return throwError.call(this, "maxHeight must be a number", cb);
 
     var that = this;
 
-    var alignment;
+    var alignmentX;
+    var alignmentY;
     if (typeof text === "object") {
-        alignment = text.alignment || Jimp.HORIZONTAL_ALIGN_LEFT;
+        alignmentX = text.alignmentX || Jimp.HORIZONTAL_ALIGN_LEFT;
+        alignmentY = text.alignmentY || Jimp.VERTICAL_ALIGN_TOP;
         text = text.text;
+    } else {
+        alignmentX = Jimp.HORIZONTAL_ALIGN_LEFT;
+        alignmentY = Jimp.VERTICAL_ALIGN_TOP;
     }
-    else {
-        alignment = Jimp.HORIZONTAL_ALIGN_LEFT;
+
+    if (maxHeight !== Infinity && alignmentY === Jimp.VERTICAL_ALIGN_BOTTOM) {
+        y = maxHeight - measureTextHeight(font, text, maxWidth);
+    } else if (maxHeight !== Infinity && alignmentY === Jimp.VERTICAL_ALIGN_MIDDLE) {
+        y = (maxHeight / 2) - (measureTextHeight(font, text, maxWidth) / 2);
     }
 
     var words = text.split(' ');
@@ -2651,14 +2669,14 @@ Jimp.prototype.print = function (font, x, y, text, maxWidth, cb) {
         var testLine = line + words[n] + ' ';
         var testWidth = measureText(font, testLine);
         if (testWidth > maxWidth && n > 0) {
-            that = that.print(font, x + xOffsetBasedOnAlignment(font, line, maxWidth, alignment), y, line);
+            that = that.print(font, x + xOffsetBasedOnAlignment(font, line, maxWidth, alignmentX), y, line);
             line = words[n] + ' ';
             y += font.common.lineHeight;
         } else {
             line = testLine;
         }
     }
-    printText.call(this, font, x + xOffsetBasedOnAlignment(font, line, maxWidth, alignment), y, line);
+    printText.call(this, font, x + xOffsetBasedOnAlignment(font, line, maxWidth, alignmentX), y, line);
 
     if (isNodePattern(cb)) return cb.call(this, null, that);
     else return that;
@@ -2703,7 +2721,28 @@ function measureText (font, text) {
             (font.chars[text[i]].xadvance || 0);
         }
     }
+
     return x;
+}
+
+function measureTextHeight (font, text, maxWidth) {
+    var words = text.split(' ');
+    var line = '';
+    var textTotalHeight = font.common.lineHeight;
+
+    for (let n = 0; n < words.length; n++) {
+        let testLine = line + words[n] + ' ';
+        let testWidth = measureText(font, testLine);
+
+        if (testWidth > maxWidth && n > 0) {
+            textTotalHeight += font.common.lineHeight;
+            line = words[n] + ' ';
+        } else {
+            line = testLine;
+        }
+    }
+
+    return textTotalHeight;
 }
 
 /**

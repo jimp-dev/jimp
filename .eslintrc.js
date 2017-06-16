@@ -5,6 +5,9 @@ module.exports = {
         "Float64Array": true,
         "Uint8Array": true
     },
+    "env": {
+      "mocha": true
+    },
     "rules": {
         // Overload "standard" rules
         "arrow-spacing": ["error", { "before": false, "after": true }],
