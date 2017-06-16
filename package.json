@@ -2,7 +2,7 @@
   "name": "jimp",
   "version": "0.2.28",
   "description": "An image processing library written entirely in JavaScript (i.e. zero external or native dependencies).",
-  "main": "jimp.js",
+  "main": "index.js",
   "types": "./jimp.d.ts",
   "scripts": {
     "lint": "npm run -s lint:src && npm run -s lint:browser && npm run -s lint:tests && npm run -s lint:extra && echo Lint All Success",
