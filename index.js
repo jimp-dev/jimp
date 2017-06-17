@@ -490,22 +490,22 @@ function getJimpDir () {
     var reMoz = /.*@([^?]+\/).*/;
     if (reWebKit.test(callLine)) return callLine.replace(reWebKit, '$1');
     else if (reMoz.test(callLine)) return callLine.replace(reMoz, '$1');
-    else return __dirname;
+    else return `${__dirname}/`;
 }
 Jimp.dirName = getJimpDir();
 
 // Font locations
-Jimp.FONT_SANS_8_BLACK   = Path.join(Jimp.dirName, "fonts/open-sans/open-sans-8-black/open-sans-8-black.fnt");
-Jimp.FONT_SANS_16_BLACK  = Path.join(Jimp.dirName, "fonts/open-sans/open-sans-16-black/open-sans-16-black.fnt");
-Jimp.FONT_SANS_32_BLACK  = Path.join(Jimp.dirName, "fonts/open-sans/open-sans-32-black/open-sans-32-black.fnt");
-Jimp.FONT_SANS_64_BLACK  = Path.join(Jimp.dirName, "fonts/open-sans/open-sans-64-black/open-sans-64-black.fnt");
-Jimp.FONT_SANS_128_BLACK = Path.join(Jimp.dirName, "fonts/open-sans/open-sans-128-black/open-sans-128-black.fnt");
+Jimp.FONT_SANS_8_BLACK   = Jimp.dirName + "fonts/open-sans/open-sans-8-black/open-sans-8-black.fnt";
+Jimp.FONT_SANS_16_BLACK  = Jimp.dirName + "fonts/open-sans/open-sans-16-black/open-sans-16-black.fnt";
+Jimp.FONT_SANS_32_BLACK  = Jimp.dirName + "fonts/open-sans/open-sans-32-black/open-sans-32-black.fnt";
+Jimp.FONT_SANS_64_BLACK  = Jimp.dirName + "fonts/open-sans/open-sans-64-black/open-sans-64-black.fnt";
+Jimp.FONT_SANS_128_BLACK = Jimp.dirName + "fonts/open-sans/open-sans-128-black/open-sans-128-black.fnt";
 
-Jimp.FONT_SANS_8_WHITE   = Path.join(Jimp.dirName, "fonts/open-sans/open-sans-8-white/open-sans-8-white.fnt");
-Jimp.FONT_SANS_16_WHITE  = Path.join(Jimp.dirName, "fonts/open-sans/open-sans-16-white/open-sans-16-white.fnt");
-Jimp.FONT_SANS_32_WHITE  = Path.join(Jimp.dirName, "fonts/open-sans/open-sans-32-white/open-sans-32-white.fnt");
-Jimp.FONT_SANS_64_WHITE  = Path.join(Jimp.dirName, "fonts/open-sans/open-sans-64-white/open-sans-64-white.fnt");
-Jimp.FONT_SANS_128_WHITE = Path.join(Jimp.dirName, "fonts/open-sans/open-sans-128-white/open-sans-128-white.fnt");
+Jimp.FONT_SANS_8_WHITE   = Jimp.dirName + "fonts/open-sans/open-sans-8-white/open-sans-8-white.fnt";
+Jimp.FONT_SANS_16_WHITE  = Jimp.dirName + "fonts/open-sans/open-sans-16-white/open-sans-16-white.fnt";
+Jimp.FONT_SANS_32_WHITE  = Jimp.dirName + "fonts/open-sans/open-sans-32-white/open-sans-32-white.fnt";
+Jimp.FONT_SANS_64_WHITE  = Jimp.dirName + "fonts/open-sans/open-sans-64-white/open-sans-64-white.fnt";
+Jimp.FONT_SANS_128_WHITE = Jimp.dirName + "fonts/open-sans/open-sans-128-white/open-sans-128-white.fnt";
 
 // Edge Handling
 Jimp.EDGE_EXTEND = 1;
@@ -2682,7 +2682,7 @@ Jimp.prototype.print = function (font, x, y, text, maxWidth, maxHeight, cb) {
     else return that;
 };
 
-function xOffsetBasedOnAlignment(font, line, maxWidth, alignment) {
+function xOffsetBasedOnAlignment (font, line, maxWidth, alignment) {
     if (alignment === Jimp.HORIZONTAL_ALIGN_LEFT) {
         return 0;
     }
