@@ -1,16 +1,8 @@
-<hr>
-
-**Can you help maintain this project?**
-
-Collaborators wanted: https://github.com/oliver-moran/jimp/issues/219
-
-<hr>
-
 # Jimp #
 
 The "JavaScript Image Manipulation Program" :-)
 
-An image processing library for Node written entirely in JavaScript, with zero external or native dependencies.
+An image processing library for Node written entirely in JavaScript, with zero native dependencies.
 
 Installation: `npm install --save jimp`
 
@@ -497,30 +489,12 @@ The Node-style callback pattern allows Jimp to be used with frameworks that expe
 ## Contributing ##
 
 Basicaly clone, change, test, push and pull request.
-For more details, read the [Community Maintainer Guidelines](https://github.com/oliver-moran/jimp/issues/223)
+Please read de [CONTRIBUTING documentation](CONTRIBUTING.md).
 
 ### Testing ###
 
-The test framework runs at node.js and browsers environments. Just run `npm test` to test in all environments.
-
-While developing you may want to test only on node.js:
-```
-$ run test:node:once
-```
-...or only one test file:
-```
-$ run test:node:run test/some.test.js
-```
-...or run each time a file changes:
-```
-$ run test:node:whatch
-```
-...or test only in a specific browser:
-```
-$ npm run test:browser:once -- --browsers Firefox
-```
-For more options and project management tools see: `npm run`
-
+The test framework runs at node.js and browsers environments. Just run `npm test` to test in node and browser environments.
+More information at ["How to Contribute" doc's "Testing" topic](CONTRIBUTING.md#testing).
 
 ## License ##
 
