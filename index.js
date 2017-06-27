@@ -484,13 +484,16 @@ Jimp.VERTICAL_ALIGN_BOTTOM = 32;
 
 // Discover Jimp directory in any environment. (also in fucking karma)
 function getJimpDir () {
-    var err = Error();
-    var callLine = err.stack.split(/\n/).filter((l)=> l.match(/getJimpDir/))[0];
-    var reWebKit = /.*\(([^?]+\/)[^/]+\).*/;
-    var reMoz = /.*@([^?]+\/).*/;
-    if (reWebKit.test(callLine)) return callLine.replace(reWebKit, '$1');
-    else if (reMoz.test(callLine)) return callLine.replace(reMoz, '$1');
-    else return `${__dirname}/`;
+    try {
+     throw new Error();
+    } catch (err){
+        var callLine = err.stack.split(/\n/).filter( function(l){ return l.match(/getJimpDir/);})[0];
+        var reWebKit = /.*\(([^?]+\/)[^/]+\).*/;
+        var reMoz = /.*@([^?]+\/).*/;
+        if (reWebKit.test(callLine)) return callLine.replace(reWebKit, '$1');
+        else if (reMoz.test(callLine)) return callLine.replace(reMoz, '$1');
+        else return `${__dirname}/`;
+    }
 }
 Jimp.dirName = getJimpDir();
 
