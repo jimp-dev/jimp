@@ -1208,6 +1208,7 @@ Jimp.prototype.blit = function (src, x, y, srcx, srcy, srcw, srch, cb) {
 
     var that = this;
     src.scanQuiet(srcx, srcy, srcw, srch, function (sx, sy, idx) {
+        var dstIdx = that.getPixelIndex(x + sx - srcx, y + sy - srcy);
         var src = {
             r: this.bitmap.data[idx],
             g: this.bitmap.data[idx + 1],
@@ -2810,7 +2811,7 @@ Jimp.prototype.toString = function () {
 Jimp.prototype.circle = function() {
     var that = this;
     var radius = ((that.bitmap.width > that.bitmap.height) ? that.bitmap.height : that.bitmap.width) / 2;
-    that.scan(0, 0, that.bitmap.width, that.bitmap.height, function (x, y, idx) {
+    that.scanQuiet(0, 0, that.bitmap.width, that.bitmap.height, function (x, y, idx) {
         var curR = Math.sqrt(Math.pow((x - (that.bitmap.width / 2)), 2) + Math.pow((y - (that.bitmap.height / 2)), 2));
         if(radius - curR <= 0.0)        this.bitmap.data[ idx + 3 ] = 0;
         else if(radius - curR < 1.0)    this.bitmap.data[ idx + 3 ] = 255 * (radius - curR); 
