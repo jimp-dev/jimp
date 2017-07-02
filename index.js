@@ -2807,6 +2807,17 @@ Jimp.prototype.toString = function () {
     return '[object Jimp]';
 };
 
+Jimp.prototype.circle = function() {
+    var that = this;
+    var radius = ((that.bitmap.width > that.bitmap.height) ? that.bitmap.height : that.bitmap.width) / 2;
+    that.scan(0, 0, that.bitmap.width, that.bitmap.height, function (x, y, idx) {
+        var curR = Math.sqrt(Math.pow((x - (that.bitmap.width / 2)), 2) + Math.pow((y - (that.bitmap.height / 2)), 2));
+        if(radius - curR <= 0.0)        this.bitmap.data[ idx + 3 ] = 0;
+        else if(radius - curR < 1.0)    this.bitmap.data[ idx + 3 ] = 255 * (radius - curR); 
+    });
+    return that;
+}
+
 if (process.env.ENVIRONMENT === "BROWSER") {
     // For use in a web browser or web worker
     /* global self */
