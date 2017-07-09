@@ -1789,23 +1789,24 @@ Jimp.prototype.dilate = function (radius, cb) {
         var brx = x + radius;
         var bty = y - radius;
         var bby = y + radius;
-        if (blx < 0) blx = 0;
-        if (brx > this.bitmap.width) blx = this.bitmap.width;
-        if (bty < 0) blx = 0;
-        if (bby > this.bitmap.height) blx = this.bitmap.height;
+        if (blx < 0) { blx = 0 };
+        if (brx > this.bitmap.width) { blx = this.bitmap.width };
+        if (bty < 0) { bty = 0 };
+        if (bby > this.bitmap.height) { bby = this.bitmap.height };
         //console.log("blx calc" + blx + " " + brx + " " + bty + " " + bby)
         var xToPick;
         var yToPick;
-        var highestScore = 0;
-        copyGrey.scan(blx, bty, 2 * radius, 2 * radius, function (a, b, index) {
+        var lowestScore = 0;
+        copyGrey.scan(blx, bty, (brx - blx), (bby - bty), function (a, b, index) {
             //console.log("beep" + this.bitmap.data[index] + " " + a + b + " " + index + " " + this.bitmap.data.length)
-            if (this.bitmap.data[index] >= highestScore) {
+            //console.log(this.bitmap.data[index] + " " + lowestScore)
+            if (this.bitmap.data[index] >= lowestScore) {
                 xToPick = a;
                 yToPick = b;
-                highestScore = this.bitmap.data[index];
+                lowestScore = this.bitmap.data[index];
             }
         })
-        //console.log(xToPick + " " + yToPick + " " + highestScore)
+        //console.log("blx calc" + blx + " " + brx + " " + bty + " " + bby + " " + xToPick + " " + yToPick + " " + lowestScore + " bmd" + this.bitmap.width + " " + this.bitmap.height)
         this.bitmap.data[idx] = copy.bitmap.data[copy.getPixelIndex(xToPick, yToPick)]
         this.bitmap.data[idx + 1] = copy.bitmap.data[copy.getPixelIndex(xToPick, yToPick) + 1]
         this.bitmap.data[idx + 2] = copy.bitmap.data[copy.getPixelIndex(xToPick, yToPick) + 2]
@@ -1830,23 +1831,24 @@ Jimp.prototype.erode = function (radius, cb) {
         var brx = x + radius;
         var bty = y - radius;
         var bby = y + radius;
-        if (blx < 0) blx = 0;
-        if (brx > this.bitmap.width) blx = this.bitmap.width;
-        if (bty < 0) blx = 0;
-        if (bby > this.bitmap.height) blx = this.bitmap.height;
+        if (blx < 0) { blx = 0 };
+        if (brx > this.bitmap.width) { blx = this.bitmap.width };
+        if (bty < 0) { bty = 0 };
+        if (bby > this.bitmap.height) { bby = this.bitmap.height };
         //console.log("blx calc" + blx + " " + brx + " " + bty + " " + bby)
         var xToPick;
         var yToPick;
         var lowestScore = 255;
-        copyGrey.scan(blx, bty, 2 * radius, 2 * radius, function (a, b, index) {
+        copyGrey.scan(blx, bty, (brx - blx), (bby - bty), function (a, b, index) {
             //console.log("beep" + this.bitmap.data[index] + " " + a + b + " " + index + " " + this.bitmap.data.length)
+            //console.log(this.bitmap.data[index] + " " + lowestScore)
             if (this.bitmap.data[index] <= lowestScore) {
                 xToPick = a;
                 yToPick = b;
                 lowestScore = this.bitmap.data[index];
             }
         })
-        //console.log(xToPick + " " + yToPick + " " + highestScore)
+        //console.log("blx calc" + blx + " " + brx + " " + bty + " " + bby + " " + xToPick + " " + yToPick + " " + lowestScore + " bmd" + this.bitmap.width + " " + this.bitmap.height)
         this.bitmap.data[idx] = copy.bitmap.data[copy.getPixelIndex(xToPick, yToPick)]
         this.bitmap.data[idx + 1] = copy.bitmap.data[copy.getPixelIndex(xToPick, yToPick) + 1]
         this.bitmap.data[idx + 2] = copy.bitmap.data[copy.getPixelIndex(xToPick, yToPick) + 2]
