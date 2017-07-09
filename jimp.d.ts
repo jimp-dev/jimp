@@ -47,6 +47,8 @@ declare namespace Jimp {
         gaussian(r: number, cb?: Jimp.ImageCallback): this;
         blur(r: number, cb?: Jimp.ImageCallback): this;
 
+        dilate(radius: number, type: any, cb?: Jimp.ImageCallback): this;
+        erode(radius: number, type: any, cb?: Jimp.ImageCallback): this;
         greyscale(cb?: Jimp.ImageCallback): this;
         grayscale(cb?: Jimp.ImageCallback): this;
         sepia(cb?: Jimp.ImageCallback): this;
