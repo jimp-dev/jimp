@@ -1775,6 +1775,87 @@ Jimp.prototype.convolution = function (kernel, edgeHandling, cb) {
 }
 
 /**
+ * Dilates an image with a square kernel
+ * @param radius size of kernel (1/2 square side length)
+ * @param (optional) cb a callback for when complete
+ * @returns this for chaining of methods
+ */
+
+Jimp.prototype.dilate = function (radius, cb) {
+    var copy = this.clone();
+    var copyGrey = this.grayscale().clone();
+    this.grayscale().scan(0, 0, this.bitmap.width, this.bitmap.height, function (x, y, idx) {
+        var blx = x - radius;
+        var brx = x + radius;
+        var bty = y - radius;
+        var bby = y + radius;
+        if (blx < 0) blx = 0;
+        if (brx > this.bitmap.width) blx = this.bitmap.width;
+        if (bty < 0) blx = 0;
+        if (bby > this.bitmap.height) blx = this.bitmap.height;
+        //console.log("blx calc" + blx + " " + brx + " " + bty + " " + bby)
+        var xToPick;
+        var yToPick;
+        var highestScore = 0;
+        copyGrey.scan(blx, bty, 2 * radius, 2 * radius, function (a, b, index) {
+            //console.log("beep" + this.bitmap.data[index] + " " + a + b + " " + index + " " + this.bitmap.data.length)
+            if (this.bitmap.data[index] >= highestScore) {
+                xToPick = a;
+                yToPick = b;
+                highestScore = this.bitmap.data[index];
+            }
+        })
+        //console.log(xToPick + " " + yToPick + " " + highestScore)
+        this.bitmap.data[idx] = copy.bitmap.data[copy.getPixelIndex(xToPick, yToPick)]
+        this.bitmap.data[idx + 1] = copy.bitmap.data[copy.getPixelIndex(xToPick, yToPick) + 1]
+        this.bitmap.data[idx + 2] = copy.bitmap.data[copy.getPixelIndex(xToPick, yToPick) + 2]
+    });
+    if (isNodePattern(cb)) return cb.call(this, null, this);
+    else return this;
+};
+
+
+/**
+ * Erodes an image with a square kernel
+ * @param radius size of area (1/2 square side length)
+ * @param (optional) cb a callback for when complete
+ * @returns this for chaining of methods
+ */
+
+Jimp.prototype.erode = function (radius, cb) {
+    var copy = this.clone();
+    var copyGrey = this.grayscale().clone();
+    this.grayscale().scan(0, 0, this.bitmap.width, this.bitmap.height, function (x, y, idx) {
+        var blx = x - radius;
+        var brx = x + radius;
+        var bty = y - radius;
+        var bby = y + radius;
+        if (blx < 0) blx = 0;
+        if (brx > this.bitmap.width) blx = this.bitmap.width;
+        if (bty < 0) blx = 0;
+        if (bby > this.bitmap.height) blx = this.bitmap.height;
+        //console.log("blx calc" + blx + " " + brx + " " + bty + " " + bby)
+        var xToPick;
+        var yToPick;
+        var lowestScore = 255;
+        copyGrey.scan(blx, bty, 2 * radius, 2 * radius, function (a, b, index) {
+            //console.log("beep" + this.bitmap.data[index] + " " + a + b + " " + index + " " + this.bitmap.data.length)
+            if (this.bitmap.data[index] <= lowestScore) {
+                xToPick = a;
+                yToPick = b;
+                lowestScore = this.bitmap.data[index];
+            }
+        })
+        //console.log(xToPick + " " + yToPick + " " + highestScore)
+        this.bitmap.data[idx] = copy.bitmap.data[copy.getPixelIndex(xToPick, yToPick)]
+        this.bitmap.data[idx + 1] = copy.bitmap.data[copy.getPixelIndex(xToPick, yToPick) + 1]
+        this.bitmap.data[idx + 2] = copy.bitmap.data[copy.getPixelIndex(xToPick, yToPick) + 2]
+    });
+    if (isNodePattern(cb)) return cb.call(this, null, this);
+    else return this;
+};
+
+/**
  * Removes colour from the image using ITU Rec 709 luminance values
  * @param (optional) cb a callback for when complete
  * @returns this for chaining of methods
