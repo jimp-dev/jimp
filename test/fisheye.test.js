@@ -1,4 +1,4 @@
-var {Jimp, donutJGD, jgdToStr, mkJGD} = require("./test-helper");
+var {Jimp, mkJGD} = require("./test-helper");
 
 describe("Fisheye", ()=> {
 
@@ -38,7 +38,7 @@ describe("Fisheye", ()=> {
         }).catch(done);
     });
 
-    it("Lemma with fisheye filter", (done)=> {
+    it("should create fisheye lens to image", (done)=> {
         imgNormal.fisheye()
               .getJGDSync().should.be.sameJGD(imgBulged.getJGDSync());
         done();
