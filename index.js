@@ -1830,12 +1830,12 @@ Jimp.prototype.fisheye = function (cb) {
     source.scanQuiet(0, 0, width, height, function (x, y, idx) {
         var hx = x / width;
         var hy = y / height;
-        var r = Math.sqrt(Math.pow(hx - .5, 2) + Math.pow(hy - .5, 2));
+        var r = Math.sqrt(Math.pow(hx - 0.5, 2) + Math.pow(hy - 0.5, 2));
         var rn = 2 * (Math.pow(r, 2.5));
-        var cosA = (hx - .5)/r;
-        var sinA = (hy - .5)/r;
-        var newX = Math.round(((rn * cosA + .5) * width));  
-        var newY = Math.round(((rn * sinA + .5) * height));  
+        var cosA = (hx - 0.5)/r;
+        var sinA = (hy - 0.5)/r;
+        var newX = Math.round(((rn * cosA + 0.5) * width));
+        var newY = Math.round(((rn * sinA + 0.5) * height));
 
         let color = source.getPixelColor(newX, newY);
         that.setPixelColor(color, x, y);
