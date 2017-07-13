@@ -1,10 +1,32 @@
-var {Jimp, donutJGD, jgdToStr} = require("./test-helper");
+var {Jimp, donutJGD, jgdToStr, mkJGD} = require("./test-helper");
 
 describe("Fisheye", ()=> {
 
     var imgs = [
-        Jimp.read(donutJGD()),
-        Jimp.read(donutJGD())
+        Jimp.read(mkJGD(
+                "0000000000",
+                "0001221000",
+                "0022222200",
+                "0122112210",
+                "0221001220",
+                "0221001220",
+                "0122112210",
+                "0022222200",
+                "0001221000",
+                "0000000000"
+        )),
+        Jimp.read(mkJGD(
+                "0001221000",
+                "0221112220",
+                "0220000121",
+                "1100000112",
+                "2100000012",
+                "2100000012",
+                "1200000012",
+                "0211000222",
+                "0221111220",
+                "0012222200"
+        ))
     ];
     var imgNormal, imgBulged;
 
@@ -17,11 +39,8 @@ describe("Fisheye", ()=> {
     });
 
     it("Lemma with fisheye filter", (done)=> {
-        console.info(jgdToStr(imgBulged));
-        console.log(jgdToStr(imgNormal.clone().fisheye()));
-        /*imgNormal.clone()
-              .fisheye()
-              .getJGDSync().should.be.sameJGD(imgBulged);*/
+        imgNormal.fisheye()
+              .getJGDSync().should.be.sameJGD(imgBulged.getJGDSync());
         done();
     });
 
