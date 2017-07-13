@@ -1834,8 +1834,8 @@ Jimp.prototype.fisheye = function (cb) {
         var rn = 2 * (Math.pow(r, 2.5));
         var cosA = (hx - .5)/r;
         var sinA = (hy - .5)/r;
-        var newX = Math.round(((rn * cosA + .5) * newWidth));  
-        var newY = Math.round(((rn * sinA + .5) * newHeight));  
+        var newX = Math.round(((rn * cosA + .5) * width));  
+        var newY = Math.round(((rn * sinA + .5) * height));  
 
         let color = source.getPixelColor(newX, newY);
         that.setPixelColor(color, x, y);
