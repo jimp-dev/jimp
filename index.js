@@ -1818,6 +1818,37 @@ Jimp.prototype.sepia = function (cb) {
 };
 
 /**
+ * Applies a fisheye lens to an image
+ * @param (optional) cb a callback for when complete
+ * @returns this for chaining of methods
+ */
+Jimp.prototype.fisheye = function (cb) {
+    var source = this.cloneQuiet();
+    var width = source.bitmap.width;
+    var height = source.bitmap.height;
+    var that = this;
+    source.scanQuiet(0, 0, width, height, function (x, y, idx) {
+        var hx = x / width;
+        var hy = y / height;
+        var r = Math.sqrt(Math.pow(hx - 0.5, 2) + Math.pow(hy - 0.5, 2));
+        var rn = 2 * (Math.pow(r, 2.5));
+        var cosA = (hx - 0.5)/r;
+        var sinA = (hy - 0.5)/r;
+        var newX = Math.round(((rn * cosA + 0.5) * width));
+        var newY = Math.round(((rn * sinA + 0.5) * height));
+
+        let color = source.getPixelColor(newX, newY);
+        that.setPixelColor(color, x, y);
+    });
+
+    /* Set center pixel color, otherwise it will be transparent */
+    that.setPixelColor(source.getPixelColor(width / 2, height / 2), width / 2, height / 2);
+
+    if (isNodePattern(cb)) return cb.call(this, null, this);
+    else return this;
+};
+
+/**
  * Multiplies the opacity of each pixel by a factor between 0 and 1
  * @param f A number, the factor by wich to multiply the opacity of each pixel
  * @param (optional) cb a callback for when complete

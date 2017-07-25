@@ -50,6 +50,7 @@ declare namespace Jimp {
         greyscale(cb?: Jimp.ImageCallback): this;
         grayscale(cb?: Jimp.ImageCallback): this;
         sepia(cb?: Jimp.ImageCallback): this;
+        fisheye(cb?: Jimp.ImageCallback): this;
         opacity(f: any, cb?: any):this;
         fade(f: any, cb?: any): this;
         opaque(cb: any): this;
