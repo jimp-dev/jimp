@@ -1840,6 +1840,9 @@ Jimp.prototype.fisheye = function (cb) {
         let color = source.getPixelColor(newX, newY);
         that.setPixelColor(color, x, y);
     });
+    
+    /* Set center pixel, otherwise it will be transparent */
+    that.setPixelColor(source.getPixelColor(width / 2, height / 2), width / 2, height / 2);
 
     if (isNodePattern(cb)) return cb.call(this, null, this);
     else return this;
