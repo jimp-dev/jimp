@@ -37,8 +37,8 @@ module.exports = {
             for (let j = 0; j < wDst; j++) {
                 var posDst = (i * wDst + j) * 4;
 
-                var iSrc = Math.round(i * hSrc / hDst);
-                var jSrc = Math.round(j * wSrc / wDst);
+                var iSrc = Math.floor(i * hSrc / hDst);
+                var jSrc = Math.floor(j * wSrc / wDst);
                 var posSrc = (iSrc * wSrc + jSrc) * 4;
 
                 bufDst[posDst++] = bufSrc[posSrc++];
