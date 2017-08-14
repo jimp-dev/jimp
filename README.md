@@ -239,7 +239,7 @@ image.write(file)
 
 ### Writing to Buffers ###
 
-A PNG, JPEG or BMP binary Buffer of an image (e.g. for storage in a database) can to got using:
+A PNG, JPEG or BMP binary Buffer of an image (e.g. for storage in a database) can be got using:
 
 ```js
 image.getBuffer( mime, cb ); // Node-style callback will be fired with result
