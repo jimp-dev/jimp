@@ -2657,9 +2657,9 @@ Jimp.prototype.print = function (font, x, y, text, maxWidth, maxHeight, cb) {
     }
 
     if (maxHeight !== Infinity && alignmentY === Jimp.VERTICAL_ALIGN_BOTTOM) {
-        y = maxHeight - measureTextHeight(font, text, maxWidth);
+        y += maxHeight - measureTextHeight(font, text, maxWidth);
     } else if (maxHeight !== Infinity && alignmentY === Jimp.VERTICAL_ALIGN_MIDDLE) {
-        y = (maxHeight / 2) - (measureTextHeight(font, text, maxWidth) / 2);
+        y += (maxHeight / 2) - (measureTextHeight(font, text, maxWidth) / 2);
     }
 
     var words = text.split(' ');
