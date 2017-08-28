@@ -46,6 +46,7 @@ declare namespace Jimp {
         mirror(horizontal: boolean, vertical: boolean, cb?: Jimp.ImageCallback): this;
         gaussian(r: number, cb?: Jimp.ImageCallback): this;
         blur(r: number, cb?: Jimp.ImageCallback): this;
+        convolution(kernel: any, edgeHandling: number | Jimp.ImageCallback, cb?: Jimp.ImageCallback): this;
 
         greyscale(cb?: Jimp.ImageCallback): this;
         grayscale(cb?: Jimp.ImageCallback): this;
@@ -58,10 +59,20 @@ declare namespace Jimp {
         contain(w: number, h: number, alignBits?: number, mode?: string, cb?: Jimp.ImageCallback): this;
         scale(f: number, mode?: string, cb?: Jimp.ImageCallback): this;
         scaleToFit(w: number, h: number, mode?: any, cb?: Jimp.ImageCallback): this;
-        rotate(deg: number, mode?: number|boolean, cb?: Jimp.ImageCallback): this;
+        pixelate(size: number, x: number, y: number, w: number, h: number, cb?: Jimp.ImageCallback): this;
+        convolute(kernel: any, x: number | Jimp.ImageCallback, y?: number, w?: number, h?: number, cb?: Jimp.ImageCallback): this;
+        rotate(deg: number, mode?: number | boolean, cb?: Jimp.ImageCallback): this;
+        displace(map: Jimp, offset: number, cb?: Jimp.ImageCallback): this;
         getBuffer(mime: string, cb:(err:Error, buffer:Buffer)=>any): this;
-
+        getBase64(mime: string, cb?: Jimp.ImageCallback): this;
+        dither565(cb?: Jimp.ImageCallback): this;
+        dither16(cb?: Jimp.ImageCallback): this;
+        color(actions: any, cb?: Jimp.ImageCallback): this;
+        colour(actions: any, cb?: Jimp.ImageCallback): this;
         write(path: string, cb?: Jimp.ImageCallback): this;
+        print(font: any, x: number, y: number, text: string, maxWidth?: number | Jimp.ImageCallback, maxHeight?: number | Jimp.ImageCallback, cb?: Jimp.ImageCallback): this;
+        inspect(): string;
+        toString(): string;
     }
 
     var Jimp: {
@@ -72,7 +83,10 @@ declare namespace Jimp {
         // supported mime types
         MIME_PNG: string;
         MIME_JPEG: string;
+        MIME_JGD: string;
         MIME_BMP: string;
+        MIME_X_MS_BMP: string;
+        MIME_GIF: string;
 
         // PNG filter types
         PNG_FILTER_AUTO: number;
@@ -111,18 +125,26 @@ declare namespace Jimp {
         FONT_SANS_64_WHITE: string;
         FONT_SANS_128_WHITE: string;
 
-        (path: string, cb?: Jimp.ImageCallback): Jimp;
-        (image: Jimp, cb?: Jimp.ImageCallback): Jimp;
-        (data: Buffer, cb?: Jimp.ImageCallback): Jimp;
-        (w: number, h: number, cb?: Jimp.ImageCallback): Jimp;
+        // Edge Handling
+        EDGE_EXTEND: number;
+        EDGE_WRAP: number;
+        EDGE_CROP: number;
 
-        read(src: string|Buffer, cb?: Jimp.ImageCallback): Promise<Jimp>;
+        (path: string, cb?: Jimp.ImageCallback): void;
+        (image: Jimp, cb?: Jimp.ImageCallback): void;
+        (data: Buffer, cb?: Jimp.ImageCallback): void;
+        (w: number, h: number, cb?: Jimp.ImageCallback): void;
+
+        read(src: string | Buffer, cb?: Jimp.ImageCallback): Promise<Jimp>;
+        loadFont(file: string, cb?: Jimp.ImageCallback): Promise<any>;
 
         rgbaToInt(r: number, g: number, b: number, a: number, cb?: (err: Error, i: number)=>any): number;
         intToRgba(i: number, cb?: (err:Error, rgba: Jimp.RGBA)=>any): Jimp.RGBA;
         limit255(n: number): number;
         diff(img1: Jimp, img2: Jimp, threshold?: number): {percent: number, diff: Jimp};
         distance(img1: Jimp, img2: Jimp): number;
+
+        colorDiff(rgba1: Jimp.RGB | Jimp.RGBA, rgba2: Jimp.RGB | Jimp.RGBA): number;
 
         prototype: Jimp;
     };
