@@ -119,7 +119,7 @@ declare namespace Jimp {
         read(src: string|Buffer, cb?: Jimp.ImageCallback): Promise<Jimp>;
 
         rgbaToInt(r: number, g: number, b: number, a: number, cb?: (err: Error, i: number)=>any): number;
-        intToRgba(i: number, cb?: (err:Error, rgba: Jimp.RGBA)=>any): Jimp.RGBA;
+        intToRGBA(i: number, cb?: (err:Error, rgba: Jimp.RGBA)=>any): Jimp.RGBA;
         limit255(n: number): number;
         diff(img1: Jimp, img2: Jimp, threshold?: number): {percent: number, diff: Jimp};
         distance(img1: Jimp, img2: Jimp): number;
