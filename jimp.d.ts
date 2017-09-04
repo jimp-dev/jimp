@@ -54,10 +54,10 @@ declare namespace Jimp {
         opacity(f: any, cb?: any):this;
         fade(f: any, cb?: any): this;
         opaque(cb: any): this;
-        resize(w: number, h: number, mode?: string, cb?: Jimp.ImageCallback): this;
-        cover(w: number, h: number, alignBits?: number, mode?: string, cb?: Jimp.ImageCallback): this;
-        contain(w: number, h: number, alignBits?: number, mode?: string, cb?: Jimp.ImageCallback): this;
-        scale(f: number, mode?: string, cb?: Jimp.ImageCallback): this;
+        resize(w: number, h: number, mode?: string | Jimp.ImageCallback, cb?: Jimp.ImageCallback): this;
+        cover(w: number, h: number, alignBits?: number, mode?: string | Jimp.ImageCallback, cb?: Jimp.ImageCallback): this;
+        contain(w: number, h: number, alignBits?: number, mode?: string | Jimp.ImageCallback, cb?: Jimp.ImageCallback): this;
+        scale(f: number, mode?: string | Jimp.ImageCallback, cb?: Jimp.ImageCallback): this;
         scaleToFit(w: number, h: number, mode?: any, cb?: Jimp.ImageCallback): this;
         pixelate(size: number, x: number, y: number, w: number, h: number, cb?: Jimp.ImageCallback): this;
         convolute(kernel: any, x: number | Jimp.ImageCallback, y?: number, w?: number, h?: number, cb?: Jimp.ImageCallback): this;
