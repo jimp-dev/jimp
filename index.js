@@ -1818,6 +1818,57 @@ Jimp.prototype.sepia = function (cb) {
 };
 
 /**
+ * Applies a minimum color threshold to a greyscale image.  Converts image to greyscale by default
+ * @param max A number auto limited between 0 - 255
+ * @param (optional) replace A number auto limited between 0 - 255 (default 255)
+ * @param (optional) autoGreyscale A boolean whether to apply greyscale beforehand (default true)
+ * @param (optional) cb a callback for when complete
+ * @returns this for chaining of methods
+ */
+Jimp.prototype.threshold = function (max, replace, autoGreyscale, cb) {
+    if (typeof max !== "number"){
+        return throwError.call(this, "max must be a number", cb);
+    }
+    if (max < 0) {
+        max = 0;
+    } else if (max > 255) {
+        max = 255;
+    }
+    if(typeof replace !== "undefined"){
+        if (typeof replace !== "number") {
+            return throwError.call(this, "replace must be a number", cb);
+        } else {
+            if (replace < 0) replace = 0;
+            else if (replace > 255) replace = 255;
+        }
+    } else {
+        replace = 255 /* Default white pixel */
+    }
+    if(typeof autoGreyscale !== "undefined"){
+        if (typeof autoGreyscale !== "boolean"){
+            return throwError.call(this, "autoGreyscale must be a boolean", cb);
+        } 
+    } else {
+        autoGreyscale = true; /* Default apply greyscale */
+    }
+
+    if(autoGreyscale) this.greyscale();
+
+    this.scanQuiet(0, 0, this.bitmap.width, this.bitmap.height, function (x, y, idx) {
+        var grey = this.bitmap.data[idx];
+
+        grey = grey < max ? grey : replace;
+
+        this.bitmap.data[idx] = grey;
+        this.bitmap.data[idx+1] = grey;
+        this.bitmap.data[idx+2] = grey;
+    });
+
+    if (isNodePattern(cb)) return cb.call(this, null, this);
+    else return this;
+};
+
+/**
  * Multiplies the opacity of each pixel by a factor between 0 and 1
  * @param f A number, the factor by wich to multiply the opacity of each pixel
  * @param (optional) cb a callback for when complete
