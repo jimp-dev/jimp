@@ -1826,7 +1826,7 @@ Jimp.prototype.sepia = function (cb) {
  * @returns this for chaining of methods
  */
 Jimp.prototype.threshold = function (max, replace, autoGreyscale, cb) {
-    if (typeof max !== "number"){
+    if (typeof max !== "number") {
         return throwError.call(this, "max must be a number", cb);
     }
     if (max < 0) {
@@ -1834,27 +1834,30 @@ Jimp.prototype.threshold = function (max, replace, autoGreyscale, cb) {
     } else if (max > 255) {
         max = 255;
     }
-    if(typeof replace !== "undefined"){
-        if (typeof replace !== "number") {
-            return throwError.call(this, "replace must be a number", cb);
-        } else {
-            if (replace < 0) replace = 0;
-            else if (replace > 255) replace = 255;
+    if (typeof replace === "undefined") {
+        replace = 255 /* Default white pixel */
+    } else if (typeof replace === "number") {
+        if (replace < 0) {
+            replace = 0;
+        } else if (replace > 255) {
+            replace = 255;
         }
     } else {
-        replace = 255 /* Default white pixel */
+        return throwError.call(this, "replace must be a number", cb);
     }
-    if(typeof autoGreyscale !== "undefined"){
-        if (typeof autoGreyscale !== "boolean"){
-            return throwError.call(this, "autoGreyscale must be a boolean", cb);
-        } 
-    } else {
+    if (typeof autoGreyscale === "undefined") {
         autoGreyscale = true; /* Default apply greyscale */
+    } else if (typeof autoGreyscale !== "boolean") {
+        return throwError.call(this, "autoGreyscale must be a boolean", cb);
     }
 
-    if(autoGreyscale) this.greyscale();
+    if (autoGreyscale) {
+        this.greyscale().scanQuiet(0, 0, this.bitmap.width, this.bitmap.height, normalizeThreshold);
+    } else {
+        this.scanQuiet(0, 0, this.bitmap.width, this.bitmap.height, normalizeThreshold);
+    }
 
-    this.scanQuiet(0, 0, this.bitmap.width, this.bitmap.height, function (x, y, idx) {
+    function normalizeThreshold (x, y, idx) {
         var grey = this.bitmap.data[idx];
 
         grey = grey < max ? grey : replace;
@@ -1862,8 +1865,7 @@ Jimp.prototype.threshold = function (max, replace, autoGreyscale, cb) {
         this.bitmap.data[idx] = grey;
         this.bitmap.data[idx+1] = grey;
         this.bitmap.data[idx+2] = grey;
-    });
-
+    }
     if (isNodePattern(cb)) return cb.call(this, null, this);
     else return this;
 };
