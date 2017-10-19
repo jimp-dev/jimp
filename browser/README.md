@@ -63,7 +63,7 @@ self.addEventListener("message", function(e) {
 CDN access to the minified library is available through the [RawGit CDN](https://rawgit.com/):
 
 ```html
-<script src="https://cdn.rawgit.com/oliver-moran/jimp/v0.2.28/browser/lib/jimp.min.js"></script>
+<script src="https://cdn.rawgit.com/oliver-moran/jimp/a74714f/browser/lib/jimp.min.js"></script>
 ```
 
 ## License ##
