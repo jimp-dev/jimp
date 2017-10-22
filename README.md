@@ -373,6 +373,20 @@ image.scan(0, 0, image.bitmap.width, image.bitmap.height, function (x, y, idx) {
     // e.g. this.bitmap.data[idx] = 0; // removes red from this pixel
 });
 ```
+
+If you need to do something with the image at the end of the scan:
+
+```js
+image.scan(0, 0, image.bitmap.width, image.bitmap.height, function (x, y, idx) {
+    // do your stuff..
+    
+    if(x == image.bitmap.width-1 && 
+        y == image.bitmap.height-1) {
+        // image scan finished, do your stuff   
+    }
+});
+```
+
 A helper to locate a particular pixel within the raw bitmap buffer:
 
 ```js
