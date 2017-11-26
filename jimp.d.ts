@@ -134,6 +134,7 @@ declare namespace Jimp {
         (image: Jimp, cb?: Jimp.ImageCallback): void;
         (data: Buffer, cb?: Jimp.ImageCallback): void;
         (w: number, h: number, cb?: Jimp.ImageCallback): void;
+        (w: number, h: number, background?: number, cb?: Jimp.ImageCallback): void;
 
         read(src: string | Buffer, cb?: Jimp.ImageCallback): Promise<Jimp>;
         loadFont(file: string, cb?: Jimp.ImageCallback): Promise<any>;
