@@ -64,7 +64,7 @@ declare namespace Jimp {
         rotate(deg: number, mode?: number | boolean, cb?: Jimp.ImageCallback): this;
         displace(map: Jimp, offset: number, cb?: Jimp.ImageCallback): this;
         getBuffer(mime: string, cb:(err:Error, buffer:Buffer)=>any): this;
-        getBase64(mime: string, cb?: Jimp.ImageCallback): this;
+        getBase64(mime: string, cb?: (err: Error, src: string) => any): this;
         dither565(cb?: Jimp.ImageCallback): this;
         dither16(cb?: Jimp.ImageCallback): this;
         color(actions: any, cb?: Jimp.ImageCallback): this;
