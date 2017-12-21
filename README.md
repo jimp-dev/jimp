@@ -198,6 +198,9 @@ BMFont fonts are raster based and fixed in size and colour. Jimp comes with a se
 
 ```js
 Jimp.FONT_SANS_8_BLACK;   // Open Sans, 8px, black
+Jimp.FONT_SANS_10_BLACK;   // Open Sans, 10px, black
+Jimp.FONT_SANS_12_BLACK;   // Open Sans, 12px, black
+Jimp.FONT_SANS_14_BLACK;   // Open Sans, 14px, black
 Jimp.FONT_SANS_16_BLACK;  // Open Sans, 16px, black
 Jimp.FONT_SANS_32_BLACK;  // Open Sans, 32px, black
 Jimp.FONT_SANS_64_BLACK;  // Open Sans, 64px, black
