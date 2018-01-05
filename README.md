@@ -331,7 +331,7 @@ Sum neighbor pixels weighted by the kernel matrix. You can find a nice explanati
 
 Implement emboss effect:
 ```js
-  image.convolution([
+  image.convolute([
     [-2,-1, 0],
     [-1, 1, 1],
     [ 0, 1, 2]
