@@ -3,11 +3,12 @@ var PNG = require("pngjs").PNG;
 var JPEG = require("jpeg-js");
 var BMP = require("bmp-js");
 var GIF = require("./omggif.js");
+var UTIF = require("utif");
 var MIME = require("mime");
 var TinyColor = require("tinycolor2");
 var Resize = require("./resize.js");
 var Resize2 = require("./resize2.js");
-var StreamToBuffer = require("stream-to-buffer");
+var RawBody = require("raw-body");
 var FileType = require("file-type");
 var PixelMatch = require("pixelmatch");
 var EXIFParser = require("exif-parser");
@@ -396,6 +397,15 @@ function parseBitmap (data, path, cb) {
                 return cb.call(this, err, this);
             }
 
+        case Jimp.MIME_TIFF:
+            var tiff = (UTIF.decode(data)[0]);
+            this.bitmap = {
+                data: new Buffer(tiff.data),
+                width: tiff.width,
+                height: tiff.height
+            };
+            return cb.call(this, null, this);
+
         case Jimp.MIME_BMP:
         case Jimp.MIME_X_MS_BMP:
             this.bitmap = BMP.decode(data);
@@ -453,6 +463,7 @@ Jimp.AUTO = -1;
 
 // supported mime types
 Jimp.MIME_PNG = "image/png";
+Jimp.MIME_TIFF = "image/tiff";
 Jimp.MIME_JPEG = "image/jpeg";
 Jimp.MIME_JGD = "image/jgd";
 Jimp.MIME_BMP = "image/bmp";
@@ -496,6 +507,9 @@ Jimp.dirName = getJimpDir();
 
 // Font locations
 Jimp.FONT_SANS_8_BLACK   = Jimp.dirName + "fonts/open-sans/open-sans-8-black/open-sans-8-black.fnt";
+Jimp.FONT_SANS_10_BLACK   = Jimp.dirName + "fonts/open-sans/open-sans-10-black/open-sans-10-black.fnt";
+Jimp.FONT_SANS_12_BLACK   = Jimp.dirName + "fonts/open-sans/open-sans-12-black/open-sans-12-black.fnt";
+Jimp.FONT_SANS_14_BLACK   = Jimp.dirName + "fonts/open-sans/open-sans-14-black/open-sans-14-black.fnt";
 Jimp.FONT_SANS_16_BLACK  = Jimp.dirName + "fonts/open-sans/open-sans-16-black/open-sans-16-black.fnt";
 Jimp.FONT_SANS_32_BLACK  = Jimp.dirName + "fonts/open-sans/open-sans-32-black/open-sans-32-black.fnt";
 Jimp.FONT_SANS_64_BLACK  = Jimp.dirName + "fonts/open-sans/open-sans-64-black/open-sans-64-black.fnt";
@@ -882,7 +896,7 @@ Jimp.prototype.getPixelIndex = function (x, y, edgeHandling, cb) {
  * @param x the x coordinate
  * @param y the y coordinate
  * @param (optional) cb a callback for when complete
- * @returns the index of the pixel or -1 if not found
+ * @returns the color of the pixel
 */
 Jimp.prototype.getPixelColor = Jimp.prototype.getPixelColour = function (x, y, cb) {
     if (typeof x !== "number" || typeof y !== "number")
@@ -2406,7 +2420,7 @@ Jimp.prototype.getBuffer = function (mime, cb) {
             if (this._rgba) png.data = new Buffer(this.bitmap.data);
             else png.data = compositeBitmapOverBackground(this).data; // when PNG doesn't support alpha
 
-            StreamToBuffer(png.pack(), function (err, buffer) {
+            RawBody(png.pack(), {}, function (err, buffer) {
                 if (err) return throwError.call(this, err, cb);
                 return cb.call(that, null, buffer);
             });
@@ -2422,6 +2436,11 @@ Jimp.prototype.getBuffer = function (mime, cb) {
             // composite onto a new image so that the background shows through alpha channels
             var bmp = BMP.encode(compositeBitmapOverBackground(this));
             return cb.call(this, null, bmp.data);
+
+        case Jimp.MIME_TIFF:
+            var c = compositeBitmapOverBackground(this)
+            var tiff = UTIF.encodeImage(c.data, c.width, c.height);
+            return cb.call(this, null, new Buffer(tiff));
 
         default:
             return cb.call(this, "Unsupported MIME type: " + mime);

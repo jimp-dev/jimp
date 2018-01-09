@@ -51,9 +51,10 @@
     "mkdirp": "0.5.1",
     "pixelmatch": "^4.0.0",
     "pngjs": "^3.0.0",
-    "phin": "^2.3.3",
-    "stream-to-buffer": "^0.1.0",
-    "tinycolor2": "^1.1.2"
+    "raw-body": "^2.3.2",
+    "phin": "^2.65.0",
+    "tinycolor2": "^1.1.2",
+    "utif": "^1.1.2"
   },
   "devDependencies": {
     "babel": "^6.0.14",
