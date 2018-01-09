@@ -3,6 +3,7 @@ var PNG = require("pngjs").PNG;
 var JPEG = require("jpeg-js");
 var BMP = require("bmp-js");
 var GIF = require("./omggif.js");
+var UTIF = require("utif");
 var MIME = require("mime");
 var TinyColor = require("tinycolor2");
 var Resize = require("./resize.js");
@@ -396,6 +397,15 @@ function parseBitmap (data, path, cb) {
                 return cb.call(this, err, this);
             }
 
+        case Jimp.MIME_TIFF:
+            var tiff = (UTIF.decode(data)[0]);
+            this.bitmap = {
+                data: new Buffer(tiff.data),
+                width: tiff.width,
+                height: tiff.height
+            };
+            return cb.call(this, null, this);
+
         case Jimp.MIME_BMP:
         case Jimp.MIME_X_MS_BMP:
             this.bitmap = BMP.decode(data);
@@ -453,6 +463,7 @@ Jimp.AUTO = -1;
 
 // supported mime types
 Jimp.MIME_PNG = "image/png";
+Jimp.MIME_TIFF = "image/tiff";
 Jimp.MIME_JPEG = "image/jpeg";
 Jimp.MIME_JGD = "image/jgd";
 Jimp.MIME_BMP = "image/bmp";
@@ -2422,6 +2433,11 @@ Jimp.prototype.getBuffer = function (mime, cb) {
             // composite onto a new image so that the background shows through alpha channels
             var bmp = BMP.encode(compositeBitmapOverBackground(this));
             return cb.call(this, null, bmp.data);
+
+        case Jimp.MIME_TIFF:
+            var c = compositeBitmapOverBackground(this)
+            var tiff = UTIF.encodeImage(c.data, c.width, c.height);
+            return cb.call(this, null, new Buffer(tiff));
 
         default:
             return cb.call(this, "Unsupported MIME type: " + mime);

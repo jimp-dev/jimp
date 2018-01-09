@@ -53,7 +53,8 @@
     "pngjs": "^3.0.0",
     "raw-body": "^2.3.2",
     "request": "^2.65.0",
-    "tinycolor2": "^1.1.2"
+    "tinycolor2": "^1.1.2",
+    "utif": "^1.1.2"
   },
   "devDependencies": {
     "babel": "^6.0.14",
