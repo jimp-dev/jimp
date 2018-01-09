@@ -896,7 +896,7 @@ Jimp.prototype.getPixelIndex = function (x, y, edgeHandling, cb) {
  * @param x the x coordinate
  * @param y the y coordinate
  * @param (optional) cb a callback for when complete
- * @returns the index of the pixel or -1 if not found
+ * @returns the color of the pixel
 */
 Jimp.prototype.getPixelColor = Jimp.prototype.getPixelColour = function (x, y, cb) {
     if (typeof x !== "number" || typeof y !== "number")
