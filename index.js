@@ -507,6 +507,9 @@ Jimp.dirName = getJimpDir();
 
 // Font locations
 Jimp.FONT_SANS_8_BLACK   = Jimp.dirName + "fonts/open-sans/open-sans-8-black/open-sans-8-black.fnt";
+Jimp.FONT_SANS_10_BLACK   = Jimp.dirName + "fonts/open-sans/open-sans-10-black/open-sans-10-black.fnt";
+Jimp.FONT_SANS_12_BLACK   = Jimp.dirName + "fonts/open-sans/open-sans-12-black/open-sans-12-black.fnt";
+Jimp.FONT_SANS_14_BLACK   = Jimp.dirName + "fonts/open-sans/open-sans-14-black/open-sans-14-black.fnt";
 Jimp.FONT_SANS_16_BLACK  = Jimp.dirName + "fonts/open-sans/open-sans-16-black/open-sans-16-black.fnt";
 Jimp.FONT_SANS_32_BLACK  = Jimp.dirName + "fonts/open-sans/open-sans-32-black/open-sans-32-black.fnt";
 Jimp.FONT_SANS_64_BLACK  = Jimp.dirName + "fonts/open-sans/open-sans-64-black/open-sans-64-black.fnt";

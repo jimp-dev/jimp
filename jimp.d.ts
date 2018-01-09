@@ -100,6 +100,9 @@ declare namespace Jimp {
 
         // Font locations
         FONT_SANS_8_BLACK: string;
+        FONT_SANS_10_BLACK: string;
+        FONT_SANS_12_BLACK: string;
+        FONT_SANS_14_BLACK: string;
         FONT_SANS_16_BLACK: string;
         FONT_SANS_32_BLACK: string;
         FONT_SANS_64_BLACK: string;
