@@ -34,6 +34,16 @@ describe("FileType", ()=> {
         });
     });
 
+    it("load TIFF", (done)=> {
+        new Jimp(imagesDir+"/rgb.tiff", function (err, image) {
+            if (err) done(err);
+            this.getPixelColor(10,   10).should.be.equal(0xCC3767A2);
+            this.getPixelColor(220, 190).should.be.equal(0x65B39725);
+            this.getPixelColor(350, 130).should.be.equal(0x58D69735);
+            done();
+        });
+    });
+
     var simpleJGD = {
         width: 3,
         height: 3,
@@ -72,6 +82,17 @@ describe("FileType", ()=> {
             this.getBuffer('image/bmp', function (err, buffer) {
                 if (err) done(err);
                 buffer.toString().should.match(/^BMZ\u0000/);
+                done();
+            });
+        });
+    });
+
+    it("export TIFF", (done)=> {
+        new Jimp(simpleJGD, function (err, image) {
+            if (err) done(err);
+            this.getBuffer('image/tiff', function (err, buffer) {
+                if (err) done(err);
+                buffer.toString().should.match(/^MM\u0000*\u0000/);
                 done();
             });
         });
