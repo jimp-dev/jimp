@@ -31,5 +31,18 @@ if ((
         xhr.send();
     };
 } else {
-    module.exports = require('request').defaults({ encoding: null });
+    module.exports = function (url, cb) {
+        var p = require("phin");
+
+        p({
+            "url": url,
+            "compression": true
+        }, function (err, res) {
+            if (err === null) {
+                cb(null, res, res.body);
+            } else {
+                cb(err);
+            }
+        });
+    }
 }
