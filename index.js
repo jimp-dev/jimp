@@ -7,7 +7,7 @@ var MIME = require("mime");
 var TinyColor = require("tinycolor2");
 var Resize = require("./resize.js");
 var Resize2 = require("./resize2.js");
-var StreamToBuffer = require("stream-to-buffer");
+var RawBody = require("raw-body");
 var FileType = require("file-type");
 var PixelMatch = require("pixelmatch");
 var EXIFParser = require("exif-parser");
@@ -2406,7 +2406,7 @@ Jimp.prototype.getBuffer = function (mime, cb) {
             if (this._rgba) png.data = new Buffer(this.bitmap.data);
             else png.data = compositeBitmapOverBackground(this).data; // when PNG doesn't support alpha
 
-            StreamToBuffer(png.pack(), function (err, buffer) {
+            RawBody(png.pack(), {}, function (err, buffer) {
                 if (err) return throwError.call(this, err, cb);
                 return cb.call(that, null, buffer);
             });
