@@ -613,7 +613,7 @@ Jimp.diff = function (img1, img2, threshold) {
         }
     }
 
-    threshold = threshold || 0.1;
+    threshold = isDef(threshold) ? threshold : 0.1;
     if (typeof threshold !== "number" || threshold < 0 || threshold > 1)
         return throwError.call(this, "threshold must be a number between 0 and 1");
 
