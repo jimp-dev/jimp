@@ -65,7 +65,7 @@ Jimp.read("http://www.example.com/path/to/lenna.jpg").then(function (image) {
 
 ### Basic methods ###
 
-Once the the promise is fulfilled, the following methods can be called on the image:
+Once the promise is fulfilled, the following methods can be called on the image:
 
 ```js
 /* Resize */
