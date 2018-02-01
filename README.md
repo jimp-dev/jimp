@@ -36,13 +36,9 @@ Jimp.read("lenna.png").then(function (lenna) {
 
 ## Basic usage ##
 
-The static `Jimp.read` method takes the path to a PNG, JPEG or BMP file and (optionally) a Node-style callback and returns a Promise:
+The static `Jimp.read` method takes the path to a PNG, JPEG or BMP file and returns a Promise:
 
 ```js
-Jimp.read("./path/to/image.jpg", function (err, image) {
-    // do stuff with the image (if no exception)
-});
-
 Jimp.read("./path/to/image.jpg").then(function (image) {
     // do stuff with the image
 }).catch(function (err) {
@@ -53,19 +49,23 @@ Jimp.read("./path/to/image.jpg").then(function (image) {
 The method can also read a PNG, JPEG or BMP buffer or from a URL:
 
 ```js
-Jimp.read(lenna.buffer, function (err, image) {
-    // do stuff with the image (if no exception)
+Jimp.read(lenna.buffer).then(function (image) {
+    // do stuff with the image
+}).catch(function (err) {
+    // handle an exception
 });
 
-Jimp.read("http://www.example.com/path/to/lenna.jpg", function (err, image) {
-    // do stuff with the image (if no exception)
+Jimp.read("http://www.example.com/path/to/lenna.jpg").then(function (image) {
+    // do stuff with the image
+}).catch(function (err) {
+    // handle an exception
 });
 ```
 
 
 ### Basic methods ###
 
-Once the callback is filed or the promise fulfilled, the following methods can be called on the image:
+Once the promise is fulfilled, the following methods can be called on the image:
 
 ```js
 /* Resize */
