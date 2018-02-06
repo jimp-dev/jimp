@@ -79,6 +79,8 @@ image.scaleToFit( w, h[, mode] ); // scale the image to the largest size that fi
 
 /* Crop */
 image.autocrop([tolerance, frames]); // automatically crop same-color borders from image (if any), frames must be a Boolean
+image.autocropnew(tolerance, leaveBorder, cropOnlyFrames, cb);  // automatically crop same-color borders from image (if any), frames must be a Boolean
+                                                                // parameters for autocropnew("% value" , "no of pixels to be left on all sides" , "boolean", "callback")
 image.crop( x, y, w, h );         // crop to the given region
 
 /* Composing */
