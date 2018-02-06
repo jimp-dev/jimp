@@ -1178,6 +1178,187 @@ Jimp.prototype.autocrop = function () {
 };
 
 /**
+ * Autocrop same color borders from this image
+ * @param (optional) tolerance:      a percent value of tolerance for
+ *                                   pixels color difference (default: 0.0002%)
+ * @param (optional) leaveBorder:    Allows to select how many pixels of background color
+ *                                   are left on each side of an image
+ * @param (optional) cropOnlyFrames: flag to crop only real frames:
+ *                                   all 4 sides of the image must have some border (default: true)
+ * @param (optional) cb:             a callback for when complete (default: no callback)
+ * @returns this                     for chaining of methods
+ */
+Jimp.prototype.autocropnew = function (tolerance, leaveBorder, cropOnlyFrames, cb) {
+    var w = this.bitmap.width;
+    var h = this.bitmap.height;
+    var minPixelsPerSide = 1; // to avoid cropping completely the image, resulting in an invalid 0 sized image
+    var cb;
+
+    // parse arguments
+    if ("number" != typeof tolerance) { // tolerance value passed
+        tolerance = 0.0002; // percent of color difference tolerance (default value)
+    };
+
+    if ("number" != typeof leaveBorder) { // border left to image value passed
+        leaveBorder = 0; // default
+    };
+
+    if ("boolean" != typeof cropOnlyFrames) { // boolean value passed
+        cropOnlyFrames = true;
+    };
+    
+    if ("function" != typeof cb) { // callback value passed
+        cb = this.cb;
+    };
+    // i.e. all 4 sides have some border (default value)
+
+    /**
+     * North and East borders must be of the same color as the top left pixel, to be cropped.
+     * South and West borders must be of the same color as the bottom right pixel, to be cropped.
+     * It should be possible to crop borders each with a different color,
+     * but since there are many ways for corners to intersect, it would
+     * introduce unnecessary complexity to the algorithm.
+     */
+
+    // scan each side for same color borders
+    var colorTarget = this.getPixelColor(0, 0); // top left pixel color is the target color
+    // for north and east sides
+    var northPixelsToCrop = 0;
+    var eastPixelsToCrop = 0;
+    var southPixelsToCrop = 0;
+    var westPixelsToCrop = 0;
+
+
+    var rgba1 = Jimp.intToRGBA(colorTarget);
+
+    north: // north side (scan rows from north to south)
+    for (var y = 0; y < h - minPixelsPerSide; y++) {
+        for (var x = 0; x < w; x++) {
+            var colorXY = this.getPixelColor(x, y);
+            var rgba2 = Jimp.intToRGBA(colorXY);
+            var difference =
+                Math.abs(
+                    Math.max((rgba1.r - rgba2.r) ^ 2, (rgba1.r - rgba2.r - rgba1.a + rgba2.a) ^ 2) +
+                    Math.max((rgba1.g - rgba2.g) ^ 2, (rgba1.g - rgba2.g - rgba1.a + rgba2.a) ^ 2) +
+                    Math.max((rgba1.b - rgba2.b) ^ 2, (rgba1.b - rgba2.b - rgba1.a + rgba2.a) ^ 2)
+                ) / (256 * 256 * 3);
+
+            if (difference > tolerance) {
+                // this pixel is too distant from the first one: abort this side scan
+                northPixelsToCrop = northPixelsToCrop - leaveBorder;
+                break north;
+            }
+        }
+        // this row contains all pixels with the same color: increment this side pixels to crop
+        northPixelsToCrop++;
+    }
+
+    east: // east side (scan columns from east to west)
+    for (var x = w - 1; x >= 0; x--) {
+        for (var y = northPixelsToCrop; y < h; y++) {
+            var colorXY = this.getPixelColor(x, y);
+            var rgba2 = Jimp.intToRGBA(colorXY);
+            var difference =
+                Math.abs(
+                    Math.max((rgba1.r - rgba2.r) ^ 2, (rgba1.r - rgba2.r - rgba1.a + rgba2.a) ^ 2) +
+                    Math.max((rgba1.g - rgba2.g) ^ 2, (rgba1.g - rgba2.g - rgba1.a + rgba2.a) ^ 2) +
+                    Math.max((rgba1.b - rgba2.b) ^ 2, (rgba1.b - rgba2.b - rgba1.a + rgba2.a) ^ 2)
+                ) / (256 * 256 * 3);
+
+            if (difference > tolerance) {
+                // this pixel is too distant from the first one: abort this side scan
+                eastPixelsToCrop = eastPixelsToCrop - leaveBorder;
+                break east;
+            }
+        }
+        // this column contains all pixels with the same color: increment this side pixels to crop
+        eastPixelsToCrop++;
+    }
+
+    colorTarget = this.getPixelColor(w - 1, h - 1); // bottom right pixel color is the target color
+    // for south and west sides
+    south: // south side (scan rows from south to north)
+    for (var y = h - 1; y >= northPixelsToCrop + minPixelsPerSide; y--) {
+        for (var x = w - eastPixelsToCrop - 1; x >= 0; x--) {
+            var colorXY = this.getPixelColor(x, y);
+            var rgba2 = Jimp.intToRGBA(colorXY);
+            var difference =
+                Math.abs(
+                    Math.max((rgba1.r - rgba2.r) ^ 2, (rgba1.r - rgba2.r - rgba1.a + rgba2.a) ^ 2) +
+                    Math.max((rgba1.g - rgba2.g) ^ 2, (rgba1.g - rgba2.g - rgba1.a + rgba2.a) ^ 2) +
+                    Math.max((rgba1.b - rgba2.b) ^ 2, (rgba1.b - rgba2.b - rgba1.a + rgba2.a) ^ 2)
+                ) / (256 * 256 * 3);
+
+            if (difference > tolerance) {
+                // this pixel is too distant from the first one: abort this side scan
+                southPixelsToCrop = southPixelsToCrop - leaveBorder;
+                break south;
+            }
+        }
+        // this row contains all pixels with the same color: increment this side pixels to crop
+        southPixelsToCrop++;
+    }
+
+    west: // west side (scan columns from west to east)
+    for (var x = 0; x <= w - eastPixelsToCrop - minPixelsPerSide; x++) {
+        for (var y = h - southPixelsToCrop; y >= northPixelsToCrop; y--) {
+            var colorXY = this.getPixelColor(x, y);
+            var rgba2 = Jimp.intToRGBA(colorXY);
+            var difference =
+                Math.abs(
+                    Math.max((rgba1.r - rgba2.r) ^ 2, (rgba1.r - rgba2.r - rgba1.a + rgba2.a) ^ 2) +
+                    Math.max((rgba1.g - rgba2.g) ^ 2, (rgba1.g - rgba2.g - rgba1.a + rgba2.a) ^ 2) +
+                    Math.max((rgba1.b - rgba2.b) ^ 2, (rgba1.b - rgba2.b - rgba1.a + rgba2.a) ^ 2)
+                ) / (256 * 256 * 3);
+
+            if (difference > tolerance) {
+                // this pixel is too distant from the first one: abort this side scan
+                westPixelsToCrop = westPixelsToCrop - leaveBorder;
+                break west;
+            }
+        }
+        // this column contains all pixels with the same color: increment this side pixels to crop
+        westPixelsToCrop++;
+    }
+
+    // safety checks
+    var widthOfPixelsToCrop = w - (westPixelsToCrop + eastPixelsToCrop);
+    widthOfPixelsToCrop >= 0 ? widthOfPixelsToCrop : 0;
+    var heightOfPixelsToCrop = h - (southPixelsToCrop + northPixelsToCrop);
+    heightOfPixelsToCrop >= 0 ? heightOfPixelsToCrop : 0;
+
+    // decide if a crop is needed
+    var doCrop = false;
+    if (cropOnlyFrames) { // crop image if all sides should be cropped
+        doCrop = (
+            eastPixelsToCrop !== 0 &&
+            northPixelsToCrop !== 0 &&
+            westPixelsToCrop !== 0 &&
+            southPixelsToCrop !== 0
+        );
+    } else { // crop image if at least one side should be cropped
+        doCrop = (
+            eastPixelsToCrop !== 0 ||
+            northPixelsToCrop !== 0 ||
+            westPixelsToCrop !== 0 ||
+            southPixelsToCrop !== 0
+        );
+    }
+
+    if (doCrop) { // do the real crop
+        this.crop(
+            westPixelsToCrop,
+            northPixelsToCrop,
+            widthOfPixelsToCrop,
+            heightOfPixelsToCrop
+        );
+    }
+
+    if (isNodePattern(cb)) return cb.call(this, null, this);
+    else return this;
+};
+
+/**
  * Blits a source image on to this image
  * @param src the source Jimp instance
  * @param x the x position to blit the image
