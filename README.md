@@ -341,7 +341,7 @@ Implement emboss effect:
   ])
 ```
 
-### Low-level manipulation ###
+### Low-level manipulation
 
 Jimp enables low-level manipulation of images in memory through the bitmap property of each Jimp object:
 
@@ -382,8 +382,8 @@ If you need to do something with the image at the end of the scan:
 ```js
 image.scan(0, 0, image.bitmap.width, image.bitmap.height, function (x, y, idx) {
     // do your stuff..
-    
-    if(x == image.bitmap.width-1 && 
+
+    if(x == image.bitmap.width-1 &&
         y == image.bitmap.height-1) {
         // image scan finished, do your stuff   
     }
