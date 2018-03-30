@@ -24,6 +24,16 @@ describe("FileType", ()=> {
         });
     });
 
+    it("load JPG with fill bytes", (done)=> {
+        new Jimp(imagesDir+"/fillbytes.jpg", function (err, image) {
+            if (err) done(err);
+            this.getPixelColor(10,   10).should.be.equal(0xAEB8C3ff);
+            this.getPixelColor(220, 190).should.be.equal(0x262B21ff);
+            this.getPixelColor(350, 130).should.be.equal(0x4E5D30ff);
+            done();
+        });
+    });
+
     it("load BMP", (done)=> {
         new Jimp(imagesDir+"/windows95.bmp", function (err, image) {
             if (err) done(err);
