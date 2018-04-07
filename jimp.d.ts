@@ -75,7 +75,7 @@ declare namespace Jimp {
         toString(): string;
     }
 
-    var Jimp: {
+    interface JimpEntry<T extends Jimp> {
 
         // used to auto resizing etc.
         AUTO: number;
@@ -133,27 +133,29 @@ declare namespace Jimp {
         EDGE_WRAP: number;
         EDGE_CROP: number;
 
-        (path: string, cb?: Jimp.ImageCallback): void;
-        (image: Jimp, cb?: Jimp.ImageCallback): void;
-        (data: Buffer, cb?: Jimp.ImageCallback): void;
-        (w: number, h: number, cb?: Jimp.ImageCallback): void;
-        (w: number, h: number, background?: number, cb?: Jimp.ImageCallback): void;
+        (path: string, cb?: T.ImageCallback): void;
+        (image: T, cb?: T.ImageCallback): void;
+        (data: Buffer, cb?: T.ImageCallback): void;
+        (w: number, h: number, cb?: T.ImageCallback): void;
+        (w: number, h: number, background?: number, cb?: T.ImageCallback): void;
 
-        read(src: string | Buffer, cb?: Jimp.ImageCallback): Promise<Jimp>;
-        loadFont(file: string, cb?: Jimp.ImageCallback): Promise<any>;
+        read(src: string | Buffer, cb?: T.ImageCallback): Promise<T>;
+        loadFont(file: string, cb?: T.ImageCallback): Promise<any>;
 
         rgbaToInt(r: number, g: number, b: number, a: number, cb?: (err: Error, i: number)=>any): number;
-        intToRGBA(i: number, cb?: (err:Error, rgba: Jimp.RGBA)=>any): Jimp.RGBA;
+        intToRGBA(i: number, cb?: (err:Error, rgba: T.RGBA)=>any): T.RGBA;
         limit255(n: number): number;
-        diff(img1: Jimp, img2: Jimp, threshold?: number): {percent: number, diff: Jimp};
-        distance(img1: Jimp, img2: Jimp): number;
+        diff(img1: T, img2: T, threshold?: number): {percent: number, diff: T};
+        distance(img1: T, img2: T): number;
 
-        colorDiff(rgba1: Jimp.RGB | Jimp.RGBA, rgba2: Jimp.RGB | Jimp.RGBA): number;
+        colorDiff(rgba1: T.RGB | T.RGBA, rgba2: T.RGB | T.RGBA): number;
 
-        prototype: Jimp;
-    };
+        prototype: T;
+    }
+
+    var jimpEntry: JimpEntry<Jimp>
 }
 
 declare module "jimp" {
-    export = Jimp.Jimp;
+    export = Jimp.jimpEntry;
 }
