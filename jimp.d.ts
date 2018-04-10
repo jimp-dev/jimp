@@ -2,6 +2,9 @@
 declare namespace Jimp {
     type ImageCallback = (err: Error|null, image: Jimp) => any;
 
+    interface Bitmap {
+        data: Buffer, width: number, height: number
+    }
     interface RGB {
         r: number;
         g: number;
@@ -14,8 +17,14 @@ declare namespace Jimp {
         a: number;
     }
 
-    interface Jimp {
-        bitmap: {data: Buffer, width: number, height: number};
+    class Jimp {
+        bitmap: Bitmap;
+
+        constructor(path: string, cb?: Jimp.ImageCallback);
+        constructor(image: Jimp, cb?: Jimp.ImageCallback);
+        constructor(data: Buffer, cb?: Jimp.ImageCallback);
+        constructor(w: number, h: number, cb?: Jimp.ImageCallback);
+        constructor(w: number, h: number, background?: number, cb?: Jimp.ImageCallback);
 
         clone(cb?: Jimp.ImageCallback): Jimp;
         quality(n: number, cb?: Jimp.ImageCallback): this;
@@ -73,85 +82,82 @@ declare namespace Jimp {
         print(font: any, x: number, y: number, text: string, maxWidth?: number | Jimp.ImageCallback, maxHeight?: number | Jimp.ImageCallback, cb?: Jimp.ImageCallback): this;
         inspect(): string;
         toString(): string;
-    }
-
-    var Jimp: {
 
         // used to auto resizing etc.
-        AUTO: number;
+        static AUTO: number;
 
         // supported mime types
-        MIME_PNG: string;
-        MIME_JPEG: string;
-        MIME_JGD: string;
-        MIME_BMP: string;
-        MIME_X_MS_BMP: string;
-        MIME_GIF: string;
-
+        static MIME_PNG: string;
+        static MIME_JPEG: string;
+        static MIME_JGD: string;
+        static MIME_BMP: string;
+        static MIME_X_MS_BMP: string;
+        static MIME_GIF: string;
         // PNG filter types
-        PNG_FILTER_AUTO: number;
-        PNG_FILTER_NONE: number;
-        PNG_FILTER_SUB: number;
-        PNG_FILTER_UP: number;
-        PNG_FILTER_AVERAGE: number;
-        PNG_FILTER_PAETH: number;
+        static PNG_FILTER_AUTO: number;
+        static PNG_FILTER_NONE: number;
+        static PNG_FILTER_SUB: number;
+        static PNG_FILTER_UP: number;
+        static PNG_FILTER_AVERAGE: number;
+        static PNG_FILTER_PAETH: number;
 
         // resize methods
-        RESIZE_NEAREST_NEIGHBOR: string;
-        RESIZE_BILINEAR: string;
-        RESIZE_BICUBIC: string;
-        RESIZE_HERMITE: string;
-        RESIZE_BEZIER: string;
+        static RESIZE_NEAREST_NEIGHBOR: string;
+        static RESIZE_BILINEAR: string;
+        static RESIZE_BICUBIC: string;
+        static RESIZE_HERMITE: string;
+        static RESIZE_BEZIER: string;
 
         // Align modes for cover, contain, bit masks
-        HORIZONTAL_ALIGN_LEFT: number;
-        HORIZONTAL_ALIGN_CENTER: number;
-        HORIZONTAL_ALIGN_RIGHT: number;
+        static HORIZONTAL_ALIGN_LEFT: number;
+        static HORIZONTAL_ALIGN_CENTER: number;
+        static HORIZONTAL_ALIGN_RIGHT: number;
 
-        VERTICAL_ALIGN_TOP: number;
-        VERTICAL_ALIGN_MIDDLE: number;
-        VERTICAL_ALIGN_BOTTOM: number;
+        static VERTICAL_ALIGN_TOP: number;
+        static VERTICAL_ALIGN_MIDDLE: number;
+        static VERTICAL_ALIGN_BOTTOM: number;
 
         // Font locations
-        FONT_SANS_8_BLACK: string;
-        FONT_SANS_10_BLACK: string;
-        FONT_SANS_12_BLACK: string;
-        FONT_SANS_14_BLACK: string;
-        FONT_SANS_16_BLACK: string;
-        FONT_SANS_32_BLACK: string;
-        FONT_SANS_64_BLACK: string;
-        FONT_SANS_128_BLACK: string;
+        static FONT_SANS_8_BLACK: string;
+        static FONT_SANS_10_BLACK: string;
+        static FONT_SANS_12_BLACK: string;
+        static FONT_SANS_14_BLACK: string;
+        static FONT_SANS_16_BLACK: string;
+        static FONT_SANS_32_BLACK: string;
+        static FONT_SANS_64_BLACK: string;
+        static FONT_SANS_128_BLACK: string;
 
-        FONT_SANS_8_WHITE: string;
-        FONT_SANS_16_WHITE: string;
-        FONT_SANS_32_WHITE: string;
-        FONT_SANS_64_WHITE: string;
-        FONT_SANS_128_WHITE: string;
+        static FONT_SANS_8_WHITE: string;
+        static FONT_SANS_16_WHITE: string;
+        static FONT_SANS_32_WHITE: string;
+        static FONT_SANS_64_WHITE: string;
+        static FONT_SANS_128_WHITE: string;
 
         // Edge Handling
-        EDGE_EXTEND: number;
-        EDGE_WRAP: number;
-        EDGE_CROP: number;
+        static EDGE_EXTEND: number;
+        static EDGE_WRAP: number;
+        static EDGE_CROP: number;
 
+        /* These are constructors, have already moved up, TODO: remove it in the future
         (path: string, cb?: Jimp.ImageCallback): void;
         (image: Jimp, cb?: Jimp.ImageCallback): void;
         (data: Buffer, cb?: Jimp.ImageCallback): void;
         (w: number, h: number, cb?: Jimp.ImageCallback): void;
         (w: number, h: number, background?: number, cb?: Jimp.ImageCallback): void;
+        */
 
-        read(src: string | Buffer, cb?: Jimp.ImageCallback): Promise<Jimp>;
-        loadFont(file: string, cb?: Jimp.ImageCallback): Promise<any>;
+        static read(src: string | Buffer, cb?: Jimp.ImageCallback): Promise<Jimp>;
+        static loadFont(file: string, cb?: Jimp.ImageCallback): Promise<any>;
 
-        rgbaToInt(r: number, g: number, b: number, a: number, cb?: (err: Error, i: number)=>any): number;
-        intToRGBA(i: number, cb?: (err:Error, rgba: Jimp.RGBA)=>any): Jimp.RGBA;
-        limit255(n: number): number;
-        diff(img1: Jimp, img2: Jimp, threshold?: number): {percent: number, diff: Jimp};
-        distance(img1: Jimp, img2: Jimp): number;
+        static rgbaToInt(r: number, g: number, b: number, a: number, cb?: (err: Error, i: number)=>any): number;
+        static intToRGBA(i: number, cb?: (err:Error, rgba: Jimp.RGBA)=>any): Jimp.RGBA;
+        static limit255(n: number): number;
+        static diff(img1: Jimp, img2: Jimp, threshold?: number): {percent: number, diff: Jimp};
+        static distance(img1: Jimp, img2: Jimp): number;
 
-        colorDiff(rgba1: Jimp.RGB | Jimp.RGBA, rgba2: Jimp.RGB | Jimp.RGBA): number;
+        static colorDiff(rgba1: Jimp.RGB | Jimp.RGBA, rgba2: Jimp.RGB | Jimp.RGBA): number;
+    }
 
-        prototype: Jimp;
-    };
 }
 
 declare module "jimp" {
