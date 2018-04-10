@@ -227,8 +227,8 @@ class Jimp extends EventEmitter {
 
             var bitmap = new Buffer(original.bitmap.data.length);
             original.scanQuiet(0, 0, original.bitmap.width, original.bitmap.height, function (x, y, idx) {
-                var data = original.bitmap.data.readUInt32BE(idx, true);
-                bitmap.writeUInt32BE(data, idx, true);
+                var data = original.bitmap.data.readUInt32BE(idx);
+                bitmap.writeUInt32BE(data, idx);
             });
 
             this.bitmap = {
@@ -929,7 +929,7 @@ Jimp.prototype.setPixelColor = Jimp.prototype.setPixelColour = function (hex, x,
     y = Math.round(y);
 
     var idx = this.getPixelIndex(x, y);
-    this.bitmap.data.writeUInt32BE(hex, idx, true);
+    this.bitmap.data.writeUInt32BE(hex, idx);
 
     if (isNodePattern(cb)) return cb.call(this, null, this);
     else return this;
@@ -994,8 +994,8 @@ JimpEvChange("crop", function crop (x, y, w, h, cb) {
     var bitmap = new Buffer(this.bitmap.data.length);
     var offset = 0;
     this.scanQuiet(x, y, w, h, function (x, y, idx) {
-        var data = this.bitmap.data.readUInt32BE(idx, true);
-        bitmap.writeUInt32BE(data, offset, true);
+        var data = this.bitmap.data.readUInt32BE(idx);
+        bitmap.writeUInt32BE(data, offset);
         offset += 4;
     });
 
@@ -1520,8 +1520,8 @@ Jimp.prototype.mirror = Jimp.prototype.flip = function (horizontal, vertical, cb
         var _y = (vertical) ? (this.bitmap.height - 1 - y) : y;
         var _idx = (this.bitmap.width * _y + _x) << 2;
 
-        var data = this.bitmap.data.readUInt32BE(idx, true);
-        bitmap.writeUInt32BE(data, _idx, true);
+        var data = this.bitmap.data.readUInt32BE(idx);
+        bitmap.writeUInt32BE(data, _idx);
     });
 
     this.bitmap.data = new Buffer(bitmap);
@@ -2221,8 +2221,8 @@ function simpleRotate (deg) {
         for (let x = this.bitmap.width-1; x >= 0; x--) {
             for (let y = 0; y < this.bitmap.height; y++) {
                 var srcOffset = (this.bitmap.width * y + x) << 2;
-                var data = this.bitmap.data.readUInt32BE(srcOffset, true);
-                dstBuffer.writeUInt32BE(data, dstOffset, true);
+                var data = this.bitmap.data.readUInt32BE(srcOffset);
+                dstBuffer.writeUInt32BE(data, dstOffset);
                 dstOffset += 4;
             }
         }
@@ -2303,7 +2303,7 @@ function advancedRotate (deg, mode) {
             if (source.x >= 0 && source.x < bW &&
                 source.y >= 0 && source.y < bH) {
                 var srcIdx = (bW * (source.y | 0) + source.x | 0) << 2;
-                var pixelRGBA = this.bitmap.data.readUInt32BE(srcIdx, true);
+                var pixelRGBA = this.bitmap.data.readUInt32BE(srcIdx);
                 dstBuffer.writeUInt32BE(pixelRGBA, dstIdx);
             } else {
                 // reset off-image pixels
