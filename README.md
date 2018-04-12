@@ -227,10 +227,10 @@ Online tools are also available to convert TTF fonts to BMFont format (e.g. [Lit
 
 ### Writing to files ###
 
-The image can be written to disk in PNG, JPEG or BMP format (determined by the file extension) using:
+The image can be written to disk in PNG, JPEG or BMP format (determined by either the provided MIME type or the file extension) using:
 
 ```js
-image.write( path, cb ); // Node-style callback will be fired when write is successful
+image.write( path, mime, cb ); // Node-style callback will be fired when write is successful
 ```
 
 The original extension for an image (or "png") can accessed as using `image.getExtension()`. The following will save an image using its original format:
@@ -238,6 +238,12 @@ The original extension for an image (or "png") can accessed as using `image.getE
 ```js
 var file = "new_name." + image.getExtension();
 image.write(file)
+```
+
+The original MIME type can be kept using `Jimp.MIME_ORIGINAL`. The following will save an image with any extension using its original format:
+
+```js
+image.write(path, Jimp.MIME_ORIGINAL)
 ```
 
 ### Writing to Buffers ###
@@ -310,23 +316,23 @@ image.color([
 
 The method supports the following modifiers:
 
-Modifier                | Description
------------------------ | -----------------------
-**lighten** {amount}    | Lighten the color a given amount, from 0 to 100. Providing 100 will always return white (works through [TinyColor](https://github.com/bgrins/TinyColor))
-**brighten** {amount}   | Brighten the color a given amount, from 0 to 100 (works through [TinyColor](https://github.com/bgrins/TinyColor))
-**darken** {amount}     | Darken the color a given amount, from 0 to 100. Providing 100 will always return black (works through [TinyColor](https://github.com/bgrins/TinyColor))
-**desaturate** {amount} | Desaturate the color a given amount, from 0 to 100. Providing 100 will is the same as calling greyscale (works through [TinyColor](https://github.com/bgrins/TinyColor))
-**saturate** {amount}   | Saturate the color a given amount, from 0 to 100 (works through [TinyColor](https://github.com/bgrins/TinyColor))
-**greyscale** {amount}  | Completely desaturates a color into greyscale (works through [TinyColor](https://github.com/bgrins/TinyColor))
-**spin** {degree}       | Spin the hue a given amount, from -360 to 360. Calling with 0, 360, or -360 will do nothing - since it sets the hue back to what it was before. (works through [TinyColor](https://github.com/bgrins/TinyColor))
-**hue** {degree}        | Alias for **spin**
-**mix** {color, amount} | Mixes colors by their RGB component values. Amount is opacity of overlaying color
-**tint** {amount}       | Same as applying **mix** with white color
-**shade** {amount}      | Same as applying **mix** with black color
-**xor** {color}         | Treats the two colors as bitfields and applies an XOR operation to the red, green, and blue components
-**red** {amount}        | Modify Red component by a given amount
-**green** {amount}      | Modify Green component by a given amount
-**blue** {amount}       | Modify Blue component by a given amount
+| Modifier                | Description                                                                                                                                                                                                      |
+| ----------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **lighten** {amount}    | Lighten the color a given amount, from 0 to 100. Providing 100 will always return white (works through [TinyColor](https://github.com/bgrins/TinyColor))                                                         |
+| **brighten** {amount}   | Brighten the color a given amount, from 0 to 100 (works through [TinyColor](https://github.com/bgrins/TinyColor))                                                                                                |
+| **darken** {amount}     | Darken the color a given amount, from 0 to 100. Providing 100 will always return black (works through [TinyColor](https://github.com/bgrins/TinyColor))                                                          |
+| **desaturate** {amount} | Desaturate the color a given amount, from 0 to 100. Providing 100 will is the same as calling greyscale (works through [TinyColor](https://github.com/bgrins/TinyColor))                                         |
+| **saturate** {amount}   | Saturate the color a given amount, from 0 to 100 (works through [TinyColor](https://github.com/bgrins/TinyColor))                                                                                                |
+| **greyscale** {amount}  | Completely desaturates a color into greyscale (works through [TinyColor](https://github.com/bgrins/TinyColor))                                                                                                   |
+| **spin** {degree}       | Spin the hue a given amount, from -360 to 360. Calling with 0, 360, or -360 will do nothing - since it sets the hue back to what it was before. (works through [TinyColor](https://github.com/bgrins/TinyColor)) |
+| **hue** {degree}        | Alias for **spin**                                                                                                                                                                                               |
+| **mix** {color, amount} | Mixes colors by their RGB component values. Amount is opacity of overlaying color                                                                                                                                |
+| **tint** {amount}       | Same as applying **mix** with white color                                                                                                                                                                        |
+| **shade** {amount}      | Same as applying **mix** with black color                                                                                                                                                                        |
+| **xor** {color}         | Treats the two colors as bitfields and applies an XOR operation to the red, green, and blue components                                                                                                           |
+| **red** {amount}        | Modify Red component by a given amount                                                                                                                                                                           |
+| **green** {amount}      | Modify Green component by a given amount                                                                                                                                                                         |
+| **blue** {amount}       | Modify Blue component by a given amount                                                                                                                                                                          |
 
 ### Convolution matrix ###
 
