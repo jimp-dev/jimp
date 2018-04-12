@@ -436,6 +436,18 @@ var image = new Jimp(256, 256, 0xFF0000FF, function (err, image) {
 });
 ```
 
+The same can be achieved by calling the static `generate` function:
+
+```js
+var image = Jimp.generate(256, 256, function(err, image) {
+    // this image is 256 x 256, every pixel is set to 0x00000000
+});
+
+var red = Jimp.generate(256, 256, 0xFF0000FF, function(err, image) {
+    // this image is 256 x 256, every pixel is set to 0xFF0000FF
+});
+```
+
 ## Comparing images ##
 
 To generate a [perceptual hash](https://en.wikipedia.org/wiki/Perceptual_hashing) of a Jimp image, based on the [pHash](http://phash.org/) algorithm, use:
