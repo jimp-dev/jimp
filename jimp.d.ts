@@ -78,7 +78,7 @@ declare namespace Jimp {
         dither16(cb?: Jimp.ImageCallback): this;
         color(actions: any, cb?: Jimp.ImageCallback): this;
         colour(actions: any, cb?: Jimp.ImageCallback): this;
-        write(path: string, cb?: Jimp.ImageCallback): this;
+        write(path: string, mime?: string, cb?: Jimp.ImageCallback): this;
         print(font: any, x: number, y: number, text: string, maxWidth?: number | Jimp.ImageCallback, maxHeight?: number | Jimp.ImageCallback, cb?: Jimp.ImageCallback): this;
         inspect(): string;
         toString(): string;
@@ -93,6 +93,7 @@ declare namespace Jimp {
         static MIME_BMP: string;
         static MIME_X_MS_BMP: string;
         static MIME_GIF: string;
+        static MIME_ORIGINAL: string;
         // PNG filter types
         static PNG_FILTER_AUTO: number;
         static PNG_FILTER_NONE: number;
