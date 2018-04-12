@@ -2767,21 +2767,31 @@ function measureTextHeight (font, text, maxWidth) {
 /**
  * Writes the image to a file
  * @param path a path to the destination file (either PNG or JPEG)
+ * @param (optional) mime the MIME type of the saved file (can be Jimp.MIME_ORIGINAL to keep the original MIME type)
  * @param (optional) cb a function to call when the image is saved to disk
  * @returns this for chaining of methods
  */
-Jimp.prototype.write = function (path, cb) {
+Jimp.prototype.write = function (path, mime, cb) {
     if (!FS || !FS.createWriteStream) {
         throw Error('Cant access the filesystem. You can use the getBase64 method.');
     }
     if (typeof path !== "string")
         return throwError.call(this, "path must be a string", cb);
+    if (typeof mime === "function" && typeof cb === "undefined") {
+        cb = mime;
+        mime = null;
+    }
     if (typeof cb === "undefined") cb = function () {};
     if (typeof cb !== "function")
         return throwError.call(this, "cb must be a function", cb);
 
     var that = this;
-    var mime = MIME.lookup(path);
+    if (!mime) {
+        mime = MIME.lookup(path);
+    }
+    if (mime === Jimp.MIME_ORIGINAL) {
+        mime = this.getMIME();
+    }
 
     var pathObj = Path.parse(path);
     if (pathObj.dir) MkDirP.sync(pathObj.dir);
