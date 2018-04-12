@@ -469,6 +469,7 @@ Jimp.MIME_JGD = "image/jgd";
 Jimp.MIME_BMP = "image/bmp";
 Jimp.MIME_X_MS_BMP = "image/x-ms-bmp";
 Jimp.MIME_GIF = "image/gif";
+Jimp.MIME_ORIGINAL = "originalMimeType";
 
 // PNG filter types
 Jimp.PNG_FILTER_AUTO = -1;
