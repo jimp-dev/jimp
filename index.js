@@ -311,7 +311,7 @@ Jimp.appendConstructorOption = function (name, test, runner) {
  * @param (optional) cb a function to call when the image is parsed to a bitmap
  * @returns An instance of Jimp wrapping the new image
  */
-Jimp.generate = function create(w, h, color, cb) {
+Jimp.generate = function generate (w, h, color, cb) {
     if (typeof color === "function" && typeof cb === "undefined") {
         cb = color;
         return new Jimp(w, h, cb);
