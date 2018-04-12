@@ -18,13 +18,13 @@ declare namespace Jimp {
     }
 
     class Jimp {
-        bitmap: Bitmap;
-
         constructor(path: string, cb?: Jimp.ImageCallback);
         constructor(image: Jimp, cb?: Jimp.ImageCallback);
         constructor(data: Buffer, cb?: Jimp.ImageCallback);
         constructor(w: number, h: number, cb?: Jimp.ImageCallback);
         constructor(w: number, h: number, background?: number, cb?: Jimp.ImageCallback);
+        
+        bitmap: Bitmap;
 
         clone(cb?: Jimp.ImageCallback): Jimp;
         quality(n: number, cb?: Jimp.ImageCallback): this;
@@ -138,13 +138,8 @@ declare namespace Jimp {
         static EDGE_WRAP: number;
         static EDGE_CROP: number;
 
-        /* These are constructors, have already moved up, TODO: remove it in the future
-        (path: string, cb?: Jimp.ImageCallback): void;
-        (image: Jimp, cb?: Jimp.ImageCallback): void;
-        (data: Buffer, cb?: Jimp.ImageCallback): void;
-        (w: number, h: number, cb?: Jimp.ImageCallback): void;
-        (w: number, h: number, background?: number, cb?: Jimp.ImageCallback): void;
-        */
+        static generate(w: number, h: number, cb?: Jimp.ImageCallback): Jimp;
+        static generate(w: number, h: number, background?: number, cb?: Jimp.ImageCallback): Jimp;
 
         static read(src: string | Buffer, cb?: Jimp.ImageCallback): Promise<Jimp>;
         static loadFont(file: string, cb?: Jimp.ImageCallback): Promise<any>;
