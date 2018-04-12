@@ -227,10 +227,10 @@ Online tools are also available to convert TTF fonts to BMFont format (e.g. [Lit
 
 ### Writing to files ###
 
-The image can be written to disk in PNG, JPEG or BMP format (determined by the file extension) using:
+The image can be written to disk in PNG, JPEG or BMP format (determined by either the provided MIME type or the file extension) using:
 
 ```js
-image.write( path, cb ); // Node-style callback will be fired when write is successful
+image.write( path, mime, cb ); // Node-style callback will be fired when write is successful
 ```
 
 The original extension for an image (or "png") can accessed as using `image.getExtension()`. The following will save an image using its original format:
@@ -238,6 +238,12 @@ The original extension for an image (or "png") can accessed as using `image.getE
 ```js
 var file = "new_name." + image.getExtension();
 image.write(file)
+```
+
+The original MIME type can be kept using `Jimp.MIME_ORIGINAL`. The following will save an image with any extension using its original format:
+
+```js
+image.write(path, Jimp.MIME_ORIGINAL)
 ```
 
 ### Writing to Buffers ###
@@ -326,7 +332,7 @@ Modifier                | Description
 **xor** {color}         | Treats the two colors as bitfields and applies an XOR operation to the red, green, and blue components
 **red** {amount}        | Modify Red component by a given amount
 **green** {amount}      | Modify Green component by a given amount
-**blue** {amount}       | Modify Blue component by a given amount
+**blue** {amount}       | Modify Blue component by a given amount                                                                                                                                                                        |
 
 ### Convolution matrix ###
 
