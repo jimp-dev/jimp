@@ -21,8 +21,8 @@
     "test:without-lint": "npm run -s test:node:once && npm run -s test:browser:once",
     "test": "npm run -s lint && npm run -s test:without-lint",
     "test:old": "./test/tests.sh",
-    "browser-build": "node tools/browser-build.js test",
-    "prepublish": "node tools/browser-build.js prepublish"
+    "browser-build": "node ./tools/browser-build.js test",
+    "prepublish": "node ./tools/browser-build.js prepublish"
   },
   "keywords": [
     "image",
