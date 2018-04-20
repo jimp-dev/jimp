@@ -1903,7 +1903,7 @@ Jimp.prototype.resize = function (w, h, mode, cb) {
     }
 
     if (w === Jimp.AUTO && h === Jimp.AUTO)
-        return throwError.call(this, "w and h cannot both the set to auto", cb);
+        return throwError.call(this, "w and h cannot both be set to auto", cb);
 
     if (w === Jimp.AUTO) w = this.bitmap.width * (h / this.bitmap.height);
     if (h === Jimp.AUTO) h = this.bitmap.height * (w / this.bitmap.width);
