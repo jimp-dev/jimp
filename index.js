@@ -2393,60 +2393,57 @@ Jimp.prototype.displace = function (map, offset, cb) {
  * @param cb a Node-style function to call with the buffer as the second argument
  * @returns this for chaining of methods
  */
-Jimp.prototype.getBuffer = function (mime, cb) {
+Jimp.prototype.getBuffer = function (mime) {
     if (mime === Jimp.AUTO) { // allow auto MIME detection
         mime = this.getMIME();
     }
 
     if (typeof mime !== "string")
-        return throwError.call(this, "mime must be a string", cb);
-    if (typeof cb !== "function")
-        return throwError.call(this, "cb must be a function", cb);
+        return throwError.call(this, "mime must be a string");
 
-    switch (mime.toLowerCase()) {
-        case Jimp.MIME_PNG:
-            var that = this;
-            var png = new PNG({
-                width: this.bitmap.width,
-                height: this.bitmap.height,
-                bitDepth: 8,
-                deflateLevel: this._deflateLevel,
-                deflateStrategy: this._deflateStrategy,
-                filterType: this._filterType,
-                colorType: (this._rgba) ? 6 : 2,
-                inputHasAlpha: true
-            });
+    return new Promise((resolve, reject)=> {
+        switch (mime.toLowerCase()) {
+            case Jimp.MIME_PNG:
+                var png = new PNG({
+                    width: this.bitmap.width,
+                    height: this.bitmap.height,
+                    bitDepth: 8,
+                    deflateLevel: this._deflateLevel,
+                    deflateStrategy: this._deflateStrategy,
+                    filterType: this._filterType,
+                    colorType: (this._rgba) ? 6 : 2,
+                    inputHasAlpha: true
+                });
 
-            if (this._rgba) png.data = new Buffer(this.bitmap.data);
-            else png.data = compositeBitmapOverBackground(this).data; // when PNG doesn't support alpha
+                if (this._rgba) png.data = new Buffer(this.bitmap.data);
+                else png.data = compositeBitmapOverBackground(this).data; // when PNG doesn't support alpha
 
-            RawBody(png.pack(), {}, function (err, buffer) {
-                if (err) return throwError.call(this, err, cb);
-                return cb.call(that, null, buffer);
-            });
-            break;
+                RawBody(png.pack(), {}, function (err, buffer) {
+                    if (err) return throwError.call(this, err);
+                    return resolve(buffer);
+                });
+                break;
 
-        case Jimp.MIME_JPEG:
-            // composite onto a new image so that the background shows through alpha channels
-            var jpeg = JPEG.encode(compositeBitmapOverBackground(this), this._quality);
-            return cb.call(this, null, jpeg.data);
+            case Jimp.MIME_JPEG:
+                // composite onto a new image so that the background shows through alpha channels
+                var jpeg = JPEG.encode(compositeBitmapOverBackground(this), this._quality);
+                return resolve(jpeg.data);
 
-        case Jimp.MIME_BMP:
-        case Jimp.MIME_X_MS_BMP:
-            // composite onto a new image so that the background shows through alpha channels
-            var bmp = BMP.encode(compositeBitmapOverBackground(this));
-            return cb.call(this, null, bmp.data);
+            case Jimp.MIME_BMP:
+            case Jimp.MIME_X_MS_BMP:
+                // composite onto a new image so that the background shows through alpha channels
+                var bmp = BMP.encode(compositeBitmapOverBackground(this));
+                return resolve(bmp.data);
 
-        case Jimp.MIME_TIFF:
-            var c = compositeBitmapOverBackground(this)
-            var tiff = UTIF.encodeImage(c.data, c.width, c.height);
-            return cb.call(this, null, new Buffer(tiff));
+            case Jimp.MIME_TIFF:
+                var c = compositeBitmapOverBackground(this)
+                var tiff = UTIF.encodeImage(c.data, c.width, c.height);
+                return resolve(new Buffer(tiff));
 
-        default:
-            return cb.call(this, "Unsupported MIME type: " + mime);
-    }
-
-    return this;
+            default:
+                return reject("Unsupported MIME type: " + mime);
+        }
+    })
 };
 
 function compositeBitmapOverBackground (image) {
@@ -2469,11 +2466,14 @@ Jimp.prototype.getBase64 = function (mime, cb) {
     if (typeof cb !== "function")
         return throwError.call(this, "cb must be a function", cb);
 
-    this.getBuffer(mime, function (err, data) {
-        if (err) return throwError.call(this, err, cb);
-        var src = "data:" + mime + ";base64," + data.toString("base64");
-        return cb.call(this, null, src);
-    });
+    this.getBuffer(mime)
+        .then(function (data) {
+            var src = "data:" + mime + ";base64," + data.toString("base64");
+            return cb.call(this, null, src);
+        })
+        .catch(function (err) {
+            return throwError.call(this, err, cb);
+        });
 
     return this;
 };
@@ -2786,19 +2786,21 @@ Jimp.prototype.write = function (path, cb) {
     var pathObj = Path.parse(path);
     if (pathObj.dir) MkDirP.sync(pathObj.dir);
 
-    this.getBuffer(mime, function (err, buffer) {
-        if (err) return throwError.call(that, err, cb);
-        var stream = FS.createWriteStream(path);
-        stream.on("open", function () {
-            stream.write(buffer);
-            stream.end();
-        }).on("error", function (err) {
+    this.getBuffer(mime)
+        .then(function (buffer) {
+            var stream = FS.createWriteStream(path);
+            stream.on("open", function () {
+                stream.write(buffer);
+                stream.end();
+            }).on("error", function (err) {
+                return throwError.call(that, err, cb);
+            });
+            stream.on("finish", function () {
+                return cb.call(that, null, that);
+            });
+        }).catch(function (err) {
             return throwError.call(that, err, cb);
-        });
-        stream.on("finish", function () {
-            return cb.call(that, null, that);
-        });
-    });
+        })
 
     return this;
 };

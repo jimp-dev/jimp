@@ -20,11 +20,14 @@ describe("JGD - JS Graphic Description", ()=> {
     it("Jimp loads JGD", (done)=> {
         new Jimp(donutJGD, (err, image)=> {
             should.not.exist(err);
-            image.getBuffer("image/png", (err, buffer)=> {
-                should.not.exist(err);
-                buffer.toString("base64").should.be.equal(donutPngBase64);
-                done();
-            });
+            image.getBuffer("image/png")
+                .then((buffer)=> {
+                    buffer.toString("base64").should.be.equal(donutPngBase64);
+                    done();
+                })
+                .catch((err)=> {
+                    should.not.exist(err);
+                });
         });
     });
 

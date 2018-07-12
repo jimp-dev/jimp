@@ -57,44 +57,48 @@ describe("FileType", ()=> {
     it("export PNG", (done)=> {
         new Jimp(simpleJGD, function (err, image) {
             if (err) done(err);
-            this.getBuffer('image/png', function (err, buffer) {
-                if (err) done(err);
-                buffer.toString().should.match(/^.PNG\r\n/);
-                done();
-            });
+            this.getBuffer('image/png')
+                .then(function (buffer) {
+                    buffer.toString().should.match(/^.PNG\r\n/);
+                    done();
+                })
+                .catch(done);
         });
     });
 
     it("export JPG", (done)=> {
         new Jimp(simpleJGD, function (err, image) {
             if (err) done(err);
-            this.getBuffer('image/jpeg', function (err, buffer) {
-                if (err) done(err);
-                buffer.toString().should.match(/^.{3,9}JFIF\u0000/);
-                done();
-            });
+            this.getBuffer('image/jpeg')
+                .then(function (buffer) {
+                    buffer.toString().should.match(/^.{3,9}JFIF\u0000/);
+                    done();
+                })
+                .catch(done);
         });
     });
 
     it("export BMP", (done)=> {
         new Jimp(simpleJGD, function (err, image) {
             if (err) done(err);
-            this.getBuffer('image/bmp', function (err, buffer) {
-                if (err) done(err);
-                buffer.toString().should.match(/^BMZ\u0000/);
-                done();
-            });
+            this.getBuffer('image/bmp')
+                .then(function (buffer) {
+                    buffer.toString().should.match(/^BMZ\u0000/);
+                    done();
+                })
+                .catch(done);
         });
     });
 
     it("export TIFF", (done)=> {
         new Jimp(simpleJGD, function (err, image) {
             if (err) done(err);
-            this.getBuffer('image/tiff', function (err, buffer) {
-                if (err) done(err);
-                buffer.toString().should.match(/^MM\u0000*\u0000/);
-                done();
-            });
+            this.getBuffer('image/tiff')
+                .then(function (buffer) {
+                    buffer.toString().should.match(/^MM\u0000*\u0000/);
+                    done();
+                })
+                .catch(done);
         });
     });
 
