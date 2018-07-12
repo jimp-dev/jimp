@@ -245,7 +245,7 @@ image.write(file)
 A PNG, JPEG or BMP binary Buffer of an image (e.g. for storage in a database) can be obtained using:
 
 ```js
-image.getBuffer( mime, cb ); // Node-style callback will be fired with result
+image.getBuffer( mime ); // Returns a promise
 ```
 
 For convenience, supported MIME types are available as static properties:
