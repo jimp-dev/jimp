@@ -1065,9 +1065,9 @@ Jimp.prototype.autocrop = function () {
         }
         if (typeof arguments[a] === "object") { // config object passed
             var config = arguments[a];
-            if(config.tolerance !== undefined) tolerance = config.tolerance;
-            if(config.cropOnlyFrames !== undefined) cropOnlyFrames = config.cropOnlyFrames;
-            if(config.cropSymmetric !== undefined) cropSymmetric = config.cropSymmetric;
+            if (typeof config.tolerance !== "undefined") tolerance = config.tolerance;
+            if (typeof config.cropOnlyFrames !== "undefined") cropOnlyFrames = config.cropOnlyFrames;
+            if (typeof config.cropSymmetric !== "undefined") cropSymmetric = config.cropSymmetric;
         }
     }
 
@@ -1155,7 +1155,7 @@ Jimp.prototype.autocrop = function () {
     // decide if a crop is needed
     var doCrop = false;
 
-    if(cropSymmetric){
+    if (cropSymmetric) {
         westPixelsToCrop = eastPixelsToCrop = Math.min(eastPixelsToCrop, westPixelsToCrop)
         northPixelsToCrop = southPixelsToCrop = Math.min(northPixelsToCrop, southPixelsToCrop)
     }
