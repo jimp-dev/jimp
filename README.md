@@ -79,6 +79,7 @@ image.scaleToFit( w, h[, mode] ); // scale the image to the largest size that fi
 
 /* Crop */
 image.autocrop([tolerance, frames]); // automatically crop same-color borders from image (if any), frames must be a Boolean
+image.autocrop(options);          // automatically crop same-color borders from image (if any), options may contain tolerance, cropOnlyFrames, cropSymmetric
 image.crop( x, y, w, h );         // crop to the given region
 
 /* Composing */
@@ -382,10 +383,10 @@ If you need to do something with the image at the end of the scan:
 ```js
 image.scan(0, 0, image.bitmap.width, image.bitmap.height, function (x, y, idx) {
     // do your stuff..
-    
-    if(x == image.bitmap.width-1 && 
+
+    if(x == image.bitmap.width-1 &&
         y == image.bitmap.height-1) {
-        // image scan finished, do your stuff   
+        // image scan finished, do your stuff
     }
 });
 ```

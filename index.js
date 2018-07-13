@@ -1049,6 +1049,8 @@ Jimp.prototype.autocrop = function () {
     var tolerance = 0.0002; // percent of color difference tolerance (default value)
     var cropOnlyFrames = true; // flag to force cropping only if the image has a real "frame"
                                // i.e. all 4 sides have some border (default value)
+    var cropSymmetric = false;  // flag to force cropping top be symmetric.
+                               // i.e. north and south / east and west are cropped by the same value
 
     // parse arguments
     for (let a = 0, len = arguments.length; a < len; a++) {
@@ -1060,6 +1062,12 @@ Jimp.prototype.autocrop = function () {
         }
         if (typeof arguments[a] === "function") { // callback value passed
             cb = arguments[a];
+        }
+        if (typeof arguments[a] === "object") { // config object passed
+            var config = arguments[a];
+            if(config.tolerance !== undefined) tolerance = config.tolerance;
+            if(config.cropOnlyFrames !== undefined) cropOnlyFrames = config.cropOnlyFrames;
+            if(config.cropSymmetric !== undefined) cropSymmetric = config.cropSymmetric;
         }
     }
 
@@ -1080,6 +1088,7 @@ Jimp.prototype.autocrop = function () {
 
     var rgba1 = Jimp.intToRGBA(colorTarget);
 
+    colorTarget = this.getPixelColor(0, 0);
     north: // north side (scan rows from north to south)
     for (let y = 0; y < h - minPixelsPerSide; y++) {
         for (let x = 0; x < w; x++) {
@@ -1095,6 +1104,7 @@ Jimp.prototype.autocrop = function () {
         northPixelsToCrop++;
     }
 
+    colorTarget = this.getPixelColor(w, 0);
     east: // east side (scan columns from east to west)
     for (let x = 0; x < w - minPixelsPerSide; x++) {
         for (let y = 0 + northPixelsToCrop; y < h; y++) {
@@ -1110,6 +1120,7 @@ Jimp.prototype.autocrop = function () {
         eastPixelsToCrop++;
     }
 
+    colorTarget = this.getPixelColor(0, h);
     south: // south side (scan rows from south to north)
     for (let y = h - 1; y >= northPixelsToCrop + minPixelsPerSide; y--) {
         for (let x = w - eastPixelsToCrop - 1; x >= 0; x--) {
@@ -1125,6 +1136,7 @@ Jimp.prototype.autocrop = function () {
         southPixelsToCrop++;
     }
 
+    colorTarget = this.getPixelColor(w, h);
     west: // west side (scan columns from west to east)
     for (let x = w - 1; x >= 0 + eastPixelsToCrop + minPixelsPerSide; x--) {
         for (let y = h - 1; y >= 0 + northPixelsToCrop; y--) {
@@ -1140,14 +1152,14 @@ Jimp.prototype.autocrop = function () {
         westPixelsToCrop++;
     }
 
-    // safety checks
-    var widthOfPixelsToCrop = w - (westPixelsToCrop + eastPixelsToCrop);
-    widthOfPixelsToCrop >= 0 ? widthOfPixelsToCrop : 0;
-    var heightOfPixelsToCrop = h - (southPixelsToCrop + northPixelsToCrop);
-    heightOfPixelsToCrop >= 0 ? heightOfPixelsToCrop : 0;
-
     // decide if a crop is needed
     var doCrop = false;
+
+    if(cropSymmetric){
+        westPixelsToCrop = eastPixelsToCrop = Math.min(eastPixelsToCrop, westPixelsToCrop)
+        northPixelsToCrop = southPixelsToCrop = Math.min(northPixelsToCrop, southPixelsToCrop)
+    }
+
     if (cropOnlyFrames) { // crop image if all sides should be cropped
         doCrop = (
             eastPixelsToCrop !== 0 &&
@@ -1164,12 +1176,18 @@ Jimp.prototype.autocrop = function () {
         );
     }
 
+    // safety checks
+    var widthOfRemainingPixels = w - (westPixelsToCrop + eastPixelsToCrop);
+    widthOfRemainingPixels >= 0 ? widthOfRemainingPixels : 0;
+    var heightOfRemainingPixels = h - (southPixelsToCrop + northPixelsToCrop);
+    heightOfRemainingPixels >= 0 ? heightOfRemainingPixels : 0;
+
     if (doCrop) { // do the real crop
         this.crop(
             eastPixelsToCrop,
             northPixelsToCrop,
-            widthOfPixelsToCrop,
-            heightOfPixelsToCrop
+            widthOfRemainingPixels,
+            heightOfRemainingPixels
        );
     }
 
