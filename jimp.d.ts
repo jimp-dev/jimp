@@ -43,6 +43,7 @@ declare namespace Jimp {
         hash(base?: number, cb?: (err:Error, hash: string)=>any): string;
         crop(x: number, y: number, w: number, h: number, cb?: Jimp.ImageCallback): this;
         autocrop(tolerance?: number, cropOnlyFrames?: boolean, cb?: Jimp.ImageCallback): this
+        autocrop({tolerance?: number, cropOnlyFrames?: boolean, cropSymmetric: boolean}, cb?: Jimp.ImageCallback): this
         blit(src: Jimp, x: number, y: number, srcx?: number, srcy?: number, srcw?: number, srch?: number, cb?: Jimp.ImageCallback): this
         mask(src: Jimp, x: number, y: number, cb?: Jimp.ImageCallback): this
         composite(src: Jimp, x: number, y: number, cb?: Jimp.ImageCallback): this;
