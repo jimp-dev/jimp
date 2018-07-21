@@ -30,7 +30,7 @@ describe('Convolution', () => {
 
   let imgMid;
   let imgTopLeft; // stores the Jimp instances of the JGD images above.
-  beforeAll(done => {
+  before(done => {
     Promise.all(imgs)
       .then(imgs => {
         imgMid = imgs[0];

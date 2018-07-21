@@ -7,7 +7,7 @@ describe('Mask', () => {
   let maskGraySmall;
   let maskColor;
 
-  beforeAll(done => {
+  before(done => {
     Promise.all([
       Jimp.read(mkJGD('▴□▾□■□', '■▴■▾■□', '■□▴□▾□', '■□■▴■▾')),
       Jimp.read(mkJGD('▴▵▾▿', '▴▵▾▿', '▴▵▾▿')),

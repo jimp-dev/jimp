@@ -17,8 +17,7 @@
     "test:node:once": "istanbul cover _mocha ./test/*.test.js",
     "test:node:once:nocover": "mocha ./test/*.test.js",
     "test:node:watch": "mocha --reporter min --watch ./test/*.test.js",
-    "test:without-lint": "npm run -s test:node:once && npm run -s test:browser:once",
-    "test": "npm run -s lint && npm run -s test:without-lint",
+    "test": "npm run -s test:node:once && npm run -s test:browser:once",
     "test:old": "./test/tests.sh",
     "browser-build": "node tools/browser-build.js test",
     "prepublish": "node tools/browser-build.js prepublish"

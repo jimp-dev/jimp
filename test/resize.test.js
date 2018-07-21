@@ -572,7 +572,7 @@ describe('Resize images', () => {
     }
   ];
 
-  beforeAll(done => {
+  before(done => {
     const srcImgs = testImages.map(test => test.src);
     Promise.all(srcImgs)
       .then(imgsJimp => {

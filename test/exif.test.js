@@ -8,7 +8,7 @@ describe('Exif', function() {
   let imgs;
   let firstLandscapeImg;
   let firstPortraitImg;
-  beforeAll(done => {
+  before(done => {
     imgs = [];
     let i;
     for (i = 1; i <= 8; i++)

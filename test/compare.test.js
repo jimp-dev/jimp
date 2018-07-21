@@ -8,7 +8,7 @@ describe('Compare image difference', () => {
     Jimp.read(mkJGD('2232', '4454', '6676', '8898'))
   ];
 
-  beforeAll(done => {
+  before(done => {
     Promise.all(imgs)
       .then(imgsJimp => {
         imgs = imgsJimp;

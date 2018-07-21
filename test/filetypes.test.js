@@ -1,6 +1,6 @@
 const { Jimp, getTestDir } = require('./test-helper');
 
-describe('FileType', () => {
+describe.only('FileType', () => {
   const imagesDir = getTestDir() + '/samples';
 
   it('load PNG', done => {
@@ -71,7 +71,7 @@ describe('FileType', () => {
   });
 
   it('export JPG', done => {
-    new Jimp(simpleJGD, err => {
+    new Jimp(simpleJGD, function(err) {
       if (err) done(err);
       this.getBuffer('image/jpeg', (err, buffer) => {
         if (err) done(err);
@@ -82,7 +82,7 @@ describe('FileType', () => {
   });
 
   it('export BMP', done => {
-    new Jimp(simpleJGD, err => {
+    new Jimp(simpleJGD, function(err) {
       if (err) done(err);
       this.getBuffer('image/bmp', (err, buffer) => {
         if (err) done(err);
@@ -93,7 +93,7 @@ describe('FileType', () => {
   });
 
   it('export TIFF', done => {
-    new Jimp(simpleJGD, err => {
+    new Jimp(simpleJGD, function(err) {
       if (err) done(err);
       this.getBuffer('image/tiff', (err, buffer) => {
         if (err) done(err);

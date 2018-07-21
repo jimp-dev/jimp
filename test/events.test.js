@@ -4,7 +4,7 @@ describe('Events', () => {
   describe('on initialized', () => {
     it('initializes', done => {
       new Jimp(mkJGD('▴▵'))
-        .on('initialized', data => {
+        .on('initialized', function(data) {
           this.getJGDSync().should.be.sameJGD(mkJGD('▴▵'));
           data.methodName.should.be.equal('constructor');
           done();
@@ -14,7 +14,7 @@ describe('Events', () => {
 
     it('initializes with a file', done => {
       new Jimp(getTestDir() + '/samples/lenna.png')
-        .on('initialized', () => {
+        .on('initialized', function() {
           this.bitmap.width.should.be.equal(512);
           done();
         })
@@ -24,7 +24,7 @@ describe('Events', () => {
 
   describe('on change', () => {
     it('call before-change without callback', done => {
-      const img = new Jimp(8, 8).on('before-change', data => {
+      const img = new Jimp(8, 8).on('before-change', function(data) {
         this.should.be.instanceof(Jimp);
         data.methodName.should.be.equal('crop');
         this.bitmap.width.should.be.equal(8, 'not changed yet');
@@ -34,7 +34,7 @@ describe('Events', () => {
     });
 
     it('call changed without callback', done => {
-      const img = new Jimp(8, 8).on('changed', data => {
+      const img = new Jimp(8, 8).on('changed', function(data) {
         this.should.be.instanceof(Jimp);
         data.methodName.should.be.equal('crop');
         this.bitmap.width.should.be.equal(4, 'just changed!');
@@ -45,7 +45,7 @@ describe('Events', () => {
 
     it('call before-change with callback', done => {
       let eventEmited = false;
-      const img = new Jimp(8, 8).on('before-change', data => {
+      const img = new Jimp(8, 8).on('before-change', function(data) {
         this.should.be.instanceof(Jimp);
         data.methodName.should.be.equal('crop');
         this.bitmap.width.should.be.equal(8, 'not changed yet');
@@ -59,7 +59,7 @@ describe('Events', () => {
 
     it('call changed with callback', done => {
       let eventEmited = false;
-      const img = new Jimp(8, 8).on('changed', data => {
+      const img = new Jimp(8, 8).on('changed', function(data) {
         this.should.be.instanceof(Jimp);
         data.methodName.should.be.equal('crop');
         this.bitmap.width.should.be.equal(4, 'just changed!');
@@ -74,10 +74,10 @@ describe('Events', () => {
     it('call consistent with method chain', done => {
       const widthSequence = [];
       const img = new Jimp(8, 8)
-        .on('before-change', () => {
+        .on('before-change', function() {
           widthSequence.push('in:' + this.bitmap.width);
         })
-        .on('changed', () => {
+        .on('changed', function() {
           widthSequence.push('out:' + this.bitmap.width);
           if (widthSequence.length === 6) {
             widthSequence.should.be.deepEqual([
@@ -100,10 +100,10 @@ describe('Events', () => {
     it('call consistent with callback chain', done => {
       const widthSequence = [];
       const img = new Jimp(8, 8)
-        .on('before-change', () => {
+        .on('before-change', function() {
           widthSequence.push('in:' + this.bitmap.width);
         })
-        .on('changed', () => {
+        .on('changed', function() {
           widthSequence.push('out:' + this.bitmap.width);
           if (widthSequence.length === 6) {
             widthSequence.should.be.deepEqual([
@@ -167,15 +167,15 @@ describe('Events', () => {
       const eventsEmited = [];
       Jimp.read(mkJGD('▴▵'))
         .then(img => {
-          img.on('clone', data => {
+          img.on('clone', function(data) {
             eventsEmited.push(data.eventName);
           });
-          img.on('before-clone', data => {
+          img.on('before-clone', function(data) {
             this.should.be.instanceof(Jimp);
             data.methodName.should.be.equal('clone');
             evBeforeCloneEmited = true;
           });
-          img.on('cloned', data => {
+          img.on('cloned', function(data) {
             evBeforeCloneEmited.should.be.ok();
             eventsEmited.should.be.deepEqual(['before-clone', 'cloned']);
             this.should.be.equal(img, 'this is NOT the clone! Is the emitter.');
@@ -196,15 +196,15 @@ describe('Events', () => {
       Jimp.read(mkJGD('▴▵'))
         .then(img => {
           img
-            .on('clone', data => {
+            .on('clone', function(data) {
               eventsEmited.push(data.eventName);
             })
-            .on('before-clone', data => {
+            .on('before-clone', function(data) {
               this.should.be.instanceof(Jimp);
               data.methodName.should.be.equal('clone');
               evBeforeCloneEmited = true;
             })
-            .on('cloned', data => {
+            .on('cloned', function(data) {
               this.should.be.equal(
                 img,
                 'this is NOT the clone! Is the emitter.'
