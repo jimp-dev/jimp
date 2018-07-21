@@ -214,7 +214,7 @@ describe('Events', () => {
               data.clone.getJGDSync().should.be.sameJGD(mkJGD('▴▵'));
               evClonedEmited = true;
             });
-          img.clone((()) => {
+          img.clone(() => {
             evBeforeCloneEmited.should.be.ok();
             evClonedEmited.should.be.ok();
             eventsEmited.should.be.deepEqual(['before-clone', 'cloned']);
