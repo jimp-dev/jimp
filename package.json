@@ -5,10 +5,9 @@
   "main": "jimp.js",
   "types": "./jimp.d.ts",
   "scripts": {
-    "lint": "npm run -s lint:src && npm run -s lint:browser && npm run -s lint:tests && npm run -s lint:extra && echo Lint All Success",
-    "lint:src": "xo *.js src/*.js && echo Lint Source Success",
-    "lint:tests": "eslint --env 'mocha' --rule '{no-new: \"off\"}' test/*.js && echo Lint Tests Success",
-    "lint:browser": "eslint --rule '{no-new: \"off\"}' browser/src/*.js && echo Lint Browser Success",
+    "lint": "npm run -s lint:src && npm run -s lint:tests && npm run -s lint:extra && echo Lint All Success",
+    "lint:src": "xo *.js src/*.js",
+    "lint:tests": "xo test/*.js",
     "lint:extra": "eslint --rule '{no-console: \"off\"}' {*/,}{tools,examples}/*.js && echo Lint Extras Success",
     "test:karma": "CHROME_BIN=\"$(which chrome || which chromium)\" karma",
     "test:browser:run": "npm run -s test:karma run",
@@ -39,6 +38,8 @@
   "author": "Oliver Moran <oliver.moran@gmail.com>",
   "license": "MIT",
   "dependencies": {
+    "babel-eslint": "^8.2.6",
+    "babel-preset-env": "^1.7.0",
     "bignumber.js": "^2.1.0",
     "bmp-js": "0.0.3",
     "buffer": "^5.0.2",
@@ -98,6 +99,7 @@
     "singleQuote": true
   },
   "xo": {
+    "parser": "babel-eslint",
     "extends": [
       "prettier"
     ],
@@ -106,11 +108,18 @@
     ],
     "env": [
       "browser",
-      "node"
+      "node",
+      "jest"
+    ],
+    "ignores": [
+      "omggif.js"
     ],
     "rules": {
       "capitalized-comments": 0,
+      "unicorn/number-literal-case": 0,
+      "no-control-regex": 1,
       "prefer-rest-params": 1,
+      "no-new": 1,
       "no-console": [
         2,
         {
@@ -125,5 +134,10 @@
         5
       ]
     }
+  },
+  "babel": {
+    "presets": [
+      "env"
+    ]
   }
 }

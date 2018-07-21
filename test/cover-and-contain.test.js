@@ -1,8 +1,8 @@
-var {Jimp, mkJGD, hasOwnProp} = require("./test-helper");
+const {Jimp, mkJGD, hasOwnProp} = require("./test-helper");
 
 describe("All align combinations for cover and contain", ()=> {
 
-    var verticalJGD = mkJGD(
+    const verticalJGD = mkJGD(
         '▴▴▴▴▸▸▸▸',
         '▴▴▴▴▸▸▸▸',
         '▴▴▴▴▸▸▸▸',
@@ -17,7 +17,7 @@ describe("All align combinations for cover and contain", ()=> {
         '▾▾▾▾◆◆◆◆'
     );
 
-    var horizontalJGD = mkJGD(
+    const horizontalJGD = mkJGD(
         '▴▴▴▴▴▴▸▸▸▸▸▸',
         '▴▴▴▴▴▴▸▸▸▸▸▸',
         '▴▴▴▴▴▴▸▸▸▸▸▸',
@@ -28,10 +28,12 @@ describe("All align combinations for cover and contain", ()=> {
         '▾▾▾▾▾▾◆◆◆◆◆◆'
     );
 
-    var vertical, horizontal; // stores the Jimp instances of the JGD images above.
-    before((done)=> {
-        var img1 = Jimp.read(verticalJGD);
-        var img2 = Jimp.read(horizontalJGD);
+    let vertical
+    let horizontal; // stores the Jimp instances of the JGD images above.
+
+    beforeAll((done)=> {
+        const img1 = Jimp.read(verticalJGD);
+        const img2 = Jimp.read(horizontalJGD);
         Promise.all([img1, img2]).then((images)=> {
             vertical = images[0];
             horizontal = images[1];
@@ -39,7 +41,7 @@ describe("All align combinations for cover and contain", ()=> {
         }).catch(done);
     });
 
-    var tests = {}; // Stores the expected result for each alignment combination.
+    const tests = {}; // Stores the expected result for each alignment combination.
     tests["LEFT TOP"] = {
         cover: {
             verti: mkJGD('▴▴▸▸',
@@ -278,11 +280,11 @@ describe("All align combinations for cover and contain", ()=> {
     };
 
     function runAlignTest (align) {
-        var jgdCoverV = tests[align].cover.verti;
-        var jgdCoverH = tests[align].cover.horiz;
-        var jgdContainV = tests[align].contain.verti;
-        var jgdContainH = tests[align].contain.horiz;
-        var a = align.split(" ");
+        const jgdCoverV = tests[align].cover.verti;
+        const jgdCoverH = tests[align].cover.horiz;
+        const jgdContainV = tests[align].contain.verti;
+        const jgdContainH = tests[align].contain.horiz;
+        let a = align.split(" ");
         a = Jimp["HORIZONTAL_ALIGN_"+a[0]] | Jimp["VERTICAL_ALIGN_"+a[1]];
         it("cover aligned to "+align, ()=> {
             vertical.clone().cover(4, 4, a)
@@ -298,6 +300,6 @@ describe("All align combinations for cover and contain", ()=> {
         });
     }
 
-    for (var align in tests) if (hasOwnProp(tests, align)) runAlignTest(align);
+    for (const align in tests) if (hasOwnProp(tests, align)) runAlignTest(align);
 
 });

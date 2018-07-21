@@ -1,258 +1,283 @@
-var {Jimp, mkJGD, hasOwnProp} = require("./test-helper");
+const { Jimp, mkJGD, hasOwnProp } = require('./test-helper');
 
-describe("Callbacks", ()=> {
+describe('Callbacks', () => {
+  const targetJGD = mkJGD('▴▸▾', '◆▪▰', '▵▹▿');
+  const miniJGD = mkJGD('□▥', '▥■');
 
-    var targetJGD = mkJGD(
-        '▴▸▾',
-        '◆▪▰',
-        '▵▹▿'
-    );
-    var miniJGD = mkJGD(
-        '□▥',
-        '▥■'
-    );
+  let targetImg;
+  let miniImg; // stores the Jimp instances of the JGD images above.
+  beforeAll(done => {
+    const img1 = Jimp.read(targetJGD);
+    const img2 = Jimp.read(miniJGD);
+    Promise.all([img1, img2])
+      .then(images => {
+        targetImg = images[0];
+        miniImg = images[1];
+        done();
+      })
+      .catch(done);
+  });
 
-    var targetImg, miniImg; // stores the Jimp instances of the JGD images above.
-    before((done)=> {
-        var img1 = Jimp.read(targetJGD);
-        var img2 = Jimp.read(miniJGD);
-        Promise.all([img1, img2]).then((images)=> {
-            targetImg = images[0];
-            miniImg = images[1];
-            done();
-        }).catch(done);
-    });
-
-    var operations = {
-        crop: {
-            args: [1, 1, 2, 1],
-            result: ['▪▰']
-        },
-        invert: {
-            args: [],
-            result: [
-                '▪▰◆',
-                '▾▴▸',
-                '▫▱◇']
-        },
-        flip: {
-            args: [true, false],
-            result: [
-                '▾▸▴',
-                '▰▪◆',
-                '▿▹▵']
-        },
-        mirror: {
-            args: [true, false],
-            result: [
-                '▾▸▴',
-                '▰▪◆',
-                '▿▹▵']
-        },
-        gaussian: {
-            args: [1],
-            result: {
-                width: 3,
-                height: 3,
-                data: [
-                    0x72A02Bf8, 0x4F7092f5, 0x5950B9f3,
-                    0x787F4Fd4, 0x6F6479cf, 0x4555A4cc,
-                    0x558F51c3, 0x495A8Fbe, 0x515D93cf]
-            }
-        },
-        blur: {
-            args: [1],
-            result: {
-                width: 3,
-                height: 3,
-                data: [
-                    0xAA943Ff1, 0x7E7E7Ef1, 0x5469BFf1,
-                    0x9BC252d4, 0x85A785d4, 0x6E8BB6d4,
-                    0x88006Cb7, 0x8CDC8Cb7, 0x92B7ACb7]
-            }
-        },
-        greyscale: {
-            args: [],
-            result: {
-                width: 3,
-                height: 3,
-                data: [
-                    0x363636ff, 0xB6B6B6ff, 0x121212ff,
-                    0xECECECff, 0xC8C8C8ff, 0x484848ff,
-                    0x3636367f, 0xB6B6B67f, 0x1212127f]
-            }
-        },
-        sepia: {
-            args: [],
-            result: {
-                width: 3,
-                height: 3,
-                data: [
-                    0x64222Dff, 0xC4F3B7ff, 0x303B4Eff,
-                    0xFFFFE5ff, 0xF4FFFFff, 0x945E7Cff,
-                    0x64222D7f, 0xC4F3B77f, 0x303B4E7f]
-            }
-        },
-        opacity: {
-            args: [0.5],
-            result: {
-                width: 3,
-                height: 3,
-                data: [
-                    0xFF00007f, 0x00FF007f, 0x0000FF7f,
-                    0xFFFF007f, 0x00FFFF7f, 0xFF00FF7f,
-                    0xFF00003f, 0x00FF003f, 0x0000FF3f]
-            }
-        },
-        resize: {
-            args: [2, 2],
-            result: {
-                width: 2,
-                height: 2,
-                data: [
-                    0xAA8E1Cff, 0x3955C6ff,
-                    0xAA8E1Caa, 0x3955C6aa]
-            }
-        },
-        scale: {
-            args: [0.5],
-            result: {
-                width: 2,
-                height: 2,
-                data: [
-                    0xAA8E1Cff, 0x3955C6ff,
-                    0xAA8E1Caa, 0x3955C6aa]
-            }
-        },
-        rotate: {
-            args: [90, false],
-            result: [
-                '▾▰▿',
-                '▸▪▹',
-                '▴◆▵']
-        },
-        brightness: {
-            args: [0.5],
-            result: {
-                width: 3,
-                height: 3,
-                data: [
-                    0xFF7F7Fff, 0x7FFF7Fff, 0x7F7FFFff,
-                    0xFFFF7Fff, 0x7FFFFFff, 0xFF7FFFff,
-                    0xFF7F7F7f, 0x7FFF7F7f, 0x7F7FFF7f]
-            }
-        },
-        contrast: {
-            args: [0.75],
-            result: [
-                '▴▸▾',
-                '◆▪▰',
-                '▵▹▿']
-        },
-        posterize: {
-            args: [5],
-            result: [
-                '▴▸▾',
-                '◆▪▰',
-                '▵▹▿']
-        },
-        dither565: {
-            args: [],
-            result: {
-                width: 3,
-                height: 3,
-                data: [
-                    0xFF0101ff, 0x09FF09ff, 0x0303FFff,
-                    0xFFFF0Dff, 0x05FFFFff, 0xFF0FFFff,
-                    0xFF04047f, 0x0CFF0C7f, 0x0202FF7f]
-            }
-        },
-        background: {
-            args: [0xFFFFFFFF],
-            result: [
-                '▴▸▾',
-                '◆▪▰',
-                '▵▹▿']
-        },
-        cover: {
-            args: [3, 2, Jimp.HORIZONTAL_ALIGN_LEFT | Jimp.VERTICAL_ALIGN_TOP],
-            result: [
-                '▴▸▾',
-                '◆▪▰']
-        },
-        contain: {
-            args: [3, 2, Jimp.HORIZONTAL_ALIGN_LEFT | Jimp.VERTICAL_ALIGN_TOP],
-            result: {
-                width: 3,
-                height: 2,
-                data: [
-                    0xAA8E1Cff, 0x3955C6ff, 0,
-                    0xAA8E1Caa, 0x3955C6aa, 0]
-            }
-        },
-        opaque: {
-            args: [],
-            result: {
-                width: 3,
-                height: 3,
-                data: [
-                    0xFF0000ff, 0x00FF00ff, 0x0000FFff,
-                    0xFFFF00ff, 0x00FFFFff, 0xFF00FFff,
-                    0xFF0000ff, 0x00FF00ff, 0x0000FFff]
-            }
-        },
-        fade: {
-            args: [0.5],
-            result: {
-                width: 3,
-                height: 3,
-                data: [
-                    0xFF00007f, 0x00FF007f, 0x0000FF7f,
-                    0xFFFF007f, 0x00FFFF7f, 0xFF00FF7f,
-                    0xFF00003f, 0x00FF003f, 0x0000FF3f]
-            }
-        },
-        scaleToFit: {
-            args: [3, 2],
-            result: {
-                width: 2,
-                height: 2,
-                data: [
-                    0xAA8E1Cff, 0x3955C6ff,
-                    0xAA8E1Caa, 0x3955C6aa]
-            }
-        },
-        blit: {
-            args: ['miniImg', 0, 0],
-            result: [
-                '□▥▾',
-                '▥■▰',
-                '▵▹▿']
-        },
-        composite: {
-            args: ['miniImg', 0, 0],
-            result: [
-                '□▥▾',
-                '▥■▰',
-                '▵▹▿']
-        }
-    };
-
-    for (var op in operations) if (hasOwnProp(operations, op)) process(op);
-
-    function process (op) {
-        it("with "+op, (done)=> {
-            var args = operations[op].args;
-            for (var i=0; i<args.length; i++) if (args[i]==='miniImg') args[i]=miniImg;
-            var result = operations[op].result;
-            if (result.constructor === Array) result = mkJGD(...result);
-            function save (err, image) {
-                if (err) return done(err);
-                image.getJGDSync().should.be.sameJGD(result);
-                done();
-            }
-            targetImg.clone()[op](...args.concat(save));
-        });
+  const operations = {
+    crop: {
+      args: [1, 1, 2, 1],
+      result: ['▪▰']
+    },
+    invert: {
+      args: [],
+      result: ['▪▰◆', '▾▴▸', '▫▱◇']
+    },
+    flip: {
+      args: [true, false],
+      result: ['▾▸▴', '▰▪◆', '▿▹▵']
+    },
+    mirror: {
+      args: [true, false],
+      result: ['▾▸▴', '▰▪◆', '▿▹▵']
+    },
+    gaussian: {
+      args: [1],
+      result: {
+        width: 3,
+        height: 3,
+        data: [
+          0x72a02bf8,
+          0x4f7092f5,
+          0x5950b9f3,
+          0x787f4fd4,
+          0x6f6479cf,
+          0x4555a4cc,
+          0x558f51c3,
+          0x495a8fbe,
+          0x515d93cf
+        ]
+      }
+    },
+    blur: {
+      args: [1],
+      result: {
+        width: 3,
+        height: 3,
+        data: [
+          0xaa943ff1,
+          0x7e7e7ef1,
+          0x5469bff1,
+          0x9bc252d4,
+          0x85a785d4,
+          0x6e8bb6d4,
+          0x88006cb7,
+          0x8cdc8cb7,
+          0x92b7acb7
+        ]
+      }
+    },
+    greyscale: {
+      args: [],
+      result: {
+        width: 3,
+        height: 3,
+        data: [
+          0x363636ff,
+          0xb6b6b6ff,
+          0x121212ff,
+          0xecececff,
+          0xc8c8c8ff,
+          0x484848ff,
+          0x3636367f,
+          0xb6b6b67f,
+          0x1212127f
+        ]
+      }
+    },
+    sepia: {
+      args: [],
+      result: {
+        width: 3,
+        height: 3,
+        data: [
+          0x64222dff,
+          0xc4f3b7ff,
+          0x303b4eff,
+          0xffffe5ff,
+          0xf4ffffff,
+          0x945e7cff,
+          0x64222d7f,
+          0xc4f3b77f,
+          0x303b4e7f
+        ]
+      }
+    },
+    opacity: {
+      args: [0.5],
+      result: {
+        width: 3,
+        height: 3,
+        data: [
+          0xff00007f,
+          0x00ff007f,
+          0x0000ff7f,
+          0xffff007f,
+          0x00ffff7f,
+          0xff00ff7f,
+          0xff00003f,
+          0x00ff003f,
+          0x0000ff3f
+        ]
+      }
+    },
+    resize: {
+      args: [2, 2],
+      result: {
+        width: 2,
+        height: 2,
+        data: [0xaa8e1cff, 0x3955c6ff, 0xaa8e1caa, 0x3955c6aa]
+      }
+    },
+    scale: {
+      args: [0.5],
+      result: {
+        width: 2,
+        height: 2,
+        data: [0xaa8e1cff, 0x3955c6ff, 0xaa8e1caa, 0x3955c6aa]
+      }
+    },
+    rotate: {
+      args: [90, false],
+      result: ['▾▰▿', '▸▪▹', '▴◆▵']
+    },
+    brightness: {
+      args: [0.5],
+      result: {
+        width: 3,
+        height: 3,
+        data: [
+          0xff7f7fff,
+          0x7fff7fff,
+          0x7f7fffff,
+          0xffff7fff,
+          0x7fffffff,
+          0xff7fffff,
+          0xff7f7f7f,
+          0x7fff7f7f,
+          0x7f7fff7f
+        ]
+      }
+    },
+    contrast: {
+      args: [0.75],
+      result: ['▴▸▾', '◆▪▰', '▵▹▿']
+    },
+    posterize: {
+      args: [5],
+      result: ['▴▸▾', '◆▪▰', '▵▹▿']
+    },
+    dither565: {
+      args: [],
+      result: {
+        width: 3,
+        height: 3,
+        data: [
+          0xff0101ff,
+          0x09ff09ff,
+          0x0303ffff,
+          0xffff0dff,
+          0x05ffffff,
+          0xff0fffff,
+          0xff04047f,
+          0x0cff0c7f,
+          0x0202ff7f
+        ]
+      }
+    },
+    background: {
+      args: [0xffffffff],
+      result: ['▴▸▾', '◆▪▰', '▵▹▿']
+    },
+    cover: {
+      args: [3, 2, Jimp.HORIZONTAL_ALIGN_LEFT | Jimp.VERTICAL_ALIGN_TOP],
+      result: ['▴▸▾', '◆▪▰']
+    },
+    contain: {
+      args: [3, 2, Jimp.HORIZONTAL_ALIGN_LEFT | Jimp.VERTICAL_ALIGN_TOP],
+      result: {
+        width: 3,
+        height: 2,
+        data: [0xaa8e1cff, 0x3955c6ff, 0, 0xaa8e1caa, 0x3955c6aa, 0]
+      }
+    },
+    opaque: {
+      args: [],
+      result: {
+        width: 3,
+        height: 3,
+        data: [
+          0xff0000ff,
+          0x00ff00ff,
+          0x0000ffff,
+          0xffff00ff,
+          0x00ffffff,
+          0xff00ffff,
+          0xff0000ff,
+          0x00ff00ff,
+          0x0000ffff
+        ]
+      }
+    },
+    fade: {
+      args: [0.5],
+      result: {
+        width: 3,
+        height: 3,
+        data: [
+          0xff00007f,
+          0x00ff007f,
+          0x0000ff7f,
+          0xffff007f,
+          0x00ffff7f,
+          0xff00ff7f,
+          0xff00003f,
+          0x00ff003f,
+          0x0000ff3f
+        ]
+      }
+    },
+    scaleToFit: {
+      args: [3, 2],
+      result: {
+        width: 2,
+        height: 2,
+        data: [0xaa8e1cff, 0x3955c6ff, 0xaa8e1caa, 0x3955c6aa]
+      }
+    },
+    blit: {
+      args: ['miniImg', 0, 0],
+      result: ['□▥▾', '▥■▰', '▵▹▿']
+    },
+    composite: {
+      args: ['miniImg', 0, 0],
+      result: ['□▥▾', '▥■▰', '▵▹▿']
     }
+  };
 
+  for (const op in operations) if (hasOwnProp(operations, op)) process(op);
+
+  function process(op) {
+    it('with ' + op, done => {
+      const { args } = operations[op];
+
+      for (let i = 0; i < args.length; i++)
+        if (args[i] === 'miniImg') args[i] = miniImg;
+
+      let { result } = operations[op];
+
+      if (result.constructor === Array) result = mkJGD(...result);
+
+      function save(err, image) {
+        if (err) return done(err);
+        image.getJGDSync().should.be.sameJGD(result);
+        done();
+      }
+      targetImg.clone()[op](...args.concat(save));
+    });
+  }
 });
