@@ -506,7 +506,8 @@ The Node-style callback pattern allows Jimp to be used with frameworks that expe
 ## Contributing ##
 
 Basically clone, change, test, push and pull request.
-Please read de [CONTRIBUTING documentation](CONTRIBUTING.md).
+
+Please read the [CONTRIBUTING documentation](CONTRIBUTING.md).
 
 ### Testing ###
 
