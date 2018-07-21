@@ -81,4 +81,13 @@ describe("Compare image difference", ()=> {
         });
     });
 
+    it('allows to set a different threshold', ()=> {
+        Jimp.diff(imgs[0], imgs[3], 0.1).percent.should.be.equal(0);
+        Jimp.diff(imgs[0], imgs[3], 0).percent.should.be.equal(0.25);
+    });
+
+    it('throws an error if threshold is invalid', ()=> {
+        (()=> Jimp.diff(imgs[0], imgs[3], 'invalid')).should.throw('threshold must be a number between 0 and 1');
+    });
+
 });

@@ -25,7 +25,7 @@ Using promises:
 
 ```js
 Jimp.read("lenna.png").then(function (lenna) {
-    lenna.resize(256, 256)            // resize
+    return lenna.resize(256, 256)     // resize
          .quality(60)                 // set JPEG quality
          .greyscale()                 // set greyscale
          .write("lena-small-bw.jpg"); // save
@@ -36,13 +36,9 @@ Jimp.read("lenna.png").then(function (lenna) {
 
 ## Basic usage ##
 
-The static `Jimp.read` method takes the path to a PNG, JPEG or BMP file and (optionally) a Node-style callback and returns a Promise:
+The static `Jimp.read` method takes the path to a PNG, JPEG or BMP file and returns a Promise:
 
 ```js
-Jimp.read("./path/to/image.jpg", function (err, image) {
-    // do stuff with the image (if no exception)
-});
-
 Jimp.read("./path/to/image.jpg").then(function (image) {
     // do stuff with the image
 }).catch(function (err) {
@@ -53,19 +49,23 @@ Jimp.read("./path/to/image.jpg").then(function (image) {
 The method can also read a PNG, JPEG or BMP buffer or from a URL:
 
 ```js
-Jimp.read(lenna.buffer, function (err, image) {
-    // do stuff with the image (if no exception)
+Jimp.read(lenna.buffer).then(function (image) {
+    // do stuff with the image
+}).catch(function (err) {
+    // handle an exception
 });
 
-Jimp.read("http://www.example.com/path/to/lenna.jpg", function (err, image) {
-    // do stuff with the image (if no exception)
+Jimp.read("http://www.example.com/path/to/lenna.jpg").then(function (image) {
+    // do stuff with the image
+}).catch(function (err) {
+    // handle an exception
 });
 ```
 
 
 ### Basic methods ###
 
-Once the callback is filed or the promise fulfilled, the following methods can be called on the image:
+Once the promise is fulfilled, the following methods can be called on the image:
 
 ```js
 /* Resize */
@@ -121,7 +121,7 @@ image.pixelate( size[, x, y, w, h ]);  // apply a pixelation effect to the image
 image.displace( map, offset );    // displaces the image pixels based on the provided displacement map. Useful for making stereoscopic 3D images.
 ```
 
-Some of these methods are irreversable, so it can be useful to perform them on a clone of the original image:
+Some of these methods are irreversible, so it can be useful to perform them on a clone of the original image:
 
 ```js
 image.clone();                    // returns a clone of the image
@@ -157,7 +157,7 @@ image.resize(250, 250, Jimp.RESIZE_BEZIER);
 
 ### Align modes ###
 
-The following constants can be passed to image.cover and image.contain methods:
+The following constants can be passed to the `image.cover` and `image.contain` methods:
 
 ```js
 Jimp.HORIZONTAL_ALIGN_LEFT;
@@ -175,7 +175,7 @@ For example:
 image.contain(250, 250, Jimp.HORIZONTAL_ALIGN_LEFT | Jimp.VERTICAL_ALIGN_TOP);
 ```
 
-Default align modes are :
+Default align modes are:
 
 ```js
 Jimp.HORIZONTAL_ALIGN_CENTER | Jimp.VERTICAL_ALIGN_MIDDLE;
@@ -198,6 +198,9 @@ BMFont fonts are raster based and fixed in size and colour. Jimp comes with a se
 
 ```js
 Jimp.FONT_SANS_8_BLACK;   // Open Sans, 8px, black
+Jimp.FONT_SANS_10_BLACK;   // Open Sans, 10px, black
+Jimp.FONT_SANS_12_BLACK;   // Open Sans, 12px, black
+Jimp.FONT_SANS_14_BLACK;   // Open Sans, 14px, black
 Jimp.FONT_SANS_16_BLACK;  // Open Sans, 16px, black
 Jimp.FONT_SANS_32_BLACK;  // Open Sans, 32px, black
 Jimp.FONT_SANS_64_BLACK;  // Open Sans, 64px, black
@@ -239,7 +242,7 @@ image.write(file)
 
 ### Writing to Buffers ###
 
-A PNG, JPEG or BMP binary Buffer of an image (e.g. for storage in a database) can be got using:
+A PNG, JPEG or BMP binary Buffer of an image (e.g. for storage in a database) can be generated using:
 
 ```js
 image.getBuffer( mime, cb ); // Node-style callback will be fired with result
@@ -253,7 +256,7 @@ Jimp.MIME_JPEG; // "image/jpeg"
 Jimp.MIME_BMP;  // "image/bmp"
 ```
 
-If `Jimp.AUTO` is passed as the MIME type then the original MIME type for the image (or "image/png") will be used. Alernatively, `image.getMIME()` will return the original MIME type of the image (or "image/png").
+If `Jimp.AUTO` is passed as the MIME type then the original MIME type for the image (or "image/png") will be used. Alternatively, `image.getMIME()` will return the original MIME type of the image (or "image/png").
 
 ### Data URI ###
 
@@ -331,14 +334,14 @@ Sum neighbor pixels weighted by the kernel matrix. You can find a nice explanati
 
 Implement emboss effect:
 ```js
-  image.convolution([
+  image.convolute([
     [-2,-1, 0],
     [-1, 1, 1],
     [ 0, 1, 2]
   ])
 ```
 
-### Low-level manipulation ###
+### Low-level manipulation
 
 Jimp enables low-level manipulation of images in memory through the bitmap property of each Jimp object:
 
@@ -348,7 +351,7 @@ image.bitmap.width; // the width of the image
 image.bitmap.height // the height of the image
 ```
 
-This data can be manipulated directly but remember: garbage in, garbage out.
+This data can be manipulated directly, but remember: garbage in, garbage out.
 
 A helper method is available to scan a region of the bitmap:
 
@@ -373,6 +376,20 @@ image.scan(0, 0, image.bitmap.width, image.bitmap.height, function (x, y, idx) {
     // e.g. this.bitmap.data[idx] = 0; // removes red from this pixel
 });
 ```
+
+If you need to do something with the image at the end of the scan:
+
+```js
+image.scan(0, 0, image.bitmap.width, image.bitmap.height, function (x, y, idx) {
+    // do your stuff..
+
+    if(x == image.bitmap.width-1 &&
+        y == image.bitmap.height-1) {
+        // image scan finished, do your stuff
+    }
+});
+```
+
 A helper to locate a particular pixel within the raw bitmap buffer:
 
 ```js
@@ -449,7 +466,7 @@ diff.image;   // a Jimp image showing differences
 diff.percent; // the proportion of different pixels (0-1), where 0 means the images are pixel identical
 ```
 
-Using a mix of hamming distance and pixel diffing to comare images, the following code has a 99% success rate of detecting the same image from a random sample (with 1% false positives). The test this figure is drawn from attempts to match each image from a sample of 120 PNGs against 120 corresponing JPEGs saved at a quality setting of 60.
+Using a mix of hamming distance and pixel diffing to compare images, the following code has a 99% success rate of detecting the same image from a random sample (with 1% false positives). The test this figure is drawn from attempts to match each image from a sample of 120 PNGs against 120 corresponding JPEGs saved at a quality setting of 60.
 
 ```js
 var distance = Jimp.distance(png, jpeg); // perceived distance
@@ -488,12 +505,13 @@ The Node-style callback pattern allows Jimp to be used with frameworks that expe
 
 ## Contributing ##
 
-Basicaly clone, change, test, push and pull request.
-Please read de [CONTRIBUTING documentation](CONTRIBUTING.md).
+Basically clone, change, test, push and pull request.
+
+Please read the [CONTRIBUTING documentation](CONTRIBUTING.md).
 
 ### Testing ###
 
-The test framework runs at node.js and browsers environments. Just run `npm test` to test in node and browser environments.
+The test framework runs in Node.js and browser environments. Just run `npm test` to test in Node and browser environments.
 More information at ["How to Contribute" doc's "Testing" topic](CONTRIBUTING.md#testing).
 
 ## License ##
