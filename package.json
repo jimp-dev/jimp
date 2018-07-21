@@ -109,6 +109,8 @@
       "node"
     ],
     "rules": {
+      "capitalized-comments": 0,
+      "prefer-rest-params": 1,
       "no-console": [
         2,
         {
@@ -117,6 +119,10 @@
             "error"
           ]
         }
+      ],
+      "max-params": [
+        1,
+        5
       ]
     }
   }

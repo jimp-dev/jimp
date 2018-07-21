@@ -29,78 +29,79 @@ THE SOFTWARE.
  */
 
 function ImagePHash(size, smallerSize) {
-    this.size = this.size || size;
-    this.smallerSize = this.smallerSize || smallerSize;
-    initCoefficients(this.size);
+  this.size = this.size || size;
+  this.smallerSize = this.smallerSize || smallerSize;
+  initCoefficients(this.size);
 }
 
 ImagePHash.prototype.size = 32;
 ImagePHash.prototype.smallerSize = 8;
 
 ImagePHash.prototype.distance = function(s1, s2) {
-    var counter = 0;
-    for (let k = 0; k < s1.length; k++) {
-        if (s1[k] !== s2[k]) {
-            counter++;
-        }
+  let counter = 0;
+
+  for (let k = 0; k < s1.length; k++) {
+    if (s1[k] !== s2[k]) {
+      counter++;
     }
-    return counter / s1.length;
+  }
+  return counter / s1.length;
 };
 
 // Returns a 'binary string' (like. 001010111011100010) which is easy to do a hamming distance on.
 ImagePHash.prototype.getHash = function(img) {
-    /* 1. Reduce size.
+  /* 1. Reduce size.
      * Like Average Hash, pHash starts with a small image.
      * However, the image is larger than 8x8; 32x32 is a good size.
      * This is really done to simplify the DCT computation and not
      * because it is needed to reduce the high frequencies.
      */
-    img = img.clone().resize(this.size, this.size);
+  img = img.clone().resize(this.size, this.size);
 
-    /* 2. Reduce color.
+  /* 2. Reduce color.
      * The image is reduced to a grayscale just to further simplify
      * the number of computations.
      */
-    img.grayscale();
+  img.grayscale();
 
-    var vals = [];
+  const vals = [];
 
-    for (let x = 0; x < img.bitmap.width; x++) {
-        vals[x] = [];
-        for (let y = 0; y < img.bitmap.height; y++) {
-            vals[x][y] = intToRGBA(img.getPixelColor(x, y)).b;
-        }
+  for (let x = 0; x < img.bitmap.width; x++) {
+    vals[x] = [];
+    for (let y = 0; y < img.bitmap.height; y++) {
+      vals[x][y] = intToRGBA(img.getPixelColor(x, y)).b;
     }
+  }
 
-    /* 3. Compute the DCT.
+  /* 3. Compute the DCT.
      * The DCT separates the image into a collection of frequencies
      * and scalars. While JPEG uses an 8x8 DCT, this algorithm uses
      * a 32x32 DCT.
      */
-    var dctVals = applyDCT(vals, this.size);
+  const dctVals = applyDCT(vals, this.size);
 
-    /* 4. Reduce the DCT.
+  /* 4. Reduce the DCT.
      * This is the magic step. While the DCT is 32x32, just keep the
      * top-left 8x8. Those represent the lowest frequencies in the
      * picture.
      */
-    /* 5. Compute the average value.
+  /* 5. Compute the average value.
      * Like the Average Hash, compute the mean DCT value (using only
      * the 8x8 DCT low-frequency values and excluding the first term
      * since the DC coefficient can be significantly different from
      * the other values and will throw off the average).
      */
-    var total = 0;
+  let total = 0;
 
-    for (let x = 0; x < this.smallerSize; x++) {
-        for (let y = 0; y < this.smallerSize; y++) {
-            total += dctVals[x][y];
-        }
+  for (let x = 0; x < this.smallerSize; x++) {
+    for (let y = 0; y < this.smallerSize; y++) {
+      total += dctVals[x][y];
     }
+  }
 
-    var avg = total / (this.smallerSize * this.smallerSize);
+  const avg = total / (this.smallerSize * this.smallerSize);
 
-    /* 6. Further reduce the DCT.
+  /* 6. Further reduce the DCT.
      * This is the magic step. Set the 64 hash bits to 0 or 1
      * depending on whether each of the 64 DCT values is above or
      * below the average value. The result doesn't tell us the
@@ -110,67 +111,70 @@ ImagePHash.prototype.getHash = function(img) {
      * remains the same; this can survive gamma and color histogram
      * adjustments without a problem.
      */
-    var hash = '';
+  let hash = '';
 
-    for (let x = 0; x < this.smallerSize; x++) {
-        for (let y = 0; y < this.smallerSize; y++) {
-            hash += dctVals[x][y] > avg ? '1' : '0';
-        }
+  for (let x = 0; x < this.smallerSize; x++) {
+    for (let y = 0; y < this.smallerSize; y++) {
+      hash += dctVals[x][y] > avg ? '1' : '0';
     }
+  }
 
-    return hash;
+  return hash;
 };
 
 // DCT function stolen from http://stackoverflow.com/questions/4240490/problems-with-dct-and-idct-algorithm-in-java
 
 function intToRGBA(i) {
-    var rgba = {};
-    rgba.r = Math.floor(i / Math.pow(256, 3));
-    rgba.g = Math.floor((i - rgba.r * Math.pow(256, 3)) / Math.pow(256, 2));
-    rgba.b = Math.floor(
-        (i - rgba.r * Math.pow(256, 3) - rgba.g * Math.pow(256, 2)) /
-            Math.pow(256, 1)
-    );
-    rgba.a = Math.floor(
-        (i -
-            rgba.r * Math.pow(256, 3) -
-            rgba.g * Math.pow(256, 2) -
-            rgba.b * Math.pow(256, 1)) /
-            Math.pow(256, 0)
-    );
+  const rgba = {};
 
-    return rgba;
+  rgba.r = Math.floor(i / Math.pow(256, 3));
+  rgba.g = Math.floor((i - rgba.r * Math.pow(256, 3)) / Math.pow(256, 2));
+  rgba.b = Math.floor(
+    (i - rgba.r * Math.pow(256, 3) - rgba.g * Math.pow(256, 2)) /
+      Math.pow(256, 1)
+  );
+  rgba.a = Math.floor(
+    (i -
+      rgba.r * Math.pow(256, 3) -
+      rgba.g * Math.pow(256, 2) -
+      rgba.b * Math.pow(256, 1)) /
+      Math.pow(256, 0)
+  );
+
+  return rgba;
 }
 
-var c = [];
+const c = [];
 function initCoefficients(size) {
-    for (let i = 1; i < size; i++) {
-        c[i] = 1;
-    }
-    c[0] = 1 / Math.sqrt(2.0);
+  for (let i = 1; i < size; i++) {
+    c[i] = 1;
+  }
+
+  c[0] = 1 / Math.sqrt(2.0);
 }
 
 function applyDCT(f, size) {
-    var N = size;
+  const N = size;
+  const F = [];
 
-    var F = [];
-    for (let u = 0; u < N; u++) {
-        F[u] = [];
-        for (let v = 0; v < N; v++) {
-            var sum = 0;
-            for (let i = 0; i < N; i++) {
-                for (let j = 0; j < N; j++) {
-                    sum +=
-                        Math.cos(((2 * i + 1) / (2.0 * N)) * u * Math.PI) *
-                        Math.cos(((2 * j + 1) / (2.0 * N)) * v * Math.PI) *
-                        f[i][j];
-                }
-            }
-            sum *= (c[u] * c[v]) / 4;
-            F[u][v] = sum;
+  for (let u = 0; u < N; u++) {
+    F[u] = [];
+    for (let v = 0; v < N; v++) {
+      let sum = 0;
+      for (let i = 0; i < N; i++) {
+        for (let j = 0; j < N; j++) {
+          sum +=
+            Math.cos(((2 * i + 1) / (2.0 * N)) * u * Math.PI) *
+            Math.cos(((2 * j + 1) / (2.0 * N)) * v * Math.PI) *
+            f[i][j];
         }
+      }
+      sum *= (c[u] * c[v]) / 4;
+      F[u][v] = sum;
     }
-    return F;
+  }
+
+  return F;
 }
 
 module.exports = ImagePHash;
