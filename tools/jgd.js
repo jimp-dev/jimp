@@ -7,7 +7,7 @@ simple images in their script code.
 
 Basically, JGD is a js object width `width`, `height` and `data`, where `data`
 is an array of integers, each representing a RGBA pixel. This is simpler then
-write a Buffer and we can use constiables to make some "visual image code", like
+write a Buffer and we can use variables to make some "visual image code", like
 a XPM code.
 
 function donutJGD() {
