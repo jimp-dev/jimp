@@ -28,7 +28,7 @@ THE SOFTWARE.
  * Based On: http://www.hackerfactor.com/blog/index.php?/archives/432-Looks-Like-It.html
  */
 
-function ImagePHash (size, smallerSize) {
+function ImagePHash(size, smallerSize) {
     this.size = this.size || size;
     this.smallerSize = this.smallerSize || smallerSize;
     initCoefficients(this.size);
@@ -37,18 +37,18 @@ function ImagePHash (size, smallerSize) {
 ImagePHash.prototype.size = 32;
 ImagePHash.prototype.smallerSize = 8;
 
-ImagePHash.prototype.distance = function (s1, s2) {
+ImagePHash.prototype.distance = function(s1, s2) {
     var counter = 0;
     for (let k = 0; k < s1.length; k++) {
         if (s1[k] !== s2[k]) {
             counter++;
         }
     }
-    return (counter / s1.length);
+    return counter / s1.length;
 };
 
 // Returns a 'binary string' (like. 001010111011100010) which is easy to do a hamming distance on.
-ImagePHash.prototype.getHash = function (img) {
+ImagePHash.prototype.getHash = function(img) {
     /* 1. Reduce size.
      * Like Average Hash, pHash starts with a small image.
      * However, the image is larger than 8x8; 32x32 is a good size.
@@ -110,11 +110,11 @@ ImagePHash.prototype.getHash = function (img) {
      * remains the same; this can survive gamma and color histogram
      * adjustments without a problem.
      */
-    var hash = "";
+    var hash = '';
 
     for (let x = 0; x < this.smallerSize; x++) {
         for (let y = 0; y < this.smallerSize; y++) {
-            hash += (dctVals[x][y] > avg?"1":"0");
+            hash += dctVals[x][y] > avg ? '1' : '0';
         }
     }
 
@@ -123,38 +123,50 @@ ImagePHash.prototype.getHash = function (img) {
 
 // DCT function stolen from http://stackoverflow.com/questions/4240490/problems-with-dct-and-idct-algorithm-in-java
 
-function intToRGBA (i) {
-    var rgba = {}
+function intToRGBA(i) {
+    var rgba = {};
     rgba.r = Math.floor(i / Math.pow(256, 3));
-    rgba.g = Math.floor((i - (rgba.r * Math.pow(256, 3))) / Math.pow(256, 2));
-    rgba.b = Math.floor((i - (rgba.r * Math.pow(256, 3)) - (rgba.g * Math.pow(256, 2))) / Math.pow(256, 1));
-    rgba.a = Math.floor((i - (rgba.r * Math.pow(256, 3)) - (rgba.g * Math.pow(256, 2)) - (rgba.b * Math.pow(256, 1))) / Math.pow(256, 0));
+    rgba.g = Math.floor((i - rgba.r * Math.pow(256, 3)) / Math.pow(256, 2));
+    rgba.b = Math.floor(
+        (i - rgba.r * Math.pow(256, 3) - rgba.g * Math.pow(256, 2)) /
+            Math.pow(256, 1)
+    );
+    rgba.a = Math.floor(
+        (i -
+            rgba.r * Math.pow(256, 3) -
+            rgba.g * Math.pow(256, 2) -
+            rgba.b * Math.pow(256, 1)) /
+            Math.pow(256, 0)
+    );
 
     return rgba;
 }
 
 var c = [];
-function initCoefficients (size) {
-    for (let i=1; i<size; i++) {
-        c[i]=1;
+function initCoefficients(size) {
+    for (let i = 1; i < size; i++) {
+        c[i] = 1;
     }
-    c[0]=1/Math.sqrt(2.0);
+    c[0] = 1 / Math.sqrt(2.0);
 }
 
-function applyDCT (f, size) {
+function applyDCT(f, size) {
     var N = size;
 
     var F = [];
-    for (let u=0; u<N; u++) {
+    for (let u = 0; u < N; u++) {
         F[u] = [];
-        for (let v=0; v<N; v++) {
+        for (let v = 0; v < N; v++) {
             var sum = 0;
-            for (let i=0; i<N; i++) {
-                for (let j=0; j<N; j++) {
-                    sum+=Math.cos(((2*i+1)/(2.0*N))*u*Math.PI)*Math.cos(((2*j+1)/(2.0*N))*v*Math.PI)*(f[i][j]);
+            for (let i = 0; i < N; i++) {
+                for (let j = 0; j < N; j++) {
+                    sum +=
+                        Math.cos(((2 * i + 1) / (2.0 * N)) * u * Math.PI) *
+                        Math.cos(((2 * j + 1) / (2.0 * N)) * v * Math.PI) *
+                        f[i][j];
                 }
             }
-            sum*=((c[u]*c[v])/4);
+            sum *= (c[u] * c[v]) / 4;
             F[u][v] = sum;
         }
     }
