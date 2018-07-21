@@ -341,7 +341,7 @@ Implement emboss effect:
   ])
 ```
 
-### Low-level manipulation ###
+### Low-level manipulation
 
 Jimp enables low-level manipulation of images in memory through the bitmap property of each Jimp object:
 
