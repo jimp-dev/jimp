@@ -153,7 +153,7 @@ declare namespace Jimp {
         static rgbaToInt(r: number, g: number, b: number, a: number, cb?: (err: Error, i: number)=>any): number;
         static intToRGBA(i: number, cb?: (err:Error, rgba: Jimp.RGBA)=>any): Jimp.RGBA;
         static limit255(n: number): number;
-        static diff(img1: Jimp, img2: Jimp, threshold?: number): {percent: number, diff: Jimp};
+        static diff(img1: Jimp, img2: Jimp, threshold?: number): {percent: number, image: Jimp};
         static distance(img1: Jimp, img2: Jimp): number;
 
         static colorDiff(rgba1: Jimp.RGB | Jimp.RGBA, rgba2: Jimp.RGB | Jimp.RGBA): number;
