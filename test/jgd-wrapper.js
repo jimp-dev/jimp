@@ -1,5 +1,5 @@
 const Jimp =
-  typeof window !== 'undefined' && window.Jimp ? window.Jimp : require('..');
+    typeof window !== 'undefined' && window.Jimp ? window.Jimp : require('..');
 const JGD = require('../tools/jgd');
 
 /**
@@ -8,17 +8,17 @@ const JGD = require('../tools/jgd');
  * @param cb a function to call when the image is parsed to a bitmap
  */
 Jimp.appendConstructorOption(
-  'build from JGD object',
-  jgd =>
-    typeof jgd === 'object' &&
-    typeof jgd.width === 'number' &&
-    typeof jgd.height === 'number' &&
-    typeof jgd.data.length === 'number',
-  function(resolve, reject, jgd) {
-    // `this` points to a Jimp instance
-    this.bitmap = JGD.decode(jgd);
-    resolve();
-  }
+    'build from JGD object',
+    jgd =>
+        typeof jgd === 'object' &&
+        typeof jgd.width === 'number' &&
+        typeof jgd.height === 'number' &&
+        typeof jgd.data.length === 'number',
+    function(resolve, reject, jgd) {
+        // `this` points to a Jimp instance
+        this.bitmap = JGD.decode(jgd);
+        resolve();
+    }
 );
 
 /**
@@ -26,7 +26,7 @@ Jimp.appendConstructorOption(
  * @returns JGD object
  */
 Jimp.prototype.getJGDSync = function() {
-  return JGD.encode(this.bitmap);
+    return JGD.encode(this.bitmap);
 };
 
 /**
@@ -35,16 +35,16 @@ Jimp.prototype.getJGDSync = function() {
  * @returns this for chaining of methods
  */
 Jimp.prototype.getJGD = function(cb) {
-  let jgd;
-  let error;
+    let jgd;
+    let error;
 
-  try {
-    jgd = this.getJGDSync();
-  } catch (err) {
-    error = err;
-  }
-  cb(error, jgd);
-  return this;
+    try {
+        jgd = this.getJGDSync();
+    } catch (err) {
+        error = err;
+    }
+    cb(error, jgd);
+    return this;
 };
 
 module.exports = Jimp;
