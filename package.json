@@ -54,7 +54,7 @@
     "raw-body": "^2.3.2",
     "phin": "^2.9.0",
     "tinycolor2": "^1.1.2",
-    "utif": "^1.1.2"
+    "utif": "^2.0.0"
   },
   "devDependencies": {
     "babel": "^6.0.14",

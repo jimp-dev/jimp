@@ -37,9 +37,9 @@ describe("FileType", ()=> {
     it("load TIFF", (done)=> {
         new Jimp(imagesDir+"/rgb.tiff", function (err, image) {
             if (err) done(err);
-            this.getPixelColor(10,   10).should.be.equal(0xCC3767A2);
-            this.getPixelColor(220, 190).should.be.equal(0x65B39725);
-            this.getPixelColor(350, 130).should.be.equal(0x58D69735);
+            this.getPixelColor(10,   10).should.be.equal(0xA4988Bff);
+            this.getPixelColor(220, 190).should.be.equal(0xE0D7DDff);
+            this.getPixelColor(350, 130).should.be.equal(0x565433ff);
             done();
         });
     });
