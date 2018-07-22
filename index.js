@@ -2724,7 +2724,11 @@ function printText (font, x, y, text) {
 
 function drawCharacter (image, font, x, y, char) {
     if (char.width > 0 && char.height > 0) {
-        var imageChar = font.pages[char.page].cloneQuiet().crop(char.x, char.y, char.width, char.height);
+        var imageChar = char.image
+        if (!imageChar){
+            imageChar = font.pages[char.page].cloneQuiet().crop(char.x, char.y, char.width, char.height);
+            char.image = imageChar
+        }
         return image.composite(imageChar, x + char.xoffset, y + char.yoffset);
     }
     return image;
