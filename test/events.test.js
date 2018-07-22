@@ -166,7 +166,7 @@ describe('Events', () => {
             const eventsEmited = [];
             Jimp.read(mkJGD('▴▵'))
                 .then(img => {
-                    img.on('clone', function(data) {
+                    img.on('clone', data => {
                         eventsEmited.push(data.eventName);
                     });
                     img.on('before-clone', function(data) {
@@ -200,7 +200,7 @@ describe('Events', () => {
             const eventsEmited = [];
             Jimp.read(mkJGD('▴▵'))
                 .then(img => {
-                    img.on('clone', function(data) {
+                    img.on('clone', data => {
                         eventsEmited.push(data.eventName);
                     })
                         .on('before-clone', function(data) {

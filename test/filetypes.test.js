@@ -24,7 +24,7 @@ describe('FileType', () => {
     });
 
     it('load JPG with fill bytes', done => {
-        new Jimp(imagesDir + '/fillbytes.jpg', function(err, image) {
+        new Jimp(imagesDir + '/fillbytes.jpg', function(err) {
             if (err) done(err);
             this.getPixelColor(10, 10).should.be.equal(0xaeb8c3ff);
             this.getPixelColor(220, 190).should.be.equal(0x262b21ff);
@@ -34,7 +34,7 @@ describe('FileType', () => {
     });
 
     it('load BMP', done => {
-        new Jimp(imagesDir + '/windows95.bmp', function(err, image) {
+        new Jimp(imagesDir + '/windows95.bmp', function(err) {
             if (err) done(err);
             this.getPixelColor(10, 10).should.be.equal(0xf7f7efff);
             this.getPixelColor(150, 80).should.be.equal(0xd6ad73ff);

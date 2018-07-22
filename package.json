@@ -7,7 +7,7 @@
   "scripts": {
     "lint": "npm run -s lint:src && npm run -s lint:tests && npm run -s lint:extra && echo Lint All Success",
     "lint:src": "xo *.js src/*.js",
-    "lint:tests": "xo test/*.js",
+    "lint:tests": "xo test/*.js --global before",
     "lint:extra": "xo {tools,examples}/*.js",
     "test:karma": "CHROME_BIN=\"$(which chrome || which chromium)\" karma",
     "test:browser:run": "npm run -s test:karma run",

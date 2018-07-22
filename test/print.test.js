@@ -155,6 +155,7 @@ describe('Write text over image', function() {
             Jimp.FONT_SANS_16_BLACK,
             {
                 text: 'This is only a test.',
+
                 alignmentX: Jimp.HORIZONTAL_ALIGN_LEFT
             },
             100
@@ -196,6 +197,7 @@ describe('Write text over image', function() {
             Jimp.FONT_SANS_16_BLACK,
             {
                 text: 'This is only a test.',
+
                 alignmentX: Jimp.HORIZONTAL_ALIGN_RIGHT
             },
             100
@@ -216,6 +218,7 @@ describe('Write text over image', function() {
             Jimp.FONT_SANS_16_BLACK,
             {
                 text: 'This is only a test.',
+
                 alignmentY: Jimp.VERTICAL_ALIGN_MIDDLE
             },
             100,
@@ -237,6 +240,7 @@ describe('Write text over image', function() {
             Jimp.FONT_SANS_16_BLACK,
             {
                 text: 'This is only a test.',
+
                 alignmentY: Jimp.VERTICAL_ALIGN_BOTTOM
             },
             100,
