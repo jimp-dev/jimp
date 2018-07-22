@@ -65,6 +65,7 @@
     "browserify": "^14.3.0",
     "envify": "^3.4.0",
     "express": "^4.13.4",
+    "husky": "^1.0.0-rc.13",
     "istanbul": "^0.4.5",
     "karma": "^1.4.0",
     "karma-chrome-launcher": "^2.0.0",
@@ -88,9 +89,14 @@
   },
   "tonicExampleFilename": "example.js",
   "browser": "browser/lib/jimp.js",
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
   "lint-staged": {
     "*.{js,json,css,md}": [
-      "prettier --write --ignore-path browser/lib",
+      "prettier --write --ignore-path browser/lib/*",
       "git add"
     ]
   },
