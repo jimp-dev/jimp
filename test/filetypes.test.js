@@ -34,7 +34,7 @@ describe("FileType", ()=> {
         });
     });
 
-    it("load TIFF", (done)=> {
+    it.skip("load TIFF", (done)=> {
         new Jimp(imagesDir+"/rgb.tiff", function (err, image) {
             if (err) done(err);
             this.getPixelColor(10,   10).should.be.equal(0xCC3767A2);
