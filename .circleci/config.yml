@@ -78,19 +78,6 @@ jobs:
           name: Test
           command: yarn test:wihtout-lint --ci
   
-  build-node9:
-    working_directory: ~/jimp-9
-    docker:
-      - image: circleci/node:9-browsers
-    steps:
-      - checkout
-      - run:
-          name: Install Dependencies
-          command: yarn install --frozen-lockfile
-      - run:
-          name: Test
-          command: yarn test:wihtout-lint --ci
-  
   build-node10:
     working_directory: ~/jimp-10
     docker:
@@ -132,13 +119,6 @@ workflows:
             tags:
               only: /.*/
       - build-node8:
-          requires:
-              - lint
-              - test
-          filters:
-            tags:
-              only: /.*/
-      - build-node9:
           requires:
               - lint
               - test
