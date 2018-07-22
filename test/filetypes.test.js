@@ -1,6 +1,6 @@
 const { Jimp, getTestDir } = require('./test-helper');
 
-describe.only('FileType', () => {
+describe('FileType', () => {
   const imagesDir = getTestDir() + '/samples';
 
   it('load PNG', done => {
@@ -33,7 +33,7 @@ describe.only('FileType', () => {
     });
   });
 
-  it('load TIFF', done => {
+  it.skip('load TIFF', done => {
     new Jimp(imagesDir + '/rgb.tiff', function(err) {
       if (err) done(err);
       this.getPixelColor(10, 10).should.be.equal(0xcc3767a2);
