@@ -96,7 +96,7 @@
   },
   "lint-staged": {
     "*.{js,json,css,md}": [
-      "prettier --write --ignore-path browser/lib/*",
+      "prettier --write",
       "git add"
     ]
   },
