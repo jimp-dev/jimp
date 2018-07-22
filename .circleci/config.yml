@@ -1,0 +1,154 @@
+version: 2
+
+jobs:
+  install:
+    working_directory: ~/jimp
+    docker:
+      - image: circleci/node:latest-browsers
+    steps:
+      - checkout
+      - restore_cache:
+          keys: 
+            # Find a cache corresponding to this specific package.json checksum
+            # when this file is changed, this key will fail
+            - jimp-{{ .Branch }}-{{ checksum "yarn.lock" }}-{{ checksum ".circleci/config.yml" }}
+            - jimp-{{ .Branch }}-{{ checksum "yarn.lock" }}
+            - jimp-{{ .Branch }}
+            # Find the most recent cache used from any branch
+            - jimp-master
+            - jimp-
+      - run:
+          name: Install Dependencies
+          command: yarn install --frozen-lockfile
+      - save_cache:
+          key: jimp-{{ .Branch }}-{{ checksum "yarn.lock" }}-{{ checksum ".circleci/config.yml" }}
+          paths:
+            - ~/.cache/yarn
+            - node_modules
+      - persist_to_workspace:
+          root: .
+          paths:
+              - .
+
+  lint:
+    working_directory: ~/jimp
+    docker:
+      - image: circleci/node:latest-browsers
+    steps:
+      - attach_workspace:
+          at: ~/jimp   
+      - run:
+          name: Lint
+          command: yarn lint
+
+  test:
+    working_directory: ~/jimp
+    docker:
+      - image: circleci/node:latest-browsers
+    steps:
+      - attach_workspace:
+          at: ~/jimp 
+      - run:
+          name: Test
+          command: yarn test:without-lint --ci
+
+  build-node6:
+    working_directory: ~/jimp-6
+    docker:
+      - image: circleci/node:6-browsers
+    steps:
+      - checkout
+      - run:
+          name: Install Dependencies
+          command: yarn install --frozen-lockfile
+      - run:
+          name: Test
+          command: yarn test:wihtout-lint --ci
+  
+  build-node8:
+    working_directory: ~/jimp-8
+    docker:
+      - image: circleci/node:8-browsers
+    steps:
+      - checkout
+      - run:
+          name: Install Dependencies
+          command: yarn install --frozen-lockfile
+      - run:
+          name: Test
+          command: yarn test:wihtout-lint --ci
+  
+  build-node9:
+    working_directory: ~/jimp-9
+    docker:
+      - image: circleci/node:9-browsers
+    steps:
+      - checkout
+      - run:
+          name: Install Dependencies
+          command: yarn install --frozen-lockfile
+      - run:
+          name: Test
+          command: yarn test:wihtout-lint --ci
+  
+  build-node10:
+    working_directory: ~/jimp-10
+    docker:
+      - image: circleci/node:10-browsers
+    steps:
+      - checkout
+      - run:
+          name: Install Dependencies
+          command: yarn install --frozen-lockfile
+      - run:
+          name: Test
+          command: yarn test:wihtout-lint --ci
+
+workflows:
+  version: 2
+  build_and_test:
+    jobs:
+      - install:
+          filters:
+            tags:
+              only: /.*/
+      - lint:
+          requires:
+              - install
+          filters:
+            tags:
+              only: /.*/
+      - test:
+          requires:
+              - install
+          filters:
+            tags:
+              only: /.*/
+      - build-node6:
+          requires:
+              - lint
+              - test
+          filters:
+            tags:
+              only: /.*/
+      - build-node8:
+          requires:
+              - lint
+              - test
+          filters:
+            tags:
+              only: /.*/
+      - build-node9:
+          requires:
+              - lint
+              - test
+          filters:
+            tags:
+              only: /.*/
+      - build-node10:
+          requires:
+              - lint
+              - test
+          filters:
+            tags:
+              only: /.*/
