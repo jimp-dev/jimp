@@ -1220,17 +1220,28 @@ Jimp.prototype.blit = function (src, x, y, srcx, srcy, srcw, srch, cb) {
     srcw = Math.round(srcw);
     srch = Math.round(srch);
 
-    var maxw = this.bitmap.width;
-    var maxh = this.bitmap.height;
     var that = this;
     src.scanQuiet(srcx, srcy, srcw, srch, function (sx, sy, idx) {
-        if (x+sx >= 0 && y+sy >= 0 && maxw-x-sx > 0 && maxh-y-sy > 0) {
-            var dstIdx = that.getPixelIndex(x+sx-srcx, y+sy-srcy);
-            that.bitmap.data[dstIdx] = this.bitmap.data[idx];
-            that.bitmap.data[dstIdx+1] = this.bitmap.data[idx+1];
-            that.bitmap.data[dstIdx+2] = this.bitmap.data[idx+2];
-            that.bitmap.data[dstIdx+3] = this.bitmap.data[idx+3];
+        var dstIdx = that.getPixelIndex(x + sx - srcx, y + sy - srcy);
+        var src = {
+            r: this.bitmap.data[idx],
+            g: this.bitmap.data[idx + 1],
+            b: this.bitmap.data[idx + 2],
+            a: this.bitmap.data[idx + 3]
         }
+
+        var dst = {
+            r: that.bitmap.data[dstIdx],
+            g: that.bitmap.data[dstIdx + 1],
+            b: that.bitmap.data[dstIdx + 2],
+            a: that.bitmap.data[dstIdx + 3]
+        }
+
+        that.bitmap.data[dstIdx] = ((src.a * (src.r - dst.r) - dst.r + 255) >> 8) + dst.r;
+        that.bitmap.data[dstIdx + 1] = ((src.a * (src.g - dst.g) - dst.g + 255) >> 8) + dst.g;
+        that.bitmap.data[dstIdx + 2] = ((src.a * (src.b - dst.b) - dst.b + 255) >> 8) + dst.b;
+        var n = dst.a + src.a;
+        that.bitmap.data[dstIdx + 3] = n < 256 ? n : (-(n >> 8));
     });
 
     if (isNodePattern(cb)) return cb.call(this, null, this);
@@ -2815,6 +2826,17 @@ Jimp.prototype.inspect = function () {
 Jimp.prototype.toString = function () {
     return '[object Jimp]';
 };
+
+Jimp.prototype.circle = function() {
+    var that = this;
+    var radius = ((that.bitmap.width > that.bitmap.height) ? that.bitmap.height : that.bitmap.width) / 2;
+    that.scanQuiet(0, 0, that.bitmap.width, that.bitmap.height, function (x, y, idx) {
+        var curR = Math.sqrt(Math.pow((x - (that.bitmap.width / 2)), 2) + Math.pow((y - (that.bitmap.height / 2)), 2));
+        if(radius - curR <= 0.0)        this.bitmap.data[ idx + 3 ] = 0;
+        else if(radius - curR < 1.0)    this.bitmap.data[ idx + 3 ] = 255 * (radius - curR); 
+    });
+    return that;
+}
 
 if (process.env.ENVIRONMENT === "BROWSER") {
     // For use in a web browser or web worker
