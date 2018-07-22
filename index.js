@@ -1789,6 +1789,89 @@ Jimp.prototype.convolution = function (kernel, edgeHandling, cb) {
 }
 
 /**
+ * Dilates an image with a square kernel
+ * @param radius size of kernel (1/2 square side length)
+ * @param (optional) cb a callback for when complete
+ * @returns this for chaining of methods
+ */
+
+Jimp.prototype.dilate = function (radius, cb) {
+    var copy = this.clone();
+    var copyGrey = this.grayscale().clone();
+    this.grayscale().scan(0, 0, this.bitmap.width, this.bitmap.height, function (x, y, idx) {
+        var blx = x - radius;
+        var brx = x + radius;
+        var bty = y - radius;
+        var bby = y + radius;
+        if (blx < 0) { blx = 0 };
+        if (brx > this.bitmap.width) { blx = this.bitmap.width };
+        if (bty < 0) { bty = 0 };
+        if (bby > this.bitmap.height) { bby = this.bitmap.height };
+        //console.log("blx calc" + blx + " " + brx + " " + bty + " " + bby)
+        var xToPick;
+        var yToPick;
+        var lowestScore = 0;
+        copyGrey.scan(blx, bty, (brx - blx), (bby - bty), function (a, b, index) {
+            //console.log("beep" + this.bitmap.data[index] + " " + a + b + " " + index + " " + this.bitmap.data.length)
+            //console.log(this.bitmap.data[index] + " " + lowestScore)
+            if (this.bitmap.data[index] >= lowestScore) {
+                xToPick = a;
+                yToPick = b;
+                lowestScore = this.bitmap.data[index];
+            }
+        })
+        //console.log("blx calc" + blx + " " + brx + " " + bty + " " + bby + " " + xToPick + " " + yToPick + " " + lowestScore + " bmd" + this.bitmap.width + " " + this.bitmap.height)
+        this.bitmap.data[idx] = copy.bitmap.data[copy.getPixelIndex(xToPick, yToPick)]
+        this.bitmap.data[idx + 1] = copy.bitmap.data[copy.getPixelIndex(xToPick, yToPick) + 1]
+        this.bitmap.data[idx + 2] = copy.bitmap.data[copy.getPixelIndex(xToPick, yToPick) + 2]
+    });
+    if (isNodePattern(cb)) return cb.call(this, null, this);
+    else return this;
+};
+
+
+/**
+ * Erodes an image with a square kernel
+ * @param radius size of area (1/2 square side length)
+ * @param (optional) cb a callback for when complete
+ * @returns this for chaining of methods
+ */
+
+Jimp.prototype.erode = function (radius, cb) {
+    var copy = this.clone();
+    var copyGrey = this.grayscale().clone();
+    this.grayscale().scan(0, 0, this.bitmap.width, this.bitmap.height, function (x, y, idx) {
+        var blx = x - radius;
+        var brx = x + radius;
+        var bty = y - radius;
+        var bby = y + radius;
+        if (blx < 0) { blx = 0 };
+        if (brx > this.bitmap.width) { blx = this.bitmap.width };
+        if (bty < 0) { bty = 0 };
+        if (bby > this.bitmap.height) { bby = this.bitmap.height };
+        //console.log("blx calc" + blx + " " + brx + " " + bty + " " + bby)
+        var xToPick;
+        var yToPick;
+        var lowestScore = 255;
+        copyGrey.scan(blx, bty, (brx - blx), (bby - bty), function (a, b, index) {
+            //console.log("beep" + this.bitmap.data[index] + " " + a + b + " " + index + " " + this.bitmap.data.length)
+            //console.log(this.bitmap.data[index] + " " + lowestScore)
+            if (this.bitmap.data[index] <= lowestScore) {
+                xToPick = a;
+                yToPick = b;
+                lowestScore = this.bitmap.data[index];
+            }
+        })
+        //console.log("blx calc" + blx + " " + brx + " " + bty + " " + bby + " " + xToPick + " " + yToPick + " " + lowestScore + " bmd" + this.bitmap.width + " " + this.bitmap.height)
+        this.bitmap.data[idx] = copy.bitmap.data[copy.getPixelIndex(xToPick, yToPick)]
+        this.bitmap.data[idx + 1] = copy.bitmap.data[copy.getPixelIndex(xToPick, yToPick) + 1]
+        this.bitmap.data[idx + 2] = copy.bitmap.data[copy.getPixelIndex(xToPick, yToPick) + 2]
+    });
+    if (isNodePattern(cb)) return cb.call(this, null, this);
+    else return this;
+};
+
+/**
  * Removes colour from the image using ITU Rec 709 luminance values
  * @param (optional) cb a callback for when complete
  * @returns this for chaining of methods
