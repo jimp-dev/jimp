@@ -90,7 +90,7 @@
   "browser": "browser/lib/jimp.js",
   "lint-staged": {
     "*.{js,json,css,md}": [
-      "prettier --write",
+      "prettier --write --ignore-path browser/lib",
       "git add"
     ]
   },
