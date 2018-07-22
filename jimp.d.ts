@@ -279,7 +279,7 @@ declare namespace Jimp {
             img1: Jimp,
             img2: Jimp,
             threshold?: number
-        ): { percent: number; diff: Jimp };
+        ): { percent: number; image: Jimp };
         static distance(img1: Jimp, img2: Jimp): number;
 
         static colorDiff(
