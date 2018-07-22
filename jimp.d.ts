@@ -71,6 +71,7 @@ declare namespace Jimp {
         pixelate(size: number, x: number, y: number, w: number, h: number, cb?: Jimp.ImageCallback): this;
         convolute(kernel: any, x: number | Jimp.ImageCallback, y?: number, w?: number, h?: number, cb?: Jimp.ImageCallback): this;
         rotate(deg: number, mode?: number | boolean, cb?: Jimp.ImageCallback): this;
+        exifRotate(): this;
         displace(map: Jimp, offset: number, cb?: Jimp.ImageCallback): this;
         getBuffer(mime: string, cb:(err:Error, buffer:Buffer)=>any): this;
         getBase64(mime: string, cb?: (err: Error, src: string) => any): this;
