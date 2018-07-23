@@ -1,28 +1,37 @@
 // Karma configuration
 // Generated on Sat Jan 28 2017 19:40:10 GMT-0300 (BRT)
 
-var builder = require("./tools/browser-build.js");
+const builder = require('./tools/browser-build.js');
 
-module.exports = function (config) {
+module.exports = function(config) {
     config.set({
-
         browserDisconnectTimeout: 25000,
         browserNoActivityTimeout: 25000,
 
         // base path that will be used to resolve all patterns (eg. files, exclude)
-        basePath: "",
+        basePath: '',
 
         // frameworks to use
         // available frameworks: https://npmjs.org/browse/keyword/karma-adapter
-        frameworks: ["mocha"],
+        frameworks: ['mocha'],
 
         // list of files / patterns to load in the browser
         files: [
-            "*.js",
-            process.env.TEST || "test/*.test.js",
-            "test/test-helper.js",
-            {pattern: "test/samples/**/*", watched: false, included: false, served: true},
-            {pattern: "fonts/open-sans/**/*", watched: false, included: false, served: true}
+            '*.js',
+            process.env.TEST || 'test/*.test.js',
+            'test/test-helper.js',
+            {
+                pattern: 'test/samples/**/*',
+                watched: false,
+                included: false,
+                served: true
+            },
+            {
+                pattern: 'fonts/open-sans/**/*',
+                watched: false,
+                included: false,
+                served: true
+            }
         ],
 
         // list of files to exclude
@@ -31,36 +40,52 @@ module.exports = function (config) {
         // preprocess matching files before serving them to the browser
         // available preprocessors: https://npmjs.org/browse/keyword/karma-preprocessor
         preprocessors: {
-            "*": "generic",
-            "*/*": "generic"
+            '*': 'generic',
+            '*/*': 'generic'
         },
 
         genericPreprocessor: {
-            rules: [{
-                // Default generic processor
-                process: function (content, file, done, log) {
-                    log.debug("File "+ file.path +" should be in another bundle.");
-                    done("/* File "+ file.path +" should be in another bundle */");
+            rules: [
+                {
+                    // Default generic processor
+                    process(content, file, done, log) {
+                        log.debug(
+                            'File ' +
+                                file.path +
+                                ' should be in another bundle.'
+                        );
+                        done(
+                            '/* File ' +
+                                file.path +
+                                ' should be in another bundle */'
+                        );
+                    }
+                },
+                {
+                    match: 'index.js',
+                    process(content, file, done, log) {
+                        log.debug('Bundle Jimp.');
+                        builder.bundleSimple(file.path, {}, done);
+                    }
+                },
+                {
+                    match: 'test/*.test.js',
+                    process(content, file, done, log) {
+                        log.debug('Bundle Test ' + file.path + '.');
+                        builder.bundleSimple(
+                            file.path,
+                            { exclude: ['index.js'] },
+                            done
+                        );
+                    }
                 }
-            }, {
-                match: "index.js",
-                process: function (content, file, done, log) {
-                    log.debug("Bundle Jimp.");
-                    builder.bundleSimple(file.path, {}, done);
-                }
-            }, {
-                match: "test/*.test.js",
-                process: function (content, file, done, log) {
-                    log.debug("Bundle Test "+ file.path +".");
-                    builder.bundleSimple(file.path, {exclude: ["index.js"]}, done);
-                }
-            }]
+            ]
         },
 
         // test results reporter to use
         // possible values: "dots", "progress"
         // available reporters: https://npmjs.org/browse/keyword/karma-reporter
-        reporters: ["mocha-own"],
+        reporters: ['mocha-own'],
         // mochaOwnReporter: { reporter: "nyan" },
 
         // web server port
@@ -78,7 +103,7 @@ module.exports = function (config) {
 
         // start these browsers
         // available browser launchers: https://npmjs.org/browse/keyword/karma-launcher
-        browsers: ["Firefox", "Chrome"],
+        browsers: ['Firefox', 'Chrome'],
 
         // Continuous Integration mode
         // if true, Karma captures browsers, runs the tests and exits
@@ -87,5 +112,5 @@ module.exports = function (config) {
         // Concurrency level
         // how many browser should be started simultaneous
         concurrency: Infinity
-    })
-}
+    });
+};

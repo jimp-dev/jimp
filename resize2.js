@@ -21,25 +21,25 @@
  */
 
 module.exports = {
-    nearestNeighbor: function (src, dst) {
-        var wSrc = src.width;
-        var hSrc = src.height;
+    nearestNeighbor(src, dst) {
+        const wSrc = src.width;
+        const hSrc = src.height;
         // console.log("wSrc="+wSrc + ", hSrc="+hSrc);
 
-        var wDst = dst.width;
-        var hDst = dst.height;
+        const wDst = dst.width;
+        const hDst = dst.height;
         // console.log("wDst="+wDst + ", hDst="+hDst);
 
-        var bufSrc = src.data;
-        var bufDst = dst.data;
+        const bufSrc = src.data;
+        const bufDst = dst.data;
 
         for (let i = 0; i < hDst; i++) {
             for (let j = 0; j < wDst; j++) {
-                var posDst = (i * wDst + j) * 4;
+                let posDst = (i * wDst + j) * 4;
 
-                var iSrc = Math.floor(i * hSrc / hDst);
-                var jSrc = Math.floor(j * wSrc / wDst);
-                var posSrc = (iSrc * wSrc + jSrc) * 4;
+                const iSrc = Math.floor((i * hSrc) / hDst);
+                const jSrc = Math.floor((j * wSrc) / wDst);
+                let posSrc = (iSrc * wSrc + jSrc) * 4;
 
                 bufDst[posDst++] = bufSrc[posSrc++];
                 bufDst[posDst++] = bufSrc[posSrc++];
@@ -49,19 +49,19 @@ module.exports = {
         }
     },
 
-    bilinearInterpolation: function (src, dst) {
-        var wSrc = src.width;
-        var hSrc = src.height;
+    bilinearInterpolation(src, dst) {
+        const wSrc = src.width;
+        const hSrc = src.height;
         // console.log("wSrc="+wSrc + ", hSrc="+hSrc);
 
-        var wDst = dst.width;
-        var hDst = dst.height;
+        const wDst = dst.width;
+        const hDst = dst.height;
         // console.log("wDst="+wDst + ", hDst="+hDst);
 
-        var bufSrc = src.data;
-        var bufDst = dst.data;
+        const bufSrc = src.data;
+        const bufDst = dst.data;
 
-        var interpolate = function (k, kMin, vMin, kMax, vMax) {
+        const interpolate = function(k, kMin, vMin, kMax, vMax) {
             // special case - k is integer
             if (kMin === kMax) {
                 return vMin;
@@ -69,34 +69,46 @@ module.exports = {
             return Math.round((k - kMin) * vMax + (kMax - k) * vMin);
         };
 
-        var assign = function (pos, offset, x, xMin, xMax, y, yMin, yMax) {
-            var posMin = (yMin * wSrc + xMin) * 4 + offset;
-            var posMax = (yMin * wSrc + xMax) * 4 + offset;
-            var vMin = interpolate(x, xMin, bufSrc[posMin], xMax, bufSrc[posMax]);
+        const assign = function(pos, offset, x, xMin, xMax, y, yMin, yMax) {
+            let posMin = (yMin * wSrc + xMin) * 4 + offset;
+            let posMax = (yMin * wSrc + xMax) * 4 + offset;
+            const vMin = interpolate(
+                x,
+                xMin,
+                bufSrc[posMin],
+                xMax,
+                bufSrc[posMax]
+            );
 
             // special case, y is integer
             if (yMax === yMin) {
-                bufDst[pos+offset] = vMin;
+                bufDst[pos + offset] = vMin;
             } else {
                 posMin = (yMax * wSrc + xMin) * 4 + offset;
                 posMax = (yMax * wSrc + xMax) * 4 + offset;
-                var vMax = interpolate(x, xMin, bufSrc[posMin], xMax, bufSrc[posMax]);
+                const vMax = interpolate(
+                    x,
+                    xMin,
+                    bufSrc[posMin],
+                    xMax,
+                    bufSrc[posMax]
+                );
 
-                bufDst[pos+offset] = interpolate(y, yMin, vMin, yMax, vMax);
+                bufDst[pos + offset] = interpolate(y, yMin, vMin, yMax, vMax);
             }
-        }
+        };
 
         for (let i = 0; i < hDst; i++) {
             for (let j = 0; j < wDst; j++) {
-                var posDst = (i * wDst + j) * 4;
+                const posDst = (i * wDst + j) * 4;
                 // x & y in src coordinates
-                var x = j * wSrc / wDst;
-                var xMin = Math.floor(x);
-                var xMax = Math.min(Math.ceil(x), wSrc-1);
+                const x = (j * wSrc) / wDst;
+                const xMin = Math.floor(x);
+                const xMax = Math.min(Math.ceil(x), wSrc - 1);
 
-                var y = i * hSrc / hDst;
-                var yMin = Math.floor(y);
-                var yMax = Math.min(Math.ceil(y), hSrc-1);
+                const y = (i * hSrc) / hDst;
+                const yMin = Math.floor(y);
+                const yMax = Math.min(Math.ceil(y), hSrc - 1);
 
                 assign(posDst, 0, x, xMin, xMax, y, yMin, yMax);
                 assign(posDst, 1, x, xMin, xMax, y, yMin, yMax);
@@ -106,29 +118,29 @@ module.exports = {
         }
     },
 
-    _interpolate2D: function (src, dst, options, interpolate) {
-        var bufSrc = src.data;
-        var bufDst = dst.data;
+    _interpolate2D(src, dst, options, interpolate) {
+        const bufSrc = src.data;
+        const bufDst = dst.data;
 
-        var wSrc = src.width;
-        var hSrc = src.height;
+        const wSrc = src.width;
+        const hSrc = src.height;
         // console.log("wSrc="+wSrc + ", hSrc="+hSrc + ", srcLen="+bufSrc.length);
 
-        var wDst = dst.width;
-        var hDst = dst.height;
+        const wDst = dst.width;
+        const hDst = dst.height;
         // console.log("wDst="+wDst + ", hDst="+hDst + ", dstLen="+bufDst.length);
 
         // when dst smaller than src/2, interpolate first to a multiple between 0.5 and 1.0 src, then sum squares
-        var wM = Math.max(1, Math.floor(wSrc / wDst));
-        var wDst2 = wDst * wM;
-        var hM = Math.max(1, Math.floor(hSrc / hDst));
-        var hDst2 = hDst * hM;
+        const wM = Math.max(1, Math.floor(wSrc / wDst));
+        const wDst2 = wDst * wM;
+        const hM = Math.max(1, Math.floor(hSrc / hDst));
+        const hDst2 = hDst * hM;
         // console.log("wM="+wM + ", wDst2="+wDst2 + ", hM="+hM + ", hDst2="+hDst2);
 
         // ===========================================================
         // Pass 1 - interpolate rows
         // buf1 has width of dst2 and height of src
-        var buf1 = new Buffer(wDst2 * hSrc * 4);
+        const buf1 = Buffer.alloc(wDst2 * hSrc * 4);
         for (let i = 0; i < hSrc; i++) {
             for (let j = 0; j < wDst2; j++) {
                 // i in src coords, j in dst coords
@@ -137,19 +149,25 @@ module.exports = {
                 // this interpolation requires 4 sample points and the two inner ones must be real
                 // the outer points can be fudged for the edges.
                 // therefore (wSrc-1)/wDst2
-                let x = j * (wSrc-1) / wDst2;
-                let xPos = Math.floor(x);
-                let t = x - xPos;
-                let srcPos = (i * wSrc + xPos) * 4;
+                const x = (j * (wSrc - 1)) / wDst2;
+                const xPos = Math.floor(x);
+                const t = x - xPos;
+                const srcPos = (i * wSrc + xPos) * 4;
+                const buf1Pos = (i * wDst2 + j) * 4;
 
-                var buf1Pos = (i * wDst2 + j) * 4;
                 for (let k = 0; k < 4; k++) {
-                    let kPos = srcPos + k;
-                    let x0 = (xPos > 0) ? bufSrc[kPos - 4] : 2*bufSrc[kPos]-bufSrc[kPos+4];
-                    let x1 = bufSrc[kPos];
-                    let x2 = bufSrc[kPos + 4];
-                    let x3 = (xPos < wSrc - 2) ? bufSrc[kPos + 8] : 2*bufSrc[kPos + 4]-bufSrc[kPos];
-                    buf1[buf1Pos+k] = interpolate(x0, x1, x2, x3, t);
+                    const kPos = srcPos + k;
+                    const x0 =
+                        xPos > 0
+                            ? bufSrc[kPos - 4]
+                            : 2 * bufSrc[kPos] - bufSrc[kPos + 4];
+                    const x1 = bufSrc[kPos];
+                    const x2 = bufSrc[kPos + 4];
+                    const x3 =
+                        xPos < wSrc - 2
+                            ? bufSrc[kPos + 8]
+                            : 2 * bufSrc[kPos + 4] - bufSrc[kPos];
+                    buf1[buf1Pos + k] = interpolate(x0, x1, x2, x3, t);
                 }
             }
         }
@@ -158,7 +176,7 @@ module.exports = {
         // ===========================================================
         // Pass 2 - interpolate columns
         // buf2 has width and height of dst2
-        var buf2 = new Buffer(wDst2 * hDst2 * 4);
+        const buf2 = Buffer.alloc(wDst2 * hDst2 * 4);
         for (let i = 0; i < hDst2; i++) {
             for (let j = 0; j < wDst2; j++) {
                 // i&j in dst2 coords
@@ -167,17 +185,23 @@ module.exports = {
                 // this interpolation requires 4 sample points and the two inner ones must be real
                 // the outer points can be fudged for the edges.
                 // therefore (hSrc-1)/hDst2
-                let y = i * (hSrc-1) / hDst2;
-                let yPos = Math.floor(y);
-                let t = y - yPos;
-                let buf1Pos = (yPos * wDst2 + j) * 4;
-                let buf2Pos = (i * wDst2 + j) * 4;
+                const y = (i * (hSrc - 1)) / hDst2;
+                const yPos = Math.floor(y);
+                const t = y - yPos;
+                const buf1Pos = (yPos * wDst2 + j) * 4;
+                const buf2Pos = (i * wDst2 + j) * 4;
                 for (let k = 0; k < 4; k++) {
-                    let kPos = buf1Pos + k;
-                    let y0 = (yPos > 0) ? buf1[kPos - wDst2*4] : 2*buf1[kPos]-buf1[kPos + wDst2*4];
-                    let y1 = buf1[kPos];
-                    let y2 = buf1[kPos + wDst2*4];
-                    let y3 = (yPos < hSrc-2) ? buf1[kPos + wDst2*8] : 2*buf1[kPos + wDst2*4]-buf1[kPos];
+                    const kPos = buf1Pos + k;
+                    const y0 =
+                        yPos > 0
+                            ? buf1[kPos - wDst2 * 4]
+                            : 2 * buf1[kPos] - buf1[kPos + wDst2 * 4];
+                    const y1 = buf1[kPos];
+                    const y2 = buf1[kPos + wDst2 * 4];
+                    const y3 =
+                        yPos < hSrc - 2
+                            ? buf1[kPos + wDst2 * 8]
+                            : 2 * buf1[kPos + wDst2 * 4] - buf1[kPos];
 
                     buf2[buf2Pos + k] = interpolate(y0, y1, y2, y3, t);
                 }
@@ -187,27 +211,29 @@ module.exports = {
 
         // ===========================================================
         // Pass 3 - scale to dst
-        var m = wM * hM;
+        const m = wM * hM;
         if (m > 1) {
             for (let i = 0; i < hDst; i++) {
                 for (let j = 0; j < wDst; j++) {
                     // i&j in dst bounded coords
-                    var r = 0;
-                    var g = 0;
-                    var b = 0;
-                    var a = 0;
-                    var realColors = 0;
+                    let r = 0;
+                    let g = 0;
+                    let b = 0;
+                    let a = 0;
+                    let realColors = 0;
+
                     for (let y = 0; y < hM; y++) {
-                        var yPos = i * hM + y;
+                        const yPos = i * hM + y;
+
                         for (let x = 0; x < wM; x++) {
-                            var xPos = j * wM + x;
-                            var xyPos = (yPos * wDst2 + xPos) * 4;
-                            var pixelAplha = buf2[xyPos+3];
+                            const xPos = j * wM + x;
+                            const xyPos = (yPos * wDst2 + xPos) * 4;
+                            const pixelAplha = buf2[xyPos + 3];
 
                             if (pixelAplha) {
                                 r += buf2[xyPos];
-                                g += buf2[xyPos+1];
-                                b += buf2[xyPos+2];
+                                g += buf2[xyPos + 1];
+                                b += buf2[xyPos + 2];
                                 realColors++;
                             }
 
@@ -215,11 +241,15 @@ module.exports = {
                         }
                     }
 
-                    var pos = (i*wDst + j) * 4;
-                    bufDst[pos]   = realColors ? Math.round(r / realColors) : 0;
-                    bufDst[pos+1] = realColors ? Math.round(g / realColors) : 0;
-                    bufDst[pos+2] = realColors ? Math.round(b / realColors) : 0;
-                    bufDst[pos+3] = Math.round(a / m);
+                    const pos = (i * wDst + j) * 4;
+                    bufDst[pos] = realColors ? Math.round(r / realColors) : 0;
+                    bufDst[pos + 1] = realColors
+                        ? Math.round(g / realColors)
+                        : 0;
+                    bufDst[pos + 2] = realColors
+                        ? Math.round(b / realColors)
+                        : 0;
+                    bufDst[pos + 3] = Math.round(a / m);
                 }
             }
         } else {
@@ -228,29 +258,35 @@ module.exports = {
         }
     },
 
-    bicubicInterpolation: function (src, dst, options) {
-        var interpolateCubic = function (x0, x1, x2, x3, t) {
-            var a0 = x3 - x2 - x0 + x1;
-            var a1 = x0 - x1 - a0;
-            var a2 = x2 - x0;
-            var a3 = x1;
-            return Math.max(0, Math.min(255, (a0 * (t * t * t)) + (a1 * (t * t)) + (a2 * t) + (a3)));
-        }
+    bicubicInterpolation(src, dst, options) {
+        const interpolateCubic = function(x0, x1, x2, x3, t) {
+            const a0 = x3 - x2 - x0 + x1;
+            const a1 = x0 - x1 - a0;
+            const a2 = x2 - x0;
+            const a3 = x1;
+            return Math.max(
+                0,
+                Math.min(255, a0 * (t * t * t) + a1 * (t * t) + a2 * t + a3)
+            );
+        };
         return this._interpolate2D(src, dst, options, interpolateCubic);
     },
 
-    hermiteInterpolation: function (src, dst, options) {
-        var interpolateHermite = function (x0, x1, x2, x3, t) {
-            var c0 = x1;
-            var c1 = 0.5 * (x2 - x0);
-            var c2 = x0 - (2.5 * x1) + (2 * x2) - (0.5 * x3);
-            var c3 = (0.5 * (x3 - x0)) + (1.5 * (x1 - x2));
-            return  Math.max(0, Math.min(255, Math.round((((((c3 * t) + c2) * t) + c1) * t) + c0)));
-        }
+    hermiteInterpolation(src, dst, options) {
+        const interpolateHermite = function(x0, x1, x2, x3, t) {
+            const c0 = x1;
+            const c1 = 0.5 * (x2 - x0);
+            const c2 = x0 - 2.5 * x1 + 2 * x2 - 0.5 * x3;
+            const c3 = 0.5 * (x3 - x0) + 1.5 * (x1 - x2);
+            return Math.max(
+                0,
+                Math.min(255, Math.round(((c3 * t + c2) * t + c1) * t + c0))
+            );
+        };
         return this._interpolate2D(src, dst, options, interpolateHermite);
     },
 
-    bezierInterpolation: function (src, dst, options) {
+    bezierInterpolation(src, dst, options) {
         // between 2 points y(n), y(n+1), use next points out, y(n-1), y(n+2)
         // to predict control points (a & b) to be placed at n+0.5
         //  ya(n) = y(n) + (y(n+1)-y(n-1))/4
@@ -262,17 +298,17 @@ module.exports = {
         //  y(-1) = y(0) - 2*(y(1)-y(0))
         //  y(w) = y(w-1) + 2*(y(w-1)-y(w-2))
         // but can go with y(-1) = y(0) and y(w) = y(w-1)
-        var interpolateBezier = function (x0, x1, x2, x3, t) {
+        const interpolateBezier = function(x0, x1, x2, x3, t) {
             // x1, x2 are the knots, use x0 and x3 to calculate control points
-            var cp1 = x1 + (x2-x0)/4;
-            var cp2 = x2 - (x3-x1)/4;
-            var nt = 1-t;
-            var c0 =      x1 * nt * nt * nt;
-            var c1 = 3 * cp1 * nt * nt *  t;
-            var c2 = 3 * cp2 * nt *  t *  t;
-            var c3 =      x2 *  t *  t *  t;
+            const cp1 = x1 + (x2 - x0) / 4;
+            const cp2 = x2 - (x3 - x1) / 4;
+            const nt = 1 - t;
+            const c0 = x1 * nt * nt * nt;
+            const c1 = 3 * cp1 * nt * nt * t;
+            const c2 = 3 * cp2 * nt * t * t;
+            const c3 = x2 * t * t * t;
             return Math.max(0, Math.min(255, Math.round(c0 + c1 + c2 + c3)));
-        }
+        };
         return this._interpolate2D(src, dst, options, interpolateBezier);
     }
 };

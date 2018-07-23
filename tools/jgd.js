@@ -12,7 +12,7 @@ a XPM code.
 
 function donutJGD() {
     //Pallet  RRGGBBAA
-    var _ = 0xFFFFFF00,
+    const _ = 0xFFFFFF00,
         i = 0xFF880088,
         X = 0xFF8800FF;
     return {
@@ -37,33 +37,36 @@ new Jimp(donutJGD(), function (err, image) {
 });
 */
 
-exports.decode = function (jgd) {
-    var bitmap = { width: jgd.width, height: jgd.height };
-    var length = jgd.width * jgd.height;
-    bitmap.data = new Buffer(length * 4);
-    for (var i = 0; i < length; i++) {
-        bitmap.data.writeUInt32BE(jgd.data[i], i*4);
+exports.decode = function(jgd) {
+    const bitmap = { width: jgd.width, height: jgd.height };
+    const length = jgd.width * jgd.height;
+    bitmap.data = Buffer.alloc(length * 4);
+
+    for (let i = 0; i < length; i++) {
+        bitmap.data.writeUInt32BE(jgd.data[i], i * 4);
     }
     return bitmap;
 };
 
-exports.encode = function (bitmap) {
-    var jgd = { width: bitmap.width, height: bitmap.height, data: [] };
-    for (let row=0; row<bitmap.height; row++) {
-        for (let col=0; col<bitmap.width; col++) {
-            let i = (bitmap.width * row + col) << 2;
-            let r = bitmap.data[i+0];
-            let g = bitmap.data[i+1];
-            let b = bitmap.data[i+2];
-            let a = bitmap.data[i+3];
-            let color = (
-                    ((r & 0xFF) << 24 >>> 0) |
-                    ((g & 0xFF) << 16) |
-                    ((b & 0xFF) << 8) |
-                    (a & 0xFF)
-                ) >>> 0;
+exports.encode = function(bitmap) {
+    const jgd = { width: bitmap.width, height: bitmap.height, data: [] };
+
+    for (let row = 0; row < bitmap.height; row++) {
+        for (let col = 0; col < bitmap.width; col++) {
+            const i = (bitmap.width * row + col) << 2;
+            const r = bitmap.data[i + 0];
+            const g = bitmap.data[i + 1];
+            const b = bitmap.data[i + 2];
+            const a = bitmap.data[i + 3];
+            const color =
+                ((((r & 0xff) << 24) >>> 0) |
+                    ((g & 0xff) << 16) |
+                    ((b & 0xff) << 8) |
+                    (a & 0xff)) >>>
+                0;
             jgd.data.push(color);
         }
     }
+
     return jgd;
 };
