@@ -23,6 +23,8 @@ import ImagePHash from './modules/phash';
 import request from './request';
 import Resize from './modules/resize';
 import Resize2 from './modules/resize2';
+import { log, clear } from './utils/log';
+import { isNodePattern, throwError } from './utils/error-checking';
 
 // polyfill Promise for Node < 0.12
 const Promise = global.Promise || require('es6-promise').Promise;
@@ -33,60 +35,12 @@ BigNumber.set({
     ALPHABET: '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ$_'
 });
 
-// logging methods
-
-let chars = 0;
-
-function log(msg) {
-    clear();
-
-    if (typeof process !== 'undefined' && process && process.stdout) {
-        process.stdout.write(msg);
-    } else if (typeof console !== 'undefined' && console) {
-        console.warn('Jimp', msg);
-    }
-
-    chars = msg.length;
-}
-
-function clear() {
-    if (process && process.stdout) {
-        while (chars-- > 0) {
-            process.stdout.write('\b');
-        }
-    }
-}
-
 process.on('exit', clear);
 
 // no operation
 function noop() {}
 
 // error checking methods
-
-function isNodePattern(cb) {
-    if (typeof cb === 'undefined') {
-        return false;
-    }
-
-    if (typeof cb !== 'function') {
-        throw new TypeError('Callback must be a function');
-    }
-
-    return true;
-}
-
-function throwError(error, cb) {
-    if (typeof error === 'string') {
-        error = new Error(error);
-    }
-
-    if (typeof cb === 'function') {
-        return cb.call(this, error);
-    }
-
-    throw error;
-}
 
 function isArrayBuffer(test) {
     return (
