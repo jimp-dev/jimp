@@ -47,6 +47,7 @@
     "load-bmfont": "^1.2.3",
     "mime": "^1.3.4",
     "mkdirp": "0.5.1",
+    "omggif": "^1.0.9",
     "phin": "^2.9.0",
     "pixelmatch": "^4.0.0",
     "pngjs": "^3.0.0",
