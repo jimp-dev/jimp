@@ -48,6 +48,7 @@ function bundle(files, config, callback) {
     const bundler = browserify(files, config).exclude(
         fromRoot('browser/lib/jimp.js')
     );
+    bundler.transform('babelify', { plugins: ['es6-promise'] });
     config.exclude = config.exclude || [];
     for (let f, i = 0; (f = config.exclude[i]); i++) {
         bundler.exclude(fromRoot(f));

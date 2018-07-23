@@ -18,8 +18,6 @@ const rawBody = require('raw-body');
 const fileType = require('file-type');
 const pixelMatch = require('pixelmatch');
 const EXIFParser = require('exif-parser');
-// polyfill Promise for Node < 0.12
-const Promise = global.Promise || require('es6-promise').Promise;
 
 const ImagePHash = require('./phash.js');
 const request = require('./src/request');
