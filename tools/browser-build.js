@@ -84,7 +84,7 @@ function bundleSimple(files, config, callback) {
 function minify(code) {
     console.error('Compressing...');
 
-    return UglifyJS.minify(code, { warnings: false });
+    return UglifyJS.minify(code, { warnings: false }).code;
 }
 
 if (!module.parent) {
