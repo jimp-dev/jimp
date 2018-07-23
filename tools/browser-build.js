@@ -53,9 +53,7 @@ function bundle(files, config, callback) {
     }
 
     bundler
-        .transform(
-            babelify.configure({ presets: ['env', 'es2015', 'stage-0'] })
-        )
+        .transform(babelify)
         .transform(envify({ ENVIRONMENT: 'BROWSER' }))
         .bundle((err, baseCode) => {
             if (err) return callback(err);
