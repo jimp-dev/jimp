@@ -525,11 +525,14 @@ function parseBitmap(data, path, cb) {
             }
 
         case Jimp.MIME_TIFF: {
-            const tiff = UTIF.decode(data)[0];
+            var ifds = UTIF.decode(data)
+            var page = ifds[0];
+            UTIF.decodeImages(data, ifds);
+            var rgba = UTIF.toRGBA8(page);
             this.bitmap = {
-                data: Buffer.from(tiff.data),
-                width: tiff.width,
-                height: tiff.height
+                data: new Buffer(rgba),
+                width: page.t256[0],
+                height: page.t257[0]
             };
 
             return cb.call(this, null, this);

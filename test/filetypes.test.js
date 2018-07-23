@@ -43,12 +43,12 @@ describe('FileType', () => {
         });
     });
 
-    it.skip('load TIFF', done => {
+    it('load TIFF', done => {
         new Jimp(imagesDir + '/rgb.tiff', function(err) {
             if (err) done(err);
-            this.getPixelColor(10, 10).should.be.equal(0xcc3767a2);
-            this.getPixelColor(220, 190).should.be.equal(0x65b39725);
-            this.getPixelColor(350, 130).should.be.equal(0x58d69735);
+            this.getPixelColor(10, 10).should.be.equal(0xa4988bff);
+            this.getPixelColor(220, 190).should.be.equal(0xe0d7ddff);
+            this.getPixelColor(350, 130).should.be.equal(0x565433ff);
             done();
         });
     });
