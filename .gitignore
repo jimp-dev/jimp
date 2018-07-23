@@ -37,3 +37,5 @@ node_modules
 /test/output/*.bmp
 
 .DS_Store
+
+package-lock.json
