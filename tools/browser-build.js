@@ -6,6 +6,7 @@ const babel = require('babel-core');
 const envify = require('envify/custom');
 const UglifyJS = require('uglify-js');
 const browserify = require('browserify');
+const babelify = require('babelify');
 
 function debug() {
     if (process.env.DEBUG) console.error(...arguments);
@@ -39,8 +40,7 @@ function bundle(files, config, callback) {
             fullPaths: false,
             debug: true,
             paths: [root],
-            basedir: root,
-            transform: envify({ ENVIRONMENT: 'BROWSER' })
+            basedir: root
         },
         config
     );
@@ -52,21 +52,26 @@ function bundle(files, config, callback) {
     for (let f, i = 0; (f = config.exclude[i]); i++) {
         bundler.exclude(fromRoot(f));
     }
-    bundler.bundle((err, baseCode) => {
-        if (err) return callback(err);
-        console.error(
-            'Babelize ' +
-                files.map(f => f.replace(/.*\//, '')).join('+') +
-                '...'
-        );
-        const result = babel.transform(
-            "if ((typeof(window)=='undefined' || !window) " +
-                "&& (typeof(self)!='undefined')) var window = self;\n" +
-                baseCode.toString(),
-            { presets: ['es2015', 'stage-0'] }
-        );
-        callback(null, result.code);
-    });
+
+    bundler
+        .transform(
+            babelify.configure({ presets: ['env', 'es2015', 'stage-0'] })
+        )
+        .transform(envify({ ENVIRONMENT: 'BROWSER' }))
+        .bundle((err, baseCode) => {
+            if (err) return callback(err);
+            console.error(
+                'Babelize ' +
+                    files.map(f => f.replace(/.*\//, '')).join('+') +
+                    '...'
+            );
+            const result = babel.transform(
+                "if ((typeof(window)=='undefined' || !window) " +
+                    "&& (typeof(self)!='undefined')) var window = self;\n" +
+                    baseCode.toString()
+            );
+            callback(null, result.code);
+        });
 }
 
 function bundleSimple(files, config, callback) {
@@ -113,7 +118,7 @@ if (!module.parent) {
         case 'prepublish':
             if (config) config = JSON.parse(config);
             else config = {};
-            bundle('index.js', config, (err, code) => {
+            bundle('src/index.js', config, (err, code) => {
                 if (err) throw err;
                 fs.writeFile(
                     fromRoot('browser/lib/jimp.js'),
