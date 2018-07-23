@@ -41,3 +41,4 @@ node_modules
 package-lock.json
 
 browser/lib/*.js
+dist/

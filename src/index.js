@@ -1,30 +1,31 @@
 /* eslint-disable no-labels */
 
-const FS = require('fs');
-const Path = require('path');
-const EventEmitter = require('events');
+import FS from 'fs';
+import Path from 'path';
+import EventEmitter from 'events';
 
-const { PNG } = require('pngjs');
-const JPEG = require('jpeg-js');
-const BMP = require('bmp-js');
-const GIF = require('omggif');
-const UTIF = require('utif');
-const MIME = require('mime');
-const tinyColor = require('tinycolor2');
-const BigNumber = require('bignumber.js');
-const bMFont = require('load-bmfont');
-const MkDirP = require('mkdirp');
-const rawBody = require('raw-body');
-const fileType = require('file-type');
-const pixelMatch = require('pixelmatch');
-const EXIFParser = require('exif-parser');
+import { PNG } from 'pngjs';
+import JPEG from 'jpeg-js';
+import BMP from 'bmp-js';
+import GIF from 'omggif';
+import UTIF from 'utif';
+import MIME from 'mime';
+import tinyColor from 'tinycolor2';
+import BigNumber from 'bignumber.js';
+import bMFont from 'load-bmfont';
+import MkDirP from 'mkdirp';
+import rawBody from 'raw-body';
+import fileType from 'file-type';
+import pixelMatch from 'pixelmatch';
+import EXIFParser from 'exif-parser';
+
+import ImagePHash from './modules/phash';
+import request from './request';
+import Resize from './modules/resize';
+import Resize2 from './modules/resize2';
+
 // polyfill Promise for Node < 0.12
 const Promise = global.Promise || require('es6-promise').Promise;
-
-const ImagePHash = require('./modules/phash.js');
-const request = require('./request.js');
-const Resize = require('./modules/resize.js');
-const Resize2 = require('./modules/resize2.js');
 
 const isDef = v => typeof v !== 'undefined' && v !== null;
 

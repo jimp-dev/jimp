@@ -2,7 +2,7 @@
   "name": "jimp",
   "version": "0.2.28",
   "description": "An image processing library written entirely in JavaScript (i.e. zero external or native dependencies).",
-  "main": "./src/jimp.js",
+  "main": "./dist/jimp.js",
   "types": "./jimp.d.ts",
   "tonicExampleFilename": "example.js",
   "browser": "./browser/lib/jimp.js",
@@ -29,7 +29,9 @@
     "test": "npm run -s test:node:once && npm run -s test:browser:once",
     "test:old": "./test/tests.sh",
     "browser-build": "node tools/browser-build.js test",
-    "prepublish": "node tools/browser-build.js prepublish"
+    "build": "npm run build:browser && npm run build:node",
+    "build:node": "babel src -d dist",
+    "build:browser": "node tools/browser-build.js prepublish"
   },
   "keywords": [
     "image",
