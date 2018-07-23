@@ -21,10 +21,10 @@ const EXIFParser = require('exif-parser');
 // polyfill Promise for Node < 0.12
 const Promise = global.Promise || require('es6-promise').Promise;
 
-const ImagePHash = require('./phash.js');
-const request = require('./src/request');
-const Resize = require('./resize.js');
-const Resize2 = require('./resize2.js');
+const ImagePHash = require('./modules/phash.js');
+const request = require('./request.js');
+const Resize = require('./modules/resize.js');
+const Resize2 = require('./modules/resize2.js');
 
 const isDef = v => typeof v !== 'undefined' && v !== null;
 
@@ -652,34 +652,43 @@ Jimp.dirName = getJimpDir();
 
 // Font locations
 Jimp.FONT_SANS_8_BLACK =
-    Jimp.dirName + 'fonts/open-sans/open-sans-8-black/open-sans-8-black.fnt';
+    Jimp.dirName + '../fonts/open-sans/open-sans-8-black/open-sans-8-black.fnt';
 Jimp.FONT_SANS_10_BLACK =
-    Jimp.dirName + 'fonts/open-sans/open-sans-10-black/open-sans-10-black.fnt';
+    Jimp.dirName +
+    '../fonts/open-sans/open-sans-10-black/open-sans-10-black.fnt';
 Jimp.FONT_SANS_12_BLACK =
-    Jimp.dirName + 'fonts/open-sans/open-sans-12-black/open-sans-12-black.fnt';
+    Jimp.dirName +
+    '../fonts/open-sans/open-sans-12-black/open-sans-12-black.fnt';
 Jimp.FONT_SANS_14_BLACK =
-    Jimp.dirName + 'fonts/open-sans/open-sans-14-black/open-sans-14-black.fnt';
+    Jimp.dirName +
+    '../fonts/open-sans/open-sans-14-black/open-sans-14-black.fnt';
 Jimp.FONT_SANS_16_BLACK =
-    Jimp.dirName + 'fonts/open-sans/open-sans-16-black/open-sans-16-black.fnt';
+    Jimp.dirName +
+    '../fonts/open-sans/open-sans-16-black/open-sans-16-black.fnt';
 Jimp.FONT_SANS_32_BLACK =
-    Jimp.dirName + 'fonts/open-sans/open-sans-32-black/open-sans-32-black.fnt';
+    Jimp.dirName +
+    '../fonts/open-sans/open-sans-32-black/open-sans-32-black.fnt';
 Jimp.FONT_SANS_64_BLACK =
-    Jimp.dirName + 'fonts/open-sans/open-sans-64-black/open-sans-64-black.fnt';
+    Jimp.dirName +
+    '../fonts/open-sans/open-sans-64-black/open-sans-64-black.fnt';
 Jimp.FONT_SANS_128_BLACK =
     Jimp.dirName +
-    'fonts/open-sans/open-sans-128-black/open-sans-128-black.fnt';
+    '../fonts/open-sans/open-sans-128-black/open-sans-128-black.fnt';
 
 Jimp.FONT_SANS_8_WHITE =
-    Jimp.dirName + 'fonts/open-sans/open-sans-8-white/open-sans-8-white.fnt';
+    Jimp.dirName + '../fonts/open-sans/open-sans-8-white/open-sans-8-white.fnt';
 Jimp.FONT_SANS_16_WHITE =
-    Jimp.dirName + 'fonts/open-sans/open-sans-16-white/open-sans-16-white.fnt';
+    Jimp.dirName +
+    '../fonts/open-sans/open-sans-16-white/open-sans-16-white.fnt';
 Jimp.FONT_SANS_32_WHITE =
-    Jimp.dirName + 'fonts/open-sans/open-sans-32-white/open-sans-32-white.fnt';
+    Jimp.dirName +
+    '../fonts/open-sans/open-sans-32-white/open-sans-32-white.fnt';
 Jimp.FONT_SANS_64_WHITE =
-    Jimp.dirName + 'fonts/open-sans/open-sans-64-white/open-sans-64-white.fnt';
+    Jimp.dirName +
+    '../fonts/open-sans/open-sans-64-white/open-sans-64-white.fnt';
 Jimp.FONT_SANS_128_WHITE =
     Jimp.dirName +
-    'fonts/open-sans/open-sans-128-white/open-sans-128-white.fnt';
+    '../fonts/open-sans/open-sans-128-white/open-sans-128-white.fnt';
 
 // Edge Handling
 Jimp.EDGE_EXTEND = 1;

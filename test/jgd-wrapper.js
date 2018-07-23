@@ -1,5 +1,7 @@
 const Jimp =
-    typeof window !== 'undefined' && window.Jimp ? window.Jimp : require('..');
+    typeof window !== 'undefined' && window.Jimp
+        ? window.Jimp
+        : require('../src');
 const JGD = require('../tools/jgd');
 
 /**
