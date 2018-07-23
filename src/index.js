@@ -26,9 +26,6 @@ import Resize2 from './modules/resize2';
 import { log, clear } from './utils/log';
 import { isNodePattern, throwError } from './utils/error-checking';
 
-// polyfill Promise for Node < 0.12
-const Promise = global.Promise || require('es6-promise').Promise;
-
 const isDef = v => typeof v !== 'undefined' && v !== null;
 
 BigNumber.set({
@@ -480,7 +477,7 @@ function parseBitmap(data, path, cb) {
             }
 
         case Jimp.MIME_TIFF: {
-            var ifds = UTIF.decode(data)
+            var ifds = UTIF.decode(data);
             var page = ifds[0];
             UTIF.decodeImages(data, ifds);
             var rgba = UTIF.toRGBA8(page);
