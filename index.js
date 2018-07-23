@@ -28,6 +28,10 @@ const Resize2 = require('./resize2.js');
 
 const isDef = v => typeof v !== 'undefined' && v !== null;
 
+BigNumber.set({
+    ALPHABET: '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ$_'
+});
+
 // logging methods
 
 let chars = 0;
@@ -456,7 +460,7 @@ function getMIMEFromBuffer(buffer, path) {
     if (path) {
         // If a path is supplied, and fileType yields no results, then retry with MIME
         // Path can be either a file path or a url
-        return MIME.lookup(path);
+        return MIME.getType(path);
     }
 
     return null;
@@ -1094,7 +1098,7 @@ Jimp.prototype.getMIME = function() {
 Jimp.prototype.getExtension = function() {
     const mime = this.getMIME();
 
-    return MIME.extension(mime);
+    return MIME.getExtension(mime);
 };
 
 /**
@@ -4198,7 +4202,7 @@ Jimp.prototype.write = function(path, cb) {
     }
 
     const that = this;
-    const mime = MIME.lookup(path);
+    const mime = MIME.getType(path);
     const pathObj = Path.parse(path);
 
     if (pathObj.dir) {

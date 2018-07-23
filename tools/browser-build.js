@@ -83,12 +83,8 @@ function bundleSimple(files, config, callback) {
 
 function minify(code) {
     console.error('Compressing...');
-    let ast = UglifyJS.parse(code);
-    ast.figure_out_scope();
-    // eslint-disable-next-line new-cap
-    const compressor = UglifyJS.Compressor({ warnings: false });
-    ast = ast.transform(compressor);
-    return ast.print_to_string();
+
+    return UglifyJS.minify(code, { warnings: false });
 }
 
 if (!module.parent) {
