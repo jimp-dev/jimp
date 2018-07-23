@@ -2,7 +2,6 @@
 
 const fs = require('fs');
 const { normalize, join } = require('path');
-const babel = require('babel-core');
 const envify = require('envify/custom');
 const UglifyJS = require('uglify-js');
 const browserify = require('browserify');
@@ -60,17 +59,13 @@ function bundle(files, config, callback) {
         .transform(envify({ ENVIRONMENT: 'BROWSER' }))
         .bundle((err, baseCode) => {
             if (err) return callback(err);
-            console.error(
-                'Babelize ' +
-                    files.map(f => f.replace(/.*\//, '')).join('+') +
-                    '...'
-            );
-            const result = babel.transform(
+
+            callback(
+                null,
                 "if ((typeof(window)=='undefined' || !window) " +
                     "&& (typeof(self)!='undefined')) var window = self;\n" +
-                    baseCode.toString()
+                    baseCode
             );
-            callback(null, result.code);
         });
 }
 
