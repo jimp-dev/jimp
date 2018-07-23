@@ -96,13 +96,14 @@
     }
   },
   "lint-staged": {
-    "*.{js,json,css,md}": [
+    "*.{js,css,md}": [
       "prettier --write",
       "git add"
     ]
   },
   "prettier": {
-    "singleQuote": true
+    "singleQuote": true,
+    "tabWidth": 4
   },
   "xo": {
     "parser": "babel-eslint",
