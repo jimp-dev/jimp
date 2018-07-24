@@ -28,8 +28,10 @@
     "test": "npm run -s test:node:once && npm run -s test:browser:once",
     "test:old": "./test/tests.sh",
     "browser-build": "node tools/browser-build.js test",
-    "build": "npm run build:browser && npm run build:node",
+    "build": "npm run build:browser && npm run build:node:production",
     "build:node": "babel src -d dist --source-maps",
+    "build:node:production": "BABEL_ENV=production npm run build:node",
+    "build:node:debug": "BABEL_ENV=development npm run build:node",
     "build:browser": "node tools/browser-build.js prepublish"
   },
   "keywords": [
@@ -69,6 +71,7 @@
     "babel-cli": "6.26.0",
     "babel-core": "^6.26.3",
     "babel-eslint": "^8.2.6",
+    "babel-plugin-conditional-compile": "^0.0.5",
     "babel-preset-env": "^1.7.0",
     "babel-preset-stage-0": "6.24.1",
     "babelify": "^8.0.0",
@@ -155,7 +158,27 @@
         }
       ],
       "stage-0"
-    ]
+    ],
+    "env": {
+      "development": {
+        "plugins": [
+          ["conditional-compile", {
+              "define": {
+                "TARGET": "development"
+              }
+          }]
+        ]
+      },
+      "production": {
+        "plugins": [
+          ["conditional-compile", {
+              "define": {
+                "TARGET": "production"
+              }
+          }]
+        ]
+      }
+    }
   },
   "nyc": {
     "reporter": [

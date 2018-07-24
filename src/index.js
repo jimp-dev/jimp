@@ -18,7 +18,6 @@ import rawBody from 'raw-body';
 import fileType from 'file-type';
 import pixelMatch from 'pixelmatch';
 import EXIFParser from 'exif-parser';
-import sourceMaps from 'source-map-support';
 
 import ImagePHash from './modules/phash';
 import request from './request';
@@ -26,6 +25,11 @@ import Resize from './modules/resize';
 import Resize2 from './modules/resize2';
 import { log, clear } from './utils/log';
 import { isNodePattern, throwError } from './utils/error-checking';
+
+const sourceMaps =
+    TARGET === 'development'
+        ? require('source-map-support')
+        : { install: () => {} };
 
 const isDef = v => typeof v !== 'undefined' && v !== null;
 
