@@ -1,3 +1,4 @@
+/* global TARGET */
 /* eslint-disable no-labels */
 
 import FS from 'fs';
@@ -133,7 +134,7 @@ class Jimp extends EventEmitter {
         sourceMaps.install();
 
         const jimpInstance = this;
-          let cb = noop;
+        let cb = noop;
 
         if (isArrayBuffer(arguments[0])) {
             arguments[0] = bufferFromArrayBuffer(arguments[0]);
@@ -482,12 +483,13 @@ function parseBitmap(data, path, cb) {
             }
 
         case Jimp.MIME_TIFF: {
-            var ifds = UTIF.decode(data);
-            var page = ifds[0];
+            const ifds = UTIF.decode(data);
+            const page = ifds[0];
             UTIF.decodeImages(data, ifds);
-            var rgba = UTIF.toRGBA8(page);
+            const rgba = UTIF.toRGBA8(page);
+
             this.bitmap = {
-                data: new Buffer(rgba),
+                data: Buffer.from(rgba),
                 width: page.t256[0],
                 height: page.t257[0]
             };
