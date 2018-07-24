@@ -23,8 +23,10 @@ import ImagePHash from './modules/phash';
 import request from './request';
 import Resize from './modules/resize';
 import Resize2 from './modules/resize2';
+
 import { log, clear } from './utils/log';
 import { isNodePattern, throwError } from './utils/error-checking';
+import * as constants from './constants';
 
 const sourceMaps =
     TARGET === 'development'
@@ -300,6 +302,10 @@ class Jimp extends EventEmitter {
     }
 }
 
+Object.entries(constants).map(([name, value]) =>
+    Object.defineProperty(Jimp, name, { value })
+);
+
 /**
  * Helper to create Jimp methods that emit events before and after its execution.
  * @param methodName   The name to be appended to Jimp prototype.
@@ -551,108 +557,6 @@ function exifRotate(img) {
 
     return img;
 }
-
-// used to auto resizing etc.
-Jimp.AUTO = -1;
-
-// supported mime types
-Jimp.MIME_PNG = 'image/png';
-Jimp.MIME_TIFF = 'image/tiff';
-Jimp.MIME_JPEG = 'image/jpeg';
-Jimp.MIME_JGD = 'image/jgd';
-Jimp.MIME_BMP = 'image/bmp';
-Jimp.MIME_X_MS_BMP = 'image/x-ms-bmp';
-Jimp.MIME_GIF = 'image/gif';
-
-// PNG filter types
-Jimp.PNG_FILTER_AUTO = -1;
-Jimp.PNG_FILTER_NONE = 0;
-Jimp.PNG_FILTER_SUB = 1;
-Jimp.PNG_FILTER_UP = 2;
-Jimp.PNG_FILTER_AVERAGE = 3;
-Jimp.PNG_FILTER_PAETH = 4;
-
-Jimp.RESIZE_NEAREST_NEIGHBOR = 'nearestNeighbor';
-Jimp.RESIZE_BILINEAR = 'bilinearInterpolation';
-Jimp.RESIZE_BICUBIC = 'bicubicInterpolation';
-Jimp.RESIZE_HERMITE = 'hermiteInterpolation';
-Jimp.RESIZE_BEZIER = 'bezierInterpolation';
-
-// Align modes for cover, contain, bit masks
-Jimp.HORIZONTAL_ALIGN_LEFT = 1;
-Jimp.HORIZONTAL_ALIGN_CENTER = 2;
-Jimp.HORIZONTAL_ALIGN_RIGHT = 4;
-
-Jimp.VERTICAL_ALIGN_TOP = 8;
-Jimp.VERTICAL_ALIGN_MIDDLE = 16;
-Jimp.VERTICAL_ALIGN_BOTTOM = 32;
-
-// Discover Jimp directory in any environment. (also in fucking karma)
-function getJimpDir() {
-    const err = new Error();
-    const callLine = err.stack
-        .split(/\n/)
-        .filter(l => l.match(/getJimpDir/))[0];
-    const reWebKit = /.*\(([^?]+\/)[^/]+\).*/;
-    const reMoz = /.*@([^?]+\/).*/;
-
-    if (reWebKit.test(callLine)) {
-        return callLine.replace(reWebKit, '$1');
-    }
-
-    if (reMoz.test(callLine)) {
-        return callLine.replace(reMoz, '$1');
-    }
-
-    return `${__dirname}/`;
-}
-
-Jimp.dirName = getJimpDir();
-
-// Font locations
-Jimp.FONT_SANS_8_BLACK =
-    Jimp.dirName + '../fonts/open-sans/open-sans-8-black/open-sans-8-black.fnt';
-Jimp.FONT_SANS_10_BLACK =
-    Jimp.dirName +
-    '../fonts/open-sans/open-sans-10-black/open-sans-10-black.fnt';
-Jimp.FONT_SANS_12_BLACK =
-    Jimp.dirName +
-    '../fonts/open-sans/open-sans-12-black/open-sans-12-black.fnt';
-Jimp.FONT_SANS_14_BLACK =
-    Jimp.dirName +
-    '../fonts/open-sans/open-sans-14-black/open-sans-14-black.fnt';
-Jimp.FONT_SANS_16_BLACK =
-    Jimp.dirName +
-    '../fonts/open-sans/open-sans-16-black/open-sans-16-black.fnt';
-Jimp.FONT_SANS_32_BLACK =
-    Jimp.dirName +
-    '../fonts/open-sans/open-sans-32-black/open-sans-32-black.fnt';
-Jimp.FONT_SANS_64_BLACK =
-    Jimp.dirName +
-    '../fonts/open-sans/open-sans-64-black/open-sans-64-black.fnt';
-Jimp.FONT_SANS_128_BLACK =
-    Jimp.dirName +
-    '../fonts/open-sans/open-sans-128-black/open-sans-128-black.fnt';
-
-Jimp.FONT_SANS_8_WHITE =
-    Jimp.dirName + '../fonts/open-sans/open-sans-8-white/open-sans-8-white.fnt';
-Jimp.FONT_SANS_16_WHITE =
-    Jimp.dirName +
-    '../fonts/open-sans/open-sans-16-white/open-sans-16-white.fnt';
-Jimp.FONT_SANS_32_WHITE =
-    Jimp.dirName +
-    '../fonts/open-sans/open-sans-32-white/open-sans-32-white.fnt';
-Jimp.FONT_SANS_64_WHITE =
-    Jimp.dirName +
-    '../fonts/open-sans/open-sans-64-white/open-sans-64-white.fnt';
-Jimp.FONT_SANS_128_WHITE =
-    Jimp.dirName +
-    '../fonts/open-sans/open-sans-128-white/open-sans-128-white.fnt';
-
-// Edge Handling
-Jimp.EDGE_EXTEND = 1;
-Jimp.EDGE_WRAP = 2;
-Jimp.EDGE_CROP = 3;
 
 /**
  * A static helper method that converts RGBA values to a single integer value
