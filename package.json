@@ -50,7 +50,6 @@
     "bignumber.js": "^7.2.1",
     "bmp-js": "0.1.0",
     "buffer": "^5.0.2",
-    "es6-promise": "^4.2.4",
     "exif-parser": "^0.1.9",
     "file-type": "^8.1.0",
     "jpeg-js": "^0.3.4",
