@@ -14,7 +14,6 @@ import tinyColor from 'tinycolor2';
 import BigNumber from 'bignumber.js';
 import bMFont from 'load-bmfont';
 import MkDirP from 'mkdirp';
-import rawBody from 'raw-body';
 import fileType from 'file-type';
 import pixelMatch from 'pixelmatch';
 import EXIFParser from 'exif-parser';
@@ -133,8 +132,8 @@ class Jimp extends EventEmitter {
         super();
         sourceMaps.install();
 
-        const that = this;
-        let cb = noop;
+        const jimpInstance = this;
+          let cb = noop;
 
         if (isArrayBuffer(arguments[0])) {
             arguments[0] = bufferFromArrayBuffer(arguments[0]);
@@ -147,12 +146,12 @@ class Jimp extends EventEmitter {
             setTimeout(() => {
                 // run on next tick.
                 if (err) {
-                    that.emitError('constructor', err);
+                    jimpInstance.emitError('constructor', err);
                 } else {
-                    that.emitMulti('constructor', 'initialized');
+                    jimpInstance.emitMulti('constructor', 'initialized');
                 }
 
-                cb.call(that, ...arguments);
+                cb.call(jimpInstance, ...arguments);
             }, 1);
         }
         if (
@@ -242,10 +241,10 @@ class Jimp extends EventEmitter {
 
             loadBufferFromPath(path, (err, data) => {
                 if (err) {
-                    return throwError.call(that, err, finish);
+                    return throwError.call(this, err, finish);
                 }
 
-                parseBitmap.call(that, data, path, finish);
+                parseBitmap.call(this, data, path, finish);
             });
         } else if (
             typeof arguments[0] === 'object' &&
@@ -321,14 +320,14 @@ function jimpEvMethod(methodName, evName, method) {
     Jimp.prototype[methodName] = function() {
         let wrapedCb;
         const cb = arguments[method.length - 1];
-        const that = this;
+        const jimpInstance = this;
 
         if (typeof cb === 'function') {
             wrapedCb = function(err, data) {
                 if (err) {
-                    that.emitError(methodName, err);
+                    jimpInstance.emitError(methodName, err);
                 } else {
-                    that.emitMulti(methodName, evNameAfter, {
+                    jimpInstance.emitMulti(methodName, evNameAfter, {
                         [methodName]: data
                     });
                 }
@@ -441,7 +440,6 @@ function getBitmapFromGIF(data) {
 
 // parses a bitmap from the constructor to the JIMP bitmap property
 function parseBitmap(data, path, cb) {
-    const that = this;
     const mime = getMIMEFromBuffer(data, path);
 
     if (typeof mime !== 'string') {
@@ -455,15 +453,15 @@ function parseBitmap(data, path, cb) {
             const png = new PNG();
             png.parse(data, (err, data) => {
                 if (err) {
-                    return throwError.call(that, err, cb);
+                    return throwError.call(this, err, cb);
                 }
 
-                that.bitmap = {
+                this.bitmap = {
                     data: Buffer.from(data.data),
                     width: data.width,
                     height: data.height
                 };
-                return cb.call(that, null, that);
+                return cb.call(this, null, this);
             });
             break;
         }
@@ -1553,7 +1551,7 @@ Jimp.prototype.blit = function(src, x, y, srcx, srcy, srcw, srch, cb) {
 
     const maxw = this.bitmap.width;
     const maxh = this.bitmap.height;
-    const that = this;
+    const baseImage = this;
 
     src.scanQuiet(srcx, srcy, srcw, srch, function(sx, sy, idx) {
         if (
@@ -1562,11 +1560,14 @@ Jimp.prototype.blit = function(src, x, y, srcx, srcy, srcw, srch, cb) {
             maxw - x - sx > 0 &&
             maxh - y - sy > 0
         ) {
-            const dstIdx = that.getPixelIndex(x + sx - srcx, y + sy - srcy);
-            that.bitmap.data[dstIdx] = this.bitmap.data[idx];
-            that.bitmap.data[dstIdx + 1] = this.bitmap.data[idx + 1];
-            that.bitmap.data[dstIdx + 2] = this.bitmap.data[idx + 2];
-            that.bitmap.data[dstIdx + 3] = this.bitmap.data[idx + 3];
+            const dstIdx = baseImage.getPixelIndex(
+                x + sx - srcx,
+                y + sy - srcy
+            );
+            baseImage.bitmap.data[dstIdx] = this.bitmap.data[idx];
+            baseImage.bitmap.data[dstIdx + 1] = this.bitmap.data[idx + 1];
+            baseImage.bitmap.data[dstIdx + 2] = this.bitmap.data[idx + 2];
+            baseImage.bitmap.data[dstIdx + 3] = this.bitmap.data[idx + 3];
         }
     });
 
@@ -1600,7 +1601,7 @@ Jimp.prototype.mask = function(src, x = 0, y = 0, cb) {
 
     const w = this.bitmap.width;
     const h = this.bitmap.height;
-    const that = this;
+    const baseImage = this;
 
     src.scanQuiet(0, 0, src.bitmap.width, src.bitmap.height, function(
         sx,
@@ -1611,11 +1612,11 @@ Jimp.prototype.mask = function(src, x = 0, y = 0, cb) {
         const destY = y + sy;
 
         if (destX >= 0 && destY >= 0 && destX < w && destY < h) {
-            const dstIdx = that.getPixelIndex(destX, destY);
+            const dstIdx = baseImage.getPixelIndex(destX, destY);
             const { data } = this.bitmap;
             const avg = (data[idx + 0] + data[idx + 1] + data[idx + 2]) / 3;
 
-            that.bitmap.data[dstIdx + 3] *= avg / 255;
+            baseImage.bitmap.data[dstIdx + 3] *= avg / 255;
         }
     });
 
@@ -1647,7 +1648,7 @@ Jimp.prototype.composite = function(src, x, y, cb) {
     x = Math.round(x);
     y = Math.round(y);
 
-    const that = this;
+    const baseImage = this;
 
     src.scanQuiet(0, 0, src.bitmap.width, src.bitmap.height, function(
         sx,
@@ -1655,7 +1656,7 @@ Jimp.prototype.composite = function(src, x, y, cb) {
         idx
     ) {
         // http://stackoverflow.com/questions/7438263/alpha-compositing-algorithm-blend-modes
-        const dstIdx = that.getPixelIndex(x + sx, y + sy);
+        const dstIdx = baseImage.getPixelIndex(x + sx, y + sy);
 
         const fg = {
             r: this.bitmap.data[idx + 0] / 255,
@@ -1665,10 +1666,10 @@ Jimp.prototype.composite = function(src, x, y, cb) {
         };
 
         const bg = {
-            r: that.bitmap.data[dstIdx + 0] / 255,
-            g: that.bitmap.data[dstIdx + 1] / 255,
-            b: that.bitmap.data[dstIdx + 2] / 255,
-            a: that.bitmap.data[dstIdx + 3] / 255
+            r: baseImage.bitmap.data[dstIdx + 0] / 255,
+            g: baseImage.bitmap.data[dstIdx + 1] / 255,
+            b: baseImage.bitmap.data[dstIdx + 2] / 255,
+            a: baseImage.bitmap.data[dstIdx + 3] / 255
         };
 
         const a = bg.a + fg.a - bg.a * fg.a;
@@ -1677,10 +1678,10 @@ Jimp.prototype.composite = function(src, x, y, cb) {
         const g = (fg.g * fg.a + bg.g * bg.a * (1 - fg.a)) / a;
         const b = (fg.b * fg.a + bg.b * bg.a * (1 - fg.a)) / a;
 
-        that.bitmap.data[dstIdx + 0] = Jimp.limit255(r * 255);
-        that.bitmap.data[dstIdx + 1] = Jimp.limit255(g * 255);
-        that.bitmap.data[dstIdx + 2] = Jimp.limit255(b * 255);
-        that.bitmap.data[dstIdx + 3] = Jimp.limit255(a * 255);
+        baseImage.bitmap.data[dstIdx + 0] = Jimp.limit255(r * 255);
+        baseImage.bitmap.data[dstIdx + 1] = Jimp.limit255(g * 255);
+        baseImage.bitmap.data[dstIdx + 2] = Jimp.limit255(b * 255);
+        baseImage.bitmap.data[dstIdx + 3] = Jimp.limit255(a * 255);
     });
 
     if (isNodePattern(cb)) {
@@ -3038,7 +3039,7 @@ Jimp.prototype.resize = function(w, h, mode, cb) {
         Resize2[mode](this.bitmap, dst);
         this.bitmap = dst;
     } else {
-        const that = this;
+        const image = this;
         const resize = new Resize(
             this.bitmap.width,
             this.bitmap.height,
@@ -3047,9 +3048,9 @@ Jimp.prototype.resize = function(w, h, mode, cb) {
             true,
             true,
             buffer => {
-                that.bitmap.data = Buffer.from(buffer);
-                that.bitmap.width = w;
-                that.bitmap.height = h;
+                image.bitmap.data = Buffer.from(buffer);
+                image.bitmap.width = w;
+                image.bitmap.height = h;
             }
         );
         resize.resize(this.bitmap.data);
@@ -3670,7 +3671,6 @@ Jimp.prototype.getBuffer = function(mime, cb) {
 
     switch (mime.toLowerCase()) {
         case Jimp.MIME_PNG: {
-            const that = this;
             const png = new PNG({
                 width: this.bitmap.width,
                 height: this.bitmap.height,
@@ -3689,14 +3689,8 @@ Jimp.prototype.getBuffer = function(mime, cb) {
                 png.data = compositeBitmapOverBackground(this).data;
             }
 
-            rawBody(png.pack(), {}, function(err, buffer) {
-                if (err) {
-                    return throwError.call(this, err, cb);
-                }
-
-                return cb.call(that, null, buffer);
-            });
-            break;
+            const buffer = PNG.sync.write(png);
+            return cb.call(this, null, buffer);
         }
 
         case Jimp.MIME_JPEG: {
@@ -3914,8 +3908,6 @@ Jimp.loadFont = function(file, cb) {
     if (typeof file !== 'string')
         return throwError.call(this, 'file must be a string', cb);
 
-    const that = this;
-
     return new Promise((resolve, reject) => {
         cb =
             cb ||
@@ -3928,7 +3920,7 @@ Jimp.loadFont = function(file, cb) {
             const chars = {};
             const kernings = {};
 
-            if (err) return throwError.call(that, err, cb);
+            if (err) return throwError.call(this, err, cb);
 
             for (let i = 0; i < font.chars.length; i++) {
                 chars[String.fromCharCode(font.chars[i].id)] = font.chars[i];
@@ -4018,7 +4010,6 @@ Jimp.prototype.print = function(font, x, y, text, maxWidth, maxHeight, cb) {
         return throwError.call(this, 'maxHeight must be a number', cb);
     }
 
-    let that = this;
     let alignmentX;
     let alignmentY;
 
@@ -4048,7 +4039,7 @@ Jimp.prototype.print = function(font, x, y, text, maxWidth, maxHeight, cb) {
         const testWidth = measureText(font, testLine);
 
         if (testWidth > maxWidth && n > 0) {
-            that = that.print(
+            this.print(
                 font,
                 x + xOffsetBasedOnAlignment(font, line, maxWidth, alignmentX),
                 y,
@@ -4069,10 +4060,10 @@ Jimp.prototype.print = function(font, x, y, text, maxWidth, maxHeight, cb) {
     );
 
     if (isNodePattern(cb)) {
-        return cb.call(this, null, that);
+        return cb.call(this, null, this);
     }
 
-    return that;
+    return this;
 };
 
 function xOffsetBasedOnAlignment(font, line, maxWidth, alignment) {
@@ -4172,7 +4163,6 @@ Jimp.prototype.write = function(path, cb) {
         return throwError.call(this, 'cb must be a function', cb);
     }
 
-    const that = this;
     const mime = MIME.getType(path);
     const pathObj = Path.parse(path);
 
@@ -4182,7 +4172,7 @@ Jimp.prototype.write = function(path, cb) {
 
     this.getBuffer(mime, (err, buffer) => {
         if (err) {
-            return throwError.call(that, err, cb);
+            return throwError.call(this, err, cb);
         }
 
         const stream = FS.createWriteStream(path);
@@ -4193,10 +4183,10 @@ Jimp.prototype.write = function(path, cb) {
                 stream.end();
             })
             .on('error', err => {
-                return throwError.call(that, err, cb);
+                return throwError.call(this, err, cb);
             });
         stream.on('finish', () => {
-            return cb.call(that, null, that);
+            return cb.call(this, null, this);
         });
     });
 
