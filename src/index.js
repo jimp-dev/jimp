@@ -18,6 +18,7 @@ import rawBody from 'raw-body';
 import fileType from 'file-type';
 import pixelMatch from 'pixelmatch';
 import EXIFParser from 'exif-parser';
+import sourceMaps from 'source-map-support';
 
 import ImagePHash from './modules/phash';
 import request from './request';
@@ -126,6 +127,8 @@ function jimpEvChange(methodName, method) {
 class Jimp extends EventEmitter {
     constructor() {
         super();
+        sourceMaps.install();
+
         const that = this;
         let cb = noop;
 

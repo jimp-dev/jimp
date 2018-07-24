@@ -29,7 +29,7 @@
     "test:old": "./test/tests.sh",
     "browser-build": "node tools/browser-build.js test",
     "build": "npm run build:browser && npm run build:node",
-    "build:node": "babel src -d dist",
+    "build:node": "babel src -d dist --source-maps",
     "build:browser": "node tools/browser-build.js prepublish"
   },
   "keywords": [
@@ -88,6 +88,7 @@
     "nyc": "^12.0.2",
     "prettier": "^1.13.7",
     "should": "^13.2.1",
+    "source-map-support": "^0.5.6",
     "uglify-js": "^3.4.5",
     "xo": "^0.21.1"
   },
@@ -158,6 +159,11 @@
     ]
   },
   "nyc": {
-    "reporter"   : ["text", "text-summary", "lcov", "html"]
+    "reporter": [
+      "text",
+      "text-summary",
+      "lcov",
+      "html"
+    ]
   }
 }
