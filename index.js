@@ -14,7 +14,6 @@ const tinyColor = require('tinycolor2');
 const BigNumber = require('bignumber.js');
 const bMFont = require('load-bmfont');
 const MkDirP = require('mkdirp');
-const rawBody = require('raw-body');
 const fileType = require('file-type');
 const pixelMatch = require('pixelmatch');
 const EXIFParser = require('exif-parser');
@@ -3722,14 +3721,8 @@ Jimp.prototype.getBuffer = function(mime, cb) {
                 png.data = compositeBitmapOverBackground(this).data;
             }
 
-            rawBody(png.pack(), {}, (err, buffer) => {
-                if (err) {
-                    return throwError.call(this, err, cb);
-                }
-
-                return cb.call(this, null, buffer);
-            });
-            break;
+            const buffer = PNG.sync.write(png);
+            return cb.call(this, null, buffer);
         }
 
         case Jimp.MIME_JPEG: {
