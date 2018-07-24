@@ -132,6 +132,34 @@ function jimpEvChange(methodName, method) {
  */
 
 class Jimp extends EventEmitter {
+    // An object representing a bitmap in memory, comprising:
+    //  - data: a buffer of the bitmap data
+    //  - width: the width of the image in pixels
+    //  - height: the height of the image in pixels
+    bitmap = {
+        data: null,
+        width: null,
+        height: null
+    };
+
+    // The quality to be used when saving JPEG images
+    _quality = 100;
+    _deflateLevel = 9;
+    _deflateStrategy = 3;
+    _filterType = Jimp.PNG_FILTER_AUTO;
+
+    // Whether PNGs will be exported as RGB or RGBA
+    _rgba = true;
+
+    // Default colour to use for new pixels
+    _background = 0x00000000;
+
+    // Default MIME is PNG
+    _originalMime = Jimp.MIME_PNG;
+
+    // Exif data for the image
+    _exif = null;
+
     constructor() {
         super();
 
@@ -728,34 +756,6 @@ Jimp.distance = function(img1, img2) {
 
     return phash.distance(hash1, hash2);
 };
-
-// An object representing a bitmap in memory, comprising:
-//  - data: a buffer of the bitmap data
-//  - width: the width of the image in pixels
-//  - height: the height of the image in pixels
-Jimp.prototype.bitmap = {
-    data: null,
-    width: null,
-    height: null
-};
-
-// The quality to be used when saving JPEG images
-Jimp.prototype._quality = 100;
-Jimp.prototype._deflateLevel = 9;
-Jimp.prototype._deflateStrategy = 3;
-Jimp.prototype._filterType = Jimp.PNG_FILTER_AUTO;
-
-// Whether PNGs will be exported as RGB or RGBA
-Jimp.prototype._rgba = true;
-
-// Default colour to use for new pixels
-Jimp.prototype._background = 0x00000000;
-
-// Default MIME is PNG
-Jimp.prototype._originalMime = Jimp.MIME_PNG;
-
-// Exif data for the image
-Jimp.prototype._exif = null;
 
 /**
  * Creates a new image that is a clone of this one.
