@@ -4226,4 +4226,4 @@ if (process.env.ENVIRONMENT === 'BROWSER') {
     gl.Buffer = Buffer;
 }
 
-module.exports = Jimp;
+export default Jimp;

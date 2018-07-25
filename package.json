@@ -70,6 +70,7 @@
     "babel-cli": "6.26.0",
     "babel-core": "^6.26.3",
     "babel-eslint": "^8.2.6",
+    "babel-plugin-add-module-exports": "^0.3.2",
     "babel-plugin-conditional-compile": "^0.0.5",
     "babel-preset-env": "^1.7.0",
     "babel-preset-stage-0": "6.24.1",
@@ -158,23 +159,32 @@
       ],
       "stage-0"
     ],
+    "plugins": [
+      "add-module-exports"
+    ],
     "env": {
       "development": {
         "plugins": [
-          ["conditional-compile", {
+          [
+            "conditional-compile",
+            {
               "define": {
                 "TARGET": "development"
               }
-          }]
+            }
+          ]
         ]
       },
       "production": {
         "plugins": [
-          ["conditional-compile", {
+          [
+            "conditional-compile",
+            {
               "define": {
                 "TARGET": "production"
               }
-          }]
+            }
+          ]
         ]
       }
     }
