@@ -22,7 +22,7 @@
     "test:browser:run": "npm run -s test:karma run",
     "test:browser:once": "npm run -s test:karma start -- --single-run",
     "test:browser:watch": "npm run -s test:karma start -- --auto-watch",
-    "test:node:run": "mocha --require babel-register",
+    "test:node:run": "BABEL_ENV=development mocha --require babel-register",
     "test:node:once": "nyc npm run test:node:run",
     "test:node:watch": "mocha --reporter min --watch ./test/*.test.js",
     "test": "npm run -s test:node:once && npm run -s test:browser:once",
@@ -147,6 +147,8 @@
     }
   },
   "babel": {
+    "sourceMaps": "inline",
+    "retainLines": true,
     "presets": [
       [
         "env",
