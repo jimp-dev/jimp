@@ -25,10 +25,12 @@ import Resize2 from './modules/resize2';
 import { log, clear } from './utils/log';
 import { isNodePattern, throwError } from './utils/error-checking';
 
-const sourceMaps =
-    process.env.BABEL_ENV === 'development'
-        ? require('source-map-support')
-        : { install: () => {} };
+if (
+    process.env.BABEL_ENV === 'development' &&
+    process.env.ENVIRONMENT !== 'BROWSER'
+) {
+    require('source-map-support').install();
+}
 
 const isDef = v => typeof v !== 'undefined' && v !== null;
 
@@ -130,7 +132,6 @@ function jimpEvChange(methodName, method) {
 class Jimp extends EventEmitter {
     constructor() {
         super();
-        sourceMaps.install();
 
         const jimpInstance = this;
         let cb = noop;

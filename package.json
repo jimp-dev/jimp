@@ -29,11 +29,12 @@
     "test:old": "./test/tests.sh",
     "browser-build": "node tools/browser-build.js test",
     "build": "npm run build:browser && npm run build:node:production",
-    "build:debug": "npm run build:browser && npm run build:node:debug",
+    "build:debug": "npm run build:browser:debug && npm run build:node:debug",
     "build:node": "babel src -d dist --source-maps",
     "build:node:debug": "BABEL_ENV=development npm run build:node",
     "build:node:production": "BABEL_ENV=production npm run build:node",
-    "build:browser": "BABEL_ENV=production node tools/browser-build.js prepublish"
+    "build:browser": "BABEL_ENV=production node tools/browser-build.js prepublish",
+    "build:browser:debug": "BABEL_ENV=development node tools/browser-build.js prepublish"
   },
   "keywords": [
     "image",
