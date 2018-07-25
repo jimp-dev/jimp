@@ -20,7 +20,7 @@ import * as color from './image-manipulation/color';
 import * as effects from './image-manipulation/effects';
 
 import { log, clear } from './utils/log';
-import { parseBitmap, getBuffer } from './utils/read-write-image';
+import { parseBitmap, getBuffer } from './utils/image-bitmap';
 import { isNodePattern, throwError } from './utils/error-checking';
 import * as constants from './constants';
 
