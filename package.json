@@ -72,6 +72,7 @@
     "babel-eslint": "^8.2.6",
     "babel-plugin-add-module-exports": "^0.3.2",
     "babel-plugin-conditional-compile": "^0.0.5",
+    "babel-plugin-istanbul": "^4.1.6",
     "babel-preset-env": "^1.7.0",
     "babel-preset-stage-0": "6.24.1",
     "babelify": "^8.0.0",
@@ -167,6 +168,7 @@
     "env": {
       "development": {
         "plugins": [
+          "istanbul",
           [
             "conditional-compile",
             {
