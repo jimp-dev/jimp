@@ -1,4 +1,3 @@
-/* global TARGET */
 /* eslint-disable no-labels */
 
 import FS from 'fs';
@@ -27,7 +26,7 @@ import { log, clear } from './utils/log';
 import { isNodePattern, throwError } from './utils/error-checking';
 
 const sourceMaps =
-    TARGET === 'development'
+    process.env.BABEL_ENV === 'development'
         ? require('source-map-support')
         : { install: () => {} };
 
