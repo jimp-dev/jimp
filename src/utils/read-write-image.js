@@ -81,7 +81,7 @@ function exifRotate(img) {
 }
 
 // parses a bitmap from the constructor to the JIMP bitmap property
-export default function parseBitmap(data, path, cb) {
+export function parseBitmap(data, path, cb) {
     const mime = getMIMEFromBuffer(data, path);
 
     if (typeof mime !== 'string') {
@@ -149,5 +149,89 @@ export default function parseBitmap(data, path, cb) {
 
         default:
             return throwError.call(this, 'Unsupported MIME type: ' + mime, cb);
+    }
+}
+
+function compositeBitmapOverBackground(Jimp, image) {
+    return new Jimp(
+        image.bitmap.width,
+        image.bitmap.height,
+        image._background
+    ).composite(image, 0, 0).bitmap;
+}
+
+/**
+ * Converts the image to a buffer
+ * @param mime the mime type of the image buffer to be created
+ * @param cb a Node-style function to call with the buffer as the second argument
+ * @returns this for chaining of methods
+ */
+export function getBuffer(mime, cb) {
+    if (mime === constants.AUTO) {
+        // allow auto MIME detection
+        mime = this.getMIME();
+    }
+
+    if (typeof mime !== 'string') {
+        return throwError.call(this, 'mime must be a string', cb);
+    }
+
+    if (typeof cb !== 'function') {
+        return throwError.call(this, 'cb must be a function', cb);
+    }
+    console.log(mime);
+    switch (mime.toLowerCase()) {
+        case constants.MIME_PNG: {
+            const png = new PNG({
+                width: this.bitmap.width,
+                height: this.bitmap.height,
+                bitDepth: 8,
+                deflateLevel: this._deflateLevel,
+                deflateStrategy: this._deflateStrategy,
+                filterType: this._filterType,
+                colorType: this._rgba ? 6 : 2,
+                inputHasAlpha: true
+            });
+
+            if (this._rgba) {
+                png.data = Buffer.from(this.bitmap.data);
+            } else {
+                // when PNG doesn't support alpha
+                png.data = compositeBitmapOverBackground(
+                    this.constructor,
+                    this
+                ).data;
+            }
+
+            const buffer = PNG.sync.write(png);
+            return cb.call(this, null, buffer);
+        }
+
+        case constants.MIME_JPEG: {
+            // composite onto a new image so that the background shows through alpha channels
+            const jpeg = JPEG.encode(
+                compositeBitmapOverBackground(this.constructor, this),
+                this._quality
+            );
+            return cb.call(this, null, jpeg.data);
+        }
+
+        case constants.MIME_BMP:
+        case constants.MIME_X_MS_BMP: {
+            // composite onto a new image so that the background shows through alpha channels
+            const bmp = BMP.encode(
+                compositeBitmapOverBackground(this.constructor, this)
+            );
+            return cb.call(this, null, bmp.data);
+        }
+
+        case constants.MIME_TIFF: {
+            const c = compositeBitmapOverBackground(this.constructor, this);
+            const tiff = UTIF.encodeImage(c.data, c.width, c.height);
+            return cb.call(this, null, Buffer.from(tiff));
+        }
+
+        default:
+            return cb.call(this, 'Unsupported MIME type: ' + mime);
     }
 }

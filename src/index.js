@@ -5,11 +5,6 @@ import FS from 'fs';
 import Path from 'path';
 import EventEmitter from 'events';
 
-import { PNG } from 'pngjs';
-import JPEG from 'jpeg-js';
-import BMP from 'bmp-js';
-import GIF from 'omggif';
-import UTIF from 'utif';
 import MIME from 'mime';
 import BigNumber from 'bignumber.js';
 import bMFont from 'load-bmfont';
@@ -19,17 +14,13 @@ import pixelMatch from 'pixelmatch';
 import ImagePHash from './modules/phash';
 import request from './request';
 
-import * as text from './functions/text';
-import * as shape from './functions/shape';
-import * as color from './functions/color';
-import * as effects from './functions/effects';
 import * as text from './image-manipulation/text';
 import * as shape from './image-manipulation/shape';
 import * as color from './image-manipulation/color';
 import * as effects from './image-manipulation/effects';
 
 import { log, clear } from './utils/log';
-import parseBitmap from './utils/parse-bitmap';
+import { parseBitmap, getBuffer } from './utils/read-write-image';
 import { isNodePattern, throwError } from './utils/error-checking';
 import * as constants from './constants';
 
@@ -117,14 +108,6 @@ const emptyBitmap = {
     width: null,
     height: null
 };
-
-function compositeBitmapOverBackground(image) {
-    return new Jimp(
-        image.bitmap.width,
-        image.bitmap.height,
-        image._background
-    ).composite(image, 0, 0).bitmap;
-}
 
 /**
  * Jimp constructor (from a file)
@@ -656,70 +639,7 @@ class Jimp extends EventEmitter {
      * @param cb a Node-style function to call with the buffer as the second argument
      * @returns this for chaining of methods
      */
-    getBuffer(mime, cb) {
-        if (mime === Jimp.AUTO) {
-            // allow auto MIME detection
-            mime = this.getMIME();
-        }
-
-        if (typeof mime !== 'string') {
-            return throwError.call(this, 'mime must be a string', cb);
-        }
-
-        if (typeof cb !== 'function') {
-            return throwError.call(this, 'cb must be a function', cb);
-        }
-
-        switch (mime.toLowerCase()) {
-            case Jimp.MIME_PNG: {
-                const png = new PNG({
-                    width: this.bitmap.width,
-                    height: this.bitmap.height,
-                    bitDepth: 8,
-                    deflateLevel: this._deflateLevel,
-                    deflateStrategy: this._deflateStrategy,
-                    filterType: this._filterType,
-                    colorType: this._rgba ? 6 : 2,
-                    inputHasAlpha: true
-                });
-
-                if (this._rgba) {
-                    png.data = Buffer.from(this.bitmap.data);
-                } else {
-                    // when PNG doesn't support alpha
-                    png.data = compositeBitmapOverBackground(this).data;
-                }
-
-                const buffer = PNG.sync.write(png);
-                return cb.call(this, null, buffer);
-            }
-
-            case Jimp.MIME_JPEG: {
-                // composite onto a new image so that the background shows through alpha channels
-                const jpeg = JPEG.encode(
-                    compositeBitmapOverBackground(this),
-                    this._quality
-                );
-                return cb.call(this, null, jpeg.data);
-            }
-
-            case Jimp.MIME_BMP:
-            case Jimp.MIME_X_MS_BMP: {
-                // composite onto a new image so that the background shows through alpha channels
-                const bmp = BMP.encode(compositeBitmapOverBackground(this));
-                return cb.call(this, null, bmp.data);
-            }
-
-            case Jimp.MIME_TIFF: {
-                const c = compositeBitmapOverBackground(this);
-                const tiff = UTIF.encodeImage(c.data, c.width, c.height);
-                return cb.call(this, null, Buffer.from(tiff));
-            }
-
-            default:
-                return cb.call(this, 'Unsupported MIME type: ' + mime);
-        }
-    }
+    getBuffer = getBuffer;
 
     /**
      * Returns the offset of a pixel in the bitmap buffer
@@ -1116,7 +1036,9 @@ Jimp.loadFont = function(file, cb) {
             const chars = {};
             const kernings = {};
 
-            if (err) return throwError.call(this, err, cb);
+            if (err) {
+                return throwError.call(this, err, cb);
+            }
 
             for (let i = 0; i < font.chars.length; i++) {
                 chars[String.fromCharCode(font.chars[i].id)] = font.chars[i];
