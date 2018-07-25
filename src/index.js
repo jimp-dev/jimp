@@ -22,6 +22,11 @@ import * as text from './functions/text';
 import * as shape from './functions/shape';
 import * as color from './functions/color';
 import * as effects from './functions/effects';
+import * as text from './image-manipulation/text';
+import * as shape from './image-manipulation/shape';
+import * as color from './image-manipulation/color';
+import * as effects from './image-manipulation/effects';
+
 import { log, clear } from './utils/log';
 import parseBitmap from './utils/parse-bitmap';
 import { isNodePattern, throwError } from './utils/error-checking';
