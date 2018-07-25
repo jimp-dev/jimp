@@ -104,6 +104,12 @@ function jimpEvChange(methodName, method) {
     jimpEvMethod(methodName, 'change', method);
 }
 
+const emptyBitmap = {
+    data: null,
+    width: null,
+    height: null
+};
+
 /**
  * Jimp constructor (from a file)
  * @param path a path to the image
@@ -134,11 +140,7 @@ class Jimp extends EventEmitter {
     //  - data: a buffer of the bitmap data
     //  - width: the width of the image in pixels
     //  - height: the height of the image in pixels
-    bitmap = {
-        data: null,
-        width: null,
-        height: null
-    };
+    bitmap = emptyBitmap;
 
     // The quality to be used when saving JPEG images
     _quality = 100;
@@ -327,6 +329,40 @@ class Jimp extends EventEmitter {
             }
         }
     }
+
+    /**
+     * Emit for multiple listeners
+     */
+    emitMulti(methodName, eventName, data = {}) {
+        data = Object.assign(data, { methodName, eventName });
+        this.emit('any', data);
+
+        if (methodName) {
+            this.emit(methodName, data);
+        }
+
+        this.emit(eventName, data);
+    }
+
+    emitError(methodName, err) {
+        this.emitMulti(methodName, 'error', err);
+    }
+
+    /* Nicely format Jimp object when sent to the console e.g. console.log(imgage) */
+    inspect() {
+        return (
+            '<Jimp ' +
+            (this.bitmap === emptyBitmap
+                ? 'pending...'
+                : this.bitmap.width + 'x' + this.bitmap.height) +
+            '>'
+        );
+    }
+
+    // Nicely format Jimp object when converted to a string
+    toString() {
+        return '[object Jimp]';
+    }
 }
 
 Object.entries(constants).map(([name, value]) => (Jimp[name] = value));
@@ -407,24 +443,6 @@ Jimp.__extraConstructors = [];
  */
 Jimp.appendConstructorOption = function(name, test, run) {
     Jimp.__extraConstructors.push({ name, test, run });
-};
-
-/**
- * Emit for multiple listeners
- */
-Jimp.prototype.emitMulti = function(methodName, eventName, data = {}) {
-    data = Object.assign(data, { methodName, eventName });
-    this.emit('any', data);
-
-    if (methodName) {
-        this.emit(methodName, data);
-    }
-
-    this.emit(eventName, data);
-};
-
-Jimp.prototype.emitError = function(methodName, err) {
-    this.emitMulti(methodName, 'error', err);
 };
 
 /**
@@ -2114,22 +2132,6 @@ Jimp.prototype.write = function(path, cb) {
     });
 
     return this;
-};
-
-/* Nicely format Jimp object when sent to the console e.g. console.log(imgage) */
-Jimp.prototype.inspect = function() {
-    return (
-        '<Jimp ' +
-        (this.bitmap === Jimp.prototype.bitmap
-            ? 'pending...'
-            : this.bitmap.width + 'x' + this.bitmap.height) +
-        '>'
-    );
-};
-
-// Nicely format Jimp object when converted to a string
-Jimp.prototype.toString = function() {
-    return '[object Jimp]';
 };
 
 if (process.env.ENVIRONMENT === 'BROWSER') {
