@@ -185,7 +185,7 @@ export function getBuffer(mime, cb) {
     if (typeof cb !== 'function') {
         return throwError.call(this, 'cb must be a function', cb);
     }
-    console.log(mime);
+
     switch (mime.toLowerCase()) {
         case constants.MIME_PNG: {
             const png = new PNG({
