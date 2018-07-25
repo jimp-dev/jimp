@@ -22,7 +22,7 @@
     "test:browser:run": "npm run -s test:karma run",
     "test:browser:once": "npm run -s test:karma start -- --single-run",
     "test:browser:watch": "npm run -s test:karma start -- --auto-watch",
-    "test:node:run": "mocha --compilers js:babel-core/register",
+    "test:node:run": "mocha --require babel-register",
     "test:node:once": "nyc npm run test:node:run",
     "test:node:watch": "mocha --reporter min --watch ./test/*.test.js",
     "test": "npm run -s test:node:once && npm run -s test:browser:once",
@@ -195,6 +195,10 @@
       "text-summary",
       "lcov",
       "html"
+    ],
+    "exclude": [
+      "src/modules/*.js",
+      "test/*.js"
     ]
   }
 }
