@@ -11,13 +11,10 @@ import BMP from 'bmp-js';
 import GIF from 'omggif';
 import UTIF from 'utif';
 import MIME from 'mime';
-import tinyColor from 'tinycolor2';
 import BigNumber from 'bignumber.js';
 import bMFont from 'load-bmfont';
 import MkDirP from 'mkdirp';
-import fileType from 'file-type';
 import pixelMatch from 'pixelmatch';
-import EXIFParser from 'exif-parser';
 
 import ImagePHash from './modules/phash';
 import request from './request';
@@ -25,6 +22,7 @@ import request from './request';
 import * as shape from './functions/shape';
 import * as color from './functions/color';
 import { log, clear } from './utils/log';
+import parseBitmap from './utils/parse-bitmap';
 import { isNodePattern, throwError } from './utils/error-checking';
 import * as constants from './constants';
 
@@ -441,152 +439,6 @@ Jimp.read = function(src) {
         });
     });
 };
-
-// MIME type methods
-
-function getMIMEFromBuffer(buffer, path) {
-    const fileTypeFromBuffer = fileType(buffer);
-
-    if (fileTypeFromBuffer) {
-        // If fileType returns something for buffer, then return the mime given
-        return fileTypeFromBuffer.mime;
-    }
-
-    if (path) {
-        // If a path is supplied, and fileType yields no results, then retry with MIME
-        // Path can be either a file path or a url
-        return MIME.getType(path);
-    }
-
-    return null;
-}
-
-// gets image data from a GIF buffer
-function getBitmapFromGIF(data) {
-    const gifObj = new GIF.GifReader(data);
-    const gifData = Buffer.alloc(gifObj.width * gifObj.height * 4);
-
-    gifObj.decodeAndBlitFrameRGBA(0, gifData);
-
-    return {
-        data: gifData,
-        width: gifObj.width,
-        height: gifObj.height
-    };
-}
-
-// parses a bitmap from the constructor to the JIMP bitmap property
-function parseBitmap(data, path, cb) {
-    const mime = getMIMEFromBuffer(data, path);
-
-    if (typeof mime !== 'string') {
-        return cb(new Error('Could not find MIME for Buffer <' + path + '>'));
-    }
-
-    this._originalMime = mime.toLowerCase();
-
-    switch (this.getMIME()) {
-        case Jimp.MIME_PNG: {
-            const png = new PNG();
-            png.parse(data, (err, data) => {
-                if (err) {
-                    return throwError.call(this, err, cb);
-                }
-
-                this.bitmap = {
-                    data: Buffer.from(data.data),
-                    width: data.width,
-                    height: data.height
-                };
-                return cb.call(this, null, this);
-            });
-            break;
-        }
-
-        case Jimp.MIME_JPEG:
-            try {
-                this.bitmap = JPEG.decode(data);
-
-                try {
-                    this._exif = EXIFParser.create(data).parse();
-                    exifRotate(this); // EXIF data
-                } catch (err) {
-                    /* meh */
-                }
-                return cb.call(this, null, this);
-            } catch (err) {
-                return cb.call(this, err, this);
-            }
-
-        case Jimp.MIME_TIFF: {
-            const ifds = UTIF.decode(data);
-            const page = ifds[0];
-            UTIF.decodeImages(data, ifds);
-            const rgba = UTIF.toRGBA8(page);
-
-            this.bitmap = {
-                data: Buffer.from(rgba),
-                width: page.t256[0],
-                height: page.t257[0]
-            };
-
-            return cb.call(this, null, this);
-        }
-
-        case Jimp.MIME_BMP:
-        case Jimp.MIME_X_MS_BMP:
-            this.bitmap = BMP.decode(data);
-            return cb.call(this, null, this);
-
-        case Jimp.MIME_GIF:
-            this.bitmap = getBitmapFromGIF(data);
-            return cb.call(this, null, this);
-
-        default:
-            return throwError.call(this, 'Unsupported MIME type: ' + mime, cb);
-    }
-}
-
-/*
- * Automagically rotates an image based on its EXIF data (if present)
- * @param img a Jimp object
-*/
-function exifRotate(img) {
-    const exif = img._exif;
-
-    if (exif && exif.tags && exif.tags.Orientation) {
-        switch (img._exif.tags.Orientation) {
-            case 1: // Horizontal (normal)
-                // do nothing
-                break;
-            case 2: // Mirror horizontal
-                img.mirror(true, false);
-                break;
-            case 3: // Rotate 180
-                img.rotate(180, false);
-                break;
-            case 4: // Mirror vertical
-                img.mirror(false, true);
-                break;
-            case 5: // Mirror horizontal and rotate 270 CW
-                img.rotate(-90, false).mirror(true, false);
-                break;
-            case 6: // Rotate 90 CW
-                img.rotate(-90, false);
-                break;
-            case 7: // Mirror horizontal and rotate 90 CW
-                img.rotate(90, false).mirror(true, false);
-                break;
-            case 8: // Rotate 270 CW
-                img.rotate(-270, false);
-                break;
-            default:
-                break;
-        }
-    }
-
-    return img;
-}
 
 /**
  * A static helper method that converts RGBA values to a single integer value
@@ -1960,91 +1812,6 @@ Jimp.prototype.dither565 = function(cb) {
 
 // alternative reference
 Jimp.prototype.dither16 = Jimp.prototype.dither565;
-
-/**
- * Apply multiple color modification rules
- * @param actions list of color modification rules, in following format: { apply: '<rule-name>', params: [ <rule-parameters> ]  }
- * @param (optional) cb a callback for when complete
- * @returns this for chaining of methods
- */
-function colorFn(actions, cb) {
-    if (!actions || !Array.isArray(actions)) {
-        return throwError.call(this, 'actions must be an array', cb);
-    }
-
-    const originalScope = this;
-    this.scanQuiet(0, 0, this.bitmap.width, this.bitmap.height, function(
-        x,
-        y,
-        idx
-    ) {
-        let clr = tinyColor({
-            r: this.bitmap.data[idx],
-            g: this.bitmap.data[idx + 1],
-            b: this.bitmap.data[idx + 2]
-        });
-
-        const colorModifier = function(i, amount) {
-            const c = clr.toRgb();
-            c[i] = Math.max(0, Math.min(c[i] + amount, 255));
-            return tinyColor(c);
-        };
-
-        actions.forEach(action => {
-            if (action.apply === 'mix') {
-                clr = tinyColor.mix(clr, action.params[0], action.params[1]);
-            } else if (action.apply === 'tint') {
-                clr = tinyColor.mix(clr, 'white', action.params[0]);
-            } else if (action.apply === 'shade') {
-                clr = tinyColor.mix(clr, 'black', action.params[0]);
-            } else if (action.apply === 'xor') {
-                const clr2 = tinyColor(action.params[0]).toRgb();
-                clr = clr.toRgb();
-                clr = tinyColor({
-                    r: clr.r ^ clr2.r,
-                    g: clr.g ^ clr2.g,
-                    b: clr.b ^ clr2.b
-                });
-            } else if (action.apply === 'red') {
-                clr = colorModifier('r', action.params[0]);
-            } else if (action.apply === 'green') {
-                clr = colorModifier('g', action.params[0]);
-            } else if (action.apply === 'blue') {
-                clr = colorModifier('b', action.params[0]);
-            } else {
-                if (action.apply === 'hue') {
-                    action.apply = 'spin';
-                }
-
-                const fn = clr[action.apply];
-
-                if (!fn) {
-                    return throwError.call(
-                        originalScope,
-                        'action ' + action.apply + ' not supported',
-                        cb
-                    );
-                }
-
-                clr = fn.apply(clr, action.params);
-            }
-        });
-
-        clr = clr.toRgb();
-        this.bitmap.data[idx] = clr.r;
-        this.bitmap.data[idx + 1] = clr.g;
-        this.bitmap.data[idx + 2] = clr.b;
-    });
-
-    if (isNodePattern(cb)) {
-        return cb.call(this, null, this);
-    }
-
-    return this;
-}
-
-Jimp.prototype.color = colorFn;
-Jimp.prototype.colour = colorFn;
 
 /**
  * Loads a bitmap font from a file
