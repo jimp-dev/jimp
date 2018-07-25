@@ -32,7 +32,7 @@
     "build:node": "babel src -d dist --source-maps",
     "build:node:production": "BABEL_ENV=production npm run build:node",
     "build:node:debug": "BABEL_ENV=development npm run build:node",
-    "build:browser": "node tools/browser-build.js prepublish"
+    "build:browser": "BABEL_ENV=production node tools/browser-build.js prepublish"
   },
   "keywords": [
     "image",

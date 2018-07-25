@@ -35,6 +35,7 @@ function bundle(files, config, callback) {
     console.error('Browserify ' + files.join(', ') + '...');
     config = Object.assign(
         {
+            standalone: 'jimp',
             ignoreMissing: true,
             fullPaths: false,
             debug: true,
