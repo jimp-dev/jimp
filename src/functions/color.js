@@ -1,4 +1,5 @@
 import { isNodePattern, throwError } from '../utils/error-checking';
+import * as constants from '../constants';
 import { mulTable, shgTable } from './blur-tables';
 
 /**
@@ -432,7 +433,7 @@ export function convolution(kernel, edgeHandling, cb) {
     }
 
     if (!edgeHandling) {
-        edgeHandling = Jimp.EDGE_EXTEND;
+        edgeHandling = constants.EDGE_EXTEND;
     }
 
     const newData = Buffer.from(this.bitmap.data);
@@ -606,6 +607,267 @@ export function pixelate(size, x, y, w, h, cb) {
         this.bitmap.data[idx] = value[0];
         this.bitmap.data[idx + 1] = value[1];
         this.bitmap.data[idx + 2] = value[2];
+    });
+
+    if (isNodePattern(cb)) {
+        return cb.call(this, null, this);
+    }
+
+    return this;
+}
+
+/**
+ * Scale the image to the given width and height keeping the aspect ratio. Some parts of the image may be letter boxed.
+ * @param w the width to resize the image to
+ * @param h the height to resize the image to
+ * @param (optional) alignBits A bitmask for horizontal and vertical alignment
+ * @param (optional) mode a scaling method (e.g. Jimp.RESIZE_BEZIER)
+ * @param (optional) cb a callback for when complete
+ * @returns this for chaining of methods
+ */
+export function contain(w, h, alignBits, mode, cb) {
+    if (typeof w !== 'number' || typeof h !== 'number') {
+        return throwError.call(this, 'w and h must be numbers', cb);
+    }
+
+    // permit any sort of optional parameters combination
+    if (typeof alignBits === 'string') {
+        if (typeof mode === 'function' && typeof cb === 'undefined') cb = mode;
+        mode = alignBits;
+        alignBits = null;
+    }
+
+    if (typeof alignBits === 'function') {
+        if (typeof cb === 'undefined') cb = alignBits;
+        mode = null;
+        alignBits = null;
+    }
+
+    if (typeof mode === 'function' && typeof cb === 'undefined') {
+        cb = mode;
+        mode = null;
+    }
+
+    alignBits =
+        alignBits ||
+        constants.HORIZONTAL_ALIGN_CENTER | constants.VERTICAL_ALIGN_MIDDLE;
+    const hbits = alignBits & ((1 << 3) - 1);
+    const vbits = alignBits >> 3;
+
+    // check if more flags than one is in the bit sets
+    if (
+        !(
+            (hbits !== 0 && !(hbits & (hbits - 1))) ||
+            (vbits !== 0 && !(vbits & (vbits - 1)))
+        )
+    ) {
+        return throwError.call(
+            this,
+            'only use one flag per alignment direction',
+            cb
+        );
+    }
+
+    const alignH = hbits >> 1; // 0, 1, 2
+    const alignV = vbits >> 1; // 0, 1, 2
+
+    const f =
+        w / h > this.bitmap.width / this.bitmap.height
+            ? h / this.bitmap.height
+            : w / this.bitmap.width;
+    const c = this.cloneQuiet().scale(f, mode);
+
+    this.resize(w, h, mode);
+    this.scanQuiet(0, 0, this.bitmap.width, this.bitmap.height, function(
+        x,
+        y,
+        idx
+    ) {
+        this.bitmap.data.writeUInt32BE(this._background, idx);
+    });
+    this.blit(
+        c,
+        ((this.bitmap.width - c.bitmap.width) / 2) * alignH,
+        ((this.bitmap.height - c.bitmap.height) / 2) * alignV
+    );
+
+    if (isNodePattern(cb)) {
+        return cb.call(this, null, this);
+    }
+
+    return this;
+}
+
+/**
+ * Uniformly scales the image by a factor.
+ * @param f the factor to scale the image by
+ * @param (optional) mode a scaling method (e.g. Jimp.RESIZE_BEZIER)
+ * @param (optional) cb a callback for when complete
+ * @returns this for chaining of methods
+ */
+export function scale(f, mode, cb) {
+    if (typeof f !== 'number') {
+        return throwError.call(this, 'f must be a number', cb);
+    }
+
+    if (f < 0) {
+        return throwError.call(this, 'f must be a positive number', cb);
+    }
+
+    if (typeof mode === 'function' && typeof cb === 'undefined') {
+        cb = mode;
+        mode = null;
+    }
+
+    const w = this.bitmap.width * f;
+    const h = this.bitmap.height * f;
+    this.resize(w, h, mode);
+
+    if (isNodePattern(cb)) {
+        return cb.call(this, null, this);
+    }
+
+    return this;
+}
+
+/**
+ * Scale the image to the largest size that fits inside the rectangle that has the given width and height.
+ * @param w the width to resize the image to
+ * @param h the height to resize the image to
+ * @param (optional) mode a scaling method (e.g. Jimp.RESIZE_BEZIER)
+ * @param (optional) cb a callback for when complete
+ * @returns this for chaining of methods
+ */
+export function scaleToFit(w, h, mode, cb) {
+    if (typeof w !== 'number' || typeof h !== 'number') {
+        return throwError.call(this, 'w and h must be numbers', cb);
+    }
+
+    if (typeof mode === 'function' && typeof cb === 'undefined') {
+        cb = mode;
+        mode = null;
+    }
+
+    const f =
+        w / h > this.bitmap.width / this.bitmap.height
+            ? h / this.bitmap.height
+            : w / this.bitmap.width;
+    this.scale(f, mode);
+
+    if (isNodePattern(cb)) {
+        return cb.call(this, null, this);
+    }
+
+    return this;
+}
+
+function applyKernel(im, kernel, x, y) {
+    const value = [0, 0, 0];
+    const size = (kernel.length - 1) / 2;
+
+    for (let kx = 0; kx < kernel.length; kx += 1) {
+        for (let ky = 0; ky < kernel[kx].length; ky += 1) {
+            const idx = im.getPixelIndex(x + kx - size, y + ky - size);
+
+            value[0] += im.bitmap.data[idx] * kernel[kx][ky];
+            value[1] += im.bitmap.data[idx + 1] * kernel[kx][ky];
+            value[2] += im.bitmap.data[idx + 2] * kernel[kx][ky];
+        }
+    }
+    return value;
+}
+
+/**
+ * Applies a convolution kernel to the image or a region
+ * @param kernel the convolution kernel
+ * @param (optional) x the x position of the region to apply convolution to
+ * @param (optional) y the y position of the region to apply convolution to
+ * @param (optional) w the width of the region to apply convolution to
+ * @param (optional) h the height of the region to apply convolution to
+ * @param (optional) cb a callback for when complete
+ * @returns this for chaining of methods
+ */
+export function convolute(kernel, x, y, w, h, cb) {
+    if (!Array.isArray(kernel))
+        return throwError.call(this, 'the kernel must be an array', cb);
+
+    if (typeof x === 'function') {
+        cb = x;
+        x = null;
+        y = null;
+        w = null;
+        h = null;
+    } else {
+        if (isDef(x) && typeof x !== 'number') {
+            return throwError.call(this, 'x must be a number', cb);
+        }
+
+        if (isDef(y) && typeof y !== 'number') {
+            return throwError.call(this, 'y must be a number', cb);
+        }
+
+        if (isDef(w) && typeof w !== 'number') {
+            return throwError.call(this, 'w must be a number', cb);
+        }
+
+        if (isDef(h) && typeof h !== 'number') {
+            return throwError.call(this, 'h must be a number', cb);
+        }
+    }
+
+    const ksize = (kernel.length - 1) / 2;
+
+    x = isDef(x) ? x : ksize;
+    y = isDef(y) ? y : ksize;
+    w = isDef(w) ? w : this.bitmap.width - x;
+    h = isDef(h) ? h : this.bitmap.height - y;
+
+    const source = this.cloneQuiet();
+
+    this.scanQuiet(x, y, w, h, function(xx, yx, idx) {
+        const value = applyKernel(source, kernel, xx, yx);
+
+        this.bitmap.data[idx] = value[0];
+        this.bitmap.data[idx + 1] = value[1];
+        this.bitmap.data[idx + 2] = value[2];
+    });
+
+    if (isNodePattern(cb)) {
+        return cb.call(this, null, this);
+    }
+
+    return this;
+}
+
+/**
+ * Displaces the image based on the provided displacement map
+ * @param map the source Jimp instance
+ * @param offset the maximum displacement value
+ * @param (optional) cb a callback for when complete
+ * @returns this for chaining of methods
+ */
+export function displace(map, offset, cb) {
+    if (typeof map !== 'object' || map.constructor !== Jimp) {
+        return throwError.call(this, 'The source must be a Jimp image', cb);
+    }
+
+    if (typeof offset !== 'number') {
+        return throwError.call(this, 'factor must be a number', cb);
+    }
+
+    const source = this.cloneQuiet();
+    this.scanQuiet(0, 0, this.bitmap.width, this.bitmap.height, function(
+        x,
+        y,
+        idx
+    ) {
+        let displacement = (map.bitmap.data[idx] / 256) * offset;
+        displacement = Math.round(displacement);
+
+        const ids = this.getPixelIndex(x + displacement, y);
+        this.bitmap.data[ids] = source.bitmap.data[idx];
+        this.bitmap.data[ids + 1] = source.bitmap.data[idx + 1];
+        this.bitmap.data[ids + 2] = source.bitmap.data[idx + 2];
     });
 
     if (isNodePattern(cb)) {
