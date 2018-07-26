@@ -2,7 +2,7 @@ const { Jimp, mkJGD } = require('./test-helper');
 
 describe('Convolution', () => {
     const imgs = [
-        Jimp.read(
+        new Jimp(
             mkJGD(
                 '22222222',
                 '22222222',
@@ -14,7 +14,7 @@ describe('Convolution', () => {
                 '22222222'
             )
         ),
-        Jimp.read(
+        new Jimp(
             mkJGD(
                 '88222222',
                 '88222222',

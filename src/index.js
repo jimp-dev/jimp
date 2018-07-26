@@ -261,9 +261,11 @@ class Jimp extends EventEmitter {
             .filter(([name]) => name[0] !== '_')
             .forEach(([method, func]) => {
                 p[method] = (...args) =>
-                    this.jimpPromise(resolve =>
-                        p.then(image => resolve(this[method](...args)))
-                    );
+                    method.includes('Sync')
+                        ? image[method](...args)
+                        : this.jimpPromise(resolve =>
+                              p.then(image => resolve(this[method](...args)))
+                          );
             });
 
         return p;
@@ -274,9 +276,13 @@ class Jimp extends EventEmitter {
         sourceMaps.install();
 
         // add all methods
-        Object.entries({ ...color, ...shape, ...text, ...effects }).map(
-            ([name, value]) => (this[name] = value)
-        );
+        Object.entries({
+            ...color,
+            ...shape,
+            ...text,
+            ...effects,
+            ...Jimp.prototype
+        }).map(([name, value]) => (this[name] = value));
 
         const jimpInstance = this;
         let cb = noop;
@@ -761,20 +767,6 @@ Jimp.__extraConstructors = [];
  */
 Jimp.appendConstructorOption = function(name, test, run) {
     Jimp.__extraConstructors.push({ name, test, run });
-};
-
-/**
- * Read an image from a file or a Buffer
- * @param src the path to the file or a Buffer containing the file data
- * @retuns a promise
- */
-Jimp.read = function(src) {
-    return new Promise((resolve, reject) => {
-        new Jimp(src, (err, image) => {
-            if (err) reject(err);
-            else resolve(image);
-        });
-    });
 };
 
 /**

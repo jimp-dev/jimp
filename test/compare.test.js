@@ -2,10 +2,10 @@ const { Jimp, mkJGD } = require('./test-helper');
 
 describe('Compare image difference', () => {
     let imgs = [
-        Jimp.read(mkJGD('2222', '4444', '6666', '8888')),
-        Jimp.read(mkJGD('2468', '2468', '2468', '2468')),
-        Jimp.read(mkJGD('2212', '4434', '6656', '8878')),
-        Jimp.read(mkJGD('2232', '4454', '6676', '8898'))
+        new Jimp(mkJGD('2222', '4444', '6666', '8888')),
+        new Jimp(mkJGD('2468', '2468', '2468', '2468')),
+        new Jimp(mkJGD('2212', '4434', '6656', '8878')),
+        new Jimp(mkJGD('2232', '4454', '6676', '8898'))
     ];
 
     before(done => {
