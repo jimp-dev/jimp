@@ -97,32 +97,38 @@ describe.only('Autocrop', () => {
         )
             .then(imgSrc => {
                 imgSrc
+                    .clone()
                     .autocrop()
                     .getJGDSync()
-                    .should.be.sameJGD(
-                        mkJGD(
-                            '323232323232',
-                            '232323232323',
-                            '32   ◆◆   32',
-                            '23  ◆▦▦◆  23',
-                            '32 ◆▦▦▦▦◆ 32',
-                            '23  ◆▦▦◆  23',
-                            '32   ◆◆   32',
-                            '232323232323',
-                            '323232323232'
+                    .then(img =>
+                        img.should.be.sameJGD(
+                            mkJGD(
+                                '323232323232',
+                                '232323232323',
+                                '32   ◆◆   32',
+                                '23  ◆▦▦◆  23',
+                                '32 ◆▦▦▦▦◆ 32',
+                                '23  ◆▦▦◆  23',
+                                '32   ◆◆   32',
+                                '232323232323',
+                                '323232323232'
+                            )
                         )
                     );
+
                 imgSrc
                     .clone()
                     .autocrop(0.005)
                     .getJGDSync()
-                    .should.be.sameJGD(
-                        mkJGD(
-                            '   ◆◆   ',
-                            '  ◆▦▦◆  ',
-                            ' ◆▦▦▦▦◆ ',
-                            '  ◆▦▦◆  ',
-                            '   ◆◆   '
+                    .then(img =>
+                        img.should.be.sameJGD(
+                            mkJGD(
+                                '   ◆◆   ',
+                                '  ◆▦▦◆  ',
+                                ' ◆▦▦▦▦◆ ',
+                                '  ◆▦▦◆  ',
+                                '   ◆◆   '
+                            )
                         )
                     );
                 done();

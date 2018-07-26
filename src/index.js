@@ -124,8 +124,6 @@ function determineSetup(resolve, reject, ...args) {
             height: h
         };
 
-        console.log(this.bitmap);
-
         for (let i = 0; i < this.bitmap.data.length; i += 4) {
             this.bitmap.data.writeUInt32BE(this._background, i);
         }
@@ -186,7 +184,6 @@ function determineSetup(resolve, reject, ...args) {
             c.test(...args)
         );
 
-        console.log(extraConstructor);
         if (extraConstructor) {
             new Promise((resolve, reject) =>
                 extraConstructor.run.call(this, resolve, reject, ...args)
@@ -261,11 +258,9 @@ class Jimp extends EventEmitter {
             .filter(([name]) => name[0] !== '_')
             .forEach(([method, func]) => {
                 p[method] = (...args) =>
-                    method.includes('Sync')
-                        ? image[method](...args)
-                        : this.jimpPromise(resolve =>
-                              p.then(image => resolve(this[method](...args)))
-                          );
+                    this.jimpPromise(resolve =>
+                        p.then(image => resolve(this[method](...args)))
+                    );
             });
 
         return p;
