@@ -164,7 +164,7 @@ describe('Events', () => {
         it('emit clone events without callback', done => {
             let evBeforeCloneEmited = false;
             const eventsEmited = [];
-            Jimp.read(mkJGD('▴▵'))
+            new Jimp(mkJGD('▴▵'))
                 .then(img => {
                     img.on('clone', data => {
                         eventsEmited.push(data.eventName);
@@ -198,7 +198,7 @@ describe('Events', () => {
             let evBeforeCloneEmited = false;
             let evClonedEmited = false;
             const eventsEmited = [];
-            Jimp.read(mkJGD('▴▵'))
+            new Jimp(mkJGD('▴▵'))
                 .then(img => {
                     img.on('clone', data => {
                         eventsEmited.push(data.eventName);

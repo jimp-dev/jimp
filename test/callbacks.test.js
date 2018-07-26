@@ -7,8 +7,8 @@ describe('Callbacks', () => {
     let targetImg;
     let miniImg; // stores the Jimp instances of the JGD images above.
     before(done => {
-        const img1 = Jimp.read(targetJGD);
-        const img2 = Jimp.read(miniJGD);
+        const img1 = new Jimp(targetJGD);
+        const img2 = new Jimp(miniJGD);
         Promise.all([img1, img2])
             .then(images => {
                 targetImg = images[0];

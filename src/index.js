@@ -199,6 +199,8 @@ function determineSetup(resolve, reject, ...args) {
             );
         }
     }
+
+    return this;
 }
 
 /**
@@ -302,9 +304,11 @@ class Jimp extends EventEmitter {
             }, 1);
         }
 
-        return this.jimpPromise((resolve, reject) =>
-            determineSetup.bind(this)(resolve, reject, ...arguments)
-        );
+        return [...arguments].includes('sync')
+            ? determineSetup.bind(this)(noop, noop, ...arguments)
+            : this.jimpPromise((resolve, reject) =>
+                  determineSetup.bind(this)(resolve, reject, ...arguments)
+              );
     }
 
     /**
@@ -325,7 +329,7 @@ class Jimp extends EventEmitter {
         this.emitMulti(methodName, 'error', err);
     };
 
-    /* Nicely format Jimp object when sent to the console e.g. console.log(imgage) */
+    /* Nicely format Jimp object when sent to the console e.g. console.log(image) */
     inspect() {
         return (
             '<Jimp ' +
@@ -1094,7 +1098,7 @@ function jimpEvMethod(methodName, evName, method) {
  * @returns the new image
  */
 jimpEvMethod('clone', 'clone', function(cb) {
-    const clone = new Jimp(this);
+    const clone = new Jimp(this, 'sync');
 
     if (isNodePattern(cb)) {
         return cb.call(clone, null, clone);

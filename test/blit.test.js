@@ -23,8 +23,8 @@ describe('Blit over image', () => {
     let targetImg;
     let srcImg; // stores the Jimp instances of the JGD images above.
     before(done => {
-        const img1 = Jimp.read(targetJGD);
-        const img2 = Jimp.read(srcJGD);
+        const img1 = new Jimp(targetJGD);
+        const img2 = new Jimp(srcJGD);
         Promise.all([img1, img2])
             .then(images => {
                 targetImg = images[0];
