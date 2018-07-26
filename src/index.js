@@ -109,6 +109,101 @@ const emptyBitmap = {
     height: null
 };
 
+function determineSetup(resolve, reject, ...args) {
+    if (typeof args[0] === 'number' && typeof args[1] === 'number') {
+        // create a new image
+        const [w, h, background] = args;
+
+        if (typeof background === 'number') {
+            this._background = background;
+        }
+
+        this.bitmap = {
+            data: Buffer.alloc(w * h * 4),
+            width: w,
+            height: h
+        };
+
+        console.log(this.bitmap);
+
+        for (let i = 0; i < this.bitmap.data.length; i += 4) {
+            this.bitmap.data.writeUInt32BE(this._background, i);
+        }
+
+        resolve(this);
+    } else if (args[0] instanceof Jimp) {
+        // clone an existing Jimp
+        const [original] = args;
+        const bitmap = Buffer.alloc(original.bitmap.data.length);
+
+        original.scanQuiet(
+            0,
+            0,
+            original.bitmap.width,
+            original.bitmap.height,
+            (x, y, idx) => {
+                const data = original.bitmap.data.readUInt32BE(idx);
+                bitmap.writeUInt32BE(data, idx);
+            }
+        );
+
+        this.bitmap = {
+            data: bitmap,
+            width: original.bitmap.width,
+            height: original.bitmap.height
+        };
+
+        this._quality = original._quality;
+        this._deflateLevel = original._deflateLevel;
+        this._deflateStrategy = original._deflateStrategy;
+        this._filterType = original._filterType;
+        this._rgba = original._rgba;
+        this._background = original._background;
+
+        resolve(this);
+    } else if (typeof args[0] === 'string') {
+        // read from a path
+        const path = args[0];
+
+        loadBufferFromPath(path, (err, data) => {
+            if (err) {
+                return reject(err);
+            }
+
+            parseBitmap.call(this, data, path, resolve, reject);
+        });
+    } else if (typeof args[0] === 'object' && Buffer.isBuffer(args[0])) {
+        // read from a buffer
+        parseBitmap.call(this, args[0], null, resolve);
+    } else if (args[0] instanceof Promise) {
+        args[0].then(image =>
+            determineSetup.bind(this)(resolve, reject, image)
+        );
+    } else {
+        // Allow client libs to add new ways to build a Jimp object.
+        // Extra constructors must be added by `Jimp.appendConstructorOption()`
+        const extraConstructor = Jimp.__extraConstructors.find(c =>
+            c.test(...args)
+        );
+
+        console.log(extraConstructor);
+        if (extraConstructor) {
+            new Promise((resolve, reject) =>
+                extraConstructor.run.call(this, resolve, reject, ...args)
+            )
+                .then(() => resolve(this))
+                .catch(reject);
+        } else {
+            return reject(
+                new Error(
+                    'No matching constructor overloading was found. ' +
+                        'Please see the docs for how to call the Jimp constructor.'
+                )
+            );
+        }
+    }
+}
+
 /**
  * Jimp constructor (from a file)
  * @param path a path to the image
@@ -206,153 +301,9 @@ class Jimp extends EventEmitter {
             }, 1);
         }
 
-        return this.jimpPromise((resolve, reject) => {
-            if (
-                typeof arguments[0] === 'number' &&
-                typeof arguments[1] === 'number'
-            ) {
-                // create a new image
-                const w = arguments[0];
-                const h = arguments[1];
-                cb = arguments[2];
-
-                if (typeof arguments[2] === 'number') {
-                    this._background = arguments[2];
-                    cb = arguments[3];
-                }
-
-                if (typeof cb === 'undefined') {
-                    cb = noop;
-                }
-
-                if (typeof cb !== 'function') {
-                    return throwError.call(
-                        this,
-                        'cb must be a function',
-                        finish
-                    );
-                }
-
-                this.bitmap = {
-                    data: Buffer.alloc(w * h * 4),
-                    width: w,
-                    height: h
-                };
-
-                for (let i = 0; i < this.bitmap.data.length; i += 4) {
-                    this.bitmap.data.writeUInt32BE(this._background, i);
-                }
-
-                finish(null, this);
-            } else if (arguments[0] instanceof Jimp) {
-                // clone an existing Jimp
-                const original = arguments[0];
-                cb = arguments[1];
-
-                if (typeof cb === 'undefined') {
-                    cb = noop;
-                }
-
-                if (typeof cb !== 'function') {
-                    return throwError.call(
-                        this,
-                        'cb must be a function',
-                        finish
-                    );
-                }
-
-                const bitmap = Buffer.alloc(original.bitmap.data.length);
-                original.scanQuiet(
-                    0,
-                    0,
-                    original.bitmap.width,
-                    original.bitmap.height,
-                    (x, y, idx) => {
-                        const data = original.bitmap.data.readUInt32BE(idx);
-                        bitmap.writeUInt32BE(data, idx);
-                    }
-                );
-
-                this.bitmap = {
-                    data: bitmap,
-                    width: original.bitmap.width,
-                    height: original.bitmap.height
-                };
-
-                this._quality = original._quality;
-                this._deflateLevel = original._deflateLevel;
-                this._deflateStrategy = original._deflateStrategy;
-                this._filterType = original._filterType;
-                this._rgba = original._rgba;
-                this._background = original._background;
-
-                finish(null, this);
-            } else if (typeof arguments[0] === 'string') {
-                // read from a path
-                const path = arguments[0];
-
-                loadBufferFromPath(path, (err, data) => {
-                    if (err) {
-                        return reject(err);
-                    }
-
-                    parseBitmap.call(this, data, path, resolve, reject);
-                });
-            } else if (
-                typeof arguments[0] === 'object' &&
-                Buffer.isBuffer(arguments[0])
-            ) {
-                // read from a buffer
-                const data = arguments[0];
-                cb = arguments[1];
-
-                if (typeof cb !== 'function') {
-                    return throwError.call(
-                        this,
-                        'cb must be a function',
-                        finish
-                    );
-                }
-
-                parseBitmap.call(this, data, null, finish);
-            } else {
-                // Allow client libs to add new ways to build a Jimp object.
-                // Extra constructors must be added by `Jimp.appendConstructorOption()`
-                cb = arguments[arguments.length - 1];
-
-                if (typeof cb !== 'function') {
-                    cb = arguments[arguments.length - 2]; // TODO: try to solve the args after cb problem.
-
-                    if (typeof cb !== 'function') {
-                        cb = noop;
-                    }
-                }
-
-                const extraConstructor = Jimp.__extraConstructors.find(c =>
-                    c.test(...arguments)
-                );
-
-                if (extraConstructor) {
-                    new Promise((resolve, reject) =>
-                        extraConstructor.run.call(
-                            this,
-                            resolve,
-                            reject,
-                            ...arguments
-                        )
-                    )
-                        .then(() => finish(null, this))
-                        .catch(finish);
-                } else {
-                    return throwError.call(
-                        this,
-                        'No matching constructor overloading was found. ' +
-                            'Please see the docs for how to call the Jimp constructor.',
-                        finish
-                    );
-                }
-            }
-        });
+        return this.jimpPromise((resolve, reject) =>
+            determineSetup.bind(this)(resolve, reject, ...arguments)
+        );
     }
 
     /**
