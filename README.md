@@ -157,7 +157,7 @@ image.resize(250, 250, Jimp.RESIZE_BEZIER);
 
 ### Align modes ###
 
-The following constants can be passed to the `image.cover` and `image.contain` methods:
+The following constants can be passed to the `image.cover`, `image.contain` and `image.print` methods:
 
 ```js
 Jimp.HORIZONTAL_ALIGN_LEFT;
@@ -175,10 +175,18 @@ For example:
 image.contain(250, 250, Jimp.HORIZONTAL_ALIGN_LEFT | Jimp.VERTICAL_ALIGN_TOP);
 ```
 
-Default align modes are:
+Default align modes for `image.cover` and `image.contain` are:
 
 ```js
 Jimp.HORIZONTAL_ALIGN_CENTER | Jimp.VERTICAL_ALIGN_MIDDLE;
+```
+
+Default align modes for `image.print` are:
+```js
+{
+    alignmentX: Jimp.HORIZONTAL_ALIGN_LEFT,
+    alignmentY: Jimp.VERTICAL_ALIGN_TOP
+}
 ```
 
 ### Writing text ###
@@ -188,9 +196,21 @@ Jimp supports basic typography using BMFont format (.fnt) [bitmap fonts](https:/
 ```js
 Jimp.loadFont( path ).then(function (font) { // load font from .fnt file
     image.print(font, x, y, str);        // print a message on an image
-    image.print(font, x, y, str, width); // print a message on an image with text wrapped at width
+    image.print(font, x, y, str, maxWidth); // print a message on an image with text wrapped at maxWidth
 });
+```
 
+Alignment modes are supported by replacing the `str` argument with an object containing `text`, `alignmentX` and `alignmentY`. `alignmentX` defaults to `Jimp.HORIZONTAL_ALIGN_LEFT` and `alignmentY` defaults to `Jimp.VERTICAL_ALIGN_TOP`.
+```js
+Jimp.loadFont( path ).then(function (font) {
+    image.print(font, x, y, {
+        text: 'Hello world!',
+        alignmentX: Jimp.HORIZONTAL_ALIGN_CENTER,
+        alignmentY: Jimp.VERTICAL_ALIGN_MIDDLE
+    }, maxWidth, maxHeight); // prints 'Hello world!' on an image, middle and center-aligned
+});
+```
+```
 Jimp.loadFont( path, cb ); // using a callback pattern
 ```
 
