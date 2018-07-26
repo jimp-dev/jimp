@@ -81,11 +81,13 @@ function exifRotate(img) {
 }
 
 // parses a bitmap from the constructor to the JIMP bitmap property
-export function parseBitmap(data, path, cb) {
+export function parseBitmap(data, path, resolve, reject) {
     const mime = getMIMEFromBuffer(data, path);
 
     if (typeof mime !== 'string') {
-        return cb(new Error('Could not find MIME for Buffer <' + path + '>'));
+        return reject(
+            new Error('Could not find MIME for Buffer <' + path + '>')
+        );
     }
 
     this._originalMime = mime.toLowerCase();
@@ -95,7 +97,7 @@ export function parseBitmap(data, path, cb) {
             const png = new PNG();
             png.parse(data, (err, data) => {
                 if (err) {
-                    return throwError.call(this, err, cb);
+                    return reject(err);
                 }
 
                 this.bitmap = {
@@ -103,7 +105,8 @@ export function parseBitmap(data, path, cb) {
                     width: data.width,
                     height: data.height
                 };
-                return cb.call(this, null, this);
+
+                return resolve(this);
             });
             break;
         }
@@ -118,9 +121,10 @@ export function parseBitmap(data, path, cb) {
                 } catch (err) {
                     /* meh */
                 }
-                return cb.call(this, null, this);
+
+                return resolve(this);
             } catch (err) {
-                return cb.call(this, err, this);
+                return reject(err);
             }
 
         case constants.MIME_TIFF: {
@@ -135,20 +139,20 @@ export function parseBitmap(data, path, cb) {
                 height: page.t257[0]
             };
 
-            return cb.call(this, null, this);
+            return resolve(this);
         }
 
         case constants.MIME_BMP:
         case constants.MIME_X_MS_BMP:
             this.bitmap = BMP.decode(data);
-            return cb.call(this, null, this);
+            return resolve(this);
 
         case constants.MIME_GIF:
             this.bitmap = getBitmapFromGIF(data);
-            return cb.call(this, null, this);
+            return resolve(this);
 
         default:
-            return throwError.call(this, 'Unsupported MIME type: ' + mime, cb);
+            return reject(new Error('Unsupported MIME type: ' + mime));
     }
 }
 
@@ -180,6 +184,7 @@ export function getBuffer(mime, cb) {
         return throwError.call(this, 'cb must be a function', cb);
     }
 
+    console.log(mime, constants.MIME_PNG);
     switch (mime.toLowerCase()) {
         case constants.MIME_PNG: {
             const png = new PNG({

@@ -159,9 +159,29 @@ class Jimp extends EventEmitter {
     // Exif data for the image
     _exif = null;
 
+    jimpPromise = cb => {
+        const p = new Promise(cb);
+
+        Object.entries(this)
+            .filter(([name]) => name[0] !== '_')
+            .forEach(([method, func]) => {
+                p[method] = (...args) =>
+                    this.jimpPromise(resolve =>
+                        p.then(image => resolve(this[method](...args)))
+                    );
+            });
+
+        return p;
+    };
+
     constructor() {
         super();
         sourceMaps.install();
+
+        // add all methods
+        Object.entries({ ...color, ...shape, ...text, ...effects }).map(
+            ([name, value]) => (this[name] = value)
+        );
 
         const jimpInstance = this;
         let cb = noop;
@@ -185,154 +205,160 @@ class Jimp extends EventEmitter {
                 cb.call(jimpInstance, ...arguments);
             }, 1);
         }
-        if (
-            typeof arguments[0] === 'number' &&
-            typeof arguments[1] === 'number'
-        ) {
-            // create a new image
-            const w = arguments[0];
-            const h = arguments[1];
-            cb = arguments[2];
 
-            if (typeof arguments[2] === 'number') {
-                this._background = arguments[2];
-                cb = arguments[3];
-            }
+        return this.jimpPromise((resolve, reject) => {
+            if (
+                typeof arguments[0] === 'number' &&
+                typeof arguments[1] === 'number'
+            ) {
+                // create a new image
+                const w = arguments[0];
+                const h = arguments[1];
+                cb = arguments[2];
 
-            if (typeof cb === 'undefined') {
-                cb = noop;
-            }
-
-            if (typeof cb !== 'function') {
-                return throwError.call(this, 'cb must be a function', finish);
-            }
-
-            this.bitmap = {
-                data: Buffer.alloc(w * h * 4),
-                width: w,
-                height: h
-            };
-
-            for (let i = 0; i < this.bitmap.data.length; i += 4) {
-                this.bitmap.data.writeUInt32BE(this._background, i);
-            }
-
-            finish(null, this);
-        } else if (arguments[0] instanceof Jimp) {
-            // clone an existing Jimp
-            const original = arguments[0];
-            cb = arguments[1];
-
-            if (typeof cb === 'undefined') {
-                cb = noop;
-            }
-
-            if (typeof cb !== 'function') {
-                return throwError.call(this, 'cb must be a function', finish);
-            }
-
-            const bitmap = Buffer.alloc(original.bitmap.data.length);
-            original.scanQuiet(
-                0,
-                0,
-                original.bitmap.width,
-                original.bitmap.height,
-                (x, y, idx) => {
-                    const data = original.bitmap.data.readUInt32BE(idx);
-                    bitmap.writeUInt32BE(data, idx);
-                }
-            );
-
-            this.bitmap = {
-                data: bitmap,
-                width: original.bitmap.width,
-                height: original.bitmap.height
-            };
-
-            this._quality = original._quality;
-            this._deflateLevel = original._deflateLevel;
-            this._deflateStrategy = original._deflateStrategy;
-            this._filterType = original._filterType;
-            this._rgba = original._rgba;
-            this._background = original._background;
-
-            finish(null, this);
-        } else if (typeof arguments[0] === 'string') {
-            // read from a path
-            const path = arguments[0];
-            cb = arguments[1];
-
-            if (typeof cb === 'undefined') {
-                cb = noop;
-            }
-
-            if (typeof cb !== 'function') {
-                return throwError.call(this, 'cb must be a function', finish);
-            }
-
-            loadBufferFromPath(path, (err, data) => {
-                if (err) {
-                    return throwError.call(this, err, finish);
+                if (typeof arguments[2] === 'number') {
+                    this._background = arguments[2];
+                    cb = arguments[3];
                 }
 
-                parseBitmap.call(this, data, path, finish);
-            });
-        } else if (
-            typeof arguments[0] === 'object' &&
-            Buffer.isBuffer(arguments[0])
-        ) {
-            // read from a buffer
-            const data = arguments[0];
-            cb = arguments[1];
-
-            if (typeof cb !== 'function') {
-                return throwError.call(this, 'cb must be a function', finish);
-            }
-
-            parseBitmap.call(this, data, null, finish);
-        } else {
-            // Allow client libs to add new ways to build a Jimp object.
-            // Extra constructors must be added by `Jimp.appendConstructorOption()`
-            cb = arguments[arguments.length - 1];
-
-            if (typeof cb !== 'function') {
-                cb = arguments[arguments.length - 2]; // TODO: try to solve the args after cb problem.
-
-                if (typeof cb !== 'function') {
+                if (typeof cb === 'undefined') {
                     cb = noop;
                 }
-            }
 
-            const extraConstructor = Jimp.__extraConstructors.find(c =>
-                c.test(...arguments)
-            );
-
-            if (extraConstructor) {
-                new Promise((resolve, reject) =>
-                    extraConstructor.run.call(
+                if (typeof cb !== 'function') {
+                    return throwError.call(
                         this,
-                        resolve,
-                        reject,
-                        ...arguments
-                    )
-                )
-                    .then(() => finish(null, this))
-                    .catch(finish);
-            } else {
-                return throwError.call(
-                    this,
-                    'No matching constructor overloading was found. ' +
-                        'Please see the docs for how to call the Jimp constructor.',
-                    finish
+                        'cb must be a function',
+                        finish
+                    );
+                }
+
+                this.bitmap = {
+                    data: Buffer.alloc(w * h * 4),
+                    width: w,
+                    height: h
+                };
+
+                for (let i = 0; i < this.bitmap.data.length; i += 4) {
+                    this.bitmap.data.writeUInt32BE(this._background, i);
+                }
+
+                finish(null, this);
+            } else if (arguments[0] instanceof Jimp) {
+                // clone an existing Jimp
+                const original = arguments[0];
+                cb = arguments[1];
+
+                if (typeof cb === 'undefined') {
+                    cb = noop;
+                }
+
+                if (typeof cb !== 'function') {
+                    return throwError.call(
+                        this,
+                        'cb must be a function',
+                        finish
+                    );
+                }
+
+                const bitmap = Buffer.alloc(original.bitmap.data.length);
+                original.scanQuiet(
+                    0,
+                    0,
+                    original.bitmap.width,
+                    original.bitmap.height,
+                    (x, y, idx) => {
+                        const data = original.bitmap.data.readUInt32BE(idx);
+                        bitmap.writeUInt32BE(data, idx);
+                    }
                 );
+
+                this.bitmap = {
+                    data: bitmap,
+                    width: original.bitmap.width,
+                    height: original.bitmap.height
+                };
+
+                this._quality = original._quality;
+                this._deflateLevel = original._deflateLevel;
+                this._deflateStrategy = original._deflateStrategy;
+                this._filterType = original._filterType;
+                this._rgba = original._rgba;
+                this._background = original._background;
+
+                finish(null, this);
+            } else if (typeof arguments[0] === 'string') {
+                // read from a path
+                const path = arguments[0];
+
+                loadBufferFromPath(path, (err, data) => {
+                    if (err) {
+                        return reject(err);
+                    }
+
+                    parseBitmap.call(this, data, path, resolve, reject);
+                });
+            } else if (
+                typeof arguments[0] === 'object' &&
+                Buffer.isBuffer(arguments[0])
+            ) {
+                // read from a buffer
+                const data = arguments[0];
+                cb = arguments[1];
+
+                if (typeof cb !== 'function') {
+                    return throwError.call(
+                        this,
+                        'cb must be a function',
+                        finish
+                    );
+                }
+
+                parseBitmap.call(this, data, null, finish);
+            } else {
+                // Allow client libs to add new ways to build a Jimp object.
+                // Extra constructors must be added by `Jimp.appendConstructorOption()`
+                cb = arguments[arguments.length - 1];
+
+                if (typeof cb !== 'function') {
+                    cb = arguments[arguments.length - 2]; // TODO: try to solve the args after cb problem.
+
+                    if (typeof cb !== 'function') {
+                        cb = noop;
+                    }
+                }
+
+                const extraConstructor = Jimp.__extraConstructors.find(c =>
+                    c.test(...arguments)
+                );
+
+                if (extraConstructor) {
+                    new Promise((resolve, reject) =>
+                        extraConstructor.run.call(
+                            this,
+                            resolve,
+                            reject,
+                            ...arguments
+                        )
+                    )
+                        .then(() => finish(null, this))
+                        .catch(finish);
+                } else {
+                    return throwError.call(
+                        this,
+                        'No matching constructor overloading was found. ' +
+                            'Please see the docs for how to call the Jimp constructor.',
+                        finish
+                    );
+                }
             }
-        }
+        });
     }
 
     /**
      * Emit for multiple listeners
      */
-    emitMulti(methodName, eventName, data = {}) {
+    emitMulti = function(methodName, eventName, data = {}) {
         data = Object.assign(data, { methodName, eventName });
         this.emit('any', data);
 
@@ -341,11 +367,11 @@ class Jimp extends EventEmitter {
         }
 
         this.emit(eventName, data);
-    }
+    };
 
-    emitError(methodName, err) {
+    emitError = function(methodName, err) {
         this.emitMulti(methodName, 'error', err);
-    }
+    };
 
     /* Nicely format Jimp object when sent to the console e.g. console.log(imgage) */
     inspect() {
@@ -359,29 +385,29 @@ class Jimp extends EventEmitter {
     }
 
     // Nicely format Jimp object when converted to a string
-    toString() {
+    toString = function() {
         return '[object Jimp]';
-    }
+    };
 
     /**
      * Returns the original MIME of the image (default: "image/png")
      * @returns the MIME as a string
      */
-    getMIME() {
+    getMIME = function() {
         const mime = this._originalMime || Jimp.MIME_PNG;
 
         return mime;
-    }
+    };
 
     /**
      * Returns the appropriate file extension for the original MIME of the image (default: "png")
      * @returns the file extension as a string
      */
-    getExtension() {
+    getExtension = function() {
         const mime = this.getMIME();
 
         return MIME.getExtension(mime);
-    }
+    };
 
     /**
      * Writes the image to a file
@@ -389,7 +415,7 @@ class Jimp extends EventEmitter {
      * @param (optional) cb a function to call when the image is saved to disk
      * @returns this for chaining of methods
      */
-    write(path, cb) {
+    write = function(path, cb) {
         if (!FS || !FS.createWriteStream) {
             throw new Error(
                 'Cant access the filesystem. You can use the getBase64 method.'
@@ -436,7 +462,7 @@ class Jimp extends EventEmitter {
         });
 
         return this;
-    }
+    };
 
     /**
      * Sets the deflate level used when saving as PNG format (default is 9)
@@ -444,7 +470,7 @@ class Jimp extends EventEmitter {
      * @param (optional) cb a callback for when complete
      * @returns this for chaining of methods
      */
-    deflateLevel(l, cb) {
+    deflateLevel = function(l, cb) {
         if (typeof l !== 'number') {
             return throwError.call(this, 'l must be a number', cb);
         }
@@ -460,7 +486,7 @@ class Jimp extends EventEmitter {
         }
 
         return this;
-    }
+    };
 
     /**
      * Sets the deflate strategy used when saving as PNG format (default is 3)
@@ -468,7 +494,7 @@ class Jimp extends EventEmitter {
      * @param (optional) cb a callback for when complete
      * @returns this for chaining of methods
      */
-    deflateStrategy(s, cb) {
+    deflateStrategy = function(s, cb) {
         if (typeof s !== 'number') {
             return throwError.call(this, 's must be a number', cb);
         }
@@ -484,7 +510,7 @@ class Jimp extends EventEmitter {
         }
 
         return this;
-    }
+    };
 
     /**
      * Sets the filter type used when saving as PNG format (default is automatic filters)
@@ -492,7 +518,7 @@ class Jimp extends EventEmitter {
      * @param (optional) cb a callback for when complete
      * @returns this for chaining of methods
      */
-    filterType(f, cb) {
+    filterType = function(f, cb) {
         if (typeof f !== 'number') {
             return throwError.call(this, 'n must be a number', cb);
         }
@@ -512,7 +538,7 @@ class Jimp extends EventEmitter {
         }
 
         return this;
-    }
+    };
 
     /**
      * Sets the type of the image (RGB or RGBA) when saving as PNG format (default is RGBA)
@@ -520,7 +546,7 @@ class Jimp extends EventEmitter {
      * @param (optional) cb a callback for when complete
      * @returns this for chaining of methods
      */
-    rgba(bool, cb) {
+    rgba = function(bool, cb) {
         if (typeof bool !== 'boolean') {
             return throwError.call(
                 this,
@@ -536,7 +562,7 @@ class Jimp extends EventEmitter {
         }
 
         return this;
-    }
+    };
 
     /**
      * Sets the quality of the image when saving as JPEG format (default is 100)
@@ -544,7 +570,7 @@ class Jimp extends EventEmitter {
      * @param (optional) cb a callback for when complete
      * @returns this for chaining of methods
      */
-    quality(n, cb) {
+    quality = function(n, cb) {
         if (typeof n !== 'number') {
             return throwError.call(this, 'n must be a number', cb);
         }
@@ -560,7 +586,7 @@ class Jimp extends EventEmitter {
         }
 
         return this;
-    }
+    };
 
     /**
      * Converts the image to a base 64 string
@@ -568,7 +594,7 @@ class Jimp extends EventEmitter {
      * @param cb a Node-style function to call with the buffer as the second argument
      * @returns this for chaining of methods
      */
-    getBase64(mime, cb) {
+    getBase64 = function(mime, cb) {
         if (mime === Jimp.AUTO) {
             // allow auto MIME detection
             mime = this.getMIME();
@@ -591,7 +617,7 @@ class Jimp extends EventEmitter {
         });
 
         return this;
-    }
+    };
 
     /**
      * Generates a perceptual hash of the image <https://en.wikipedia.org/wiki/Perceptual_hashing>.
@@ -599,7 +625,7 @@ class Jimp extends EventEmitter {
      * @param (optional) cb a callback for when complete
      * @returns a string representing the hash
      */
-    hash(base, cb) {
+    hash = function(base, cb) {
         base = base || 64;
 
         if (typeof base === 'function') {
@@ -631,7 +657,7 @@ class Jimp extends EventEmitter {
         }
 
         return hash;
-    }
+    };
 
     /**
      * Converts the image to a buffer
@@ -649,7 +675,7 @@ class Jimp extends EventEmitter {
      * @param (optional) cb a callback for when complete
      * @returns the index of the pixel or -1 if not found
      */
-    getPixelIndex(x, y, edgeHandling, cb) {
+    getPixelIndex = function(x, y, edgeHandling, cb) {
         let xi;
         let yi;
 
@@ -713,7 +739,7 @@ class Jimp extends EventEmitter {
         }
 
         return i;
-    }
+    };
 
     /**
      * Returns the hex colour value of a pixel
@@ -722,7 +748,7 @@ class Jimp extends EventEmitter {
      * @param (optional) cb a callback for when complete
      * @returns the color of the pixel
      */
-    getPixelColor(x, y, cb) {
+    getPixelColor = function(x, y, cb) {
         if (typeof x !== 'number' || typeof y !== 'number')
             return throwError.call(this, 'x and y must be numbers', cb);
 
@@ -738,7 +764,7 @@ class Jimp extends EventEmitter {
         }
 
         return hex;
-    }
+    };
     getPixelColour = this.getPixelColor;
 
     /**
@@ -748,7 +774,7 @@ class Jimp extends EventEmitter {
      * @param (optional) cb a callback for when complete
      * @returns the index of the pixel or -1 if not found
      */
-    setPixelColor(hex, x, y, cb) {
+    setPixelColor = function(hex, x, y, cb) {
         if (
             typeof hex !== 'number' ||
             typeof x !== 'number' ||
@@ -768,15 +794,11 @@ class Jimp extends EventEmitter {
         }
 
         return this;
-    }
+    };
     setPixelColour = this.setPixelColor;
 }
 
 Object.entries(constants).map(([name, value]) => (Jimp[name] = value));
-
-Object.entries({ ...color, ...shape, ...text, ...effects }).map(
-    ([name, value]) => (Jimp.prototype[name] = value)
-);
 
 Jimp.__extraConstructors = [];
 
