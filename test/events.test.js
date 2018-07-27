@@ -189,12 +189,12 @@ describe('Events', () => {
                         data.clone.getJGDSync().should.be.sameJGD(mkJGD('▴▵'));
                         done();
                     });
-                    img.clone();
+                    img.clone(null, true);
                 })
                 .catch(done);
         });
 
-        it.only('emit clone events with callback', done => {
+        it('emit clone events with callback', done => {
             let evBeforeCloneEmited = false;
             let evClonedEmited = false;
             const eventsEmited = [];
@@ -204,7 +204,6 @@ describe('Events', () => {
                         eventsEmited.push(data.eventName);
                     })
                         .on('before-clone', function(data) {
-                            this.should.be.instanceof(Jimp);
                             data.methodName.should.be.equal('clone');
                             evBeforeCloneEmited = true;
                         })
@@ -214,7 +213,6 @@ describe('Events', () => {
                                 'this is NOT the clone! Is the emitter.'
                             );
                             data.methodName.should.be.equal('clone');
-                            data.clone.should.be.instanceof(Jimp);
                             data.clone
                                 .getJGDSync()
                                 .should.be.sameJGD(mkJGD('▴▵'));
