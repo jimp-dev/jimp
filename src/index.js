@@ -1099,10 +1099,11 @@ function jimpEvMethod(methodName, evName, method) {
  * @param cb (optional) A callback for when complete
  * @returns the new image
  */
-jimpEvMethod('clone', 'clone', function(cb) {
-    const clone = new Jimp(this, 'sync');
+jimpEvMethod('clone', 'clone', function(cb, sync) {
+    console.log(sync);
+    const clone = new Jimp(this, sync ? 'sync' : false);
 
-    if (isNodePattern(cb)) {
+    if (!sync && isNodePattern(cb)) {
         return cb.call(clone, null, clone);
     }
 
