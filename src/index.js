@@ -406,25 +406,17 @@ class Jimp extends EventEmitter {
             MkDirP.sync(pathObj.dir);
         }
 
-        this.getBuffer(mime, (err, buffer) => {
-            if (err) {
-                return throwError.call(this, err, cb);
-            }
+        const buffer = this.getBuffer(mime);
+        const stream = FS.createWriteStream(path);
 
-            const stream = FS.createWriteStream(path);
-
-            stream
-                .on('open', () => {
-                    stream.write(buffer);
-                    stream.end();
-                })
-                .on('error', err => {
-                    return throwError.call(this, err, cb);
-                });
-            stream.on('finish', () => {
-                return cb.call(this, null, this);
-            });
-        });
+        // Does this really need to be a stream
+        stream
+            .on('open', () => {
+                stream.write(buffer);
+                stream.end();
+            })
+            .on('error', err => throwError.call(this, err, cb))
+            .on('finish', () => cb.call(this, null, this));
 
         return this;
     };
