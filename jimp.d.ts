@@ -107,6 +107,11 @@ declare namespace Jimp {
             vertical: boolean,
             cb?: Jimp.ImageCallback
         ): this;
+        flip(
+            horizontal: boolean,
+            vertical: boolean,
+            cb?: Jimp.ImageCallback
+        ): this;
         gaussian(r: number, cb?: Jimp.ImageCallback): this;
         blur(r: number, cb?: Jimp.ImageCallback): this;
         convolution(
@@ -256,6 +261,12 @@ declare namespace Jimp {
         (w: number, h: number, cb?: Jimp.ImageCallback): void;
         (w: number, h: number, background?: number, cb?: Jimp.ImageCallback): void;
         */
+
+        static appendConstructorOption(
+            name: string,
+            test: function,
+            run: function
+        );
 
         static read(
             src: string | Buffer,

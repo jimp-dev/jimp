@@ -258,10 +258,10 @@ function throwUndefinedChar(char) {
 }
 
 /* Build a JGD object from a list of strings */
-exports.mkJGD = function() {
-    const jgd = { width: 0, height: arguments.length, data: [] };
+exports.mkJGD = function(...args) {
+    const jgd = { width: 0, height: args.length, data: [] };
     for (let y = 0; y < jgd.height; y++) {
-        const line = arguments[y];
+        const line = args[y];
         jgd.width = line.length;
         const w = jgd.width;
 

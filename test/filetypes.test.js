@@ -1,3 +1,5 @@
+/* eslint-disable no-control-regex */
+
 const { Jimp, getTestDir } = require('./test-helper');
 
 describe('FileType', () => {

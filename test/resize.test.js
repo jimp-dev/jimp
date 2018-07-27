@@ -584,7 +584,7 @@ describe('Resize images', () => {
             .catch(done);
     });
 
-    testImages.forEach(test => {
+    function testEach(test) {
         describe(test.title, () => {
             hashForEach(test.results, (expectedTitle, expectedJgd) => {
                 const mode = Jimp['RESIZE_' + expectedTitle.split(' ')[0]];
@@ -601,5 +601,7 @@ describe('Resize images', () => {
                 });
             });
         });
-    });
+    }
+
+    testImages.forEach(testEach);
 });

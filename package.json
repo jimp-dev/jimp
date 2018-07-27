@@ -15,7 +15,7 @@
   },
   "scripts": {
     "lint": "npm run -s lint:src && npm run -s lint:tests && npm run -s lint:extra && echo Lint All Success",
-    "lint:src": "xo *.js src/*.js",
+    "lint:src": "xo src/*.js src/**/*.js !src/modules/*.js",
     "lint:tests": "xo test/*.js --global before",
     "lint:extra": "xo {tools,examples}/*.js",
     "test:karma": "CHROME_BIN=\"$(which chrome || which chromium)\" karma",
@@ -133,7 +133,7 @@
       "unicorn/number-literal-case": 0,
       "no-control-regex": 1,
       "prefer-rest-params": 1,
-      "no-new": 1,
+      "no-new": 0,
       "no-console": [
         2,
         {
@@ -145,9 +145,18 @@
       ],
       "max-params": [
         1,
-        5
+        6
       ]
-    }
+    },
+		"overrides": [
+			{
+				"files": "**/test/*.js",
+        "esnext": false,
+        "rules": {
+          "max-nested-callbacks": 0
+        }
+			}
+		]
   },
   "babel": {
     "presets": [

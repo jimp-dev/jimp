@@ -116,13 +116,10 @@ describe('Events', () => {
                         done();
                     }
                 });
-            img.crop(0, 0, 6, 6, (err, img) => {
-                if (err) done(err);
-                img.crop(0, 0, 4, 4, (err, img) => {
-                    if (err) done(err);
-                    img.crop(0, 0, 2, 2);
-                });
-            });
+
+            img.crop(0, 0, 6, 6)
+                .crop(0, 0, 4, 4)
+                .crop(0, 0, 2, 2);
         });
     });
 

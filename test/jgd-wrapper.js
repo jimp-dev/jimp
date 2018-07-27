@@ -25,7 +25,7 @@ Jimp.appendConstructorOption(
 
 /**
  * Converts the image to a JGD object (sync fashion)
- * @returns JGD object
+ * @returns {JGD}  JGD object
  */
 Jimp.prototype.getJGDSync = function() {
     return JGD.encode(this.bitmap);
@@ -33,8 +33,8 @@ Jimp.prototype.getJGDSync = function() {
 
 /**
  * Converts the image to a JGD object (async fashion)
- * @param cb a Node-style function to call with the buffer as the second argument
- * @returns this for chaining of methods
+ * @param {function(Error, Jimp)} cb a Node-style function to call with the buffer as the second argument
+ * @returns {Jimp}  this for chaining of methods
  */
 Jimp.prototype.getJGD = function(cb) {
     let jgd;
