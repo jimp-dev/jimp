@@ -265,6 +265,7 @@ class Jimp extends EventEmitter {
             this._filterType = original._filterType;
             this._rgba = original._rgba;
             this._background = original._background;
+            this._originalMime = original._originalMime;
 
             finish(null, this);
         } else if (typeof arguments[0] === 'string') {
