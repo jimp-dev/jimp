@@ -446,7 +446,7 @@ export function pixelate(size, x, y, w, h, cb) {
     w = isDef(w) ? x : this.bitmap.width - x;
     h = isDef(h) ? h : this.bitmap.height - y;
 
-    const source = this.cloneQuiet();
+    const source = this.cloneQuiet(null, true);
 
     this.scanQuiet(x, y, w, h, function(xx, yx, idx) {
         xx = size * Math.floor(xx / size);
@@ -525,7 +525,7 @@ export function contain(w, h, alignBits, mode, cb) {
         w / h > this.bitmap.width / this.bitmap.height
             ? h / this.bitmap.height
             : w / this.bitmap.width;
-    const c = this.cloneQuiet().scale(f, mode);
+    const c = this.cloneQuiet(null, true).scale(f, mode);
 
     this.resize(w, h, mode);
     this.scanQuiet(0, 0, this.bitmap.width, this.bitmap.height, function(
@@ -672,7 +672,7 @@ export function convolute(kernel, x, y, w, h, cb) {
     w = isDef(w) ? w : this.bitmap.width - x;
     h = isDef(h) ? h : this.bitmap.height - y;
 
-    const source = this.cloneQuiet();
+    const source = this.cloneQuiet(null, true);
 
     this.scanQuiet(x, y, w, h, function(xx, yx, idx) {
         const value = applyKernel(source, kernel, xx, yx);
@@ -705,7 +705,7 @@ export function displace(map, offset, cb) {
         return throwError.call(this, 'factor must be a number', cb);
     }
 
-    const source = this.cloneQuiet();
+    const source = this.cloneQuiet(null, true);
     this.scanQuiet(0, 0, this.bitmap.width, this.bitmap.height, function(
         x,
         y,
