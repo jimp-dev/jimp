@@ -793,18 +793,19 @@ Jimp.appendConstructorOption = function(name, test, run) {
 };
 
 /**
- * Read an image from a file or a Buffer
- * @param {string} src the path to the file or a Buffer containing the file data
+ * Read an image from a file or a Buffer. Takes the same args as the constructor
  * @returns {Promise} a promise
  */
-Jimp.read = function(src) {
+Jimp.read = function(...args) {
     return new Promise((resolve, reject) => {
-        new Jimp(src, (err, image) => {
+        new Jimp(...args, (err, image) => {
             if (err) reject(err);
             else resolve(image);
         });
     });
 };
+
+Jimp.create = Jimp.read;
 
 /**
  * A static helper method that converts RGBA values to a single integer value
