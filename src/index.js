@@ -265,6 +265,8 @@ class Jimp extends EventEmitter {
                     );
             });
 
+        p.on = (...args) => this.on(...args);
+
         return p;
     };
 
@@ -281,34 +283,41 @@ class Jimp extends EventEmitter {
             ...Jimp.prototype
         }).map(([name, value]) => (this[name] = value));
 
-        const jimpInstance = this;
-        let cb = noop;
-
         if (isArrayBuffer(arguments[0])) {
             arguments[0] = bufferFromArrayBuffer(arguments[0]);
         }
 
-        function finish(err) {
-            const evData = err || {};
-            evData.methodName = 'constructor';
+        const constructorError = err => {
+            this.emitError('constructor', err);
+        };
 
-            setTimeout(() => {
-                // run on next tick.
-                if (err) {
-                    jimpInstance.emitError('constructor', err);
-                } else {
-                    jimpInstance.emitMulti('constructor', 'initialized');
-                }
-
-                cb.call(jimpInstance, ...arguments);
-            }, 1);
-        }
+        const constructorFinish = () => {
+            this.emitMulti('constructor', 'initialized');
+        };
 
         return [...arguments].includes('sync')
-            ? determineSetup.bind(this)(noop, noop, ...arguments)
-            : this.jimpPromise((resolve, reject) =>
-                  determineSetup.bind(this)(resolve, reject, ...arguments)
-              );
+            ? determineSetup.bind(this)(
+                  constructorFinish,
+                  constructorError,
+                  ...arguments
+              )
+            : this.jimpPromise((resolve, reject) => {
+                  const rejectFinish = err => {
+                      constructorError(err);
+                      reject(err);
+                  };
+
+                  const resolveFinish = (...args) => {
+                      constructorFinish();
+                      resolve(...args);
+                  };
+
+                  return determineSetup.bind(this)(
+                      resolveFinish,
+                      rejectFinish,
+                      ...arguments
+                  );
+              });
     }
 
     /**
