@@ -268,10 +268,18 @@ declare namespace Jimp {
             run: function
         );
 
-        static read(
-            src: string | Buffer,
-            cb?: Jimp.ImageCallback
-        ): Promise<Jimp>;
+        static read(path: string): Promise<Jimp>;
+        static read(image: Jimp): Promise<Jimp>;
+        static read(data: Buffer): Promise<Jimp>;
+        static read(w: number, h: number): Promise<Jimp>;
+        static read(w: number, h: number, background?: number): Promise<Jimp>;
+
+        static create(path: string): Promise<Jimp>;
+        static create(image: Jimp): Promise<Jimp>;
+        static create(data: Buffer): Promise<Jimp>;
+        static create(w: number, h: number): Promise<Jimp>;
+        static create(w: number, h: number, background?: number): Promise<Jimp>;
+
         static loadFont(file: string, cb?: Jimp.ImageCallback): Promise<any>;
 
         static rgbaToInt(
