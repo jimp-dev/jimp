@@ -33,6 +33,16 @@ describe('FileType', () => {
         });
     });
 
+    it('clones with the correct MIME type', done => {
+        new Jimp(imagesDir + '/cops.jpg', function(err, image) {
+            if (err) done(err);
+            const clone = image.clone();
+
+            image.getMIME().should.be.equal(clone.getMIME());
+            done();
+        });
+    });
+
     it('load BMP', done => {
         new Jimp(imagesDir + '/windows95.bmp', function(err) {
             if (err) done(err);
