@@ -1100,10 +1100,10 @@ function jimpEvMethod(methodName, evName, method) {
  * @returns the new image
  */
 jimpEvMethod('clone', 'clone', function(cb, sync) {
-    console.log(sync);
-    const clone = new Jimp(this, sync ? 'sync' : false);
+    // console.log(sync);
+    const clone = new Jimp(this);
 
-    if (!sync && isNodePattern(cb)) {
+    if (isNodePattern(cb)) {
         return cb.call(clone, null, clone);
     }
 

@@ -194,7 +194,7 @@ describe('Events', () => {
                 .catch(done);
         });
 
-        it('emit clone events with callback', done => {
+        it.only('emit clone events with callback', done => {
             let evBeforeCloneEmited = false;
             let evClonedEmited = false;
             const eventsEmited = [];
