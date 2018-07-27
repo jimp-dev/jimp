@@ -170,7 +170,8 @@ class Jimp extends EventEmitter {
             args[0] = bufferFromArrayBuffer(args[0]);
         }
 
-        function finish(err) {
+        function finish(...args) {
+            const [err] = args;
             const evData = err || {};
             evData.methodName = 'constructor';
 
@@ -1091,7 +1092,9 @@ function jimpEvMethod(methodName, evName, method) {
         const jimpInstance = this;
 
         if (typeof cb === 'function') {
-            wrapedCb = function(err, data) {
+            wrapedCb = function(...args) {
+                const [err, data] = args;
+
                 if (err) {
                     jimpInstance.emitError(methodName, err);
                 } else {
@@ -1099,6 +1102,7 @@ function jimpEvMethod(methodName, evName, method) {
                         [methodName]: data
                     });
                 }
+
                 cb.apply(this, args);
             };
             args[args.length - 1] = wrapedCb;
