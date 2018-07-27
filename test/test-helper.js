@@ -72,9 +72,8 @@ const jgdReadableMatrix = function(img) {
 
 exports.jgdReadableMatrix = jgdReadableMatrix;
 
-shouldAssertion.sameJGD = function(targetJGD, message) {
+function compareJGD(testJGD, targetJGD, message) {
     message = message ? ' ' + message : '';
-    const testJGD = this.obj;
     should.exist(testJGD.width, 'Width was not defined.' + message);
     should.exist(testJGD.height, 'Height was not defined.' + message);
     testJGD.width.should.be.equal(
@@ -90,6 +89,14 @@ shouldAssertion.sameJGD = function(targetJGD, message) {
         jgdReadableMatrix(targetJGD),
         matrixMsg
     );
+}
+
+shouldAssertion.sameJGD = function(targetJGD, message) {
+    if (this.obj instanceof Promise) {
+        return this.obj.then(img => compareJGD(img, targetJGD, message));
+    }
+
+    compareJGD(this.obj, targetJGD, message);
 };
 
 exports.Jimp = require('./jgd-wrapper');
