@@ -381,7 +381,8 @@ class Jimp extends EventEmitter {
     /**
      * Writes the image to a file
      * @param {string} path a path to the destination file (either PNG or JPEG)
-     * @param {function(Error, Jimp)} cb (optional) a function to call when the image is saved to disk
+     * @param {function(Error, Jimp)|string} cb (optional) a function to call when the
+     *        image is saved to disk, or a string 'async' write will return a promise
      * @returns {Jimp} this for chaining of methods
      */
     write(path, cb) {
@@ -399,8 +400,12 @@ class Jimp extends EventEmitter {
             cb = noop;
         }
 
-        if (typeof cb !== 'function') {
-            return throwError.call(this, 'cb must be a function', cb);
+        if (typeof cb !== 'function' && typeof cb !== 'string') {
+            return throwError.call(
+                this,
+                'cb must be a function or the string "async"',
+                cb
+            );
         }
 
         const mime = MIME.getType(path);
@@ -410,25 +415,34 @@ class Jimp extends EventEmitter {
             MkDirP.sync(pathObj.dir);
         }
 
-        this.getBuffer(mime, (err, buffer) => {
-            if (err) {
-                return throwError.call(this, err, cb);
-            }
+        const getBuffer = (resolve, reject) =>
+            this.getBuffer(mime, (err, buffer) => {
+                if (err) {
+                    return reject(err);
+                }
 
-            const stream = FS.createWriteStream(path);
+                const stream = FS.createWriteStream(path);
 
-            stream
-                .on('open', () => {
-                    stream.write(buffer);
-                    stream.end();
-                })
-                .on('error', err => {
-                    return throwError.call(this, err, cb);
+                stream
+                    .on('open', () => {
+                        stream.write(buffer);
+                        stream.end();
+                    })
+                    .on('error', err => {
+                        return reject(err);
+                    });
+                stream.on('finish', () => {
+                    return resolve(this);
                 });
-            stream.on('finish', () => {
-                return cb.call(this, null, this);
             });
-        });
+
+        if (cb === 'async') {
+            return new Promise(getBuffer);
+        }
+
+        const resolve = image => cb.call(this, null, image);
+        const reject = err => throwError.call(this, err, cb);
+        getBuffer(resolve, reject);
 
         return this;
     }
