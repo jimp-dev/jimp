@@ -169,11 +169,74 @@ function compositeBitmapOverBackground(Jimp, image) {
     ).composite(image, 0, 0).bitmap;
 }
 
+function getBufferFromImage(image, mime) {
+    let buffer;
+
+    switch (mime.toLowerCase()) {
+        case constants.MIME_PNG: {
+            const png = new PNG({
+                width: image.bitmap.width,
+                height: image.bitmap.height,
+                bitDepth: 8,
+                deflateLevel: image._deflateLevel,
+                deflateStrategy: image._deflateStrategy,
+                filterType: image._filterType,
+                colorType: image._rgba ? 6 : 2,
+                inputHasAlpha: true
+            });
+
+            if (image._rgba) {
+                png.data = Buffer.from(image.bitmap.data);
+            } else {
+                // when PNG doesn't support alpha
+                png.data = compositeBitmapOverBackground(
+                    image.constructor,
+                    image
+                ).data;
+            }
+
+            buffer = PNG.sync.write(png);
+            break;
+        }
+
+        case constants.MIME_JPEG: {
+            // composite onto a new image so that the background shows through alpha channels
+            const jpeg = JPEG.encode(
+                compositeBitmapOverBackground(image.constructor, image),
+                image._quality
+            );
+            buffer = jpeg.data;
+            break;
+        }
+
+        case constants.MIME_BMP:
+        case constants.MIME_X_MS_BMP: {
+            // composite onto a new image so that the background shows through alpha channels
+            const bmp = BMP.encode(
+                compositeBitmapOverBackground(image.constructor, image)
+            );
+            buffer = bmp.data;
+            break;
+        }
+
+        case constants.MIME_TIFF: {
+            const c = compositeBitmapOverBackground(image.constructor, image);
+            const tiff = UTIF.encodeImage(c.data, c.width, c.height);
+            buffer = Buffer.from(tiff);
+            break;
+        }
+
+        default:
+            throw new TypeError('Unsupported MIME type: ' + mime);
+    }
+
+    return buffer;
+}
+
 /**
  * Converts the image to a buffer
  * @param {string} mime the mime type of the image buffer to be created
- * @param {function(Error, Jimp)|string} cb (optional) a function to call when the
- *        image is saved to disk, or a string 'async' write will return a promise
+ * @param {function(Error, Jimp)} cb (optional) a function to call when the  is saved to disk
  * @returns {Jimp} this for chaining of methods
  */
 export function getBuffer(mime, cb) {
@@ -187,84 +250,33 @@ export function getBuffer(mime, cb) {
     }
 
     if (typeof cb !== 'function' && typeof cb !== 'string') {
-        return throwError.call(
-            this,
-            'cb must be a function or the string "async"',
-            cb
-        );
+        return throwError.call(this, 'cb must be a function', cb);
     }
 
-    let buffer;
-    let error;
-
-    switch (mime.toLowerCase()) {
-        case constants.MIME_PNG: {
-            const png = new PNG({
-                width: this.bitmap.width,
-                height: this.bitmap.height,
-                bitDepth: 8,
-                deflateLevel: this._deflateLevel,
-                deflateStrategy: this._deflateStrategy,
-                filterType: this._filterType,
-                colorType: this._rgba ? 6 : 2,
-                inputHasAlpha: true
-            });
-
-            if (this._rgba) {
-                png.data = Buffer.from(this.bitmap.data);
-            } else {
-                // when PNG doesn't support alpha
-                png.data = compositeBitmapOverBackground(
-                    this.constructor,
-                    this
-                ).data;
-            }
-
-            buffer = PNG.sync.write(png);
-            break;
-        }
-
-        case constants.MIME_JPEG: {
-            // composite onto a new image so that the background shows through alpha channels
-            const jpeg = JPEG.encode(
-                compositeBitmapOverBackground(this.constructor, this),
-                this._quality
-            );
-            buffer = jpeg.data;
-            break;
-        }
-
-        case constants.MIME_BMP:
-        case constants.MIME_X_MS_BMP: {
-            // composite onto a new image so that the background shows through alpha channels
-            const bmp = BMP.encode(
-                compositeBitmapOverBackground(this.constructor, this)
-            );
-            buffer = bmp.data;
-            break;
-        }
-
-        case constants.MIME_TIFF: {
-            const c = compositeBitmapOverBackground(this.constructor, this);
-            const tiff = UTIF.encodeImage(c.data, c.width, c.height);
-            buffer = Buffer.from(tiff);
-            break;
-        }
-
-        default:
-            cb.call(this, 'Unsupported MIME type: ' + mime);
-            break;
+    try {
+        const buffer = getBufferFromImage(this, mime);
+        cb.call(this, null, buffer);
+    } catch (error) {
+        return throwError.call(this, error, cb);
     }
-
-    if (cb === 'async') {
-        return error ? Promise.reject(error) : Promise.resolve(buffer);
-    }
-
-    if (error) {
-        cb.call(this, error, this);
-    }
-
-    cb.call(this, null, buffer);
 
     return this;
+}
+
+export function getBufferAsync(mime) {
+    if (mime === constants.AUTO) {
+        // allow auto MIME detection
+        mime = this.getMIME();
+    }
+
+    if (typeof mime !== 'string') {
+        throw new TypeError('mime must be a string');
+    }
+
+    try {
+        const buffer = getBufferFromImage(this, mime);
+        return Promise.resolve(buffer);
+    } catch (error) {
+        return Promise.reject(error);
+    }
 }

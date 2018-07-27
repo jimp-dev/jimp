@@ -18,7 +18,7 @@ import * as effects from './image-manipulation/effects';
 
 import isDef from './utils/is-def';
 import { clear } from './utils/log';
-import { parseBitmap, getBuffer } from './utils/image-bitmap';
+import { parseBitmap, getBuffer, getBufferAsync } from './utils/image-bitmap';
 import { isNodePattern, throwError } from './utils/error-checking';
 import * as constants from './constants';
 
@@ -107,6 +107,30 @@ const emptyBitmap = {
     height: null
 };
 
+const encodeBase64 = (mime, data) =>
+    'data:' + mime + ';base64,' + data.toString('base64');
+
+const writeFile = (buffer, path, mime, resolve, reject) => {
+    const pathObj = Path.parse(path);
+
+    if (pathObj.dir) {
+        MkDirP.sync(pathObj.dir);
+    }
+
+    const stream = FS.createWriteStream(path);
+
+    stream
+        .on('open', () => {
+            stream.write(buffer);
+            stream.end();
+        })
+        .on('error', err => {
+            return reject(err);
+        });
+    stream.on('finish', () => {
+        return resolve(this);
+    });
+};
 /**
  * Jimp constructor (from a file)
  * @param path a path to the image
@@ -381,8 +405,7 @@ class Jimp extends EventEmitter {
     /**
      * Writes the image to a file
      * @param {string} path a path to the destination file (either PNG or JPEG)
-     * @param {function(Error, Jimp)|string} cb (optional) a function to call when the
-     *        image is saved to disk, or a string 'async' write will return a promise
+     * @param {function(Error, Jimp)} cb (optional) a function to call when the image is saved to disk
      * @returns {Jimp} this for chaining of methods
      */
     write(path, cb) {
@@ -400,57 +423,44 @@ class Jimp extends EventEmitter {
             cb = noop;
         }
 
-        if (typeof cb !== 'function' && typeof cb !== 'string') {
-            return throwError.call(
-                this,
-                'cb must be a function or the string "async"',
-                cb
-            );
+        if (typeof cb !== 'function') {
+            return throwError.call(this, 'cb must be a function', cb);
         }
 
         const mime = MIME.getType(path);
-        const pathObj = Path.parse(path);
-
-        if (pathObj.dir) {
-            MkDirP.sync(pathObj.dir);
-        }
-
-        const writeFile = (buffer, resolve, reject) => {
-            const stream = FS.createWriteStream(path);
-
-            stream
-                .on('open', () => {
-                    stream.write(buffer);
-                    stream.end();
-                })
-                .on('error', err => {
-                    return reject(err);
-                });
-            stream.on('finish', () => {
-                return resolve(this);
-            });
-        };
-
-        if (cb === 'async') {
-            return this.getBuffer(mime, 'async').then(buffer => {
-                return new Promise((resolve, reject) =>
-                    writeFile(buffer, resolve, reject)
-                );
-            });
-        }
 
         this.getBuffer(mime, (err, buffer) => {
-            const resolve = image => cb.call(this, null, image);
+            const resolve = () => cb.call(this, null, this);
             const reject = err => throwError.call(this, err, cb);
 
             if (err) {
                 return reject(err);
             }
 
-            writeFile(buffer, resolve, reject);
+            writeFile(buffer, path, mime, resolve, reject);
         });
 
         return this;
+    }
+
+    writeAsync(path) {
+        if (!FS || !FS.createWriteStream) {
+            throw new Error(
+                'Cant access the filesystem. You can use the getBase64 method.'
+            );
+        }
+
+        if (typeof path !== 'string') {
+            throw new TypeError('path must be a string');
+        }
+
+        const mime = MIME.getType(path);
+
+        return this.getBufferAsync(mime).then(buffer => {
+            return new Promise((resolve, reject) =>
+                writeFile(buffer, path, mime, () => resolve(this), reject)
+            );
+        });
     }
 
     /**
@@ -594,30 +604,34 @@ class Jimp extends EventEmitter {
             return throwError.call(this, 'mime must be a string', cb);
         }
 
-        if (typeof cb !== 'function' && typeof cb !== 'string') {
-            return throwError.call(
-                this,
-                'cb must be a function or the string "async"',
-                cb
-            );
-        }
-
-        const encodeBase64 = data =>
-            'data:' + mime + ';base64,' + data.toString('base64');
-
-        if (cb === 'async') {
-            return this.getBuffer(mime, 'async').then(encodeBase64);
+        if (typeof cb !== 'function') {
+            return throwError.call(this, 'cb must be a function', cb);
         }
 
         this.getBuffer(mime, (err, buffer) => {
             if (err) {
                 throwError.call(this, err, cb);
             } else {
-                cb.call(this, null, encodeBase64(buffer));
+                cb.call(this, null, encodeBase64(mime, buffer));
             }
         });
 
         return this;
+    }
+
+    getBase64Async(mime) {
+        if (mime === Jimp.AUTO) {
+            // allow auto MIME detection
+            mime = this.getMIME();
+        }
+
+        if (typeof mime !== 'string') {
+            return Promise.reject(new TypeError('mime must be a string'));
+        }
+
+        return this.getBufferAsync(mime).then(buffer =>
+            encodeBase64(mime, buffer)
+        );
     }
 
     /**
@@ -667,6 +681,8 @@ class Jimp extends EventEmitter {
      * @returns {Jimp} this for chaining of methods
      */
     getBuffer = getBuffer;
+
+    getBufferAsync = getBufferAsync;
 
     /**
      * Returns the offset of a pixel in the bitmap buffer

@@ -4,7 +4,7 @@ const { Jimp, getTestDir } = require('./test-helper');
 
 const imagesDir = getTestDir() + '/samples';
 
-describe.only('Async functions', () => {
+describe('Async functions', () => {
     it('write returns promise', done => {
         const writePath = './test.png';
 
@@ -17,7 +17,7 @@ describe.only('Async functions', () => {
         new Jimp(imagesDir + '/dice.png', function(err) {
             if (err) done(err);
 
-            this.write(writePath, 'async').then(image => {
+            this.writeAsync(writePath).then(image => {
                 should.exist(image);
                 fs.existsSync(writePath).should.be.true();
                 fs.unlinkSync(writePath);
@@ -33,8 +33,7 @@ describe.only('Async functions', () => {
 
         new Jimp(imagesDir + '/dice.png', function(err) {
             if (err) done(err);
-
-            this.getBuffer(Jimp.AUTO, 'async').then(buffer => {
+            this.getBufferAsync(Jimp.AUTO).then(buffer => {
                 should.exist(buffer);
                 done();
             });
@@ -49,7 +48,7 @@ describe.only('Async functions', () => {
         new Jimp(imagesDir + '/dice.png', function(err) {
             if (err) done(err);
 
-            this.getBase64(Jimp.AUTO, 'async').then(buffer => {
+            this.getBase64Async(Jimp.AUTO).then(buffer => {
                 should.exist(buffer);
                 done();
             });
