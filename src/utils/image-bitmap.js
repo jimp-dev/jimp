@@ -171,9 +171,9 @@ function compositeBitmapOverBackground(Jimp, image) {
 
 /**
  * Converts the image to a buffer
- * @param mime the mime type of the image buffer to be created
- * @param cb a Node-style function to call with the buffer as the second argument
- * @returns this for chaining of methods
+ * @param {string} mime the mime type of the image buffer to be created
+ * @param {function(Error, Jimp)} cb a Node-style function to call with the buffer as the second argument
+ * @returns {Jimp} this for chaining of methods
  */
 export function getBuffer(mime, cb) {
     if (mime === constants.AUTO) {

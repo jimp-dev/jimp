@@ -110,26 +110,26 @@ const emptyBitmap = {
 /**
  * Jimp constructor (from a file)
  * @param path a path to the image
- * @param (optional) cb a function to call when the image is parsed to a bitmap
+ * @param {function(Error, Jimp)} cb (optional) a function to call when the image is parsed to a bitmap
  */
 
 /**
  * Jimp constructor (from another Jimp image)
  * @param image a Jimp image to clone
- * @param cb a function to call when the image is parsed to a bitmap
+ * @param {function(Error, Jimp)} cb a function to call when the image is parsed to a bitmap
  */
 
 /**
  * Jimp constructor (from a Buffer)
  * @param data a Buffer containing the image data
- * @param cb a function to call when the image is parsed to a bitmap
+ * @param {function(Error, Jimp)} cb a function to call when the image is parsed to a bitmap
  */
 
 /**
  * Jimp constructor (to generate a new image)
  * @param w the width of the image
  * @param h the height of the image
- * @param (optional) cb a function to call when the image is parsed to a bitmap
+ * @param {function(Error, Jimp)} cb (optional) a function to call when the image is parsed to a bitmap
  */
 
 class Jimp extends EventEmitter {
@@ -160,14 +160,14 @@ class Jimp extends EventEmitter {
     // Exif data for the image
     _exif = null;
 
-    constructor() {
+    constructor(...args) {
         super();
 
         const jimpInstance = this;
         let cb = noop;
 
-        if (isArrayBuffer(arguments[0])) {
-            arguments[0] = bufferFromArrayBuffer(arguments[0]);
+        if (isArrayBuffer(args[0])) {
+            args[0] = bufferFromArrayBuffer(args[0]);
         }
 
         function finish(err) {
@@ -182,21 +182,18 @@ class Jimp extends EventEmitter {
                     jimpInstance.emitMulti('constructor', 'initialized');
                 }
 
-                cb.call(jimpInstance, ...arguments);
+                cb.call(jimpInstance, ...args);
             }, 1);
         }
-        if (
-            typeof arguments[0] === 'number' &&
-            typeof arguments[1] === 'number'
-        ) {
+        if (typeof args[0] === 'number' && typeof args[1] === 'number') {
             // create a new image
-            const w = arguments[0];
-            const h = arguments[1];
-            cb = arguments[2];
+            const w = args[0];
+            const h = args[1];
+            cb = args[2];
 
-            if (typeof arguments[2] === 'number') {
-                this._background = arguments[2];
-                cb = arguments[3];
+            if (typeof args[2] === 'number') {
+                this._background = args[2];
+                cb = args[3];
             }
 
             if (typeof cb === 'undefined') {
@@ -218,10 +215,10 @@ class Jimp extends EventEmitter {
             }
 
             finish(null, this);
-        } else if (arguments[0] instanceof Jimp) {
+        } else if (args[0] instanceof Jimp) {
             // clone an existing Jimp
-            const original = arguments[0];
-            cb = arguments[1];
+            const original = args[0];
+            cb = args[1];
 
             if (typeof cb === 'undefined') {
                 cb = noop;
@@ -258,10 +255,10 @@ class Jimp extends EventEmitter {
             this._originalMime = original._originalMime;
 
             finish(null, this);
-        } else if (typeof arguments[0] === 'string') {
+        } else if (typeof args[0] === 'string') {
             // read from a path
-            const path = arguments[0];
-            cb = arguments[1];
+            const path = args[0];
+            cb = args[1];
 
             if (typeof cb === 'undefined') {
                 cb = noop;
@@ -278,13 +275,10 @@ class Jimp extends EventEmitter {
 
                 parseBitmap.call(this, data, path, finish);
             });
-        } else if (
-            typeof arguments[0] === 'object' &&
-            Buffer.isBuffer(arguments[0])
-        ) {
+        } else if (typeof args[0] === 'object' && Buffer.isBuffer(args[0])) {
             // read from a buffer
-            const data = arguments[0];
-            cb = arguments[1];
+            const data = args[0];
+            cb = args[1];
 
             if (typeof cb !== 'function') {
                 return throwError.call(this, 'cb must be a function', finish);
@@ -294,10 +288,11 @@ class Jimp extends EventEmitter {
         } else {
             // Allow client libs to add new ways to build a Jimp object.
             // Extra constructors must be added by `Jimp.appendConstructorOption()`
-            cb = arguments[arguments.length - 1];
+            cb = args[args.length - 1];
 
             if (typeof cb !== 'function') {
-                cb = arguments[arguments.length - 2]; // TODO: try to solve the args after cb problem.
+                // TODO: try to solve the args after cb problem.
+                cb = args[args.length - 2];
 
                 if (typeof cb !== 'function') {
                     cb = noop;
@@ -305,17 +300,12 @@ class Jimp extends EventEmitter {
             }
 
             const extraConstructor = Jimp.__extraConstructors.find(c =>
-                c.test(...arguments)
+                c.test(...args)
             );
 
             if (extraConstructor) {
                 new Promise((resolve, reject) =>
-                    extraConstructor.run.call(
-                        this,
-                        resolve,
-                        reject,
-                        ...arguments
-                    )
+                    extraConstructor.run.call(this, resolve, reject, ...args)
                 )
                     .then(() => finish(null, this))
                     .catch(finish);
@@ -332,6 +322,9 @@ class Jimp extends EventEmitter {
 
     /**
      * Emit for multiple listeners
+     * @param {string} methodName name of the method to emit an error for
+     * @param {string} eventName name of the eventName to emit an error for
+     * @param {object} data to emit
      */
     emitMulti(methodName, eventName, data = {}) {
         data = Object.assign(data, { methodName, eventName });
@@ -366,7 +359,7 @@ class Jimp extends EventEmitter {
 
     /**
      * Returns the original MIME of the image (default: "image/png")
-     * @returns the MIME as a string
+     * @returns {string} the MIME
      */
     getMIME() {
         const mime = this._originalMime || Jimp.MIME_PNG;
@@ -376,7 +369,7 @@ class Jimp extends EventEmitter {
 
     /**
      * Returns the appropriate file extension for the original MIME of the image (default: "png")
-     * @returns the file extension as a string
+     * @returns {string} the file extension
      */
     getExtension() {
         const mime = this.getMIME();
@@ -386,9 +379,9 @@ class Jimp extends EventEmitter {
 
     /**
      * Writes the image to a file
-     * @param path a path to the destination file (either PNG or JPEG)
-     * @param (optional) cb a function to call when the image is saved to disk
-     * @returns this for chaining of methods
+     * @param {string} path a path to the destination file (either PNG or JPEG)
+     * @param {function(Error, Jimp)} cb (optional) a function to call when the image is saved to disk
+     * @returns {Jimp} this for chaining of methods
      */
     write(path, cb) {
         if (!FS || !FS.createWriteStream) {
@@ -441,9 +434,9 @@ class Jimp extends EventEmitter {
 
     /**
      * Sets the deflate level used when saving as PNG format (default is 9)
-     * @param l Deflate level to use 0-9. 0 is no compression. 9 (default) is maximum compression.
-     * @param (optional) cb a callback for when complete
-     * @returns this for chaining of methods
+     * @param {number} l Deflate level to use 0-9. 0 is no compression. 9 (default) is maximum compression.
+     * @param {function(Error, Jimp)} cb (optional) a callback for when complete
+     * @returns {Jimp} this for chaining of methods
      */
     deflateLevel(l, cb) {
         if (typeof l !== 'number') {
@@ -465,9 +458,9 @@ class Jimp extends EventEmitter {
 
     /**
      * Sets the deflate strategy used when saving as PNG format (default is 3)
-     * @param s Deflate strategy to use 0-3.
-     * @param (optional) cb a callback for when complete
-     * @returns this for chaining of methods
+     * @param {number} s Deflate strategy to use 0-3.
+     * @param {function(Error, Jimp)} cb (optional) a callback for when complete
+     * @returns {Jimp} this for chaining of methods
      */
     deflateStrategy(s, cb) {
         if (typeof s !== 'number') {
@@ -489,9 +482,9 @@ class Jimp extends EventEmitter {
 
     /**
      * Sets the filter type used when saving as PNG format (default is automatic filters)
-     * @param f The quality to use -1-4.
-     * @param (optional) cb a callback for when complete
-     * @returns this for chaining of methods
+     * @param {number} f The quality to use -1-4.
+     * @param {function(Error, Jimp)} cb (optional) a callback for when complete
+     * @returns {Jimp} this for chaining of methods
      */
     filterType(f, cb) {
         if (typeof f !== 'number') {
@@ -517,9 +510,9 @@ class Jimp extends EventEmitter {
 
     /**
      * Sets the type of the image (RGB or RGBA) when saving as PNG format (default is RGBA)
-     * @param bool A Boolean, true to use RGBA or false to use RGB
-     * @param (optional) cb a callback for when complete
-     * @returns this for chaining of methods
+     * @param {boolean} bool A Boolean, true to use RGBA or false to use RGB
+     * @param {function(Error, Jimp)} cb (optional) a callback for when complete
+     * @returns {Jimp} this for chaining of methods
      */
     rgba(bool, cb) {
         if (typeof bool !== 'boolean') {
@@ -541,9 +534,9 @@ class Jimp extends EventEmitter {
 
     /**
      * Sets the quality of the image when saving as JPEG format (default is 100)
-     * @param n The quality to use 0-100
-     * @param (optional) cb a callback for when complete
-     * @returns this for chaining of methods
+     * @param {number} n The quality to use 0-100
+     * @param {function(Error, Jimp)} cb (optional) a callback for when complete
+     * @returns {Jimp} this for chaining of methods
      */
     quality(n, cb) {
         if (typeof n !== 'number') {
@@ -565,9 +558,9 @@ class Jimp extends EventEmitter {
 
     /**
      * Converts the image to a base 64 string
-     * @param mime the mime type of the image data to be created
-     * @param cb a Node-style function to call with the buffer as the second argument
-     * @returns this for chaining of methods
+     * @param {string} mime the mime type of the image data to be created
+     * @param {function(Error, Jimp)} cb a Node-style function to call with the buffer as the second argument
+     * @returns {Jimp} this for chaining of methods
      */
     getBase64(mime, cb) {
         if (mime === Jimp.AUTO) {
@@ -596,9 +589,9 @@ class Jimp extends EventEmitter {
 
     /**
      * Generates a perceptual hash of the image <https://en.wikipedia.org/wiki/Perceptual_hashing>.
-     * @param base (optional) a number between 2 and 64 representing the base for the hash (e.g. 2 is binary, 10 is decimaal, 16 is hex, 64 is base 64). Defaults to 64.
-     * @param (optional) cb a callback for when complete
-     * @returns a string representing the hash
+     * @param {number} base (optional) a number between 2 and 64 representing the base for the hash (e.g. 2 is binary, 10 is decimaal, 16 is hex, 64 is base 64). Defaults to 64.
+     * @param {function(Error, Jimp)} cb (optional) a callback for when complete
+     * @returns {string} a string representing the hash
      */
     hash(base, cb) {
         base = base || 64;
@@ -636,19 +629,19 @@ class Jimp extends EventEmitter {
 
     /**
      * Converts the image to a buffer
-     * @param mime the mime type of the image buffer to be created
-     * @param cb a Node-style function to call with the buffer as the second argument
-     * @returns this for chaining of methods
+     * @param {string} mime the mime type of the image buffer to be created
+     * @param {function(Error, Jimp)} cb a Node-style function to call with the buffer as the second argument
+     * @returns {Jimp} this for chaining of methods
      */
     getBuffer = getBuffer;
 
     /**
      * Returns the offset of a pixel in the bitmap buffer
-     * @param x the x coordinate
-     * @param y the y coordinate
-     * @param (optional) edgeHandling define how to sum pixels from outside the border
-     * @param (optional) cb a callback for when complete
-     * @returns the index of the pixel or -1 if not found
+     * @param {number} x the x coordinate
+     * @param {number} y the y coordinate
+     * @param {string} edgeHandling (optional) define how to sum pixels from outside the border
+     * @param {number} cb (optional) a callback for when complete
+     * @returns {number} the index of the pixel or -1 if not found
      */
     getPixelIndex(x, y, edgeHandling, cb) {
         let xi;
@@ -718,10 +711,10 @@ class Jimp extends EventEmitter {
 
     /**
      * Returns the hex colour value of a pixel
-     * @param x the x coordinate
-     * @param y the y coordinate
-     * @param (optional) cb a callback for when complete
-     * @returns the color of the pixel
+     * @param {number} x the x coordinate
+     * @param {number} y the y coordinate
+     * @param {function(Error, Jimp)} cb (optional) a callback for when complete
+     * @returns {number} the color of the pixel
      */
     getPixelColor(x, y, cb) {
         if (typeof x !== 'number' || typeof y !== 'number')
@@ -745,10 +738,11 @@ class Jimp extends EventEmitter {
 
     /**
      * Returns the hex colour value of a pixel
-     * @param x the x coordinate
-     * @param y the y coordinate
-     * @param (optional) cb a callback for when complete
-     * @returns the index of the pixel or -1 if not found
+     * @param {number} hex color to set
+     * @param {number} x the x coordinate
+     * @param {number} y the y coordinate
+     * @param {function(Error, Jimp)} cb (optional) a callback for when complete
+     * @returns {number} the index of the pixel or -1 if not found
      */
     setPixelColor(hex, x, y, cb) {
         if (
@@ -789,9 +783,9 @@ Jimp.__extraConstructors = [];
 
 /**
  * Allow client libs to add new ways to build a Jimp object.
- * @param name identify the extra constructor.
- * @param test a function that returns true when it accepts the arguments passed to the main constructor.
- * @param runner where the magic happens.
+ * @param {string} name identify the extra constructor.
+ * @param {function} test a function that returns true when it accepts the arguments passed to the main constructor.
+ * @param {function} run where the magic happens.
  */
 Jimp.appendConstructorOption = function(name, test, run) {
     Jimp.__extraConstructors.push({ name, test, run });
@@ -799,8 +793,8 @@ Jimp.appendConstructorOption = function(name, test, run) {
 
 /**
  * Read an image from a file or a Buffer
- * @param src the path to the file or a Buffer containing the file data
- * @retuns a promise
+ * @param {string} src the path to the file or a Buffer containing the file data
+ * @returns {Promise} a promise
  */
 Jimp.read = function(src) {
     return new Promise((resolve, reject) => {
@@ -813,12 +807,12 @@ Jimp.read = function(src) {
 
 /**
  * A static helper method that converts RGBA values to a single integer value
- * @param r the red value (0-255)
- * @param g the green value (0-255)
- * @param b the blue value (0-255)
- * @param a the alpha value (0-255)
- * @param cb (optional) A callback for when complete
- * @returns an single integer colour value
+ * @param {number} r the red value (0-255)
+ * @param {number} g the green value (0-255)
+ * @param {number} b the blue value (0-255)
+ * @param {number} a the alpha value (0-255)
+ * @param {function(Error, Jimp)} cb (optional) A callback for when complete
+ * @returns {number} an single integer colour value
  */
 Jimp.rgbaToInt = function(r, g, b, a, cb) {
     if (
@@ -866,9 +860,9 @@ Jimp.rgbaToInt = function(r, g, b, a, cb) {
 
 /**
  * A static helper method that converts RGBA values to a single integer value
- * @param i a single integer value representing an RGBA colour (e.g. 0xFF0000FF for red)
- * @param cb (optional) A callback for when complete
- * @returns an object with the properties r, g, b and a representing RGBA values
+ * @param {number} i a single integer value representing an RGBA colour (e.g. 0xFF0000FF for red)
+ * @param {function(Error, Jimp)} cb (optional) A callback for when complete
+ * @returns {object} an object with the properties r, g, b and a representing RGBA values
  */
 Jimp.intToRGBA = function(i, cb) {
     if (typeof i !== 'number') {
@@ -900,8 +894,8 @@ Jimp.intToRGBA = function(i, cb) {
 
 /**
  * Limits a number to between 0 or 255
- * @param n a number
- * @returns the number limited to between 0 or 255
+ * @param {number} n a number
+ * @returns {number} the number limited to between 0 or 255
  */
 Jimp.limit255 = function(n) {
     n = Math.max(n, 0);
@@ -912,10 +906,10 @@ Jimp.limit255 = function(n) {
 
 /**
  * Diffs two images and returns
- * @param img1 a Jimp image to compare
- * @param img2 a Jimp image to compare
- * @param (optional) threshold a number, 0 to 1, the smaller the value the more sensitive the comparison (default: 0.1)
- * @returns an object { percent: percent similar, diff: a Jimp image highlighting differences }
+ * @param {Jimp} img1 a Jimp image to compare
+ * @param {Jimp} img2 a Jimp image to compare
+ * @param {number} threshold (optional) a number, 0 to 1, the smaller the value the more sensitive the comparison (default: 0.1)
+ * @returns {object} an object { percent: percent similar, diff: a Jimp image highlighting differences }
  */
 Jimp.diff = function(img1, img2, threshold) {
     if (!(img1 instanceof Jimp) || !(img2 instanceof Jimp))
@@ -962,9 +956,9 @@ Jimp.diff = function(img1, img2, threshold) {
 
 /**
  * Calculates the hamming distance of two images based on their perceptual hash
- * @param img1 a Jimp image to compare
- * @param img2 a Jimp image to compare
- * @returns a number ranging from 0 to 1, 0 means they are believed to be identical
+ * @param {Jimp} img1 a Jimp image to compare
+ * @param {Jimp} img2 a Jimp image to compare
+ * @returns {number} a number ranging from 0 to 1, 0 means they are believed to be identical
  */
 Jimp.distance = function(img1, img2) {
     const phash = new ImagePHash();
@@ -977,11 +971,11 @@ Jimp.distance = function(img1, img2) {
 /**
  * Compute color difference
  * 0 means no difference, 1 means maximum difference.
- * @param rgba1:    first color to compare.
- * @param rgba2:    second color to compare.
+ * @param {number} rgba1:    first color to compare.
+ * @param {number} rgba2:    second color to compare.
  * Both parameters must be an color object {r:val, g:val, b:val, a:val}
  * Where `a` is optional and `val` is an integer between 0 and 255.
- * @returns float between 0 and 1.
+ * @returns {number} float between 0 and 1.
  */
 Jimp.colorDiff = function(rgba1, rgba2) {
     const pow = n => Math.pow(n, 2);
@@ -1023,9 +1017,9 @@ function loadPages(dir, pages) {
 
 /**
  * Loads a bitmap font from a file
- * @param file the file path of a .fnt file
- * @param (optional) cb a function to call when the font is loaded
- * @returns a promise
+ * @param {string} file the file path of a .fnt file
+ * @param {function(Error, Jimp)} cb (optional) a function to call when the font is loaded
+ * @returns {Promise} a promise
  */
 Jimp.loadFont = function(file, cb) {
     if (typeof file !== 'string')
@@ -1075,11 +1069,11 @@ Jimp.loadFont = function(file, cb) {
 
 /**
  * Helper to create Jimp methods that emit events before and after its execution.
- * @param methodName   The name to be appended to Jimp prototype.
- * @param evName       The event name to be called.
+ * @param {string} methodName   The name to be appended to Jimp prototype.
+ * @param {string} evName       The event name to be called.
  *                     It will be prefixed by `before-` and emited when on method call.
  *                     It will be appended by `ed` and emited after the method run.
- * @param method       A function implementing the method itself.
+ * @param {function} method       A function implementing the method itself.
  * It will also create a quiet version that will not emit events, to not
  * mess the user code with many `changed` event calls. You can call with
  * `methodName + "Quiet"`.
@@ -1091,9 +1085,9 @@ function jimpEvMethod(methodName, evName, method) {
     const evNameBefore = 'before-' + evName;
     const evNameAfter = evName.replace(/e$/, '') + 'ed';
 
-    Jimp.prototype[methodName] = function() {
+    Jimp.prototype[methodName] = function(...args) {
         let wrapedCb;
-        const cb = arguments[method.length - 1];
+        const cb = args[method.length - 1];
         const jimpInstance = this;
 
         if (typeof cb === 'function') {
@@ -1105,9 +1099,9 @@ function jimpEvMethod(methodName, evName, method) {
                         [methodName]: data
                     });
                 }
-                cb.apply(this, arguments);
+                cb.apply(this, args);
             };
-            arguments[arguments.length - 1] = wrapedCb;
+            args[args.length - 1] = wrapedCb;
         } else {
             wrapedCb = false;
         }
@@ -1117,7 +1111,7 @@ function jimpEvMethod(methodName, evName, method) {
         let result;
 
         try {
-            result = method.apply(this, arguments);
+            result = method.apply(this, args);
 
             if (!wrapedCb) {
                 this.emitMulti(methodName, evNameAfter, {
@@ -1137,7 +1131,7 @@ function jimpEvMethod(methodName, evName, method) {
 
 /**
  * Creates a new image that is a clone of this one.
- * @param cb (optional) A callback for when complete
+ * @param {function(Error, Jimp)} cb (optional) A callback for when complete
  * @returns the new image
  */
 jimpEvMethod('clone', 'clone', function(cb) {
@@ -1152,6 +1146,8 @@ jimpEvMethod('clone', 'clone', function(cb) {
 
 /**
  * Simplify jimpEvMethod call for the common `change` evName.
+ * @param {string} methodName name of the method
+ * @param {function} method to watch changes for
  */
 function jimpEvChange(methodName, method) {
     jimpEvMethod(methodName, 'change', method);
@@ -1160,8 +1156,8 @@ function jimpEvChange(methodName, method) {
 /**
  * Sets the type of the image (RGB or RGBA) when saving as PNG format (default is RGBA)
  * @param b A Boolean, true to use RGBA or false to use RGB
- * @param (optional) cb a callback for when complete
- * @returns this for chaining of methods
+ * @param {function(Error, Jimp)} cb (optional) a callback for when complete
+ * @returns {Jimp} this for chaining of methods
  */
 jimpEvChange('background', function(hex, cb) {
     if (typeof hex !== 'number') {
@@ -1183,14 +1179,14 @@ jimpEvChange('background', function(hex, cb) {
 
 /**
  * Scanes through a region of the bitmap, calling a function for each pixel.
- * @param x the x coordinate to begin the scan at
- * @param y the y coordiante to begin the scan at
+ * @param {number} x the x coordinate to begin the scan at
+ * @param {number} y the y coordiante to begin the scan at
  * @param w the width of the scan region
  * @param h the height of the scan region
  * @param f a function to call on even pixel; the (x, y) position of the pixel
  * and the index of the pixel in the bitmap buffer are passed to the function
- * @param (optional) cb a callback for when complete
- * @returns this for chaining of methods
+ * @param {function(Error, Jimp)} cb (optional) a callback for when complete
+ * @returns {Jimp} this for chaining of methods
  */
 jimpEvChange('scan', function(x, y, w, h, f, cb) {
     if (typeof x !== 'number' || typeof y !== 'number') {
@@ -1227,12 +1223,12 @@ jimpEvChange('scan', function(x, y, w, h, f, cb) {
 
 /**
  * Crops the image at a given point to a give size
- * @param x the x coordinate to crop form
- * @param y the y coordiante to crop form
+ * @param {number} x the x coordinate to crop form
+ * @param {number} y the y coordiante to crop form
  * @param w the width of the crop region
  * @param h the height of the crop region
- * @param (optional) cb a callback for when complete
- * @returns this for chaining of methods
+ * @param {function(Error, Jimp)} cb (optional) a callback for when complete
+ * @returns {Jimp} this for chaining of methods
  */
 jimpEvChange('crop', function(x, y, w, h, cb) {
     if (typeof x !== 'number' || typeof y !== 'number')

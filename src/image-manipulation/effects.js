@@ -32,9 +32,9 @@ import { mulTable, shgTable } from './blur-tables';
 
 /**
  * A fast blur algorithm that produces similar effect to a Gausian blur - but MUCH quicker
- * @param r the pixel radius of the blur
- * @param (optional) cb a callback for when complete
- * @returns this for chaining of methods
+ * @param {number} r the pixel radius of the blur
+ * @param {function(Error, Jimp)} cb (optional) a callback for when complete
+ * @returns {Jimp} this for chaining of methods
  */
 export function blur(r, cb) {
     if (typeof r !== 'number')
@@ -183,8 +183,8 @@ export function blur(r, cb) {
 
 /**
  * Apply a ordered dithering effect
- * @param (optional) cb a callback for when complete
- * @returns this for chaining of methods
+ * @param {function(Error, Jimp)} cb (optional) a callback for when complete
+ * @returns {Jimp} this for chaining of methods
  */
 export function dither565(cb) {
     const rgb565Matrix = [
@@ -259,8 +259,8 @@ function histogram() {
 
 /**
  * Normalizes the image
- * @param (optional) cb a callback for when complete
- * @returns this for chaining of methods
+ * @param {function(Error, Jimp)} cb (optional) a callback for when complete
+ * @returns {Jimp} this for chaining of methods
  */
 export function normalize(cb) {
     const h = histogram.call(this);
@@ -270,7 +270,7 @@ export function normalize(cb) {
      * @param  {integer} value Pixel channel value.
      * @param  {integer} min   Minimum value for channel
      * @param  {integer} max   Maximum value for channel
-     * @return {integer}
+     * @return {integer} normalized values
      */
     const normalize = function(value, min, max) {
         return ((value - min) * 255) / (max - min);
@@ -318,8 +318,8 @@ export function normalize(cb) {
 
 /**
  * Inverts the image
- * @param (optional) cb a callback for when complete
- * @returns this for chaining of methods
+ * @param {function(Error, Jimp)} cb (optional) a callback for when complete
+ * @returns {Jimp} this for chaining of methods
  */
 export function invert(cb) {
     this.scanQuiet(0, 0, this.bitmap.width, this.bitmap.height, function(
@@ -341,9 +341,9 @@ export function invert(cb) {
 
 /**
  * Applies a true Gaussian blur to the image (warning: this is VERY slow)
- * @param r the pixel radius of the blur
- * @param (optional) cb a callback for when complete
- * @returns this for chaining of methods
+ * @param {number} r the pixel radius of the blur
+ * @param {function(Error, Jimp)} cb (optional) a callback for when complete
+ * @returns {Jimp} this for chaining of methods
  */
 export function gaussian(r, cb) {
     // http://blog.ivank.net/fastest-gaussian-blur.html
@@ -407,11 +407,11 @@ export function gaussian(r, cb) {
 
 /**
  * Composites a source image over to this image respecting alpha channels
- * @param src the source Jimp instance
- * @param x the x position to blit the image
- * @param y the y position to blit the image
- * @param (optional) cb a callback for when complete
- * @returns this for chaining of methods
+ * @param {Jimp} src the source Jimp instance
+ * @param {number} x the x position to blit the image
+ * @param {number} y the y position to blit the image
+ * @param {function(Error, Jimp)} cb (optional) a callback for when complete
+ * @returns {Jimp} this for chaining of methods
  */
 export function composite(src, x, y, cb) {
     if (!(src instanceof this.constructor)) {
@@ -471,15 +471,15 @@ export function composite(src, x, y, cb) {
 
 /**
  * Blits a source image on to this image
- * @param src the source Jimp instance
- * @param x the x position to blit the image
- * @param y the y position to blit the image
- * @param srcx (optional) the x position from which to crop the source image
- * @param srcy (optional) the y position from which to crop the source image
- * @param srcw (optional) the width to which to crop the source image
- * @param srch (optional) the height to which to crop the source image
- * @param (optional) cb a callback for when complete
- * @returns this for chaining of methods
+ * @param {Jimp} src the source Jimp instance
+ * @param {number} x the x position to blit the image
+ * @param {number} y the y position to blit the image
+ * @param {number} srcx (optional) the x position from which to crop the source image
+ * @param {number} srcy (optional) the y position from which to crop the source image
+ * @param {number} srcw (optional) the width to which to crop the source image
+ * @param {number} srch (optional) the height to which to crop the source image
+ * @param {function(Error, Jimp)} cb (optional) a callback for when complete
+ * @returns {Jimp} this for chaining of methods
  */
 export function blit(src, x, y, srcx, srcy, srcw, srch, cb) {
     if (!(src instanceof this.constructor)) {
@@ -554,11 +554,11 @@ export function blit(src, x, y, srcx, srcy, srcw, srch, cb) {
 
 /**
  * Masks a source image on to this image using average pixel colour. A completely black pixel on the mask will turn a pixel in the image completely transparent.
- * @param src the source Jimp instance
- * @param x the horizontal position to blit the image
- * @param y the vertical position to blit the image
- * @param (optional) cb a callback for when complete
- * @returns this for chaining of methods
+ * @param {Jimp} src the source Jimp instance
+ * @param {number} x the horizontal position to blit the image
+ * @param {number} y the vertical position to blit the image
+ * @param {function(Error, Jimp)} cb (optional) a callback for when complete
+ * @returns {Jimp} this for chaining of methods
  */
 export function mask(src, x = 0, y = 0, cb) {
     if (!(src instanceof this.constructor)) {

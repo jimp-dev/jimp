@@ -8,8 +8,7 @@ import * as constants from '../constants';
 
 /**
  * Rotates an image clockwise by a number of degrees rounded to the nearest 90 degrees. NB: 'this' must be a Jimp object.
- * @param deg the number of degress to rotate the image by
- * @returns nothing
+ * @param {number} deg the number of degress to rotate the image by
  */
 function simpleRotate(deg) {
     let i = Math.round(deg / 90) % 4;
@@ -41,9 +40,8 @@ function simpleRotate(deg) {
 
 /**
  * Rotates an image clockwise by an arbitary number of degrees. NB: 'this' must be a Jimp object.
- * @param deg the number of degress to rotate the image by
- * @param (optional) mode resize mode or a boolean, if false then the width and height of the image will not be changed
- * @returns nothing
+ * @param {number} deg the number of degress to rotate the image by
+ * @param {string|boolean} mode (optional) resize mode or a boolean, if false then the width and height of the image will not be changed
  */
 function advancedRotate(deg, mode) {
     deg %= 360;
@@ -154,10 +152,10 @@ function advancedRotate(deg, mode) {
 
 /**
  * Rotates the image clockwise by a number of degrees. By default the width and height of the image will be resized appropriately.
- * @param deg the number of degress to rotate the image by
- * @param (optional) mode resize mode or a boolean, if false then the width and height of the image will not be changed
- * @param (optional) cb a callback for when complete
- * @returns this for chaining of methods
+ * @param {number} deg the number of degress to rotate the image by
+ * @param {string|boolea} mode (optional) resize mode or a boolean, if false then the width and height of the image will not be changed
+ * @param {function(Error, Jimp)} cb (optional) a callback for when complete
+ * @returns {Jimp} this for chaining of methods
  */
 export function rotate(deg, mode, cb) {
     // enable overloading
@@ -197,10 +195,10 @@ export function rotate(deg, mode, cb) {
 
 /**
  * Flip the image horizontally
- * @param horizontal a Boolean, if true the image will be flipped horizontally
- * @param vertical a Boolean, if true the image will be flipped vertically
- * @param (optional) cb a callback for when complete
- * @returns this for chaining of methods
+ * @param {boolean} horizontal a Boolean, if true the image will be flipped horizontally
+ * @param {boolean} vertical a Boolean, if true the image will be flipped vertically
+ * @param {function(Error, Jimp)} cb (optional) a callback for when complete
+ * @returns {Jimp} this for chaining of methods
  */
 function flipFn(horizontal, vertical, cb) {
     if (typeof horizontal !== 'boolean' || typeof vertical !== 'boolean')
@@ -238,11 +236,11 @@ export const mirror = flipFn;
 
 /**
  * Resizes the image to a set width and height using a 2-pass bilinear algorithm
- * @param w the width to resize the image to (or Jimp.AUTO)
- * @param h the height to resize the image to (or Jimp.AUTO)
- * @param (optional) mode a scaling method (e.g. Jimp.RESIZE_BEZIER)
- * @param (optional) cb a callback for when complete
- * @returns this for chaining of methods
+ * @param {number} w the width to resize the image to (or Jimp.AUTO)
+ * @param {number} h the height to resize the image to (or Jimp.AUTO)
+ * @param {string} mode (optional) a scaling method (e.g. Jimp.RESIZE_BEZIER)
+ * @param {function(Error, Jimp)} cb (optional) a callback for when complete
+ * @returns {Jimp} this for chaining of methods
  */
 export function resize(w, h, mode, cb) {
     if (typeof w !== 'number' || typeof h !== 'number') {
@@ -305,12 +303,12 @@ export function resize(w, h, mode, cb) {
 
 /**
  * Scale the image so the given width and height keeping the aspect ratio. Some parts of the image may be clipped.
- * @param w the width to resize the image to
- * @param h the height to resize the image to
- * @param (optional) alignBits A bitmask for horizontal and vertical alignment
- * @param (optional) mode a scaling method (e.g. Jimp.RESIZE_BEZIER)
- * @param (optional) cb a callback for when complete
- * @returns this for chaining of methods
+ * @param {number} w the width to resize the image to
+ * @param {number} h the height to resize the image to
+ * @param {number} alignBits (optional) A bitmask for horizontal and vertical alignment
+ * @param {string} mode (optional) a scaling method (e.g. Jimp.RESIZE_BEZIER)
+ * @param {function(Error, Jimp)} cb (optional) a callback for when complete
+ * @returns {Jimp} this for chaining of methods
  */
 export function cover(w, h, alignBits, mode, cb) {
     if (typeof w !== 'number' || typeof h !== 'number') {
@@ -372,12 +370,12 @@ export function cover(w, h, alignBits, mode, cb) {
 
 /**
  * Scale the image to the given width and height keeping the aspect ratio. Some parts of the image may be letter boxed.
- * @param w the width to resize the image to
- * @param h the height to resize the image to
- * @param (optional) alignBits A bitmask for horizontal and vertical alignment
- * @param (optional) mode a scaling method (e.g. Jimp.RESIZE_BEZIER)
- * @param (optional) cb a callback for when complete
- * @returns this for chaining of methods
+ * @param {number} w the width to resize the image to
+ * @param {number} h the height to resize the image to
+ * @param {number} alignBits (optional) A bitmask for horizontal and vertical alignment
+ * @param {string} mode (optional) a scaling method (e.g. Jimp.RESIZE_BEZIER)
+ * @param {function(Error, Jimp)} cb (optional) a callback for when complete
+ * @returns {Jimp} this for chaining of methods
  */
 export function contain(w, h, alignBits, mode, cb) {
     if (typeof w !== 'number' || typeof h !== 'number') {
@@ -454,10 +452,10 @@ export function contain(w, h, alignBits, mode, cb) {
 
 /**
  * Uniformly scales the image by a factor.
- * @param f the factor to scale the image by
- * @param (optional) mode a scaling method (e.g. Jimp.RESIZE_BEZIER)
- * @param (optional) cb a callback for when complete
- * @returns this for chaining of methods
+ * @param {number} f the factor to scale the image by
+ * @param {string} mode (optional) a scaling method (e.g. Jimp.RESIZE_BEZIER)
+ * @param {function(Error, Jimp)} cb (optional) a callback for when complete
+ * @returns {Jimp} this for chaining of methods
  */
 export function scale(f, mode, cb) {
     if (typeof f !== 'number') {
@@ -486,11 +484,11 @@ export function scale(f, mode, cb) {
 
 /**
  * Scale the image to the largest size that fits inside the rectangle that has the given width and height.
- * @param w the width to resize the image to
- * @param h the height to resize the image to
- * @param (optional) mode a scaling method (e.g. Jimp.RESIZE_BEZIER)
- * @param (optional) cb a callback for when complete
- * @returns this for chaining of methods
+ * @param {number} w the width to resize the image to
+ * @param {number} h the height to resize the image to
+ * @param {string} mode (optional) a scaling method (e.g. Jimp.RESIZE_BEZIER)
+ * @param {function(Error, Jimp)} cb (optional) a callback for when complete
+ * @returns {Jimp} this for chaining of methods
  */
 export function scaleToFit(w, h, mode, cb) {
     if (typeof w !== 'number' || typeof h !== 'number') {
@@ -517,10 +515,10 @@ export function scaleToFit(w, h, mode, cb) {
 
 /**
  * Displaces the image based on the provided displacement map
- * @param map the source Jimp instance
- * @param offset the maximum displacement value
- * @param (optional) cb a callback for when complete
- * @returns this for chaining of methods
+ * @param {object} map the source Jimp instance
+ * @param {number} offset the maximum displacement value
+ * @param {function(Error, Jimp)} cb (optional) a callback for when complete
+ * @returns {Jimp} this for chaining of methods
  */
 export function displace(map, offset, cb) {
     if (typeof map !== 'object' || map.constructor !== this.constructor) {
@@ -555,14 +553,12 @@ export function displace(map, offset, cb) {
 
 /**
  * Autocrop same color borders from this image
- * @param (optional) tolerance:      a percent value of tolerance for
- *                                   pixels color difference (default: 0.0002%)
- * @param (optional) cropOnlyFrames: flag to crop only real frames:
- *                                   all 4 sides of the image must have some border (default: true)
- * @param (optional) cb:             a callback for when complete (default: no callback)
- * @returns this                     for chaining of methods
+ * @param {number} tolerance (optional): a percent value of tolerance for pixels color difference (default: 0.0002%)
+ * @param {boolean} cropOnlyFrames (optional): flag to crop only real frames: all 4 sides of the image must have some border (default: true)
+ * @param {function(Error, Jimp)} cb (optional): a callback for when complete (default: no callback)
+ * @returns {Jimp} this for chaining of methods
  */
-export function autocrop() {
+export function autocrop(...args) {
     const w = this.bitmap.width;
     const h = this.bitmap.height;
     const minPixelsPerSide = 1; // to avoid cropping completely the image, resulting in an invalid 0 sized image
@@ -573,20 +569,20 @@ export function autocrop() {
     // i.e. all 4 sides have some border (default value)
 
     // parse arguments
-    for (let a = 0, len = arguments.length; a < len; a++) {
-        if (typeof arguments[a] === 'number') {
+    for (let a = 0, len = args.length; a < len; a++) {
+        if (typeof args[a] === 'number') {
             // tolerance value passed
-            tolerance = arguments[a];
+            tolerance = args[a];
         }
 
-        if (typeof arguments[a] === 'boolean') {
+        if (typeof args[a] === 'boolean') {
             // cropOnlyFrames value passed
-            cropOnlyFrames = arguments[a];
+            cropOnlyFrames = args[a];
         }
 
-        if (typeof arguments[a] === 'function') {
+        if (typeof args[a] === 'function') {
             // callback value passed
-            cb = arguments[a];
+            cb = args[a];
         }
     }
 

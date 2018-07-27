@@ -75,14 +75,14 @@ function printText(font, x, y, text) {
 
 /**
  * Draws a text on a image on a given boundary
- * @param font a bitmap font loaded from `Jimp.loadFont` command
- * @param x the x position to start drawing the text
- * @param y the y position to start drawing the text
- * @param text the text to draw (string or object with `text`, `alignmentX`, and/or `alignmentY`)
- * @param maxWidth (optional) the boundary width to draw in
- * @param maxHeight (optional) the boundary height to draw in
- * @param (optional) cb a function to call when the text is written
- * @returns this for chaining of methods
+ * @param {Jimp} font a bitmap font loaded from `Jimp.loadFont` command
+ * @param {number} x the x position to start drawing the text
+ * @param {number} y the y position to start drawing the text
+ * @param {string} text the text to draw (string or object with `text`, `alignmentX`, and/or `alignmentY`)
+ * @param {number} maxWidth (optional) the boundary width to draw in
+ * @param {number} maxHeight (optional) the boundary height to draw in
+ * @param {function(Error, Jimp)} cb (optional) a function to call when the text is written
+ * @returns {Jimp} this for chaining of methods
  */
 export function print(font, x, y, text, maxWidth, maxHeight, cb) {
     if (typeof maxWidth === 'function' && typeof cb === 'undefined') {
@@ -171,6 +171,7 @@ export function print(font, x, y, text, maxWidth, maxHeight, cb) {
             line = testLine;
         }
     }
+
     printText.call(
         this,
         font,

@@ -7,8 +7,10 @@ const UglifyJS = require('uglify-js');
 const browserify = require('browserify');
 const babelify = require('babelify');
 
-function debug() {
-    if (process.env.DEBUG) console.error(...arguments);
+function debug(...args) {
+    if (process.env.DEBUG) {
+        console.error(...args);
+    }
 }
 
 const root = normalize(join(__dirname, '..'));
