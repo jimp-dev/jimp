@@ -18,33 +18,34 @@ const donutPngBuffer = Buffer.from(donutPngBase64, 'base64');
 
 describe('JGD - JS Graphic Description', () => {
     it('Jimp loads JGD', done => {
-        new Jimp(donutJGD, (err, image) => {
-            should.not.exist(err);
-            image.getBuffer('image/png', (err, buffer) => {
-                should.not.exist(err);
+        new Jimp(donutJGD)
+            .getBuffer('image/png')
+            .then(buffer => {
                 buffer.toString('base64').should.be.equal(donutPngBase64);
                 done();
-            });
-        });
+            })
+            .catch(err => should.not.exist(err));
     });
 
     it('Jimp exports JGD sync', done => {
-        new Jimp(donutPngBuffer, (err, image) => {
-            should.not.exist(err);
-            image.getJGDSync().should.be.deepEqual(donutJGD);
-            done();
-        });
+        new Jimp(donutPngBuffer)
+            .then(image => {
+                image.getJGDSync().should.be.deepEqual(donutJGD);
+                done();
+            })
+            .catch(err => should.not.exist(err));
     });
 
     it('Jimp exports JGD async', done => {
-        new Jimp(donutPngBuffer, (err, image) => {
-            should.not.exist(err);
-            image.getJGD((err, jgd) => {
-                should.not.exist(err);
-                jgd.data.length.should.be.equal(donutJGD.data.length);
-                jgd.should.be.deepEqual(donutJGD);
-                done();
-            });
-        });
+        new Jimp(donutPngBuffer)
+            .then(image => {
+                image.getJGD((err, jgd) => {
+                    should.not.exist(err);
+                    jgd.data.length.should.be.equal(donutJGD.data.length);
+                    jgd.should.be.deepEqual(donutJGD);
+                    done();
+                });
+            })
+            .catch(err => should.not.exist(err));
     });
 });

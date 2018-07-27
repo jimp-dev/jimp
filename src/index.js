@@ -900,7 +900,7 @@ Jimp.diff = function(img1, img2, threshold) {
         );
     }
 
-    const diff = new Jimp(bmp1.width, bmp1.height, 0xffffffff);
+    const diff = new Jimp(bmp1.width, bmp1.height, 0xffffffff, 'sync');
 
     const numDiffPixels = pixelMatch(
         bmp1.data,
@@ -972,7 +972,7 @@ Jimp.colorDiff = function(rgba1, rgba2) {
 
 function loadPages(dir, pages) {
     const newPages = pages.map(page => {
-        return Jimp.read(dir + '/' + page);
+        return new Jimp(dir + '/' + page);
     });
 
     return Promise.all(newPages);

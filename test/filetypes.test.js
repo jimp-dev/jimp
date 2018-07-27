@@ -4,53 +4,58 @@ describe('FileType', () => {
     const imagesDir = getTestDir() + '/samples';
 
     it('load PNG', done => {
-        new Jimp(imagesDir + '/dice.png', function(err) {
-            if (err) done(err);
-            this.getPixelColor(10, 10).should.be.equal(0x00000000);
-            this.getPixelColor(160, 80).should.be.equal(0x1c1cd4ff);
-            this.getPixelColor(400, 250).should.be.equal(0x7e0c0cda);
-            done();
-        });
+        new Jimp(imagesDir + '/dice.png')
+            .then(image => {
+                image.getPixelColor(10, 10).should.be.equal(0x00000000);
+                image.getPixelColor(160, 80).should.be.equal(0x1c1cd4ff);
+                image.getPixelColor(400, 250).should.be.equal(0x7e0c0cda);
+                done();
+            })
+            .catch(done);
     });
 
     it('load JPG', done => {
-        new Jimp(imagesDir + '/cops.jpg', function(err) {
-            if (err) done(err);
-            this.getPixelColor(10, 10).should.be.equal(0x3f4a02ff);
-            this.getPixelColor(220, 190).should.be.equal(0x5d94b6ff);
-            this.getPixelColor(350, 130).should.be.equal(0xdf7944ff);
-            done();
-        });
+        new Jimp(imagesDir + '/cops.jpg')
+            .then(image => {
+                image.getPixelColor(10, 10).should.be.equal(0x3f4a02ff);
+                image.getPixelColor(220, 190).should.be.equal(0x5d94b6ff);
+                image.getPixelColor(350, 130).should.be.equal(0xdf7944ff);
+                done();
+            })
+            .catch(done);
     });
 
     it('load JPG with fill bytes', done => {
-        new Jimp(imagesDir + '/fillbytes.jpg', function(err) {
-            if (err) done(err);
-            this.getPixelColor(10, 10).should.be.equal(0xaeb8c3ff);
-            this.getPixelColor(220, 190).should.be.equal(0x262b21ff);
-            this.getPixelColor(350, 130).should.be.equal(0x4e5d30ff);
-            done();
-        });
+        new Jimp(imagesDir + '/fillbytes.jpg')
+            .then(image => {
+                image.getPixelColor(10, 10).should.be.equal(0xaeb8c3ff);
+                image.getPixelColor(220, 190).should.be.equal(0x262b21ff);
+                image.getPixelColor(350, 130).should.be.equal(0x4e5d30ff);
+                done();
+            })
+            .catch(done);
     });
 
     it('load BMP', done => {
-        new Jimp(imagesDir + '/windows95.bmp', function(err) {
-            if (err) done(err);
-            this.getPixelColor(10, 10).should.be.equal(0xf7f7ef);
-            this.getPixelColor(150, 80).should.be.equal(0xd6ad73);
-            this.getPixelColor(190, 200).should.be.equal(0xc3f7);
-            done();
-        });
+        new Jimp(imagesDir + '/windows95.bmp')
+            .then(image => {
+                image.getPixelColor(10, 10).should.be.equal(0xf7f7ef);
+                image.getPixelColor(150, 80).should.be.equal(0xd6ad73);
+                image.getPixelColor(190, 200).should.be.equal(0xc3f7);
+                done();
+            })
+            .catch(done);
     });
 
     it('load TIFF', done => {
-        new Jimp(imagesDir + '/rgb.tiff', function(err) {
-            if (err) done(err);
-            this.getPixelColor(10, 10).should.be.equal(0xa4988bff);
-            this.getPixelColor(220, 190).should.be.equal(0xe0d7ddff);
-            this.getPixelColor(350, 130).should.be.equal(0x565433ff);
-            done();
-        });
+        new Jimp(imagesDir + '/rgb.tiff')
+            .then(image => {
+                image.getPixelColor(10, 10).should.be.equal(0xa4988bff);
+                image.getPixelColor(220, 190).should.be.equal(0xe0d7ddff);
+                image.getPixelColor(350, 130).should.be.equal(0x565433ff);
+                done();
+            })
+            .catch(done);
     });
 
     const simpleJGD = {
@@ -70,46 +75,30 @@ describe('FileType', () => {
     };
 
     it('export PNG', done => {
-        new Jimp(simpleJGD, function(err) {
-            if (err) done(err);
-            this.getBuffer('image/png', (err, buffer) => {
-                if (err) done(err);
-                buffer.toString().should.match(/^.PNG\r\n/);
-                done();
-            });
+        new Jimp(simpleJGD).getBuffer('image/png').then(buffer => {
+            buffer.toString().should.match(/^.PNG\r\n/);
+            done();
         });
     });
 
     it('export JPG', done => {
-        new Jimp(simpleJGD, function(err) {
-            if (err) done(err);
-            this.getBuffer('image/jpeg', (err, buffer) => {
-                if (err) done(err);
-                buffer.toString().should.match(/^.{3,9}JFIF\u0000/);
-                done();
-            });
+        new Jimp(simpleJGD).getBuffer('image/jpeg').then(buffer => {
+            buffer.toString().should.match(/^.{3,9}JFIF\u0000/);
+            done();
         });
     });
 
     it('export BMP', done => {
-        new Jimp(simpleJGD, function(err) {
-            if (err) done(err);
-            this.getBuffer('image/bmp', (err, buffer) => {
-                if (err) done(err);
-                buffer.toString().should.match(/^BMZ\u0000/);
-                done();
-            });
+        new Jimp(simpleJGD).getBuffer('image/bmp').then(buffer => {
+            buffer.toString().should.match(/^BMZ\u0000/);
+            done();
         });
     });
 
     it('export TIFF', done => {
-        new Jimp(simpleJGD, function(err) {
-            if (err) done(err);
-            this.getBuffer('image/tiff', (err, buffer) => {
-                if (err) done(err);
-                buffer.toString().should.match(/^MM\u0000*\u0000/);
-                done();
-            });
+        new Jimp(simpleJGD).getBuffer('image/tiff').then(buffer => {
+            buffer.toString().should.match(/^MM\u0000*\u0000/);
+            done();
         });
     });
 });

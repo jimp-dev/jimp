@@ -160,7 +160,8 @@ function compositeBitmapOverBackground(Jimp, image) {
     return new Jimp(
         image.bitmap.width,
         image.bitmap.height,
-        image._background
+        image._background,
+        'sync'
     ).composite(image, 0, 0).bitmap;
 }
 
@@ -170,21 +171,16 @@ function compositeBitmapOverBackground(Jimp, image) {
  * @param cb a Node-style function to call with the buffer as the second argument
  * @returns this for chaining of methods
  */
-export function getBuffer(mime, cb) {
+export function getBuffer(mime) {
     if (mime === constants.AUTO) {
         // allow auto MIME detection
         mime = this.getMIME();
     }
 
     if (typeof mime !== 'string') {
-        return throwError.call(this, 'mime must be a string', cb);
+        throw new Error('mime must be a string');
     }
 
-    if (typeof cb !== 'function') {
-        return throwError.call(this, 'cb must be a function', cb);
-    }
-
-    console.log(mime, constants.MIME_PNG);
     switch (mime.toLowerCase()) {
         case constants.MIME_PNG: {
             const png = new PNG({
@@ -208,8 +204,7 @@ export function getBuffer(mime, cb) {
                 ).data;
             }
 
-            const buffer = PNG.sync.write(png);
-            return cb.call(this, null, buffer);
+            return PNG.sync.write(png);
         }
 
         case constants.MIME_JPEG: {
@@ -218,7 +213,7 @@ export function getBuffer(mime, cb) {
                 compositeBitmapOverBackground(this.constructor, this),
                 this._quality
             );
-            return cb.call(this, null, jpeg.data);
+            return jpeg.data;
         }
 
         case constants.MIME_BMP:
@@ -227,16 +222,16 @@ export function getBuffer(mime, cb) {
             const bmp = BMP.encode(
                 compositeBitmapOverBackground(this.constructor, this)
             );
-            return cb.call(this, null, bmp.data);
+            return bmp.data;
         }
 
         case constants.MIME_TIFF: {
             const c = compositeBitmapOverBackground(this.constructor, this);
             const tiff = UTIF.encodeImage(c.data, c.width, c.height);
-            return cb.call(this, null, Buffer.from(tiff));
+            return Buffer.from(tiff);
         }
 
         default:
-            return cb.call(this, 'Unsupported MIME type: ' + mime);
+            throw new Error('Unsupported MIME type: ' + mime);
     }
 }

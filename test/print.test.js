@@ -2,33 +2,9 @@
 
 const { Jimp, getTestDir, hasOwnProp } = require('./test-helper');
 
-function openImage(imagePath) {
-    return new Promise((resolve, reject) => {
-        new Jimp(imagePath, (err, image) => {
-            if (err) {
-                reject(err);
-            } else {
-                resolve(image);
-            }
-        });
-    });
-}
-
-function createImage(width, height) {
-    return new Promise((resolve, reject) => {
-        new Jimp(width, height, (error, image) => {
-            if (error) {
-                reject(error);
-            } else {
-                resolve(image);
-            }
-        });
-    });
-}
-
 function createTextImage(width, height, font, options, maxWidth, maxHeight) {
     return Jimp.loadFont(font).then(font => {
-        return createImage(width, height).then(image => {
+        return new Jimp(width, height).then(image => {
             image.print(font, 0, 0, options, maxWidth, maxHeight);
             return image;
         });
@@ -63,14 +39,10 @@ describe('Write text over image', function() {
                                 '/samples/text-samples/' +
                                 fontName +
                                 '.png';
-                            new Jimp(expected, (err, expectedImg) => {
-                                if (err) return done(err);
-                                new Jimp(
-                                    conf.w,
-                                    conf.h,
-                                    conf.bg,
-                                    (err, image) => {
-                                        if (err) return done(err);
+
+                            new Jimp(expected).then(expectedImg => {
+                                new Jimp(conf.w, conf.h, conf.bg).then(
+                                    image => {
                                         image
                                             .print(
                                                 font,
@@ -97,22 +69,28 @@ describe('Write text over image', function() {
                 const expected =
                     getTestDir() +
                     '/samples/text-samples/SANS_16_BLACK-positioned.png';
-                new Jimp(expected, (err, expectedImg) => {
-                    if (err) return done(err);
-                    new Jimp(300, 100, 0xff8800ff, (err, image) => {
-                        if (err) return done(err);
-                        image
-                            .print(font, 150, 50, 'This is only a test.', 100)
-                            .bitmap.should.be.deepEqual(expectedImg.bitmap);
-                        done();
-                    });
-                });
+                new Jimp(expected)
+                    .then(expectedImg => {
+                        new Jimp(300, 100, 0xff8800ff).then(image => {
+                            image
+                                .print(
+                                    font,
+                                    150,
+                                    50,
+                                    'This is only a test.',
+                                    100
+                                )
+                                .bitmap.should.be.deepEqual(expectedImg.bitmap);
+                            done();
+                        });
+                    })
+                    .catch(done);
             })
             .catch(done);
     });
 
     it('left-align text by default', () => {
-        const expectedImage = openImage(
+        const expectedImage = new Jimp(
             getTestDir() + '/samples/text-samples/left-aligned.png'
         );
         const textImage = createTextImage(
@@ -129,7 +107,7 @@ describe('Write text over image', function() {
     });
 
     it('left-align text by default when passing object', () => {
-        const expectedImage = openImage(
+        const expectedImage = new Jimp(
             getTestDir() + '/samples/text-samples/left-aligned.png'
         );
         const textImage = createTextImage(
@@ -146,7 +124,7 @@ describe('Write text over image', function() {
     });
 
     it('left-align text when passing object with alignmentX', () => {
-        const expectedImage = openImage(
+        const expectedImage = new Jimp(
             getTestDir() + '/samples/text-samples/left-aligned.png'
         );
         const textImage = createTextImage(
@@ -167,7 +145,7 @@ describe('Write text over image', function() {
     });
 
     it('center-align text when passing object with alignmentX', () => {
-        const expectedImage = openImage(
+        const expectedImage = new Jimp(
             getTestDir() + '/samples/text-samples/center-aligned.png'
         );
         const textImage = createTextImage(
@@ -188,7 +166,7 @@ describe('Write text over image', function() {
     });
 
     it('right-align text when passing object with alignmentX', () => {
-        const expectedImage = openImage(
+        const expectedImage = new Jimp(
             getTestDir() + '/samples/text-samples/right-aligned.png'
         );
         const textImage = createTextImage(
@@ -209,7 +187,7 @@ describe('Write text over image', function() {
     });
 
     it('middle-align text when passing object with alignmentY', () => {
-        const expectedImage = openImage(
+        const expectedImage = new Jimp(
             getTestDir() + '/samples/text-samples/middle-aligned.png'
         );
         const textImage = createTextImage(
@@ -231,7 +209,7 @@ describe('Write text over image', function() {
     });
 
     it('bottom-align text when passing object with alignmentY', () => {
-        const expectedImage = openImage(
+        const expectedImage = new Jimp(
             getTestDir() + '/samples/text-samples/bottom-aligned.png'
         );
         const textImage = createTextImage(

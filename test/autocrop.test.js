@@ -1,6 +1,6 @@
 const { Jimp, mkJGD } = require('./test-helper');
 
-describe.only('Autocrop', () => {
+describe('Autocrop', () => {
     it('image with transparent surround color', done => {
         new Jimp(
             mkJGD(
@@ -81,7 +81,7 @@ describe.only('Autocrop', () => {
             .catch(done);
     });
 
-    it.only('image border with small variation', done => {
+    it('image border with small variation', done => {
         new Jimp(
             mkJGD(
                 '323232323232',
@@ -100,19 +100,17 @@ describe.only('Autocrop', () => {
                     .clone()
                     .autocrop()
                     .getJGDSync()
-                    .then(img =>
-                        img.should.be.sameJGD(
-                            mkJGD(
-                                '323232323232',
-                                '232323232323',
-                                '32   ◆◆   32',
-                                '23  ◆▦▦◆  23',
-                                '32 ◆▦▦▦▦◆ 32',
-                                '23  ◆▦▦◆  23',
-                                '32   ◆◆   32',
-                                '232323232323',
-                                '323232323232'
-                            )
+                    .should.be.sameJGD(
+                        mkJGD(
+                            '323232323232',
+                            '232323232323',
+                            '32   ◆◆   32',
+                            '23  ◆▦▦◆  23',
+                            '32 ◆▦▦▦▦◆ 32',
+                            '23  ◆▦▦◆  23',
+                            '32   ◆◆   32',
+                            '232323232323',
+                            '323232323232'
                         )
                     );
 
@@ -120,15 +118,13 @@ describe.only('Autocrop', () => {
                     .clone()
                     .autocrop(0.005)
                     .getJGDSync()
-                    .then(img =>
-                        img.should.be.sameJGD(
-                            mkJGD(
-                                '   ◆◆   ',
-                                '  ◆▦▦◆  ',
-                                ' ◆▦▦▦▦◆ ',
-                                '  ◆▦▦◆  ',
-                                '   ◆◆   '
-                            )
+                    .should.be.sameJGD(
+                        mkJGD(
+                            '   ◆◆   ',
+                            '  ◆▦▦◆  ',
+                            ' ◆▦▦▦▦◆ ',
+                            '  ◆▦▦◆  ',
+                            '   ◆◆   '
                         )
                     );
                 done();
