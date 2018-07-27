@@ -1,4 +1,4 @@
-# Jimp #
+# Jimp
 
 The "JavaScript Image Manipulation Program" :-)
 
@@ -6,64 +6,73 @@ An image processing library for Node written entirely in JavaScript, with zero n
 
 Installation: `npm install --save jimp`
 
-Example usage:
+Example usage (Promise will never resolve if callback is passed):
 
 ```js
-var Jimp = require("jimp");
+var Jimp = require('jimp');
 
 // open a file called "lenna.png"
-Jimp.read("lenna.png", function (err, lenna) {
+Jimp.read('lenna.png', (err, lenna) => {
     if (err) throw err;
-    lenna.resize(256, 256)            // resize
-         .quality(60)                 // set JPEG quality
-         .greyscale()                 // set greyscale
-         .write("lena-small-bw.jpg"); // save
+    lenna
+        .resize(256, 256) // resize
+        .quality(60) // set JPEG quality
+        .greyscale() // set greyscale
+        .write('lena-small-bw.jpg'); // save
 });
 ```
 
 Using promises:
 
 ```js
-Jimp.read("lenna.png").then(function (lenna) {
-    return lenna.resize(256, 256)     // resize
-         .quality(60)                 // set JPEG quality
-         .greyscale()                 // set greyscale
-         .write("lena-small-bw.jpg"); // save
-}).catch(function (err) {
-    console.error(err);
-});
+Jimp.read('lenna.png')
+    .then(lenna => {
+        return lenna
+            .resize(256, 256) // resize
+            .quality(60) // set JPEG quality
+            .greyscale() // set greyscale
+            .write('lena-small-bw.jpg'); // save
+    })
+    .catch(err => {
+        console.error(err);
+    });
 ```
 
-## Basic usage ##
+## Basic usage
 
 The static `Jimp.read` method takes the path to a PNG, JPEG or BMP file and returns a Promise:
 
 ```js
-Jimp.read("./path/to/image.jpg").then(function (image) {
-    // do stuff with the image
-}).catch(function (err) {
-    // handle an exception
-});
+Jimp.read('./path/to/image.jpg')
+    .then(image => {
+        // do stuff with the image
+    })
+    .catch(err => {
+        // handle an exception
+    });
 ```
 
 The method can also read a PNG, JPEG or BMP buffer or from a URL:
 
 ```js
-Jimp.read(lenna.buffer).then(function (image) {
-    // do stuff with the image
-}).catch(function (err) {
-    // handle an exception
-});
+Jimp.read(lenna.buffer)
+    .then(image => {
+        // do stuff with the image
+    })
+    .catch(err => {
+        // handle an exception
+    });
 
-Jimp.read("http://www.example.com/path/to/lenna.jpg").then(function (image) {
-    // do stuff with the image
-}).catch(function (err) {
-    // handle an exception
-});
+Jimp.read('http://www.example.com/path/to/lenna.jpg')
+    .then(image => {
+        // do stuff with the image
+    })
+    .catch(err => {
+        // handle an exception
+    });
 ```
 
-
-### Basic methods ###
+### Basic methods
 
 Once the promise is fulfilled, the following methods can be called on the image:
 
@@ -124,19 +133,19 @@ image.displace( map, offset );    // displaces the image pixels based on the pro
 Some of these methods are irreversible, so it can be useful to perform them on a clone of the original image:
 
 ```js
-image.clone();                    // returns a clone of the image
+image.clone(); // returns a clone of the image
 ```
 
 (Contributions of more methods are welcome!)
 
-### Resize modes ###
+### Resize modes
 
 The default resizing algorithm uses a bilinear method as follows:
 
 ```js
-image.resize(250, 250);           // resize the image to 250 x 250
-image.resize(Jimp.AUTO, 250);     // resize the height to 250 and scale the width accordingly
-image.resize(250, Jimp.AUTO);     // resize the width to 250 and scale the height accordingly
+image.resize(250, 250); // resize the image to 250 x 250
+image.resize(Jimp.AUTO, 250); // resize the height to 250 and scale the width accordingly
+image.resize(250, Jimp.AUTO); // resize the width to 250 and scale the height accordingly
 ```
 
 Optionally, the following constants can be passed to choose a particular resizing algorithm:
@@ -155,7 +164,7 @@ For example:
 image.resize(250, 250, Jimp.RESIZE_BEZIER);
 ```
 
-### Align modes ###
+### Align modes
 
 The following constants can be passed to the `image.cover`, `image.contain` and `image.print` methods:
 
@@ -182,6 +191,7 @@ Jimp.HORIZONTAL_ALIGN_CENTER | Jimp.VERTICAL_ALIGN_MIDDLE;
 ```
 
 Default align modes for `image.print` are:
+
 ```js
 {
     alignmentX: Jimp.HORIZONTAL_ALIGN_LEFT,
@@ -189,27 +199,37 @@ Default align modes for `image.print` are:
 }
 ```
 
-### Writing text ###
+### Writing text
 
 Jimp supports basic typography using BMFont format (.fnt) even ones in different languages! Just find a bitmap font that is suitable [bitmap fonts](https://en.wikipedia.org/wiki/Bitmap_fonts):
 
 ```js
-Jimp.loadFont( path ).then(function (font) { // load font from .fnt file
-    image.print(font, x, y, str);        // print a message on an image
+Jimp.loadFont(path).then(function(font) {
+    // load font from .fnt file
+    image.print(font, x, y, str); // print a message on an image
     image.print(font, x, y, str, maxWidth); // print a message on an image with text wrapped at maxWidth
 });
 ```
 
 Alignment modes are supported by replacing the `str` argument with an object containing `text`, `alignmentX` and `alignmentY`. `alignmentX` defaults to `Jimp.HORIZONTAL_ALIGN_LEFT` and `alignmentY` defaults to `Jimp.VERTICAL_ALIGN_TOP`.
+
 ```js
-Jimp.loadFont( path ).then(function (font) {
-    image.print(font, x, y, {
-        text: 'Hello world!',
-        alignmentX: Jimp.HORIZONTAL_ALIGN_CENTER,
-        alignmentY: Jimp.VERTICAL_ALIGN_MIDDLE
-    }, maxWidth, maxHeight); // prints 'Hello world!' on an image, middle and center-aligned
+Jimp.loadFont(path).then(function(font) {
+    image.print(
+        font,
+        x,
+        y,
+        {
+            text: 'Hello world!',
+            alignmentX: Jimp.HORIZONTAL_ALIGN_CENTER,
+            alignmentY: Jimp.VERTICAL_ALIGN_MIDDLE
+        },
+        maxWidth,
+        maxHeight
+    ); // prints 'Hello world!' on an image, middle and center-aligned
 });
 ```
+
 ```
 Jimp.loadFont( path, cb ); // using a callback pattern
 ```
@@ -217,148 +237,145 @@ Jimp.loadFont( path, cb ); // using a callback pattern
 BMFont fonts are raster based and fixed in size and colour. Jimp comes with a set of fonts that can be used on images:
 
 ```js
-Jimp.FONT_SANS_8_BLACK;   // Open Sans, 8px, black
-Jimp.FONT_SANS_10_BLACK;   // Open Sans, 10px, black
-Jimp.FONT_SANS_12_BLACK;   // Open Sans, 12px, black
-Jimp.FONT_SANS_14_BLACK;   // Open Sans, 14px, black
-Jimp.FONT_SANS_16_BLACK;  // Open Sans, 16px, black
-Jimp.FONT_SANS_32_BLACK;  // Open Sans, 32px, black
-Jimp.FONT_SANS_64_BLACK;  // Open Sans, 64px, black
+Jimp.FONT_SANS_8_BLACK; // Open Sans, 8px, black
+Jimp.FONT_SANS_10_BLACK; // Open Sans, 10px, black
+Jimp.FONT_SANS_12_BLACK; // Open Sans, 12px, black
+Jimp.FONT_SANS_14_BLACK; // Open Sans, 14px, black
+Jimp.FONT_SANS_16_BLACK; // Open Sans, 16px, black
+Jimp.FONT_SANS_32_BLACK; // Open Sans, 32px, black
+Jimp.FONT_SANS_64_BLACK; // Open Sans, 64px, black
 Jimp.FONT_SANS_128_BLACK; // Open Sans, 128px, black
 
-Jimp.FONT_SANS_8_WHITE;   // Open Sans, 8px, white
-Jimp.FONT_SANS_16_WHITE;  // Open Sans, 16px, white
-Jimp.FONT_SANS_32_WHITE;  // Open Sans, 32px, white
-Jimp.FONT_SANS_64_WHITE;  // Open Sans, 64px, white
+Jimp.FONT_SANS_8_WHITE; // Open Sans, 8px, white
+Jimp.FONT_SANS_16_WHITE; // Open Sans, 16px, white
+Jimp.FONT_SANS_32_WHITE; // Open Sans, 32px, white
+Jimp.FONT_SANS_64_WHITE; // Open Sans, 64px, white
 Jimp.FONT_SANS_128_WHITE; // Open Sans, 128px, white
 ```
 
 These can be used as follows:
 
 ```js
-Jimp.loadFont(Jimp.FONT_SANS_32_BLACK).then(function (font) {
-    image.print(font, 10, 10, "Hello world!");
+Jimp.loadFont(Jimp.FONT_SANS_32_BLACK).then(function(font) {
+    image.print(font, 10, 10, 'Hello world!');
 });
 ```
 
 Online tools are also available to convert TTF fonts to BMFont format (e.g. [Littera](http://kvazars.com/littera/)).
 
-## Writing to files and buffers ##
+## Writing to files and buffers
 
-### Writing to files ###
+### Writing to files
 
 The image can be written to disk in PNG, JPEG or BMP format (determined by the file extension) using:
 
 ```js
-image.write( path, cb ); // Node-style callback will be fired when write is successful
+image.write(path, cb); // Node-style callback will be fired when write is successful
 ```
 
 The original extension for an image (or "png") can accessed as using `image.getExtension()`. The following will save an image using its original format:
 
 ```js
-var file = "new_name." + image.getExtension();
-image.write(file)
+var file = 'new_name.' + image.getExtension();
+image.write(file);
 ```
 
-### Writing to Buffers ###
+### Writing to Buffers
 
 A PNG, JPEG or BMP binary Buffer of an image (e.g. for storage in a database) can be generated using:
 
 ```js
-image.getBuffer( mime, cb ); // Node-style callback will be fired with result
+image.getBuffer(mime, cb); // Node-style callback will be fired with result
 ```
 
 For convenience, supported MIME types are available as static properties:
 
 ```js
-Jimp.MIME_PNG;  // "image/png"
+Jimp.MIME_PNG; // "image/png"
 Jimp.MIME_JPEG; // "image/jpeg"
-Jimp.MIME_BMP;  // "image/bmp"
+Jimp.MIME_BMP; // "image/bmp"
 ```
 
 If `Jimp.AUTO` is passed as the MIME type then the original MIME type for the image (or "image/png") will be used. Alternatively, `image.getMIME()` will return the original MIME type of the image (or "image/png").
 
-### Data URI ###
+### Data URI
 
 A Base64 data URI can be generated in the same way as a Buffer, using:
 
 ```js
-image.getBase64( mime, cb ); // Node-style callback will be fired with result
+image.getBase64(mime, cb); // Node-style callback will be fired with result
 ```
 
-### PNG and JPEG quality ###
+### PNG and JPEG quality
 
 The quality of JPEGs can be set with:
 
 ```js
-image.quality( n ); // set the quality of saved JPEG, 0 - 100
+image.quality(n); // set the quality of saved JPEG, 0 - 100
 ```
 
 The format of PNGs can be set with:
 
 ```js
-image.rgba( bool );             // set whether PNGs are saved as RGBA (true, default) or RGB (false)
-image.filterType( number );     // set the filter type for the saved PNG
-image.deflateLevel( number );   // set the deflate level for the saved PNG
-Jimp.deflateStrategy( number ); // set the deflate for the saved PNG (0-3)
+image.rgba(bool); // set whether PNGs are saved as RGBA (true, default) or RGB (false)
+image.filterType(number); // set the filter type for the saved PNG
+image.deflateLevel(number); // set the deflate level for the saved PNG
+Jimp.deflateStrategy(number); // set the deflate for the saved PNG (0-3)
 ```
 
 For convenience, supported filter types are available as static properties:
 
 ```js
-Jimp.PNG_FILTER_AUTO;    // -1
-Jimp.PNG_FILTER_NONE;    //  0
-Jimp.PNG_FILTER_SUB;     //  1
-Jimp.PNG_FILTER_UP;      //  2
+Jimp.PNG_FILTER_AUTO; // -1
+Jimp.PNG_FILTER_NONE; //  0
+Jimp.PNG_FILTER_SUB; //  1
+Jimp.PNG_FILTER_UP; //  2
 Jimp.PNG_FILTER_AVERAGE; //  3
-Jimp.PNG_FILTER_PAETH;   //  4
+Jimp.PNG_FILTER_PAETH; //  4
 ```
 
-## Advanced usage ##
+## Advanced usage
 
-### Colour manipulation ##
+### Colour manipulation
 
 Jimp supports advanced colour manipulation using a single method as follows:
 
 ```js
 image.color([
-    { apply: 'hue', params: [ -90 ] },
-    { apply: 'lighten', params: [ 50 ] },
-    { apply: 'xor', params: [ '#06D' ] }
+    { apply: 'hue', params: [-90] },
+    { apply: 'lighten', params: [50] },
+    { apply: 'xor', params: ['#06D'] }
 ]);
 ```
 
 The method supports the following modifiers:
 
-Modifier                | Description
------------------------ | -----------------------
-**lighten** {amount}    | Lighten the color a given amount, from 0 to 100. Providing 100 will always return white (works through [TinyColor](https://github.com/bgrins/TinyColor))
-**brighten** {amount}   | Brighten the color a given amount, from 0 to 100 (works through [TinyColor](https://github.com/bgrins/TinyColor))
-**darken** {amount}     | Darken the color a given amount, from 0 to 100. Providing 100 will always return black (works through [TinyColor](https://github.com/bgrins/TinyColor))
-**desaturate** {amount} | Desaturate the color a given amount, from 0 to 100. Providing 100 will is the same as calling greyscale (works through [TinyColor](https://github.com/bgrins/TinyColor))
-**saturate** {amount}   | Saturate the color a given amount, from 0 to 100 (works through [TinyColor](https://github.com/bgrins/TinyColor))
-**greyscale** {amount}  | Completely desaturates a color into greyscale (works through [TinyColor](https://github.com/bgrins/TinyColor))
-**spin** {degree}       | Spin the hue a given amount, from -360 to 360. Calling with 0, 360, or -360 will do nothing - since it sets the hue back to what it was before. (works through [TinyColor](https://github.com/bgrins/TinyColor))
-**hue** {degree}        | Alias for **spin**
-**mix** {color, amount} | Mixes colors by their RGB component values. Amount is opacity of overlaying color
-**tint** {amount}       | Same as applying **mix** with white color
-**shade** {amount}      | Same as applying **mix** with black color
-**xor** {color}         | Treats the two colors as bitfields and applies an XOR operation to the red, green, and blue components
-**red** {amount}        | Modify Red component by a given amount
-**green** {amount}      | Modify Green component by a given amount
-**blue** {amount}       | Modify Blue component by a given amount
+| Modifier                | Description                                                                                                                                                                                                      |
+| ----------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **lighten** {amount}    | Lighten the color a given amount, from 0 to 100. Providing 100 will always return white (works through [TinyColor](https://github.com/bgrins/TinyColor))                                                         |
+| **brighten** {amount}   | Brighten the color a given amount, from 0 to 100 (works through [TinyColor](https://github.com/bgrins/TinyColor))                                                                                                |
+| **darken** {amount}     | Darken the color a given amount, from 0 to 100. Providing 100 will always return black (works through [TinyColor](https://github.com/bgrins/TinyColor))                                                          |
+| **desaturate** {amount} | Desaturate the color a given amount, from 0 to 100. Providing 100 will is the same as calling greyscale (works through [TinyColor](https://github.com/bgrins/TinyColor))                                         |
+| **saturate** {amount}   | Saturate the color a given amount, from 0 to 100 (works through [TinyColor](https://github.com/bgrins/TinyColor))                                                                                                |
+| **greyscale** {amount}  | Completely desaturates a color into greyscale (works through [TinyColor](https://github.com/bgrins/TinyColor))                                                                                                   |
+| **spin** {degree}       | Spin the hue a given amount, from -360 to 360. Calling with 0, 360, or -360 will do nothing - since it sets the hue back to what it was before. (works through [TinyColor](https://github.com/bgrins/TinyColor)) |
+| **hue** {degree}        | Alias for **spin**                                                                                                                                                                                               |
+| **mix** {color, amount} | Mixes colors by their RGB component values. Amount is opacity of overlaying color                                                                                                                                |
+| **tint** {amount}       | Same as applying **mix** with white color                                                                                                                                                                        |
+| **shade** {amount}      | Same as applying **mix** with black color                                                                                                                                                                        |
+| **xor** {color}         | Treats the two colors as bitfields and applies an XOR operation to the red, green, and blue components                                                                                                           |
+| **red** {amount}        | Modify Red component by a given amount                                                                                                                                                                           |
+| **green** {amount}      | Modify Green component by a given amount                                                                                                                                                                         |
+| **blue** {amount}       | Modify Blue component by a given amount                                                                                                                                                                          |
 
-### Convolution matrix ###
+### Convolution matrix
 
 Sum neighbor pixels weighted by the kernel matrix. You can find a nice explanation with examples at [GIMP's Convolution Matrix plugin](https://docs.gimp.org/en/plug-in-convmatrix.html)
 
 Implement emboss effect:
+
 ```js
-  image.convolute([
-    [-2,-1, 0],
-    [-1, 1, 1],
-    [ 0, 1, 2]
-  ])
+image.convolute([[-2, -1, 0], [-1, 1, 1], [0, 1, 2]]);
 ```
 
 ### Low-level manipulation
@@ -366,9 +383,9 @@ Implement emboss effect:
 Jimp enables low-level manipulation of images in memory through the bitmap property of each Jimp object:
 
 ```js
-image.bitmap.data;  // a Buffer of the raw bitmap data
+image.bitmap.data; // a Buffer of the raw bitmap data
 image.bitmap.width; // the width of the image
-image.bitmap.height // the height of the image
+image.bitmap.height; // the height of the image
 ```
 
 This data can be manipulated directly, but remember: garbage in, garbage out.
@@ -382,15 +399,15 @@ image.scan(x, y, w, h, f); // scan a given region of the bitmap and call the fun
 Example usage:
 
 ```js
-image.scan(0, 0, image.bitmap.width, image.bitmap.height, function (x, y, idx) {
+image.scan(0, 0, image.bitmap.width, image.bitmap.height, function(x, y, idx) {
     // x, y is the position of this pixel on the image
     // idx is the position start position of this rgba tuple in the bitmap Buffer
     // this is the image
 
-    var red   = this.bitmap.data[ idx + 0 ];
-    var green = this.bitmap.data[ idx + 1 ];
-    var blue  = this.bitmap.data[ idx + 2 ];
-    var alpha = this.bitmap.data[ idx + 3 ];
+    var red = this.bitmap.data[idx + 0];
+    var green = this.bitmap.data[idx + 1];
+    var blue = this.bitmap.data[idx + 2];
+    var alpha = this.bitmap.data[idx + 3];
 
     // rgba values run from 0 - 255
     // e.g. this.bitmap.data[idx] = 0; // removes red from this pixel
@@ -400,11 +417,10 @@ image.scan(0, 0, image.bitmap.width, image.bitmap.height, function (x, y, idx) {
 If you need to do something with the image at the end of the scan:
 
 ```js
-image.scan(0, 0, image.bitmap.width, image.bitmap.height, function (x, y, idx) {
+image.scan(0, 0, image.bitmap.width, image.bitmap.height, function(x, y, idx) {
     // do your stuff..
 
-    if(x == image.bitmap.width-1 &&
-        y == image.bitmap.height-1) {
+    if (x == image.bitmap.width - 1 && y == image.bitmap.height - 1) {
         // image scan finished, do your stuff
     }
 });
@@ -427,7 +443,7 @@ Jimp.EDGE_CROP = 3;
 Alternatively, you can manipulate individual pixels using the following these functions:
 
 ```js
-image.getPixelColor(x, y);      // returns the colour of that pixel e.g. 0xFFFFFFFF
+image.getPixelColor(x, y); // returns the colour of that pixel e.g. 0xFFFFFFFF
 image.setPixelColor(hex, x, y); // sets the colour of that pixel
 ```
 
@@ -435,15 +451,15 @@ Two static helper functions exist to convert RGBA values into single integer (he
 
 ```js
 Jimp.rgbaToInt(r, g, b, a); // e.g. converts 255, 255, 255, 255 to 0xFFFFFFFF
-Jimp.intToRGBA(hex);        // e.g. converts 0xFFFFFFFF to {r: 255, g: 255, b: 255, a:255}
+Jimp.intToRGBA(hex); // e.g. converts 0xFFFFFFFF to {r: 255, g: 255, b: 255, a:255}
 ```
 
-### Creating new images ###
+### Creating new images
 
-If you want to begin with an empty Jimp image, you can call the Jimp constructor passing the width and height of the image to create and (optionally) a Node-style callback:
+If you want to begin with an empty Jimp image, you can call the Jimp constructor passing the width and height of the image to create and a Node-style callback:
 
 ```js
-var image = new Jimp(256, 256, function (err, image) {
+new Jimp(256, 256, function(err, image) {
     // this image is 256 x 256, every pixel is set to 0x00000000
 });
 ```
@@ -451,12 +467,12 @@ var image = new Jimp(256, 256, function (err, image) {
 You can optionally set the pixel colour as follows:
 
 ```js
-var image = new Jimp(256, 256, 0xFF0000FF, function (err, image) {
+new Jimp(256, 256, 0xff0000ff, function(err, image) {
     // this image is 256 x 256, every pixel is set to 0xFF0000FF
 });
 ```
 
-## Comparing images ##
+## Comparing images
 
 To generate a [perceptual hash](https://en.wikipedia.org/wiki/Perceptual_hashing) of a Jimp image, based on the [pHash](http://phash.org/) algorithm, use:
 
@@ -482,7 +498,7 @@ Jimp also allows the diffing of two Jimp images using [PixelMatch](https://githu
 
 ```js
 var diff = Jimp.diff(image1, image2, threshold); // threshold ranges 0-1 (default: 0.1)
-diff.image;   // a Jimp image showing differences
+diff.image; // a Jimp image showing differences
 diff.percent; // the proportion of different pixels (0-1), where 0 means the images are pixel identical
 ```
 
@@ -490,7 +506,7 @@ Using a mix of hamming distance and pixel diffing to compare images, the followi
 
 ```js
 var distance = Jimp.distance(png, jpeg); // perceived distance
-var diff = Jimp.diff(png, jpeg);         // pixel difference
+var diff = Jimp.diff(png, jpeg); // pixel difference
 
 if (distance < 0.15 || diff.percent < 0.15) {
     // images match
@@ -499,23 +515,25 @@ if (distance < 0.15 || diff.percent < 0.15) {
 }
 ```
 
-## Chaining or callbacks ##
+## Chaining or callbacks
 
 Most instance methods can be chained together, for example as follows:
 
 ```js
-Jimp.read("lenna.png", function (err, image) {
-    this.greyscale().scale(0.5).write("lena-half-bw.png");
+Jimp.read('lenna.png').then(image => {
+    this.greyscale()
+        .scale(0.5)
+        .write('lena-half-bw.png');
 });
 ```
 
 Alternatively, methods can be passed Node-style callbacks:
 
 ```js
-Jimp.read("lenna.png", function (err, image) {
-    image.greyscale(function(err, image) {
-        image.scale(0.5, function (err, image) {
-            image.write("lena-half-bw.png");
+Jimp.read('lenna.png').then(image => {
+    image.greyscale((err, image) => {
+        image.scale(0.5, (err, image) => {
+            image.write('lena-half-bw.png');
         });
     });
 });
@@ -523,17 +541,17 @@ Jimp.read("lenna.png", function (err, image) {
 
 The Node-style callback pattern allows Jimp to be used with frameworks that expect or build on the Node-style callback pattern.
 
-## Contributing ##
+## Contributing
 
 Basically clone, change, test, push and pull request.
 
 Please read the [CONTRIBUTING documentation](CONTRIBUTING.md).
 
-### Testing ###
+### Testing
 
 The test framework runs in Node.js and browser environments. Just run `npm test` to test in Node and browser environments.
 More information at ["How to Contribute" doc's "Testing" topic](CONTRIBUTING.md#testing).
 
-## License ##
+## License
 
 Jimp is licensed under the MIT license. Open Sans is licensed under the Apache license.
