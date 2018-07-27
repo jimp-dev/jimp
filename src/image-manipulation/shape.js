@@ -1,3 +1,5 @@
+/* eslint-disable no-labels */
+
 import Resize from '../modules/resize';
 import Resize2 from '../modules/resize2';
 
@@ -521,7 +523,7 @@ export function scaleToFit(w, h, mode, cb) {
  * @returns this for chaining of methods
  */
 export function displace(map, offset, cb) {
-    if (typeof map !== 'object' || map.constructor !== Jimp) {
+    if (typeof map !== 'object' || map.constructor !== this.constructor) {
         return throwError.call(this, 'The source must be a Jimp image', cb);
     }
 

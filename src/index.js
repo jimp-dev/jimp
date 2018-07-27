@@ -1,5 +1,3 @@
-/* eslint-disable no-labels */
-
 import FS from 'fs';
 import Path from 'path';
 import EventEmitter from 'events';
@@ -18,7 +16,8 @@ import * as shape from './image-manipulation/shape';
 import * as color from './image-manipulation/color';
 import * as effects from './image-manipulation/effects';
 
-import { log, clear } from './utils/log';
+import isDef from './utils/is-def';
+import { clear } from './utils/log';
 import { parseBitmap, getBuffer } from './utils/image-bitmap';
 import { isNodePattern, throwError } from './utils/error-checking';
 import * as constants from './constants';
@@ -29,8 +28,6 @@ if (
 ) {
     require('source-map-support').install();
 }
-
-const isDef = v => typeof v !== 'undefined' && v !== null;
 
 BigNumber.set({
     ALPHABET: '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ$_'
@@ -144,8 +141,11 @@ class Jimp extends EventEmitter {
 
     // The quality to be used when saving JPEG images
     _quality = 100;
+
     _deflateLevel = 9;
+
     _deflateStrategy = 3;
+
     _filterType = Jimp.PNG_FILTER_AUTO;
 
     // Whether PNGs will be exported as RGB or RGBA
@@ -740,6 +740,7 @@ class Jimp extends EventEmitter {
 
         return hex;
     }
+
     getPixelColour = this.getPixelColor;
 
     /**
@@ -770,13 +771,18 @@ class Jimp extends EventEmitter {
 
         return this;
     }
+
     setPixelColour = this.setPixelColor;
 }
 
-Object.entries(constants).map(([name, value]) => (Jimp[name] = value));
+Object.entries(constants).forEach(([name, value]) => {
+    Jimp[name] = value;
+});
 
-Object.entries({ ...color, ...shape, ...text, ...effects }).map(
-    ([name, value]) => (Jimp.prototype[name] = value)
+Object.entries({ ...color, ...shape, ...text, ...effects }).forEach(
+    ([name, value]) => {
+        Jimp.prototype[name] = value;
+    }
 );
 
 Jimp.__extraConstructors = [];

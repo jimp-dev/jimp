@@ -5,8 +5,11 @@ import JPEG from 'jpeg-js';
 import BMP from 'bmp-js';
 import UTIF from 'utif';
 import EXIFParser from 'exif-parser';
+import MIME from 'mime';
+import GIF from 'omggif';
 
 import * as constants from '../constants';
+import { throwError } from './error-checking';
 
 function getMIMEFromBuffer(buffer, path) {
     const fileTypeFromBuffer = fileType(buffer);
