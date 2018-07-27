@@ -191,7 +191,7 @@ Default align modes for `image.print` are:
 
 ### Writing text ###
 
-Jimp supports basic typography using BMFont format (.fnt) [bitmap fonts](https://en.wikipedia.org/wiki/Bitmap_fonts):
+Jimp supports basic typography using BMFont format (.fnt) even ones in different languages! Just find a bitmap font that is suitable [bitmap fonts](https://en.wikipedia.org/wiki/Bitmap_fonts):
 
 ```js
 Jimp.loadFont( path ).then(function (font) { // load font from .fnt file
