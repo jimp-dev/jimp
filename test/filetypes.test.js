@@ -75,28 +75,28 @@ describe('FileType', () => {
     };
 
     it('export PNG', done => {
-        new Jimp(simpleJGD).getBuffer('image/png').then(buffer => {
+        new Jimp(simpleJGD).getBuffer('image/png', (err, buffer) => {
             buffer.toString().should.match(/^.PNG\r\n/);
             done();
         });
     });
 
     it('export JPG', done => {
-        new Jimp(simpleJGD).getBuffer('image/jpeg').then(buffer => {
+        new Jimp(simpleJGD).getBuffer('image/jpeg', (err, buffer) => {
             buffer.toString().should.match(/^.{3,9}JFIF\u0000/);
             done();
         });
     });
 
     it('export BMP', done => {
-        new Jimp(simpleJGD).getBuffer('image/bmp').then(buffer => {
+        new Jimp(simpleJGD).getBuffer('image/bmp', (err, buffer) => {
             buffer.toString().should.match(/^BMZ\u0000/);
             done();
         });
     });
 
     it('export TIFF', done => {
-        new Jimp(simpleJGD).getBuffer('image/tiff').then(buffer => {
+        new Jimp(simpleJGD).getBuffer('image/tiff', (err, buffer) => {
             buffer.toString().should.match(/^MM\u0000*\u0000/);
             done();
         });

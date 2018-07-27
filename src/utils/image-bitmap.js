@@ -171,14 +171,18 @@ function compositeBitmapOverBackground(Jimp, image) {
  * @param cb a Node-style function to call with the buffer as the second argument
  * @returns this for chaining of methods
  */
-export function getBuffer(mime) {
+export function getBuffer(mime, cb) {
     if (mime === constants.AUTO) {
         // allow auto MIME detection
         mime = this.getMIME();
     }
 
     if (typeof mime !== 'string') {
-        throw new Error('mime must be a string');
+        throw new TypeError('mime must be a string');
+    }
+
+    if (typeof cb !== 'function') {
+        return new TypeError('cb must be a function');
     }
 
     switch (mime.toLowerCase()) {
@@ -204,7 +208,8 @@ export function getBuffer(mime) {
                 ).data;
             }
 
-            return PNG.sync.write(png);
+            cb(null, PNG.sync.write(png));
+            break;
         }
 
         case constants.MIME_JPEG: {
@@ -213,7 +218,8 @@ export function getBuffer(mime) {
                 compositeBitmapOverBackground(this.constructor, this),
                 this._quality
             );
-            return jpeg.data;
+            cb(null, jpeg.data);
+            break;
         }
 
         case constants.MIME_BMP:
@@ -222,16 +228,20 @@ export function getBuffer(mime) {
             const bmp = BMP.encode(
                 compositeBitmapOverBackground(this.constructor, this)
             );
-            return bmp.data;
+            cb(null, bmp.data);
+            break;
         }
 
         case constants.MIME_TIFF: {
             const c = compositeBitmapOverBackground(this.constructor, this);
             const tiff = UTIF.encodeImage(c.data, c.width, c.height);
-            return Buffer.from(tiff);
+            cb(null, Buffer.from(tiff));
+            break;
         }
 
         default:
-            throw new Error('Unsupported MIME type: ' + mime);
+            cb(new TypeError('Unsupported MIME type: ' + mime));
     }
+
+    return this;
 }

@@ -18,13 +18,11 @@ const donutPngBuffer = Buffer.from(donutPngBase64, 'base64');
 
 describe('JGD - JS Graphic Description', () => {
     it('Jimp loads JGD', done => {
-        new Jimp(donutJGD)
-            .getBuffer('image/png')
-            .then(buffer => {
-                buffer.toString('base64').should.be.equal(donutPngBase64);
-                done();
-            })
-            .catch(err => should.not.exist(err));
+        new Jimp(donutJGD).getBuffer('image/png', (err, buffer) => {
+            should.not.exist(err);
+            buffer.toString('base64').should.be.equal(donutPngBase64);
+            done();
+        });
     });
 
     it('Jimp exports JGD sync', done => {
