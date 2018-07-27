@@ -3733,6 +3733,8 @@ Jimp.prototype.getBuffer = function(mime, cb) {
             cb.call(this, 'Unsupported MIME type: ' + mime);
             break;
     }
+
+    return this;
 };
 
 function compositeBitmapOverBackground(image) {
