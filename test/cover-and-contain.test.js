@@ -31,8 +31,8 @@ describe('All align combinations for cover and contain', () => {
     let horizontal; // stores the Jimp instances of the JGD images above.
 
     before(done => {
-        const img1 = Jimp.read(verticalJGD);
-        const img2 = Jimp.read(horizontalJGD);
+        const img1 = new Jimp(verticalJGD);
+        const img2 = new Jimp(horizontalJGD);
         Promise.all([img1, img2])
             .then(images => {
                 vertical = images[0];

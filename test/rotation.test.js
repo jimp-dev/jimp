@@ -3,7 +3,7 @@ const { Jimp, mkJGD } = require('./test-helper');
 describe('Rotate a image with even size', () => {
     let imgSrc = null;
     before(done => {
-        Jimp.read(
+        new Jimp(
             mkJGD(
                 '▰▴▴▴▪▪▪▰',
                 '▴▴▴▴▪▪▪▪',
@@ -321,7 +321,7 @@ describe('Rotate a image with even size', () => {
 describe('Rotate a image with odd size', () => {
     let imgSrc = null;
     before(done => {
-        Jimp.read(
+        new Jimp(
             mkJGD(
                 '▴▴▴▦▪▪▪',
                 '▴▴▴▦▪▪▪',
@@ -435,7 +435,7 @@ describe('Rotate a image with odd size', () => {
 describe('Rotate a non-square image', () => {
     let imgSrc = null;
     before(done => {
-        Jimp.read(mkJGD('▴▴▴▴▪▪▪▪', '▴▴▴▴▪▪▪▪', '▦▦▦▦▴▴▴▴', '▦▦▦▦▴▴▴▴'))
+        new Jimp(mkJGD('▴▴▴▴▪▪▪▪', '▴▴▴▴▪▪▪▪', '▦▦▦▦▴▴▴▴', '▦▦▦▦▴▴▴▴'))
             .then(imgJimp => {
                 imgSrc = imgJimp;
                 done();
@@ -626,7 +626,7 @@ describe('Rotate a non-square image', () => {
 describe('Simple Rotate (deg%90 mode=false)', () => {
     let imgSrc = null;
     before(done => {
-        Jimp.read(mkJGD('▴▴▴▴▪▪▪▪', '▴▴▴▴▪▪▪▪', '▦▦▦▦▴▴▴▴', '▦▦▦▦▴▴▴▴'))
+        new Jimp(mkJGD('▴▴▴▴▪▪▪▪', '▴▴▴▴▪▪▪▪', '▦▦▦▦▴▴▴▴', '▦▦▦▦▴▴▴▴'))
             .then(imgJimp => {
                 imgSrc = imgJimp;
                 done();

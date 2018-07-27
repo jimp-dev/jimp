@@ -12,9 +12,9 @@ describe('Exif', function() {
         imgs = [];
         let i;
         for (i = 1; i <= 8; i++)
-            imgs.push(Jimp.read(imagesDir + '/Landscape_' + i + '.jpg'));
+            imgs.push(new Jimp(imagesDir + '/Landscape_' + i + '.jpg'));
         for (i = 1; i <= 8; i++)
-            imgs.push(Jimp.read(imagesDir + '/Portrait_' + i + '.jpg'));
+            imgs.push(new Jimp(imagesDir + '/Portrait_' + i + '.jpg'));
         Promise.all(imgs)
             .then(loadedImgs => {
                 imgs = loadedImgs;

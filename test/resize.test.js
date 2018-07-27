@@ -4,7 +4,7 @@ describe('Resize images', () => {
     const testImages = [
         {
             title: 'max contrast 8x8',
-            src: Jimp.read(
+            src: new Jimp(
                 mkJGD(
                     '■■■■□□□□',
                     '■■■■□□□□',
@@ -142,7 +142,7 @@ describe('Resize images', () => {
         /**********************************************************************/
         {
             title: 'max contrast 12x12 with dots',
-            src: Jimp.read(
+            src: new Jimp(
                 mkJGD(
                     '■■■■■■□□□□□□',
                     '■■■■■■□□□□□□',
@@ -314,7 +314,7 @@ describe('Resize images', () => {
         /**********************************************************************/
         {
             title: 'mutch contrast 4x4',
-            src: Jimp.read(mkJGD('▩▩▥▥', '▩▩▥▥', '▥▥▩▩', '▥▥▩▩')),
+            src: new Jimp(mkJGD('▩▩▥▥', '▩▩▥▥', '▥▥▩▩', '▥▥▩▩')),
             results: {
                 'default 6x6': {
                     width: 6,

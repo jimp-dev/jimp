@@ -2,7 +2,7 @@ const { Jimp, mkJGD } = require('./test-helper');
 
 describe('Autocrop', () => {
     it('image with transparent surround color', done => {
-        Jimp.read(
+        new Jimp(
             mkJGD(
                 '          ',
                 '    ◆◆    ',
@@ -26,7 +26,7 @@ describe('Autocrop', () => {
     });
 
     it('image with opaque surround color', done => {
-        Jimp.read(
+        new Jimp(
             mkJGD(
                 '▥▥▥▥▥▥▥▥▥▥',
                 '▥▥▥▥◆◆▥▥▥▥',
@@ -50,7 +50,7 @@ describe('Autocrop', () => {
     });
 
     it('image with one color border', done => {
-        Jimp.read(
+        new Jimp(
             mkJGD(
                 '▥▥▥▥▥▥▥▥▥▥▥▥',
                 '▥▥▥▥▥▥▥▥▥▥▥▥',
@@ -82,7 +82,7 @@ describe('Autocrop', () => {
     });
 
     it('image border with small variation', done => {
-        Jimp.read(
+        new Jimp(
             mkJGD(
                 '323232323232',
                 '232323232323',
@@ -113,6 +113,7 @@ describe('Autocrop', () => {
                             '323232323232'
                         )
                     );
+
                 imgSrc
                     .clone()
                     .autocrop(0.005)

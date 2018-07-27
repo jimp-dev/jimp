@@ -2,8 +2,17 @@
   "name": "jimp",
   "version": "0.2.28",
   "description": "An image processing library written entirely in JavaScript (i.e. zero external or native dependencies).",
-  "main": "jimp.js",
+  "main": "./dist/jimp.js",
   "types": "./jimp.d.ts",
+  "tonicExampleFilename": "example.js",
+  "browser": "./browser/lib/jimp.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/oliver-moran/jimp.git"
+  },
+  "bugs": {
+    "url": "https://github.com/oliver-moran/jimp/issues"
+  },
   "scripts": {
     "lint": "npm run -s lint:src && npm run -s lint:tests && npm run -s lint:extra && echo Lint All Success",
     "lint:src": "xo *.js src/*.js",
@@ -13,14 +22,17 @@
     "test:browser:run": "npm run -s test:karma run",
     "test:browser:once": "npm run -s test:karma start -- --single-run",
     "test:browser:watch": "npm run -s test:karma start -- --auto-watch",
-    "test:node:run": "mocha",
-    "test:node:once": "istanbul cover _mocha ./test/*.test.js",
-    "test:node:once:nocover": "mocha ./test/*.test.js",
+    "test:node:run": "BABEL_ENV=development mocha --require babel-register",
+    "test:node:once": "nyc npm run test:node:run",
     "test:node:watch": "mocha --reporter min --watch ./test/*.test.js",
     "test": "npm run -s test:node:once && npm run -s test:browser:once",
     "test:old": "./test/tests.sh",
     "browser-build": "node tools/browser-build.js test",
-    "prepublish": "node tools/browser-build.js prepublish"
+    "build": "npm run build:browser && npm run build:node:production",
+    "build:node": "babel src -d dist --source-maps",
+    "build:node:production": "BABEL_ENV=production npm run build:node",
+    "build:node:debug": "BABEL_ENV=development npm run build:node",
+    "build:browser": "BABEL_ENV=production node tools/browser-build.js prepublish"
   },
   "keywords": [
     "image",
@@ -40,7 +52,6 @@
     "bignumber.js": "^7.2.1",
     "bmp-js": "0.1.0",
     "buffer": "^5.0.2",
-    "es6-promise": "^4.2.4",
     "exif-parser": "^0.1.9",
     "file-type": "^8.1.0",
     "jpeg-js": "^0.3.4",
@@ -59,14 +70,16 @@
     "babel-cli": "6.26.0",
     "babel-core": "^6.26.3",
     "babel-eslint": "^8.2.6",
+    "babel-plugin-add-module-exports": "^0.3.2",
+    "babel-plugin-conditional-compile": "^0.0.5",
+    "babel-plugin-istanbul": "^4.1.6",
     "babel-preset-env": "^1.7.0",
-    "babel-preset-es2015": "6.24.1",
     "babel-preset-stage-0": "6.24.1",
+    "babelify": "^8.0.0",
     "browserify": "^16.2.2",
     "envify": "^4.1.0",
     "express": "^4.13.4",
     "husky": "^1.0.0-rc.13",
-    "istanbul": "^0.4.5",
     "karma": "^2.0.4",
     "karma-chrome-launcher": "^2.0.0",
     "karma-firefox-launcher": "^1.0.0",
@@ -75,20 +88,13 @@
     "karma-mocha-own-reporter": "^1.1.2",
     "lint-staged": "^7.2.0",
     "mocha": "^5.2.0",
+    "nyc": "^12.0.2",
     "prettier": "^1.13.7",
     "should": "^13.2.1",
+    "source-map-support": "^0.5.6",
     "uglify-js": "^3.4.5",
     "xo": "^0.21.1"
   },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/oliver-moran/jimp.git"
-  },
-  "bugs": {
-    "url": "https://github.com/oliver-moran/jimp/issues"
-  },
-  "tonicExampleFilename": "example.js",
-  "browser": "browser/lib/jimp.js",
   "husky": {
     "hooks": {
       "pre-commit": "lint-staged"
@@ -142,8 +148,61 @@
     }
   },
   "babel": {
+    "sourceMaps": "inline",
+    "retainLines": true,
     "presets": [
-      "env"
+      [
+        "env",
+        {
+          "targets": {
+            "ie": 8
+          },
+          "useBuiltIns": true
+        }
+      ],
+      "stage-0"
+    ],
+    "plugins": [
+      "add-module-exports"
+    ],
+    "env": {
+      "development": {
+        "plugins": [
+          "istanbul",
+          [
+            "conditional-compile",
+            {
+              "define": {
+                "TARGET": "development"
+              }
+            }
+          ]
+        ]
+      },
+      "production": {
+        "plugins": [
+          [
+            "conditional-compile",
+            {
+              "define": {
+                "TARGET": "production"
+              }
+            }
+          ]
+        ]
+      }
+    }
+  },
+  "nyc": {
+    "reporter": [
+      "text",
+      "text-summary",
+      "lcov",
+      "html"
+    ],
+    "exclude": [
+      "src/modules/*.js",
+      "test/*.js"
     ]
   }
 }

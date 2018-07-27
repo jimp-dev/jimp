@@ -9,11 +9,11 @@ describe('Mask', () => {
 
     before(done => {
         Promise.all([
-            Jimp.read(mkJGD('▴□▾□■□', '■▴■▾■□', '■□▴□▾□', '■□■▴■▾')),
-            Jimp.read(mkJGD('▴▵▾▿', '▴▵▾▿', '▴▵▾▿')),
-            Jimp.read(mkJGD('048840', '8CFFC8', '8CFFC8', '048840')),
-            Jimp.read(mkJGD('0369', '369C', '69CF')),
-            Jimp.read(mkJGD('▴▴▾▾', '▪▪▰▰', '□□□□'))
+            new Jimp(mkJGD('▴□▾□■□', '■▴■▾■□', '■□▴□▾□', '■□■▴■▾')),
+            new Jimp(mkJGD('▴▵▾▿', '▴▵▾▿', '▴▵▾▿')),
+            new Jimp(mkJGD('048840', '8CFFC8', '8CFFC8', '048840')),
+            new Jimp(mkJGD('0369', '369C', '69CF')),
+            new Jimp(mkJGD('▴▴▾▾', '▪▪▰▰', '□□□□'))
         ])
             .then(imgs => {
                 imgSrcOpaq = imgs[0];
