@@ -78,7 +78,7 @@ function advancedRotate(deg, mode) {
             h++;
         }
 
-        const c = this.cloneQuiet();
+        const c = this.cloneQuiet(null, true);
         this.scanQuiet(0, 0, this.bitmap.width, this.bitmap.height, function(
             x,
             y,
@@ -427,7 +427,7 @@ export function contain(w, h, alignBits, mode, cb) {
         w / h > this.bitmap.width / this.bitmap.height
             ? h / this.bitmap.height
             : w / this.bitmap.width;
-    const c = this.cloneQuiet().scale(f, mode);
+    const c = this.cloneQuiet(null, true).scale(f, mode);
 
     this.resize(w, h, mode);
     this.scanQuiet(0, 0, this.bitmap.width, this.bitmap.height, function(
@@ -529,7 +529,7 @@ export function displace(map, offset, cb) {
         return throwError.call(this, 'factor must be a number', cb);
     }
 
-    const source = this.cloneQuiet();
+    const source = this.cloneQuiet(null, true);
     this.scanQuiet(0, 0, this.bitmap.width, this.bitmap.height, function(
         x,
         y,
