@@ -1,29 +1,36 @@
 /* eslint-disable no-labels */
 
-const FS = require('fs');
-const Path = require('path');
-const EventEmitter = require('events');
+import FS from 'fs';
+import Path from 'path';
+import EventEmitter from 'events';
 
-const { PNG } = require('pngjs');
-const JPEG = require('jpeg-js');
-const BMP = require('bmp-js');
-const GIF = require('omggif');
-const UTIF = require('utif');
-const MIME = require('mime');
-const tinyColor = require('tinycolor2');
-const BigNumber = require('bignumber.js');
-const bMFont = require('load-bmfont');
-const MkDirP = require('mkdirp');
-const fileType = require('file-type');
-const pixelMatch = require('pixelmatch');
-const EXIFParser = require('exif-parser');
-// polyfill Promise for Node < 0.12
-const Promise = global.Promise || require('es6-promise').Promise;
+import { PNG } from 'pngjs';
+import JPEG from 'jpeg-js';
+import BMP from 'bmp-js';
+import GIF from 'omggif';
+import UTIF from 'utif';
+import MIME from 'mime';
+import tinyColor from 'tinycolor2';
+import BigNumber from 'bignumber.js';
+import bMFont from 'load-bmfont';
+import MkDirP from 'mkdirp';
+import fileType from 'file-type';
+import pixelMatch from 'pixelmatch';
+import EXIFParser from 'exif-parser';
 
-const ImagePHash = require('./phash.js');
-const request = require('./src/request');
-const Resize = require('./resize.js');
-const Resize2 = require('./resize2.js');
+import ImagePHash from './modules/phash';
+import request from './request';
+import Resize from './modules/resize';
+import Resize2 from './modules/resize2';
+import { log, clear } from './utils/log';
+import { isNodePattern, throwError } from './utils/error-checking';
+
+if (
+    process.env.BABEL_ENV === 'development' &&
+    process.env.ENVIRONMENT !== 'BROWSER'
+) {
+    require('source-map-support').install();
+}
 
 const isDef = v => typeof v !== 'undefined' && v !== null;
 
@@ -31,60 +38,12 @@ BigNumber.set({
     ALPHABET: '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ$_'
 });
 
-// logging methods
-
-let chars = 0;
-
-function log(msg) {
-    clear();
-
-    if (typeof process !== 'undefined' && process && process.stdout) {
-        process.stdout.write(msg);
-    } else if (typeof console !== 'undefined' && console) {
-        console.warn('Jimp', msg);
-    }
-
-    chars = msg.length;
-}
-
-function clear() {
-    if (process && process.stdout) {
-        while (chars-- > 0) {
-            process.stdout.write('\b');
-        }
-    }
-}
-
 process.on('exit', clear);
 
 // no operation
 function noop() {}
 
 // error checking methods
-
-function isNodePattern(cb) {
-    if (typeof cb === 'undefined') {
-        return false;
-    }
-
-    if (typeof cb !== 'function') {
-        throw new TypeError('Callback must be a function');
-    }
-
-    return true;
-}
-
-function throwError(error, cb) {
-    if (typeof error === 'string') {
-        error = new Error(error);
-    }
-
-    if (typeof cb === 'function') {
-        return cb.call(this, error);
-    }
-
-    throw error;
-}
 
 function isArrayBuffer(test) {
     return (
@@ -173,6 +132,7 @@ function jimpEvChange(methodName, method) {
 class Jimp extends EventEmitter {
     constructor() {
         super();
+
         const jimpInstance = this;
         let cb = noop;
 
@@ -659,34 +619,43 @@ Jimp.dirName = getJimpDir();
 
 // Font locations
 Jimp.FONT_SANS_8_BLACK =
-    Jimp.dirName + 'fonts/open-sans/open-sans-8-black/open-sans-8-black.fnt';
+    Jimp.dirName + '../fonts/open-sans/open-sans-8-black/open-sans-8-black.fnt';
 Jimp.FONT_SANS_10_BLACK =
-    Jimp.dirName + 'fonts/open-sans/open-sans-10-black/open-sans-10-black.fnt';
+    Jimp.dirName +
+    '../fonts/open-sans/open-sans-10-black/open-sans-10-black.fnt';
 Jimp.FONT_SANS_12_BLACK =
-    Jimp.dirName + 'fonts/open-sans/open-sans-12-black/open-sans-12-black.fnt';
+    Jimp.dirName +
+    '../fonts/open-sans/open-sans-12-black/open-sans-12-black.fnt';
 Jimp.FONT_SANS_14_BLACK =
-    Jimp.dirName + 'fonts/open-sans/open-sans-14-black/open-sans-14-black.fnt';
+    Jimp.dirName +
+    '../fonts/open-sans/open-sans-14-black/open-sans-14-black.fnt';
 Jimp.FONT_SANS_16_BLACK =
-    Jimp.dirName + 'fonts/open-sans/open-sans-16-black/open-sans-16-black.fnt';
+    Jimp.dirName +
+    '../fonts/open-sans/open-sans-16-black/open-sans-16-black.fnt';
 Jimp.FONT_SANS_32_BLACK =
-    Jimp.dirName + 'fonts/open-sans/open-sans-32-black/open-sans-32-black.fnt';
+    Jimp.dirName +
+    '../fonts/open-sans/open-sans-32-black/open-sans-32-black.fnt';
 Jimp.FONT_SANS_64_BLACK =
-    Jimp.dirName + 'fonts/open-sans/open-sans-64-black/open-sans-64-black.fnt';
+    Jimp.dirName +
+    '../fonts/open-sans/open-sans-64-black/open-sans-64-black.fnt';
 Jimp.FONT_SANS_128_BLACK =
     Jimp.dirName +
-    'fonts/open-sans/open-sans-128-black/open-sans-128-black.fnt';
+    '../fonts/open-sans/open-sans-128-black/open-sans-128-black.fnt';
 
 Jimp.FONT_SANS_8_WHITE =
-    Jimp.dirName + 'fonts/open-sans/open-sans-8-white/open-sans-8-white.fnt';
+    Jimp.dirName + '../fonts/open-sans/open-sans-8-white/open-sans-8-white.fnt';
 Jimp.FONT_SANS_16_WHITE =
-    Jimp.dirName + 'fonts/open-sans/open-sans-16-white/open-sans-16-white.fnt';
+    Jimp.dirName +
+    '../fonts/open-sans/open-sans-16-white/open-sans-16-white.fnt';
 Jimp.FONT_SANS_32_WHITE =
-    Jimp.dirName + 'fonts/open-sans/open-sans-32-white/open-sans-32-white.fnt';
+    Jimp.dirName +
+    '../fonts/open-sans/open-sans-32-white/open-sans-32-white.fnt';
 Jimp.FONT_SANS_64_WHITE =
-    Jimp.dirName + 'fonts/open-sans/open-sans-64-white/open-sans-64-white.fnt';
+    Jimp.dirName +
+    '../fonts/open-sans/open-sans-64-white/open-sans-64-white.fnt';
 Jimp.FONT_SANS_128_WHITE =
     Jimp.dirName +
-    'fonts/open-sans/open-sans-128-white/open-sans-128-white.fnt';
+    '../fonts/open-sans/open-sans-128-white/open-sans-128-white.fnt';
 
 // Edge Handling
 Jimp.EDGE_EXTEND = 1;
@@ -4272,4 +4241,4 @@ if (process.env.ENVIRONMENT === 'BROWSER') {
     gl.Buffer = Buffer;
 }
 
-module.exports = Jimp;
+export default Jimp;
