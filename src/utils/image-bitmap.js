@@ -213,7 +213,8 @@ export function getBuffer(mime, cb) {
             }
 
             const buffer = PNG.sync.write(png);
-            return cb.call(this, null, buffer);
+            cb.call(this, null, buffer);
+            break;
         }
 
         case constants.MIME_JPEG: {
@@ -222,7 +223,8 @@ export function getBuffer(mime, cb) {
                 compositeBitmapOverBackground(this.constructor, this),
                 this._quality
             );
-            return cb.call(this, null, jpeg.data);
+            cb.call(this, null, jpeg.data);
+            break;
         }
 
         case constants.MIME_BMP:
@@ -231,16 +233,21 @@ export function getBuffer(mime, cb) {
             const bmp = BMP.encode(
                 compositeBitmapOverBackground(this.constructor, this)
             );
-            return cb.call(this, null, bmp.data);
+            cb.call(this, null, bmp.data);
+            break;
         }
 
         case constants.MIME_TIFF: {
             const c = compositeBitmapOverBackground(this.constructor, this);
             const tiff = UTIF.encodeImage(c.data, c.width, c.height);
-            return cb.call(this, null, Buffer.from(tiff));
+            cb.call(this, null, Buffer.from(tiff));
+            break;
         }
 
         default:
-            return cb.call(this, 'Unsupported MIME type: ' + mime);
+            cb.call(this, 'Unsupported MIME type: ' + mime);
+            break;
     }
+
+    return this;
 }
