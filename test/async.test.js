@@ -40,4 +40,19 @@ describe.only('Async functions', () => {
             });
         });
     });
+
+    it('getBase64 returns promise', done => {
+        if (process.env.BABEL_ENV === undefined) {
+            return done();
+        }
+
+        new Jimp(imagesDir + '/dice.png', function(err) {
+            if (err) done(err);
+
+            this.getBase64(Jimp.AUTO, 'async').then(buffer => {
+                should.exist(buffer);
+                done();
+            });
+        });
+    });
 });

@@ -580,7 +580,8 @@ class Jimp extends EventEmitter {
     /**
      * Converts the image to a base 64 string
      * @param {string} mime the mime type of the image data to be created
-     * @param {function(Error, Jimp)} cb a Node-style function to call with the buffer as the second argument
+     * @param {function(Error, Jimp)|string} cb (optional) a function to call when the
+     *        image is saved to disk, or a string 'async' write will return a promise
      * @returns {Jimp} this for chaining of methods
      */
     getBase64(mime, cb) {
@@ -592,17 +593,28 @@ class Jimp extends EventEmitter {
         if (typeof mime !== 'string') {
             return throwError.call(this, 'mime must be a string', cb);
         }
-        if (typeof cb !== 'function') {
-            return throwError.call(this, 'cb must be a function', cb);
+
+        if (typeof cb !== 'function' && typeof cb !== 'string') {
+            return throwError.call(
+                this,
+                'cb must be a function or the string "async"',
+                cb
+            );
         }
 
-        this.getBuffer(mime, function(err, data) {
-            if (err) {
-                return throwError.call(this, err, cb);
-            }
+        const encodeBase64 = data =>
+            'data:' + mime + ';base64,' + data.toString('base64');
 
-            const src = 'data:' + mime + ';base64,' + data.toString('base64');
-            return cb.call(this, null, src);
+        if (cb === 'async') {
+            return this.getBuffer(mime, 'async').then(encodeBase64);
+        }
+
+        this.getBuffer(mime, (err, buffer) => {
+            if (err) {
+                throwError.call(this, err, cb);
+            } else {
+                cb.call(this, null, encodeBase64(buffer));
+            }
         });
 
         return this;
