@@ -264,6 +264,10 @@ export function resize(w, h, mode, cb) {
         h = this.bitmap.height * (w / this.bitmap.width);
     }
 
+    if (w < 0 || h < 0) {
+        return throwError.call(this, 'w and h must be positive numbers', cb);
+    }
+
     // round inputs
     w = Math.round(w);
     h = Math.round(h);
