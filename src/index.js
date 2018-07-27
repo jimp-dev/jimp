@@ -2912,13 +2912,13 @@ Jimp.prototype.sepia = function(cb) {
         y,
         idx
     ) {
-        let red = this.bitmap.data[idx];
-        let green = this.bitmap.data[idx + 1];
-        let blue = this.bitmap.data[idx + 2];
+        const r = this.bitmap.data[idx];
+        const g = this.bitmap.data[idx + 1];
+        const b = this.bitmap.data[idx + 2];
 
-        red = red * 0.393 + green * 0.769 + blue * 0.189;
-        green = red * 0.349 + green * 0.686 + blue * 0.168;
-        blue = red * 0.272 + green * 0.534 + blue * 0.131;
+        const red = r * 0.393 + g * 0.769 + b * 0.189;
+        const green = r * 0.349 + g * 0.686 + b * 0.168;
+        const blue = r * 0.272 + g * 0.534 + b * 0.131;
 
         this.bitmap.data[idx] = red < 255 ? red : 255;
         this.bitmap.data[idx + 1] = green < 255 ? green : 255;

@@ -722,10 +722,6 @@ babel-plugin-check-es2015-constants@^6.22.0:
   dependencies:
     babel-runtime "^6.22.0"
 
-babel-plugin-conditional-compile@^0.0.5:
-  version "0.0.5"
-  resolved "https://registry.yarnpkg.com/babel-plugin-conditional-compile/-/babel-plugin-conditional-compile-0.0.5.tgz#66d99537e055261d96de2c9ec4cc66ed2d3c287d"
-
 babel-plugin-istanbul@^4.1.6:
   version "4.1.6"
   resolved "https://registry.yarnpkg.com/babel-plugin-istanbul/-/babel-plugin-istanbul-4.1.6.tgz#36c59b2192efce81c5b378321b74175add1c9a45"
@@ -6225,8 +6221,8 @@ should-util@^1.0.0:
   resolved "https://registry.yarnpkg.com/should-util/-/should-util-1.0.0.tgz#c98cda374aa6b190df8ba87c9889c2b4db620063"
 
 should@^13.2.1:
-  version "13.2.1"
-  resolved "https://registry.yarnpkg.com/should/-/should-13.2.1.tgz#84e6ebfbb145c79e0ae42307b25b3f62dcaf574e"
+  version "13.2.2"
+  resolved "https://registry.yarnpkg.com/should/-/should-13.2.2.tgz#7a802c0f30ed53af978d3b93dd0a0b0c6cf1f966"
   dependencies:
     should-equal "^2.0.0"
     should-format "^3.0.3"
