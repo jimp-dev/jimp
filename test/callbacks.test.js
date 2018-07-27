@@ -95,15 +95,15 @@ describe('Callbacks', () => {
                 width: 3,
                 height: 3,
                 data: [
-                    0x645845ff,
-                    0xc4ae88ff,
-                    0x302a21ff,
-                    0xffffcdff,
-                    0xf4d9a9ff,
-                    0x948366ff,
-                    0x6458457f,
-                    0xc4ae887f,
-                    0x302a217f
+                    0x64222dff,
+                    0xc4f3b7ff,
+                    0x303b4eff,
+                    0xffffe5ff,
+                    0xf4ffffff,
+                    0x945e7cff,
+                    0x64222d7f,
+                    0xc4f3b77f,
+                    0x303b4e7f
                 ]
             }
         },
