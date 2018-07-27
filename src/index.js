@@ -225,6 +225,7 @@ class Jimp extends EventEmitter {
             this._filterType = original._filterType;
             this._rgba = original._rgba;
             this._background = original._background;
+            this._originalMime = original._originalMime;
 
             finish(null, this);
         } else if (typeof arguments[0] === 'string') {
@@ -462,7 +463,8 @@ function parseBitmap(data, path, cb) {
                     width: data.width,
                     height: data.height
                 };
-                return cb.call(this, null, this);
+
+                cb.call(this, null, this);
             });
             break;
         }
@@ -477,10 +479,11 @@ function parseBitmap(data, path, cb) {
                 } catch (err) {
                     /* meh */
                 }
-                return cb.call(this, null, this);
+                cb.call(this, null, this);
             } catch (err) {
-                return cb.call(this, err, this);
+                cb.call(this, err, this);
             }
+            break;
 
         case Jimp.MIME_TIFF: {
             const ifds = UTIF.decode(data);
@@ -494,21 +497,26 @@ function parseBitmap(data, path, cb) {
                 height: page.t257[0]
             };
 
-            return cb.call(this, null, this);
+            cb.call(this, null, this);
+            break;
         }
 
         case Jimp.MIME_BMP:
         case Jimp.MIME_X_MS_BMP:
             this.bitmap = BMP.decode(data);
-            return cb.call(this, null, this);
+            cb.call(this, null, this);
+            break;
 
         case Jimp.MIME_GIF:
             this.bitmap = getBitmapFromGIF(data);
-            return cb.call(this, null, this);
+            cb.call(this, null, this);
+            break;
 
         default:
             return throwError.call(this, 'Unsupported MIME type: ' + mime, cb);
     }
+
+    return this;
 }
 
 /*
@@ -3692,7 +3700,8 @@ Jimp.prototype.getBuffer = function(mime, cb) {
             }
 
             const buffer = PNG.sync.write(png);
-            return cb.call(this, null, buffer);
+            cb.call(this, null, buffer);
+            break;
         }
 
         case Jimp.MIME_JPEG: {
@@ -3701,24 +3710,28 @@ Jimp.prototype.getBuffer = function(mime, cb) {
                 compositeBitmapOverBackground(this),
                 this._quality
             );
-            return cb.call(this, null, jpeg.data);
+            cb.call(this, null, jpeg.data);
+            break;
         }
 
         case Jimp.MIME_BMP:
         case Jimp.MIME_X_MS_BMP: {
             // composite onto a new image so that the background shows through alpha channels
             const bmp = BMP.encode(compositeBitmapOverBackground(this));
-            return cb.call(this, null, bmp.data);
+            cb.call(this, null, bmp.data);
+            break;
         }
 
         case Jimp.MIME_TIFF: {
             const c = compositeBitmapOverBackground(this);
             const tiff = UTIF.encodeImage(c.data, c.width, c.height);
-            return cb.call(this, null, Buffer.from(tiff));
+            cb.call(this, null, Buffer.from(tiff));
+            break;
         }
 
         default:
-            return cb.call(this, 'Unsupported MIME type: ' + mime);
+            cb.call(this, 'Unsupported MIME type: ' + mime);
+            break;
     }
 };
 
