@@ -25,4 +25,19 @@ describe.only('Async functions', () => {
             });
         });
     });
+
+    it('getBuffer returns promise', done => {
+        if (process.env.BABEL_ENV === undefined) {
+            return done();
+        }
+
+        new Jimp(imagesDir + '/dice.png', function(err) {
+            if (err) done(err);
+
+            this.getBuffer(Jimp.AUTO, 'async').then(buffer => {
+                should.exist(buffer);
+                done();
+            });
+        });
+    });
 });

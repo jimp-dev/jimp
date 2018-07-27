@@ -121,9 +121,9 @@ export function parseBitmap(data, path, cb) {
                 } catch (err) {
                     /* meh */
                 }
-                 cb.call(this, null, this);
+                cb.call(this, null, this);
             } catch (err) {
-                 cb.call(this, err, this);
+                cb.call(this, err, this);
             }
             break;
 
@@ -158,7 +158,7 @@ export function parseBitmap(data, path, cb) {
             return throwError.call(this, 'Unsupported MIME type: ' + mime, cb);
     }
 
-    return this
+    return this;
 }
 
 function compositeBitmapOverBackground(Jimp, image) {
@@ -172,7 +172,8 @@ function compositeBitmapOverBackground(Jimp, image) {
 /**
  * Converts the image to a buffer
  * @param {string} mime the mime type of the image buffer to be created
- * @param {function(Error, Jimp)} cb a Node-style function to call with the buffer as the second argument
+ * @param {function(Error, Jimp)|string} cb (optional) a function to call when the
+ *        image is saved to disk, or a string 'async' write will return a promise
  * @returns {Jimp} this for chaining of methods
  */
 export function getBuffer(mime, cb) {
@@ -185,9 +186,16 @@ export function getBuffer(mime, cb) {
         return throwError.call(this, 'mime must be a string', cb);
     }
 
-    if (typeof cb !== 'function') {
-        return throwError.call(this, 'cb must be a function', cb);
+    if (typeof cb !== 'function' && typeof cb !== 'string') {
+        return throwError.call(
+            this,
+            'cb must be a function or the string "async"',
+            cb
+        );
     }
+
+    let buffer;
+    let error;
 
     switch (mime.toLowerCase()) {
         case constants.MIME_PNG: {
@@ -212,8 +220,7 @@ export function getBuffer(mime, cb) {
                 ).data;
             }
 
-            const buffer = PNG.sync.write(png);
-            cb.call(this, null, buffer);
+            buffer = PNG.sync.write(png);
             break;
         }
 
@@ -223,7 +230,7 @@ export function getBuffer(mime, cb) {
                 compositeBitmapOverBackground(this.constructor, this),
                 this._quality
             );
-            cb.call(this, null, jpeg.data);
+            buffer = jpeg.data;
             break;
         }
 
@@ -233,14 +240,14 @@ export function getBuffer(mime, cb) {
             const bmp = BMP.encode(
                 compositeBitmapOverBackground(this.constructor, this)
             );
-            cb.call(this, null, bmp.data);
+            buffer = bmp.data;
             break;
         }
 
         case constants.MIME_TIFF: {
             const c = compositeBitmapOverBackground(this.constructor, this);
             const tiff = UTIF.encodeImage(c.data, c.width, c.height);
-            cb.call(this, null, Buffer.from(tiff));
+            buffer = Buffer.from(tiff);
             break;
         }
 
@@ -248,6 +255,16 @@ export function getBuffer(mime, cb) {
             cb.call(this, 'Unsupported MIME type: ' + mime);
             break;
     }
+
+    if (cb === 'async') {
+        return error ? Promise.reject(error) : Promise.resolve(buffer);
+    }
+
+    if (error) {
+        cb.call(this, error, this);
+    }
+
+    cb.call(this, null, buffer);
 
     return this;
 }

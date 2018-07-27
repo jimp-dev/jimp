@@ -415,34 +415,40 @@ class Jimp extends EventEmitter {
             MkDirP.sync(pathObj.dir);
         }
 
-        const getBuffer = (resolve, reject) =>
-            this.getBuffer(mime, (err, buffer) => {
-                if (err) {
+        const writeFile = (buffer, resolve, reject) => {
+            const stream = FS.createWriteStream(path);
+
+            stream
+                .on('open', () => {
+                    stream.write(buffer);
+                    stream.end();
+                })
+                .on('error', err => {
                     return reject(err);
-                }
-
-                const stream = FS.createWriteStream(path);
-
-                stream
-                    .on('open', () => {
-                        stream.write(buffer);
-                        stream.end();
-                    })
-                    .on('error', err => {
-                        return reject(err);
-                    });
-                stream.on('finish', () => {
-                    return resolve(this);
                 });
+            stream.on('finish', () => {
+                return resolve(this);
             });
+        };
 
         if (cb === 'async') {
-            return new Promise(getBuffer);
+            return this.getBuffer(mime, 'async').then(buffer => {
+                return new Promise((resolve, reject) =>
+                    writeFile(buffer, resolve, reject)
+                );
+            });
         }
 
-        const resolve = image => cb.call(this, null, image);
-        const reject = err => throwError.call(this, err, cb);
-        getBuffer(resolve, reject);
+        this.getBuffer(mime, (err, buffer) => {
+            const resolve = image => cb.call(this, null, image);
+            const reject = err => throwError.call(this, err, cb);
+
+            if (err) {
+                return reject(err);
+            }
+
+            writeFile(buffer, resolve, reject);
+        });
 
         return this;
     }
