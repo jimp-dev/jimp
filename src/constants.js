@@ -43,8 +43,7 @@ function getJimpDir() {
     const reWebKit = /.*\(([^?]+\/)[^/]+\).*/;
     const reMoz = /.*@([^?]+\/).*/;
 
-    // No babel env in karma so use the baseURL
-    if (!process.env.BABEL_ENV) {
+    if (process.env.BABEL_ENV === 'test' && process.env.ENV === 'browser') {
         return 'http://localhost:9877/base/test/';
     }
 

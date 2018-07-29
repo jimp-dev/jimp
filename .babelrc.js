@@ -10,7 +10,7 @@ module.exports = api => {
             process.env.BABEL_ENV !== 'module' && 'add-module-exports',
             [
                 'transform-inline-environment-variables',
-                { include: ['BABEL_ENV'] }
+                { include: ['BABEL_ENV', 'ENV'] }
             ]
         ].filter(Boolean),
 
