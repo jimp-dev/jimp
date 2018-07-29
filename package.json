@@ -81,6 +81,7 @@
     "babel-eslint": "^8.2.6",
     "babel-plugin-add-module-exports": "^0.3.2",
     "babel-plugin-istanbul": "^4.1.6",
+    "babel-plugin-source-map-support": "^2.0.1",
     "babel-plugin-transform-inline-environment-variables": "^0.4.3",
     "babelify": "^9.0.0",
     "browserify": "^16.2.2",

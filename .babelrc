@@ -16,7 +16,12 @@
             "plugins": [
                 "@babel/proposal-class-properties",
                 "@babel/syntax-object-rest-spread",
-                "add-module-exports"
+                "babel-plugin-source-map-support",
+                "add-module-exports",
+                [
+                    "transform-inline-environment-variables",
+                    { "include": ["BABEL_ENV"] }
+                ]
             ]
         },
         "module": {
