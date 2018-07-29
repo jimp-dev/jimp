@@ -30,6 +30,13 @@ const licence =
     '*/';
 
 // Browserify and Babelize.
+
+function minify(code) {
+    console.error('Compressing...');
+
+    return UglifyJS.minify(code, { warnings: false }).code;
+}
+
 function bundle(files, config, callback) {
     if (typeof files === 'string') files = [files];
     files = files.map(f => {
@@ -75,24 +82,6 @@ function bundle(files, config, callback) {
                     baseCode
             );
         });
-}
-
-function bundleSimple(files, config, callback) {
-    bundle(files, config, (err, code) => {
-        if (err) {
-            const msg =
-                "Can't bundle " + files.join(' + ') + '\nError: ' + err.message;
-            callback('throw new Error(' + JSON.stringify(msg) + ');');
-        } else {
-            callback(code);
-        }
-    });
-}
-
-function minify(code) {
-    console.error('Compressing...');
-
-    return UglifyJS.minify(code, { warnings: false }).code;
 }
 
 if (!module.parent) {
@@ -186,4 +175,4 @@ if (!module.parent) {
     }
 }
 
-module.exports = { bundle, bundleSimple, minify };
+module.exports = { bundle };
