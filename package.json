@@ -3,6 +3,7 @@
   "version": "0.3.0",
   "description": "An image processing library written entirely in JavaScript (i.e. zero external or native dependencies).",
   "main": "./dist/main/jimp.js",
+  "browser": "./browser/lib/jimp.js",
   "types": "./jimp.d.ts",
   "tonicExampleFilename": "example.js",
   "files": [
@@ -38,7 +39,7 @@
     "build:node:debug": "BABEL_ENV=development npm run build:node",
     "build:node:production": "BABEL_ENV=production npm run build:node",
     "build:browser": "BABEL_ENV=production node tools/browser-build.js prepublish",
-    "build:browser:debug": "BABEL_ENV=development node tools/browser-build.js prepublish"
+    "build:browser:debug": "BABEL_ENV=development ENV=browser node tools/browser-build.js prepublish"
   },
   "keywords": [
     "image",
