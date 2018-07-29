@@ -6,6 +6,7 @@ const envify = require('envify/custom');
 const UglifyJS = require('uglify-js');
 const browserify = require('browserify');
 const babelify = require('babelify');
+const tfilter = require('tfilter');
 
 function debug(...args) {
     if (process.env.DEBUG) {
@@ -57,6 +58,10 @@ function bundle(files, config, callback) {
 
     bundler
         .transform(babelify)
+        .transform(
+            tfilter(babelify, { include: '**/node_modules/file-type/*.js' }),
+            { presets: ['@babel/env'], global: true }
+        )
         .transform(envify({ ENVIRONMENT: 'BROWSER' }))
         .bundle((err, baseCode) => {
             if (err) return callback(err);

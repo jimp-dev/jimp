@@ -6166,6 +6166,10 @@ sha.js@^2.4.0, sha.js@^2.4.8, sha.js@~2.4.4:
     inherits "^2.0.1"
     safe-buffer "^5.0.1"
 
+shallow-copy@0.0.1:
+  version "0.0.1"
+  resolved "https://registry.yarnpkg.com/shallow-copy/-/shallow-copy-0.0.1.tgz#415f42702d73d810330292cc5ee86eae1a11a170"
+
 shasum@^1.0.0:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/shasum/-/shasum-1.0.2.tgz#e7012310d8f417f4deb5712150e5678b87ae565f"
@@ -6711,6 +6715,15 @@ test-exclude@^4.2.0, test-exclude@^4.2.1:
 text-table@~0.2.0:
   version "0.2.0"
   resolved "https://registry.yarnpkg.com/text-table/-/text-table-0.2.0.tgz#7f5ee823ae805207c00af2df4a84ec3fcfa570b4"
+
+tfilter@^1.0.1:
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/tfilter/-/tfilter-1.0.1.tgz#3dce264f16040021c6a0be304e26bc6e191cb673"
+  dependencies:
+    defined "^1.0.0"
+    minimatch "^3.0.4"
+    resolve "^1.5.0"
+    shallow-copy "0.0.1"
 
 the-argv@^1.0.0:
   version "1.0.0"
