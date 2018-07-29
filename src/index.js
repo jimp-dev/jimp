@@ -107,30 +107,6 @@ const emptyBitmap = {
     height: null
 };
 
-const encodeBase64 = (mime, data) =>
-    'data:' + mime + ';base64,' + data.toString('base64');
-
-const writeFile = (buffer, path, mime, resolve, reject) => {
-    const pathObj = Path.parse(path);
-
-    if (pathObj.dir) {
-        MkDirP.sync(pathObj.dir);
-    }
-
-    const stream = FS.createWriteStream(path);
-
-    stream
-        .on('open', () => {
-            stream.write(buffer);
-            stream.end();
-        })
-        .on('error', err => {
-            return reject(err);
-        });
-    stream.on('finish', () => {
-        return resolve(this);
-    });
-};
 /**
  * Jimp constructor (from a file)
  * @param path a path to the image
@@ -428,39 +404,45 @@ class Jimp extends EventEmitter {
         }
 
         const mime = MIME.getType(path);
+        const pathObj = Path.parse(path);
+
+        if (pathObj.dir) {
+            MkDirP.sync(pathObj.dir);
+        }
 
         this.getBuffer(mime, (err, buffer) => {
-            const resolve = () => cb.call(this, null, this);
-            const reject = err => throwError.call(this, err, cb);
-
             if (err) {
-                return reject(err);
+                return throwError.call(this, err, cb);
             }
 
-            writeFile(buffer, path, mime, resolve, reject);
+            const stream = FS.createWriteStream(path);
+
+            stream
+                .on('open', () => {
+                    stream.write(buffer);
+                    stream.end();
+                })
+                .on('error', err => {
+                    return throwError.call(this, err, cb);
+                });
+            stream.on('finish', () => {
+                return cb.call(this, null, this);
+            });
         });
 
         return this;
     }
 
     writeAsync(path) {
-        if (!FS || !FS.createWriteStream) {
-            throw new Error(
-                'Cant access the filesystem. You can use the getBase64 method.'
-            );
-        }
+        return new Promise((resolve, reject) =>
+            this.write(path, err => {
+                if (err) {
+                    return reject(err);
+                }
 
-        if (typeof path !== 'string') {
-            throw new TypeError('path must be a string');
-        }
-
-        const mime = MIME.getType(path);
-
-        return this.getBufferAsync(mime).then(buffer => {
-            return new Promise((resolve, reject) =>
-                writeFile(buffer, path, mime, () => resolve(this), reject)
-            );
-        });
+                resolve(this);
+            })
+        );
     }
 
     /**
@@ -590,8 +572,7 @@ class Jimp extends EventEmitter {
     /**
      * Converts the image to a base 64 string
      * @param {string} mime the mime type of the image data to be created
-     * @param {function(Error, Jimp)|string} cb (optional) a function to call when the
-     *        image is saved to disk, or a string 'async' write will return a promise
+     * @param {function(Error, Jimp)} cb a Node-style function to call with the buffer as the second argument
      * @returns {Jimp} this for chaining of methods
      */
     getBase64(mime, cb) {
@@ -608,29 +589,27 @@ class Jimp extends EventEmitter {
             return throwError.call(this, 'cb must be a function', cb);
         }
 
-        this.getBuffer(mime, (err, buffer) => {
+        this.getBuffer(mime, function(err, data) {
             if (err) {
-                throwError.call(this, err, cb);
-            } else {
-                cb.call(this, null, encodeBase64(mime, buffer));
+                return throwError.call(this, err, cb);
             }
+
+            const src = 'data:' + mime + ';base64,' + data.toString('base64');
+            return cb.call(this, null, src);
         });
 
         return this;
     }
 
     getBase64Async(mime) {
-        if (mime === Jimp.AUTO) {
-            // allow auto MIME detection
-            mime = this.getMIME();
-        }
+        return new Promise((resolve, reject) =>
+            this.getBase64(mime, err => {
+                if (err) {
+                    return reject(err);
+                }
 
-        if (typeof mime !== 'string') {
-            return Promise.reject(new TypeError('mime must be a string'));
-        }
-
-        return this.getBufferAsync(mime).then(buffer =>
-            encodeBase64(mime, buffer)
+                resolve(this);
+            })
         );
     }
 
