@@ -2,7 +2,7 @@ import FS from 'fs';
 import Path from 'path';
 import EventEmitter from 'events';
 
-import MIME from 'mime';
+import MIME from 'mime/lite';
 import { BigNumber } from 'bignumber.js';
 import bMFont from 'load-bmfont';
 import MkDirP from 'mkdirp';
