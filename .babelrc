@@ -1,45 +1,36 @@
 {
     "env": {
         "test": {
-            "presets": ["env"],
+            "presets": ["@babel/env"],
             "plugins": [
+                "@babel/proposal-class-properties",
+                "@babel/syntax-object-rest-spread",
                 "istanbul",
-                "add-module-exports",
-                "transform-class-properties",
-                "transform-object-rest-spread"
+                "add-module-exports"
             ]
         },
         "development": {
             "sourceMaps": "inline",
             "retainLines": true,
-            "presets": ["env"],
+            "presets": ["@babel/env"],
             "plugins": [
-                "add-module-exports",
-                [
-                    "transform-inline-environment-variables",
-                    { "include": ["BABEL_ENV"] }
-                ],
-                "transform-class-properties",
-                "transform-object-rest-spread"
+                "@babel/proposal-class-properties",
+                "@babel/syntax-object-rest-spread",
+                "add-module-exports"
             ]
         },
         "module": {
-            "presets": [["env", { "modules": false }]],
+            "presets": [["@babel/env", { "modules": false }]],
             "plugins": [
-                "transform-inline-environment-variables",
-                "transform-class-properties",
-                "transform-object-rest-spread",
-                [
-                    "transform-inline-environment-variables",
-                    { "include": ["BABEL_ENV"] }
-                ]
+                "@babel/proposal-class-properties",
+                "@babel/syntax-object-rest-spread"
             ]
         },
         "production": {
-            "presets": ["env"],
+            "presets": ["@babel/env"],
             "plugins": [
-                "transform-class-properties",
-                "transform-object-rest-spread"
+                "@babel/proposal-class-properties",
+                "@babel/syntax-object-rest-spread"
             ]
         }
     }
