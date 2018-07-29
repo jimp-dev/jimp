@@ -5,7 +5,7 @@ import JPEG from 'jpeg-js';
 import BMP from 'bmp-js';
 import UTIF from 'utif';
 import EXIFParser from 'exif-parser';
-import MIME from 'mime';
+import MIME from 'mime/lite';
 import GIF from 'omggif';
 
 import * as constants from '../constants';
@@ -121,9 +121,9 @@ export function parseBitmap(data, path, cb) {
                 } catch (err) {
                     /* meh */
                 }
-                 cb.call(this, null, this);
+                cb.call(this, null, this);
             } catch (err) {
-                 cb.call(this, err, this);
+                cb.call(this, err, this);
             }
             break;
 
@@ -158,7 +158,7 @@ export function parseBitmap(data, path, cb) {
             return throwError.call(this, 'Unsupported MIME type: ' + mime, cb);
     }
 
-    return this
+    return this;
 }
 
 function compositeBitmapOverBackground(Jimp, image) {
