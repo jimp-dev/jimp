@@ -3,7 +3,7 @@ import Path from 'path';
 import EventEmitter from 'events';
 
 import MIME from 'mime';
-import BigNumber from 'bignumber.js';
+import { BigNumber } from 'bignumber.js';
 import bMFont from 'load-bmfont';
 import MkDirP from 'mkdirp';
 import pixelMatch from 'pixelmatch';
