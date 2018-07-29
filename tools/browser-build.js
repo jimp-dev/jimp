@@ -41,7 +41,9 @@ function bundle(files, config, callback) {
             standalone: 'jimp',
             ignoreMissing: true,
             fullPaths: false,
-            debug: process.env.BABEL_ENV === 'development',
+            debug:
+                process.env.BABEL_ENV === 'development' ||
+                process.env.BABEL_ENV === 'test',
             paths: [root],
             basedir: root
         },
