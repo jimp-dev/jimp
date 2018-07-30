@@ -181,12 +181,15 @@ declare namespace Jimp {
         exifRotate(): this;
         displace(map: Jimp, offset: number, cb?: Jimp.ImageCallback): this;
         getBuffer(mime: string, cb: (err: Error, buffer: Buffer) => any): this;
+        getBufferAsync(mime: string): Promise<Jimp>;
         getBase64(mime: string, cb?: (err: Error, src: string) => any): this;
+        getBase64Async(mime: string): Promise<Jimp>;
         dither565(cb?: Jimp.ImageCallback): this;
         dither16(cb?: Jimp.ImageCallback): this;
         color(actions: any, cb?: Jimp.ImageCallback): this;
         colour(actions: any, cb?: Jimp.ImageCallback): this;
         write(path: string, cb?: Jimp.ImageCallback): this;
+        writeAsync(path: string): Promise<Jimp>;
         print(
             font: any,
             x: number,

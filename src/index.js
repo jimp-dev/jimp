@@ -15,10 +15,11 @@ import * as shape from './image-manipulation/shape';
 import * as color from './image-manipulation/color';
 import * as effects from './image-manipulation/effects';
 
+import promisify from './utils/promisify';
 import isDef from './utils/is-def';
 import * as MIME from './utils/mime';
 import { clear } from './utils/log';
-import { parseBitmap, getBuffer } from './utils/image-bitmap';
+import { parseBitmap, getBuffer, getBufferAsync } from './utils/image-bitmap';
 import { isNodePattern, throwError } from './utils/error-checking';
 import * as constants from './constants';
 
@@ -434,6 +435,8 @@ class Jimp extends EventEmitter {
         return this;
     }
 
+    writeAsync = path => promisify(this.write, this, path);
+
     /**
      * Sets the deflate level used when saving as PNG format (default is 9)
      * @param {number} l Deflate level to use 0-9. 0 is no compression. 9 (default) is maximum compression.
@@ -573,6 +576,7 @@ class Jimp extends EventEmitter {
         if (typeof mime !== 'string') {
             return throwError.call(this, 'mime must be a string', cb);
         }
+
         if (typeof cb !== 'function') {
             return throwError.call(this, 'cb must be a function', cb);
         }
@@ -588,6 +592,8 @@ class Jimp extends EventEmitter {
 
         return this;
     }
+
+    getBase64Async = mime => promisify(this.getBase64, this, mime);
 
     /**
      * Generates a perceptual hash of the image <https://en.wikipedia.org/wiki/Perceptual_hashing>.
@@ -636,6 +642,8 @@ class Jimp extends EventEmitter {
      * @returns {Jimp} this for chaining of methods
      */
     getBuffer = getBuffer;
+
+    getBufferAsync = getBufferAsync;
 
     /**
      * Returns the offset of a pixel in the bitmap buffer

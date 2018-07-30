@@ -271,6 +271,7 @@ The image can be written to disk in PNG, JPEG or BMP format (determined by the f
 
 ```js
 image.write(path, cb); // Node-style callback will be fired when write is successful
+image.writeAsync(path); // Returns Promise
 ```
 
 The original extension for an image (or "png") can accessed as using `image.getExtension()`. The following will save an image using its original format:
@@ -286,6 +287,7 @@ A PNG, JPEG or BMP binary Buffer of an image (e.g. for storage in a database) ca
 
 ```js
 image.getBuffer(mime, cb); // Node-style callback will be fired with result
+image.getBufferAsync(mime); // Returns Promise
 ```
 
 For convenience, supported MIME types are available as static properties:
@@ -304,6 +306,7 @@ A Base64 data URI can be generated in the same way as a Buffer, using:
 
 ```js
 image.getBase64(mime, cb); // Node-style callback will be fired with result
+image.getBase64Async(mime); // Returns Promise
 ```
 
 ### PNG and JPEG quality
