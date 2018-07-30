@@ -18,33 +18,44 @@ describe.only('hash', () => {
     });
 
     it('base 10 (decimal)', done => {
-        new Jimp(imagesDir + '/dice.png', (err, image) => {
+        new Jimp(imagesDir + '/cops.jpg', (err, image) => {
             if (err) done(err);
-            image.hash(10).should.be.equal('14132132765884045842');
+            image.hash(10).should.be.equal('13442314021806033441');
             done();
         });
     });
 
     it('base 16 (hex)', done => {
-        new Jimp(imagesDir + '/dice.png', (err, image) => {
+        new Jimp(imagesDir + '/rgb.tiff', (err, image) => {
             if (err) done(err);
-            image.hash(16).should.be.equal('c41f6be0152d5a12');
+            image.hash(16).should.be.equal('949800481007044c');
             done();
         });
     });
 
     it('base 64', done => {
-        new Jimp(imagesDir + '/dice.png', (err, image) => {
+        new Jimp(imagesDir + '/windows95.bmp', (err, image) => {
             if (err) done(err);
-            image.hash(64).should.be.equal('cgvq$0lblEi');
+            image.hash(64).should.be.equal('f30wi0ww000');
             done();
         });
     });
 
-    it('some random base', done => {
-        new Jimp(imagesDir + '/dice.png', (err, image) => {
+    it('base 23', function(done) {
+        // large image need large timeout, but this really seems to be an issue
+        // with should. If I change the expected value it will complete quicker! :(
+        this.timeout(3000);
+        new Jimp(imagesDir + '/panoramic.jpg', (err, image) => {
             if (err) done(err);
-            image.hash(23).should.be.equal('150k19a4jc1d5lh');
+            image.hash(23).should.be.exactly('0m1m2id7l7cl4fb');
+            done();
+        });
+    });
+
+    it('base 17', done => {
+        new Jimp(imagesDir + '/lenna.png', (err, image) => {
+            if (err) done(err);
+            image.hash(17).should.be.equal('4fa6aga5a64ad0c1');
             done();
         });
     });

@@ -32,6 +32,17 @@ if (
 const alphabet =
     '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ$_';
 
+// an array storing the maximum string length of hashes at various bases
+// 0 and 1 do not exist as possible hash lengths
+const maxHashLength = [NaN, NaN];
+
+for (let i = 2; i < 65; i++) {
+    const maxHash = anyBase(anyBase.BIN, alphabet.slice(0, i))(
+        new Array(64 + 1).join('1')
+    );
+    maxHashLength.push(maxHash.length);
+}
+
 process.on('exit', clear);
 
 // no operation
@@ -606,6 +617,10 @@ class Jimp extends EventEmitter {
 
         let hash = new ImagePHash().getHash(this);
         hash = anyBase(anyBase.BIN, alphabet.slice(0, base))(hash);
+
+        while (hash.length < maxHashLength[base]) {
+            hash = '0' + hash; // pad out with leading zeros
+        }
 
         if (isNodePattern(cb)) {
             return cb.call(this, null, hash);
