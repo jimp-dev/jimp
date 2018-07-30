@@ -16,6 +16,7 @@ import * as shape from './image-manipulation/shape';
 import * as color from './image-manipulation/color';
 import * as effects from './image-manipulation/effects';
 
+import promisify from './utils/promisify';
 import isDef from './utils/is-def';
 import { clear } from './utils/log';
 import { parseBitmap, getBuffer, getBufferAsync } from './utils/image-bitmap';
@@ -433,17 +434,7 @@ class Jimp extends EventEmitter {
         return this;
     }
 
-    writeAsync(path) {
-        return new Promise((resolve, reject) =>
-            this.write(path, err => {
-                if (err) {
-                    return reject(err);
-                }
-
-                resolve(this);
-            })
-        );
-    }
+    writeAsync = path => promisify(this.write, this, path);
 
     /**
      * Sets the deflate level used when saving as PNG format (default is 9)
@@ -601,17 +592,7 @@ class Jimp extends EventEmitter {
         return this;
     }
 
-    getBase64Async(mime) {
-        return new Promise((resolve, reject) =>
-            this.getBase64(mime, err => {
-                if (err) {
-                    return reject(err);
-                }
-
-                resolve(this);
-            })
-        );
-    }
+    getBase64Async = mime => promisify(this.getBase64, this, mime);
 
     /**
      * Generates a perceptual hash of the image <https://en.wikipedia.org/wiki/Perceptual_hashing>.

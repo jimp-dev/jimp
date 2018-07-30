@@ -10,6 +10,7 @@ import GIF from 'omggif';
 
 import * as constants from '../constants';
 import { throwError } from './error-checking';
+import promisify from './promisify';
 
 function getMIMEFromBuffer(buffer, path) {
     const fileTypeFromBuffer = fileType(buffer);
@@ -253,13 +254,5 @@ export function getBuffer(mime, cb) {
 }
 
 export function getBufferAsync(mime) {
-    return new Promise((resolve, reject) =>
-        getBuffer(mime, err => {
-            if (err) {
-                return reject(err);
-            }
-
-            resolve(this);
-        })
-    );
+    return promisify(getBuffer, this, mime);
 }
