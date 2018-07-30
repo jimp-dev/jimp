@@ -2,7 +2,6 @@ import FS from 'fs';
 import Path from 'path';
 import EventEmitter from 'events';
 
-import MIME from 'mime/lite';
 import { BigNumber } from 'bignumber.js';
 import bMFont from 'load-bmfont';
 import MkDirP from 'mkdirp';
@@ -17,6 +16,7 @@ import * as color from './image-manipulation/color';
 import * as effects from './image-manipulation/effects';
 
 import isDef from './utils/is-def';
+import * as MIME from './utils/mime';
 import { clear } from './utils/log';
 import { parseBitmap, getBuffer } from './utils/image-bitmap';
 import { isNodePattern, throwError } from './utils/error-checking';

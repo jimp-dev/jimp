@@ -5,9 +5,9 @@ import JPEG from 'jpeg-js';
 import BMP from 'bmp-js';
 import UTIF from 'utif';
 import EXIFParser from 'exif-parser';
-import MIME from 'mime/lite';
 import GIF from 'omggif';
 
+import * as MIME from '../utils/mime';
 import * as constants from '../constants';
 import { throwError } from './error-checking';
 
