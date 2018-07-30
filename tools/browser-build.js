@@ -179,7 +179,7 @@ if (!module.parent) {
             throw new Error(
                 `Unknown command given. Run "$ ${
                     process.argv[1]
-                } help" for more inforation`
+                } help" for more information`
             );
     }
 }

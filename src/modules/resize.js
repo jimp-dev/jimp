@@ -487,7 +487,7 @@ Resize.prototype.resize = function(buffer) {
 };
 
 Resize.prototype.bypassResizer = function(buffer) {
-    // Just return the buffer passsed:
+    // Just return the buffer passed:
     return buffer;
 };
 

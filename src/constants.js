@@ -16,7 +16,7 @@ export const PNG_FILTER_NONE = 0;
 export const PNG_FILTER_SUB = 1;
 export const PNG_FILTER_UP = 2;
 export const PNG_FILTER_AVERAGE = 3;
-export const PNG_FILTER_PAETH = 4;
+export const PNG_FILTER_PATH = 4;
 
 export const RESIZE_NEAREST_NEIGHBOR = 'nearestNeighbor';
 export const RESIZE_BILINEAR = 'bilinearInterpolation';

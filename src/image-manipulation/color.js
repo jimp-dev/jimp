@@ -126,7 +126,7 @@ export function posterize(n, cb) {
 
     if (n < 2) {
         n = 2;
-    } // minumum of 2 levels
+    } // minimum of 2 levels
 
     this.scanQuiet(0, 0, this.bitmap.width, this.bitmap.height, function(
         x,
@@ -188,7 +188,7 @@ export const grayscale = greyscale;
 
 /**
  * Multiplies the opacity of each pixel by a factor between 0 and 1
- * @param {number} f A number, the factor by wich to multiply the opacity of each pixel
+ * @param {number} f A number, the factor by which to multiply the opacity of each pixel
  * @param {function(Error, Jimp)} cb (optional) a callback for when complete
  * @returns {Jimp }this for chaining of methods
  */

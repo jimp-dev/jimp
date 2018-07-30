@@ -218,7 +218,7 @@ declare namespace Jimp {
         static PNG_FILTER_SUB: number;
         static PNG_FILTER_UP: number;
         static PNG_FILTER_AVERAGE: number;
-        static PNG_FILTER_PAETH: number;
+        static PNG_FILTER_PATH: number;
 
         // resize methods
         static RESIZE_NEAREST_NEIGHBOR: string;

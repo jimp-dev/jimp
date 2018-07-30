@@ -344,7 +344,7 @@ class Jimp extends EventEmitter {
         this.emitMulti(methodName, 'error', err);
     }
 
-    /* Nicely format Jimp object when sent to the console e.g. console.log(imgage) */
+    /* Nicely format Jimp object when sent to the console e.g. console.log(image) */
     inspect() {
         return (
             '<Jimp ' +
@@ -597,7 +597,7 @@ class Jimp extends EventEmitter {
 
     /**
      * Generates a perceptual hash of the image <https://en.wikipedia.org/wiki/Perceptual_hashing>.
-     * @param {number} base (optional) a number between 2 and 64 representing the base for the hash (e.g. 2 is binary, 10 is decimaal, 16 is hex, 64 is base 64). Defaults to 64.
+     * @param {number} base (optional) a number between 2 and 64 representing the base for the hash (e.g. 2 is binary, 10 is decimal, 16 is hex, 64 is base 64). Defaults to 64.
      * @param {function(Error, Jimp)} cb (optional) a callback for when complete
      * @returns {string} a string representing the hash
      */
@@ -1082,14 +1082,14 @@ Jimp.loadFont = function(file, cb) {
  * Helper to create Jimp methods that emit events before and after its execution.
  * @param {string} methodName   The name to be appended to Jimp prototype.
  * @param {string} evName       The event name to be called.
- *                     It will be prefixed by `before-` and emited when on method call.
- *                     It will be appended by `ed` and emited after the method run.
+ *                     It will be prefixed by `before-` and emitted when on method call.
+ *                     It will be appended by `ed` and emitted after the method run.
  * @param {function} method       A function implementing the method itself.
  * It will also create a quiet version that will not emit events, to not
  * mess the user code with many `changed` event calls. You can call with
  * `methodName + "Quiet"`.
  *
- * The emited event comes with a object parameter to the listener with the
+ * The emitted event comes with a object parameter to the listener with the
  * `methodName` as one attribute.
  */
 function jimpEvMethod(methodName, evName, method) {
@@ -1097,12 +1097,12 @@ function jimpEvMethod(methodName, evName, method) {
     const evNameAfter = evName.replace(/e$/, '') + 'ed';
 
     Jimp.prototype[methodName] = function(...args) {
-        let wrapedCb;
+        let wrappedCb;
         const cb = args[method.length - 1];
         const jimpInstance = this;
 
         if (typeof cb === 'function') {
-            wrapedCb = function(...args) {
+            wrappedCb = function(...args) {
                 const [err, data] = args;
 
                 if (err) {
@@ -1115,9 +1115,9 @@ function jimpEvMethod(methodName, evName, method) {
 
                 cb.apply(this, args);
             };
-            args[args.length - 1] = wrapedCb;
+            args[args.length - 1] = wrappedCb;
         } else {
-            wrapedCb = false;
+            wrappedCb = false;
         }
 
         this.emitMulti(methodName, evNameBefore);
@@ -1127,7 +1127,7 @@ function jimpEvMethod(methodName, evName, method) {
         try {
             result = method.apply(this, args);
 
-            if (!wrapedCb) {
+            if (!wrappedCb) {
                 this.emitMulti(methodName, evNameAfter, {
                     [methodName]: result
                 });
@@ -1192,9 +1192,9 @@ jimpEvChange('background', function(hex, cb) {
 });
 
 /**
- * Scanes through a region of the bitmap, calling a function for each pixel.
+ * Scans through a region of the bitmap, calling a function for each pixel.
  * @param {number} x the x coordinate to begin the scan at
- * @param {number} y the y coordiante to begin the scan at
+ * @param {number} y the y coordinate to begin the scan at
  * @param w the width of the scan region
  * @param h the height of the scan region
  * @param f a function to call on even pixel; the (x, y) position of the pixel
@@ -1238,7 +1238,7 @@ jimpEvChange('scan', function(x, y, w, h, f, cb) {
 /**
  * Crops the image at a given point to a give size
  * @param {number} x the x coordinate to crop form
- * @param {number} y the y coordiante to crop form
+ * @param {number} y the y coordinate to crop form
  * @param w the width of the crop region
  * @param h the height of the crop region
  * @param {function(Error, Jimp)} cb (optional) a callback for when complete
