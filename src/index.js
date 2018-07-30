@@ -2,7 +2,7 @@ import FS from 'fs';
 import Path from 'path';
 import EventEmitter from 'events';
 
-import { BigNumber } from 'bignumber.js';
+import anyBase from 'any-base';
 import bMFont from 'load-bmfont';
 import MkDirP from 'mkdirp';
 import pixelMatch from 'pixelmatch';
@@ -29,17 +29,18 @@ if (
     require('source-map-support').install();
 }
 
-BigNumber.set({
-    ALPHABET: '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ$_'
-});
+const alphabet =
+    '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ$_';
 
 // an array storing the maximum string length of hashes at various bases
-const maxHashLength = [];
+// 0 and 1 do not exist as possible hash lengths
+const maxHashLength = [NaN, NaN];
 
-for (let i = 0; i < 65; i++) {
-    const l =
-        i > 1 ? new BigNumber(new Array(64 + 1).join('1'), 2).toString(i) : NaN;
-    maxHashLength.push(l.length);
+for (let i = 2; i < 65; i++) {
+    const maxHash = anyBase(anyBase.BIN, alphabet.slice(0, i))(
+        new Array(64 + 1).join('1')
+    );
+    maxHashLength.push(maxHash.length);
 }
 
 process.on('exit', clear);
@@ -615,7 +616,7 @@ class Jimp extends EventEmitter {
         }
 
         let hash = new ImagePHash().getHash(this);
-        hash = new BigNumber(hash, 2).toString(base);
+        hash = anyBase(anyBase.BIN, alphabet.slice(0, base))(hash);
 
         while (hash.length < maxHashLength[base]) {
             hash = '0' + hash; // pad out with leading zeros
