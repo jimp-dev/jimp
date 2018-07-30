@@ -23,13 +23,6 @@ import { parseBitmap, getBuffer, getBufferAsync } from './utils/image-bitmap';
 import { isNodePattern, throwError } from './utils/error-checking';
 import * as constants from './constants';
 
-if (
-    process.env.BABEL_ENV === 'development' &&
-    process.env.ENVIRONMENT !== 'BROWSER'
-) {
-    require('source-map-support').install();
-}
-
 const alphabet =
     '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ$_';
 

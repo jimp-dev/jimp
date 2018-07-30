@@ -38,6 +38,29 @@ Jimp.read('lenna.png')
     });
 ```
 
+## Module Build
+
+If you're using a web bundles (webpack, rollup, parcel) you can benefit from using the `module` build of jimp. Using the module build will allow your bundler to understand your code better and exclude things you aren't using.
+
+```js
+import Jimp from 'jimp/es';
+```
+
+### WebPack
+
+If you're using webpack you can set `process.browser` to true and your build of jimp will exclude certain parts, making it load faster.
+
+```js
+{
+  plugins: [
+    new webpack.DefinePlugin({
+      'process.browser': 'true'
+    }),
+    ...
+  ],
+}
+```
+
 ## Basic usage
 
 The static `Jimp.read` method takes the path to a PNG, JPEG or BMP file and returns a Promise:

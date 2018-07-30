@@ -34,6 +34,7 @@ export const VERTICAL_ALIGN_MIDDLE = 16;
 export const VERTICAL_ALIGN_BOTTOM = 32;
 
 // Discover Jimp directory in any environment. (also in fucking karma)
+// This function is a little crazy. IDK if its needed when jimp is used as a lib
 function getJimpDir() {
     const err = new Error();
     const callLine = err.stack
@@ -41,6 +42,10 @@ function getJimpDir() {
         .filter(l => l.match(/getJimpDir/))[0];
     const reWebKit = /.*\(([^?]+\/)[^/]+\).*/;
     const reMoz = /.*@([^?]+\/).*/;
+
+    if (process.env.BABEL_ENV === 'test' && process.env.ENV === 'browser') {
+        return 'http://localhost:9877/base/test/';
+    }
 
     if (reWebKit.test(callLine)) {
         return callLine.replace(reWebKit, '$1');

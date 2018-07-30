@@ -1,6 +1,7 @@
 /* global XMLHttpRequest */
 
 if (
+    process.browser ||
     process.env.ENVIRONMENT === 'BROWSER' ||
     (typeof process.versions.electron !== 'undefined' &&
         process.type === 'renderer' &&

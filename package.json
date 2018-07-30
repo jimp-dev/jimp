@@ -2,10 +2,15 @@
   "name": "jimp",
   "version": "0.3.0",
   "description": "An image processing library written entirely in JavaScript (i.e. zero external or native dependencies).",
-  "main": "./dist/jimp.js",
+  "main": "./dist/main/jimp.js",
+  "browser": "./browser/lib/jimp.js",
   "types": "./jimp.d.ts",
   "tonicExampleFilename": "example.js",
-  "browser": "./browser/lib/jimp.js",
+  "files": [
+    "browser",
+    "dist",
+    "es"
+  ],
   "repository": {
     "type": "git",
     "url": "https://github.com/oliver-moran/jimp.git"
@@ -18,23 +23,21 @@
     "lint:src": "xo src/*.js src/**/*.js !src/modules/*.js",
     "lint:tests": "xo test/*.js --global before",
     "lint:extra": "xo {tools,examples}/*.js",
-    "test:karma": "CHROME_BIN=\"$(which chrome || which chromium)\" karma",
-    "test:browser:run": "npm run -s test:karma run",
-    "test:browser:once": "npm run -s test:karma start -- --single-run",
-    "test:browser:watch": "npm run -s test:karma start -- --auto-watch",
-    "test:node:run": "BABEL_ENV=test mocha --require babel-register",
-    "test:node:once": "nyc npm run test:node:run",
-    "test:node:watch": "mocha --reporter min --watch ./test/*.test.js",
-    "test": "npm run -s test:node:once && npm run -s test:browser:once",
-    "test:old": "./test/tests.sh",
+    "test:browser": "BABEL_ENV=test ENV=browser CHROME_BIN=\"$(which chrome || which chromium)\" karma start --single-run",
+    "test:browser:watch": "npm run -s test:browser start -- --auto-watch",
+    "test:node": "BABEL_ENV=test mocha --require @babel/register",
+    "test:node:watch": "npm run test:node -- --reporter min --watch",
+    "test:node:coverage": "nyc npm run test:node",
+    "test": "npm run -s test:node:coverage && npm run -s test:browser",
     "browser-build": "node tools/browser-build.js test",
-    "build": "npm run build:browser && npm run build:node:production",
+    "build": "npm run build:browser && npm run build:node:production && npm run build:module",
     "build:debug": "npm run build:browser:debug && npm run build:node:debug",
-    "build:node": "babel src -d dist --source-maps",
+    "build:module": "BABEL_ENV=module babel src -d es --source-maps",
+    "build:node": "babel src -d dist/main --source-maps",
     "build:node:debug": "BABEL_ENV=development npm run build:node",
     "build:node:production": "BABEL_ENV=production npm run build:node",
     "build:browser": "BABEL_ENV=production node tools/browser-build.js prepublish",
-    "build:browser:debug": "BABEL_ENV=development node tools/browser-build.js prepublish"
+    "build:browser:debug": "BABEL_ENV=development ENV=browser node tools/browser-build.js prepublish"
   },
   "keywords": [
     "image",
@@ -67,26 +70,29 @@
     "utif": "^2.0.0"
   },
   "devDependencies": {
-    "babel": "6.23.0",
-    "babel-cli": "6.26.0",
-    "babel-core": "^6.26.3",
+    "@babel/cli": "^7.0.0-beta.54",
+    "@babel/core": "^7.0.0-beta.54",
+    "@babel/plugin-proposal-class-properties": "^7.0.0-beta.54",
+    "@babel/plugin-syntax-object-rest-spread": "^7.0.0-beta.54",
+    "@babel/preset-env": "^7.0.0-beta.54",
+    "@babel/register": "^7.0.0-beta.54",
     "babel-eslint": "^8.2.6",
     "babel-plugin-add-module-exports": "^0.3.2",
     "babel-plugin-istanbul": "^4.1.6",
+    "babel-plugin-source-map-support": "^2.0.1",
     "babel-plugin-transform-inline-environment-variables": "^0.4.3",
-    "babel-preset-env": "^1.7.0",
-    "babel-preset-stage-0": "6.24.1",
-    "babelify": "^8.0.0",
+    "babelify": "^9.0.0",
     "browserify": "^16.2.2",
     "envify": "^4.1.0",
     "express": "^4.16.3",
     "husky": "^1.0.0-rc.13",
     "karma": "^2.0.5",
+    "karma-browserify": "^5.3.0",
     "karma-chrome-launcher": "^2.2.0",
     "karma-firefox-launcher": "^1.1.0",
     "karma-generic-preprocessor": "^1.1.0",
     "karma-mocha": "^1.3.0",
-    "karma-mocha-own-reporter": "^1.1.2",
+    "karma-mocha-reporter": "^2.2.5",
     "lint-staged": "^7.2.0",
     "mocha": "^5.2.0",
     "nyc": "^12.0.2",
@@ -148,47 +154,15 @@
         6
       ]
     },
-		"overrides": [
-			{
-				"files": "**/test/*.js",
+    "overrides": [
+      {
+        "files": "**/test/*.js",
         "esnext": false,
         "rules": {
           "max-nested-callbacks": 0
         }
-			}
-		]
-  },
-  "babel": {
-    "presets": [
-      [
-        "env",
-        {
-          "targets": {
-            "ie": 8
-          },
-          "useBuiltIns": true
-        }
-      ],
-      "stage-0"
-    ],
-    "plugins": [
-      "add-module-exports",
-      [
-        "transform-inline-environment-variables",
-        { "include": [ "BABEL_ENV" ] }
-      ]
-    ],
-    "env": {
-      "test": {
-        "plugins": [
-          "istanbul"
-        ]
-      },
-      "development": {
-        "sourceMaps": "inline",
-        "retainLines": true
       }
-    }
+    ]
   },
   "nyc": {
     "sourceMap": false,
