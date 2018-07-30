@@ -2,7 +2,7 @@
 
 const { Jimp, getTestDir } = require('./test-helper');
 
-describe.only('hash', () => {
+describe('hash', () => {
     const imagesDir = getTestDir() + '/samples';
 
     it('base 2', done => {
