@@ -137,7 +137,7 @@ export function blur(r, cb) {
                 pa = (asum * mulSum) >>> shgSum;
                 this.bitmap.data[yi + 3] = pa;
 
-                // normalise alpha
+                // normalize alpha
                 if (pa > 255) {
                     this.bitmap.data[yi + 3] = 255;
                 }
@@ -210,8 +210,8 @@ export function dither565(cb) {
         y,
         idx
     ) {
-        const tressholdId = ((y & 3) << 2) + (x % 4);
-        const dither = rgb565Matrix[tressholdId];
+        const thresholdId = ((y & 3) << 2) + (x % 4);
+        const dither = rgb565Matrix[thresholdId];
         this.bitmap.data[idx] = Math.min(this.bitmap.data[idx] + dither, 0xff);
         this.bitmap.data[idx + 1] = Math.min(
             this.bitmap.data[idx + 1] + dither,
@@ -235,7 +235,7 @@ export const dither16 = dither565;
 
 /**
  * Get an image's histogram
- * @return {object} An object with an array of color occurence counts for each channel (r,g,b)
+ * @return {object} An object with an array of color occurrence counts for each channel (r,g,b)
  */
 function histogram() {
     const histogram = {

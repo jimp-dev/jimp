@@ -7,9 +7,9 @@ import UTIF from 'utif';
 import EXIFParser from 'exif-parser';
 import GIF from 'omggif';
 
-import * as MIME from '../utils/mime';
 import * as constants from '../constants';
 import { throwError } from './error-checking';
+import * as MIME from './mime';
 import promisify from './promisify';
 
 function getMIMEFromBuffer(buffer, path) {

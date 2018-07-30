@@ -228,16 +228,16 @@ module.exports = {
                         for (let x = 0; x < wM; x++) {
                             const xPos = j * wM + x;
                             const xyPos = (yPos * wDst2 + xPos) * 4;
-                            const pixelAplha = buf2[xyPos + 3];
+                            const pixelAlpha = buf2[xyPos + 3];
 
-                            if (pixelAplha) {
+                            if (pixelAlpha) {
                                 r += buf2[xyPos];
                                 g += buf2[xyPos + 1];
                                 b += buf2[xyPos + 2];
                                 realColors++;
                             }
 
-                            a += pixelAplha;
+                            a += pixelAlpha;
                         }
                     }
 

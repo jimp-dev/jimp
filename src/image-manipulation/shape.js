@@ -8,7 +8,7 @@ import * as constants from '../constants';
 
 /**
  * Rotates an image clockwise by a number of degrees rounded to the nearest 90 degrees. NB: 'this' must be a Jimp object.
- * @param {number} deg the number of degress to rotate the image by
+ * @param {number} deg the number of degrees to rotate the image by
  */
 function simpleRotate(deg) {
     let i = Math.round(deg / 90) % 4;
@@ -39,8 +39,8 @@ function simpleRotate(deg) {
 }
 
 /**
- * Rotates an image clockwise by an arbitary number of degrees. NB: 'this' must be a Jimp object.
- * @param {number} deg the number of degress to rotate the image by
+ * Rotates an image clockwise by an arbitrary number of degrees. NB: 'this' must be a Jimp object.
+ * @param {number} deg the number of degrees to rotate the image by
  * @param {string|boolean} mode (optional) resize mode or a boolean, if false then the width and height of the image will not be changed
  */
 function advancedRotate(deg, mode) {
@@ -152,8 +152,8 @@ function advancedRotate(deg, mode) {
 
 /**
  * Rotates the image clockwise by a number of degrees. By default the width and height of the image will be resized appropriately.
- * @param {number} deg the number of degress to rotate the image by
- * @param {string|boolea} mode (optional) resize mode or a boolean, if false then the width and height of the image will not be changed
+ * @param {number} deg the number of degrees to rotate the image by
+ * @param {string|boolean} mode (optional) resize mode or a boolean, if false then the width and height of the image will not be changed
  * @param {function(Error, Jimp)} cb (optional) a callback for when complete
  * @returns {Jimp} this for chaining of methods
  */

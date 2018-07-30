@@ -355,7 +355,7 @@ Jimp.PNG_FILTER_NONE; //  0
 Jimp.PNG_FILTER_SUB; //  1
 Jimp.PNG_FILTER_UP; //  2
 Jimp.PNG_FILTER_AVERAGE; //  3
-Jimp.PNG_FILTER_PAETH; //  4
+Jimp.PNG_FILTER_PATH; //  4
 ```
 
 ## Advanced usage
