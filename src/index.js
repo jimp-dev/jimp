@@ -2,7 +2,7 @@ import FS from 'fs';
 import Path from 'path';
 import EventEmitter from 'events';
 
-import { BigNumber } from 'bignumber.js';
+import anyBase from 'any-base';
 import bMFont from 'load-bmfont';
 import MkDirP from 'mkdirp';
 import pixelMatch from 'pixelmatch';
@@ -29,18 +29,8 @@ if (
     require('source-map-support').install();
 }
 
-BigNumber.set({
-    ALPHABET: '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ$_'
-});
-
-// an array storing the maximum string length of hashes at various bases
-const maxHashLength = [];
-
-for (let i = 0; i < 65; i++) {
-    const l =
-        i > 1 ? new BigNumber(new Array(64 + 1).join('1'), 2).toString(i) : NaN;
-    maxHashLength.push(l.length);
-}
+const alphabet =
+    '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ$_';
 
 process.on('exit', clear);
 
@@ -590,7 +580,7 @@ class Jimp extends EventEmitter {
 
     /**
      * Generates a perceptual hash of the image <https://en.wikipedia.org/wiki/Perceptual_hashing>.
-     * @param {number} base (optional) a number between 2 and 64 representing the base for the hash (e.g. 2 is binary, 10 is decimal, 16 is hex, 64 is base 64). Defaults to 64.
+     * @param {number} base (optional) a number between 2 and 64 representing the base for the hash (e.g. 2 is binary, 10 is decimaal, 16 is hex, 64 is base 64). Defaults to 64.
      * @param {function(Error, Jimp)} cb (optional) a callback for when complete
      * @returns {string} a string representing the hash
      */
@@ -615,11 +605,7 @@ class Jimp extends EventEmitter {
         }
 
         let hash = new ImagePHash().getHash(this);
-        hash = new BigNumber(hash, 2).toString(base);
-
-        while (hash.length < maxHashLength[base]) {
-            hash = '0' + hash; // pad out with leading zeros
-        }
+        hash = anyBase(anyBase.BIN, alphabet.slice(0, base))(hash);
 
         if (isNodePattern(cb)) {
             return cb.call(this, null, hash);
