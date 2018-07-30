@@ -16,7 +16,6 @@ import * as color from './image-manipulation/color';
 import * as effects from './image-manipulation/effects';
 
 import promisify from './utils/promisify';
-import isDef from './utils/is-def';
 import * as MIME from './utils/mime';
 import { clear } from './utils/log';
 import { parseBitmap, getBuffer, getBufferAsync } from './utils/image-bitmap';
@@ -922,7 +921,7 @@ Jimp.limit255 = function(n) {
  * @param {number} threshold (optional) a number, 0 to 1, the smaller the value the more sensitive the comparison (default: 0.1)
  * @returns {object} an object { percent: percent similar, diff: a Jimp image highlighting differences }
  */
-Jimp.diff = function(img1, img2, threshold) {
+Jimp.diff = function(img1, img2, threshold = 0.1) {
     if (!(img1 instanceof Jimp) || !(img2 instanceof Jimp))
         return throwError.call(this, 'img1 and img2 must be an Jimp images');
 
@@ -938,8 +937,6 @@ Jimp.diff = function(img1, img2, threshold) {
             img2 = img2.cloneQuiet().resize(bmp1.width, bmp1.height);
         }
     }
-
-    threshold = isDef(threshold) ? threshold : 0.1;
 
     if (typeof threshold !== 'number' || threshold < 0 || threshold > 1) {
         return throwError.call(
