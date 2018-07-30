@@ -63,7 +63,7 @@ If you're using webpack you can set `process.browser` to true and your build of 
 
 ## Basic usage
 
-The static `Jimp.read` method takes the path to a PNG, JPEG or BMP file and returns a Promise:
+The static `Jimp.read` method takes the path to a file, URL, dimensions, a Jimp instance or a buffer and returns a Promise:
 
 ```js
 Jimp.read('./path/to/image.jpg')
@@ -73,11 +73,7 @@ Jimp.read('./path/to/image.jpg')
     .catch(err => {
         // handle an exception
     });
-```
-
-The method can also read a PNG, JPEG or BMP buffer or from a URL:
-
-```js
+    
 Jimp.read(lenna.buffer)
     .then(image => {
         // do stuff with the image
@@ -94,6 +90,8 @@ Jimp.read('http://www.example.com/path/to/lenna.jpg')
         // handle an exception
     });
 ```
+
+The conveniance method `Jimp.create` also exists. It is just a wrapper around `Jimp.read`.
 
 ### Basic methods
 
