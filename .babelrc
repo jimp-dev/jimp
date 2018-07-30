@@ -1,0 +1,46 @@
+{
+    "env": {
+        "test": {
+            "presets": ["env"],
+            "plugins": [
+                "istanbul",
+                "add-module-exports",
+                "transform-class-properties",
+                "transform-object-rest-spread"
+            ]
+        },
+        "development": {
+            "sourceMaps": "inline",
+            "retainLines": true,
+            "presets": ["env"],
+            "plugins": [
+                "add-module-exports",
+                [
+                    "transform-inline-environment-variables",
+                    { "include": ["BABEL_ENV"] }
+                ],
+                "transform-class-properties",
+                "transform-object-rest-spread"
+            ]
+        },
+        "module": {
+            "presets": [["env", { "modules": false }]],
+            "plugins": [
+                "transform-inline-environment-variables",
+                "transform-class-properties",
+                "transform-object-rest-spread",
+                [
+                    "transform-inline-environment-variables",
+                    { "include": ["BABEL_ENV"] }
+                ]
+            ]
+        },
+        "production": {
+            "presets": ["env"],
+            "plugins": [
+                "transform-class-properties",
+                "transform-object-rest-spread"
+            ]
+        }
+    }
+}

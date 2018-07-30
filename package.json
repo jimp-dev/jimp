@@ -2,10 +2,10 @@
   "name": "jimp",
   "version": "0.3.0",
   "description": "An image processing library written entirely in JavaScript (i.e. zero external or native dependencies).",
-  "main": "./dist/jimp.js",
+  "main": "./dist/main/jimp.js",
   "types": "./jimp.d.ts",
   "tonicExampleFilename": "example.js",
-  "browser": "./browser/lib/jimp.js",
+  "module": "./dist/module/index.js",
   "repository": {
     "type": "git",
     "url": "https://github.com/oliver-moran/jimp.git"
@@ -24,13 +24,14 @@
     "test:browser:watch": "npm run -s test:karma start -- --auto-watch",
     "test:node:run": "BABEL_ENV=test mocha --require babel-register",
     "test:node:once": "nyc npm run test:node:run",
-    "test:node:watch": "mocha --reporter min --watch ./test/*.test.js",
     "test": "npm run -s test:node:once && npm run -s test:browser:once",
+    "test:node:watch": "npm run test:node:run -- --reporter min --watch",
     "test:old": "./test/tests.sh",
     "browser-build": "node tools/browser-build.js test",
-    "build": "npm run build:browser && npm run build:node:production",
+    "build": "npm run build:browser && npm run build:node:production && npm run build:module",
     "build:debug": "npm run build:browser:debug && npm run build:node:debug",
-    "build:node": "babel src -d dist --source-maps",
+    "build:module": "BABEL_ENV=module babel src -d dist/module --source-maps",
+    "build:node": "babel src -d dist/main --source-maps",
     "build:node:debug": "BABEL_ENV=development npm run build:node",
     "build:node:production": "BABEL_ENV=production npm run build:node",
     "build:browser": "BABEL_ENV=production node tools/browser-build.js prepublish",
@@ -73,7 +74,9 @@
     "babel-eslint": "^8.2.6",
     "babel-plugin-add-module-exports": "^0.3.2",
     "babel-plugin-istanbul": "^4.1.6",
+    "babel-plugin-transform-class-properties": "^6.24.1",
     "babel-plugin-transform-inline-environment-variables": "^0.4.3",
+    "babel-plugin-transform-object-rest-spread": "^6.26.0",
     "babel-preset-env": "^1.7.0",
     "babel-preset-stage-0": "6.24.1",
     "babelify": "^8.0.0",
@@ -148,47 +151,15 @@
         6
       ]
     },
-		"overrides": [
-			{
-				"files": "**/test/*.js",
+    "overrides": [
+      {
+        "files": "**/test/*.js",
         "esnext": false,
         "rules": {
           "max-nested-callbacks": 0
         }
-			}
-		]
-  },
-  "babel": {
-    "presets": [
-      [
-        "env",
-        {
-          "targets": {
-            "ie": 8
-          },
-          "useBuiltIns": true
-        }
-      ],
-      "stage-0"
-    ],
-    "plugins": [
-      "add-module-exports",
-      [
-        "transform-inline-environment-variables",
-        { "include": [ "BABEL_ENV" ] }
-      ]
-    ],
-    "env": {
-      "test": {
-        "plugins": [
-          "istanbul"
-        ]
-      },
-      "development": {
-        "sourceMaps": "inline",
-        "retainLines": true
       }
-    }
+    ]
   },
   "nyc": {
     "sourceMap": false,
