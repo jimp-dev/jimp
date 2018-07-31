@@ -12,6 +12,7 @@ lib-cov
 
 # Coverage directory used by tools like istanbul
 coverage
+.nyc_output
 
 # Grunt intermediate storage (http://gruntjs.com/creating-plugins#storing-task-files)
 .grunt
@@ -37,3 +38,12 @@ node_modules
 /test/output/*.bmp
 
 .DS_Store
+
+package-lock.json
+
+# Browser Version
+browser/lib/*.js
+# ES5 Version
+dist/
+# ESM Version
+es/

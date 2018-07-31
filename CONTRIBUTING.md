@@ -40,11 +40,11 @@ You can use the coverage report to help with missed tests, but you must be aware
 
 While developing you may want to test only on node.js:
 ```
-$ run test:node:once
+$ run test:node
 ```
 ...or only one test file:
 ```
-$ run test:node:run test/some.test.js
+$ run test:node test/some.test.js
 ```
 ...or run each time a file changes:
 ```
@@ -52,7 +52,7 @@ $ run test:node:watch
 ```
 ...or test only in a specific browser:
 ```
-$ npm run test:browser:once -- --browsers Firefox
+$ npm run test:browser -- --browsers Firefox
 ```
 For more options and project management tools see: `npm run`
 

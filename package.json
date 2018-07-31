@@ -1,28 +1,43 @@
 {
   "name": "jimp",
-  "version": "0.2.28",
+  "version": "0.3.0",
   "description": "An image processing library written entirely in JavaScript (i.e. zero external or native dependencies).",
-  "main": "jimp.js",
+  "main": "./dist/main/jimp.js",
+  "browser": "./browser/lib/jimp.js",
   "types": "./jimp.d.ts",
+  "tonicExampleFilename": "example.js",
+  "files": [
+    "browser",
+    "dist",
+    "es"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/oliver-moran/jimp.git"
+  },
+  "bugs": {
+    "url": "https://github.com/oliver-moran/jimp/issues"
+  },
   "scripts": {
-    "lint": "npm run -s lint:src && npm run -s lint:browser && npm run -s lint:tests && npm run -s lint:extra && echo Lint All Success",
-    "lint:src": "eslint *.js src/*.js browser/src/*.js && echo Lint Source Success",
-    "lint:tests": "eslint --env 'mocha' --rule '{no-new: \"off\"}' test/*.js && echo Lint Tests Success",
-    "lint:browser": "eslint --rule '{no-new: \"off\"}' browser/src/*.js && echo Lint Browser Success",
-    "lint:extra": "eslint --rule '{no-console: \"off\"}' {*/,}{tools,examples}/*.js && echo Lint Extras Success",
-    "test:karma": "CHROME_BIN=\"$(which chrome || which chromium)\" karma",
-    "test:browser:run": "npm run -s test:karma run",
-    "test:browser:once": "npm run -s test:karma start -- --single-run",
-    "test:browser:watch": "npm run -s test:karma start -- --auto-watch",
-    "test:node:run": "mocha",
-    "test:node:once": "istanbul cover _mocha ./test/*.test.js",
-    "test:node:once:nocover": "mocha ./test/*.test.js",
-    "test:node:watch": "mocha --reporter min --watch ./test/*.test.js",
-    "test:without-lint": "npm run -s test:node:once && npm run -s test:browser:once",
-    "test": "npm run -s lint && npm run -s test:without-lint",
-    "test:old": "./test/tests.sh",
+    "lint": "npm run -s lint:src && npm run -s lint:tests && npm run -s lint:extra && echo Lint All Success",
+    "lint:src": "xo src/*.js src/**/*.js !src/modules/*.js",
+    "lint:tests": "xo test/*.js --global before",
+    "lint:extra": "xo {tools,examples}/*.js",
+    "test:browser": "cross-env BABEL_ENV=test ENV=browser CHROME_BIN=\"$(which chrome || which chromium)\" karma start --single-run",
+    "test:browser:watch": "npm run -s test:browser start -- --auto-watch",
+    "test:node": "cross-env BABEL_ENV=test mocha --require @babel/register",
+    "test:node:watch": "npm run test:node -- --reporter min --watch",
+    "test:node:coverage": "nyc npm run test:node",
+    "test": "npm run -s test:node:coverage && npm run -s test:browser",
     "browser-build": "node tools/browser-build.js test",
-    "prepublish": "node tools/browser-build.js prepublish"
+    "build": "npm run build:browser && npm run build:node:production && npm run build:module",
+    "build:debug": "npm run build:browser:debug && npm run build:node:debug",
+    "build:module": "cross-env BABEL_ENV=module babel src -d es --source-maps",
+    "build:node": "babel src -d dist/main --source-maps",
+    "build:node:debug": "cross-env BABEL_ENV=development npm run build:node",
+    "build:node:production": "cross-env BABEL_ENV=production npm run build:node",
+    "build:browser": "cross-env BABEL_ENV=production node tools/browser-build.js prepublish",
+    "build:browser:debug": "cross-env BABEL_ENV=development ENV=browser node tools/browser-build.js prepublish"
   },
   "keywords": [
     "image",
@@ -39,53 +54,129 @@
   "author": "Oliver Moran <oliver.moran@gmail.com>",
   "license": "MIT",
   "dependencies": {
-    "bignumber.js": "^2.1.0",
-    "bmp-js": "0.0.3",
-    "buffer": "^5.0.2",
-    "es6-promise": "^3.0.2",
-    "exif-parser": "^0.1.9",
-    "file-type": "^3.1.0",
-    "jpeg-js": "^0.2.0",
-    "load-bmfont": "^1.2.3",
-    "mime": "^1.3.4",
+    "any-base": "^1.1.0",
+    "bmp-js": "0.1.0",
+    "buffer": "^5.2.0",
+    "exif-parser": "^0.1.12",
+    "file-type": "^8.1.0",
+    "jpeg-js": "^0.3.4",
+    "load-bmfont": "^1.3.0",
     "mkdirp": "0.5.1",
-    "pixelmatch": "^4.0.0",
-    "pngjs": "^3.0.0",
-    "raw-body": "^2.3.2",
+    "omggif": "^1.0.9",
     "phin": "^2.9.0",
-    "tinycolor2": "^1.1.2",
-    "utif": "^1.1.2"
+    "pixelmatch": "^4.0.2",
+    "pngjs": "^3.3.3",
+    "tinycolor2": "^1.4.1",
+    "utif": "^2.0.0"
   },
   "devDependencies": {
-    "babel": "^6.0.14",
-    "babel-cli": "^6.0.0",
-    "babel-preset-es2015": "^6.0.14",
-    "babel-preset-stage-0": "^6.0.14",
-    "browserify": "^14.3.0",
-    "envify": "^3.4.0",
-    "eslint": "^3.14.1",
-    "eslint-config-standard": "^6.2.1",
-    "eslint-plugin-promise": "^3.4.1",
-    "eslint-plugin-standard": "^2.0.1",
-    "express": "^4.13.4",
-    "istanbul": "^0.4.5",
-    "karma": "^1.4.0",
-    "karma-chrome-launcher": "^2.0.0",
-    "karma-firefox-launcher": "^1.0.0",
+    "@babel/cli": "^7.0.0-beta.54",
+    "@babel/core": "^7.0.0-beta.54",
+    "@babel/plugin-proposal-class-properties": "^7.0.0-beta.54",
+    "@babel/plugin-syntax-object-rest-spread": "^7.0.0-beta.54",
+    "@babel/preset-env": "^7.0.0-beta.54",
+    "@babel/register": "^7.0.0-beta.54",
+    "babel-eslint": "^8.2.6",
+    "babel-plugin-add-module-exports": "^0.3.2",
+    "babel-plugin-istanbul": "^4.1.6",
+    "babel-plugin-source-map-support": "^2.0.1",
+    "babel-plugin-transform-inline-environment-variables": "^0.4.3",
+    "babelify": "^9.0.0",
+    "browserify": "^16.2.2",
+    "cross-env": "^5.2.0",
+    "envify": "^4.1.0",
+    "express": "^4.16.3",
+    "husky": "^1.0.0-rc.13",
+    "karma": "^2.0.5",
+    "karma-browserify": "^5.3.0",
+    "karma-chrome-launcher": "^2.2.0",
+    "karma-firefox-launcher": "^1.1.0",
     "karma-generic-preprocessor": "^1.1.0",
     "karma-mocha": "^1.3.0",
-    "karma-mocha-own-reporter": "^1.1.2",
-    "mocha": "^3.2.0",
-    "should": "^11.1.2",
-    "uglify-js": "^2.7.5"
+    "karma-mocha-reporter": "^2.2.5",
+    "lint-staged": "^7.2.0",
+    "mocha": "^5.2.0",
+    "nyc": "^12.0.2",
+    "prettier": "^1.13.7",
+    "should": "^13.2.2",
+    "source-map-support": "^0.5.6",
+    "tfilter": "^1.0.1",
+    "uglify-js": "^3.4.6",
+    "xo": "^0.21.1"
   },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/oliver-moran/jimp.git"
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
   },
-  "bugs": {
-    "url": "https://github.com/oliver-moran/jimp/issues"
+  "lint-staged": {
+    "*.{js,css,md}": [
+      "prettier --write",
+      "git add"
+    ]
   },
-  "tonicExampleFilename": "example.js",
-  "browser": "browser/lib/jimp.js"
+  "prettier": {
+    "singleQuote": true,
+    "tabWidth": 4
+  },
+  "xo": {
+    "parser": "babel-eslint",
+    "extends": [
+      "prettier"
+    ],
+    "plugins": [
+      "prettier"
+    ],
+    "env": [
+      "browser",
+      "node",
+      "jest"
+    ],
+    "ignores": [
+      "omggif.js"
+    ],
+    "rules": {
+      "capitalized-comments": 0,
+      "unicorn/number-literal-case": 0,
+      "no-control-regex": 1,
+      "prefer-rest-params": 1,
+      "no-new": 0,
+      "no-console": [
+        2,
+        {
+          "allow": [
+            "warn",
+            "error"
+          ]
+        }
+      ],
+      "max-params": [
+        1,
+        6
+      ]
+    },
+    "overrides": [
+      {
+        "files": "**/test/*.js",
+        "esnext": false,
+        "rules": {
+          "max-nested-callbacks": 0
+        }
+      }
+    ]
+  },
+  "nyc": {
+    "sourceMap": false,
+    "instrument": false,
+    "reporter": [
+      "text",
+      "text-summary",
+      "lcov",
+      "html"
+    ],
+    "exclude": [
+      "src/modules/*.js",
+      "test/*.js"
+    ]
+  }
 }

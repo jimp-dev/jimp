@@ -1,90 +1,95 @@
 #!/usr/bin/env node
 
-var fs = require('fs');
-var {normalize, join} = require('path');
-var babel = require("babel-core");
-var envify = require('envify/custom');
-var UglifyJS = require("uglify-js");
-var browserify = require("browserify");
+const fs = require('fs');
+const { normalize, join } = require('path');
+const envify = require('envify/custom');
+const UglifyJS = require('uglify-js');
+const browserify = require('browserify');
+const babelify = require('babelify');
+const tfilter = require('tfilter');
 
-function debug () {
-    if (process.env.DEBUG) console.error(...arguments);
+function debug(...args) {
+    if (process.env.DEBUG) {
+        console.error(...args);
+    }
 }
 
-var root = normalize(join(__dirname, ".."));
-function fromRoot (subPath) {
+const root = normalize(join(__dirname, '..'));
+function fromRoot(subPath) {
     return normalize(join(root, subPath));
 }
 
-var licence = "/*\n" +
-    "Jimp v"+ process.env.npm_package_version +"\n" +
-    "https://github.com/oliver-moran/jimp\n" +
-    "Ported for the Web by Phil Seaton\n" +
-    fs.readFileSync(fromRoot("LICENSE")) +
-    "*/";
+const licence =
+    '/*\n' +
+    'Jimp v' +
+    process.env.npm_package_version +
+    '\n' +
+    'https://github.com/oliver-moran/jimp\n' +
+    'Ported for the Web by Phil Seaton\n' +
+    fs.readFileSync(fromRoot('LICENSE')) +
+    '*/';
 
 // Browserify and Babelize.
-function bundle (files, config, callback) {
+
+function minify(code) {
+    console.error('Compressing...');
+
+    return UglifyJS.minify(code, { warnings: false }).code;
+}
+
+function bundle(files, config, callback) {
     if (typeof files === 'string') files = [files];
-    files = files.map(function (f) {
-        return (f[0]==="/") ? f : fromRoot(f); // ensure path.
+    files = files.map(f => {
+        return f[0] === '/' ? f : fromRoot(f); // ensure path.
     });
-    console.error("Browserify "+files.join(", ")+"...");
-    config = Object.assign({
-        ignoreMissing: true,
-        fullPaths: false,
-        debug: true,
-        paths: [root],
-        basedir: root,
-        transform: envify({ENVIRONMENT: "BROWSER"})
-    }, config);
+    console.error('Browserify ' + files.join(', ') + '...');
+    config = Object.assign(
+        {
+            standalone: 'jimp',
+            ignoreMissing: true,
+            fullPaths: false,
+            debug:
+                process.env.BABEL_ENV === 'development' ||
+                process.env.BABEL_ENV === 'test',
+            paths: [root],
+            basedir: root
+        },
+        config
+    );
     debug('browserify config:', config);
-    var bundler = browserify(files, config).exclude(fromRoot("browser/lib/jimp.js"));
+    const bundler = browserify(files, config).exclude(
+        fromRoot('browser/lib/jimp.js')
+    );
     config.exclude = config.exclude || [];
-    for (let f, i=0; (f=config.exclude[i]); i++) {
+    for (let f, i = 0; (f = config.exclude[i]); i++) {
         bundler.exclude(fromRoot(f));
     }
-    bundler.bundle(function (err, baseCode) {
-        if (err) return callback(err);
-        console.error("Babelize "+files.map((f)=> f.replace(/.*\//, '')).join("+")+"...");
-        var result = babel.transform(
-            "if ((typeof(window)=='undefined' || !window) " +
-            "&& (typeof(self)!='undefined')) var window = self;\n" +
-            baseCode.toString(),
-            { presets: ["es2015", "stage-0"] }
-        );
-        callback(null, result.code);
-    });
-}
 
-function bundleSimple (files, config, callback) {
-    bundle(files, config, (err, code)=> {
-        if (err) {
-            var msg = "Can't bundle "+ files.join(" + ") +"\nError: "+ err.message;
-            callback("throw Error("+ JSON.stringify(msg) +");");
-        } else {
-            callback(code);
-        }
-    });
-}
+    bundler
+        .transform(babelify)
+        .transform(
+            tfilter(babelify, { include: '**/node_modules/file-type/*.js' }),
+            { presets: ['@babel/env'], global: true }
+        )
+        .transform(envify({ ENVIRONMENT: 'BROWSER' }))
+        .bundle((err, baseCode) => {
+            if (err) return callback(err);
 
-function minify (code) {
-    console.error("Compressing...");
-    var ast = UglifyJS.parse(code);
-    ast.figure_out_scope();
-    var compressor = UglifyJS.Compressor({warnings: false});
-    ast = ast.transform(compressor);
-    return ast.print_to_string();
+            callback(
+                null,
+                "if ((typeof(window)=='undefined' || !window) " +
+                    "&& (typeof(self)!='undefined')) var window = self;\n" +
+                    baseCode
+            );
+        });
 }
 
 if (!module.parent) {
-
-    var config = process.argv[3];
-    var cmd = process.argv[2] || "prepublish";
+    let config = process.argv[3];
+    const cmd = process.argv[2] || 'prepublish';
 
     switch (cmd) {
-
-        case "test":
+        case 'test': {
             let baseFiles;
             if (config[0] === '{') {
                 config = JSON.parse(config);
@@ -93,68 +98,81 @@ if (!module.parent) {
                 config = {};
                 baseFiles = process.argv.slice(3);
             }
-            if (baseFiles.length === 0) throw Error("No file given.");
-            bundle(baseFiles, config, function (err, code) {
+            if (baseFiles.length === 0) throw new Error('No file given.');
+            bundle(baseFiles, config, (err, code) => {
                 if (err) throw err;
                 process.stdout.write(code);
-                console.error("Done.");
+                console.error('Done.');
             });
             break;
+        }
 
-        case "prepublish":
+        case 'prepublish':
             if (config) config = JSON.parse(config);
             else config = {};
-            bundle("index.js", config, function (err, code) {
+            bundle('src/index.js', config, (err, code) => {
                 if (err) throw err;
-                fs.writeFile(fromRoot("browser/lib/jimp.js"),
-                    licence +"\n"+ code, function (err) {
+                fs.writeFile(
+                    fromRoot('browser/lib/jimp.js'),
+                    licence + '\n' + code,
+                    err => {
                         if (err) throw err;
-                        console.error("browserifyed jimp.js done.");
+                        console.error('browserifyed jimp.js done.');
                     }
                 );
-                fs.writeFile(fromRoot("browser/lib/jimp.min.js"),
-                    licence +"\n"+ minify(code), function (err) {
+                fs.writeFile(
+                    fromRoot('browser/lib/jimp.min.js'),
+                    licence + '\n' + minify(code),
+                    err => {
                         if (err) throw err;
-                        console.error("browserifyed jimp.min.js done.");
+                        console.error('browserifyed jimp.min.js done.');
                     }
                 );
             });
             break;
 
-        case "help":
-            let toolName = process.argv[1].replace(root, "./").replace(/\/+/g, '/');
-            console.log([
-                'Build Jimp or its modules for the browser environment.',
-                '',
-                'Usage:',
-                `  $ ${toolName} <command> [parameters]`,
-                '',
-                'Prepublish Command',
-                '==================',
-                '',
-                'Builds jimp and updates "browser/lib/jimp.js".',
-                'Usage:',
-                `  $ ${toolName} prepublish [JSON browserify configuration]`,
-                'Example:',
-                `  $ ${toolName} prepublish '{"basedir":"/other/path"}'`,
-                '',
-                'Test Command',
-                '============',
-                '',
-                'Builds a list of modules and output to STDOUT.',
-                'Usage:',
-                `  $ ${toolName} test [JSON browserify configuration] [file1 [file2 [...]]]`,
-                'Example:',
-                `  $ ${toolName} test '{"exclude":["index.js"]}' test/jgd.test.js`,
-                '',
-                'Set DEBUG env var to know the resulting configuration.'
-            ].join('\n'));
+        case 'help': {
+            const toolName = process.argv[1]
+                .replace(root, './')
+                .replace(/\/+/g, '/');
+            console.warn(
+                [
+                    'Build Jimp or its modules for the browser environment.',
+                    '',
+                    'Usage:',
+                    `  $ ${toolName} <command> [parameters]`,
+                    '',
+                    'Prepublish Command',
+                    '==================',
+                    '',
+                    'Builds jimp and updates "browser/lib/jimp.js".',
+                    'Usage:',
+                    `  $ ${toolName} prepublish [JSON browserify configuration]`,
+                    'Example:',
+                    `  $ ${toolName} prepublish '{"basedir":"/other/path"}'`,
+                    '',
+                    'Test Command',
+                    '============',
+                    '',
+                    'Builds a list of modules and output to STDOUT.',
+                    'Usage:',
+                    `  $ ${toolName} test [JSON browserify configuration] [file1 [file2 [...]]]`,
+                    'Example:',
+                    `  $ ${toolName} test '{"exclude":["index.js"]}' test/jgd.test.js`,
+                    '',
+                    'Set DEBUG env var to know the resulting configuration.'
+                ].join('\n')
+            );
             break;
+        }
 
         default:
-            throw Error(`Unknown command given. Run "$ ${process.argv[1]} help" for more inforation`);
-
+            throw new Error(
+                `Unknown command given. Run "$ ${
+                    process.argv[1]
+                } help" for more information`
+            );
     }
 }
 
-module.exports = { bundle: bundle, bundleSimple: bundleSimple, minify: minify };
+module.exports = { bundle };
