@@ -2781,7 +2781,7 @@ Jimp.prototype.write = function (path, cb) {
         return throwError.call(this, "cb must be a function", cb);
 
     var that = this;
-    var mime = this.getMIME();
+    var mime = MIME.lookup(path);
 
     var pathObj = Path.parse(path);
     if (pathObj.dir) MkDirP.sync(pathObj.dir);
