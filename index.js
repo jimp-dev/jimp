@@ -2267,7 +2267,7 @@ Jimp.prototype.print = function(font, x, y, text, maxWidth, alignment, cb) {
         return throwError.call(this, "text must be a string", cb);
     if ("number" != typeof maxWidth)
         return throwError.call(this, "maxWidth must be a number", cb);
-    if ("number" != typeof maxWidth)
+    if ("number" != typeof alignment)
         return throwError.call(this, "alignment must be a number", cb);
 
     var that = this;
