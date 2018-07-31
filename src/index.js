@@ -127,6 +127,14 @@ const emptyBitmap = {
  * @param {function(Error, Jimp)} cb (optional) a function to call when the image is parsed to a bitmap
  */
 
+/**
+ * Jimp constructor (to generate a new image)
+ * @param w the width of the image
+ * @param h the height of the image
+ * @param background color to fill the image with
+ * @param {function(Error, Jimp)} cb (optional) a function to call when the image is parsed to a bitmap
+ */
+
 class Jimp extends EventEmitter {
     // An object representing a bitmap in memory, comprising:
     //  - data: a buffer of the bitmap data
@@ -181,10 +189,14 @@ class Jimp extends EventEmitter {
                 cb.call(jimpInstance, ...args);
             }, 1);
         }
-        if (typeof args[0] === 'number' && typeof args[1] === 'number') {
+
+        if (
+            (typeof args[0] === 'number' && typeof args[1] === 'number') ||
+            (parseInt(args[0], 10) && parseInt(args[1], 10))
+        ) {
             // create a new image
-            const w = args[0];
-            const h = args[1];
+            const w = parseInt(args[0], 10);
+            const h = parseInt(args[1], 10);
             cb = args[2];
 
             if (typeof args[2] === 'number') {
