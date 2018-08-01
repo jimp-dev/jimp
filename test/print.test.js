@@ -99,7 +99,7 @@ describe('Write text over image', function() {
                     '/samples/text-samples/SANS_16_BLACK-positioned.png';
                 new Jimp(expected, (err, expectedImg) => {
                     if (err) return done(err);
-                    new Jimp(300, 100, 0xff8800ff, (err, image) => {
+                    new Jimp('300', '100', 0xff8800ff, (err, image) => {
                         if (err) return done(err);
                         image
                             .print(font, 150, 50, 'This is only a test.', 100)
