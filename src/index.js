@@ -336,7 +336,26 @@ class Jimp extends EventEmitter {
         this.emitMulti(methodName, 'error', err);
     }
 
-    /* Nicely format Jimp object when sent to the console e.g. console.log(image) */
+    /**
+     * Get the current height of the image
+     * @param {number} height of the image
+     */
+    getHeight() {
+        return this.bitmap.height;
+    }
+
+    /**
+     * Get the current width of the image
+     * @param {number} width of the image
+     */
+    getWidth() {
+        return this.bitmap.width;
+    }
+
+    /**
+     * Nicely format Jimp object when sent to the console e.g. console.log(image)
+     * @returns {string} pretty printed
+     */
     inspect() {
         return (
             '<Jimp ' +
@@ -347,7 +366,10 @@ class Jimp extends EventEmitter {
         );
     }
 
-    // Nicely format Jimp object when converted to a string
+    /**
+     * Nicely format Jimp object when converted to a string
+     * @returns {string} pretty printed
+     */
     toString() {
         return '[object Jimp]';
     }
