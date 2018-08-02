@@ -44,7 +44,7 @@ describe('hash', () => {
     it('base 23', function(done) {
         // large image need large timeout, but this really seems to be an issue
         // with should. If I change the expected value it will complete quicker! :(
-        this.timeout(3000);
+        this.timeout(10000);
         new Jimp(imagesDir + '/panoramic.jpg', (err, image) => {
             if (err) done(err);
             image.hash(23).should.be.exactly('0m1m2id7l7cl4fb');
