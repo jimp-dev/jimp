@@ -44,7 +44,7 @@ function getJimpDir() {
     const reMoz = /.*@([^?]+\/).*/;
 
     if (process.env.BABEL_ENV === 'test' && process.env.ENV === 'browser') {
-        return 'http://localhost:9877/base/test/';
+        return 'http://localhost:9876/base/test/';
     }
 
     if (reWebKit.test(callLine)) {
