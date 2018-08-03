@@ -59,14 +59,6 @@ self.addEventListener('message', function(e) {
 });
 ```
 
-## CDN
-
-CDN access to the minified library is available through the [RawGit CDN](https://rawgit.com/):
-
-```html
-<script src="https://cdn.rawgit.com/oliver-moran/jimp/0.3.2/browser/lib/jimp.min.js"></script>
-```
-
 ## License
 
 Jimp is licensed under the MIT license.
