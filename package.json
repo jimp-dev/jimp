@@ -10,7 +10,8 @@
     "browser",
     "dist",
     "es",
-    "jimp.d.ts"
+    "jimp.d.ts",
+    "fonts"
   ],
   "repository": {
     "type": "git",
