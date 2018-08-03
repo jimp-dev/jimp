@@ -10,7 +10,7 @@ describe('Async functions', () => {
 
         // process.env is undefined in the browser tests. If BABEL_ENV
         // isn't found don't run this test in the browser
-        if (process.env.BABEL_ENV === undefined) {
+        if (process.env.ENV === 'browser') {
             return done();
         }
 
@@ -27,7 +27,7 @@ describe('Async functions', () => {
     });
 
     it('getBuffer returns promise', done => {
-        if (process.env.BABEL_ENV === undefined) {
+        if (process.env.ENV === 'browser') {
             return done();
         }
 
@@ -41,7 +41,7 @@ describe('Async functions', () => {
     });
 
     it('getBase64 returns promise', done => {
-        if (process.env.BABEL_ENV === undefined) {
+        if (process.env.ENV === 'browser') {
             return done();
         }
 
