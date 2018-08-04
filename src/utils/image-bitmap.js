@@ -153,7 +153,7 @@ export function parseBitmap(data, path, cb) {
                 );
         }
     } catch (error) {
-        cb.call(this, error, this);
+        return cb.call(this, error, this);
     }
 
     cb.call(this, null, this);
