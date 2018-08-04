@@ -97,6 +97,7 @@ export function parseBitmap(data, path, cb) {
     switch (this.getMIME()) {
         case constants.MIME_PNG: {
             const png = new PNG();
+
             png.parse(data, (err, data) => {
                 if (err) {
                     return throwError.call(this, err, cb);
@@ -109,6 +110,7 @@ export function parseBitmap(data, path, cb) {
                 };
                 cb.call(this, null, this);
             });
+
             break;
         }
 

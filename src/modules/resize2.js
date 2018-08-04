@@ -24,11 +24,9 @@ module.exports = {
     nearestNeighbor(src, dst) {
         const wSrc = src.width;
         const hSrc = src.height;
-        // console.log("wSrc="+wSrc + ", hSrc="+hSrc);
 
         const wDst = dst.width;
         const hDst = dst.height;
-        // console.log("wDst="+wDst + ", hDst="+hDst);
 
         const bufSrc = src.data;
         const bufDst = dst.data;
@@ -52,11 +50,9 @@ module.exports = {
     bilinearInterpolation(src, dst) {
         const wSrc = src.width;
         const hSrc = src.height;
-        // console.log("wSrc="+wSrc + ", hSrc="+hSrc);
 
         const wDst = dst.width;
         const hDst = dst.height;
-        // console.log("wDst="+wDst + ", hDst="+hDst);
 
         const bufSrc = src.data;
         const bufDst = dst.data;
@@ -124,18 +120,15 @@ module.exports = {
 
         const wSrc = src.width;
         const hSrc = src.height;
-        // console.log("wSrc="+wSrc + ", hSrc="+hSrc + ", srcLen="+bufSrc.length);
 
         const wDst = dst.width;
         const hDst = dst.height;
-        // console.log("wDst="+wDst + ", hDst="+hDst + ", dstLen="+bufDst.length);
 
         // when dst smaller than src/2, interpolate first to a multiple between 0.5 and 1.0 src, then sum squares
         const wM = Math.max(1, Math.floor(wSrc / wDst));
         const wDst2 = wDst * wM;
         const hM = Math.max(1, Math.floor(hSrc / hDst));
         const hDst2 = hDst * hM;
-        // console.log("wM="+wM + ", wDst2="+wDst2 + ", hM="+hM + ", hDst2="+hDst2);
 
         // ===========================================================
         // Pass 1 - interpolate rows
