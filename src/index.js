@@ -179,9 +179,9 @@ class Jimp extends EventEmitter {
 
             setTimeout(() => {
                 // run on next tick.
-                if (err) {
+                if (err && cb === noop) {
                     jimpInstance.emitError('constructor', err);
-                } else {
+                } else if (!err) {
                     jimpInstance.emitMulti('constructor', 'initialized');
                 }
 
