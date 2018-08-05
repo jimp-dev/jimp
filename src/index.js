@@ -397,7 +397,7 @@ class Jimp extends EventEmitter {
             return throwError.call(this, 'cb must be a function', cb);
         }
 
-        const mime = MIME.getType(path) || this.getMime();
+        const mime = MIME.getType(path) || this.getMIME();
         const pathObj = Path.parse(path);
 
         if (pathObj.dir) {
