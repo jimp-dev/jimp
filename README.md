@@ -604,6 +604,8 @@ Jimp is licensed under the MIT license. Open Sans is licensed under the Apache l
 
 :star: [differencify](https://www.npmjs.com/package/differencify) - Perceptual diffing tool
 
+:star: [gifwrap](https://www.npmjs.com/package/gifwrap) - A Jimp-compatible library for working with GIFs
+
 
 
 
