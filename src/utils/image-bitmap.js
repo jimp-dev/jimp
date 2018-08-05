@@ -1,3 +1,4 @@
+import fs from 'fs';
 import fileType from 'file-type';
 
 import { PNG } from 'pngjs';
@@ -94,26 +95,21 @@ export function parseBitmap(data, path, cb) {
 
     this._originalMime = mime.toLowerCase();
 
-    switch (this.getMIME()) {
-        case constants.MIME_PNG: {
-            const png = new PNG();
-            png.parse(data, (err, data) => {
-                if (err) {
-                    return throwError.call(this, err, cb);
-                }
+    try {
+        switch (this.getMIME()) {
+            case constants.MIME_PNG: {
+                const png = PNG.sync.read(data);
 
                 this.bitmap = {
-                    data: Buffer.from(data.data),
-                    width: data.width,
-                    height: data.height
+                    data: Buffer.from(png.data),
+                    width: png.width,
+                    height: png.height
                 };
-                cb.call(this, null, this);
-            });
-            break;
-        }
 
-        case constants.MIME_JPEG:
-            try {
+                break;
+            }
+
+            case constants.MIME_JPEG:
                 this.bitmap = JPEG.decode(data);
 
                 try {
@@ -122,42 +118,45 @@ export function parseBitmap(data, path, cb) {
                 } catch (err) {
                     /* meh */
                 }
-                cb.call(this, null, this);
-            } catch (err) {
-                cb.call(this, err, this);
+
+                break;
+
+            case constants.MIME_TIFF: {
+                const ifds = UTIF.decode(data);
+                const page = ifds[0];
+                UTIF.decodeImages(data, ifds);
+                const rgba = UTIF.toRGBA8(page);
+
+                this.bitmap = {
+                    data: Buffer.from(rgba),
+                    width: page.t256[0],
+                    height: page.t257[0]
+                };
+
+                break;
             }
-            break;
 
-        case constants.MIME_TIFF: {
-            const ifds = UTIF.decode(data);
-            const page = ifds[0];
-            UTIF.decodeImages(data, ifds);
-            const rgba = UTIF.toRGBA8(page);
+            case constants.MIME_BMP:
+            case constants.MIME_X_MS_BMP:
+                this.bitmap = BMP.decode(data);
+                break;
 
-            this.bitmap = {
-                data: Buffer.from(rgba),
-                width: page.t256[0],
-                height: page.t257[0]
-            };
+            case constants.MIME_GIF:
+                this.bitmap = getBitmapFromGIF(data);
+                break;
 
-            cb.call(this, null, this);
-            break;
+            default:
+                return throwError.call(
+                    this,
+                    'Unsupported MIME type: ' + mime,
+                    cb
+                );
         }
-
-        case constants.MIME_BMP:
-        case constants.MIME_X_MS_BMP:
-            this.bitmap = BMP.decode(data);
-            cb.call(this, null, this);
-            break;
-
-        case constants.MIME_GIF:
-            this.bitmap = getBitmapFromGIF(data);
-            cb.call(this, null, this);
-            break;
-
-        default:
-            return throwError.call(this, 'Unsupported MIME type: ' + mime, cb);
+    } catch (error) {
+        return cb.call(this, error, this);
     }
+
+    cb.call(this, null, this);
 
     return this;
 }
