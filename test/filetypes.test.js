@@ -1,9 +1,32 @@
 /* eslint-disable no-control-regex */
 
+const fs = require('fs');
+const should = require('should');
 const { Jimp, getTestDir } = require('./test-helper');
 
 describe('FileType', () => {
     const imagesDir = getTestDir() + '/samples';
+
+    it('write uses original MIME type', done => {
+        const writePath = './test-result';
+
+        if (process.env.BABEL_ENV === undefined) {
+            return done();
+        }
+
+        new Jimp(imagesDir + '/dice.png', function(err) {
+            if (err) done(err);
+
+            this.write(writePath, (err, image) => {
+                if (err) done(err);
+
+                should.exist(image);
+                fs.existsSync(writePath).should.be.true();
+                fs.unlinkSync(writePath);
+                done();
+            });
+        });
+    });
 
     it('load PNG', done => {
         new Jimp(imagesDir + '/dice.png', function(err) {

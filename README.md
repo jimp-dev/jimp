@@ -288,7 +288,7 @@ Online tools are also available to convert TTF fonts to BMFont format (e.g. [Lit
 
 ### Writing to files
 
-The image can be written to disk in PNG, JPEG or BMP format (determined by the file extension) using:
+The image can be written to disk in PNG, JPEG or BMP format (based on the save path extension or if no extension is provided the original image's MIME type which, if not available, defaults to PNG) using:
 
 ```js
 image.write(path, cb); // Node-style callback will be fired when write is successful
@@ -299,6 +299,8 @@ The original extension for an image (or "png") can accessed as using `image.getE
 
 ```js
 var file = 'new_name.' + image.getExtension();
+//or 
+var file = 'new_name' // with no extension
 image.write(file);
 ```
 
