@@ -73,7 +73,7 @@ Jimp.read('./path/to/image.jpg')
     .catch(err => {
         // handle an exception
     });
-    
+
 Jimp.read(lenna.buffer)
     .then(image => {
         // do stuff with the image
@@ -299,8 +299,8 @@ The original extension for an image (or "png") can accessed as using `image.getE
 
 ```js
 var file = 'new_name.' + image.getExtension();
-//or 
-var file = 'new_name' // with no extension
+//or
+var file = 'new_name'; // with no extension
 image.write(file);
 ```
 
@@ -498,6 +498,16 @@ new Jimp(256, 256, 0xff0000ff, function(err, image) {
 });
 ```
 
+You can also initialize a new Jimp image with a raw image buffer:
+
+```js
+new Jimp({ buffer: buffer, width: 1280, height: 768 }, (err, image) => {
+    // this image is 1280 x 768, pixels are loaded from the given buffer.
+});
+```
+
+This can be useful for interoperating with other image processing libraries. `buffer` is expected to be four-channel (rgba) image data.
+
 ## Comparing images
 
 To generate a [perceptual hash](https://en.wikipedia.org/wiki/Perceptual_hashing) of a Jimp image, based on the [pHash](http://phash.org/) algorithm, use:
@@ -588,7 +598,7 @@ Jimp is licensed under the MIT license. Open Sans is licensed under the Apache l
 
 :star: [node-vibrant](https://www.npmjs.com/package/node-vibrant) - Extract prominent colors from an image.
 
-:star: [lqip](https://www.npmjs.com/package/lqip) -  Low Quality Image Placeholders (LQIP) Module for Node
+:star: [lqip](https://www.npmjs.com/package/lqip) - Low Quality Image Placeholders (LQIP) Module for Node
 
 :star: [webpack-pwa-manifest](https://www.npmjs.com/package/webpack-pwa-manifest) - A webpack plugin that generates a 'manifest.json' for your Progressive Web Application, with auto icon resizing and fingerprinting support.
 
@@ -596,24 +606,10 @@ Jimp is licensed under the MIT license. Open Sans is licensed under the Apache l
 
 :star: [asciify-image](https://www.npmjs.com/package/asciify-image) - Convert images to ASCII art
 
-:star: [node-sprite-generator](https://www.npmjs.com/package/node-sprite-generator) - Generates image sprites and their spritesheets (css, stylus, sass, scss or less) from sets of images. Supports retina sprites. 
+:star: [node-sprite-generator](https://www.npmjs.com/package/node-sprite-generator) - Generates image sprites and their spritesheets (css, stylus, sass, scss or less) from sets of images. Supports retina sprites.
 
 :star: [merge-img](https://www.npmjs.com/package/merge-img) - Merge multiple images into a single image
 
 :star: [postcss-resemble-image](https://www.npmjs.com/package/postcss-resemble-image) - Provide a gradient fallback for an image that loosely resembles the original.
 
 :star: [differencify](https://www.npmjs.com/package/differencify) - Perceptual diffing tool
-
-
-
-
-
-
-
-
-
-
-
-
-
-
