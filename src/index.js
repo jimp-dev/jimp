@@ -95,6 +95,42 @@ function loadBufferFromPath(src, cb) {
     }
 }
 
+function isRawRGBAData(obj) {
+    return (
+        obj &&
+        typeof obj === 'object' &&
+        typeof obj.width === 'number' &&
+        typeof obj.height === 'number' &&
+        (Buffer.isBuffer(obj.data) ||
+            obj.data instanceof Uint8Array ||
+            (typeof Uint8ClampedArray === 'function' &&
+                obj.data instanceof Uint8ClampedArray)) &&
+        (obj.data.length === obj.width * obj.height * 4 ||
+            obj.data.length === obj.width * obj.height * 3)
+    );
+}
+
+function makeRGBABufferFromRGB(buffer) {
+    if (buffer.length % 3 !== 0) {
+        throw new Error('Buffer length is incorrect');
+    }
+
+    const rgbaBuffer = Buffer.allocUnsafe((buffer.length / 3) * 4);
+    let j = 0;
+
+    for (let i = 0; i < buffer.length; i++) {
+        rgbaBuffer[j] = buffer[i];
+
+        if ((i + 1) % 3 === 0) {
+            rgbaBuffer[++j] = 255;
+        }
+
+        j++;
+    }
+
+    return rgbaBuffer;
+}
+
 const emptyBitmap = {
     data: null,
     width: null,
@@ -108,7 +144,7 @@ const emptyBitmap = {
  */
 
 /**
- * Jimp constructor (from another Jimp image)
+ * Jimp constructor (from another Jimp image or raw image data)
  * @param image a Jimp image to clone
  * @param {function(Error, Jimp)} cb a function to call when the image is parsed to a bitmap
  */
@@ -224,7 +260,7 @@ class Jimp extends EventEmitter {
             finish(null, this);
         } else if (args[0] instanceof Jimp) {
             // clone an existing Jimp
-            const original = args[0];
+            const [original] = args;
             cb = args[1];
 
             if (typeof cb === 'undefined') {
@@ -248,6 +284,24 @@ class Jimp extends EventEmitter {
             this._rgba = original._rgba;
             this._background = original._background;
             this._originalMime = original._originalMime;
+
+            finish(null, this);
+        } else if (isRawRGBAData(args[0])) {
+            const [imageData] = args;
+            cb = args[1] || noop;
+
+            const isRGBA =
+                imageData.width * imageData.height * 4 ===
+                imageData.data.length;
+            const buffer = isRGBA
+                ? Buffer.from(imageData.data)
+                : makeRGBABufferFromRGB(imageData.data);
+
+            this.bitmap = {
+                data: buffer,
+                width: imageData.width,
+                height: imageData.height
+            };
 
             finish(null, this);
         } else if (typeof args[0] === 'string') {
