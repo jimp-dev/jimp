@@ -6,36 +6,57 @@ import Resize2 from '../modules/resize2';
 import { isNodePattern, throwError } from '../utils/error-checking';
 import * as constants from '../constants';
 
+function rotate90degrees(bitmap, dstBuffer, clockwise) {
+    const dstOffsetStep = clockwise ? -4 : 4;
+    let dstOffset = clockwise ? dstBuffer.length - 4 : 0;
+
+    let tmp;
+    let x;
+    let y;
+    let srcOffset;
+
+    for (x = 0; x < bitmap.width; x++) {
+        for (y = bitmap.height - 1; y >= 0; y--) {
+            srcOffset = (bitmap.width * y + x) << 2;
+            tmp = bitmap.data.readUInt32BE(srcOffset, true);
+            dstBuffer.writeUInt32BE(tmp, dstOffset, true);
+            dstOffset += dstOffsetStep;
+        }
+    }
+}
+
 /**
  * Rotates an image clockwise by a number of degrees rounded to the nearest 90 degrees. NB: 'this' must be a Jimp object.
  * @param {number} deg the number of degrees to rotate the image by
  */
 function simpleRotate(deg) {
-    let i = Math.round(deg / 90) % 4;
-    while (i < 0) i += 4;
+    let steps = Math.round(deg / 90) % 4;
+    steps += steps < 0 ? 4 : 0;
 
-    while (i > 0) {
-        // https://github.com/ekulabuhov/jimp/commit/9a0c7cff88292d88c32a424b11256c76f1e20e46
-        const dstBuffer = Buffer.alloc(this.bitmap.data.length);
-        let dstOffset = 0;
+    if (steps === 0) return;
 
-        for (let x = this.bitmap.width - 1; x >= 0; x--) {
-            for (let y = 0; y < this.bitmap.height; y++) {
-                const srcOffset = (this.bitmap.width * y + x) << 2;
-                const data = this.bitmap.data.readUInt32BE(srcOffset);
-                dstBuffer.writeUInt32BE(data, dstOffset);
-                dstOffset += 4;
-            }
+    const srcBuffer = this.bitmap.data;
+    const len = srcBuffer.length;
+    const dstBuffer = Buffer.allocUnsafe(len);
+
+    let tmp;
+
+    if (steps === 2) {
+        // Upside-down
+        for (let srcOffset = 0; srcOffset < len; srcOffset += 4) {
+            tmp = srcBuffer.readUInt32BE(srcOffset, true);
+            dstBuffer.writeUInt32BE(tmp, len - srcOffset - 4, true);
         }
+    } else {
+        // Clockwise or counter-clockwise rotation by 90 degree
+        rotate90degrees(this.bitmap, dstBuffer, steps === 1);
 
-        this.bitmap.data = Buffer.from(dstBuffer);
-
-        const tmp = this.bitmap.width;
+        tmp = this.bitmap.width;
         this.bitmap.width = this.bitmap.height;
         this.bitmap.height = tmp;
-
-        i--;
     }
+
+    this.bitmap.data = dstBuffer;
 }
 
 /**
