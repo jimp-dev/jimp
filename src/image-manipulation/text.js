@@ -52,9 +52,15 @@ function xOffsetBasedOnAlignment(font, line, maxWidth, alignment) {
 
 function drawCharacter(image, font, x, y, char) {
     if (char.width > 0 && char.height > 0) {
-        const imageChar = font.pages[char.page]
-            .cloneQuiet()
-            .crop(char.x, char.y, char.width, char.height);
+        let imageChar = char.image;
+
+        if (!imageChar) {
+            imageChar = font.pages[char.page]
+                .cloneQuiet()
+                .crop(char.x, char.y, char.width, char.height);
+            char.image = imageChar;
+        }
+
         return image.composite(imageChar, x + char.xoffset, y + char.yoffset);
     }
 
