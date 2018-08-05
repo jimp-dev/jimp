@@ -235,20 +235,8 @@ class Jimp extends EventEmitter {
                 return throwError.call(this, 'cb must be a function', finish);
             }
 
-            const bitmap = Buffer.alloc(original.bitmap.data.length);
-            original.scanQuiet(
-                0,
-                0,
-                original.bitmap.width,
-                original.bitmap.height,
-                (x, y, idx) => {
-                    const data = original.bitmap.data.readUInt32BE(idx);
-                    bitmap.writeUInt32BE(data, idx);
-                }
-            );
-
             this.bitmap = {
-                data: bitmap,
+                data: Buffer.from(original.bitmap.data),
                 width: original.bitmap.width,
                 height: original.bitmap.height
             };
