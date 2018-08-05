@@ -19,8 +19,6 @@ declare namespace Jimp {
     }
 
     class Jimp {
-        bitmap: Bitmap;
-
         constructor(path: string, cb?: Jimp.ImageCallback);
         constructor(image: Jimp, cb?: Jimp.ImageCallback);
         constructor(data: Buffer, cb?: Jimp.ImageCallback);
@@ -31,6 +29,8 @@ declare namespace Jimp {
             background?: number,
             cb?: Jimp.ImageCallback
         );
+
+        bitmap: Bitmap;
 
         clone(cb?: Jimp.ImageCallback): Jimp;
         quality(n: number, cb?: Jimp.ImageCallback): this;
