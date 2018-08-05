@@ -1268,16 +1268,25 @@ jimpEvChange('crop', function(x, y, w, h, cb) {
     w = Math.round(w);
     h = Math.round(h);
 
-    const bitmap = Buffer.alloc(this.bitmap.data.length);
-    let offset = 0;
+    if (x === 0 && w === this.bitmap.width) {
+        // shortcut
+        const start = (w * y + x) << 2;
+        const end = (start + h * w) << (2 + 1);
 
-    this.scanQuiet(x, y, w, h, function(x, y, idx) {
-        const data = this.bitmap.data.readUInt32BE(idx);
-        bitmap.writeUInt32BE(data, offset);
-        offset += 4;
-    });
+        this.bitmap.data = this.bitmap.data.slice(start, end);
+    } else {
+        const bitmap = Buffer.allocUnsafe(w * h * 4);
+        let offset = 0;
 
-    this.bitmap.data = Buffer.from(bitmap);
+        this.scanQuiet(x, y, w, h, function(x, y, idx) {
+            const data = this.bitmap.data.readUInt32BE(idx, true);
+            bitmap.writeUInt32BE(data, offset, true);
+            offset += 4;
+        });
+
+        this.bitmap.data = bitmap;
+    }
+
     this.bitmap.width = w;
     this.bitmap.height = h;
 
