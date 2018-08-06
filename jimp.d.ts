@@ -1,5 +1,10 @@
 declare namespace Jimp {
     type ImageCallback = (err: Error | null, image: Jimp) => any;
+    type blendMode = {
+      mode: string;
+      opacitySource: number;
+      opacityDest: number;
+    };
 
     interface Bitmap {
         data: Buffer;
@@ -96,6 +101,7 @@ declare namespace Jimp {
             src: Jimp,
             x: number,
             y: number,
+            options: Jimp.blendMode || Jimp.ImageCallback,
             cb?: Jimp.ImageCallback
         ): this;
         brightness(val: number, cb?: Jimp.ImageCallback): this;
@@ -236,6 +242,18 @@ declare namespace Jimp {
         static VERTICAL_ALIGN_TOP: number;
         static VERTICAL_ALIGN_MIDDLE: number;
         static VERTICAL_ALIGN_BOTTOM: number;
+
+        // blend modes
+        static BLEND_SOURCE_OVER: string;
+        static BLEND_DESTINATION_OVER: string;
+        static BLEND_MULTIPLY: string;
+        static BLEND_SCREEN: string;
+        static BLEND_OVERLAY: string;
+        static BLEND_DARKEN: string;
+        static BLEND_LIGHTEN: string;
+        static BLEND_HARDLIGHT: string;
+        static BLEND_DIFFERENCE: string;
+        static BLEND_EXCLUSION: string;
 
         // Font locations
         static FONT_SANS_8_BLACK: string;
