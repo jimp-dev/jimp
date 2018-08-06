@@ -180,7 +180,6 @@ declare namespace Jimp {
             mode?: number | boolean,
             cb?: Jimp.ImageCallback
         ): this;
-        exifRotate(): this;
         displace(map: Jimp, offset: number, cb?: Jimp.ImageCallback): this;
         getBuffer(mime: string, cb: (err: Error, buffer: Buffer) => any): this;
         getBufferAsync(mime: string): Promise<Jimp>;
