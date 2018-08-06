@@ -1,5 +1,6 @@
 declare namespace Jimp {
-    type ImageCallback = (err: Error | null, image: Jimp) => any;
+    type GenericCallback<T> = (err: Error | null, value: T) => any;
+    type ImageCallback = GenericCallback<Jimp>;
 
     interface Bitmap {
         data: Buffer;
@@ -104,20 +105,20 @@ declare namespace Jimp {
         filterType(f: number, cb?: Jimp.ImageCallback): this;
         rgba(bool: boolean, cb?: Jimp.ImageCallback): this;
         quality(n: number, cb?: Jimp.ImageCallback): this;
-        getBase64(mime: string, cb?: (err: Error, src: string) => any): this;
+        getBase64(mime: string, cb?: GenericCallback<string>): this;
         getBase64Async(mime: string): Promise<Jimp>;
-        hash(base?: number, cb?: (err: Error, hash: string) => any): string;
-        getBuffer(mime: string, cb: (err: Error, buffer: Buffer) => any): this;
+        hash(base?: number, cb?: GenericCallback<string>): string;
+        getBuffer(mime: string, cb: GenericCallback<Buffer>): this;
         getBufferAsync(mime: string): Promise<Jimp>;
         getPixelIndex(
             x: number,
             y: number,
-            cb?: (err: Error, i: number) => any
+            cb?: GenericCallback<number>
         ): number;
         getPixelColor(
             x: number,
             y: number,
-            cb?: (err: Error, hex: number) => any
+            cb?: GenericCallback<number>
         ): number;
         setPixelColor(
             hex: number,
@@ -289,11 +290,11 @@ declare namespace Jimp {
             g: number,
             b: number,
             a: number,
-            cb?: (err: Error, i: number) => any
+            cb?: GenericCallback<number>
         ): number;
         static intToRGBA(
             i: number,
-            cb?: (err: Error, rgba: Jimp.RGBA) => any
+            cb?: GenericCallback<Jimp.RGBA>
         ): Jimp.RGBA;
         static limit255(n: number): number;
         static diff(
