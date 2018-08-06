@@ -1,5 +1,7 @@
 import { log, clear } from '../utils/log';
 import { isNodePattern, throwError } from '../utils/error-checking';
+import * as constants from '../constants';
+
 import { mulTable, shgTable } from './blur-tables';
 
 /*
@@ -413,13 +415,36 @@ export function gaussian(r, cb) {
  * @param {function(Error, Jimp)} cb (optional) a callback for when complete
  * @returns {Jimp} this for chaining of methods
  */
-export function composite(src, x, y, cb) {
+export function composite(src, x, y, options = {}, cb) {
+    if (typeof options === 'function') {
+        cb = options;
+        options = {};
+    }
+
     if (!(src instanceof this.constructor)) {
         return throwError.call(this, 'The source must be a Jimp image', cb);
     }
 
     if (typeof x !== 'number' || typeof y !== 'number') {
         return throwError.call(this, 'x and y must be numbers', cb);
+    }
+
+    let { mode, opacitySource, opacityDest } = options;
+
+    if (!mode) {
+        mode = constants.BLEND_SOURCE_OVER;
+    }
+
+    if (
+        typeof opacitySource !== 'number' ||
+        opacitySource < 0 ||
+        opacitySource > 1
+    ) {
+        opacitySource = 1.0;
+    }
+
+    if (typeof opacityDest !== 'number' || opacityDest < 0 || opacityDest > 1) {
+        opacityDest = 1.0;
     }
 
     // round input
