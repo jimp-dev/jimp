@@ -15,7 +15,7 @@ describe('Async functions', () => {
         }
 
         new Jimp(imagesDir + '/dice.png', function(err) {
-            if (err) done(err);
+            should.not.exist(err);
 
             this.writeAsync(writePath).then(image => {
                 should.exist(image);
@@ -32,7 +32,7 @@ describe('Async functions', () => {
         }
 
         new Jimp(imagesDir + '/dice.png', function(err) {
-            if (err) done(err);
+            should.not.exist(err);
             this.getBufferAsync(Jimp.AUTO).then(buffer => {
                 should.exist(buffer);
                 done();
@@ -46,7 +46,7 @@ describe('Async functions', () => {
         }
 
         new Jimp(imagesDir + '/dice.png', function(err) {
-            if (err) done(err);
+            should.not.exist(err);
 
             this.getBase64Async(Jimp.AUTO).then(buffer => {
                 should.exist(buffer);
