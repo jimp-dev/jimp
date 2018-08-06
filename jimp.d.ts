@@ -1,6 +1,8 @@
 declare namespace Jimp {
-    type GenericCallback<T> = (err: Error | null, value: T) => any;
-    type ImageCallback = GenericCallback<Jimp>;
+    type GenericCallback<T, U = any, TThis = any> = (this: TThis, err: Error | null, value: T) => U;
+    type ImageCallback<U = any> = GenericCallback<Jimp, U, Jimp>;
+    type ColorActionName = 'mix' | 'tint' | 'shade' | 'xor' | 'red' | 'green' | 'blue' | 'hue';
+    type ColorAction = { apply: ColorActionName, params: any };
 
     interface Bitmap {
         data: Buffer;
@@ -100,132 +102,368 @@ declare namespace Jimp {
         getExtension(): string;
         write(path: string, cb?: Jimp.ImageCallback): this;
         writeAsync(path: string): Promise<Jimp>;
-        deflateLevel(l: number, cb?: Jimp.ImageCallback): this;
-        deflateStrategy(s: number, cb?: Jimp.ImageCallback): this;
-        filterType(f: number, cb?: Jimp.ImageCallback): this;
-        rgba(bool: boolean, cb?: Jimp.ImageCallback): this;
-        quality(n: number, cb?: Jimp.ImageCallback): this;
-        getBase64(mime: string, cb?: GenericCallback<string>): this;
+        deflateLevel(l: number): this;
+        deflateLevel<T>(l: number, cb: Jimp.ImageCallback<T>): T;
+        deflateStrategy(s: number): this;
+        deflateStrategy<T>(s: number, cb: Jimp.ImageCallback<T>): T;
+        filterType(f: number): this;
+        filterType<T>(f: number, cb: Jimp.ImageCallback<T>): T;
+        rgba(bool: boolean): this;
+        rgba<T>(bool: boolean, cb: Jimp.ImageCallback<T>): T;
+        quality(n: number): this;
+        quality<T>(n: number, cb: Jimp.ImageCallback<T>): T;
+        getBase64(mime: string, cb?: GenericCallback<string, any, this>): this;
         getBase64Async(mime: string): Promise<Jimp>;
-        hash(base?: number, cb?: GenericCallback<string>): string;
+        hash(base?: number): string;
+        hash<T>(cb: GenericCallback<string, T, this>): T;
+        hash<T>(base: number | null | undefined, cb: GenericCallback<string, T, this>): T;
         getBuffer(mime: string, cb: GenericCallback<Buffer>): this;
-        getBufferAsync(mime: string): Promise<Jimp>;
+        getBufferAsync(mime: string): Promise<Buffer>;
+        getPixelIndex<T>(
+            x: number,
+            y: number,
+            cb: GenericCallback<number, T, this>
+        ): T;
         getPixelIndex(
             x: number,
             y: number,
-            cb?: GenericCallback<number>
+            edgeHandling?: string
         ): number;
+        getPixelIndex<T>(
+            x: number,
+            y: number,
+            edgeHandling: string,
+            cb: GenericCallback<number, T, this>
+        ): T;
         getPixelColor(
             x: number,
             y: number,
-            cb?: GenericCallback<number>
         ): number;
+        getPixelColor<T>(
+            x: number,
+            y: number,
+            cb: GenericCallback<number, T, this>
+        ): T;
+        getPixelColour(
+            x: number,
+            y: number,
+        ): number;
+        getPixelColour<T>(
+            x: number,
+            y: number,
+            cb: GenericCallback<number, T, this>
+        ): T;
         setPixelColor(
             hex: number,
             x: number,
             y: number,
-            cb?: Jimp.ImageCallback
         ): this;
-        clone(cb?: Jimp.ImageCallback): Jimp;
-        background(hex: number, cb?: Jimp.ImageCallback): this;
+        setPixelColor<T>(
+            hex: number,
+            x: number,
+            y: number,
+            cb: Jimp.ImageCallback<T>
+        ): T;
+        setPixelColour(
+            hex: number,
+            x: number,
+            y: number,
+        ): this;
+        setPixelColour<T>(
+            hex: number,
+            x: number,
+            y: number,
+            cb: Jimp.ImageCallback<T>
+        ): T;
+        clone(): Jimp;
+        clone<T>(cb: Jimp.ImageCallback<T>): T;
+        cloneQuiet(): Jimp;
+        cloneQuiet<T>(cb: Jimp.ImageCallback<T>): T;
+        background(hex: number): this;
+        background<T>(hex: number, cb: Jimp.ImageCallback<T>): T;
+        backgroundQuiet(hex: number): this;
+        backgroundQuiet<T>(hex: number, cb: Jimp.ImageCallback<T>): T;
         scan(
             x: number,
             y: number,
             w: number,
             h: number,
-            f: (x: number, y: number, idx: number) => any,
-            cb?: Jimp.ImageCallback
+            f: (this: this, x: number, y: number, idx: number) => any,
         ): this;
+        scan<T>(
+            x: number,
+            y: number,
+            w: number,
+            h: number,
+            f: (this: this, x: number, y: number, idx: number) => any,
+            cb: Jimp.ImageCallback<T>
+        ): T;
+        scanQuiet(
+            x: number,
+            y: number,
+            w: number,
+            h: number,
+            f: (this: this, x: number, y: number, idx: number) => any,
+        ): this;
+        scanQuiet<T>(
+            x: number,
+            y: number,
+            w: number,
+            h: number,
+            f: (this: this, x: number, y: number, idx: number) => any,
+            cb: Jimp.ImageCallback<T>
+        ): T;
         crop(
             x: number,
             y: number,
             w: number,
             h: number,
-            cb?: Jimp.ImageCallback
         ): this;
+        crop<T>(
+            x: number,
+            y: number,
+            w: number,
+            h: number,
+            cb: Jimp.ImageCallback<T>
+        ): T;
+        cropQuiet(
+            x: number,
+            y: number,
+            w: number,
+            h: number,
+        ): this;
+        cropQuiet<T>(
+            x: number,
+            y: number,
+            w: number,
+            h: number,
+            cb: Jimp.ImageCallback<T>
+        ): T;
 
         // Color methods
-        brightness(val: number, cb?: Jimp.ImageCallback): this;
-        contrast(val: number, cb?: Jimp.ImageCallback): this;
-        posterize(n: number, cb?: Jimp.ImageCallback): this;
-        greyscale(cb?: Jimp.ImageCallback): this;
-        grayscale(cb?: Jimp.ImageCallback): this;
-        opacity(f: any, cb?: any): this;
-        sepia(cb?: Jimp.ImageCallback): this;
-        fade(f: any, cb?: any): this;
+        brightness(val: number): this;
+        brightness<T>(val: number, cb: Jimp.ImageCallback<T>): T;
+        contrast(val: number): this;
+        contrast<T>(val: number, cb: Jimp.ImageCallback<T>): T;
+        posterize(n: number): this;
+        posterize<T>(n: number, cb: Jimp.ImageCallback<T>): T;
+        greyscale(): this;
+        greyscale<T>(cb: Jimp.ImageCallback<T>): T;
+        grayscale(): this;
+        grayscale<T>(cb: Jimp.ImageCallback<T>): T;
+        opacity(f: number): this;
+        opacity<T>(f: number, cb: Jimp.ImageCallback<T>): T;
+        sepia(): this;
+        sepia<T>(cb: Jimp.ImageCallback<T>): T;
+        fade(f: number): this;
+        fade<T>(f: number, cb: Jimp.ImageCallback<T>): T;
         convolution(
-            kernel: any,
-            edgeHandling: number | Jimp.ImageCallback,
-            cb?: Jimp.ImageCallback
+            kernel: number[][],
         ): this;
-        opaque(cb: any): this;
+        convolution<T>(
+            kernel: number[][],
+            cb: Jimp.ImageCallback<T>
+        ): T;
+        convolution(
+            kernel: number[][],
+            edgeHandling: string
+        ): this;
+        convolution<T>(
+            kernel: number[][],
+            edgeHandling: string,
+            cb: Jimp.ImageCallback<T>
+        ): T;
+        opaque(): this;
+        opaque<T>(cb: Jimp.ImageCallback<T>): T;
+        pixelate<T>(
+            size: number,
+            cb: Jimp.ImageCallback<T>
+        ): T;
         pixelate(
             size: number,
             x: number,
             y: number,
             w: number,
             h: number,
-            cb?: Jimp.ImageCallback
         ): this;
+        pixelate<T>(
+            size: number,
+            x: number,
+            y: number,
+            w: number,
+            h: number,
+            cb: Jimp.ImageCallback<T>
+        ): T;
+        convolute<T>(
+            kernel: number[][],
+            cb: Jimp.ImageCallback<T>
+        ): T;
         convolute(
-            kernel: any,
-            x: number | Jimp.ImageCallback,
-            y?: number,
-            w?: number,
-            h?: number,
-            cb?: Jimp.ImageCallback
+            kernel: number[][],
+            x: number,
+            y: number,
+            w: number,
+            h: number,
         ): this;
-        color(actions: any, cb?: Jimp.ImageCallback): this;
-        colour(actions: any, cb?: Jimp.ImageCallback): this;
+        convolute<T>(
+            kernel: number[][],
+            x: number,
+            y: number,
+            w: number,
+            h: number,
+            cb: Jimp.ImageCallback<T>
+        ): T;
+        color(actions: ColorAction[]): this;
+        color<T>(actions: ColorAction[], cb: Jimp.ImageCallback<T>): T;
+        colour(actions: ColorAction[]): this;
+        colour<T>(actions: ColorAction[], cb: Jimp.ImageCallback<T>): T;
 
         // Shape methods
+        rotate<T>(
+            deg: number,
+            cb: Jimp.ImageCallback<T>
+        ): T;
         rotate(
             deg: number,
             mode?: number | boolean,
-            cb?: Jimp.ImageCallback
         ): this;
+        rotate<T>(
+            deg: number,
+            mode: number | boolean | undefined | null,
+            cb: Jimp.ImageCallback<T>
+        ): T;
         flip(
             horizontal: boolean,
-            vertical: boolean,
-            cb?: Jimp.ImageCallback
+            vertical: boolean
         ): this;
-        mirror(
+        flip<T>(
             horizontal: boolean,
             vertical: boolean,
-            cb?: Jimp.ImageCallback
+            cb: Jimp.ImageCallback<T>
+        ): T;
+        mirror(
+            horizontal: boolean,
+            vertical: boolean
         ): this;
+        mirror<T>(
+            horizontal: boolean,
+            vertical: boolean,
+            cb: Jimp.ImageCallback<T>
+        ): T;
+        resize<T>(
+            w: number,
+            h: number,
+            cb: Jimp.ImageCallback<T>
+        ): T;
         resize(
             w: number,
             h: number,
-            mode?: string | Jimp.ImageCallback,
-            cb?: Jimp.ImageCallback
+            mode?: string
         ): this;
+        resize<T>(
+            w: number,
+            h: number,
+            mode: string | undefined | null,
+            cb: Jimp.ImageCallback<T>
+        ): T;
+        cover<T>(
+            w: number,
+            h: number,
+            cb: Jimp.ImageCallback<T>
+        ): T;
+        cover<T>(
+            w: number,
+            h: number,
+            alignBits: number | undefined | null,
+            cb: Jimp.ImageCallback<T>
+        ): T;
         cover(
             w: number,
             h: number,
             alignBits?: number,
-            mode?: string | Jimp.ImageCallback,
-            cb?: Jimp.ImageCallback
+            mode?: string
         ): this;
+        cover<T>(
+            w: number,
+            h: number,
+            alignBits: number | undefined | null,
+            mode: string | undefined | null,
+            cb: Jimp.ImageCallback<T>
+        ): T;
+        contain(
+            w: number,
+            h: number
+        ): this;
+        contain<T>(
+            w: number,
+            h: number,
+            cb: Jimp.ImageCallback<T>
+        ): T;
         contain(
             w: number,
             h: number,
-            alignBits?: number,
-            mode?: string | Jimp.ImageCallback,
-            cb?: Jimp.ImageCallback
+            mode: string
         ): this;
-        scale(
-            f: number,
-            mode?: string | Jimp.ImageCallback,
-            cb?: Jimp.ImageCallback
-        ): this;
-        scaleToFit(
+        contain<T>(
             w: number,
             h: number,
-            mode?: any,
-            cb?: Jimp.ImageCallback
+            mode: string,
+            cb: Jimp.ImageCallback<T>
+        ): T;
+        contain(
+            w: number,
+            h: number,
+            alignBits: number
         ): this;
-        displace(map: Jimp, offset: number, cb?: Jimp.ImageCallback): this;
+        contain<T>(
+            w: number,
+            h: number,
+            alignBits: number,
+            cb: Jimp.ImageCallback<T>
+        ): T;
+        contain(
+            w: number,
+            h: number,
+            alignBits: number,
+            mode: string
+        ): this;
+        contain<T>(
+            w: number,
+            h: number,
+            alignBits: number,
+            mode: string,
+            cb: Jimp.ImageCallback<T>
+        ): T;
+        scale<T>(
+            f: number,
+            cb: Jimp.ImageCallback<T>
+        ): T;
+        scale(
+            f: number,
+            mode?: string
+        ): this;
+        scale<T>(
+            f: number,
+            mode: string | undefined | null,
+            cb: Jimp.ImageCallback<T>
+        ): T;
+        scaleToFit<T>(
+            w: number,
+            h: number,
+            cb: Jimp.ImageCallback<T>
+        ): T;
+        scaleToFit(
+            w: number,
+            h: number
+        ): this;
+        scaleToFit<T>(
+            w: number,
+            h: number,
+            mode: string | undefined | null,
+            cb: Jimp.ImageCallback<T>
+        ): T;
+        displace(map: Jimp, offset: number): this;
+        displace<T>(map: Jimp, offset: number, cb: Jimp.ImageCallback<T>): T;
         autocrop(
             tolerance?: number,
             cropOnlyFrames?: boolean,
