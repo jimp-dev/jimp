@@ -2,6 +2,7 @@ import { log, clear } from '../utils/log';
 import { isNodePattern, throwError } from '../utils/error-checking';
 import * as constants from '../constants';
 
+import * as compositeModes from './composite-modes';
 import { mulTable, shgTable } from './blur-tables';
 
 /*
@@ -447,44 +448,52 @@ export function composite(src, x, y, options = {}, cb) {
         opacityDest = 1.0;
     }
 
+    const blendmode = compositeModes[mode];
+
     // round input
     x = Math.round(x);
     y = Math.round(y);
 
     const baseImage = this;
 
+    if (opacityDest !== 1.0) {
+        baseImage.opacity(opacityDest);
+    }
+
     src.scanQuiet(0, 0, src.bitmap.width, src.bitmap.height, function(
         sx,
         sy,
         idx
     ) {
-        // http://stackoverflow.com/questions/7438263/alpha-compositing-algorithm-blend-modes
         const dstIdx = baseImage.getPixelIndex(x + sx, y + sy);
+        const blended = blendmode(
+            {
+                r: this.bitmap.data[idx + 0] / 255,
+                g: this.bitmap.data[idx + 1] / 255,
+                b: this.bitmap.data[idx + 2] / 255,
+                a: this.bitmap.data[idx + 3] / 255
+            },
+            {
+                r: baseImage.bitmap.data[dstIdx + 0] / 255,
+                g: baseImage.bitmap.data[dstIdx + 1] / 255,
+                b: baseImage.bitmap.data[dstIdx + 2] / 255,
+                a: baseImage.bitmap.data[dstIdx + 3] / 255
+            },
+            opacitySource
+        );
 
-        const fg = {
-            r: this.bitmap.data[idx + 0] / 255,
-            g: this.bitmap.data[idx + 1] / 255,
-            b: this.bitmap.data[idx + 2] / 255,
-            a: this.bitmap.data[idx + 3] / 255
-        };
-
-        const bg = {
-            r: baseImage.bitmap.data[dstIdx + 0] / 255,
-            g: baseImage.bitmap.data[dstIdx + 1] / 255,
-            b: baseImage.bitmap.data[dstIdx + 2] / 255,
-            a: baseImage.bitmap.data[dstIdx + 3] / 255
-        };
-
-        const a = bg.a + fg.a - bg.a * fg.a;
-
-        const r = (fg.r * fg.a + bg.r * bg.a * (1 - fg.a)) / a;
-        const g = (fg.g * fg.a + bg.g * bg.a * (1 - fg.a)) / a;
-        const b = (fg.b * fg.a + bg.b * bg.a * (1 - fg.a)) / a;
-
-        baseImage.bitmap.data[dstIdx + 0] = this.constructor.limit255(r * 255);
-        baseImage.bitmap.data[dstIdx + 1] = this.constructor.limit255(g * 255);
-        baseImage.bitmap.data[dstIdx + 2] = this.constructor.limit255(b * 255);
-        baseImage.bitmap.data[dstIdx + 3] = this.constructor.limit255(a * 255);
+        baseImage.bitmap.data[dstIdx + 0] = this.constructor.limit255(
+            blended.r * 255
+        );
+        baseImage.bitmap.data[dstIdx + 1] = this.constructor.limit255(
+            blended.g * 255
+        );
+        baseImage.bitmap.data[dstIdx + 2] = this.constructor.limit255(
+            blended.b * 255
+        );
+        baseImage.bitmap.data[dstIdx + 3] = this.constructor.limit255(
+            blended.a * 255
+        );
     });
 
     if (isNodePattern(cb)) {
