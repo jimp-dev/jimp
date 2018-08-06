@@ -73,7 +73,7 @@ Jimp.read('./path/to/image.jpg')
     .catch(err => {
         // handle an exception
     });
-    
+
 Jimp.read(lenna.buffer)
     .then(image => {
         // do stuff with the image
@@ -114,7 +114,7 @@ image.crop( x, y, w, h );         // crop to the given region
 /* Composing */
 image.blit( src, x, y[, srcx, srcy, srcw, srch] );
                                   // blit the image with another Jimp image at x, y, optionally cropped.
-image.composite( src, x, y );     // composites another Jimp image over this image at x, y
+image.composite( src, x, y, [mode, opacitySource, opacityDest] );     // composites another Jimp image over this image at x, y
 image.mask( src, x, y );          // masks the image with another Jimp image at x, y using average pixel value
 image.convolute( kernel );        // applies a convolution kernel matrix to the image or a region
 
@@ -219,6 +219,27 @@ Default align modes for `image.print` are:
 }
 ```
 
+### Compositing and blend modes
+
+The following modes can be used for compositing two images together. mode defaults to Jimp.BLEND_SOURCE_OVER.
+
+```js
+Jimp.BLEND_SOURCE_OVER;
+Jimp.BLEND_DESTINATION_OVER;
+Jimp.BLEND_MULTIPLY;
+Jimp.BLEND_SCREEN;
+Jimp.BLEND_OVERLAY;
+Jimp.BLEND_DARKEN;
+Jimp.BLEND_LIGHTEN;
+Jimp.BLEND_HARDLIGHT;
+Jimp.BLEND_DIFFERENCE;
+Jimp.BLEND_EXCLUSION;
+```
+
+```js
+image.composite(srcImage, 100, 0, Jimp.BLEND_MULTIPLY, 0.5, 0.9);
+```
+
 ### Writing text
 
 Jimp supports basic typography using BMFont format (.fnt) even ones in different languages! Just find a bitmap font that is suitable [bitmap fonts](https://en.wikipedia.org/wiki/Bitmap_fonts):
@@ -298,8 +319,8 @@ The original extension for an image (or "png") can accessed as using `image.getE
 
 ```js
 var file = 'new_name.' + image.getExtension();
-//or 
-var file = 'new_name' // with no extension
+//or
+var file = 'new_name'; // with no extension
 image.write(file);
 ```
 
@@ -587,7 +608,7 @@ Jimp is licensed under the MIT license. Open Sans is licensed under the Apache l
 
 :star: [node-vibrant](https://www.npmjs.com/package/node-vibrant) - Extract prominent colors from an image.
 
-:star: [lqip](https://www.npmjs.com/package/lqip) -  Low Quality Image Placeholders (LQIP) Module for Node
+:star: [lqip](https://www.npmjs.com/package/lqip) - Low Quality Image Placeholders (LQIP) Module for Node
 
 :star: [webpack-pwa-manifest](https://www.npmjs.com/package/webpack-pwa-manifest) - A webpack plugin that generates a 'manifest.json' for your Progressive Web Application, with auto icon resizing and fingerprinting support.
 
@@ -595,7 +616,7 @@ Jimp is licensed under the MIT license. Open Sans is licensed under the Apache l
 
 :star: [asciify-image](https://www.npmjs.com/package/asciify-image) - Convert images to ASCII art
 
-:star: [node-sprite-generator](https://www.npmjs.com/package/node-sprite-generator) - Generates image sprites and their spritesheets (css, stylus, sass, scss or less) from sets of images. Supports retina sprites. 
+:star: [node-sprite-generator](https://www.npmjs.com/package/node-sprite-generator) - Generates image sprites and their spritesheets (css, stylus, sass, scss or less) from sets of images. Supports retina sprites.
 
 :star: [merge-img](https://www.npmjs.com/package/merge-img) - Merge multiple images into a single image
 
@@ -604,17 +625,3 @@ Jimp is licensed under the MIT license. Open Sans is licensed under the Apache l
 :star: [differencify](https://www.npmjs.com/package/differencify) - Perceptual diffing tool
 
 :star: [gifwrap](https://www.npmjs.com/package/gifwrap) - A Jimp-compatible library for working with GIFs
-
-
-
-
-
-
-
-
-
-
-
-
-
-
