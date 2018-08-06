@@ -5,7 +5,7 @@ describe('Scan (pixel matrix modification)', () => {
 
     it('draw bars with scan', done => {
         new Jimp(8, 3, function(err) {
-            if (err) done(err);
+            should.not.exist(err);
             this.scan(0, 0, this.bitmap.width, this.bitmap.height, function(
                 x,
                 y,
@@ -30,7 +30,7 @@ describe('Scan (pixel matrix modification)', () => {
 
     it('draw bars with (get|set)PixelColor', done => {
         new Jimp(barsJGD, function(err) {
-            if (err) done(err);
+            should.not.exist(err);
             for (let x = 0; x < this.bitmap.width; x++) {
                 for (let y = 0; y < this.bitmap.height; y++) {
                     const hex = this.getPixelColor(x, y); // e.g. 0xFF000FF
@@ -49,7 +49,7 @@ describe('Scan (pixel matrix modification)', () => {
 
     it('create a image with plain color', done => {
         new Jimp(6, 3, 0xff0000ff, function(err) {
-            if (err) done(err);
+            should.not.exist(err);
             this.getJGDSync().should.be.sameJGD(
                 mkJGD('▴▴▴▴▴▴', '▴▴▴▴▴▴', '▴▴▴▴▴▴'),
                 'A pure red image'

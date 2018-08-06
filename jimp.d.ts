@@ -48,6 +48,8 @@ declare namespace Jimp {
             f: (x: number, y: number, idx: number) => any,
             cb?: Jimp.ImageCallback
         ): this;
+        getWidth(): number;
+        getHeight(): number;
         getMIME(): string;
         getExtension(): string;
         getPixelIndex(

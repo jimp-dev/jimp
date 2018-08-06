@@ -613,3 +613,6 @@ Jimp is licensed under the MIT license. Open Sans is licensed under the Apache l
 :star: [postcss-resemble-image](https://www.npmjs.com/package/postcss-resemble-image) - Provide a gradient fallback for an image that loosely resembles the original.
 
 :star: [differencify](https://www.npmjs.com/package/differencify) - Perceptual diffing tool
+
+:star: [gifwrap](https://www.npmjs.com/package/gifwrap) - A Jimp-compatible library for working with GIFs
+

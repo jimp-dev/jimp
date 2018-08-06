@@ -3,7 +3,7 @@ const { Jimp, mkJGD } = require('./test-helper');
 describe('Normalize', () => {
     it('change grayscale image', done => {
         new Jimp(mkJGD('36▦', '6▦9', '▦9C'), function(err) {
-            if (err) done(err);
+            should.not.exist(err);
             this.normalize()
                 .getJGDSync()
                 .should.be.sameJGD(mkJGD('■5▦', '5▦A', '▦A□'));
@@ -26,7 +26,7 @@ describe('Normalize', () => {
                 ]
             },
             function(err) {
-                if (err) done(err);
+                should.not.exist(err);
                 this.normalize()
                     .getJGDSync()
                     .should.be.sameJGD({
