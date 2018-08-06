@@ -28,6 +28,23 @@ describe('FileType', () => {
         });
     });
 
+    it('should load from raw data', done => {
+        new Jimp(imagesDir + '/dice.png', (err, image) => {
+            new Jimp(
+                {
+                    data: image.bitmap.data,
+                    width: image.getWidth(),
+                    height: image.getHeight()
+                },
+                (err, res) => {
+                    should.not.exist(err);
+                    should.exist(res);
+                    done();
+                }
+            );
+        });
+    });
+
     it('load PNG', done => {
         new Jimp(imagesDir + '/dice.png', function(err) {
             if (err) done(err);
