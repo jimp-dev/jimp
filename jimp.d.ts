@@ -22,38 +22,38 @@ declare namespace Jimp {
     class Jimp {
 
         // Constants
-        static AUTO: number;
+        static AUTO: -1;
 
         // supported mime types
-        static MIME_PNG: string;
-        static MIME_JPEG: string;
-        static MIME_JGD: string;
-        static MIME_BMP: string;
-        static MIME_X_MS_BMP: string;
-        static MIME_GIF: string;
+        static MIME_PNG: 'image/png';
+        static MIME_JPEG: 'image/jpeg';
+        static MIME_JGD: 'image/jgd';
+        static MIME_BMP: 'image/bmp';
+        static MIME_X_MS_BMP: 'image/x-ms-bmp';
+        static MIME_GIF: 'image/gif';
         // PNG filter types
-        static PNG_FILTER_AUTO: number;
-        static PNG_FILTER_NONE: number;
-        static PNG_FILTER_SUB: number;
-        static PNG_FILTER_UP: number;
-        static PNG_FILTER_AVERAGE: number;
-        static PNG_FILTER_PATH: number;
+        static PNG_FILTER_AUTO: -1;
+        static PNG_FILTER_NONE: 0;
+        static PNG_FILTER_SUB: 1;
+        static PNG_FILTER_UP: 2;
+        static PNG_FILTER_AVERAGE: 3;
+        static PNG_FILTER_PATH: 4;
 
         // resize methods
-        static RESIZE_NEAREST_NEIGHBOR: string;
-        static RESIZE_BILINEAR: string;
-        static RESIZE_BICUBIC: string;
-        static RESIZE_HERMITE: string;
-        static RESIZE_BEZIER: string;
+        static RESIZE_NEAREST_NEIGHBOR: 'nearestNeighbor';
+        static RESIZE_BILINEAR: 'bilinearInterpolation';
+        static RESIZE_BICUBIC: 'bicubicInterpolation';
+        static RESIZE_HERMITE: 'hermiteInterpolation';
+        static RESIZE_BEZIER: 'bezierInterpolation';
 
         // Align modes for cover, contain, bit masks
-        static HORIZONTAL_ALIGN_LEFT: number;
-        static HORIZONTAL_ALIGN_CENTER: number;
-        static HORIZONTAL_ALIGN_RIGHT: number;
+        static HORIZONTAL_ALIGN_LEFT: 1;
+        static HORIZONTAL_ALIGN_CENTER: 2;
+        static HORIZONTAL_ALIGN_RIGHT: 4;
 
-        static VERTICAL_ALIGN_TOP: number;
-        static VERTICAL_ALIGN_MIDDLE: number;
-        static VERTICAL_ALIGN_BOTTOM: number;
+        static VERTICAL_ALIGN_TOP: 8;
+        static VERTICAL_ALIGN_MIDDLE: 16;
+        static VERTICAL_ALIGN_BOTTOM: 32;
 
         // Font locations
         static FONT_SANS_8_BLACK: string;
@@ -72,9 +72,9 @@ declare namespace Jimp {
         static FONT_SANS_128_WHITE: string;
 
         // Edge Handling
-        static EDGE_EXTEND: number;
-        static EDGE_WRAP: number;
-        static EDGE_CROP: number;
+        static EDGE_EXTEND: 1;
+        static EDGE_WRAP: 2;
+        static EDGE_CROP: 3;
 
         // Properties
         bitmap: Bitmap;
