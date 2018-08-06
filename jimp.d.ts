@@ -269,8 +269,8 @@ declare namespace Jimp {
 
         static appendConstructorOption(
             name: string,
-            test: function,
-            run: function
+            test: Function,
+            run: Function
         );
 
         static read(path: string): Promise<Jimp>;
