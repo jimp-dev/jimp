@@ -4,6 +4,12 @@ declare namespace Jimp {
     type ColorActionName = 'mix' | 'tint' | 'shade' | 'xor' | 'red' | 'green' | 'blue' | 'hue';
     type ColorAction = { apply: ColorActionName, params: any };
 
+    type PrintableText = string | {
+        text: string;
+        alignmentX: number;
+        alignmentY: number;
+    };
+
     interface Bitmap {
         data: Buffer;
         width: number;
@@ -19,6 +25,61 @@ declare namespace Jimp {
         g: number;
         b: number;
         a: number;
+    }
+
+    interface FontChar {
+        id: number;
+        x: number;
+        y: number;
+        width: number;
+        height: number;
+        xoffset: number;
+        yoffset: number;
+        xadvance: number;
+        page: number;
+        chnl: number;
+    }
+
+
+    interface FontInfo {
+        face: string;
+        size: number;
+        bold: number;
+        italic: number;
+        charset: string;
+        unicode: number;
+        stretchH: number;
+        smooth: number;
+        aa: number;
+        padding: [number, number, number, number];
+        spacing: [number, number];
+    }
+
+    interface FontCommon {
+        lineHeight: number;
+        base: number;
+        scaleW: number;
+        scaleH: number;
+        pages: number;
+        packed: number;
+        alphaChnl: number;
+        redChnl: number;
+        greenChnl: number;
+        blueChnl: number;
+    }
+
+    interface Font {
+        chars: {
+            [char: string]: FontChar;
+        };
+        kernings: {
+            [firstString: string]: {
+                [secondString: string]: number;
+            };
+        };
+        pages: string[];
+        common: FontCommon;
+        info: FontInfo;
     }
 
     class Jimp {
@@ -467,69 +528,143 @@ declare namespace Jimp {
         autocrop(
             tolerance?: number,
             cropOnlyFrames?: boolean,
-            cb?: Jimp.ImageCallback
         ): this;
+        autocrop<T>(
+            tolerance: number | undefined | null,
+            cb: Jimp.ImageCallback<T>
+        ): T;
+        autocrop(
+            cropOnlyFrames: boolean | undefined | null,
+        ): this;
+        autocrop<T>(
+            cropOnlyFrames: boolean | undefined | null,
+            cb: Jimp.ImageCallback<T>
+        ): T;
+        autocrop<T>(
+            tolerance: number | undefined | null,
+            cropOnlyFrames: boolean | undefined | null,
+            cb: Jimp.ImageCallback<T>
+        ): T;
 
         // Text methods
         print(
-            font: any,
+            font: Font,
             x: number,
             y: number,
-            text: string,
-            maxWidth?: number | Jimp.ImageCallback,
-            maxHeight?: number | Jimp.ImageCallback,
-            cb?: Jimp.ImageCallback
+            text: PrintableText,
+            maxWidth?: number,
+            maxHeight?: number
         ): this;
+        print<T>(
+            font: Font,
+            x: number,
+            y: number,
+            text: PrintableText,
+            cb: Jimp.ImageCallback<T>
+        ): T;
+        print<T>(
+            font: Font,
+            x: number,
+            y: number,
+            text: PrintableText,
+            maxWidth: number | undefined | null,
+            cb: Jimp.ImageCallback<T>
+        ): T;
+        print<T>(
+            font: Font,
+            x: number,
+            y: number,
+            text: PrintableText,
+            maxWidth: number | undefined | null,
+            maxHeight: number | undefined | null,
+            cb: Jimp.ImageCallback<T>
+        ): T;
 
         // Effect methods
-        blur(r: number, cb?: Jimp.ImageCallback): this;
-        dither565(cb?: Jimp.ImageCallback): this;
-        dither16(cb?: Jimp.ImageCallback): this;
+        blur(r: number): this;
+        blur<T>(r: number, cb: Jimp.ImageCallback<T>): T;
+        dither565(): this;
+        dither565<T>(cb: Jimp.ImageCallback<T>): T;
+        dither16(): this;
+        dither16<T>(cb: Jimp.ImageCallback<T>): T;
         histogram(): { r: number[]; g: number[]; b: number[] };
-        normalize(cb?: Jimp.ImageCallback): this;
-        invert(cb?: Jimp.ImageCallback): this;
-        gaussian(r: number, cb?: Jimp.ImageCallback): this;
+        normalize(): this;
+        normalize<T>(cb: Jimp.ImageCallback<T>): T;
+        invert(): this;
+        invert<T>(cb: Jimp.ImageCallback<T>): T;
+        gaussian(r: number): this;
+        gaussian<T>(r: number, cb: Jimp.ImageCallback<T>): T;
         composite(
             src: Jimp,
             x: number,
-            y: number,
-            cb?: Jimp.ImageCallback
+            y: number
         ): this;
+        composite<T>(
+            src: Jimp,
+            x: number,
+            y: number,
+            cb: Jimp.ImageCallback<T>
+        ): T;
+        blit(
+            src: Jimp,
+            x: number,
+            y: number
+        ): this;
+        blit<T>(
+            src: Jimp,
+            x: number,
+            y: number,
+            cb: Jimp.ImageCallback<T>
+        ): T;
         blit(
             src: Jimp,
             x: number,
             y: number,
-            srcx?: number,
-            srcy?: number,
-            srcw?: number,
-            srch?: number,
-            cb?: Jimp.ImageCallback
+            srcx: number,
+            srcy: number,
+            srcw: number,
+            srch: number,
         ): this;
-        mask(src: Jimp, x: number, y: number, cb?: Jimp.ImageCallback): this;
+        blit<T>(
+            src: Jimp,
+            x: number,
+            y: number,
+            srcx: number,
+            srcy: number,
+            srcw: number,
+            srch: number,
+            cb: Jimp.ImageCallback<T>
+        ): T;
+        mask(src: Jimp, x: number, y: number): this;
+        mask<T>(src: Jimp, x: number, y: number, cb: Jimp.ImageCallback<T>): T;
 
         // Functions
-        static appendConstructorOption(
+        static appendConstructorOption<T>(
             name: string,
-            test: Function,
-            run: Function
+            test: (...args: T) => boolean,
+            run: (this: this, resolve: (jimp: Jimp) => any, reject: (reason: Error) => any, ...args: T) => any
         );
         static read(path: string): Promise<Jimp>;
         static read(image: Jimp): Promise<Jimp>;
         static read(data: Buffer): Promise<Jimp>;
-        static read(w: number, h: number): Promise<Jimp>;
         static read(w: number, h: number, background?: number): Promise<Jimp>;
         static create(path: string): Promise<Jimp>;
         static create(image: Jimp): Promise<Jimp>;
         static create(data: Buffer): Promise<Jimp>;
-        static create(w: number, h: number): Promise<Jimp>;
         static create(w: number, h: number, background?: number): Promise<Jimp>;
         static rgbaToInt(
             r: number,
             g: number,
             b: number,
             a: number,
-            cb?: GenericCallback<number>
         ): number;
+        static rgbaToInt<T>(
+            r: number,
+            g: number,
+            b: number,
+            a: number,
+            cb: GenericCallback<number, T, Jimp>
+        ): T;
         static intToRGBA(
             i: number,
             cb?: GenericCallback<Jimp.RGBA>
@@ -542,10 +677,15 @@ declare namespace Jimp {
         ): { percent: number; image: Jimp };
         static distance(img1: Jimp, img2: Jimp): number;
         static colorDiff(
-            rgba1: Jimp.RGB | Jimp.RGBA,
-            rgba2: Jimp.RGB | Jimp.RGBA
+            rgba1: Jimp.RGB,
+            rgba2: Jimp.RGB
         ): number;
-        static loadFont(file: string, cb?: Jimp.ImageCallback): Promise<any>;
+        static colorDiff(
+            rgba1: Jimp.RGBA,
+            rgba2: Jimp.RGBA
+        ): number;
+        static loadFont(file: string): Promise<Font>;
+        static loadFont(file: string, cb: Jimp.GenericCallback<Font, any, any>): Promise<never>;
     }
 }
 
