@@ -16,6 +16,34 @@ declare namespace Jimp {
         | 'hue';
     type ColorAction = { apply: ColorActionName; params: any };
 
+    type ChangeName = 'background' | 'scan' | 'crop';
+
+    type ListenableName =
+        | 'any'
+        | 'initialized'
+        | 'before-change'
+        | 'changed'
+        | 'before-clone'
+        | 'cloned'
+        | ChangeName;
+
+    type ListenerData<T extends ListenableName> = T extends 'any'
+        ? any
+        : T extends ChangeName
+            ? {
+                  eventName: 'before-change' | 'changed';
+                  methodName: T;
+                  [key: string]: any;
+              }
+            : {
+                  eventName: T;
+                  methodName: T extends 'initialized'
+                      ? 'constructor'
+                      : T extends 'before-change' | 'changed'
+                          ? ChangeName
+                          : T extends 'before-clone' | 'cloned' ? 'clone' : any;
+              };
+
     type PrintableText =
         | string
         | {
@@ -175,9 +203,13 @@ declare namespace Jimp {
             cb?: Jimp.ImageCallback
         );
         // For custom constructors when using Jimp.appendConstructorOption
-        constructor(...args: any[])
+        constructor(...args: any[]);
 
         // Methods
+        on<T extends ListenableName>(
+            event: T,
+            cb: (data: ListenerData<T>) => any
+        ): any;
         getHeight(): number;
         getWidth(): number;
         inspect(): string;
