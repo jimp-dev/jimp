@@ -155,6 +155,14 @@ declare namespace Jimp {
         // Properties
         bitmap: Bitmap;
 
+        private _quality: number;
+        private _deflateLevel: number;
+        private _deflateStrategy: number;
+        private _filterType: number;
+        private _rgba: boolean;
+        private _background: number;
+        private _originalMime: string;
+
         // Constructors
         constructor(path: string, cb?: Jimp.ImageCallback);
         constructor(image: Jimp, cb?: Jimp.ImageCallback);
