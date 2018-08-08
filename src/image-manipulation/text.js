@@ -69,13 +69,19 @@ function drawCharacter(image, font, x, y, char) {
 
 function printText(font, x, y, text) {
     for (let i = 0; i < text.length; i++) {
+        let char;
+
         if (font.chars[text[i]]) {
-            drawCharacter(this, font, x, y, font.chars[text[i]]);
-            x +=
-                (font.kernings[text[i]] && font.kernings[text[i]][text[i + 1]]
-                    ? font.kernings[text[i]][text[i + 1]]
-                    : 0) + (font.chars[text[i]].xadvance || 0);
+            char = text[i];
+        } else {
+            char = '?';
         }
+
+        drawCharacter(this, font, x, y, font.chars[char]);
+        x +=
+            (font.kernings[char] && font.kernings[char][text[i + 1]]
+                ? font.kernings[char][text[i + 1]]
+                : 0) + (font.chars[char].xadvance || 0);
     }
 }
 
