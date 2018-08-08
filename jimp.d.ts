@@ -101,6 +101,7 @@ declare namespace Jimp {
 
         // supported mime types
         static MIME_PNG: 'image/png';
+        static MIME_TIFF: 'image/tiff';
         static MIME_JPEG: 'image/jpeg';
         static MIME_JGD: 'image/jgd';
         static MIME_BMP: 'image/bmp';
