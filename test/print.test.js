@@ -111,6 +111,26 @@ describe('Write text over image', function() {
             .catch(done);
     });
 
+    it('Jimp renders ? for unknown characters', done => {
+        Jimp.loadFont(Jimp.FONT_SANS_16_BLACK)
+            .then(font => {
+                const expected =
+                    getTestDir() +
+                    '/samples/text-samples/unknown-char-test.png';
+                new Jimp(expected, (err, expectedImg) => {
+                    if (err) return done(err);
+                    new Jimp('300', '100', 0xff8800ff, (err, image) => {
+                        if (err) return done(err);
+                        image
+                            .print(font, 0, 0, 'ツ ツ ツ', 100)
+                            .bitmap.should.be.deepEqual(expectedImg.bitmap);
+                        done();
+                    });
+                });
+            })
+            .catch(done);
+    });
+
     it('left-align text by default', () => {
         const expectedImage = openImage(
             getTestDir() + '/samples/text-samples/left-aligned.png'
