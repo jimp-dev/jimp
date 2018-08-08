@@ -165,6 +165,8 @@ declare namespace Jimp {
             background?: number,
             cb?: Jimp.ImageCallback
         );
+        // For custom constructors when using Jimp.appendConstructorOption
+        constructor(...args: any[])
 
         // Methods
         getHeight(): number;
@@ -532,11 +534,11 @@ declare namespace Jimp {
         mask<T>(src: Jimp, x: number, y: number, cb: Jimp.ImageCallback<T>): T;
 
         // Functions
-        static appendConstructorOption<T>(
+        static appendConstructorOption<T extends any[]>(
             name: string,
             test: (...args: T) => boolean,
             run: (
-                this: this,
+                this: Jimp,
                 resolve: (jimp: Jimp) => any,
                 reject: (reason: Error) => any,
                 ...args: T
