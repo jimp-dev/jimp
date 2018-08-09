@@ -178,7 +178,7 @@ export function blur(r, cb) {
     }
 
     if (isNodePattern(cb)) {
-        return cb.call(this, null, this);
+        cb.call(this, null, this);
     }
 
     return this;
@@ -227,7 +227,7 @@ export function dither565(cb) {
     });
 
     if (isNodePattern(cb)) {
-        return cb.call(this, null, this);
+        cb.call(this, null, this);
     }
 
     return this;
@@ -313,7 +313,7 @@ export function normalize(cb) {
     });
 
     if (isNodePattern(cb)) {
-        return cb.call(this, null, this);
+        cb.call(this, null, this);
     }
 
     return this;
@@ -336,7 +336,7 @@ export function invert(cb) {
     });
 
     if (isNodePattern(cb)) {
-        return cb.call(this, null, this);
+        cb.call(this, null, this);
     }
 
     return this;
@@ -402,7 +402,7 @@ export function gaussian(r, cb) {
     clear(); // clear the log
 
     if (isNodePattern(cb)) {
-        return cb.call(this, null, this);
+        cb.call(this, null, this);
     }
 
     return this;
@@ -497,7 +497,7 @@ export function composite(src, x, y, options = {}, cb) {
     });
 
     if (isNodePattern(cb)) {
-        return cb.call(this, null, this);
+        cb.call(this, null, this);
     }
 
     return this;
@@ -580,7 +580,7 @@ export function blit(src, x, y, srcx, srcy, srcw, srch, cb) {
     });
 
     if (isNodePattern(cb)) {
-        return cb.call(this, null, this);
+        cb.call(this, null, this);
     }
 
     return this;
@@ -629,7 +629,7 @@ export function mask(src, x = 0, y = 0, cb) {
     });
 
     if (isNodePattern(cb)) {
-        return cb.call(this, null, this);
+        cb.call(this, null, this);
     }
 
     return this;

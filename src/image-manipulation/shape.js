@@ -208,7 +208,7 @@ export function rotate(deg, mode, cb) {
     }
 
     if (isNodePattern(cb)) {
-        return cb.call(this, null, this);
+        cb.call(this, null, this);
     }
 
     return this;
@@ -251,7 +251,7 @@ function flipFn(horizontal, vertical, cb) {
     this.bitmap.data = Buffer.from(bitmap);
 
     if (isNodePattern(cb)) {
-        return cb.call(this, null, this);
+        cb.call(this, null, this);
     }
 
     return this;
@@ -325,7 +325,7 @@ export function resize(w, h, mode, cb) {
     }
 
     if (isNodePattern(cb)) {
-        return cb.call(this, null, this);
+        cb.call(this, null, this);
     }
 
     return this;
@@ -392,7 +392,7 @@ export function cover(w, h, alignBits, mode, cb) {
     );
 
     if (isNodePattern(cb)) {
-        return cb.call(this, null, this);
+        cb.call(this, null, this);
     }
 
     return this;
@@ -474,7 +474,7 @@ export function contain(w, h, alignBits, mode, cb) {
     );
 
     if (isNodePattern(cb)) {
-        return cb.call(this, null, this);
+        cb.call(this, null, this);
     }
 
     return this;
@@ -506,7 +506,7 @@ export function scale(f, mode, cb) {
     this.resize(w, h, mode);
 
     if (isNodePattern(cb)) {
-        return cb.call(this, null, this);
+        cb.call(this, null, this);
     }
 
     return this;
@@ -537,7 +537,7 @@ export function scaleToFit(w, h, mode, cb) {
     this.scale(f, mode);
 
     if (isNodePattern(cb)) {
-        return cb.call(this, null, this);
+        cb.call(this, null, this);
     }
 
     return this;
@@ -575,7 +575,7 @@ export function displace(map, offset, cb) {
     });
 
     if (isNodePattern(cb)) {
-        return cb.call(this, null, this);
+        cb.call(this, null, this);
     }
 
     return this;
@@ -733,7 +733,7 @@ export function autocrop(...args) {
     }
 
     if (isNodePattern(cb)) {
-        return cb.call(this, null, this);
+        cb.call(this, null, this);
     }
 
     return this;

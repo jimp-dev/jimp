@@ -193,7 +193,7 @@ export function print(font, x, y, text, maxWidth, maxHeight, cb) {
     );
 
     if (isNodePattern(cb)) {
-        return cb.call(this, null, this);
+        cb.call(this, null, this);
     }
 
     return this;

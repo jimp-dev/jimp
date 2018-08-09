@@ -45,7 +45,7 @@ export function brightness(val, cb) {
     });
 
     if (isNodePattern(cb)) {
-        return cb.call(this, null, this);
+        cb.call(this, null, this);
     }
 
     return this;
@@ -107,7 +107,7 @@ export function contrast(val, cb) {
     });
 
     if (isNodePattern(cb)) {
-        return cb.call(this, null, this);
+        cb.call(this, null, this);
     }
 
     return this;
@@ -147,7 +147,7 @@ export function posterize(n, cb) {
     });
 
     if (isNodePattern(cb)) {
-        return cb.call(this, null, this);
+        cb.call(this, null, this);
     }
 
     return this;
@@ -177,7 +177,7 @@ export function greyscale(cb) {
     });
 
     if (isNodePattern(cb)) {
-        return cb.call(this, null, this);
+        cb.call(this, null, this);
     }
 
     return this;
@@ -208,7 +208,7 @@ export const opacity = function(f, cb) {
     });
 
     if (isNodePattern(cb)) {
-        return cb.call(this, null, this);
+        cb.call(this, null, this);
     }
 
     return this;
@@ -239,7 +239,7 @@ export function sepia(cb) {
     });
 
     if (isNodePattern(cb)) {
-        return cb.call(this, null, this);
+        cb.call(this, null, this);
     }
 
     return this;
@@ -264,7 +264,7 @@ export function fade(f, cb) {
     this.opacity(1 - f);
 
     if (isNodePattern(cb)) {
-        return cb.call(this, null, this);
+        cb.call(this, null, this);
     }
 
     return this;
@@ -370,7 +370,7 @@ export function convolution(kernel, edgeHandling, cb) {
     this.bitmap.data = newData;
 
     if (isNodePattern(cb)) {
-        return cb.call(this, null, this);
+        cb.call(this, null, this);
     }
 
     return this;
@@ -391,7 +391,7 @@ export function opaque(cb) {
     });
 
     if (isNodePattern(cb)) {
-        return cb.call(this, null, this);
+        cb.call(this, null, this);
     }
 
     return this;
@@ -461,7 +461,7 @@ export function pixelate(size, x, y, w, h, cb) {
     });
 
     if (isNodePattern(cb)) {
-        return cb.call(this, null, this);
+        cb.call(this, null, this);
     }
 
     return this;
@@ -539,7 +539,7 @@ export function convolute(kernel, x, y, w, h, cb) {
     });
 
     if (isNodePattern(cb)) {
-        return cb.call(this, null, this);
+        cb.call(this, null, this);
     }
 
     return this;
@@ -621,7 +621,7 @@ function colorFn(actions, cb) {
     });
 
     if (isNodePattern(cb)) {
-        return cb.call(this, null, this);
+        cb.call(this, null, this);
     }
 
     return this;

@@ -497,7 +497,7 @@ class Jimp extends EventEmitter {
                     return throwError.call(this, err, cb);
                 });
             stream.on('finish', () => {
-                return cb.call(this, null, this);
+                cb.call(this, null, this);
             });
         });
 
@@ -524,7 +524,7 @@ class Jimp extends EventEmitter {
         this._deflateLevel = Math.round(l);
 
         if (isNodePattern(cb)) {
-            return cb.call(this, null, this);
+            cb.call(this, null, this);
         }
 
         return this;
@@ -548,7 +548,7 @@ class Jimp extends EventEmitter {
         this._deflateStrategy = Math.round(s);
 
         if (isNodePattern(cb)) {
-            return cb.call(this, null, this);
+            cb.call(this, null, this);
         }
 
         return this;
@@ -576,7 +576,7 @@ class Jimp extends EventEmitter {
         this._filterType = Math.round(f);
 
         if (isNodePattern(cb)) {
-            return cb.call(this, null, this);
+            cb.call(this, null, this);
         }
 
         return this;
@@ -600,7 +600,7 @@ class Jimp extends EventEmitter {
         this._rgba = bool;
 
         if (isNodePattern(cb)) {
-            return cb.call(this, null, this);
+            cb.call(this, null, this);
         }
 
         return this;
@@ -624,7 +624,7 @@ class Jimp extends EventEmitter {
         this._quality = Math.round(n);
 
         if (isNodePattern(cb)) {
-            return cb.call(this, null, this);
+            cb.call(this, null, this);
         }
 
         return this;
@@ -656,7 +656,7 @@ class Jimp extends EventEmitter {
             }
 
             const src = 'data:' + mime + ';base64,' + data.toString('base64');
-            return cb.call(this, null, src);
+            cb.call(this, null, src);
         });
 
         return this;
@@ -698,7 +698,7 @@ class Jimp extends EventEmitter {
         }
 
         if (isNodePattern(cb)) {
-            return cb.call(this, null, hash);
+            cb.call(this, null, hash);
         }
 
         return hash;
@@ -782,7 +782,7 @@ class Jimp extends EventEmitter {
         }
 
         if (isNodePattern(cb)) {
-            return cb.call(this, null, i);
+            cb.call(this, null, i);
         }
 
         return i;
@@ -807,7 +807,7 @@ class Jimp extends EventEmitter {
         const hex = this.bitmap.data.readUInt32BE(idx);
 
         if (isNodePattern(cb)) {
-            return cb.call(this, null, hex);
+            cb.call(this, null, hex);
         }
 
         return hex;
@@ -839,7 +839,7 @@ class Jimp extends EventEmitter {
         this.bitmap.data.writeUInt32BE(hex, idx);
 
         if (isNodePattern(cb)) {
-            return cb.call(this, null, this);
+            cb.call(this, null, this);
         }
 
         return this;
@@ -932,7 +932,7 @@ Jimp.rgbaToInt = function(r, g, b, a, cb) {
         a * Math.pow(256, 0);
 
     if (isNodePattern(cb)) {
-        return cb.call(this, null, i);
+        cb.call(this, null, i);
     }
 
     return i;
@@ -966,7 +966,7 @@ Jimp.intToRGBA = function(i, cb) {
     );
 
     if (isNodePattern(cb)) {
-        return cb.call(this, null, rgba);
+        cb.call(this, null, rgba);
     }
 
     return rgba;
@@ -1219,7 +1219,7 @@ jimpEvMethod('clone', 'clone', function(cb) {
     const clone = new Jimp(this);
 
     if (isNodePattern(cb)) {
-        return cb.call(clone, null, clone);
+        cb.call(clone, null, clone);
     }
 
     return clone;
@@ -1252,7 +1252,7 @@ jimpEvChange('background', function(hex, cb) {
     this._background = hex;
 
     if (isNodePattern(cb)) {
-        return cb.call(this, null, this);
+        cb.call(this, null, this);
     }
 
     return this;
@@ -1285,7 +1285,7 @@ jimpEvChange('scan', function(x, y, w, h, f, cb) {
     const result = scan(this, x, y, w, h, f);
 
     if (isNodePattern(cb)) {
-        return cb.call(this, null, result);
+        cb.call(this, null, result);
     }
 
     return result;
@@ -1335,7 +1335,7 @@ jimpEvChange('crop', function(x, y, w, h, cb) {
     this.bitmap.height = h;
 
     if (isNodePattern(cb)) {
-        return cb.call(this, null, this);
+        cb.call(this, null, this);
     }
 
     return this;
