@@ -359,7 +359,7 @@ declare namespace Jimp {
         rotate(deg: number, cb?: Jimp.ImageCallback): this;
         rotate(
             deg: number,
-            mode: number | boolean,
+            mode: string | boolean,
             cb?: Jimp.ImageCallback
         ): this;
         flip(
@@ -479,7 +479,7 @@ declare namespace Jimp {
             src: Jimp,
             x: number,
             y: number,
-            options: Jimp.BlendMode,
+            options?: Jimp.BlendMode,
             cb?: Jimp.ImageCallback
         ): this;
         blit(src: Jimp, x: number, y: number, cb?: Jimp.ImageCallback): this;
