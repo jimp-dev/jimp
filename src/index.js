@@ -15,6 +15,7 @@ import * as shape from './image-manipulation/shape';
 import * as color from './image-manipulation/color';
 import * as effects from './image-manipulation/effects';
 
+import scan from './utils/scan';
 import promisify from './utils/promisify';
 import * as MIME from './utils/mime';
 import { clear } from './utils/log';
@@ -1281,24 +1282,13 @@ jimpEvChange('scan', function(x, y, w, h, f, cb) {
         return throwError.call(this, 'f must be a function', cb);
     }
 
-    // round input
-    x = Math.round(x);
-    y = Math.round(y);
-    w = Math.round(w);
-    h = Math.round(h);
-
-    for (let _y = y; _y < y + h; _y++) {
-        for (let _x = x; _x < x + w; _x++) {
-            const idx = (this.bitmap.width * _y + _x) << 2;
-            f.call(this, _x, _y, idx);
-        }
-    }
+    const result = scan(this, x, y, w, h, f);
 
     if (isNodePattern(cb)) {
-        return cb.call(this, null, this);
+        return cb.call(this, null, result);
     }
 
-    return this;
+    return result;
 });
 
 /**

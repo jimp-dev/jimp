@@ -88,9 +88,9 @@ describe('FileType', () => {
     it('load BMP', done => {
         new Jimp(imagesDir + '/windows95.bmp', function(err) {
             should.not.exist(err);
-            this.getPixelColor(10, 10).should.be.equal(0xf7f7ef);
-            this.getPixelColor(150, 80).should.be.equal(0xd6ad73);
-            this.getPixelColor(190, 200).should.be.equal(0xc3f7);
+            this.getPixelColor(10, 10).should.be.equal(0xeff7f7ff);
+            this.getPixelColor(150, 80).should.be.equal(0x73add6ff);
+            this.getPixelColor(190, 200).should.be.equal(0xf7c300ff);
             done();
         });
     });
@@ -160,6 +160,20 @@ describe('FileType', () => {
             this.getBuffer('image/tiff', (err, buffer) => {
                 should.not.exist(err);
                 buffer.toString().should.match(/^MM\u0000*\u0000/);
+                done();
+            });
+        });
+    });
+
+    it('uses correct colors for BMP', done => {
+        const testImage = getTestDir() + '/samples/windows95.bmp';
+        const expectedImgDir = getTestDir() + '/samples/windows95.png';
+
+        new Jimp(expectedImgDir, (err, expectedImg) => {
+            should.not.exist(err);
+            new Jimp(testImage, (err, image) => {
+                should.not.exist(err);
+                image.bitmap.data.should.be.deepEqual(expectedImg.bitmap.data);
                 done();
             });
         });
