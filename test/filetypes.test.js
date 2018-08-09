@@ -88,9 +88,9 @@ describe('FileType', () => {
     it('load BMP', done => {
         new Jimp(imagesDir + '/windows95.bmp', function(err) {
             should.not.exist(err);
-            this.getPixelColor(10, 10).should.be.equal(0xf7f7ef);
-            this.getPixelColor(150, 80).should.be.equal(0xd6ad73);
-            this.getPixelColor(190, 200).should.be.equal(0xc3f7);
+            this.getPixelColor(10, 10).should.be.equal(0xeff7f7ff);
+            this.getPixelColor(150, 80).should.be.equal(0x73add6ff);
+            this.getPixelColor(190, 200).should.be.equal(0xf7c300ff);
             done();
         });
     });
