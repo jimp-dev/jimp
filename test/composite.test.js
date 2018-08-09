@@ -7,6 +7,10 @@ describe('composite', () => {
     const expectedImg = getTestDir() + '/samples/cops-masked.jpg';
 
     it('can apply more than one color transformation', async () => {
+        if (process.env.ENV === 'browser') {
+            return;
+        }
+
         const testPath = image.replace('.jpg', '-test.jpg');
         const mask = await Jimp.create(100, 100, 0x0000ff);
         const cops = await Jimp.read(image);
