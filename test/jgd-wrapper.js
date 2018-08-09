@@ -1,8 +1,9 @@
+import JGD from '../tools/jgd';
+
 const Jimp =
     typeof window !== 'undefined' && window.Jimp
         ? window.Jimp
         : require('../src');
-const JGD = require('../tools/jgd');
 
 /**
  * Jimp constructor (from a JGD object)
@@ -36,17 +37,14 @@ Jimp.prototype.getJGDSync = function() {
  * @param {function(Error, Jimp)} cb a Node-style function to call with the buffer as the second argument
  * @returns {Jimp}  this for chaining of methods
  */
-Jimp.prototype.getJGD = function(cb) {
-    let jgd;
-    let error;
-
-    try {
-        jgd = this.getJGDSync();
-    } catch (err) {
-        error = err;
-    }
-    cb(error, jgd);
-    return this;
+Jimp.prototype.getJGD = function() {
+    return new Promise((resolve, reject) => {
+        try {
+            resolve(this.getJGDSync());
+        } catch (err) {
+            return reject(err);
+        }
+    });
 };
 
 module.exports = Jimp;

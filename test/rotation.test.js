@@ -1,7 +1,8 @@
-const { Jimp, mkJGD } = require('./test-helper');
+import { Jimp, mkJGD } from './test-helper';
 
 describe('Rotate a image with even size', () => {
     let imgSrc = null;
+
     before(done => {
         Jimp.read(
             mkJGD(

@@ -1,5 +1,5 @@
-const should = require('should/as-function');
-const { getType, getExtension } = require('../src/utils/mime');
+import should from 'should/as-function';
+import { getType, getExtension } from '../src/utils/mime';
 
 describe('Mime', () => {
     describe('getType', () => {

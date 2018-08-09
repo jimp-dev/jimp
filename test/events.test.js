@@ -1,4 +1,4 @@
-const { Jimp, mkJGD, getTestDir } = require('./test-helper');
+import { Jimp, mkJGD, getTestDir } from './test-helper';
 
 describe('Events', () => {
     describe('on initialized', () => {

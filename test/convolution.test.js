@@ -1,4 +1,4 @@
-const { Jimp, mkJGD } = require('./test-helper');
+import { Jimp, mkJGD } from './test-helper';
 
 describe('Convolution', () => {
     const imgs = [
@@ -30,6 +30,7 @@ describe('Convolution', () => {
 
     let imgMid;
     let imgTopLeft; // stores the Jimp instances of the JGD images above.
+
     before(done => {
         Promise.all(imgs)
             .then(imgs => {

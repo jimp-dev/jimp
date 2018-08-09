@@ -1,4 +1,4 @@
-const { Jimp, mkJGD, hasOwnProp } = require('./test-helper');
+import { Jimp, mkJGD, hasOwnProp } from './test-helper';
 
 describe('All align combinations for cover and contain', () => {
     const verticalJGD = mkJGD(

@@ -1,4 +1,4 @@
-const { Jimp, mkJGD } = require('./test-helper');
+import { Jimp, mkJGD } from './test-helper';
 
 describe('Compare image difference', () => {
     let imgs = [
