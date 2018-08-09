@@ -4,7 +4,7 @@ module.exports = api => {
     return {
         presets: [
             [
-                '@babel/preset-env',
+                '@babel/env',
                 {
                     useBuiltIns: 'usage'
                 }

@@ -15,6 +15,11 @@ declare namespace Jimp {
         | 'blue'
         | 'hue';
     type ColorAction = { apply: ColorActionName; params: any };
+    type BlendMode = {
+        mode: string;
+        opacitySource: number;
+        opacityDest: number;
+    };
 
     type ChangeName = 'background' | 'scan' | 'crop';
 
@@ -149,6 +154,18 @@ declare namespace Jimp {
         static RESIZE_BICUBIC: 'bicubicInterpolation';
         static RESIZE_HERMITE: 'hermiteInterpolation';
         static RESIZE_BEZIER: 'bezierInterpolation';
+
+        // blend modes
+        static BLEND_SOURCE_OVER: string;
+        static BLEND_DESTINATION_OVER: string;
+        static BLEND_MULTIPLY: string;
+        static BLEND_SCREEN: string;
+        static BLEND_OVERLAY: string;
+        static BLEND_DARKEN: string;
+        static BLEND_LIGHTEN: string;
+        static BLEND_HARDLIGHT: string;
+        static BLEND_DIFFERENCE: string;
+        static BLEND_EXCLUSION: string;
 
         // Align modes for cover, contain, bit masks
         static HORIZONTAL_ALIGN_LEFT: 1;
@@ -544,11 +561,17 @@ declare namespace Jimp {
         invert<T>(cb: Jimp.ImageCallback<T>): T;
         gaussian(r: number): this;
         gaussian<T>(r: number, cb: Jimp.ImageCallback<T>): T;
-        composite(src: Jimp, x: number, y: number): this;
+        composite(
+            src: Jimp,
+            x: number,
+            y: number,
+            options: Jimp.BlendMode
+        ): this;
         composite<T>(
             src: Jimp,
             x: number,
             y: number,
+            options: Jimp.BlendModel,
             cb: Jimp.ImageCallback<T>
         ): T;
         blit(src: Jimp, x: number, y: number): this;
