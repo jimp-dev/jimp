@@ -243,10 +243,10 @@ declare namespace Jimp {
         quality(n: number, cb?: Jimp.ImageCallback): this;
         getBase64(mime: string, cb: GenericCallback<string, any, this>): this;
         getBase64Async(mime: string): Promise<Jimp>;
-        hash(cb?: GenericCallback<string, T, this>): this;
+        hash(cb?: GenericCallback<string, any, this>): this;
         hash(
             base: number | null | undefined,
-            cb?: GenericCallback<string, T, this>
+            cb?: GenericCallback<string, any, this>
         ): this;
         getBuffer(mime: string, cb: GenericCallback<Buffer>): this;
         getBufferAsync(mime: string): Promise<Buffer>;
@@ -359,7 +359,7 @@ declare namespace Jimp {
         rotate(deg: number, cb?: Jimp.ImageCallback): this;
         rotate(
             deg: number,
-            mode: number |? boolean,
+            mode: number | boolean,
             cb?: Jimp.ImageCallback
         ): this;
         flip(
@@ -479,7 +479,7 @@ declare namespace Jimp {
             src: Jimp,
             x: number,
             y: number,
-            options: Jimp.BlendModel,
+            options: Jimp.BlendMode,
             cb?: Jimp.ImageCallback
         ): this;
         blit(src: Jimp, x: number, y: number, cb?: Jimp.ImageCallback): this;
@@ -519,8 +519,8 @@ declare namespace Jimp {
             g: number,
             b: number,
             a: number,
-            cb: GenericCallback<number, T, Jimp>
-        ): this;
+            cb: GenericCallback<number, any, Jimp>
+        ): number;
         static intToRGBA(i: number, cb?: GenericCallback<Jimp.RGBA>): Jimp.RGBA;
         static limit255(n: number): number;
         static diff(
