@@ -8,6 +8,7 @@ import UTIF from 'utif';
 import EXIFParser from 'exif-parser';
 import GIF from 'omggif';
 
+import { toAGBR, fromAGBR } from '../utils/abgr';
 import * as constants from '../constants';
 import { throwError } from './error-checking';
 import * as MIME from './mime';
@@ -139,6 +140,9 @@ export function parseBitmap(data, path, cb) {
             case constants.MIME_BMP:
             case constants.MIME_X_MS_BMP:
                 this.bitmap = BMP.decode(data);
+
+                fromAGBR(this);
+
                 break;
 
             case constants.MIME_GIF:
@@ -230,6 +234,8 @@ export function getBuffer(mime, cb) {
         case constants.MIME_BMP:
         case constants.MIME_X_MS_BMP: {
             // composite onto a new image so that the background shows through alpha channels
+            toAGBR(this);
+
             const bmp = BMP.encode(
                 compositeBitmapOverBackground(this.constructor, this)
             );

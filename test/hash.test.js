@@ -36,7 +36,7 @@ describe('hash', () => {
     it('base 64', done => {
         new Jimp(imagesDir + '/windows95.bmp', (err, image) => {
             should.not.exist(err);
-            image.hash(64).should.be.equal('f30wi0ww000');
+            image.hash(64).should.be.equal('fb0xj0Mw400');
             done();
         });
     });
