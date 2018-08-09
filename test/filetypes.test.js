@@ -164,4 +164,18 @@ describe('FileType', () => {
             });
         });
     });
+
+    it('uses correct colors for BMP', done => {
+        const testImage = getTestDir() + '/samples/windows95.bmp';
+        const expectedImgDir = getTestDir() + '/samples/windows95.png';
+
+        new Jimp(expectedImgDir, (err, expectedImg) => {
+            should.not.exist(err);
+            new Jimp(testImage, (err, image) => {
+                should.not.exist(err);
+                image.bitmap.data.should.be.deepEqual(expectedImg.bitmap.data);
+                done();
+            });
+        });
+    });
 });
