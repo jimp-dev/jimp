@@ -27,6 +27,7 @@ declare namespace Jimp {
         constructor(path: string, cb?: Jimp.ImageCallback);
         constructor(image: Jimp, cb?: Jimp.ImageCallback);
         constructor(data: Buffer, cb?: Jimp.ImageCallback);
+        constructor(data: Bitmap, cb?: Jimp.ImageCallback);
         constructor(w: number, h: number, cb?: Jimp.ImageCallback);
         constructor(
             w: number,

@@ -518,6 +518,16 @@ new Jimp(256, 256, 0xff0000ff, function(err, image) {
 });
 ```
 
+You can also initialize a new Jimp image with a raw image buffer:
+
+```js
+new Jimp({ buffer: buffer, width: 1280, height: 768 }, (err, image) => {
+    // this image is 1280 x 768, pixels are loaded from the given buffer.
+});
+```
+
+This can be useful for interoperating with other image processing libraries. `buffer` is expected to be four-channel (rgba) image data.
+
 ## Comparing images
 
 To generate a [perceptual hash](https://en.wikipedia.org/wiki/Perceptual_hashing) of a Jimp image, based on the [pHash](http://phash.org/) algorithm, use:
