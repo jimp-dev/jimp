@@ -1219,7 +1219,7 @@ jimpEvMethod('clone', 'clone', function(cb) {
     const clone = new Jimp(this);
 
     if (isNodePattern(cb)) {
-        return cb.call(clone, null, clone);
+        cb.call(clone, null, clone);
     }
 
     return clone;
