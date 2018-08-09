@@ -1,4 +1,4 @@
-const { Jimp, getTestDir, isWeb } = require('./test-helper');
+import { Jimp, getTestDir, isWeb } from './test-helper';
 
 describe('Exif', function() {
     this.timeout(15000);
@@ -8,6 +8,7 @@ describe('Exif', function() {
     let imgs;
     let firstLandscapeImg;
     let firstPortraitImg;
+
     before(done => {
         imgs = [];
         let i;

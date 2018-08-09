@@ -1,57 +1,37 @@
-const fs = require('fs');
-const should = require('should');
-const { Jimp, getTestDir } = require('./test-helper');
+import fs from 'fs';
+import should from 'should';
+import { Jimp, getTestDir } from './test-helper';
 
 const imagesDir = getTestDir() + '/samples';
 
 describe('Async functions', () => {
-    it('write returns promise', done => {
-        const writePath = './test.png';
-
+    it('write returns promise', async () => {
         // process.env is undefined in the browser tests. If BABEL_ENV
         // isn't found don't run this test in the browser
         if (process.env.ENV === 'browser') {
-            return done();
+            return;
         }
 
-        new Jimp(imagesDir + '/dice.png', function(err) {
-            should.not.exist(err);
+        const writePath = './test.png';
+        const image = await Jimp.read(imagesDir + '/dice.png');
+        const writtenImage = await image.writeAsync(writePath);
 
-            this.writeAsync(writePath).then(image => {
-                should.exist(image);
-                fs.existsSync(writePath).should.be.true();
-                fs.unlinkSync(writePath);
-                done();
-            });
-        });
+        should.exist(writtenImage);
+        fs.existsSync(writePath).should.be.true();
+        fs.unlinkSync(writePath);
     });
 
-    it('getBuffer returns promise', done => {
-        if (process.env.ENV === 'browser') {
-            return done();
-        }
+    it('getBuffer returns promise', async () => {
+        const image = await Jimp.read(imagesDir + '/dice.png');
+        const buffer = await image.getBufferAsync(Jimp.AUTO);
 
-        new Jimp(imagesDir + '/dice.png', function(err) {
-            should.not.exist(err);
-            this.getBufferAsync(Jimp.AUTO).then(buffer => {
-                should.exist(buffer);
-                done();
-            });
-        });
+        should.exist(buffer);
     });
 
-    it('getBase64 returns promise', done => {
-        if (process.env.ENV === 'browser') {
-            return done();
-        }
+    it('getBase64 returns promise', async () => {
+        const image = await Jimp.read(imagesDir + '/dice.png');
+        const bas64 = await image.getBase64Async(Jimp.AUTO);
 
-        new Jimp(imagesDir + '/dice.png', function(err) {
-            should.not.exist(err);
-
-            this.getBase64Async(Jimp.AUTO).then(buffer => {
-                should.exist(buffer);
-                done();
-            });
-        });
+        should.exist(bas64);
     });
 });

@@ -1,4 +1,4 @@
-const { Jimp, mkJGD, hasOwnProp } = require('./test-helper');
+import { Jimp, mkJGD, hasOwnProp } from './test-helper';
 
 describe('Callbacks', () => {
     const targetJGD = mkJGD('▴▸▾', '◆▪▰', '▵▹▿');
@@ -6,6 +6,7 @@ describe('Callbacks', () => {
 
     let targetImg;
     let miniImg; // stores the Jimp instances of the JGD images above.
+
     before(done => {
         const img1 = Jimp.read(targetJGD);
         const img2 = Jimp.read(miniJGD);

@@ -1,4 +1,4 @@
-const { Jimp, mkJGD } = require('./test-helper');
+import { Jimp, mkJGD } from './test-helper';
 
 describe('Blit over image', () => {
     const targetJGD = mkJGD(
@@ -22,6 +22,7 @@ describe('Blit over image', () => {
 
     let targetImg;
     let srcImg; // stores the Jimp instances of the JGD images above.
+
     before(done => {
         const img1 = Jimp.read(targetJGD);
         const img2 = Jimp.read(srcJGD);

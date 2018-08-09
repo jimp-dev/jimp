@@ -1,4 +1,4 @@
-const { Jimp, mkJGD, hashForEach } = require('./test-helper');
+import { Jimp, mkJGD, hashForEach } from './test-helper';
 
 describe('Resize images', () => {
     const testImages = [

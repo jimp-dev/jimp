@@ -21,15 +21,19 @@ exports.getTestDir = function() {
         document.getElementsByTagName
     ) {
         const scripts = document.getElementsByTagName('script');
+
         for (let i = 0; i < scripts.length; i++) {
             if (scripts[i].src.match(testRE)) {
                 return scripts[i].src.replace(testRE, '');
             }
         }
-        throw new Error('Cant discover the web test directory');
+
+        throw new TypeError('Cant discover the web test directory');
     } else {
-        if (typeof __dirname === 'undefined')
-            throw new Error('Cant discover the env test directory');
+        if (typeof __dirname === 'undefined') {
+            throw new TypeError('Cant discover the env test directory');
+        }
+
         return __dirname;
     }
 };

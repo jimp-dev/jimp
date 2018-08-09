@@ -1,7 +1,6 @@
-const should = require('should');
-let { Jimp, donutJGD } = require('./test-helper');
+import { Jimp, donutJGD } from './test-helper';
 
-donutJGD = donutJGD(
+const donut = donutJGD(
     // RRGGBBAA
     0xffffff00,
     0xff880088,
@@ -17,34 +16,24 @@ const donutPngBase64 =
 const donutPngBuffer = Buffer.from(donutPngBase64, 'base64');
 
 describe('JGD - JS Graphic Description', () => {
-    it('Jimp loads JGD', done => {
-        new Jimp(donutJGD, (err, image) => {
-            should.not.exist(err);
-            image.getBuffer('image/png', (err, buffer) => {
-                should.not.exist(err);
-                buffer.toString('base64').should.be.equal(donutPngBase64);
-                done();
-            });
-        });
+    it('Jimp loads JGD', async () => {
+        const image = await Jimp.read(donut);
+        const buffer = await image.getBufferAsync('image/png');
+
+        buffer.toString('base64').should.be.equal(donutPngBase64);
     });
 
-    it('Jimp exports JGD sync', done => {
-        new Jimp(donutPngBuffer, (err, image) => {
-            should.not.exist(err);
-            image.getJGDSync().should.be.deepEqual(donutJGD);
-            done();
-        });
+    it('Jimp exports JGD sync', async () => {
+        const image = await Jimp.read(donutPngBuffer);
+
+        image.getJGDSync().should.be.deepEqual(donut);
     });
 
-    it('Jimp exports JGD async', done => {
-        new Jimp(donutPngBuffer, (err, image) => {
-            should.not.exist(err);
-            image.getJGD((err, jgd) => {
-                should.not.exist(err);
-                jgd.data.length.should.be.equal(donutJGD.data.length);
-                jgd.should.be.deepEqual(donutJGD);
-                done();
-            });
-        });
+    it('Jimp exports JGD async', async () => {
+        const image = await Jimp.read(donutPngBuffer);
+        const jgd = await image.getJGD();
+
+        jgd.data.length.should.be.equal(donut.data.length);
+        jgd.should.be.deepEqual(donut);
     });
 });
