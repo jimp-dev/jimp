@@ -302,7 +302,7 @@ Jimp.loadFont(Jimp.FONT_SANS_32_BLACK).then(function(font) {
 });
 ```
 
-Online tools are also available to convert TTF fonts to BMFont format 
+Online tools are also available to convert TTF fonts to BMFont format. They can be used to create color font or sprite packs.  
 
 :star: [Littera](http://kvazars.com/littera/)
 
