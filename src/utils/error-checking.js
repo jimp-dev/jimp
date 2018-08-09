@@ -16,7 +16,7 @@ export function throwError(error, cb) {
     }
 
     if (typeof cb === 'function') {
-        return cb.call(this, error);
+        cb.call(this, error);
     }
 
     throw error;
