@@ -21,10 +21,12 @@ describe('composite', () => {
             opacityDest: 0.5
         });
 
+        await cops.writeAsync(testPath);
+
         const one = fs.readFileSync(expectedImg);
         const two = fs.readFileSync(testPath);
 
-        fs.unlink(testPath);
+        fs.unlinkSync(testPath);
 
         should.deepEqual(one, two);
     });
