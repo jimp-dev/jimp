@@ -302,7 +302,10 @@ Jimp.loadFont(Jimp.FONT_SANS_32_BLACK).then(function(font) {
 });
 ```
 
-Online tools are also available to convert TTF fonts to BMFont format (e.g. [Littera](http://kvazars.com/littera/)).
+Online tools are also available to convert TTF fonts to BMFont format 
+
+:star: [Littera](http://kvazars.com/littera/)
+:star: [Hiero](https://github.com/libgdx/libgdx/wiki/Hiero)
 
 ## Writing to files and buffers
 
