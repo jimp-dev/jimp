@@ -497,7 +497,7 @@ class Jimp extends EventEmitter {
                     return throwError.call(this, err, cb);
                 });
             stream.on('finish', () => {
-                return cb.call(this, null, this);
+                cb.call(this, null, this);
             });
         });
 
@@ -524,7 +524,7 @@ class Jimp extends EventEmitter {
         this._deflateLevel = Math.round(l);
 
         if (isNodePattern(cb)) {
-            return cb.call(this, null, this);
+            cb.call(this, null, this);
         }
 
         return this;
@@ -548,7 +548,7 @@ class Jimp extends EventEmitter {
         this._deflateStrategy = Math.round(s);
 
         if (isNodePattern(cb)) {
-            return cb.call(this, null, this);
+            cb.call(this, null, this);
         }
 
         return this;
@@ -576,7 +576,7 @@ class Jimp extends EventEmitter {
         this._filterType = Math.round(f);
 
         if (isNodePattern(cb)) {
-            return cb.call(this, null, this);
+            cb.call(this, null, this);
         }
 
         return this;
@@ -600,7 +600,7 @@ class Jimp extends EventEmitter {
         this._rgba = bool;
 
         if (isNodePattern(cb)) {
-            return cb.call(this, null, this);
+            cb.call(this, null, this);
         }
 
         return this;
@@ -624,7 +624,7 @@ class Jimp extends EventEmitter {
         this._quality = Math.round(n);
 
         if (isNodePattern(cb)) {
-            return cb.call(this, null, this);
+            cb.call(this, null, this);
         }
 
         return this;
@@ -839,7 +839,7 @@ class Jimp extends EventEmitter {
         this.bitmap.data.writeUInt32BE(hex, idx);
 
         if (isNodePattern(cb)) {
-            return cb.call(this, null, this);
+            cb.call(this, null, this);
         }
 
         return this;
@@ -1252,7 +1252,7 @@ jimpEvChange('background', function(hex, cb) {
     this._background = hex;
 
     if (isNodePattern(cb)) {
-        return cb.call(this, null, this);
+        cb.call(this, null, this);
     }
 
     return this;
@@ -1335,7 +1335,7 @@ jimpEvChange('crop', function(x, y, w, h, cb) {
     this.bitmap.height = h;
 
     if (isNodePattern(cb)) {
-        return cb.call(this, null, this);
+        cb.call(this, null, this);
     }
 
     return this;
