@@ -1,27 +1,27 @@
-const { Jimp, donutJGD } = require('./test-helper');
+const fs = require('fs');
+const should = require('should');
+const { Jimp, getTestDir } = require('./test-helper');
 
 describe('composite', () => {
-    const redDonutJGD = donutJGD(0x00000000, 0xff000088, 0xff0000ff);
+    const image = getTestDir() + '/samples/cops.jpg';
+    const expectedImg = getTestDir() + '/samples/cops-masked.jpg';
 
-    it('can apply more than one color transformation', done => {
-        Jimp.create(10, 10, 0x0000ff)
-            .then(blueMask => {
-                Jimp.read(redDonutJGD).then(redDonut => {
-                    redDonut.getPixelColor(10, 10).should.be.equal(0x00000000);
+    it('can apply more than one color transformation', async () => {
+        const testPath = image.replace('.jpg', '-test.jpg');
+        const mask = await Jimp.create(100, 100, 0x0000ff);
+        const cops = await Jimp.read(image);
 
-                    redDonut
-                        .composite(blueMask, 0, 0, {
-                            mode: Jimp.BLEND_MULTIPLY,
-                            opacitySource: 0.5,
-                            opacityDest: 0.5
-                        })
-                        .write('test.png', () => {});
+        cops.composite(mask, 0, 0, {
+            mode: Jimp.BLEND_SOURCE_OVER,
+            opacitySource: 0.5,
+            opacityDest: 0.5
+        });
 
-                    redDonut.getPixelColor(10, 10).should.be.equal(0x0000007f);
+        const one = fs.readFileSync(expectedImg);
+        const two = fs.readFileSync(testPath);
 
-                    done();
-                });
-            })
-            .catch(err => err.should.not.exist());
+        fs.unlink(testPath);
+
+        should.deepEqual(one, two);
     });
 });

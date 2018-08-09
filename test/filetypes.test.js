@@ -10,7 +10,7 @@ describe('FileType', () => {
     it('write uses original MIME type', done => {
         const writePath = './test-result';
 
-        if (process.env.BABEL_ENV === undefined) {
+        if (process.env.ENV === 'browser') {
             return done();
         }
 

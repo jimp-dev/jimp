@@ -2,7 +2,14 @@ module.exports = api => {
     api.cache(true);
 
     return {
-        presets: ['@babel/env'],
+        presets: [
+            [
+                '@babel/env',
+                {
+                    useBuiltIns: 'usage'
+                }
+            ]
+        ],
 
         plugins: [
             '@babel/proposal-class-properties',
