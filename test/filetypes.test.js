@@ -123,17 +123,14 @@ describe('FileType', () => {
         buffer.toString().should.match(/^MM\u0000*\u0000/);
     });
 
-    it('uses correct colors for BMP', done => {
-        const testImage = getTestDir() + '/samples/windows95.bmp';
-        const expectedImgDir = getTestDir() + '/samples/windows95.png';
+    it('uses correct colors for BMP', async function() {
+        this.timeout(4000);
 
-        new Jimp(expectedImgDir, (err, expectedImg) => {
-            should.not.exist(err);
-            new Jimp(testImage, (err, image) => {
-                should.not.exist(err);
-                image.bitmap.data.should.be.deepEqual(expectedImg.bitmap.data);
-                done();
-            });
-        });
+        const expectedImg = await Jimp.read(
+            getTestDir() + '/samples/windows95.png'
+        );
+        const image = await Jimp.read(getTestDir() + '/samples/windows95.bmp');
+
+        image.bitmap.data.should.be.deepEqual(expectedImg.bitmap.data);
     });
 });
