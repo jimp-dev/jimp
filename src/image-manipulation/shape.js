@@ -359,7 +359,8 @@ export function cover(w, h, alignBits, mode, cb) {
     }
 
     alignBits =
-        alignBits || this.HORIZONTAL_ALIGN_CENTER | this.VERTICAL_ALIGN_MIDDLE;
+        alignBits ||
+        constants.HORIZONTAL_ALIGN_CENTER | constants.VERTICAL_ALIGN_MIDDLE;
     const hbits = alignBits & ((1 << 3) - 1);
     const vbits = alignBits >> 3;
 
