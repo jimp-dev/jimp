@@ -1,4 +1,3 @@
-import fs from 'fs';
 import fileType from 'file-type';
 
 import { PNG } from 'pngjs';
@@ -8,8 +7,8 @@ import UTIF from 'utif';
 import EXIFParser from 'exif-parser';
 import GIF from 'omggif';
 
-import { toAGBR, fromAGBR } from '../utils/abgr';
 import * as constants from '../constants';
+import { toAGBR, fromAGBR } from './abgr';
 import { throwError } from './error-checking';
 import * as MIME from './mime';
 import promisify from './promisify';
