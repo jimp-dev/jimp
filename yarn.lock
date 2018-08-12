@@ -2449,7 +2449,7 @@ eslint-plugin-node@^7.0.0:
     resolve "^1.8.1"
     semver "^5.5.0"
 
-eslint-plugin-prettier@^2.6.0:
+eslint-plugin-prettier@^2.6.0, eslint-plugin-prettier@^2.6.2:
   version "2.6.2"
   resolved "https://registry.yarnpkg.com/eslint-plugin-prettier/-/eslint-plugin-prettier-2.6.2.tgz#71998c60aedfa2141f7bfcbf9d1c459bf98b4fad"
   dependencies:

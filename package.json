@@ -1,6 +1,8 @@
 {
   "private": true,
-  "workspaces": ["packages/*"],
+  "workspaces": [
+    "packages/*"
+  ],
   "devDependencies": {
     "@babel/cli": "^7.0.0-rc.1",
     "@babel/core": "^7.0.0-rc.1",
@@ -14,11 +16,73 @@
     "babel-plugin-source-map-support": "^2.0.1",
     "babel-plugin-transform-inline-environment-variables": "^0.4.3",
     "cross-env": "^5.2.0",
+    "eslint-plugin-prettier": "^2.6.2",
     "husky": "^1.0.0-rc.13",
     "lint-staged": "^7.2.0",
     "prettier": "^1.14.2",
     "source-map-support": "^0.5.8",
     "tfilter": "^1.0.1",
     "xo": "^0.22.0"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "lint-staged": {
+    "*.{js,css,md}": [
+      "prettier --write",
+      "git add"
+    ]
+  },
+  "prettier": {
+    "singleQuote": true,
+    "tabWidth": 4
+  },
+  "xo": {
+    "parser": "babel-eslint",
+    "extends": [
+      "prettier"
+    ],
+    "plugins": [
+      "prettier"
+    ],
+    "env": [
+      "browser",
+      "node",
+      "jest"
+    ],
+    "ignores": [
+      "omggif.js"
+    ],
+    "rules": {
+      "capitalized-comments": 0,
+      "unicorn/number-literal-case": 0,
+      "no-control-regex": 1,
+      "prefer-rest-params": 1,
+      "no-new": 0,
+      "no-console": [
+        2,
+        {
+          "allow": [
+            "warn",
+            "error"
+          ]
+        }
+      ],
+      "max-params": [
+        1,
+        6
+      ]
+    },
+    "overrides": [
+      {
+        "files": "**/test/*.js",
+        "esnext": false,
+        "rules": {
+          "max-nested-callbacks": 0
+        }
+      }
+    ]
   }
 }

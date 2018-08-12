@@ -91,67 +91,7 @@
     "tfilter": "^1.0.1",
     "uglify-js": "^3.4.7"
   },
-  "husky": {
-    "hooks": {
-      "pre-commit": "lint-staged"
-    }
-  },
-  "lint-staged": {
-    "*.{js,css,md}": [
-      "prettier --write",
-      "git add"
-    ]
-  },
-  "prettier": {
-    "singleQuote": true,
-    "tabWidth": 4
-  },
-  "xo": {
-    "parser": "babel-eslint",
-    "extends": [
-      "prettier"
-    ],
-    "plugins": [
-      "prettier"
-    ],
-    "env": [
-      "browser",
-      "node",
-      "jest"
-    ],
-    "ignores": [
-      "omggif.js"
-    ],
-    "rules": {
-      "capitalized-comments": 0,
-      "unicorn/number-literal-case": 0,
-      "no-control-regex": 1,
-      "prefer-rest-params": 1,
-      "no-new": 0,
-      "no-console": [
-        2,
-        {
-          "allow": [
-            "warn",
-            "error"
-          ]
-        }
-      ],
-      "max-params": [
-        1,
-        6
-      ]
-    },
-    "overrides": [
-      {
-        "files": "**/test/*.js",
-        "esnext": false,
-        "rules": {
-          "max-nested-callbacks": 0
-        }
-      }
-    ]
-  },
+  "xo": false,
   "nyc": {
     "sourceMap": false,
     "instrument": false,
