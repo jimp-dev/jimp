@@ -1128,8 +1128,7 @@ Jimp.loadFont = function(file, cb) {
                 kernings[firstString] = kernings[firstString] || {};
                 kernings[firstString][
                     String.fromCharCode(font.kernings[i].second)
-                ] =
-                    font.kernings[i].amount;
+                ] = font.kernings[i].amount;
             }
 
             loadPages(Path.dirname(file), font.pages).then(pages => {
@@ -1357,5 +1356,27 @@ if (process.env.ENVIRONMENT === 'BROWSER') {
     gl.Jimp = Jimp;
     gl.Buffer = Buffer;
 }
+
+const JPEG = require('@jimp/jpeg');
+
+class TapableJimp {
+    constructor() {
+        this.jimpConfig = {
+            encoders: {},
+            decoders: {}
+        };
+    }
+
+    addImageType(type) {
+        type(this.jimpConfig);
+    }
+}
+
+const tapable = new TapableJimp();
+
+tapable.addImageType(JPEG);
+console.log(tapable.jimpConfig);
+Jimp.decoders = tapable.jimpConfig.decoders;
+Jimp.encoders = tapable.jimpConfig.encoders;
 
 export default Jimp;

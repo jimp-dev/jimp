@@ -110,7 +110,9 @@ export function parseBitmap(data, path, cb) {
             }
 
             case constants.MIME_JPEG:
-                this.bitmap = JPEG.decode(data);
+                this.bitmap = this.constructor.decoders[constants.MIME_JPEG](
+                    data
+                );
 
                 try {
                     this._exif = EXIFParser.create(data).parse();
@@ -222,7 +224,7 @@ export function getBuffer(mime, cb) {
 
         case constants.MIME_JPEG: {
             // composite onto a new image so that the background shows through alpha channels
-            const jpeg = JPEG.encode(
+            const jpeg = this.constructor.encoders[constants.MIME_JPEG](
                 compositeBitmapOverBackground(this.constructor, this),
                 this._quality
             );

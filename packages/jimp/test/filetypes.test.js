@@ -4,7 +4,7 @@ import fs from 'fs';
 import should from 'should';
 import { Jimp, getTestDir } from './test-helper';
 
-describe('FileType', () => {
+describe.only('FileType', () => {
     const imagesDir = getTestDir() + '/samples';
 
     it('write uses original MIME type', async () => {
