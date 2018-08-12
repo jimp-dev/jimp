@@ -1358,6 +1358,7 @@ if (process.env.ENVIRONMENT === 'BROWSER') {
 }
 
 const JPEG = require('@jimp/jpeg');
+const PNG = require('@jimp/png');
 
 class TapableJimp {
     constructor() {
@@ -1375,6 +1376,7 @@ class TapableJimp {
 const tapable = new TapableJimp();
 
 tapable.addImageType(JPEG);
+tapable.addImageType(PNG);
 console.log(tapable.jimpConfig);
 Jimp.decoders = tapable.jimpConfig.decoders;
 Jimp.encoders = tapable.jimpConfig.encoders;

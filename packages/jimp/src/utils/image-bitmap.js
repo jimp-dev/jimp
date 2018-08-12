@@ -1,7 +1,5 @@
 import fileType from 'file-type';
 
-import { PNG } from 'pngjs';
-import JPEG from 'jpeg-js';
 import BMP from 'bmp-js';
 import UTIF from 'utif';
 import EXIFParser from 'exif-parser';
@@ -98,13 +96,9 @@ export function parseBitmap(data, path, cb) {
     try {
         switch (this.getMIME()) {
             case constants.MIME_PNG: {
-                const png = PNG.sync.read(data);
-
-                this.bitmap = {
-                    data: Buffer.from(png.data),
-                    width: png.width,
-                    height: png.height
-                };
+                this.bitmap = this.constructor.decoders[constants.MIME_PNG](
+                    data
+                );
 
                 break;
             }
@@ -196,28 +190,17 @@ export function getBuffer(mime, cb) {
 
     switch (mime.toLowerCase()) {
         case constants.MIME_PNG: {
-            const png = new PNG({
-                width: this.bitmap.width,
-                height: this.bitmap.height,
-                bitDepth: 8,
-                deflateLevel: this._deflateLevel,
-                deflateStrategy: this._deflateStrategy,
-                filterType: this._filterType,
-                colorType: this._rgba ? 6 : 2,
-                inputHasAlpha: true
-            });
-
             if (this._rgba) {
-                png.data = Buffer.from(this.bitmap.data);
+                this.bitmap.data = Buffer.from(this.bitmap.data);
             } else {
                 // when PNG doesn't support alpha
-                png.data = compositeBitmapOverBackground(
+                this.bitmap.data = compositeBitmapOverBackground(
                     this.constructor,
                     this
                 ).data;
             }
 
-            const buffer = PNG.sync.write(png);
+            const buffer = this.constructor.encoders[constants.MIME_PNG](this);
             cb.call(this, null, buffer);
             break;
         }
