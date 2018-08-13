@@ -137,8 +137,6 @@ export function parseBitmap(data, path, cb) {
                     data
                 );
 
-                fromAGBR(this);
-
                 break;
 
             case constants.MIME_GIF:
@@ -189,43 +187,33 @@ export function getBuffer(mime, cb) {
         return throwError.call(this, 'cb must be a function', cb);
     }
 
+    if (this._rgba) {
+        this.bitmap.data = Buffer.from(this.bitmap.data);
+    } else {
+        // when format doesn't support alpha
+        // composite onto a new image so that the background shows through alpha channels
+        this.bitmap.data = compositeBitmapOverBackground(
+            this.constructor,
+            this
+        ).data;
+    }
+
     switch (mime.toLowerCase()) {
         case constants.MIME_PNG: {
-            if (this._rgba) {
-                this.bitmap.data = Buffer.from(this.bitmap.data);
-            } else {
-                // when PNG doesn't support alpha
-                this.bitmap.data = compositeBitmapOverBackground(
-                    this.constructor,
-                    this
-                ).data;
-            }
-
             const buffer = this.constructor.encoders[constants.MIME_PNG](this);
             cb.call(this, null, buffer);
             break;
         }
 
         case constants.MIME_JPEG: {
-            // composite onto a new image so that the background shows through alpha channels
-            this.bitmap.data = compositeBitmapOverBackground(
-                this.constructor,
-                this
-            ).data;
-
-            const jpeg = this.constructor.encoders[constants.MIME_JPEG](this);
-            cb.call(this, null, jpeg.data);
+            const buffer = this.constructor.encoders[constants.MIME_JPEG](this);
+            cb.call(this, null, buffer);
             break;
         }
 
         case constants.MIME_BMP:
         case constants.MIME_X_MS_BMP: {
-            // composite onto a new image so that the background shows through alpha channels
-            toAGBR(this);
-
-            const bmp = this.constructor.encoders[constants.MIME_BMP](
-                compositeBitmapOverBackground(this.constructor, this)
-            );
+            const bmp = this.constructor.encoders[constants.MIME_BMP](this);
             cb.call(this, null, bmp.data);
             break;
         }

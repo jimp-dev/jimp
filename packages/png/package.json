@@ -9,6 +9,7 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
+    "@jimp/utils": "^0.3.4",
     "pngjs": "^3.3.3"
   }
 }

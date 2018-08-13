@@ -8,7 +8,7 @@ module.exports = config => {
 
     config.decoders[MIME_TYPE] = JPEG.decode;
     config.encoders[MIME_TYPE] = image =>
-        JPEG.encode(image.bitmap, image._quality);
+        JPEG.encode(image.bitmap, image._quality).data;
 
     // The quality to be used when saving JPEG images
     config.class._quality = 100;

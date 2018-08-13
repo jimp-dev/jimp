@@ -1,4 +1,5 @@
 const { PNG } = require('pngjs');
+const { throwError, isNodePattern } = require('@jimp/utils');
 
 const MIME_TYPE = 'image/png';
 
@@ -24,13 +25,10 @@ module.exports = config => {
     config.class._deflateLevel = 9;
     config.class._deflateStrategy = 3;
     config.class._filterType = PNG_FILTER_AUTO;
-    // Whether PNGs will be exported as RGB or RGBA
-    config.class._rgba = true;
 
     config.decoders[MIME_TYPE] = PNG.sync.read;
     config.encoders[MIME_TYPE] = data => {
         const png = new PNG({
-            data: data.bitmap.data,
             width: data.bitmap.width,
             height: data.bitmap.height,
             bitDepth: 8,
@@ -40,6 +38,8 @@ module.exports = config => {
             colorType: data._rgba ? 6 : 2,
             inputHasAlpha: true
         });
+
+        png.data = data.bitmap.data;
 
         return PNG.sync.write(png);
     };
@@ -112,30 +112,6 @@ module.exports = config => {
         }
 
         this._filterType = Math.round(f);
-
-        if (isNodePattern(cb)) {
-            cb.call(this, null, this);
-        }
-
-        return this;
-    };
-
-    /**
-     * Sets the type of the image (RGB or RGBA) when saving as PNG format (default is RGBA)
-     * @param {boolean} bool A Boolean, true to use RGBA or false to use RGB
-     * @param {function(Error, Jimp)} cb (optional) a callback for when complete
-     * @returns {Jimp} this for chaining of methods
-     */
-    config.class.rgba = function(bool, cb) {
-        if (typeof bool !== 'boolean') {
-            return throwError.call(
-                this,
-                'bool must be a boolean, true for RGBA or false for RGB',
-                cb
-            );
-        }
-
-        this._rgba = bool;
 
         if (isNodePattern(cb)) {
             cb.call(this, null, this);

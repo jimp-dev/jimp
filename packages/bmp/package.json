@@ -9,6 +9,7 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
+    "@jimp/utils": "^0.3.4",
     "bmp-js": "^0.1.0"
   }
 }

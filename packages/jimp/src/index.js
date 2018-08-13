@@ -187,6 +187,9 @@ class Jimp extends EventEmitter {
     // Exif data for the image
     _exif = null;
 
+    // Whether Transparency supporting formats will be exported as RGB or RGBA
+    _rgba = true;
+
     constructor(...args) {
         super();
 
@@ -356,6 +359,30 @@ class Jimp extends EventEmitter {
                 );
             }
         }
+    }
+
+    /**
+     * Sets the type of the image (RGB or RGBA) when saving in a format that supports transparency (default is RGBA)
+     * @param {boolean} bool A Boolean, true to use RGBA or false to use RGB
+     * @param {function(Error, Jimp)} cb (optional) a callback for when complete
+     * @returns {Jimp} this for chaining of methods
+     */
+    rgba(bool, cb) {
+        if (typeof bool !== 'boolean') {
+            return throwError.call(
+                this,
+                'bool must be a boolean, true for RGBA or false for RGB',
+                cb
+            );
+        }
+
+        this._rgba = bool;
+
+        if (isNodePattern(cb)) {
+            cb.call(this, null, this);
+        }
+
+        return this;
     }
 
     /**

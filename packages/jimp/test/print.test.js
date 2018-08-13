@@ -55,7 +55,9 @@ describe('Write text over image', function() {
                             'This is only a test.',
                             image.bitmap.width
                         )
-                        .bitmap.should.be.deepEqual(expectedImg.bitmap);
+                        .bitmap.data.should.be.deepEqual(
+                            expectedImg.bitmap.data
+                        );
                 });
             })(fontName, fontDefs[fontName]);
 
@@ -68,7 +70,7 @@ describe('Write text over image', function() {
 
         image
             .print(font, 150, 50, 'This is only a test.', 100)
-            .bitmap.should.be.deepEqual(expectedImg.bitmap);
+            .bitmap.data.should.be.deepEqual(expectedImg.bitmap.data);
     });
 
     it('Jimp renders ? for unknown characters', async () => {
@@ -81,7 +83,7 @@ describe('Write text over image', function() {
 
         image
             .print(font, 0, 0, 'ツ ツ ツ', 100)
-            .bitmap.should.be.deepEqual(expectedImg.bitmap);
+            .bitmap.data.should.be.deepEqual(expectedImg.bitmap.data);
     });
 
     it('left-align text by default', async () => {
@@ -97,7 +99,7 @@ describe('Write text over image', function() {
         );
 
         return Promise.all([expectedImage, textImage]).then(results => {
-            results[0].bitmap.should.be.deepEqual(results[1].bitmap);
+            results[0].bitmap.data.should.be.deepEqual(results[1].bitmap.data);
         });
     });
 
@@ -114,7 +116,7 @@ describe('Write text over image', function() {
         );
 
         return Promise.all([expectedImage, textImage]).then(results => {
-            results[0].bitmap.should.be.deepEqual(results[1].bitmap);
+            results[0].bitmap.data.should.be.deepEqual(results[1].bitmap.data);
         });
     });
 
@@ -135,7 +137,7 @@ describe('Write text over image', function() {
         );
 
         return Promise.all([expectedImage, textImage]).then(results => {
-            results[0].bitmap.should.be.deepEqual(results[1].bitmap);
+            results[0].bitmap.data.should.be.deepEqual(results[1].bitmap.data);
         });
     });
 
@@ -156,7 +158,7 @@ describe('Write text over image', function() {
         );
 
         return Promise.all([expectedImage, textImage]).then(results => {
-            results[0].bitmap.should.be.deepEqual(results[1].bitmap);
+            results[0].bitmap.data.should.be.deepEqual(results[1].bitmap.data);
         });
     });
 
@@ -177,7 +179,7 @@ describe('Write text over image', function() {
         );
 
         return Promise.all([expectedImage, textImage]).then(results => {
-            results[0].bitmap.should.be.deepEqual(results[1].bitmap);
+            results[0].bitmap.data.should.be.deepEqual(results[1].bitmap.data);
         });
     });
 
@@ -199,7 +201,7 @@ describe('Write text over image', function() {
         );
 
         return Promise.all([expectedImage, textImage]).then(results => {
-            results[0].bitmap.should.be.deepEqual(results[1].bitmap);
+            results[0].bitmap.data.should.be.deepEqual(results[1].bitmap.data);
         });
     });
 
@@ -221,7 +223,7 @@ describe('Write text over image', function() {
         );
 
         return Promise.all([expectedImage, textImage]).then(results => {
-            results[0].bitmap.should.be.deepEqual(results[1].bitmap);
+            results[0].bitmap.data.should.be.deepEqual(results[1].bitmap.data);
         });
     });
 });
