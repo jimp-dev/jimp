@@ -127,7 +127,7 @@ export function getBuffer(mime, cb) {
         return throwError.call(this, 'cb must be a function', cb);
     }
 
-    if (this._rgba) {
+    if (this._rgba && this.constructor.hasAlpha[mime.toLowerCase()]) {
         this.bitmap.data = Buffer.from(this.bitmap.data);
     } else {
         // when format doesn't support alpha

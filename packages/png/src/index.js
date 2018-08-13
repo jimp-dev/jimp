@@ -26,6 +26,7 @@ module.exports = config => {
     config.class._deflateStrategy = 3;
     config.class._filterType = PNG_FILTER_AUTO;
 
+    config.hasAlpha[MIME_TYPE] = true;
     config.decoders[MIME_TYPE] = PNG.sync.read;
     config.encoders[MIME_TYPE] = data => {
         const png = new PNG({
