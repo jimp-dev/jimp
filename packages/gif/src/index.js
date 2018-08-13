@@ -19,4 +19,6 @@ module.exports = config => {
             height: gifObj.height
         };
     };
+
+    return [MIME_TYPE, ['gif']];
 };

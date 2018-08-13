@@ -1264,7 +1264,8 @@ class TapableJimp {
     }
 
     addImageType(type) {
-        require(type)(this.jimpConfig);
+        const [mime, extensions] = require(type)(this.jimpConfig);
+        MIME.addType(mime, extensions);
     }
 }
 

@@ -36,4 +36,6 @@ module.exports = config => {
 
         return this;
     };
+
+    return [MIME_TYPE, ['jpeg', 'jpg', 'jpe']];
 };

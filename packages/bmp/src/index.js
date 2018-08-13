@@ -53,4 +53,6 @@ module.exports = config => {
     config.encoders[MIME_TYPE] = encode;
     config.decoders[MIME_TYPE_SECOND] = decode;
     config.encoders[MIME_TYPE_SECOND] = encode;
+
+    return [MIME_TYPE, ['bmp']];
 };

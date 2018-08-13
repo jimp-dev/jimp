@@ -1,13 +1,11 @@
-const mimeTypes = {
-    'image/bmp': ['bmp'],
-    'image/gif': ['gif'],
-    'image/jpeg': ['jpeg', 'jpg', 'jpe'],
-    'image/png': ['png'],
-    'image/tiff': ['tiff', 'tif']
-};
+const mimeTypes = {};
 
 const findType = extension =>
     Object.entries(mimeTypes).find(type => type[1].includes(extension)) || [];
+
+export const addType = (mime, extensions) => {
+    mimeTypes[mime] = extensions;
+};
 
 /**
  * Lookup a mime type based on extension

@@ -119,4 +119,6 @@ module.exports = config => {
 
         return this;
     };
+
+    return [MIME_TYPE, ['png']];
 };

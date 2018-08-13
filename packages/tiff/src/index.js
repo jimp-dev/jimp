@@ -27,4 +27,6 @@ module.exports = config => {
 
         return Buffer.from(tiff);
     };
+
+    return [MIME_TYPE, ['tiff', 'tif']];
 };
