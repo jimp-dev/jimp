@@ -9,7 +9,7 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "exif-parser": "^0.1.12",
+    "@jimp/utils": "^0.3.4",
     "jpeg-js": "^0.3.4"
   }
 }

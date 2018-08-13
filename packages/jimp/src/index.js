@@ -178,18 +178,6 @@ class Jimp extends EventEmitter {
     //  - height: the height of the image in pixels
     bitmap = emptyBitmap;
 
-    // The quality to be used when saving JPEG images
-    _quality = 100;
-
-    _deflateLevel = 9;
-
-    _deflateStrategy = 3;
-
-    _filterType = Jimp.PNG_FILTER_AUTO;
-
-    // Whether PNGs will be exported as RGB or RGBA
-    _rgba = true;
-
     // Default colour to use for new pixels
     _background = 0x00000000;
 
@@ -451,7 +439,7 @@ class Jimp extends EventEmitter {
 
     /**
      * Writes the image to a file
-     * @param {string} path a path to the destination file (either PNG or JPEG)
+     * @param {string} path a path to the destination file
      * @param {function(Error, Jimp)} cb (optional) a function to call when the image is saved to disk
      * @returns {Jimp} this for chaining of methods
      */
@@ -505,130 +493,6 @@ class Jimp extends EventEmitter {
     }
 
     writeAsync = path => promisify(this.write, this, path);
-
-    /**
-     * Sets the deflate level used when saving as PNG format (default is 9)
-     * @param {number} l Deflate level to use 0-9. 0 is no compression. 9 (default) is maximum compression.
-     * @param {function(Error, Jimp)} cb (optional) a callback for when complete
-     * @returns {Jimp} this for chaining of methods
-     */
-    deflateLevel(l, cb) {
-        if (typeof l !== 'number') {
-            return throwError.call(this, 'l must be a number', cb);
-        }
-
-        if (l < 0 || l > 9) {
-            return throwError.call(this, 'l must be a number 0 - 9', cb);
-        }
-
-        this._deflateLevel = Math.round(l);
-
-        if (isNodePattern(cb)) {
-            cb.call(this, null, this);
-        }
-
-        return this;
-    }
-
-    /**
-     * Sets the deflate strategy used when saving as PNG format (default is 3)
-     * @param {number} s Deflate strategy to use 0-3.
-     * @param {function(Error, Jimp)} cb (optional) a callback for when complete
-     * @returns {Jimp} this for chaining of methods
-     */
-    deflateStrategy(s, cb) {
-        if (typeof s !== 'number') {
-            return throwError.call(this, 's must be a number', cb);
-        }
-
-        if (s < 0 || s > 3) {
-            return throwError.call(this, 's must be a number 0 - 3', cb);
-        }
-
-        this._deflateStrategy = Math.round(s);
-
-        if (isNodePattern(cb)) {
-            cb.call(this, null, this);
-        }
-
-        return this;
-    }
-
-    /**
-     * Sets the filter type used when saving as PNG format (default is automatic filters)
-     * @param {number} f The quality to use -1-4.
-     * @param {function(Error, Jimp)} cb (optional) a callback for when complete
-     * @returns {Jimp} this for chaining of methods
-     */
-    filterType(f, cb) {
-        if (typeof f !== 'number') {
-            return throwError.call(this, 'n must be a number', cb);
-        }
-
-        if (f < -1 || f > 4) {
-            return throwError.call(
-                this,
-                'n must be -1 (auto) or a number 0 - 4',
-                cb
-            );
-        }
-
-        this._filterType = Math.round(f);
-
-        if (isNodePattern(cb)) {
-            cb.call(this, null, this);
-        }
-
-        return this;
-    }
-
-    /**
-     * Sets the type of the image (RGB or RGBA) when saving as PNG format (default is RGBA)
-     * @param {boolean} bool A Boolean, true to use RGBA or false to use RGB
-     * @param {function(Error, Jimp)} cb (optional) a callback for when complete
-     * @returns {Jimp} this for chaining of methods
-     */
-    rgba(bool, cb) {
-        if (typeof bool !== 'boolean') {
-            return throwError.call(
-                this,
-                'bool must be a boolean, true for RGBA or false for RGB',
-                cb
-            );
-        }
-
-        this._rgba = bool;
-
-        if (isNodePattern(cb)) {
-            cb.call(this, null, this);
-        }
-
-        return this;
-    }
-
-    /**
-     * Sets the quality of the image when saving as JPEG format (default is 100)
-     * @param {number} n The quality to use 0-100
-     * @param {function(Error, Jimp)} cb (optional) a callback for when complete
-     * @returns {Jimp} this for chaining of methods
-     */
-    quality(n, cb) {
-        if (typeof n !== 'number') {
-            return throwError.call(this, 'n must be a number', cb);
-        }
-
-        if (n < 0 || n > 100) {
-            return throwError.call(this, 'n must be a number 0 - 100', cb);
-        }
-
-        this._quality = Math.round(n);
-
-        if (isNodePattern(cb)) {
-            cb.call(this, null, this);
-        }
-
-        return this;
-    }
 
     /**
      * Converts the image to a base 64 string
@@ -848,15 +712,20 @@ class Jimp extends EventEmitter {
     setPixelColour = this.setPixelColor;
 }
 
-Object.entries(constants).forEach(([name, value]) => {
-    Jimp[name] = value;
-});
+function addConstants(constants) {
+    Object.entries(constants).forEach(([name, value]) => {
+        Jimp[name] = value;
+    });
+}
 
-Object.entries({ ...color, ...shape, ...text, ...effects }).forEach(
-    ([name, value]) => {
+function addJimpMethods(methods) {
+    Object.entries(methods).forEach(([name, value]) => {
         Jimp.prototype[name] = value;
-    }
-);
+    });
+}
+
+addConstants(constants);
+addJimpMethods({ ...color, ...shape, ...text, ...effects });
 
 Jimp.__extraConstructors = [];
 
@@ -1357,28 +1226,31 @@ if (process.env.ENVIRONMENT === 'BROWSER') {
     gl.Buffer = Buffer;
 }
 
-const JPEG = require('@jimp/jpeg');
-const PNG = require('@jimp/png');
-
 class TapableJimp {
     constructor() {
         this.jimpConfig = {
             encoders: {},
-            decoders: {}
+            decoders: {},
+            class: {},
+            constants: {}
         };
     }
 
     addImageType(type) {
-        type(this.jimpConfig);
+        require(type)(this.jimpConfig);
     }
 }
 
 const tapable = new TapableJimp();
 
-tapable.addImageType(JPEG);
-tapable.addImageType(PNG);
-console.log(tapable.jimpConfig);
+tapable.addImageType('@jimp/jpeg');
+tapable.addImageType('@jimp/png');
+tapable.addImageType('@jimp/bmp');
+
 Jimp.decoders = tapable.jimpConfig.decoders;
 Jimp.encoders = tapable.jimpConfig.encoders;
+
+addJimpMethods(tapable.jimpConfig.class);
+addConstants(tapable.jimpConfig.constants);
 
 export default Jimp;

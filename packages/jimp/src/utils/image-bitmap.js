@@ -1,6 +1,5 @@
 import fileType from 'file-type';
 
-import BMP from 'bmp-js';
 import UTIF from 'utif';
 import EXIFParser from 'exif-parser';
 import GIF from 'omggif';
@@ -134,7 +133,9 @@ export function parseBitmap(data, path, cb) {
 
             case constants.MIME_BMP:
             case constants.MIME_X_MS_BMP:
-                this.bitmap = BMP.decode(data);
+                this.bitmap = this.constructor.decoders[constants.MIME_BMP](
+                    data
+                );
 
                 fromAGBR(this);
 
@@ -207,10 +208,12 @@ export function getBuffer(mime, cb) {
 
         case constants.MIME_JPEG: {
             // composite onto a new image so that the background shows through alpha channels
-            const jpeg = this.constructor.encoders[constants.MIME_JPEG](
-                compositeBitmapOverBackground(this.constructor, this),
-                this._quality
-            );
+            this.bitmap.data = compositeBitmapOverBackground(
+                this.constructor,
+                this
+            ).data;
+
+            const jpeg = this.constructor.encoders[constants.MIME_JPEG](this);
             cb.call(this, null, jpeg.data);
             break;
         }
@@ -220,7 +223,7 @@ export function getBuffer(mime, cb) {
             // composite onto a new image so that the background shows through alpha channels
             toAGBR(this);
 
-            const bmp = BMP.encode(
+            const bmp = this.constructor.encoders[constants.MIME_BMP](
                 compositeBitmapOverBackground(this.constructor, this)
             );
             cb.call(this, null, bmp.data);

@@ -4,7 +4,7 @@ import fs from 'fs';
 import should from 'should';
 import { Jimp, getTestDir } from './test-helper';
 
-describe.only('FileType', () => {
+describe('FileType', () => {
     const imagesDir = getTestDir() + '/samples';
 
     it('write uses original MIME type', async () => {
@@ -104,6 +104,7 @@ describe.only('FileType', () => {
 
     it('export JPG', async () => {
         const image = await Jimp.read(simpleJGD);
+        image.quality(50);
         const buffer = await image.getBufferAsync('image/jpeg');
 
         buffer.toString().should.match(/^.{3,9}JFIF\u0000/);
