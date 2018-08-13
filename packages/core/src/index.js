@@ -12,7 +12,6 @@ import request from './request';
 
 import * as text from './image-manipulation/text';
 import * as shape from './image-manipulation/shape';
-import * as color from './image-manipulation/color';
 import * as effects from './image-manipulation/effects';
 
 import scan from './utils/scan';
@@ -752,7 +751,7 @@ export function addJimpMethods(methods) {
 }
 
 addConstants(constants);
-addJimpMethods({ ...color, ...shape, ...text, ...effects });
+addJimpMethods({ ...shape, ...text, ...effects });
 
 Jimp.__extraConstructors = [];
 

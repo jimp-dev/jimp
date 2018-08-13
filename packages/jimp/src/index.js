@@ -6,6 +6,7 @@ export default configure({
         '@jimp/plugin-resize',
         '@jimp/plugin-blit',
         '@jimp/plugin-rotate',
+        '@jimp/plugin-color',
         '@jimp/plugin-crop'
     ]
 });

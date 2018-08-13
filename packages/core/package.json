@@ -46,8 +46,7 @@
     "load-bmfont": "^1.3.0",
     "mkdirp": "0.5.1",
     "phin": "^2.9.1",
-    "pixelmatch": "^4.0.2",
-    "tinycolor2": "^1.4.1"
+    "pixelmatch": "^4.0.2"
   },
   "xo": false
 }
