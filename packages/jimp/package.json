@@ -67,7 +67,8 @@
     "@jimp/plugin-resize": "0.3.5",
     "@jimp/plugin-blit": "0.3.5",
     "@jimp/plugin-rotate": "0.3.5",
-    "@jimp/plugin-crop": "0.3.5"
+    "@jimp/plugin-crop": "0.3.5",
+    "@jimp/plugin-autocrop": "0.3.5"
   },
   "devDependencies": {
     "babelify": "^9.0.0",
