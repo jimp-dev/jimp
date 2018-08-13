@@ -14,13 +14,25 @@ export default function configure(configuration) {
         constants: {}
     };
 
-    function addImageType(type) {
-        const [mime, extensions] = require(type)(jimpConfig);
-        addType(mime, extensions);
+    function addToConfig(newConfig) {
+        Object.entries(newConfig).forEach(([key, value]) => {
+            jimpConfig[key] = {
+                ...jimpConfig[key],
+                ...value
+            };
+        });
     }
 
-    function addPlugin(plugin) {
-        require(plugin)(jimpConfig, jimpEvChange);
+    function addImageType(typeModule) {
+        const type = require(typeModule)();
+        addType(...type.mime);
+        delete type.mime;
+        addToConfig(type);
+    }
+
+    function addPlugin(pluginModule) {
+        const plugin = require(pluginModule)(jimpEvChange) || {};
+        addToConfig(plugin);
     }
 
     if (configuration.types) {

@@ -1,6 +1,6 @@
 import { throwError, isNodePattern } from '@jimp/utils';
 
-export default function pluginBlit(config, event) {
+export default function pluginCrop(event) {
     /**
      * Crops the image at a given point to a give size
      * @param {number} x the x coordinate to crop form
