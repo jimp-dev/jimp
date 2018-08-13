@@ -465,7 +465,11 @@ export function composite(src, x, y, options = {}, cb) {
         sy,
         idx
     ) {
-        const dstIdx = baseImage.getPixelIndex(x + sx, y + sy);
+        const dstIdx = baseImage.getPixelIndex(
+            x + sx,
+            y + sy,
+            constants.EDGE_CROP
+        );
         const blended = blendmode(
             {
                 r: this.bitmap.data[idx + 0] / 255,
