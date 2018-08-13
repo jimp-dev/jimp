@@ -1,12 +1,6 @@
 // used to auto resizing etc.
 export const AUTO = -1;
 
-export const RESIZE_NEAREST_NEIGHBOR = 'nearestNeighbor';
-export const RESIZE_BILINEAR = 'bilinearInterpolation';
-export const RESIZE_BICUBIC = 'bicubicInterpolation';
-export const RESIZE_HERMITE = 'hermiteInterpolation';
-export const RESIZE_BEZIER = 'bezierInterpolation';
-
 // Align modes for cover, contain, bit masks
 export const HORIZONTAL_ALIGN_LEFT = 1;
 export const HORIZONTAL_ALIGN_CENTER = 2;

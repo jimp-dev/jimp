@@ -1,8 +1,5 @@
 /* eslint-disable no-labels */
 
-import Resize from '../modules/resize';
-import Resize2 from '../modules/resize2';
-
 import { isNodePattern, throwError } from '../utils/error-checking';
 import * as constants from '../constants';
 
@@ -259,77 +256,6 @@ function flipFn(horizontal, vertical, cb) {
 
 export const flip = flipFn;
 export const mirror = flipFn;
-
-/**
- * Resizes the image to a set width and height using a 2-pass bilinear algorithm
- * @param {number} w the width to resize the image to (or Jimp.AUTO)
- * @param {number} h the height to resize the image to (or Jimp.AUTO)
- * @param {string} mode (optional) a scaling method (e.g. Jimp.RESIZE_BEZIER)
- * @param {function(Error, Jimp)} cb (optional) a callback for when complete
- * @returns {Jimp} this for chaining of methods
- */
-export function resize(w, h, mode, cb) {
-    if (typeof w !== 'number' || typeof h !== 'number') {
-        return throwError.call(this, 'w and h must be numbers', cb);
-    }
-
-    if (typeof mode === 'function' && typeof cb === 'undefined') {
-        cb = mode;
-        mode = null;
-    }
-
-    if (w === constants.AUTO && h === constants.AUTO) {
-        return throwError.call(this, 'w and h cannot both be set to auto', cb);
-    }
-
-    if (w === constants.AUTO) {
-        w = this.bitmap.width * (h / this.bitmap.height);
-    }
-
-    if (h === constants.AUTO) {
-        h = this.bitmap.height * (w / this.bitmap.width);
-    }
-
-    if (w < 0 || h < 0) {
-        return throwError.call(this, 'w and h must be positive numbers', cb);
-    }
-
-    // round inputs
-    w = Math.round(w);
-    h = Math.round(h);
-
-    if (typeof Resize2[mode] === 'function') {
-        const dst = {
-            data: Buffer.alloc(w * h * 4),
-            width: w,
-            height: h
-        };
-        Resize2[mode](this.bitmap, dst);
-        this.bitmap = dst;
-    } else {
-        const image = this;
-        const resize = new Resize(
-            this.bitmap.width,
-            this.bitmap.height,
-            w,
-            h,
-            true,
-            true,
-            buffer => {
-                image.bitmap.data = Buffer.from(buffer);
-                image.bitmap.width = w;
-                image.bitmap.height = h;
-            }
-        );
-        resize.resize(this.bitmap.data);
-    }
-
-    if (isNodePattern(cb)) {
-        cb.call(this, null, this);
-    }
-
-    return this;
-}
 
 /**
  * Scale the image so the given width and height keeping the aspect ratio. Some parts of the image may be clipped.

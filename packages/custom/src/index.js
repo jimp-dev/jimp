@@ -14,16 +14,24 @@ export default function configure(configuration) {
         addType(mime, extensions);
     }
 
+    function addPlugin(plugin) {
+        require(plugin)(jimpConfig);
+    }
+
     if (configuration.types) {
         configuration.types.forEach(addImageType);
 
         Jimp.decoders = jimpConfig.decoders;
         Jimp.encoders = jimpConfig.encoders;
         Jimp.hasAlpha = jimpConfig.hasAlpha;
-
-        addJimpMethods(jimpConfig.class);
-        addConstants(jimpConfig.constants);
     }
+
+    if (configuration.plugins) {
+        configuration.plugins.forEach(addPlugin);
+    }
+
+    addJimpMethods(jimpConfig.class);
+    addConstants(jimpConfig.constants);
 
     return Jimp;
 }
