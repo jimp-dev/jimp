@@ -1,6 +1,5 @@
 import fileType from 'file-type';
 
-import UTIF from 'utif';
 import EXIFParser from 'exif-parser';
 import GIF from 'omggif';
 
@@ -117,16 +116,9 @@ export function parseBitmap(data, path, cb) {
                 break;
 
             case constants.MIME_TIFF: {
-                const ifds = UTIF.decode(data);
-                const page = ifds[0];
-                UTIF.decodeImages(data, ifds);
-                const rgba = UTIF.toRGBA8(page);
-
-                this.bitmap = {
-                    data: Buffer.from(rgba),
-                    width: page.t256[0],
-                    height: page.t257[0]
-                };
+                this.bitmap = this.constructor.decoders[constants.MIME_TIFF](
+                    data
+                );
 
                 break;
             }
@@ -213,15 +205,14 @@ export function getBuffer(mime, cb) {
 
         case constants.MIME_BMP:
         case constants.MIME_X_MS_BMP: {
-            const bmp = this.constructor.encoders[constants.MIME_BMP](this);
-            cb.call(this, null, bmp.data);
+            const buffer = this.constructor.encoders[constants.MIME_BMP](this);
+            cb.call(this, null, buffer);
             break;
         }
 
         case constants.MIME_TIFF: {
-            const c = compositeBitmapOverBackground(this.constructor, this);
-            const tiff = UTIF.encodeImage(c.data, c.width, c.height);
-            cb.call(this, null, Buffer.from(tiff));
+            const buffer = this.constructor.encoders[constants.MIME_TIFF](this);
+            cb.call(this, null, buffer);
             break;
         }
 

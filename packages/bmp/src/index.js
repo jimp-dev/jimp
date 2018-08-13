@@ -39,5 +39,5 @@ function fromAGBR(bitmap) {
 
 module.exports = config => {
     config.decoders['image/bmp'] = data => fromAGBR(BMP.decode(data));
-    config.encoders['image/bmp'] = image => BMP.encode(toAGBR(image));
+    config.encoders['image/bmp'] = image => BMP.encode(toAGBR(image)).data;
 };

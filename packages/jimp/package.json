@@ -60,6 +60,7 @@
     "@jimp/jpeg": "0.3.5",
     "@jimp/png": "0.3.5",
     "@jimp/bmp": "0.3.5",
+    "@jimp/tiff": "0.3.5",
     "any-base": "^1.1.0",
     "bmp-js": "0.1.0",
     "buffer": "^5.2.0",

@@ -1273,6 +1273,7 @@ const tapable = new TapableJimp();
 tapable.addImageType('@jimp/jpeg');
 tapable.addImageType('@jimp/png');
 tapable.addImageType('@jimp/bmp');
+tapable.addImageType('@jimp/tiff');
 
 Jimp.decoders = tapable.jimpConfig.decoders;
 Jimp.encoders = tapable.jimpConfig.encoders;
