@@ -1,0 +1,15 @@
+{
+  "name": "@jimp/gif",
+  "version": "0.3.5",
+  "description": "Default Jimp gif encoder/decoder.",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@jimp/utils": "^0.3.4",
+    "omggif": "^1.0.9"
+  }
+}

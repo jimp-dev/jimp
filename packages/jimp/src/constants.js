@@ -1,23 +1,6 @@
 // used to auto resizing etc.
 export const AUTO = -1;
 
-// supported mime types
-export const MIME_PNG = 'image/png';
-export const MIME_TIFF = 'image/tiff';
-export const MIME_JPEG = 'image/jpeg';
-export const MIME_JGD = 'image/jgd';
-export const MIME_BMP = 'image/bmp';
-export const MIME_X_MS_BMP = 'image/x-ms-bmp';
-export const MIME_GIF = 'image/gif';
-
-// PNG filter types
-export const PNG_FILTER_AUTO = -1;
-export const PNG_FILTER_NONE = 0;
-export const PNG_FILTER_SUB = 1;
-export const PNG_FILTER_UP = 2;
-export const PNG_FILTER_AVERAGE = 3;
-export const PNG_FILTER_PATH = 4;
-
 export const RESIZE_NEAREST_NEIGHBOR = 'nearestNeighbor';
 export const RESIZE_BILINEAR = 'bilinearInterpolation';
 export const RESIZE_BICUBIC = 'bicubicInterpolation';

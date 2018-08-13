@@ -1274,6 +1274,7 @@ tapable.addImageType('@jimp/jpeg');
 tapable.addImageType('@jimp/png');
 tapable.addImageType('@jimp/bmp');
 tapable.addImageType('@jimp/tiff');
+tapable.addImageType('@jimp/gif');
 
 Jimp.decoders = tapable.jimpConfig.decoders;
 Jimp.encoders = tapable.jimpConfig.encoders;

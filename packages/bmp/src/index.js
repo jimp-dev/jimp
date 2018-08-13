@@ -1,6 +1,9 @@
 const BMP = require('bmp-js');
 const { scan } = require('@jimp/utils');
 
+const MIME_TYPE = 'image/bmp';
+const MIME_TYPE_SECOND = 'image/x-ms-bmp';
+
 function toAGBR(image) {
     return scan(image, 0, 0, image.bitmap.width, image.bitmap.height, function(
         x,
@@ -38,6 +41,16 @@ function fromAGBR(bitmap) {
 }
 
 module.exports = config => {
-    config.decoders['image/bmp'] = data => fromAGBR(BMP.decode(data));
-    config.encoders['image/bmp'] = image => BMP.encode(toAGBR(image)).data;
+    config.constants = {
+        MIME_BMP: MIME_TYPE,
+        MIME_X_MS_BMP: MIME_TYPE_SECOND
+    };
+
+    const decode = data => fromAGBR(BMP.decode(data));
+    const encode = image => BMP.encode(toAGBR(image)).data;
+
+    config.decoders[MIME_TYPE] = decode;
+    config.encoders[MIME_TYPE] = encode;
+    config.decoders[MIME_TYPE_SECOND] = decode;
+    config.encoders[MIME_TYPE_SECOND] = encode;
 };

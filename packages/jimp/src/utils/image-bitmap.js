@@ -1,10 +1,8 @@
 import fileType from 'file-type';
 
 import EXIFParser from 'exif-parser';
-import GIF from 'omggif';
 
 import * as constants from '../constants';
-import { toAGBR, fromAGBR } from './abgr';
 import { throwError } from './error-checking';
 import * as MIME from './mime';
 import promisify from './promisify';
@@ -24,20 +22,6 @@ function getMIMEFromBuffer(buffer, path) {
     }
 
     return null;
-}
-
-// gets image data from a GIF buffer
-function getBitmapFromGIF(data) {
-    const gifObj = new GIF.GifReader(data);
-    const gifData = Buffer.alloc(gifObj.width * gifObj.height * 4);
-
-    gifObj.decodeAndBlitFrameRGBA(0, gifData);
-
-    return {
-        data: gifData,
-        width: gifObj.width,
-        height: gifObj.height
-    };
 }
 
 /*
@@ -92,58 +76,22 @@ export function parseBitmap(data, path, cb) {
     this._originalMime = mime.toLowerCase();
 
     try {
-        switch (this.getMIME()) {
-            case constants.MIME_PNG: {
-                this.bitmap = this.constructor.decoders[constants.MIME_PNG](
-                    data
-                );
+        const mime = this.getMIME();
 
-                break;
-            }
-
-            case constants.MIME_JPEG:
-                this.bitmap = this.constructor.decoders[constants.MIME_JPEG](
-                    data
-                );
-
-                try {
-                    this._exif = EXIFParser.create(data).parse();
-                    exifRotate(this); // EXIF data
-                } catch (err) {
-                    /* meh */
-                }
-
-                break;
-
-            case constants.MIME_TIFF: {
-                this.bitmap = this.constructor.decoders[constants.MIME_TIFF](
-                    data
-                );
-
-                break;
-            }
-
-            case constants.MIME_BMP:
-            case constants.MIME_X_MS_BMP:
-                this.bitmap = this.constructor.decoders[constants.MIME_BMP](
-                    data
-                );
-
-                break;
-
-            case constants.MIME_GIF:
-                this.bitmap = getBitmapFromGIF(data);
-                break;
-
-            default:
-                return throwError.call(
-                    this,
-                    'Unsupported MIME type: ' + mime,
-                    cb
-                );
+        if (this.constructor.decoders[mime]) {
+            this.bitmap = this.constructor.decoders[mime](data);
+        } else {
+            return throwError.call(this, 'Unsupported MIME type: ' + mime, cb);
         }
     } catch (error) {
         cb.call(this, error, this);
+    }
+
+    try {
+        this._exif = EXIFParser.create(data).parse();
+        exifRotate(this); // EXIF data
+    } catch (err) {
+        /* meh */
     }
 
     cb.call(this, null, this);
