@@ -190,35 +190,11 @@ export function getBuffer(mime, cb) {
         ).data;
     }
 
-    switch (mime.toLowerCase()) {
-        case constants.MIME_PNG: {
-            const buffer = this.constructor.encoders[constants.MIME_PNG](this);
-            cb.call(this, null, buffer);
-            break;
-        }
-
-        case constants.MIME_JPEG: {
-            const buffer = this.constructor.encoders[constants.MIME_JPEG](this);
-            cb.call(this, null, buffer);
-            break;
-        }
-
-        case constants.MIME_BMP:
-        case constants.MIME_X_MS_BMP: {
-            const buffer = this.constructor.encoders[constants.MIME_BMP](this);
-            cb.call(this, null, buffer);
-            break;
-        }
-
-        case constants.MIME_TIFF: {
-            const buffer = this.constructor.encoders[constants.MIME_TIFF](this);
-            cb.call(this, null, buffer);
-            break;
-        }
-
-        default:
-            cb.call(this, 'Unsupported MIME type: ' + mime);
-            break;
+    if (this.constructor.encoders[mime.toLowerCase()]) {
+        const buffer = this.constructor.encoders[mime.toLowerCase()](this);
+        cb.call(this, null, buffer);
+    } else {
+        cb.call(this, 'Unsupported MIME type: ' + mime);
     }
 
     return this;
