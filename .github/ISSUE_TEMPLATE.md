@@ -12,7 +12,7 @@
 
 ## Steps to Reproduce
 
-<!-- Please provide detailed steps for reproducing the issue.
+<!-- Please provide detailed steps for reproducing the issue. Or provide a small runnable code example.
 
 1. step 1
 2. step 2
