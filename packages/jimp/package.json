@@ -57,6 +57,7 @@
   "license": "MIT",
   "dependencies": {
     "@babel/polyfill": "^7.0.0-rc.1",
+    "@jimp/core": "0.3.5",
     "@jimp/jpeg": "0.3.5",
     "@jimp/png": "0.3.5",
     "@jimp/bmp": "0.3.5",
