@@ -1,4 +1,9 @@
-import Jimp, { addType, addJimpMethods, addConstants } from '@jimp/core';
+import Jimp, {
+    addType,
+    addJimpMethods,
+    addConstants,
+    jimpEvChange
+} from '@jimp/core';
 
 export default function configure(configuration) {
     const jimpConfig = {
@@ -15,7 +20,7 @@ export default function configure(configuration) {
     }
 
     function addPlugin(plugin) {
-        require(plugin)(jimpConfig);
+        require(plugin)(jimpConfig, jimpEvChange);
     }
 
     if (configuration.types) {
