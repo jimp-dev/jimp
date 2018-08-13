@@ -6,7 +6,8 @@
   "scripts": {
     "lint": "oao run-script lint",
     "lint": "oao run-script test",
-    "build": "oao run-script build"
+    "build": "oao run-script build",
+    "start": "oao run-script build:watch --parallel"
   },
   "devDependencies": {
     "@babel/cli": "^7.0.0-rc.1",

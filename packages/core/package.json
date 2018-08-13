@@ -29,6 +29,7 @@
     "test:node:coverage": "nyc npm run test:node",
     "test": "npm run -s test:node:coverage && npm run -s test:browser",
     "build": "npm run build:node:production && npm run build:module",
+    "build:watch": "npm run build:node:debug -- -- --watch --verbose",
     "build:debug": "npm run build:node:debug",
     "build:module": "cross-env BABEL_ENV=module babel src -d es --source-maps",
     "build:node": "babel src -d dist --source-maps",
