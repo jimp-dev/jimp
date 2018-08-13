@@ -11,5 +11,8 @@
   "dependencies": {
     "@jimp/utils": "^0.3.4",
     "bmp-js": "^0.1.0"
+  },
+  "peerDependencies": {
+    "jimp": "0.3.5"
   }
 }

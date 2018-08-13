@@ -18,8 +18,6 @@
     "@jimp/utils": "^0.3.4"
   },
   "peerDependencies": {
-    "jimp": "0.3.5",
-    "@jimp/plugin-resize": "0.3.5",
-    "@jimp/plugin-blit": "0.3.5"
+    "jimp": "0.3.5"
   }
 }

@@ -11,5 +11,8 @@
   "dependencies": {
     "@jimp/utils": "^0.3.4",
     "pngjs": "^3.3.3"
+  },
+  "peerDependencies": {
+    "jimp": "0.3.5"
   }
 }

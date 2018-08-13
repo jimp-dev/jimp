@@ -10,5 +10,8 @@
   "license": "MIT",
   "dependencies": {
     "utif": "^2.0.0"
+  },
+  "peerDependencies": {
+    "jimp": "0.3.5"
   }
 }
