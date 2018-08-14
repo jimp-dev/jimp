@@ -6,6 +6,7 @@ import anyBase from 'any-base';
 import bMFont from 'load-bmfont';
 import MkDirP from 'mkdirp';
 import pixelMatch from 'pixelmatch';
+import tinyColor from 'tinycolor2';
 
 import ImagePHash from './modules/phash';
 import request from './request';
@@ -235,8 +236,15 @@ class Jimp extends EventEmitter {
             const h = parseInt(args[1], 10);
             cb = args[2];
 
+            // with a hex color
             if (typeof args[2] === 'number') {
                 this._background = args[2];
+                cb = args[3];
+            }
+
+            // with a css color
+            if (typeof args[2] === 'string') {
+                this._background = Jimp.cssColorToHex(args[2]);
                 cb = args[3];
             }
 
@@ -973,6 +981,19 @@ Jimp.intToRGBA = function(i, cb) {
 };
 
 /**
+ * Converts a css color (Hex, 8-digit (RGBA) Hex, RGB, RGBA, HSL, HSLA, HSV, HSVA, Named) to a hex number
+ * @param {string} cssColor a number
+ * @returns {number} a hex number representing a color
+ */
+Jimp.cssColorToHex = function(cssColor) {
+    cssColor = cssColor || 0; // 0, null, undefined, NaN
+
+    if (typeof cssColor === 'number') return Number(cssColor);
+
+    return parseInt(tinyColor(cssColor).toHex8(), 16);
+};
+
+/**
  * Limits a number to between 0 or 255
  * @param {number} n a number
  * @returns {number} the number limited to between 0 or 255
@@ -1128,8 +1149,7 @@ Jimp.loadFont = function(file, cb) {
                 kernings[firstString] = kernings[firstString] || {};
                 kernings[firstString][
                     String.fromCharCode(font.kernings[i].second)
-                ] =
-                    font.kernings[i].amount;
+                ] = font.kernings[i].amount;
             }
 
             loadPages(Path.dirname(file), font.pages).then(pages => {

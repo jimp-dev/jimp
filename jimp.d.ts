@@ -220,6 +220,12 @@ declare namespace Jimp {
             background?: number,
             cb?: Jimp.ImageCallback
         );
+        constructor(
+            w: number,
+            h: number,
+            background?: string,
+            cb?: Jimp.ImageCallback
+        );
         // For custom constructors when using Jimp.appendConstructorOption
         constructor(...args: any[]);
 
@@ -522,6 +528,7 @@ declare namespace Jimp {
             cb: GenericCallback<number, any, Jimp>
         ): number;
         static intToRGBA(i: number, cb?: GenericCallback<Jimp.RGBA>): Jimp.RGBA;
+        static cssColorToHex(cssColor: string): number;
         static limit255(n: number): number;
         static diff(
             img1: Jimp,
