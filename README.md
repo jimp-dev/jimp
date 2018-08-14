@@ -504,7 +504,7 @@ Jimp.rgbaToInt(r, g, b, a); // e.g. converts 255, 255, 255, 255 to 0xFFFFFFFF
 Jimp.intToRGBA(hex); // e.g. converts 0xFFFFFFFF to {r: 255, g: 255, b: 255, a:255}
 ```
 
-You can convert a css hex color to its true rgba hexadecimal equivalent:
+You can convert a css color (Hex, RGB, RGBA, HSL, HSLA, HSV, HSVA, Named) to its hexadecimal equivalent:
 
 ```js
 Jimp.cssColorToHex(cssColor); // e.g. converts #FF00FF to 0xFF00FFFF
@@ -528,7 +528,7 @@ new Jimp(256, 256, 0xff0000ff, function(err, image) {
 });
 ```
 
-Or you can use the css hex color format:
+Or you can use a css color format:
 
 ```js
 new Jimp(256, 256, '#FF00FF', function(err, image) {
