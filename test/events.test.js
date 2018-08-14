@@ -20,6 +20,24 @@ describe('Events', () => {
                 })
                 .on('error', done);
         });
+
+        it('initializes with a color', done => {
+            new Jimp(2, 2, 0xffffffff)
+                .on('initialized', function() {
+                    this.getPixelColor(1, 1).should.be.equal(0xffffffff);
+                    done();
+                })
+                .on('error', done);
+        });
+
+        it('initializes with a css color', done => {
+            new Jimp(2, 2, '#FFFFFF')
+                .on('initialized', function() {
+                    this.getPixelColor(1, 1).should.be.equal(0xffffffff);
+                    done();
+                })
+                .on('error', done);
+        });
     });
 
     describe('on change', () => {
