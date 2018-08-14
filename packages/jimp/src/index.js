@@ -8,6 +8,7 @@ export default configure({
         '@jimp/plugin-rotate',
         '@jimp/plugin-color',
         '@jimp/plugin-print',
+        '@jimp/plugin-blur',
         '@jimp/plugin-autocrop',
         '@jimp/plugin-crop'
     ]
