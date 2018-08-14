@@ -236,11 +236,13 @@ class Jimp extends EventEmitter {
             const h = parseInt(args[1], 10);
             cb = args[2];
 
+            // with a hex color
             if (typeof args[2] === 'number') {
                 this._background = args[2];
                 cb = args[3];
             }
 
+            // with a css color
             if (typeof args[2] === 'string') {
                 this._background = Jimp.cssColorToHex(args[2]);
                 cb = args[3];
