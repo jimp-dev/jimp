@@ -30,13 +30,45 @@ describe('Events', () => {
                 .on('error', done);
         });
 
-        it('initializes with a css color', done => {
-            new Jimp(2, 2, '#FFFFFF')
-                .on('initialized', function() {
-                    this.getPixelColor(1, 1).should.be.equal(0xffffffff);
-                    done();
-                })
-                .on('error', done);
+        // (Hex, RGB, RGBA, HSL, HSLA, HSV, HSVA, Named)
+        it('initializes with a css color (Hex)', async () => {
+            const image = await Jimp.create(2, 2, '#FFFFFF');
+            image.getPixelColor(1, 1).should.be.equal(0xffffffff);
+        });
+
+        it('initializes with a css color (RGB)', async () => {
+            const image = await Jimp.create(2, 2, 'rgb (255, 255, 255)');
+            image.getPixelColor(1, 1).should.be.equal(0xffffffff);
+        });
+
+        it('initializes with a css color (RGBA)', async () => {
+            const image = await Jimp.create(2, 2, 'rgba (255, 255, 255, 1)');
+            image.getPixelColor(1, 1).should.be.equal(0xffffffff);
+        });
+
+        it('initializes with a css color (HSL)', async () => {
+            const image = await Jimp.create(2, 2, 'hsl (100%, 100%, 100%)');
+            image.getPixelColor(1, 1).should.be.equal(0xffffffff);
+        });
+
+        it('initializes with a css color (HSLA)', async () => {
+            const image = await Jimp.create(2, 2, 'hsla (100%, 100%, 100%, 1)');
+            image.getPixelColor(1, 1).should.be.equal(0xffffffff);
+        });
+
+        it('initializes with a css color (HSV)', async () => {
+            const image = await Jimp.create(2, 2, 'hsv (0%, 0%, 100%)');
+            image.getPixelColor(1, 1).should.be.equal(0xffffffff);
+        });
+
+        it('initializes with a css color (HSVA)', async () => {
+            const image = await Jimp.create(2, 2, 'hsva (0%, 0%, 100%, 1)');
+            image.getPixelColor(1, 1).should.be.equal(0xffffffff);
+        });
+
+        it('initializes with a css color (Named)', async () => {
+            const image = await Jimp.create(2, 2, 'WHITE');
+            image.getPixelColor(1, 1).should.be.equal(0xffffffff);
         });
     });
 

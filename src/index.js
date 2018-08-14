@@ -981,7 +981,7 @@ Jimp.intToRGBA = function(i, cb) {
 };
 
 /**
- * Converts a css color (#FFFFFF) to a hex number
+ * Converts a css color (Hex, 8-digit (RGBA) Hex, RGB, RGBA, HSL, HSLA, HSV, HSVA, Named) to a hex number
  * @param {string} cssColor a number
  * @returns {number} a hex number representing a color
  */
@@ -990,8 +990,7 @@ Jimp.cssColorToHex = function(cssColor) {
 
     if (typeof cssColor === 'number') return Number(cssColor);
 
-    const color = new tinyColor(cssColor);
-    return parseInt(color.toHex8(), 16);
+    return parseInt(tinyColor(cssColor).toHex8(), 16);
 };
 
 /**
