@@ -3,14 +3,12 @@ import Path from 'path';
 import EventEmitter from 'events';
 
 import anyBase from 'any-base';
-import bMFont from 'load-bmfont';
 import MkDirP from 'mkdirp';
 import pixelMatch from 'pixelmatch';
 
 import ImagePHash from './modules/phash';
 import request from './request';
 
-import * as text from './image-manipulation/text';
 import * as shape from './image-manipulation/shape';
 import * as effects from './image-manipulation/effects';
 
@@ -751,7 +749,7 @@ export function addJimpMethods(methods) {
 }
 
 addConstants(constants);
-addJimpMethods({ ...shape, ...text, ...effects });
+addJimpMethods({ ...shape, ...effects });
 
 Jimp.__extraConstructors = [];
 
@@ -978,65 +976,6 @@ Jimp.colorDiff = function(rgba1, rgba2) {
             )) /
         maxVal
     );
-};
-
-function loadPages(dir, pages) {
-    const newPages = pages.map(page => {
-        return Jimp.read(dir + '/' + page);
-    });
-
-    return Promise.all(newPages);
-}
-
-/**
- * Loads a bitmap font from a file
- * @param {string} file the file path of a .fnt file
- * @param {function(Error, Jimp)} cb (optional) a function to call when the font is loaded
- * @returns {Promise} a promise
- */
-Jimp.loadFont = function(file, cb) {
-    if (typeof file !== 'string')
-        return throwError.call(this, 'file must be a string', cb);
-
-    return new Promise((resolve, reject) => {
-        cb =
-            cb ||
-            function(err, font) {
-                if (err) reject(err);
-                else resolve(font);
-            };
-
-        bMFont(file, (err, font) => {
-            const chars = {};
-            const kernings = {};
-
-            if (err) {
-                return throwError.call(this, err, cb);
-            }
-
-            for (let i = 0; i < font.chars.length; i++) {
-                chars[String.fromCharCode(font.chars[i].id)] = font.chars[i];
-            }
-
-            for (let i = 0; i < font.kernings.length; i++) {
-                const firstString = String.fromCharCode(font.kernings[i].first);
-                kernings[firstString] = kernings[firstString] || {};
-                kernings[firstString][
-                    String.fromCharCode(font.kernings[i].second)
-                ] = font.kernings[i].amount;
-            }
-
-            loadPages(Path.dirname(file), font.pages).then(pages => {
-                cb(null, {
-                    chars,
-                    kernings,
-                    pages,
-                    common: font.common,
-                    info: font.info
-                });
-            });
-        });
-    });
 };
 
 /**
