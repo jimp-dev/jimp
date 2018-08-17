@@ -1,3 +1,5 @@
+<!-- IF YOU DO NOT FILL OUT THE FOLLOWING FORM YOUR ISSUE WILL AUTOMATICALLY BE CLOSED!!! -->
+
 # Expected Behavior
 
 <!-- Please describe the behavior you are expecting -->
