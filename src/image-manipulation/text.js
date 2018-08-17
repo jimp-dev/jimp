@@ -67,21 +67,27 @@ function drawCharacter(image, font, x, y, char) {
     return image;
 }
 
-function printText(font, x, y, text) {
+function printText(font, x, y, text, defaultCharWidth) {
     for (let i = 0; i < text.length; i++) {
         let char;
 
         if (font.chars[text[i]]) {
             char = text[i];
+        } else if (/\s/.test(text[i])) {
+            char = '';
         } else {
             char = '?';
         }
 
-        drawCharacter(this, font, x, y, font.chars[char]);
+        const fontChar = font.chars[char] || {};
+        const fontKerning = font.kernings[char];
+
+        drawCharacter(this, font, x, y, fontChar || {});
+
         x +=
-            (font.kernings[char] && font.kernings[char][text[i + 1]]
-                ? font.kernings[char][text[i + 1]]
-                : 0) + (font.chars[char].xadvance || 0);
+            (fontKerning && fontKerning[text[i + 1]]
+                ? fontKerning[text[i + 1]]
+                : 0) + (fontChar.xadvance || defaultCharWidth);
     }
 }
 
@@ -165,6 +171,7 @@ export function print(font, x, y, text, maxWidth, maxHeight, cb) {
 
     const words = text.split(' ');
     let line = '';
+    const defaultCharWidth = font.chars[0].xadvance;
 
     for (let n = 0; n < words.length; n++) {
         const testLine = line + words[n] + ' ';
@@ -189,7 +196,8 @@ export function print(font, x, y, text, maxWidth, maxHeight, cb) {
         font,
         x + xOffsetBasedOnAlignment(font, line, maxWidth, alignmentX),
         y,
-        line
+        line,
+        defaultCharWidth
     );
 
     if (isNodePattern(cb)) {
