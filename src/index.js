@@ -11,6 +11,8 @@ import tinyColor from 'tinycolor2';
 import ImagePHash from './modules/phash';
 import request from './request';
 
+import * as measureText from './utils/measure-text';
+import * as text from './image-manipulation/text';
 import * as text from './image-manipulation/text';
 import * as shape from './image-manipulation/shape';
 import * as color from './image-manipulation/color';
@@ -856,7 +858,7 @@ class Jimp extends EventEmitter {
     setPixelColour = this.setPixelColor;
 }
 
-Object.entries(constants).forEach(([name, value]) => {
+Object.entries({ ...constants, ...measureText }).forEach(([name, value]) => {
     Jimp[name] = value;
 });
 

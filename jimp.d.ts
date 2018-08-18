@@ -420,11 +420,7 @@ declare namespace Jimp {
             cb?: Jimp.ImageCallback
         ): this;
         scale(f: number, cb?: Jimp.ImageCallback): this;
-        scale(
-            f: number,
-            mode?: string,
-            cb?: Jimp.ImageCallback
-        ): this;
+        scale(f: number, mode?: string, cb?: Jimp.ImageCallback): this;
         scaleToFit(w: number, h: number, cb?: Jimp.ImageCallback): this;
         scaleToFit(
             w: number,
@@ -433,14 +429,8 @@ declare namespace Jimp {
             cb?: Jimp.ImageCallback
         ): this;
         displace(map: Jimp, offset: number, cb?: Jimp.ImageCallback): this;
-        autocrop(
-            tolerance?: number,
-            cb?: Jimp.ImageCallback
-        ): this;
-        autocrop(
-            cropOnlyFrames?: boolean,
-            cb?: Jimp.ImageCallback
-        ): this;
+        autocrop(tolerance?: number, cb?: Jimp.ImageCallback): this;
+        autocrop(cropOnlyFrames?: boolean, cb?: Jimp.ImageCallback): this;
         autocrop(
             tolerance?: number,
             cropOnlyFrames?: boolean,
@@ -543,6 +533,12 @@ declare namespace Jimp {
             file: string,
             cb: Jimp.GenericCallback<Font, any, any>
         ): Promise<never>;
+        static measureText(font: Font, text: PrintableText);
+        static measureTextHeight(
+            font: Font,
+            text: PrintableText,
+            maxWidth: number
+        );
     }
 }
 
