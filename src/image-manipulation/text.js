@@ -91,6 +91,30 @@ function printText(font, x, y, text, defaultCharWidth) {
     }
 }
 
+function splitLines(font, text, maxWidth) {
+    const words = text.split(' ');
+    console.log('max', maxWidth);
+    const lines = [];
+    let currentLine = [];
+
+    words.forEach(word => {
+        const line = [...currentLine, word].join(' ');
+        const length = measureText(font, line);
+
+        console.log(line, length);
+        if (length <= maxWidth) {
+            currentLine.push(word);
+        } else {
+            lines.push(currentLine);
+            currentLine = [word];
+        }
+    });
+
+    lines.push(currentLine);
+
+    return lines;
+}
+
 /**
  * Draws a text on a image on a given boundary
  * @param {Jimp} font a bitmap font loaded from `Jimp.loadFont` command
@@ -169,36 +193,20 @@ export function print(font, x, y, text, maxWidth, maxHeight, cb) {
         y = maxHeight / 2 - measureTextHeight(font, text, maxWidth) / 2;
     }
 
-    const words = text.split(' ');
-    let line = '';
     const defaultCharWidth = font.chars[0].xadvance;
+    const lines = splitLines(font, text, maxWidth);
 
-    for (let n = 0; n < words.length; n++) {
-        const testLine = line + words[n] + ' ';
-        const testWidth = measureText(font, testLine);
-
-        if (testWidth > maxWidth && n > 0) {
-            this.print(
-                font,
-                x + xOffsetBasedOnAlignment(font, line, maxWidth, alignmentX),
-                y,
-                line
-            );
-            line = words[n] + ' ';
-            y += font.common.lineHeight;
-        } else {
-            line = testLine;
-        }
-    }
-
-    printText.call(
-        this,
-        font,
-        x + xOffsetBasedOnAlignment(font, line, maxWidth, alignmentX),
-        y,
-        line,
-        defaultCharWidth
-    );
+    lines.forEach(line => {
+        printText.call(
+            this,
+            font,
+            x + xOffsetBasedOnAlignment(font, line, maxWidth, alignmentX),
+            y,
+            line.join(' '),
+            defaultCharWidth
+        );
+        y += font.common.lineHeight;
+    });
 
     if (isNodePattern(cb)) {
         cb.call(this, null, this);
