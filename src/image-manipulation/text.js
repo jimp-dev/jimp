@@ -197,14 +197,17 @@ export function print(font, x, y, text, maxWidth, maxHeight, cb) {
     const lines = splitLines(font, text, maxWidth);
 
     lines.forEach(line => {
+        const lineString = line.join(' ');
+
         printText.call(
             this,
             font,
-            x + xOffsetBasedOnAlignment(font, line, maxWidth, alignmentX),
+            x + xOffsetBasedOnAlignment(font, lineString, maxWidth, alignmentX),
             y,
-            line.join(' '),
+            lineString,
             defaultCharWidth
         );
+
         y += font.common.lineHeight;
     });
 
