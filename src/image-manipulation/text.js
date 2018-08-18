@@ -93,7 +93,6 @@ function printText(font, x, y, text, defaultCharWidth) {
 
 function splitLines(font, text, maxWidth) {
     const words = text.split(' ');
-    console.log('max', maxWidth);
     const lines = [];
     let currentLine = [];
 
@@ -101,7 +100,6 @@ function splitLines(font, text, maxWidth) {
         const line = [...currentLine, word].join(' ');
         const length = measureText(font, line);
 
-        console.log(line, length);
         if (length <= maxWidth) {
             currentLine.push(word);
         } else {
