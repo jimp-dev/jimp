@@ -1,10 +1,10 @@
-import FS from 'fs';
+import fs from 'fs';
 import Path from 'path';
 import EventEmitter from 'events';
 
 import anyBase from 'any-base';
 import bMFont from 'load-bmfont';
-import MkDirP from 'mkdirp';
+import mkdirp from 'mkdirp';
 import pixelMatch from 'pixelmatch';
 import tinyColor from 'tinycolor2';
 
@@ -71,11 +71,11 @@ function bufferFromArrayBuffer(arrayBuffer) {
 
 function loadBufferFromPath(src, cb) {
     if (
-        FS &&
-        typeof FS.readFile === 'function' &&
+        fs &&
+        typeof fs.readFile === 'function' &&
         !src.match(/^(http|ftp)s?:\/\/./)
     ) {
-        FS.readFile(src, cb);
+        fs.readFile(src, cb);
     } else {
         request(src, (err, response, data) => {
             if (err) {
@@ -466,7 +466,7 @@ class Jimp extends EventEmitter {
      * @returns {Jimp} this for chaining of methods
      */
     write(path, cb) {
-        if (!FS || !FS.createWriteStream) {
+        if (!fs || !fs.createWriteStream) {
             throw new Error(
                 'Cant access the filesystem. You can use the getBase64 method.'
             );
@@ -488,7 +488,7 @@ class Jimp extends EventEmitter {
         const pathObj = Path.parse(path);
 
         if (pathObj.dir) {
-            MkDirP.sync(pathObj.dir);
+            mkdirp.sync(pathObj.dir);
         }
 
         this.getBuffer(mime, (err, buffer) => {
@@ -496,7 +496,7 @@ class Jimp extends EventEmitter {
                 return throwError.call(this, err, cb);
             }
 
-            const stream = FS.createWriteStream(path);
+            const stream = fs.createWriteStream(path);
 
             stream
                 .on('open', () => {
@@ -1117,7 +1117,7 @@ function loadPages(dir, pages) {
 }
 
 /**
- * Loads a bitmap font from a file
+ * Loads a bitmap font from a file or url
  * @param {string} file the file path of a .fnt file
  * @param {function(Error, Jimp)} cb (optional) a function to call when the font is loaded
  * @returns {Promise} a promise
