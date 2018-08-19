@@ -3,6 +3,8 @@
 
 module.exports = function(config) {
     config.set({
+        basePath: '../..',
+
         browserDisconnectTimeout: 25000,
         browserNoActivityTimeout: 25000,
 
@@ -16,26 +18,30 @@ module.exports = function(config) {
         },
 
         preprocessors: {
-            '*': 'browserify',
-            '*/*': 'browserify'
+            'packages/jimp/**/*.js': 'browserify'
         },
 
         // list of files / patterns to load in the browser
         files: [
-            'test/*.js',
+            'packages/jimp/test/*.js',
             {
-                pattern: 'test/samples/**/*',
+                pattern: 'packages/jimp/test/samples/**/*',
                 watched: false,
                 included: false,
                 served: true
             },
             {
-                pattern: 'fonts/open-sans/**/*',
+                pattern: 'packages/plugin-print/fonts/**/*',
                 watched: false,
                 included: false,
                 served: true
             }
         ],
+
+        proxies: {
+            '/node_modules/@jimp/plugin-print/fonts/':
+                '/base/packages/plugin-print/fonts/'
+        },
 
         // level of logging
         // possible values: config.LOG_DISABLE || config.LOG_ERROR || config.LOG_WARN || config.LOG_INFO || config.LOG_DEBUG
