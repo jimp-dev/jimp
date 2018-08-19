@@ -1,4 +1,4 @@
-import { isNodePattern, throwError } from '../utils/error-checking';
+import { isNodePattern, throwError } from '@jimp/utils';
 import * as constants from '../constants';
 /**
  * Flip the image horizontally
