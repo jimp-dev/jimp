@@ -302,7 +302,7 @@ Jimp.loadFont(Jimp.FONT_SANS_32_BLACK).then(function(font) {
 });
 ```
 
-Online tools are also available to convert TTF fonts to BMFont format. They can be used to create color font or sprite packs.  
+Online tools are also available to convert TTF fonts to BMFont format. They can be used to create color font or sprite packs.
 
 :star: [Littera](http://kvazars.com/littera/)
 
@@ -504,6 +504,12 @@ Jimp.rgbaToInt(r, g, b, a); // e.g. converts 255, 255, 255, 255 to 0xFFFFFFFF
 Jimp.intToRGBA(hex); // e.g. converts 0xFFFFFFFF to {r: 255, g: 255, b: 255, a:255}
 ```
 
+You can convert a css color (Hex, RGB, RGBA, HSL, HSLA, HSV, HSVA, Named) to its hexadecimal equivalent:
+
+```js
+Jimp.cssColorToHex(cssColor); // e.g. converts #FF00FF to 0xFF00FFFF
+```
+
 ### Creating new images
 
 If you want to begin with an empty Jimp image, you can call the Jimp constructor passing the width and height of the image to create and a Node-style callback:
@@ -519,6 +525,14 @@ You can optionally set the pixel colour as follows:
 ```js
 new Jimp(256, 256, 0xff0000ff, function(err, image) {
     // this image is 256 x 256, every pixel is set to 0xFF0000FF
+});
+```
+
+Or you can use a css color format:
+
+```js
+new Jimp(256, 256, '#FF00FF', function(err, image) {
+    // this image is 256 x 256, every pixel is set to #FF00FF
 });
 ```
 

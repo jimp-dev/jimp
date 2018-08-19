@@ -2,9 +2,11 @@ import FS from 'fs';
 import Path from 'path';
 import EventEmitter from 'events';
 
+import { isNodePattern, throwError, scan } from '@jimp/utils';
 import anyBase from 'any-base';
 import MkDirP from 'mkdirp';
 import pixelMatch from 'pixelmatch';
+import tinyColor from 'tinycolor2';
 
 import ImagePHash from './modules/phash';
 import request from './request';
@@ -12,12 +14,10 @@ import request from './request';
 import * as shape from './image-manipulation/shape';
 import * as effects from './image-manipulation/effects';
 
-import scan from './utils/scan';
 import promisify from './utils/promisify';
 import * as MIME from './utils/mime';
 import { clear } from './utils/log';
 import { parseBitmap, getBuffer, getBufferAsync } from './utils/image-bitmap';
-import { isNodePattern, throwError } from './utils/error-checking';
 import * as constants from './constants';
 
 const alphabet =
@@ -223,8 +223,15 @@ class Jimp extends EventEmitter {
             const h = parseInt(args[1], 10);
             cb = args[2];
 
+            // with a hex color
             if (typeof args[2] === 'number') {
                 this._background = args[2];
+                cb = args[3];
+            }
+
+            // with a css color
+            if (typeof args[2] === 'string') {
+                this._background = Jimp.cssColorToHex(args[2]);
                 cb = args[3];
             }
 
@@ -866,6 +873,19 @@ Jimp.intToRGBA = function(i, cb) {
 };
 
 /**
+ * Converts a css color (Hex, 8-digit (RGBA) Hex, RGB, RGBA, HSL, HSLA, HSV, HSVA, Named) to a hex number
+ * @param {string} cssColor a number
+ * @returns {number} a hex number representing a color
+ */
+Jimp.cssColorToHex = function(cssColor) {
+    cssColor = cssColor || 0; // 0, null, undefined, NaN
+
+    if (typeof cssColor === 'number') return Number(cssColor);
+
+    return parseInt(tinyColor(cssColor).toHex8(), 16);
+};
+
+/**
  * Limits a number to between 0 or 255
  * @param {number} n a number
  * @returns {number} the number limited to between 0 or 255
@@ -1064,7 +1084,6 @@ jimpEvMethod('clone', 'clone', function(cb) {
  * @param {function} method to watch changes for
  */
 export function jimpEvChange(methodName, method) {
-    console.log(methodName);
     jimpEvMethod(methodName, 'change', method);
 }
 
