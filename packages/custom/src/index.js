@@ -23,15 +23,24 @@ export default function configure(configuration) {
         });
     }
 
+    // Can't pass injust a string for browser tests for some reason
+    function requireIfNeeded(module) {
+        if (typeof module === 'string') {
+            return require(module);
+        }
+
+        return module;
+    }
+
     function addImageType(typeModule) {
-        const type = require(typeModule)();
+        const type = requireIfNeeded(typeModule)();
         addType(...type.mime);
         delete type.mime;
         addToConfig(type);
     }
 
     function addPlugin(pluginModule) {
-        const plugin = require(pluginModule)(jimpEvChange) || {};
+        const plugin = requireIfNeeded(pluginModule)(jimpEvChange) || {};
         addToConfig(plugin);
     }
 
