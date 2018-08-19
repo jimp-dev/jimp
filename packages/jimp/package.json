@@ -21,10 +21,6 @@
     "url": "https://github.com/oliver-moran/jimp/issues"
   },
   "scripts": {
-    "lint": "npm run -s lint:src && npm run -s lint:tests && npm run -s lint:extra && echo Lint All Success",
-    "lint:src": "xo src/*.js src/**/*.js !src/modules/*.js",
-    "lint:tests": "xo test/*.js --global before",
-    "lint:extra": "xo {tools,examples}/*.js",
     "test:browser": "cross-env BABEL_ENV=test ENV=browser CHROME_BIN=\"$(which chrome || which chromium)\" karma start --single-run",
     "test:browser:watch": "npm run -s test:browser start -- --auto-watch",
     "test:node": "cross-env BABEL_ENV=test mocha --require @babel/register",

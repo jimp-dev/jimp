@@ -1,5 +1,5 @@
 import should from 'should/as-function';
-import { getType, getExtension } from '../src/utils/mime';
+import { getType, getExtension } from '../../src/utils/mime';
 
 describe('Mime', () => {
     describe('getType', () => {

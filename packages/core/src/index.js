@@ -409,7 +409,7 @@ class Jimp extends EventEmitter {
 
     /**
      * Get the current height of the image
-     * @param {number} height of the image
+     * @return {number} height of the image
      */
     getHeight() {
         return this.bitmap.height;
@@ -417,7 +417,7 @@ class Jimp extends EventEmitter {
 
     /**
      * Get the current width of the image
-     * @param {number} width of the image
+     * @return {number} width of the image
      */
     getWidth() {
         return this.bitmap.width;

@@ -176,6 +176,7 @@ export function gaussian(r, cb) {
  * @param {Jimp} src the source Jimp instance
  * @param {number} x the x position to blit the image
  * @param {number} y the y position to blit the image
+ * @param {object} options determine what mode to use
  * @param {function(Error, Jimp)} cb (optional) a callback for when complete
  * @returns {Jimp} this for chaining of methods
  */
