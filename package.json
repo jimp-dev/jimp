@@ -4,10 +4,10 @@
     "packages/*"
   ],
   "scripts": {
-    "lint": "oao run-script lint",
-    "lint": "oao run-script test",
-    "build": "oao run-script build",
-    "start": "oao run-script build:watch --parallel"
+    "lint": "lerna run lint",
+    "test": "lerna run test",
+    "build": "lerna run build --stream",
+    "start": "lerna run build:watch --stream"
   },
   "devDependencies": {
     "@babel/cli": "^7.0.0-rc.1",
@@ -24,6 +24,7 @@
     "cross-env": "^5.2.0",
     "eslint-plugin-prettier": "^2.6.2",
     "husky": "^1.0.0-rc.13",
+    "lerna": "^2.11.0",
     "lint-staged": "^7.2.2",
     "prettier": "^1.14.2",
     "source-map-support": "^0.5.8",
