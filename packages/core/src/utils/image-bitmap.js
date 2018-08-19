@@ -127,7 +127,9 @@ export function getBuffer(mime, cb) {
         return throwError.call(this, 'cb must be a function', cb);
     }
 
-    if (this._rgba && this.constructor.hasAlpha[mime.toLowerCase()]) {
+    mime = mime.toLowerCase();
+
+    if (this._rgba && this.constructor.hasAlpha[mime]) {
         this.bitmap.data = Buffer.from(this.bitmap.data);
     } else {
         // when format doesn't support alpha
@@ -138,8 +140,8 @@ export function getBuffer(mime, cb) {
         ).data;
     }
 
-    if (this.constructor.encoders[mime.toLowerCase()]) {
-        const buffer = this.constructor.encoders[mime.toLowerCase()](this);
+    if (this.constructor.encoders[mime]) {
+        const buffer = this.constructor.encoders[mime](this);
         cb.call(this, null, buffer);
     } else {
         cb.call(this, 'Unsupported MIME type: ' + mime);
