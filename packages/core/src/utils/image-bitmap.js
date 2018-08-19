@@ -1,9 +1,9 @@
 import fileType from 'file-type';
 
 import EXIFParser from 'exif-parser';
+import { throwError } from '@jimp/utils';
 
 import * as constants from '../constants';
-import { throwError } from './error-checking';
 import * as MIME from './mime';
 import promisify from './promisify';
 
