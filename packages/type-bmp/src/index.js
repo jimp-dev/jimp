@@ -40,26 +40,24 @@ function fromAGBR(bitmap) {
     }).bitmap;
 }
 
-module.exports = () => {
-    const decode = data => fromAGBR(BMP.decode(data));
-    const encode = image => BMP.encode(toAGBR(image)).data;
+const decode = data => fromAGBR(BMP.decode(data));
+const encode = image => BMP.encode(toAGBR(image)).data;
 
-    return {
-        mime: [MIME_TYPE, ['bmp']],
+export default () => ({
+    mime: [MIME_TYPE, ['bmp']],
 
-        constants: {
-            MIME_BMP: MIME_TYPE,
-            MIME_X_MS_BMP: MIME_TYPE_SECOND
-        },
+    constants: {
+        MIME_BMP: MIME_TYPE,
+        MIME_X_MS_BMP: MIME_TYPE_SECOND
+    },
 
-        decoders: {
-            [MIME_TYPE]: decode,
-            [MIME_TYPE_SECOND]: decode
-        },
+    decoders: {
+        [MIME_TYPE]: decode,
+        [MIME_TYPE_SECOND]: decode
+    },
 
-        encoders: {
-            [MIME_TYPE]: encode,
-            [MIME_TYPE_SECOND]: encode
-        }
-    };
-};
+    encoders: {
+        [MIME_TYPE]: encode,
+        [MIME_TYPE_SECOND]: encode
+    }
+});

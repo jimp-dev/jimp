@@ -2,27 +2,25 @@ const GIF = require('omggif');
 
 const MIME_TYPE = 'image/gif';
 
-module.exports = () => {
-    return {
-        mime: [MIME_TYPE, ['gif']],
+export default () => ({
+    mime: [MIME_TYPE, ['gif']],
 
-        constants: {
-            MIME_GIF: MIME_TYPE
-        },
+    constants: {
+        MIME_GIF: MIME_TYPE
+    },
 
-        decoders: {
-            [MIME_TYPE]: data => {
-                const gifObj = new GIF.GifReader(data);
-                const gifData = Buffer.alloc(gifObj.width * gifObj.height * 4);
+    decoders: {
+        [MIME_TYPE]: data => {
+            const gifObj = new GIF.GifReader(data);
+            const gifData = Buffer.alloc(gifObj.width * gifObj.height * 4);
 
-                gifObj.decodeAndBlitFrameRGBA(0, gifData);
+            gifObj.decodeAndBlitFrameRGBA(0, gifData);
 
-                return {
-                    data: gifData,
-                    width: gifObj.width,
-                    height: gifObj.height
-                };
-            }
+            return {
+                data: gifData,
+                width: gifObj.width,
+                height: gifObj.height
+            };
         }
-    };
-};
+    }
+});
