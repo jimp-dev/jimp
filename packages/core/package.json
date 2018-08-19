@@ -18,12 +18,10 @@
     "url": "https://github.com/oliver-moran/jimp/issues"
   },
   "scripts": {
-    "test:browser": "cross-env BABEL_ENV=test ENV=browser CHROME_BIN=\"$(which chrome || which chromium)\" karma start --single-run",
-    "test:browser:watch": "npm run -s test:browser start -- --auto-watch",
-    "test:node": "cross-env BABEL_ENV=test mocha --require @babel/register",
+    "test:node": "cross-env BABEL_ENV=test mocha --require @babel/register tests/**/*.js",
     "test:node:watch": "npm run test:node -- --reporter min --watch",
     "test:node:coverage": "nyc npm run test:node",
-    "test": "npm run -s test:node:coverage && npm run -s test:browser",
+    "test": "npm run test:node:coverage",
     
     "build": "npm run build:node:production && npm run build:module",
     "build:watch": "npm run build:node:debug -- -- --watch --verbose",

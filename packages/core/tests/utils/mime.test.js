@@ -1,7 +1,15 @@
 import should from 'should/as-function';
-import { getType, getExtension } from '../../src/utils/mime';
+import { getType, getExtension, addType } from '../../src/utils/mime';
 
 describe('Mime', () => {
+    before(() => {
+        addType('image/png', ['png']);
+        addType('image/gif', ['gif']);
+        addType('image/jpeg', ['jpeg', 'jpg']);
+        addType('image/bmp', ['bmp']);
+        addType('image/tiff', ['tiff']);
+    });
+
     describe('getType', () => {
         it('should return undefined if not found', () => {
             should(getType('/path/to.the/file.boop')).be.exactly(undefined);

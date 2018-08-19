@@ -5,7 +5,7 @@
   ],
   "scripts": {
     "lint": "xo",
-    "test": "lerna run test",
+    "test": "lerna run test --stream",
     "clean": "lerna clean --yes && rm -rf node_modules",
     "build": "lerna run build --stream -- --config-file ../../babel.config.js",
     "build:watch": "lerna run build:watch --parallel -- --config-file ../../babel.config.js"
