@@ -11,7 +11,7 @@ async function createTextImage(
     maxHeight
 ) {
     const loadedFont = await Jimp.loadFont(font);
-    const image = await Jimp.create(width, height);
+    const image = await Jimp.create(width, height, 0xffffffff);
 
     return image.print(loadedFont, 0, 0, options, maxWidth, maxHeight);
 }

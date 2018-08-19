@@ -271,8 +271,8 @@ Jimp.loadFont(path).then(function(font) {
 });
 ```
 
-```
-Jimp.loadFont( path, cb ); // using a callback pattern
+```js
+Jimp.loadFont(path, cb); // using a callback pattern
 ```
 
 BMFont fonts are raster based and fixed in size and colour. Jimp comes with a set of fonts that can be used on images:
@@ -300,6 +300,15 @@ These can be used as follows:
 Jimp.loadFont(Jimp.FONT_SANS_32_BLACK).then(function(font) {
     image.print(font, 10, 10, 'Hello world!');
 });
+```
+
+#### Measuring text
+
+If you need to do calculations on where to place your text jimp provides two methods that measure how wide and how tall a piece of text will be. You can use these methods to lay out multiple pieces of text in relation to each other
+
+```js
+Jimp.measureText(Jimp.FONT_SANS_32_BLACK, 'Some string'); // width of text
+Jimp.measureTextHeight(Jimp.FONT_SANS_32_BLACK, 'Some string', 100); // height of text
 ```
 
 Online tools are also available to convert TTF fonts to BMFont format. They can be used to create color font or sprite packs.
