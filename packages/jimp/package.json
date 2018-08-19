@@ -64,6 +64,7 @@
     "@jimp/bmp": "0.3.5",
     "@jimp/tiff": "0.3.5",
     "@jimp/plugin-color": "0.3.5",
+    "@jimp/plugin-dither": "0.3.5",
     "@jimp/plugin-resize": "0.3.5",
     "@jimp/plugin-blit": "0.3.5",
     "@jimp/plugin-rotate": "0.3.5",
