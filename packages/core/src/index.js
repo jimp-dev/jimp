@@ -16,7 +16,6 @@ import * as effects from './image-manipulation/effects';
 
 import promisify from './utils/promisify';
 import * as MIME from './utils/mime';
-import { clear } from './utils/log';
 import { parseBitmap, getBuffer, getBufferAsync } from './utils/image-bitmap';
 import * as constants from './constants';
 
@@ -33,8 +32,6 @@ for (let i = 2; i < 65; i++) {
     );
     maxHashLength.push(maxHash.length);
 }
-
-process.on('exit', clear);
 
 // no operation
 function noop() {}

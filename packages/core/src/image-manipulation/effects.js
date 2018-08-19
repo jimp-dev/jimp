@@ -1,5 +1,4 @@
 import { isNodePattern, throwError } from '@jimp/utils';
-import { log, clear } from '../utils/log';
 import * as constants from '../constants';
 
 import * as compositeModes from './composite-modes';
@@ -181,8 +180,6 @@ export function gaussian(r, cb) {
     const rs = Math.ceil(r * 2.57); // significant radius
 
     for (let y = 0; y < this.bitmap.height; y++) {
-        log('Gaussian: ' + Math.round((y / this.bitmap.height) * 100) + '%');
-
         for (let x = 0; x < this.bitmap.width; x++) {
             let red = 0;
             let green = 0;
@@ -218,8 +215,6 @@ export function gaussian(r, cb) {
             }
         }
     }
-
-    clear(); // clear the log
 
     if (isNodePattern(cb)) {
         cb.call(this, null, this);
