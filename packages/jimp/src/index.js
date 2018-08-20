@@ -17,6 +17,7 @@ import crop from '@jimp/plugin-crop';
 import normalize from '@jimp/plugin-normalize';
 import invert from '@jimp/plugin-invert';
 import gaussian from '@jimp/plugin-gaussian';
+import flip from '@jimp/plugin-flip';
 import mask from '@jimp/plugin-mask';
 
 export default configure({
@@ -33,6 +34,7 @@ export default configure({
         normalize,
         invert,
         gaussian,
-        mask
+        mask,
+        flip
     ]
 });

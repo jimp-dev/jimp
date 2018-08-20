@@ -66,6 +66,7 @@
     "@jimp/plugin-rotate": "0.3.5",
     "@jimp/plugin-print": "0.3.5",
     "@jimp/plugin-blur": "0.3.5",
+    "@jimp/plugin-flip": "0.3.5",
     "@jimp/plugin-mask": "0.3.5",
     "@jimp/plugin-gaussian": "0.3.5",
     "@jimp/plugin-invert": "0.3.5",
