@@ -9,6 +9,7 @@ export function srcOver(src, dst, ops = 1) {
 
     return { r, g, b, a };
 }
+
 export function dstOver(src, dst, ops = 1) {
     src.a *= ops;
 
@@ -20,6 +21,7 @@ export function dstOver(src, dst, ops = 1) {
 
     return { r, g, b, a };
 }
+
 export function multiply(src, dst, ops = 1) {
     src.a *= ops;
 
@@ -39,6 +41,7 @@ export function multiply(src, dst, ops = 1) {
 
     return { r, g, b, a };
 }
+
 export function screen(src, dst, ops = 1) {
     src.a *= ops;
 
@@ -76,6 +79,7 @@ export function screen(src, dst, ops = 1) {
 
     return { r, g, b, a };
 }
+
 export function overlay(src, dst, ops = 1) {
     src.a *= ops;
 
@@ -115,6 +119,7 @@ export function overlay(src, dst, ops = 1) {
 
     return { r, g, b, a };
 }
+
 export function darken(src, dst, ops = 1) {
     src.a *= ops;
 
@@ -146,6 +151,7 @@ export function darken(src, dst, ops = 1) {
 
     return { r, g, b, a };
 }
+
 export function lighten(src, dst, ops = 1) {
     src.a *= ops;
 
@@ -177,6 +183,7 @@ export function lighten(src, dst, ops = 1) {
 
     return { r, g, b, a };
 }
+
 export function hardLight(src, dst, ops = 1) {
     src.a *= ops;
 
@@ -216,6 +223,7 @@ export function hardLight(src, dst, ops = 1) {
 
     return { r, g, b, a };
 }
+
 export function difference(src, dst, ops = 1) {
     src.a *= ops;
 
@@ -235,6 +243,7 @@ export function difference(src, dst, ops = 1) {
 
     return { r, g, b, a };
 }
+
 export function exclusion(src, dst, ops = 1) {
     src.a *= ops;
 
