@@ -166,52 +166,50 @@ function advancedRotate(deg, mode) {
 }
 
 export default () => ({
-    class: {
-        /**
-         * Rotates the image clockwise by a number of degrees. By default the width and height of the image will be resized appropriately.
-         * @param {number} deg the number of degrees to rotate the image by
-         * @param {string|boolean} mode (optional) resize mode or a boolean, if false then the width and height of the image will not be changed
-         * @param {function(Error, Jimp)} cb (optional) a callback for when complete
-         * @returns {Jimp} this for chaining of methods
-         */
-        rotate(deg, mode, cb) {
-            // enable overloading
-            if (typeof mode === 'undefined' || mode === null) {
-                // e.g. image.resize(120);
-                // e.g. image.resize(120, null, cb);
-                // e.g. image.resize(120, undefined, cb);
-                mode = true;
-            }
-
-            if (typeof mode === 'function' && typeof cb === 'undefined') {
-                // e.g. image.resize(120, cb);
-                cb = mode;
-                mode = true;
-            }
-
-            if (typeof deg !== 'number') {
-                return throwError.call(this, 'deg must be a number', cb);
-            }
-
-            if (typeof mode !== 'boolean' && typeof mode !== 'string') {
-                return throwError.call(
-                    this,
-                    'mode must be a boolean or a string',
-                    cb
-                );
-            }
-
-            if (deg % 90 === 0 && Boolean(mode) === false) {
-                simpleRotate.call(this, deg, cb);
-            } else {
-                advancedRotate.call(this, deg, mode, cb);
-            }
-
-            if (isNodePattern(cb)) {
-                cb.call(this, null, this);
-            }
-
-            return this;
+    /**
+     * Rotates the image clockwise by a number of degrees. By default the width and height of the image will be resized appropriately.
+     * @param {number} deg the number of degrees to rotate the image by
+     * @param {string|boolean} mode (optional) resize mode or a boolean, if false then the width and height of the image will not be changed
+     * @param {function(Error, Jimp)} cb (optional) a callback for when complete
+     * @returns {Jimp} this for chaining of methods
+     */
+    rotate(deg, mode, cb) {
+        // enable overloading
+        if (typeof mode === 'undefined' || mode === null) {
+            // e.g. image.resize(120);
+            // e.g. image.resize(120, null, cb);
+            // e.g. image.resize(120, undefined, cb);
+            mode = true;
         }
+
+        if (typeof mode === 'function' && typeof cb === 'undefined') {
+            // e.g. image.resize(120, cb);
+            cb = mode;
+            mode = true;
+        }
+
+        if (typeof deg !== 'number') {
+            return throwError.call(this, 'deg must be a number', cb);
+        }
+
+        if (typeof mode !== 'boolean' && typeof mode !== 'string') {
+            return throwError.call(
+                this,
+                'mode must be a boolean or a string',
+                cb
+            );
+        }
+
+        if (deg % 90 === 0 && Boolean(mode) === false) {
+            simpleRotate.call(this, deg, cb);
+        } else {
+            advancedRotate.call(this, deg, mode, cb);
+        }
+
+        if (isNodePattern(cb)) {
+            cb.call(this, null, this);
+        }
+
+        return this;
     }
 });

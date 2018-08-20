@@ -32,7 +32,13 @@ export default function configure(configuration) {
 
     function addPlugin(pluginModule) {
         const plugin = pluginModule(jimpEvChange) || {};
-        addToConfig(plugin);
+
+        if (!plugin.class && !plugin.constants) {
+            // Default to class function
+            addToConfig({ class: plugin });
+        } else {
+            addToConfig(plugin);
+        }
     }
 
     if (configuration.types) {

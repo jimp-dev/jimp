@@ -54,51 +54,35 @@ const getBounds = function(histogramChannel) {
  * @returns {Jimp} this for chaining of methods
  */
 export default () => ({
-    class: {
-        normalize(cb) {
-            const h = histogram.call(this);
+    normalize(cb) {
+        const h = histogram.call(this);
 
-            // store bounds (minimum and maximum values)
-            const bounds = {
-                r: getBounds(h.r),
-                g: getBounds(h.g),
-                b: getBounds(h.b)
-            };
+        // store bounds (minimum and maximum values)
+        const bounds = {
+            r: getBounds(h.r),
+            g: getBounds(h.g),
+            b: getBounds(h.b)
+        };
 
-            // apply value transformations
-            this.scanQuiet(
-                0,
-                0,
-                this.bitmap.width,
-                this.bitmap.height,
-                function(x, y, idx) {
-                    const r = this.bitmap.data[idx + 0];
-                    const g = this.bitmap.data[idx + 1];
-                    const b = this.bitmap.data[idx + 2];
+        // apply value transformations
+        this.scanQuiet(0, 0, this.bitmap.width, this.bitmap.height, function(
+            x,
+            y,
+            idx
+        ) {
+            const r = this.bitmap.data[idx + 0];
+            const g = this.bitmap.data[idx + 1];
+            const b = this.bitmap.data[idx + 2];
 
-                    this.bitmap.data[idx + 0] = normalize(
-                        r,
-                        bounds.r[0],
-                        bounds.r[1]
-                    );
-                    this.bitmap.data[idx + 1] = normalize(
-                        g,
-                        bounds.g[0],
-                        bounds.g[1]
-                    );
-                    this.bitmap.data[idx + 2] = normalize(
-                        b,
-                        bounds.b[0],
-                        bounds.b[1]
-                    );
-                }
-            );
+            this.bitmap.data[idx + 0] = normalize(r, bounds.r[0], bounds.r[1]);
+            this.bitmap.data[idx + 1] = normalize(g, bounds.g[0], bounds.g[1]);
+            this.bitmap.data[idx + 2] = normalize(b, bounds.b[0], bounds.b[1]);
+        });
 
-            if (isNodePattern(cb)) {
-                cb.call(this, null, this);
-            }
-
-            return this;
+        if (isNodePattern(cb)) {
+            cb.call(this, null, this);
         }
+
+        return this;
     }
 });

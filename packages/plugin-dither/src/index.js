@@ -50,8 +50,6 @@ function dither(cb) {
 }
 
 export default () => ({
-    class: {
-        dither565: dither,
-        dither16: dither
-    }
+    dither565: dither,
+    dither16: dither
 });
