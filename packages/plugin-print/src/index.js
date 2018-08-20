@@ -1,43 +1,7 @@
 import Path from 'path';
 import bMFont from 'load-bmfont';
-import { throwError, isNodePattern } from '@jimp/utils';
-
-function measureText(font, text) {
-    let x = 0;
-
-    for (let i = 0; i < text.length; i++) {
-        if (font.chars[text[i]]) {
-            x +=
-                font.chars[text[i]].xoffset +
-                (font.kernings[text[i]] && font.kernings[text[i]][text[i + 1]]
-                    ? font.kernings[text[i]][text[i + 1]]
-                    : 0) +
-                (font.chars[text[i]].xadvance || 0);
-        }
-    }
-
-    return x;
-}
-
-function measureTextHeight(font, text, maxWidth) {
-    const words = text.split(' ');
-    let line = '';
-    let textTotalHeight = font.common.lineHeight;
-
-    for (let n = 0; n < words.length; n++) {
-        const testLine = line + words[n] + ' ';
-        const testWidth = measureText(font, testLine);
-
-        if (testWidth > maxWidth && n > 0) {
-            textTotalHeight += font.common.lineHeight;
-            line = words[n] + ' ';
-        } else {
-            line = testLine;
-        }
-    }
-
-    return textTotalHeight;
-}
+import { isNodePattern, throwError } from '@jimp/utils';
+import { measureText, measureTextHeight } from './measure-text';
 
 function xOffsetBasedOnAlignment(constants, font, line, maxWidth, alignment) {
     if (alignment === constants.HORIZONTAL_ALIGN_LEFT) {
@@ -92,6 +56,28 @@ function printText(font, x, y, text, defaultCharWidth) {
     }
 }
 
+function splitLines(font, text, maxWidth) {
+    const words = text.split(' ');
+    const lines = [];
+    let currentLine = [];
+
+    words.forEach(word => {
+        const line = [...currentLine, word].join(' ');
+        const length = measureText(font, line);
+
+        if (length <= maxWidth) {
+            currentLine.push(word);
+        } else {
+            lines.push(currentLine);
+            currentLine = [word];
+        }
+    });
+
+    lines.push(currentLine);
+
+    return lines;
+}
+
 function loadPages(Jimp, dir, pages) {
     const newPages = pages.map(page => {
         return Jimp.read(dir + '/' + page);
@@ -104,6 +90,8 @@ const dir = process.env.DIRNAME || `${__dirname}/../`;
 
 export default () => ({
     constants: {
+        measureText,
+        measureTextHeight,
         FONT_SANS_8_BLACK: Path.join(
             dir,
             'fonts/open-sans/open-sans-8-black/open-sans-8-black.fnt'
@@ -308,50 +296,30 @@ export default () => ({
                 y = maxHeight / 2 - measureTextHeight(font, text, maxWidth) / 2;
             }
 
-            const words = text.split(' ');
-            let line = '';
             const defaultCharWidth = font.chars[0].xadvance;
+            const lines = splitLines(font, text, maxWidth);
 
-            for (let n = 0; n < words.length; n++) {
-                const testLine = line + words[n] + ' ';
-                const testWidth = measureText(font, testLine);
+            lines.forEach(line => {
+                const lineString = line.join(' ');
 
-                if (testWidth > maxWidth && n > 0) {
-                    this.print(
-                        font,
-                        x +
-                            xOffsetBasedOnAlignment(
-                                this.constructor,
-                                font,
-                                line,
-                                maxWidth,
-                                alignmentX
-                            ),
-                        y,
-                        line
-                    );
-                    line = words[n] + ' ';
-                    y += font.common.lineHeight;
-                } else {
-                    line = testLine;
-                }
-            }
+                printText.call(
+                    this,
+                    font,
+                    x +
+                        xOffsetBasedOnAlignment(
+                            this.constructor,
+                            font,
+                            lineString,
+                            maxWidth,
+                            alignmentX
+                        ),
+                    y,
+                    lineString,
+                    defaultCharWidth
+                );
 
-            printText.call(
-                this,
-                font,
-                x +
-                    xOffsetBasedOnAlignment(
-                        this.constructor,
-                        font,
-                        line,
-                        maxWidth,
-                        alignmentX
-                    ),
-                y,
-                line,
-                defaultCharWidth
-            );
+                y += font.common.lineHeight;
+            });
 
             if (isNodePattern(cb)) {
                 cb.call(this, null, this);
