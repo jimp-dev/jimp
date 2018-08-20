@@ -16,6 +16,7 @@ import blur from '@jimp/plugin-blur';
 import crop from '@jimp/plugin-crop';
 import normalize from '@jimp/plugin-normalize';
 import invert from '@jimp/plugin-invert';
+import gaussian from '@jimp/plugin-gaussian';
 
 export default configure({
     types: [jpeg, png, bmp, tiff, gif],
@@ -29,6 +30,7 @@ export default configure({
         blur,
         crop,
         normalize,
-        invert
+        invert,
+        gaussian
     ]
 });
