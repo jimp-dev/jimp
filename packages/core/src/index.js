@@ -11,7 +11,6 @@ import tinyColor from 'tinycolor2';
 import ImagePHash from './modules/phash';
 import request from './request';
 
-import * as shape from './image-manipulation/shape';
 import composite from './image-manipulation/composite';
 
 import promisify from './utils/promisify';
@@ -753,7 +752,7 @@ export function addJimpMethods(methods) {
 }
 
 addConstants(constants);
-addJimpMethods({ ...shape, composite });
+addJimpMethods({ composite });
 
 Jimp.__extraConstructors = [];
 

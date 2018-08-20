@@ -22,6 +22,7 @@ import mask from '@jimp/plugin-mask';
 import scale from '@jimp/plugin-scale';
 import displace from '@jimp/plugin-displace';
 import contain from '@jimp/plugin-contain';
+import cover from '@jimp/plugin-cover';
 
 export default configure({
     types: [jpeg, png, bmp, tiff, gif],
@@ -41,6 +42,7 @@ export default configure({
         flip,
         scale,
         displace,
-        contain
+        contain,
+        cover
     ]
 });
