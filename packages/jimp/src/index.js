@@ -19,6 +19,7 @@ import invert from '@jimp/plugin-invert';
 import gaussian from '@jimp/plugin-gaussian';
 import flip from '@jimp/plugin-flip';
 import mask from '@jimp/plugin-mask';
+import scale from '@jimp/plugin-scale';
 
 export default configure({
     types: [jpeg, png, bmp, tiff, gif],
@@ -35,6 +36,7 @@ export default configure({
         invert,
         gaussian,
         mask,
-        flip
+        flip,
+        scale
     ]
 });
