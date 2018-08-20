@@ -11,7 +11,7 @@ import tinyColor from 'tinycolor2';
 import ImagePHash from './modules/phash';
 import request from './request';
 
-import composite from './image-manipulation/composite';
+import composite from './composite';
 
 import promisify from './utils/promisify';
 import * as MIME from './utils/mime';
