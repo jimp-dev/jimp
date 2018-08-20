@@ -71,6 +71,7 @@
     "@jimp/plugin-gaussian": "0.3.5",
     "@jimp/plugin-scale": "0.3.5",
     "@jimp/plugin-displace": "0.3.5",
+    "@jimp/plugin-contain": "0.3.5",
     "@jimp/plugin-invert": "0.3.5",
     "@jimp/plugin-crop": "0.3.5"
   },
