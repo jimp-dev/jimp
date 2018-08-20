@@ -20,6 +20,7 @@ import gaussian from '@jimp/plugin-gaussian';
 import flip from '@jimp/plugin-flip';
 import mask from '@jimp/plugin-mask';
 import scale from '@jimp/plugin-scale';
+import displace from '@jimp/plugin-displace';
 
 export default configure({
     types: [jpeg, png, bmp, tiff, gif],
@@ -37,6 +38,7 @@ export default configure({
         gaussian,
         mask,
         flip,
-        scale
+        scale,
+        displace
     ]
 });
