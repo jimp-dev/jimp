@@ -12,7 +12,7 @@ import * as compositeModes from './composite-modes';
  * @param {function(Error, Jimp)} cb (optional) a callback for when complete
  * @returns {Jimp} this for chaining of methods
  */
-export function composite(src, x, y, options = {}, cb) {
+export default function composite(src, x, y, options = {}, cb) {
     if (typeof options === 'function') {
         cb = options;
         options = {};

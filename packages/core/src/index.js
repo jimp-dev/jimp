@@ -12,7 +12,7 @@ import ImagePHash from './modules/phash';
 import request from './request';
 
 import * as shape from './image-manipulation/shape';
-import * as effects from './image-manipulation/effects';
+import composite from './image-manipulation/composite';
 
 import promisify from './utils/promisify';
 import * as MIME from './utils/mime';
@@ -753,7 +753,7 @@ export function addJimpMethods(methods) {
 }
 
 addConstants(constants);
-addJimpMethods({ ...shape, ...effects });
+addJimpMethods({ ...shape, composite });
 
 Jimp.__extraConstructors = [];
 
