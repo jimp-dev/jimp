@@ -66,6 +66,7 @@
     "@jimp/plugin-rotate": "0.3.5",
     "@jimp/plugin-print": "0.3.5",
     "@jimp/plugin-blur": "0.3.5",
+    "@jimp/plugin-invert": "0.3.5",
     "@jimp/plugin-crop": "0.3.5"
   },
   "devDependencies": {

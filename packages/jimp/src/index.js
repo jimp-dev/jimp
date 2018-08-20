@@ -15,8 +15,20 @@ import print from '@jimp/plugin-print';
 import blur from '@jimp/plugin-blur';
 import crop from '@jimp/plugin-crop';
 import normalize from '@jimp/plugin-normalize';
+import invert from '@jimp/plugin-invert';
 
 export default configure({
     types: [jpeg, png, bmp, tiff, gif],
-    plugins: [dither, resize, blit, rotate, color, print, blur, crop, normalize]
+    plugins: [
+        dither,
+        resize,
+        blit,
+        rotate,
+        color,
+        print,
+        blur,
+        crop,
+        normalize,
+        invert
+    ]
 });
