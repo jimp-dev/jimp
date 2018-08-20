@@ -71,7 +71,10 @@ function bundle(files, config, callback) {
             tfilter(babelify, { include: '**/node_modules/file-type/*.js' }),
             { presets: ['@babel/env'], global: true }
         )
-        .transform(envify({ ENVIRONMENT: 'BROWSER' }))
+        .transform(
+            envify({ ENVIRONMENT: 'BROWSER', DIRNAME: 'browser/lib/' }),
+            { global: true }
+        )
         .bundle((err, baseCode) => {
             if (err) return callback(err);
 

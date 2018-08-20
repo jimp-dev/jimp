@@ -100,60 +100,62 @@ function loadPages(Jimp, dir, pages) {
     return Promise.all(newPages);
 }
 
+const dir = process.env.DIRNAME || `${__dirname}/../`;
+
 export default () => ({
     constants: {
         FONT_SANS_8_BLACK: Path.join(
-            __dirname,
-            '../fonts/open-sans/open-sans-8-black/open-sans-8-black.fnt'
+            dir,
+            'fonts/open-sans/open-sans-8-black/open-sans-8-black.fnt'
         ),
         FONT_SANS_10_BLACK: Path.join(
-            __dirname,
-            '../fonts/open-sans/open-sans-10-black/open-sans-10-black.fnt'
+            dir,
+            'fonts/open-sans/open-sans-10-black/open-sans-10-black.fnt'
         ),
         FONT_SANS_12_BLACK: Path.join(
-            __dirname,
-            '../fonts/open-sans/open-sans-12-black/open-sans-12-black.fnt'
+            dir,
+            'fonts/open-sans/open-sans-12-black/open-sans-12-black.fnt'
         ),
         FONT_SANS_14_BLACK: Path.join(
-            __dirname,
-            '../fonts/open-sans/open-sans-14-black/open-sans-14-black.fnt'
+            dir,
+            'fonts/open-sans/open-sans-14-black/open-sans-14-black.fnt'
         ),
         FONT_SANS_16_BLACK: Path.join(
-            __dirname,
-            '../fonts/open-sans/open-sans-16-black/open-sans-16-black.fnt'
+            dir,
+            'fonts/open-sans/open-sans-16-black/open-sans-16-black.fnt'
         ),
         FONT_SANS_32_BLACK: Path.join(
-            __dirname,
-            '../fonts/open-sans/open-sans-32-black/open-sans-32-black.fnt'
+            dir,
+            'fonts/open-sans/open-sans-32-black/open-sans-32-black.fnt'
         ),
         FONT_SANS_64_BLACK: Path.join(
-            __dirname,
-            '../fonts/open-sans/open-sans-64-black/open-sans-64-black.fnt'
+            dir,
+            'fonts/open-sans/open-sans-64-black/open-sans-64-black.fnt'
         ),
         FONT_SANS_128_BLACK: Path.join(
-            __dirname,
-            '../fonts/open-sans/open-sans-128-black/open-sans-128-black.fnt'
+            dir,
+            'fonts/open-sans/open-sans-128-black/open-sans-128-black.fnt'
         ),
 
         FONT_SANS_8_WHITE: Path.join(
-            __dirname,
-            '../fonts/open-sans/open-sans-8-white/open-sans-8-white.fnt'
+            dir,
+            'fonts/open-sans/open-sans-8-white/open-sans-8-white.fnt'
         ),
         FONT_SANS_16_WHITE: Path.join(
-            __dirname,
-            '../fonts/open-sans/open-sans-16-white/open-sans-16-white.fnt'
+            dir,
+            'fonts/open-sans/open-sans-16-white/open-sans-16-white.fnt'
         ),
         FONT_SANS_32_WHITE: Path.join(
-            __dirname,
-            '../fonts/open-sans/open-sans-32-white/open-sans-32-white.fnt'
+            dir,
+            'fonts/open-sans/open-sans-32-white/open-sans-32-white.fnt'
         ),
         FONT_SANS_64_WHITE: Path.join(
-            __dirname,
-            '../fonts/open-sans/open-sans-64-white/open-sans-64-white.fnt'
+            dir,
+            'fonts/open-sans/open-sans-64-white/open-sans-64-white.fnt'
         ),
         FONT_SANS_128_WHITE: Path.join(
-            __dirname,
-            '../fonts/open-sans/open-sans-128-white/open-sans-128-white.fnt'
+            dir,
+            'fonts/open-sans/open-sans-128-white/open-sans-128-white.fnt'
         ),
 
         /**
