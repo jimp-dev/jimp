@@ -17,6 +17,7 @@ import crop from '@jimp/plugin-crop';
 import normalize from '@jimp/plugin-normalize';
 import invert from '@jimp/plugin-invert';
 import gaussian from '@jimp/plugin-gaussian';
+import mask from '@jimp/plugin-mask';
 
 export default configure({
     types: [jpeg, png, bmp, tiff, gif],
@@ -31,6 +32,7 @@ export default configure({
         crop,
         normalize,
         invert,
-        gaussian
+        gaussian,
+        mask
     ]
 });
