@@ -155,7 +155,7 @@ export function print(font, x, y, text, maxWidth, maxHeight, cb) {
         y = maxHeight / 2 - measureTextHeight(font, text, maxWidth) / 2;
     }
 
-    const defaultCharWidth = font.chars[0].xadvance;
+    const defaultCharWidth = Object.entries(font.chars)[0][1].xadvance;
     const lines = splitLines(font, text, maxWidth);
 
     lines.forEach(line => {
