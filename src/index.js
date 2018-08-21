@@ -39,7 +39,9 @@ for (let i = 2; i < 65; i++) {
     maxHashLength.push(maxHash.length);
 }
 
-process.on('exit', clear);
+if (!process.browser) {
+    process.on('exit', clear);
+}
 
 // no operation
 function noop() {}
