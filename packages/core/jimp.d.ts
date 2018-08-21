@@ -494,12 +494,12 @@ declare namespace Jimp {
         // Functions
         static appendConstructorOption<T extends any[]>(
             name: string,
-            test: (...args: T) => boolean,
+            test: (...args: T[]) => boolean,
             run: (
                 this: Jimp,
                 resolve: (jimp: Jimp) => any,
                 reject: (reason: Error) => any,
-                ...args: T
+                ...args: T[]
             ) => any
         );
         static read(path: string): Promise<Jimp>;

@@ -12,7 +12,6 @@ import ImagePHash from './modules/phash';
 import request from './request';
 
 import composite from './composite';
-
 import promisify from './utils/promisify';
 import * as MIME from './utils/mime';
 import { parseBitmap, getBuffer, getBufferAsync } from './utils/image-bitmap';
