@@ -15,10 +15,10 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "@jimp/utils": "^0.3.4"
+    "@jimp/utils": "^0.3.5"
   },
   "peerDependencies": {
-    "@jimp/resize": "^0.3.4",
+    "@jimp/plugin-resize": "^0.3.5",
     "jimp": "0.3.5"
   }
 }

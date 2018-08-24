@@ -15,7 +15,7 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "@jimp/utils": "^0.3.4",
+    "@jimp/utils": "^0.3.5",
     "tinycolor2": "^1.4.1"
   },
   "peerDependencies": {

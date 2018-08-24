@@ -15,11 +15,11 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "@jimp/utils": "^0.3.4"
+    "@jimp/utils": "^0.3.5"
   },
   "peerDependencies": {
-    "@jimp/plugin-crop": "^0.3.4",
-    "@jimp/plugin-scale": "^0.3.4",
+    "@jimp/plugin-crop": "^0.3.5",
+    "@jimp/plugin-scale": "^0.3.5",
     "jimp": "0.3.5"
   }
 }
