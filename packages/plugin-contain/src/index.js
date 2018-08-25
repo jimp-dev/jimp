@@ -1,4 +1,4 @@
-import { isNodePattern } from '@jimp/utils';
+import { isNodePattern, throwError } from '@jimp/utils';
 
 /**
  * Scale the image to the given width and height keeping the aspect ratio. Some parts of the image may be letter boxed.
@@ -36,7 +36,8 @@ export default () => ({
 
         alignBits =
             alignBits ||
-            constants.HORIZONTAL_ALIGN_CENTER | constants.VERTICAL_ALIGN_MIDDLE;
+            this.constructor.HORIZONTAL_ALIGN_CENTER |
+                this.constructor.VERTICAL_ALIGN_MIDDLE;
         const hbits = alignBits & ((1 << 3) - 1);
         const vbits = alignBits >> 3;
 
