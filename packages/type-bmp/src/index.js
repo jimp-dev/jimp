@@ -1,5 +1,5 @@
-const BMP = require('bmp-js');
-const { scan } = require('@jimp/utils');
+import BMP from 'bmp-js';
+import { scan } from '@jimp/utils';
 
 const MIME_TYPE = 'image/bmp';
 const MIME_TYPE_SECOND = 'image/x-ms-bmp';

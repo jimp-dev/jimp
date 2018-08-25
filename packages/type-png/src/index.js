@@ -1,5 +1,5 @@
-const { PNG } = require('pngjs');
-const { throwError, isNodePattern } = require('@jimp/utils');
+import { PNG } from 'pngjs';
+import { throwError, isNodePattern } from '@jimp/utils';
 
 const MIME_TYPE = 'image/png';
 
