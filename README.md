@@ -548,7 +548,7 @@ new Jimp(256, 256, '#FF00FF', function(err, image) {
 You can also initialize a new Jimp image with a raw image buffer:
 
 ```js
-new Jimp({ buffer: buffer, width: 1280, height: 768 }, (err, image) => {
+new Jimp({ data: buffer, width: 1280, height: 768 }, (err, image) => {
     // this image is 1280 x 768, pixels are loaded from the given buffer.
 });
 ```
