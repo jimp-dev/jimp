@@ -1,4 +1,4 @@
-import { isNodePattern } from '@jimp/utils';
+import { isNodePattern, throwError } from '@jimp/utils';
 
 /**
  * Displaces the image based on the provided displacement map

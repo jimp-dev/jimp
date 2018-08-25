@@ -1,4 +1,4 @@
-const GIF = require('omggif');
+import GIF from 'omggif';
 
 const MIME_TYPE = 'image/gif';
 

@@ -1,4 +1,4 @@
-const UTIF = require('utif');
+import UTIF from 'utif';
 
 const MIME_TYPE = 'image/tiff';
 

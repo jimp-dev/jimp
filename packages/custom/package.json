@@ -16,6 +16,6 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "@jimp/core": "^0.3.4"
+    "@jimp/core": "^0.3.5"
   }
 }

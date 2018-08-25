@@ -1,4 +1,4 @@
-import { isNodePattern } from '@jimp/utils';
+import { isNodePattern, throwError } from '@jimp/utils';
 
 /**
  * Masks a source image on to this image using average pixel colour. A completely black pixel on the mask will turn a pixel in the image completely transparent.

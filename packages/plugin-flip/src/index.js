@@ -1,4 +1,4 @@
-import { isNodePattern } from '@jimp/utils';
+import { isNodePattern, throwError } from '@jimp/utils';
 
 /**
  * Flip the image horizontally

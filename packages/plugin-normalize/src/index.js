@@ -1,6 +1,6 @@
 /* eslint-disable no-labels */
 
-import { throwError, isNodePattern } from '@jimp/utils';
+import { isNodePattern } from '@jimp/utils';
 
 /**
  * Get an image's histogram

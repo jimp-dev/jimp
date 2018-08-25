@@ -3,6 +3,7 @@
   "version": "0.3.5",
   "description": "Rotate an image.",
   "main": "dist/index.js",
+  "module": "es/index.js",
   "scripts": {
     "build": "npm run build:node:production && npm run build:module",
     "build:watch": "npm run build:node:debug -- -- --watch --verbose",
@@ -15,7 +16,7 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "@jimp/utils": "^0.3.4"
+    "@jimp/utils": "^0.3.5"
   },
   "peerDependencies": {
     "jimp": "0.3.5",

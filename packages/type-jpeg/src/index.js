@@ -1,7 +1,8 @@
-const JPEG = require('jpeg-js');
-const { throwError, isNodePattern } = require('@jimp/utils');
+import JPEG from 'jpeg-js';
+import { throwError, isNodePattern } from '@jimp/utils';
 
 const MIME_TYPE = 'image/jpeg';
+
 export default () => ({
     mime: [MIME_TYPE, ['jpeg', 'jpg', 'jpe']],
 
