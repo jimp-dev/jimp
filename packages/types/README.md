@@ -1,3 +1,3 @@
-# @jimp/tiff
+# @jimp/types
 
-Default Jimp tiff encoder/decoder.
+Default Jimp types.
