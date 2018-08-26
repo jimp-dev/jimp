@@ -8,10 +8,22 @@ Takes a Jimp configuration and applies it to `@jimp/core`.
 
 Sample Jimp configuration:
 
-```json
-{
-    "types": ["@jimp/jpeg", "@jimp/png", "@jimp/bmp", "@jimp/tiff", "@jimp/gif"]
-}
+```js
+import types from '@jimp/types';
+
+import bmp from '@jimp/bmp';
+import jpeg from '@jimp/types';
+...
+
+configure({
+  types: [types]
+})
+
+// or
+
+configure({
+  types: [bmp, jpeg, ...]
+})
 ```
 
 ## Type Definition
@@ -23,16 +35,23 @@ This function must return and array whose first element is the mime type and sec
 ```js
 const special = require('special-js');
 
-module.exports = config => {
-    const MIME_TYPE = 'image/special';
+const MIME_TYPE = 'image/special';
 
-    config.constants.MIME_SPECIAL = MIME_TYPE;
+export default () => ({
+  mime: [MIME_TYPE, ['spec', 'special']],
 
-    config.decoders[MIME_TYPE] = data => special.decode(data);
-    config.encoders[MIME_TYPE] = image => special.encode(image.bitmap);
+  constants: {
+    MIME_SPECIAL: MIME_TYPE
+  },
 
-    return [MIME_TYPE, ['spec', 'special']];
-};
+  decoders: {
+    [MIME_TYPE]: data => special.decode(data)
+  },
+
+  encoders: {
+    [MIME_TYPE]: image => special.encode(image.bitmap)
+  }
+});
 ```
 
 ### Constants
@@ -40,7 +59,9 @@ module.exports = config => {
 A jimp image type can expose as many constants as it wants. Each jimp type is required to expose a mime type.
 
 ```js
-config.constants.MIME_SPECIAL = 'image/special';
+constants: {
+  MIME_SPECIAL: MIME_TYPE
+},
 ```
 
 ### hasAlpha
@@ -48,7 +69,9 @@ config.constants.MIME_SPECIAL = 'image/special';
 A image type can define whether it supports an alpha channel.
 
 ```js
-config.hasAlpha[MIME_TYPE] = true;
+hasAlpha: {
+  MIME_SPECIAL: true
+},
 ```
 
 ### Decoder
@@ -56,7 +79,9 @@ config.hasAlpha[MIME_TYPE] = true;
 A function that when supplied with a buffer should return a bitmap with height and width.
 
 ```js
-config.decoders[MIME_TYPE] = data => special.decode(data);
+decoders: {
+  [MIME_TYPE]: data => special.decode(data)
+},
 ```
 
 ### Encoder
@@ -64,7 +89,9 @@ config.decoders[MIME_TYPE] = data => special.decode(data);
 A function that when supplied with a Jimp image should return an encoded buffer.
 
 ```js
-config.encoders[MIME_TYPE] = image => special.encode(image.bitmap);
+encoders: {
+  [MIME_TYPE]: image => special.encode(image.bitmap)
+}
 ```
 
 ### Class
@@ -72,23 +99,24 @@ config.encoders[MIME_TYPE] = image => special.encode(image.bitmap);
 Add class properties and function to the Jimp constructor.
 
 ```js
-config.class._quality = 100;
-
-config.class.quality = function(n, cb) {
+class: {
+  _quality: 100,
+  quality: function(n, cb) {
     if (typeof n !== 'number') {
-        return throwError.call(this, 'n must be a number', cb);
+      return throwError.call(this, 'n must be a number', cb);
     }
 
     if (n < 0 || n > 100) {
-        return throwError.call(this, 'n must be a number 0 - 100', cb);
+      return throwError.call(this, 'n must be a number 0 - 100', cb);
     }
 
     this._quality = Math.round(n);
 
     if (isNodePattern(cb)) {
-        cb.call(this, null, this);
+      cb.call(this, null, this);
     }
 
     return this;
+  }
 };
 ```
