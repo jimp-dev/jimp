@@ -1,6 +1,6 @@
 {
   "name": "@jimp/plugin-color",
-  "version": "0.3.6-alpha.5",
+  "version": "0.3.6-alpha.6",
   "description": "Bitmap manipulation to adjust the color in an image.",
   "main": "dist/index.js",
   "module": "es/index.js",
@@ -16,7 +16,7 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "@jimp/utils": "^0.3.6-alpha.5",
+    "@jimp/utils": "^0.3.6-alpha.6",
     "tinycolor2": "^1.4.1"
   },
   "peerDependencies": {
