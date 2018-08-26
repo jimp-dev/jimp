@@ -44,7 +44,7 @@ const decode = data => fromAGBR(BMP.decode(data));
 const encode = image => BMP.encode(toAGBR(image)).data;
 
 export default () => ({
-  mime: [MIME_TYPE, ['bmp']],
+  mime: { [MIME_TYPE]: ['bmp'] },
 
   constants: {
     MIME_BMP: MIME_TYPE,

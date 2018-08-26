@@ -6,4 +6,4 @@ import bmp from '@jimp/bmp';
 import tiff from '@jimp/tiff';
 import gif from '@jimp/gif';
 
-export default mergeDeep(jpeg, png, bmp, tiff, gif);
+export default () => mergeDeep(jpeg(), png(), bmp(), tiff(), gif());

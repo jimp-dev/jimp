@@ -3,7 +3,7 @@ import UTIF from 'utif';
 const MIME_TYPE = 'image/tiff';
 
 export default () => ({
-  mime: [MIME_TYPE, ['tiff', 'tif']],
+  mime: { [MIME_TYPE]: ['tiff', 'tif'] },
 
   constants: {
     MIME_TIFF: MIME_TYPE

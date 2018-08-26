@@ -4,7 +4,7 @@ import { throwError, isNodePattern } from '@jimp/utils';
 const MIME_TYPE = 'image/jpeg';
 
 export default () => ({
-  mime: [MIME_TYPE, ['jpeg', 'jpg', 'jpe']],
+  mime: { [MIME_TYPE]: ['jpeg', 'jpg', 'jpe'] },
 
   constants: {
     MIME_JPEG: MIME_TYPE
