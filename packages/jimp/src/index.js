@@ -25,24 +25,24 @@ import contain from '@jimp/plugin-contain';
 import cover from '@jimp/plugin-cover';
 
 export default configure({
-    types: [jpeg, png, bmp, tiff, gif],
-    plugins: [
-        dither,
-        resize,
-        blit,
-        rotate,
-        color,
-        print,
-        blur,
-        crop,
-        normalize,
-        invert,
-        gaussian,
-        mask,
-        flip,
-        scale,
-        displace,
-        contain,
-        cover
-    ]
+  types: [jpeg, png, bmp, tiff, gif],
+  plugins: [
+    dither,
+    resize,
+    blit,
+    rotate,
+    color,
+    print,
+    blur,
+    crop,
+    normalize,
+    invert,
+    gaussian,
+    mask,
+    flip,
+    scale,
+    displace,
+    contain,
+    cover
+  ]
 });

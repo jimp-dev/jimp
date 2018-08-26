@@ -10,63 +10,63 @@ import { isNodePattern, throwError } from '@jimp/utils';
  * @returns {Jimp} this for chaining of methods
  */
 export default () => ({
-    cover(w, h, alignBits, mode, cb) {
-        if (typeof w !== 'number' || typeof h !== 'number') {
-            return throwError.call(this, 'w and h must be numbers', cb);
-        }
-
-        if (
-            alignBits &&
-            typeof alignBits === 'function' &&
-            typeof cb === 'undefined'
-        ) {
-            cb = alignBits;
-            alignBits = null;
-            mode = null;
-        } else if (typeof mode === 'function' && typeof cb === 'undefined') {
-            cb = mode;
-            mode = null;
-        }
-
-        alignBits =
-            alignBits ||
-            this.constructor.HORIZONTAL_ALIGN_CENTER |
-                this.constructor.VERTICAL_ALIGN_MIDDLE;
-        const hbits = alignBits & ((1 << 3) - 1);
-        const vbits = alignBits >> 3;
-
-        // check if more flags than one is in the bit sets
-        if (
-            !(
-                (hbits !== 0 && !(hbits & (hbits - 1))) ||
-                (vbits !== 0 && !(vbits & (vbits - 1)))
-            )
-        )
-            return throwError.call(
-                this,
-                'only use one flag per alignment direction',
-                cb
-            );
-
-        const alignH = hbits >> 1; // 0, 1, 2
-        const alignV = vbits >> 1; // 0, 1, 2
-
-        const f =
-            w / h > this.bitmap.width / this.bitmap.height
-                ? w / this.bitmap.width
-                : h / this.bitmap.height;
-        this.scale(f, mode);
-        this.crop(
-            ((this.bitmap.width - w) / 2) * alignH,
-            ((this.bitmap.height - h) / 2) * alignV,
-            w,
-            h
-        );
-
-        if (isNodePattern(cb)) {
-            cb.call(this, null, this);
-        }
-
-        return this;
+  cover(w, h, alignBits, mode, cb) {
+    if (typeof w !== 'number' || typeof h !== 'number') {
+      return throwError.call(this, 'w and h must be numbers', cb);
     }
+
+    if (
+      alignBits &&
+      typeof alignBits === 'function' &&
+      typeof cb === 'undefined'
+    ) {
+      cb = alignBits;
+      alignBits = null;
+      mode = null;
+    } else if (typeof mode === 'function' && typeof cb === 'undefined') {
+      cb = mode;
+      mode = null;
+    }
+
+    alignBits =
+      alignBits ||
+      this.constructor.HORIZONTAL_ALIGN_CENTER |
+        this.constructor.VERTICAL_ALIGN_MIDDLE;
+    const hbits = alignBits & ((1 << 3) - 1);
+    const vbits = alignBits >> 3;
+
+    // check if more flags than one is in the bit sets
+    if (
+      !(
+        (hbits !== 0 && !(hbits & (hbits - 1))) ||
+        (vbits !== 0 && !(vbits & (vbits - 1)))
+      )
+    )
+      return throwError.call(
+        this,
+        'only use one flag per alignment direction',
+        cb
+      );
+
+    const alignH = hbits >> 1; // 0, 1, 2
+    const alignV = vbits >> 1; // 0, 1, 2
+
+    const f =
+      w / h > this.bitmap.width / this.bitmap.height
+        ? w / this.bitmap.width
+        : h / this.bitmap.height;
+    this.scale(f, mode);
+    this.crop(
+      ((this.bitmap.width - w) / 2) * alignH,
+      ((this.bitmap.height - h) / 2) * alignV,
+      w,
+      h
+    );
+
+    if (isNodePattern(cb)) {
+      cb.call(this, null, this);
+    }
+
+    return this;
+  }
 });

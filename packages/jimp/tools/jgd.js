@@ -38,35 +38,35 @@ new Jimp(donutJGD(), function (err, image) {
 */
 
 exports.decode = function(jgd) {
-    const bitmap = { width: jgd.width, height: jgd.height };
-    const length = jgd.width * jgd.height;
-    bitmap.data = Buffer.alloc(length * 4);
+  const bitmap = { width: jgd.width, height: jgd.height };
+  const length = jgd.width * jgd.height;
+  bitmap.data = Buffer.alloc(length * 4);
 
-    for (let i = 0; i < length; i++) {
-        bitmap.data.writeUInt32BE(jgd.data[i], i * 4);
-    }
-    return bitmap;
+  for (let i = 0; i < length; i++) {
+    bitmap.data.writeUInt32BE(jgd.data[i], i * 4);
+  }
+  return bitmap;
 };
 
 exports.encode = function(bitmap) {
-    const jgd = { width: bitmap.width, height: bitmap.height, data: [] };
+  const jgd = { width: bitmap.width, height: bitmap.height, data: [] };
 
-    for (let row = 0; row < bitmap.height; row++) {
-        for (let col = 0; col < bitmap.width; col++) {
-            const i = (bitmap.width * row + col) << 2;
-            const r = bitmap.data[i + 0];
-            const g = bitmap.data[i + 1];
-            const b = bitmap.data[i + 2];
-            const a = bitmap.data[i + 3];
-            const color =
-                ((((r & 0xff) << 24) >>> 0) |
-                    ((g & 0xff) << 16) |
-                    ((b & 0xff) << 8) |
-                    (a & 0xff)) >>>
-                0;
-            jgd.data.push(color);
-        }
+  for (let row = 0; row < bitmap.height; row++) {
+    for (let col = 0; col < bitmap.width; col++) {
+      const i = (bitmap.width * row + col) << 2;
+      const r = bitmap.data[i + 0];
+      const g = bitmap.data[i + 1];
+      const b = bitmap.data[i + 2];
+      const a = bitmap.data[i + 3];
+      const color =
+        ((((r & 0xff) << 24) >>> 0) |
+          ((g & 0xff) << 16) |
+          ((b & 0xff) << 8) |
+          (a & 0xff)) >>>
+        0;
+      jgd.data.push(color);
     }
+  }
 
-    return jgd;
+  return jgd;
 };
