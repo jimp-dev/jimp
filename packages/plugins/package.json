@@ -1,0 +1,41 @@
+{
+  "name": "@jimp/plugins",
+  "version": "0.3.5",
+  "description": "Default Jimp plugin.",
+  "main": "dist/index.js",
+  "module": "es/index.js",
+  "scripts": {
+    "build": "npm run build:node:production && npm run build:module",
+    "build:watch": "npm run build:node:debug -- -- --watch --verbose",
+    "build:debug": "npm run build:node:debug",
+    "build:module": "cross-env BABEL_ENV=module babel src -d es --source-maps --config-file ../../babel.config.js",
+    "build:node": "babel src -d dist --source-maps --config-file ../../babel.config.js",
+    "build:node:debug": "cross-env BABEL_ENV=development npm run build:node",
+    "build:node:production": "cross-env BABEL_ENV=production npm run build:node"
+  },
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@jimp/plugin-color": "0.3.5",
+    "@jimp/plugin-dither": "0.3.5",
+    "@jimp/plugin-resize": "0.3.5",
+    "@jimp/plugin-blit": "0.3.5",
+    "@jimp/plugin-rotate": "0.3.5",
+    "@jimp/plugin-print": "0.3.5",
+    "@jimp/plugin-blur": "0.3.5",
+    "@jimp/plugin-flip": "0.3.5",
+    "@jimp/plugin-mask": "0.3.5",
+    "@jimp/plugin-gaussian": "0.3.5",
+    "@jimp/plugin-scale": "0.3.5",
+    "@jimp/plugin-displace": "0.3.5",
+    "@jimp/plugin-normalize": "0.3.5",
+    "@jimp/plugin-contain": "0.3.5",
+    "@jimp/plugin-cover": "0.3.5",
+    "@jimp/plugin-invert": "0.3.5",
+    "@jimp/plugin-crop": "0.3.5",
+    "timm": "^1.6.1"
+  },
+  "peerDependencies": {
+    "jimp": "0.3.5"
+  }
+}

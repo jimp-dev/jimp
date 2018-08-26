@@ -12,7 +12,7 @@ const PNG_FILTER_AVERAGE = 3;
 const PNG_FILTER_PATH = 4;
 
 export default () => ({
-  mime: [MIME_TYPE, ['png']],
+  mime: { [MIME_TYPE]: ['png'] },
 
   constants: {
     MIME_PNG: MIME_TYPE,

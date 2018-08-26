@@ -3,7 +3,7 @@ import GIF from 'omggif';
 const MIME_TYPE = 'image/gif';
 
 export default () => ({
-  mime: [MIME_TYPE, ['gif']],
+  mime: { [MIME_TYPE]: ['gif'] },
 
   constants: {
     MIME_GIF: MIME_TYPE

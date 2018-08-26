@@ -25,7 +25,13 @@ export default function configure(configuration) {
 
   function addImageType(typeModule) {
     const type = typeModule();
-    addType(...type.mime);
+
+    if (Array.isArray(type.mime)) {
+      addType(...type.mime);
+    } else {
+      Object.entries(type.mime).forEach(mimeType => addType(...mimeType));
+    }
+
     delete type.mime;
     addToConfig(type);
   }
