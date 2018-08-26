@@ -65,6 +65,9 @@ jobs:
           name: Install Dependencies
           command: yarn install --frozen-lockfile
       - run:
+          name: Build Packages
+          command: yarn build
+      - run:
           name: Test
           command: yarn test --ci
 
@@ -78,6 +81,9 @@ jobs:
           name: Install Dependencies
           command: yarn install --frozen-lockfile
       - run:
+          name: Build Packages
+          command: yarn build
+      - run:
           name: Test
           command: yarn test --ci
 
@@ -90,6 +96,9 @@ jobs:
       - run:
           name: Install Dependencies
           command: yarn install --frozen-lockfile
+      - run:
+          name: Build Packages
+          command: yarn build
       - run:
           name: Test
           command: yarn test --ci
