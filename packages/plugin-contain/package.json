@@ -19,10 +19,10 @@
     "@jimp/utils": "^0.3.6-alpha.5"
   },
   "peerDependencies": {
-    "@jimp/custom": "0.3.6-alpha.4",
-    "@jimp/plugin-blit": "^0.3.5",
-    "@jimp/plugin-resize": "^0.3.5",
-    "@jimp/plugin-scale": "^0.3.5"
+    "@jimp/custom": ">=0.3.5",
+    "@jimp/plugin-blit": ">=0.3.5",
+    "@jimp/plugin-resize": ">=0.3.5",
+    "@jimp/plugin-scale": ">=0.3.5"
   },
   "publishConfig": {
     "access": "public"
