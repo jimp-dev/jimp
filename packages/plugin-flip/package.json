@@ -21,5 +21,8 @@
   "peerDependencies": {
     "@jimp/plugin-rotate": "^0.3.5",
     "jimp": "0.3.5"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

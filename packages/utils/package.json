@@ -14,5 +14,8 @@
     "build:node:production": "cross-env BABEL_ENV=production npm run build:node"
   },
   "author": "",
-  "license": "MIT"
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  }
 }

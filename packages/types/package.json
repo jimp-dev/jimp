@@ -25,5 +25,8 @@
   },
   "peerDependencies": {
     "jimp": "0.3.5"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

@@ -47,5 +47,8 @@
   "devDependencies": {
     "should": "^13.2.3"
   },
-  "xo": false
+  "xo": false,
+  "publishConfig": {
+    "access": "public"
+  }
 }

@@ -17,5 +17,8 @@
   "license": "MIT",
   "dependencies": {
     "@jimp/core": "^0.3.6-alpha.2"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

@@ -23,5 +23,8 @@
     "@jimp/plugin-crop": "0.3.5",
     "@jimp/plugin-resize": "0.3.5",
     "jimp": "0.3.5"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }
