@@ -20,7 +20,7 @@
     "omggif": "^1.0.9"
   },
   "peerDependencies": {
-    "jimp": "0.3.5"
+    "@jimp/custom":  "0.3.6-alpha.4"
   },
   "publishConfig": {
     "access": "public"
