@@ -9,7 +9,8 @@
     "clean": "lerna clean --yes && rm -rf node_modules && npm run clean:build",
     "clean:build": "rm -rf packages/**/es packages/**/dist",
     "build": "npm run clean:build && lerna run build --stream",
-    "build:watch": "lerna run build:watch --parallel"
+    "build:watch": "lerna run build:watch --parallel",
+    "publish:packages": "lerna publish --npm-client yarn"
   },
   "devDependencies": {
     "@babel/cli": "^7.0.0-rc.1",
