@@ -56,11 +56,7 @@
   "dependencies": {
     "@babel/polyfill": "^7.0.0-rc.1",
     "@jimp/custom": "0.3.5",
-    "@jimp/jpeg": "0.3.5",
-    "@jimp/png": "0.3.5",
-    "@jimp/bmp": "0.3.5",
-    "@jimp/tiff": "0.3.5",
-    "@jimp/gif": "0.3.5",
+    "@jimp/types": "0.3.5",
     "@jimp/plugin-color": "0.3.5",
     "@jimp/plugin-dither": "0.3.5",
     "@jimp/plugin-resize": "0.3.5",

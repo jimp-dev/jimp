@@ -1,10 +1,6 @@
 import configure from '@jimp/custom';
 
-import jpeg from '@jimp/jpeg';
-import png from '@jimp/png';
-import bmp from '@jimp/bmp';
-import tiff from '@jimp/tiff';
-import gif from '@jimp/gif';
+import types from '@jimp/types';
 
 import dither from '@jimp/plugin-dither';
 import resize from '@jimp/plugin-resize';
@@ -25,7 +21,7 @@ import contain from '@jimp/plugin-contain';
 import cover from '@jimp/plugin-cover';
 
 export default configure({
-  types: [jpeg, png, bmp, tiff, gif],
+  types: [types],
   plugins: [
     dither,
     resize,
