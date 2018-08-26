@@ -1,6 +1,6 @@
 {
   "name": "jimp",
-  "version": "0.3.6-alpha.1",
+  "version": "0.3.6-alpha.2",
   "description": "An image processing library written entirely in JavaScript (i.e. zero external or native dependencies).",
   "main": "dist/index.js",
   "module": "es/index.js",
@@ -55,9 +55,9 @@
   "license": "MIT",
   "dependencies": {
     "@babel/polyfill": "^7.0.0-rc.1",
-    "@jimp/custom": "^0.3.6-alpha.1",
-    "@jimp/plugins": "^0.3.6-alpha.1",
-    "@jimp/types": "^0.3.6-alpha.1"
+    "@jimp/custom": "^0.3.6-alpha.2",
+    "@jimp/plugins": "^0.3.6-alpha.2",
+    "@jimp/types": "^0.3.6-alpha.2"
   },
   "devDependencies": {
     "babelify": "^9.0.0",
