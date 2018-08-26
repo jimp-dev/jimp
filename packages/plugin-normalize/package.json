@@ -1,6 +1,6 @@
 {
   "name": "@jimp/plugin-normalize",
-  "version": "0.3.5",
+  "version": "0.3.6-alpha.0",
   "description": "normalize an image.",
   "main": "dist/index.js",
   "module": "es/index.js",
@@ -16,7 +16,7 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "@jimp/utils": "^0.3.5"
+    "@jimp/utils": "^0.3.6-alpha.0"
   },
   "peerDependencies": {
     "jimp": "0.3.5"
