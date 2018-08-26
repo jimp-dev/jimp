@@ -14,7 +14,7 @@ Determine the new version by looking at PR labels and using semantic versioning.
 | enhancement | minor   | 0.1.0 |
 | breaking    | major   | 1.0.0 |
 
-Run the following command to bump all package versions.
+First make sure you're on master and run the following command to bump all package versions and generate a changelog.
 
 ```sh
 yarn publish:packages [patch || minor || major]
