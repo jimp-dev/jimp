@@ -8,7 +8,7 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          keys: 
+          keys:
             # Find a cache corresponding to this specific package.json checksum
             # when this file is changed, this key will fail
             - jimp-{{ .Branch }}-{{ checksum "yarn.lock" }}-{{ checksum ".circleci/config.yml" }}
@@ -20,6 +20,9 @@ jobs:
       - run:
           name: Install Dependencies
           command: yarn install --frozen-lockfile
+      - run:
+          name: Build Packages
+          command: yarn build
       - save_cache:
           key: jimp-{{ .Branch }}-{{ checksum "yarn.lock" }}-{{ checksum ".circleci/config.yml" }}
           paths:
@@ -28,7 +31,7 @@ jobs:
       - persist_to_workspace:
           root: .
           paths:
-              - .
+            - .
 
   lint:
     working_directory: ~/jimp
@@ -36,7 +39,7 @@ jobs:
       - image: circleci/node:latest-browsers
     steps:
       - attach_workspace:
-          at: ~/jimp   
+          at: ~/jimp
       - run:
           name: Lint
           command: yarn lint
@@ -47,7 +50,7 @@ jobs:
       - image: circleci/node:latest-browsers
     steps:
       - attach_workspace:
-          at: ~/jimp 
+          at: ~/jimp
       - run:
           name: Test
           command: yarn test --ci
@@ -64,7 +67,7 @@ jobs:
       - run:
           name: Test
           command: yarn test --ci
-  
+
   build-node8:
     working_directory: ~/jimp-8
     docker:
@@ -77,7 +80,7 @@ jobs:
       - run:
           name: Test
           command: yarn test --ci
-  
+
   build-node10:
     working_directory: ~/jimp-10
     docker:
@@ -101,34 +104,34 @@ workflows:
               only: /.*/
       - lint:
           requires:
-              - install
+            - install
           filters:
             tags:
               only: /.*/
       - test:
           requires:
-              - install
+            - install
           filters:
             tags:
               only: /.*/
       - build-node6:
           requires:
-              - lint
-              - test
+            - lint
+            - test
           filters:
             tags:
               only: /.*/
       - build-node8:
           requires:
-              - lint
-              - test
+            - lint
+            - test
           filters:
             tags:
               only: /.*/
       - build-node10:
           requires:
-              - lint
-              - test
+            - lint
+            - test
           filters:
             tags:
               only: /.*/
