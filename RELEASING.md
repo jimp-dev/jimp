@@ -19,3 +19,5 @@ First make sure you're on master and run the following command to bump all packa
 ```sh
 yarn publish:packages [patch || minor || major]
 ```
+
+Make a github release through the ui and copy over changelog from `CHANGELOG.md`.
