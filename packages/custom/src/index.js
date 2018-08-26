@@ -1,60 +1,60 @@
 import Jimp, {
-    addType,
-    addJimpMethods,
-    addConstants,
-    jimpEvChange
+  addType,
+  addJimpMethods,
+  addConstants,
+  jimpEvChange
 } from '@jimp/core';
 
 export default function configure(configuration) {
-    const jimpConfig = {
-        hasAlpha: {},
-        encoders: {},
-        decoders: {},
-        class: {},
-        constants: {}
-    };
+  const jimpConfig = {
+    hasAlpha: {},
+    encoders: {},
+    decoders: {},
+    class: {},
+    constants: {}
+  };
 
-    function addToConfig(newConfig) {
-        Object.entries(newConfig).forEach(([key, value]) => {
-            jimpConfig[key] = {
-                ...jimpConfig[key],
-                ...value
-            };
-        });
+  function addToConfig(newConfig) {
+    Object.entries(newConfig).forEach(([key, value]) => {
+      jimpConfig[key] = {
+        ...jimpConfig[key],
+        ...value
+      };
+    });
+  }
+
+  function addImageType(typeModule) {
+    const type = typeModule();
+    addType(...type.mime);
+    delete type.mime;
+    addToConfig(type);
+  }
+
+  function addPlugin(pluginModule) {
+    const plugin = pluginModule(jimpEvChange) || {};
+
+    if (!plugin.class && !plugin.constants) {
+      // Default to class function
+      addToConfig({ class: plugin });
+    } else {
+      addToConfig(plugin);
     }
+  }
 
-    function addImageType(typeModule) {
-        const type = typeModule();
-        addType(...type.mime);
-        delete type.mime;
-        addToConfig(type);
-    }
+  if (configuration.types) {
+    configuration.types.forEach(addImageType);
 
-    function addPlugin(pluginModule) {
-        const plugin = pluginModule(jimpEvChange) || {};
+    Jimp.decoders = jimpConfig.decoders;
+    Jimp.encoders = jimpConfig.encoders;
+    Jimp.hasAlpha = jimpConfig.hasAlpha;
+  }
 
-        if (!plugin.class && !plugin.constants) {
-            // Default to class function
-            addToConfig({ class: plugin });
-        } else {
-            addToConfig(plugin);
-        }
-    }
+  if (configuration.plugins) {
+    configuration.plugins.forEach(addPlugin);
+  }
 
-    if (configuration.types) {
-        configuration.types.forEach(addImageType);
+  addJimpMethods(jimpConfig.class);
+  addConstants(jimpConfig.constants);
 
-        Jimp.decoders = jimpConfig.decoders;
-        Jimp.encoders = jimpConfig.encoders;
-        Jimp.hasAlpha = jimpConfig.hasAlpha;
-    }
-
-    if (configuration.plugins) {
-        configuration.plugins.forEach(addPlugin);
-    }
-
-    addJimpMethods(jimpConfig.class);
-    addConstants(jimpConfig.constants);
-
-    return Jimp;
+  return Jimp;
 }
