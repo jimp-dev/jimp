@@ -215,4 +215,32 @@ describe('Write text over image', function() {
       results[0].bitmap.data.should.be.deepEqual(results[1].bitmap.data);
     });
   });
+
+  it('exposes print y position in cb', async () => {
+    const expectedImage = await Jimp.read(
+      getTestDir() + '/samples/text-samples/y-spacing.png'
+    );
+
+    const loadedFont = await Jimp.loadFont(Jimp.FONT_SANS_16_BLACK);
+    const image = await Jimp.create(500, 500, 0xffffffff);
+
+    image.print(
+      loadedFont,
+      0,
+      0,
+      'One two three four fix six seven eight nine ten eleven twelve',
+      250,
+      (err, image, y) => {
+        image.print(
+          loadedFont,
+          0,
+          y + 50,
+          'thirteen fourteen fifteen sixteen seventeen eighteen nineteen twenty',
+          250
+        );
+      }
+    );
+
+    expectedImage.bitmap.data.should.be.deepEqual(image.bitmap.data);
+  });
 });
