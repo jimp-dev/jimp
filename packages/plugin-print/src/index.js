@@ -59,12 +59,17 @@ function splitLines(font, text, maxWidth) {
   const words = text.split(' ');
   const lines = [];
   let currentLine = [];
+  let longestLine = 0;
 
   words.forEach(word => {
     const line = [...currentLine, word].join(' ');
     const length = measureText(font, line);
 
     if (length <= maxWidth) {
+      if (length > longestLine) {
+        longestLine = length;
+      }
+
       currentLine.push(word);
     } else {
       lines.push(currentLine);
@@ -74,7 +79,10 @@ function splitLines(font, text, maxWidth) {
 
   lines.push(currentLine);
 
-  return lines;
+  return {
+    lines,
+    longestLine
+  };
 }
 
 function loadPages(Jimp, dir, pages) {
@@ -277,7 +285,7 @@ export default () => ({
       }
 
       const defaultCharWidth = Object.entries(font.chars)[0][1].xadvance;
-      const lines = splitLines(font, text, maxWidth);
+      const { lines, longestLine } = splitLines(font, text, maxWidth);
 
       lines.forEach(line => {
         const lineString = line.join(' ');
@@ -302,7 +310,7 @@ export default () => ({
       });
 
       if (isNodePattern(cb)) {
-        cb.call(this, null, this, y);
+        cb.call(this, null, this, { x: x + longestLine, y });
       }
 
       return this;

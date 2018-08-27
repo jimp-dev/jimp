@@ -218,7 +218,7 @@ describe('Write text over image', function() {
 
   it('exposes print y position in cb', async () => {
     const expectedImage = await Jimp.read(
-      getTestDir() + '/samples/text-samples/y-spacing.png'
+      getTestDir() + '/samples/text-samples/spacing.png'
     );
 
     const loadedFont = await Jimp.loadFont(Jimp.FONT_SANS_16_BLACK);
@@ -230,10 +230,10 @@ describe('Write text over image', function() {
       0,
       'One two three four fix six seven eight nine ten eleven twelve',
       250,
-      (err, image, y) => {
+      (err, image, { x, y }) => {
         image.print(
           loadedFont,
-          0,
+          x,
           y + 50,
           'thirteen fourteen fifteen sixteen seventeen eighteen nineteen twenty',
           250
