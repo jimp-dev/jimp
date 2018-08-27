@@ -16,7 +16,8 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "@jimp/utils": "^0.3.8"
+    "@jimp/utils": "^0.3.8",
+    "core-js": "^2.5.7"
   },
   "peerDependencies": {
     "@jimp/custom": ">=0.3.5"

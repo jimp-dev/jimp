@@ -17,6 +17,7 @@
   "license": "MIT",
   "dependencies": {
     "@jimp/utils": "^0.3.8",
+    "core-js": "^2.5.7",
     "pngjs": "^3.3.3"
   },
   "peerDependencies": {

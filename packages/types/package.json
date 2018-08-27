@@ -21,6 +21,7 @@
     "@jimp/jpeg": "^0.3.8",
     "@jimp/png": "^0.3.8",
     "@jimp/tiff": "^0.3.8",
+    "core-js": "^2.5.7",
     "timm": "^1.6.1"
   },
   "peerDependencies": {

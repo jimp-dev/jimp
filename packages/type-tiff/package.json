@@ -16,6 +16,7 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
+    "core-js": "^2.5.7",
     "utif": "^2.0.0"
   },
   "peerDependencies": {
