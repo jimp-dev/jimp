@@ -221,7 +221,7 @@ export default () => ({
 
       if (typeof maxHeight === 'function' && typeof cb === 'undefined') {
         cb = maxHeight;
-        maxWidth = Infinity;
+        maxHeight = Infinity;
       }
 
       if (typeof maxHeight === 'undefined') {
@@ -302,7 +302,7 @@ export default () => ({
       });
 
       if (isNodePattern(cb)) {
-        cb.call(this, null, this);
+        cb.call(this, null, this, y);
       }
 
       return this;
