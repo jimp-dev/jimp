@@ -1,4 +1,15 @@
-## v0.3.6 (2018-08-25)
+## Unreleased (2018-08-27)
+
+#### :house: Internal
+
+- `core`, `custom`, `jimp`, `plugin-blit`, `plugin-blur`, `plugin-color`, `plugin-contain`, `plugin-cover`, `plugin-crop`, `plugin-displace`, `plugin-dither`, `plugin-flip`, `plugin-gaussian`, `plugin-invert`, `plugin-mask`, `plugin-normalize`, `plugin-print`, `plugin-resize`, `plugin-rotate`, `plugin-scale`, `plugins`, `type-bmp`, `type-gif`, `type-jpeg`, `type-png`, `type-tiff`, `types`, `utils`
+  - [#573](https://github.com/oliver-moran/jimp/pull/573) Update Readmes ([@hipstersmoothie](https://github.com/hipstersmoothie))
+
+#### Committers: 1
+
+- Andrew Lisowski ([@hipstersmoothie](https://github.com/hipstersmoothie))
+
+## v0.3.6-alpha.0 (2018-08-25)
 
 #### :rocket: Enhancement
 
