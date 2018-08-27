@@ -13,12 +13,12 @@ var Jimp = require('jimp');
 
 // open a file called "lenna.png"
 Jimp.read('lenna.png', (err, lenna) => {
-    if (err) throw err;
-    lenna
-        .resize(256, 256) // resize
-        .quality(60) // set JPEG quality
-        .greyscale() // set greyscale
-        .write('lena-small-bw.jpg'); // save
+  if (err) throw err;
+  lenna
+    .resize(256, 256) // resize
+    .quality(60) // set JPEG quality
+    .greyscale() // set greyscale
+    .write('lena-small-bw.jpg'); // save
 });
 ```
 
@@ -26,16 +26,16 @@ Using promises:
 
 ```js
 Jimp.read('lenna.png')
-    .then(lenna => {
-        return lenna
-            .resize(256, 256) // resize
-            .quality(60) // set JPEG quality
-            .greyscale() // set greyscale
-            .write('lena-small-bw.jpg'); // save
-    })
-    .catch(err => {
-        console.error(err);
-    });
+  .then(lenna => {
+    return lenna
+      .resize(256, 256) // resize
+      .quality(60) // set JPEG quality
+      .greyscale() // set greyscale
+      .write('lena-small-bw.jpg'); // save
+  })
+  .catch(err => {
+    console.error(err);
+  });
 ```
 
 ## Module Build
@@ -67,28 +67,28 @@ The static `Jimp.read` method takes the path to a file, URL, dimensions, a Jimp 
 
 ```js
 Jimp.read('./path/to/image.jpg')
-    .then(image => {
-        // do stuff with the image
-    })
-    .catch(err => {
-        // handle an exception
-    });
+  .then(image => {
+    // do stuff with the image
+  })
+  .catch(err => {
+    // handle an exception
+  });
 
 Jimp.read(lenna.buffer)
-    .then(image => {
-        // do stuff with the image
-    })
-    .catch(err => {
-        // handle an exception
-    });
+  .then(image => {
+    // do stuff with the image
+  })
+  .catch(err => {
+    // handle an exception
+  });
 
 Jimp.read('http://www.example.com/path/to/lenna.jpg')
-    .then(image => {
-        // do stuff with the image
-    })
-    .catch(err => {
-        // handle an exception
-    });
+  .then(image => {
+    // do stuff with the image
+  })
+  .catch(err => {
+    // handle an exception
+  });
 ```
 
 The conveniance method `Jimp.create` also exists. It is just a wrapper around `Jimp.read`.
@@ -246,9 +246,9 @@ Jimp supports basic typography using BMFont format (.fnt) even ones in different
 
 ```js
 Jimp.loadFont(path).then(function(font) {
-    // load font from .fnt file
-    image.print(font, x, y, str); // print a message on an image
-    image.print(font, x, y, str, maxWidth); // print a message on an image with text wrapped at maxWidth
+  // load font from .fnt file
+  image.print(font, x, y, str); // print a message on an image
+  image.print(font, x, y, str, maxWidth); // print a message on an image with text wrapped at maxWidth
 });
 ```
 
@@ -256,18 +256,18 @@ Alignment modes are supported by replacing the `str` argument with an object con
 
 ```js
 Jimp.loadFont(path).then(function(font) {
-    image.print(
-        font,
-        x,
-        y,
-        {
-            text: 'Hello world!',
-            alignmentX: Jimp.HORIZONTAL_ALIGN_CENTER,
-            alignmentY: Jimp.VERTICAL_ALIGN_MIDDLE
-        },
-        maxWidth,
-        maxHeight
-    ); // prints 'Hello world!' on an image, middle and center-aligned
+  image.print(
+    font,
+    x,
+    y,
+    {
+      text: 'Hello world!',
+      alignmentX: Jimp.HORIZONTAL_ALIGN_CENTER,
+      alignmentY: Jimp.VERTICAL_ALIGN_MIDDLE
+    },
+    maxWidth,
+    maxHeight
+  ); // prints 'Hello world!' on an image, middle and center-aligned
 });
 ```
 
@@ -298,7 +298,7 @@ These can be used as follows:
 
 ```js
 Jimp.loadFont(Jimp.FONT_SANS_32_BLACK).then(function(font) {
-    image.print(font, 10, 10, 'Hello world!');
+  image.print(font, 10, 10, 'Hello world!');
 });
 ```
 
@@ -401,9 +401,9 @@ Jimp supports advanced colour manipulation using a single method as follows:
 
 ```js
 image.color([
-    { apply: 'hue', params: [-90] },
-    { apply: 'lighten', params: [50] },
-    { apply: 'xor', params: ['#06D'] }
+  { apply: 'hue', params: [-90] },
+  { apply: 'lighten', params: [50] },
+  { apply: 'xor', params: ['#06D'] }
 ]);
 ```
 
@@ -459,17 +459,17 @@ Example usage:
 
 ```js
 image.scan(0, 0, image.bitmap.width, image.bitmap.height, function(x, y, idx) {
-    // x, y is the position of this pixel on the image
-    // idx is the position start position of this rgba tuple in the bitmap Buffer
-    // this is the image
+  // x, y is the position of this pixel on the image
+  // idx is the position start position of this rgba tuple in the bitmap Buffer
+  // this is the image
 
-    var red = this.bitmap.data[idx + 0];
-    var green = this.bitmap.data[idx + 1];
-    var blue = this.bitmap.data[idx + 2];
-    var alpha = this.bitmap.data[idx + 3];
+  var red = this.bitmap.data[idx + 0];
+  var green = this.bitmap.data[idx + 1];
+  var blue = this.bitmap.data[idx + 2];
+  var alpha = this.bitmap.data[idx + 3];
 
-    // rgba values run from 0 - 255
-    // e.g. this.bitmap.data[idx] = 0; // removes red from this pixel
+  // rgba values run from 0 - 255
+  // e.g. this.bitmap.data[idx] = 0; // removes red from this pixel
 });
 ```
 
@@ -477,11 +477,11 @@ If you need to do something with the image at the end of the scan:
 
 ```js
 image.scan(0, 0, image.bitmap.width, image.bitmap.height, function(x, y, idx) {
-    // do your stuff..
+  // do your stuff..
 
-    if (x == image.bitmap.width - 1 && y == image.bitmap.height - 1) {
-        // image scan finished, do your stuff
-    }
+  if (x == image.bitmap.width - 1 && y == image.bitmap.height - 1) {
+    // image scan finished, do your stuff
+  }
 });
 ```
 
@@ -525,7 +525,7 @@ If you want to begin with an empty Jimp image, you can call the Jimp constructor
 
 ```js
 new Jimp(256, 256, function(err, image) {
-    // this image is 256 x 256, every pixel is set to 0x00000000
+  // this image is 256 x 256, every pixel is set to 0x00000000
 });
 ```
 
@@ -533,7 +533,7 @@ You can optionally set the pixel colour as follows:
 
 ```js
 new Jimp(256, 256, 0xff0000ff, function(err, image) {
-    // this image is 256 x 256, every pixel is set to 0xFF0000FF
+  // this image is 256 x 256, every pixel is set to 0xFF0000FF
 });
 ```
 
@@ -541,7 +541,7 @@ Or you can use a css color format:
 
 ```js
 new Jimp(256, 256, '#FF00FF', function(err, image) {
-    // this image is 256 x 256, every pixel is set to #FF00FF
+  // this image is 256 x 256, every pixel is set to #FF00FF
 });
 ```
 
@@ -549,7 +549,7 @@ You can also initialize a new Jimp image with a raw image buffer:
 
 ```js
 new Jimp({ data: buffer, width: 1280, height: 768 }, (err, image) => {
-    // this image is 1280 x 768, pixels are loaded from the given buffer.
+  // this image is 1280 x 768, pixels are loaded from the given buffer.
 });
 ```
 
@@ -592,9 +592,9 @@ var distance = Jimp.distance(png, jpeg); // perceived distance
 var diff = Jimp.diff(png, jpeg); // pixel difference
 
 if (distance < 0.15 || diff.percent < 0.15) {
-    // images match
+  // images match
 } else {
-    // not a match
+  // not a match
 }
 ```
 
@@ -604,9 +604,9 @@ Most instance methods can be chained together, for example as follows:
 
 ```js
 Jimp.read('lenna.png').then(image => {
-    this.greyscale()
-        .scale(0.5)
-        .write('lena-half-bw.png');
+  this.greyscale()
+    .scale(0.5)
+    .write('lena-half-bw.png');
 });
 ```
 
@@ -614,11 +614,11 @@ Alternatively, methods can be passed Node-style callbacks:
 
 ```js
 Jimp.read('lenna.png').then(image => {
-    image.greyscale((err, image) => {
-        image.scale(0.5, (err, image) => {
-            image.write('lena-half-bw.png');
-        });
+  image.greyscale((err, image) => {
+    image.scale(0.5, (err, image) => {
+      image.write('lena-half-bw.png');
     });
+  });
 });
 ```
 

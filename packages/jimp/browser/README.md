@@ -33,10 +33,10 @@ For better performance, it recommended that Jimp methods are run on a separate t
 
 var worker = new Worker('jimp-worker.js');
 worker.onmessage = function(e) {
-    // append a new img element using the base 64 image
-    var img = document.createElement('img');
-    img.setAttribute('src', e.data);
-    document.body.appendChild(img);
+  // append a new img element using the base 64 image
+  var img = document.createElement('img');
+  img.setAttribute('src', e.data);
+  document.body.appendChild(img);
 };
 worker.postMessage('lenna.png'); // message the worker thread
 ```
@@ -47,15 +47,15 @@ worker.postMessage('lenna.png'); // message the worker thread
 importScripts('jimp.min.js');
 
 self.addEventListener('message', function(e) {
-    Jimp.read(e.data).then(function(lenna) {
-        lenna
-            .resize(256, 256) // resize
-            .quality(60) // set JPEG quality
-            .greyscale() // set greyscale
-            .getBase64(Jimp.MIME_JPEG, function(err, src) {
-                self.postMessage(src); // message the main thread
-            });
-    });
+  Jimp.read(e.data).then(function(lenna) {
+    lenna
+      .resize(256, 256) // resize
+      .quality(60) // set JPEG quality
+      .greyscale() // set greyscale
+      .getBase64(Jimp.MIME_JPEG, function(err, src) {
+        self.postMessage(src); // message the main thread
+      });
+  });
 });
 ```
 

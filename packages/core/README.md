@@ -14,7 +14,7 @@ Add constant or static methods to the Jimp constructor.
 
 ```js
 addConstants({
-    MIME_SPECIAL: 'image/special'
+  MIME_SPECIAL: 'image/special'
 });
 ```
 

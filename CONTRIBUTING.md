@@ -16,15 +16,15 @@ You can help answering issue questions; maturing or voting on feature suggestion
 
 If you know how to code, we welcome you to send fixes and new features, but in order to be efficient we ask you to follow the following procedure:
 
--   Fork this repo;
--   Clone your forked repo locally;
--   Code your changes (if you want to implement many features do each one in a separated branch);
--   Write tests to ensure your feature works as expected and protect its behavior on future changes;
--   Test it! Ensure you don't crash Jimp in Node.js or Browser environments;
-    -   Full test with `npm test` will also produce a coverage report.
-    -   For more option, see the "[Testing](#testing)" topic bellow.
--   Push to your forked repo;
--   Make your pull request.
+- Fork this repo;
+- Clone your forked repo locally;
+- Code your changes (if you want to implement many features do each one in a separated branch);
+- Write tests to ensure your feature works as expected and protect its behavior on future changes;
+- Test it! Ensure you don't crash Jimp in Node.js or Browser environments;
+  - Full test with `npm test` will also produce a coverage report.
+  - For more option, see the "[Testing](#testing)" topic bellow.
+- Push to your forked repo;
+- Make your pull request.
 
 ### Developing
 

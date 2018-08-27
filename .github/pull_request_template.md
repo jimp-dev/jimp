@@ -4,7 +4,7 @@
 
 ## Tasks
 
--   [ ] Add tests
--   [ ] Update Documentation
--   [ ] Update `jimp.d.ts`
--   [ ] Add [SemVer](https://semver.org/) Label
+- [ ] Add tests
+- [ ] Update Documentation
+- [ ] Update `jimp.d.ts`
+- [ ] Add [SemVer](https://semver.org/) Label
