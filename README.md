@@ -13,30 +13,30 @@ Installation: `npm install --save jimp`
 
 ## Supported Image Types
 
-- [bmp](./packages/type-bmp/README.md)
-- [gif](./packages/type-gif/README.md)
-- [jpeg](./packages/type-jpeg/README.md)
-- [png](./packages/type-png/README.md)
-- [tiff](./packages/type-tiff/README.md)
+- [bmp](./packages/type-bmp)
+- [gif](./packages/type-gif)
+- [jpeg](./packages/type-jpeg)
+- [png](./packages/type-png)
+- [tiff](./packages/type-tiff)
 
 ## Image Manipulation Methods
 
-- [blit](./packages/plugin-blit/README.md)
-- [blur](./packages/plugin-blur/README.md)
-- [color](./packages/plugin-color/README.md)
-- [contain](./packages/plugin-contain/README.md)
-- [cover](./packages/plugin-cover/README.md)
-- [displace](./packages/plugin-displace/README.md)
-- [dither](./packages/plugin-dither/README.md)
-- [flip](./packages/plugin-flip/README.md)
-- [gaussian](./packages/plugin-gaussian/README.md)
-- [invert](./packages/plugin-invert/README.md)
-- [mask](./packages/plugin-mask/README.md)
-- [normalize](./packages/plugin-normalize/README.md)
-- [print](./packages/plugin-print/README.md)
-- [resize](./packages/plugin-resize/README.md)
-- [rotate](./packages/plugin-rotate/README.md)
-- [scale](./packages/plugin-scale/README.md)
+- [blit](./packages/plugin-blit)
+- [blur](./packages/plugin-blur)
+- [color](./packages/plugin-color)
+- [contain](./packages/plugin-contain)
+- [cover](./packages/plugin-cover)
+- [displace](./packages/plugin-displace)
+- [dither](./packages/plugin-dither)
+- [flip](./packages/plugin-flip)
+- [gaussian](./packages/plugin-gaussian)
+- [invert](./packages/plugin-invert)
+- [mask](./packages/plugin-mask)
+- [normalize](./packages/plugin-normalize)
+- [print](./packages/plugin-print)
+- [resize](./packages/plugin-resize)
+- [rotate](./packages/plugin-rotate)
+- [scale](./packages/plugin-scale)
 
 ## Contributing
 
