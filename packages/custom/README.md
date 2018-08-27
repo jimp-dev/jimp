@@ -1,4 +1,11 @@
-# @jimp/custom
+<div align="center">
+  <a href="https://intuit.github.io/Ignite/">
+    <img width="200" height="200"
+      src="https://s3.amazonaws.com/pix.iemoji.com/images/emoji/apple/ios-11/256/crayon.png">
+  </a>
+  <h1>@jimp/custom</h1>
+  <p>Configure jimp with types and plugins.</p>
+</div>
 
 ## Available Methods
 
@@ -119,4 +126,39 @@ class: {
     return this;
   }
 };
+```
+
+## Plugin Definition
+
+Defining a plugin has access to all the same things in the type definition. Mainly plugins use just the `constants` and `class` config options.
+
+Below is the `invert` plugin. If a plugin doesn return an obkect with `constants` and `class`, all keys are treated as class functions.
+
+```js
+import { isNodePattern } from '@jimp/utils';
+
+/**
+ * Inverts the image
+ * @param {function(Error, Jimp)} cb (optional) a callback for when complete
+ * @returns {Jimp} this for chaining of methods
+ */
+export default () => ({
+  invert(cb) {
+    this.scanQuiet(0, 0, this.bitmap.width, this.bitmap.height, function(
+      x,
+      y,
+      idx
+    ) {
+      this.bitmap.data[idx] = 255 - this.bitmap.data[idx];
+      this.bitmap.data[idx + 1] = 255 - this.bitmap.data[idx + 1];
+      this.bitmap.data[idx + 2] = 255 - this.bitmap.data[idx + 2];
+    });
+
+    if (isNodePattern(cb)) {
+      cb.call(this, null, this);
+    }
+
+    return this;
+  }
+});
 ```

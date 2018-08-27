@@ -31,7 +31,7 @@ import { mulTable, shgTable } from './blur-tables';
 
 export default () => ({
   /**
-   * A fast blur algorithm that produces similar effect to a Gausian blur - but MUCH quicker
+   * A fast blur algorithm that produces similar effect to a Gaussian blur - but MUCH quicker
    * @param {number} r the pixel radius of the blur
    * @param {function(Error, Jimp)} cb (optional) a callback for when complete
    * @returns {Jimp} this for chaining of methods
