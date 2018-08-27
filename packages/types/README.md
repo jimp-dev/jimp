@@ -9,8 +9,8 @@
 
 ## Supported Image Types
 
-- [bmp](../type-bmp/README.md)
-- [gif](../type-gif/README.md)
-- [jpeg](../type-jpeg/README.md)
-- [png](../type-png/README.md)
-- [tiff](../type-tiff/README.md)
+- [bmp](../type-bmp)
+- [gif](../type-gif)
+- [jpeg](../type-jpeg)
+- [png](../type-png)
+- [tiff](../type-tiff)
