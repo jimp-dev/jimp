@@ -1,5 +1,10 @@
 ## Unreleased (2018-08-27)
 
+#### :bug: Bug Fix
+
+- `jimp`
+  - [#576](https://github.com/oliver-moran/jimp/pull/576) Core-js conflict ([@hipstersmoothie](https://github.com/hipstersmoothie))
+
 #### :house: Internal
 
 - `core`, `custom`, `jimp`, `plugin-blit`, `plugin-blur`, `plugin-color`, `plugin-contain`, `plugin-cover`, `plugin-crop`, `plugin-displace`, `plugin-dither`, `plugin-flip`, `plugin-gaussian`, `plugin-invert`, `plugin-mask`, `plugin-normalize`, `plugin-print`, `plugin-resize`, `plugin-rotate`, `plugin-scale`, `plugins`, `type-bmp`, `type-gif`, `type-jpeg`, `type-png`, `type-tiff`, `types`, `utils`
