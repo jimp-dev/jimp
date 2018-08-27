@@ -6,3 +6,11 @@
   <h1>@jimp/types</h1>
   <p>Default Jimp types.</p>
 </div>
+
+## Supported Image Types
+
+- [bmp](../type-bmp/README.md)
+- [gif](../type-gif/README.md)
+- [jpeg](../type-jpeg/README.md)
+- [png](../type-png/README.md)
+- [tiff](../type-tiff/README.md)
