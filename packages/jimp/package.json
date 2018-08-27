@@ -57,7 +57,8 @@
     "@babel/polyfill": "^7.0.0-rc.1",
     "@jimp/custom": "^0.3.7",
     "@jimp/plugins": "^0.3.7",
-    "@jimp/types": "^0.3.7"
+    "@jimp/types": "^0.3.7",
+    "core-js": "^2.5.7"
   },
   "devDependencies": {
     "babelify": "^9.0.0",
