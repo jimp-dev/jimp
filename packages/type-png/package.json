@@ -1,6 +1,6 @@
 {
   "name": "@jimp/png",
-  "version": "0.3.9-alpha.0",
+  "version": "0.3.9",
   "description": "Default Jimp png encoder/decoder.",
   "main": "dist/index.js",
   "module": "es/index.js",
@@ -16,7 +16,7 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "@jimp/utils": "^0.3.9-alpha.0",
+    "@jimp/utils": "^0.3.9",
     "core-js": "^2.5.7",
     "pngjs": "^3.3.3"
   },
