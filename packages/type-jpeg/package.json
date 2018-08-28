@@ -1,6 +1,6 @@
 {
   "name": "@jimp/jpeg",
-  "version": "0.3.8",
+  "version": "0.3.9-alpha.0",
   "description": "Default Jimp jpeg encoder/decoder.",
   "main": "dist/index.js",
   "module": "es/index.js",
@@ -16,7 +16,8 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "@jimp/utils": "^0.3.8",
+    "@jimp/utils": "^0.3.9-alpha.0",
+    "core-js": "^2.5.7",
     "jpeg-js": "^0.3.4"
   },
   "peerDependencies": {

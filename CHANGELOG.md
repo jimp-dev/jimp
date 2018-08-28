@@ -14,7 +14,7 @@
 
 - Andrew Lisowski ([@hipstersmoothie](https://github.com/hipstersmoothie))
 
-## v0.3.6-alpha.0 (2018-08-25)
+## v0.3.6 (2018-08-25)
 
 #### :rocket: Enhancement
 
