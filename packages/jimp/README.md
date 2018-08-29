@@ -332,7 +332,7 @@ Jimp.measureTextHeight(Jimp.FONT_SANS_32_BLACK, 'Some string', 100); // height o
 
 #### Staggering Text
 
-If you need to stagger text position along the y-axis the print method also returns the final y position as an argument to the callback.
+If you need to stagger text position along the x or y-axis the print method also returns the final coordinates as an argument to the callback.
 
 ```js
 Jimp.loadFont(Jimp.FONT_SANS_32_BLACK).then(font => {
@@ -342,8 +342,8 @@ Jimp.loadFont(Jimp.FONT_SANS_32_BLACK).then(font => {
     10,
     'Hello world that wraps!',
     50,
-    (err, image, yValue) => {
-      image.print(font, 0, yValue + 20, 'More text on another line', 50);
+    (err, image, { x, y }) => {
+      image.print(font, x, y + 20, 'More text on another line', 50);
     }
   );
 });
