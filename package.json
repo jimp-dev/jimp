@@ -10,6 +10,7 @@
   "scripts": {
     "lint": "xo",
     "test": "lerna run test --stream",
+    "test:node": "lerna run test:node --stream",
     "clean": "lerna clean --yes && rm -rf node_modules && npm run clean:build",
     "clean:build": "rm -rf packages/**/es packages/**/dist",
     "build": "npm run clean:build && lerna run build --stream",

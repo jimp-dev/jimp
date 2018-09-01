@@ -69,7 +69,7 @@ jobs:
           command: yarn build
       - run:
           name: Test
-          command: yarn test --ci
+          command: yarn test:node --ci
 
   build-node8:
     working_directory: ~/jimp-8
@@ -85,7 +85,7 @@ jobs:
           command: yarn build
       - run:
           name: Test
-          command: yarn test --ci
+          command: yarn test:node --ci
 
   build-node10:
     working_directory: ~/jimp-10
@@ -101,7 +101,7 @@ jobs:
           command: yarn build
       - run:
           name: Test
-          command: yarn test --ci
+          command: yarn test:node --ci
 
 workflows:
   version: 2
