@@ -248,6 +248,7 @@ declare namespace Jimp {
     toString(): string;
     getMIME(): string;
     getExtension(): string;
+    distanceFromHash(hash: string): number;
     write(path: string, cb?: Jimp.ImageCallback): this;
     writeAsync(path: string): Promise<Jimp>;
     deflateLevel(l: number, cb?: Jimp.ImageCallback): this;
