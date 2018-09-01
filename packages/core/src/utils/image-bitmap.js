@@ -84,7 +84,7 @@ export function parseBitmap(data, path, cb) {
       return throwError.call(this, 'Unsupported MIME type: ' + mime, cb);
     }
   } catch (error) {
-    cb.call(this, error, this);
+    return cb.call(this, error, this);
   }
 
   try {
