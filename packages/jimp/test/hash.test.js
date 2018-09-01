@@ -49,7 +49,7 @@ describe('hash', () => {
   });
 });
 
-describe.only('pHash', () => {
+describe('pHash', () => {
   it('should calculate the distance', async () => {
     const image1 = await Jimp.read(imagesDir + '/lenna.png');
     const image2 = await Jimp.read(imagesDir + '/mask.png');
