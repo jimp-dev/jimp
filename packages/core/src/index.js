@@ -972,6 +972,18 @@ Jimp.distance = function(img1, img2) {
 };
 
 /**
+ * Calculates the hamming distance of two images based on their perceptual hash
+ * @param {hash} hash1 a pHash
+ * @param {hash} hash2 a pHash
+ * @returns {number} a number ranging from 0 to 1, 0 means they are believed to be identical
+ */
+Jimp.compareHashes = function(hash1, hash2) {
+  const phash = new ImagePHash();
+
+  return phash.distance(hash1, hash2);
+};
+
+/**
  * Compute color difference
  * 0 means no difference, 1 means maximum difference.
  * @param {number} rgba1:    first color to compare.

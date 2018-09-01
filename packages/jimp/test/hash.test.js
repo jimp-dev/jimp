@@ -59,4 +59,16 @@ describe('pHash', () => {
       .distanceFromHash(hash)
       .should.be.equal(Jimp.distance(image1, image2));
   });
+
+  it('should calculate the distance', async () => {
+    const image1 = await Jimp.read(imagesDir + '/lenna.png');
+    const image2 = await Jimp.read(imagesDir + '/mask.png');
+
+    const hash1 = image1.pHash();
+    const hash2 = image2.pHash();
+
+    Jimp.compareHashes(hash1, hash2).should.be.equal(
+      Jimp.distance(image1, image2)
+    );
+  });
 });

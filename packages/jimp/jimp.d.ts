@@ -517,6 +517,7 @@ declare namespace Jimp {
       threshold?: number
     ): { percent: number; image: Jimp };
     static distance(img1: Jimp, img2: Jimp): number;
+    static compareHashes(hash1: string, hash2: string): number;
     static colorDiff(rgba1: Jimp.RGB, rgba2: Jimp.RGB): number;
     static colorDiff(rgba1: Jimp.RGBA, rgba2: Jimp.RGBA): number;
     static loadFont(file: string): Promise<Font>;
