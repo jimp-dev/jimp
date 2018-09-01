@@ -636,6 +636,14 @@ if (distance < 0.15 || diff.percent < 0.15) {
 }
 ```
 
+You can also calculate the raw pHash (no padding or custom base). You can then use this in `distanceFromHash` to calculate the hash distance from a loaded image.
+
+```js
+const image1 = image1.pHash();
+
+image2.distanceFromHash(image);
+```
+
 ## Chaining or callbacks
 
 Most instance methods can be chained together, for example as follows:
