@@ -264,7 +264,7 @@ image.composite(srcImage, 100, 0, Jimp.BLEND_MULTIPLY, 0.5, 0.9);
 Jimp supports basic typography using BMFont format (.fnt) even ones in different languages! Just find a bitmap font that is suitable [bitmap fonts](https://en.wikipedia.org/wiki/Bitmap_fonts):
 
 ```js
-Jimp.loadFont(path).then(function(font) {
+Jimp.loadFont(path).then((font) => {
   // load font from .fnt file
   image.print(font, x, y, str); // print a message on an image
   image.print(font, x, y, str, maxWidth); // print a message on an image with text wrapped at maxWidth
@@ -274,7 +274,7 @@ Jimp.loadFont(path).then(function(font) {
 Alignment modes are supported by replacing the `str` argument with an object containing `text`, `alignmentX` and `alignmentY`. `alignmentX` defaults to `Jimp.HORIZONTAL_ALIGN_LEFT` and `alignmentY` defaults to `Jimp.VERTICAL_ALIGN_TOP`.
 
 ```js
-Jimp.loadFont(path).then(function(font) {
+Jimp.loadFont(path).then((font) => {
   image.print(
     font,
     x,
@@ -316,7 +316,7 @@ Jimp.FONT_SANS_128_WHITE; // Open Sans, 128px, white
 These can be used as follows:
 
 ```js
-Jimp.loadFont(Jimp.FONT_SANS_32_BLACK).then(function(font) {
+Jimp.loadFont(Jimp.FONT_SANS_32_BLACK).then((font) => {
   image.print(font, 10, 10, 'Hello world!');
 });
 ```
@@ -328,6 +328,25 @@ If you need to do calculations on where to place your text jimp provides two met
 ```js
 Jimp.measureText(Jimp.FONT_SANS_32_BLACK, 'Some string'); // width of text
 Jimp.measureTextHeight(Jimp.FONT_SANS_32_BLACK, 'Some string', 100); // height of text
+```
+
+#### Staggering Text
+
+If you need to stagger text position along the x or y-axis the print method also returns the final coordinates as an argument to the callback.
+
+```js
+Jimp.loadFont(Jimp.FONT_SANS_32_BLACK).then(font => {
+  image.print(
+    font,
+    10,
+    10,
+    'Hello world that wraps!',
+    50,
+    (err, image, { x, y }) => {
+      image.print(font, x, y + 20, 'More text on another line', 50);
+    }
+  );
+});
 ```
 
 Online tools are also available to convert TTF fonts to BMFont format. They can be used to create color font or sprite packs.
@@ -543,7 +562,7 @@ Jimp.cssColorToHex(cssColor); // e.g. converts #FF00FF to 0xFF00FFFF
 If you want to begin with an empty Jimp image, you can call the Jimp constructor passing the width and height of the image to create and a Node-style callback:
 
 ```js
-new Jimp(256, 256, function(err, image) {
+new Jimp(256, 256, (err, image) => {
   // this image is 256 x 256, every pixel is set to 0x00000000
 });
 ```
@@ -551,7 +570,7 @@ new Jimp(256, 256, function(err, image) {
 You can optionally set the pixel colour as follows:
 
 ```js
-new Jimp(256, 256, 0xff0000ff, function(err, image) {
+new Jimp(256, 256, 0xff0000ff, (err, image) => {
   // this image is 256 x 256, every pixel is set to 0xFF0000FF
 });
 ```
@@ -559,7 +578,7 @@ new Jimp(256, 256, 0xff0000ff, function(err, image) {
 Or you can use a css color format:
 
 ```js
-new Jimp(256, 256, '#FF00FF', function(err, image) {
+new Jimp(256, 256, '#FF00FF', (err, image) => {
   // this image is 256 x 256, every pixel is set to #FF00FF
 });
 ```
