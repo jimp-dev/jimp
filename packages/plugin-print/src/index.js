@@ -211,7 +211,7 @@ export default () => ({
      * @param {Jimp} font a bitmap font loaded from `Jimp.loadFont` command
      * @param {number} x the x position to start drawing the text
      * @param {number} y the y position to start drawing the text
-     * @param {string} text the text to draw (string or object with `text`, `alignmentX`, and/or `alignmentY`)
+     * @param {any} text the text to draw (string or object with `text`, `alignmentX`, and/or `alignmentY`)
      * @param {number} maxWidth (optional) the boundary width to draw in
      * @param {number} maxHeight (optional) the boundary height to draw in
      * @param {function(Error, Jimp)} cb (optional) a function to call when the text is written
@@ -248,10 +248,6 @@ export default () => ({
         return throwError.call(this, 'x, y and maxWidth must be numbers', cb);
       }
 
-      if (typeof text !== 'string' && typeof text !== 'object') {
-        return throwError.call(this, 'text must be a string or an object', cb);
-      }
-
       if (typeof maxWidth !== 'number') {
         return throwError.call(this, 'maxWidth must be a number', cb);
       }
@@ -263,13 +259,14 @@ export default () => ({
       let alignmentX;
       let alignmentY;
 
-      if (typeof text === 'object') {
+      if (typeof text === 'object' && text.text) {
         alignmentX = text.alignmentX || this.constructor.HORIZONTAL_ALIGN_LEFT;
         alignmentY = text.alignmentY || this.constructor.VERTICAL_ALIGN_TOP;
         ({ text } = text);
       } else {
         alignmentX = this.constructor.HORIZONTAL_ALIGN_LEFT;
         alignmentY = this.constructor.VERTICAL_ALIGN_TOP;
+        text = text.toString();
       }
 
       if (
