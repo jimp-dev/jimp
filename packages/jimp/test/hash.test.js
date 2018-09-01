@@ -2,9 +2,9 @@
 
 import { Jimp, getTestDir } from './test-helper';
 
-describe('hash', () => {
-  const imagesDir = getTestDir() + '/samples';
+const imagesDir = getTestDir() + '/samples';
 
+describe('hash', () => {
   it('base 2', async () => {
     const image = await Jimp.read(imagesDir + '/dice.png');
 
@@ -46,5 +46,17 @@ describe('hash', () => {
     const image = await Jimp.read(imagesDir + '/lenna.png');
 
     image.hash(17).should.be.equal('4fa6aga5a64ad0c1');
+  });
+});
+
+describe.only('pHash', () => {
+  it('should calculate the distance', async () => {
+    const image1 = await Jimp.read(imagesDir + '/lenna.png');
+    const image2 = await Jimp.read(imagesDir + '/mask.png');
+
+    const hash = image1.pHash();
+    image2
+      .distanceFromHash(hash)
+      .should.be.equal(Jimp.distance(image1, image2));
   });
 });
