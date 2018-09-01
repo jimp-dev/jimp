@@ -1,6 +1,8 @@
-import { Jimp, mkJGD } from './test-helper';
+import { Jimp, mkJGD, getTestDir } from './test-helper';
 
-describe('Convolution', () => {
+describe('Convolution', function() {
+  this.timeout(15000);
+
   const imgs = [
     Jimp.read(
       mkJGD(
@@ -155,5 +157,22 @@ describe('Convolution', () => {
         'Top left light block'
       );
     done();
+  });
+
+  it('new pixel value is greater than 255', async () => {
+    const expectedImg = await Jimp.read(
+      getTestDir() + '/samples/qr-convoluted.png'
+    );
+    const image = await Jimp.read(getTestDir() + '/samples/qr.jpg');
+
+    image
+      .convolution([
+        [0, 0, 0, 0, 0],
+        [0, 1, 1, 1, 0],
+        [0, 1, 0, 1, 0],
+        [0, 1, 1, 1, 0],
+        [0, 0, 0, 0, 0]
+      ])
+      .bitmap.data.should.be.deepEqual(expectedImg.bitmap.data);
   });
 });
