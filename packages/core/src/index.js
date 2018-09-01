@@ -736,6 +736,10 @@ class Jimp extends EventEmitter {
 
   setPixelColour = this.setPixelColor;
 
+  /**
+   * Determine if the image contains opaque pixels.
+   * @return {boolean} hasAlpha whether the image contains opaque pixels
+   */
   hasAlpha() {
     let hasAlpha = false;
 
