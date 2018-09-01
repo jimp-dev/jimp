@@ -58,7 +58,7 @@ declare namespace Jimp {
         };
 
   type PrintableText =
-    | string
+    | any
     | {
         text: string;
         alignmentX: number;
