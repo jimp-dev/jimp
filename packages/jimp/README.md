@@ -151,7 +151,7 @@ image.invert();                   // invert the image colours
 image.normalize();                // normalize the channels in an image
 
 /* Alpha channel */
-image.fade();                     // determines if an image contains opaque pixels
+image.hasAlpha();                     // determines if an image contains opaque pixels
 image.fade( f );                  // an alternative to opacity, fades the image by a factor 0 - 1. 0 will haven no effect. 1 will turn the image
 image.opacity( f );               // multiply the alpha channel by each pixel by the factor f, 0 - 1
 image.opaque();                   // set the alpha channel on every pixel to fully opaque
