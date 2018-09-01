@@ -136,7 +136,7 @@ describe('FileType', () => {
   });
 });
 
-describe('hasAlpa', () => {
+describe('hasAlpha', () => {
   it('image with no alpha', async () => {
     const image = await Jimp.read(imagesDir + '/cops.jpg');
 
