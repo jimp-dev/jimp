@@ -11,6 +11,8 @@ An image processing library for Node written entirely in JavaScript, with zero n
 
 Installation: `npm install --save jimp`
 
+API documnetation can be found in the main [jimp package](./packages/jimp)
+
 ## Supported Image Types
 
 - [bmp](./packages/type-bmp)
@@ -37,6 +39,13 @@ Installation: `npm install --save jimp`
 - [resize](./packages/plugin-resize)
 - [rotate](./packages/plugin-rotate)
 - [scale](./packages/plugin-scale)
+
+## Custom Jimp
+
+If you want to extend jimp or omit types or functions visit [@jimp/custom](./packages).
+
+- Add file-types or switch encoder/decoders
+- Add add/remove plugins (image manipulation methods)
 
 ## Contributing
 
