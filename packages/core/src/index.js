@@ -594,6 +594,18 @@ class Jimp extends EventEmitter {
   }
 
   /**
+   * Calculates the hamming distance of the current image and a hash based on their perceptual hash
+   * @param {hash} compareHash hash to compare to
+   * @returns {number} a number ranging from 0 to 1, 0 means they are believed to be identical
+   */
+  distanceFromHash(compareHash) {
+    const pHash = new ImagePHash();
+    const currentHash = pHash.getHash(this);
+
+    return pHash.distance(currentHash, compareHash);
+  }
+
+  /**
    * Converts the image to a buffer
    * @param {string} mime the mime type of the image buffer to be created
    * @param {function(Error, Jimp)} cb a Node-style function to call with the buffer as the second argument
