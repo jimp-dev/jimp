@@ -594,6 +594,15 @@ class Jimp extends EventEmitter {
   }
 
   /**
+   * Calculates the perceptual hash
+   * @returns {number} the perceptual hash
+   */
+  pHash() {
+    const pHash = new ImagePHash();
+    return pHash.getHash(this);
+  }
+
+  /**
    * Calculates the hamming distance of the current image and a hash based on their perceptual hash
    * @param {hash} compareHash hash to compare to
    * @returns {number} a number ranging from 0 to 1, 0 means they are believed to be identical
