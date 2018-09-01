@@ -242,6 +242,7 @@ declare namespace Jimp {
       event: T,
       cb: (data: ListenerData<T>) => any
     ): any;
+    hasAlpha(): boolean;
     getHeight(): number;
     getWidth(): number;
     inspect(): string;
