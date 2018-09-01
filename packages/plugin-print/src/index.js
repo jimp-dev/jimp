@@ -259,7 +259,7 @@ export default () => ({
       let alignmentX;
       let alignmentY;
 
-      if (typeof text === 'object' && text.text !== null) {
+      if (typeof text === 'object' && text.text !== null && text.text !== undefined) {
         alignmentX = text.alignmentX || this.constructor.HORIZONTAL_ALIGN_LEFT;
         alignmentY = text.alignmentY || this.constructor.VERTICAL_ALIGN_TOP;
         ({ text } = text);
