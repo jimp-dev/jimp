@@ -741,20 +741,18 @@ class Jimp extends EventEmitter {
    * @return {boolean} hasAlpha whether the image contains opaque pixels
    */
   hasAlpha() {
-    let hasAlpha = false;
-
-    for (let yIndex = 0; yIndex < this.bitmap.height && !hasAlpha; yIndex++) {
-      for (let xIndex = 0; xIndex < this.bitmap.width && !hasAlpha; xIndex++) {
+    for (let yIndex = 0; yIndex < this.bitmap.height; yIndex++) {
+      for (let xIndex = 0; xIndex < this.bitmap.width; xIndex++) {
         const idx = (this.bitmap.width * yIndex + xIndex) << 2;
         const alpha = this.bitmap.data[idx + 3];
 
         if (alpha !== 0xff) {
-          hasAlpha = true;
+          return true;
         }
       }
     }
 
-    return hasAlpha;
+    return false;
   }
 }
 
