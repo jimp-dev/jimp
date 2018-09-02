@@ -23,13 +23,7 @@ module.exports = function(config) {
     files: [
       './packages/**/test/*.js',
       {
-        pattern: 'packages/**/test/samples/**/*',
-        watched: false,
-        included: false,
-        served: true
-      },
-      {
-        pattern: 'packages/**/test/images/*',
+        pattern: 'packages/**/test/images/**/*',
         watched: false,
         included: false,
         served: true

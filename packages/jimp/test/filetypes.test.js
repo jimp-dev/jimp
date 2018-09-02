@@ -5,7 +5,7 @@ import should from 'should';
 import { Jimp, getTestDir } from '@jimp/test-utils';
 
 describe('FileType', () => {
-  const imagesDir = getTestDir(__dirname) + '/samples';
+  const imagesDir = getTestDir(__dirname) + '/images';
 
   it('write uses original MIME type', async () => {
     if (process.env.ENV === 'browser') {
@@ -128,10 +128,10 @@ describe('FileType', () => {
     this.timeout(4000);
 
     const expectedImg = await Jimp.read(
-      getTestDir(__dirname) + '/samples/windows95.png'
+      getTestDir(__dirname) + '/images/windows95.png'
     );
     const image = await Jimp.read(
-      getTestDir(__dirname) + '/samples/windows95.bmp'
+      getTestDir(__dirname) + '/images/windows95.bmp'
     );
 
     image.bitmap.data.should.be.deepEqual(expectedImg.bitmap.data);

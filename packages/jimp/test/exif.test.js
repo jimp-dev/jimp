@@ -7,7 +7,7 @@ const jimp = configure({ plugins: [plugins] }, Jimp);
 describe('Exif', function() {
   this.timeout(15000);
 
-  const imagesDir = getTestDir(__dirname) + '/samples/exif-orientation';
+  const imagesDir = getTestDir(__dirname) + '/images/exif-orientation';
 
   let imgs;
   let firstLandscapeImg;

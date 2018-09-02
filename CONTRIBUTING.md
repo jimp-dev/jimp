@@ -44,19 +44,19 @@ You can use the coverage report to help with missed tests, but you must be aware
 While developing you may want to test only on node.js:
 
 ```sh
-yarn test:node
+yarn test
 ```
 
 ...or only one test file:
 
 ```sh
-yarn test:node test/some.test.js
+yarn test test/some.test.js
 ```
 
 ...or run each time a file changes:
 
 ```sh
-yarn test:node:watch
+yarn test:watch
 ```
 
 ...or test only in a specific browser:

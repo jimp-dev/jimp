@@ -11,8 +11,8 @@ const jimp = configure({ plugins: [plugins] }, Jimp);
 // TODO: Figure out why we need to write to file to get equal buffers
 describe('composite', () => {
   it('can apply more than one color transformation', async () => {
-    const image = getTestDir(__dirname) + '/samples/cops.jpg';
-    const expectedImg = getTestDir(__dirname) + '/samples/cops-masked.jpg';
+    const image = getTestDir(__dirname) + '/images/cops.jpg';
+    const expectedImg = getTestDir(__dirname) + '/images/cops-masked.jpg';
 
     if (process.env.ENV === 'browser') {
       return;
@@ -39,7 +39,7 @@ describe('composite', () => {
   });
 
   it('should handle edges correctly', async () => {
-    const image = getTestDir(__dirname) + '/samples/cops.jpg';
+    const image = getTestDir(__dirname) + '/images/cops.jpg';
     const testPath = image.replace('.jpg', '-test.jpg');
 
     if (process.env.ENV === 'browser') {
@@ -58,7 +58,7 @@ describe('composite', () => {
     await background.writeAsync(testPath);
 
     const one = fs.readFileSync(
-      getTestDir(__dirname) + '/samples/cops-composited.jpg'
+      getTestDir(__dirname) + '/images/cops-composited.jpg'
     );
     const two = fs.readFileSync(testPath);
 

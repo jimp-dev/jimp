@@ -2,7 +2,7 @@ import fs from 'fs';
 import should from 'should';
 import { Jimp, getTestDir } from '@jimp/test-utils';
 
-const imagesDir = getTestDir(__dirname) + '/samples';
+const imagesDir = getTestDir(__dirname) + '/images';
 
 describe('Async functions', () => {
   it('write returns promise', async () => {

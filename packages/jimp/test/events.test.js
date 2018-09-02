@@ -17,7 +17,7 @@ describe('Events', () => {
     });
 
     it('initializes with a file', done => {
-      new Jimp(getTestDir(__dirname) + '/samples/lenna.png')
+      new Jimp(getTestDir(__dirname) + '/images/lenna.png')
         .on('initialized', function() {
           this.bitmap.width.should.be.equal(512);
           done();

@@ -7,7 +7,7 @@ import plugins from '@jimp/plugins';
 const jimp = configure({ plugins: [plugins] }, Jimp);
 
 describe('hash', () => {
-  const imagesDir = getTestDir(__dirname) + '/samples';
+  const imagesDir = getTestDir(__dirname) + '/images';
 
   it('base 2', async () => {
     const image = await jimp.read(imagesDir + '/dice.png');
