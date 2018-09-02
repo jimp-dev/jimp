@@ -135,15 +135,13 @@ workflows:
               only: /.*/
       - build-node8:
           requires:
-            - lint
-            - test
+            - build-node6.14
           filters:
             tags:
               only: /.*/
       - build-node10:
           requires:
-            - lint
-            - test
+            - build-node8
           filters:
             tags:
               only: /.*/
