@@ -1,4 +1,4 @@
-import { Jimp, mkJGD, hasOwnProp } from './test-helper';
+import { Jimp, mkJGD, hasOwnProp } from '@jimp/test-utils';
 
 describe('Callbacks', () => {
   const targetJGD = mkJGD('▴▸▾', '◆▪▰', '▵▹▿');

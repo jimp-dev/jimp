@@ -1,12 +1,13 @@
-const fs = require('fs');
-const should = require('should');
-const { Jimp, getTestDir } = require('./test-helper');
+import fs from 'fs';
+import should from 'should';
+
+import { Jimp, getTestDir } from '@jimp/test-utils';
 
 // TODO: Figure out why we need to write to file to get equal buffers
 describe('composite', () => {
   it('can apply more than one color transformation', async () => {
-    const image = getTestDir() + '/samples/cops.jpg';
-    const expectedImg = getTestDir() + '/samples/cops-masked.jpg';
+    const image = getTestDir(__dirname) + '/samples/cops.jpg';
+    const expectedImg = getTestDir(__dirname) + '/samples/cops-masked.jpg';
 
     if (process.env.ENV === 'browser') {
       return;
@@ -33,7 +34,7 @@ describe('composite', () => {
   });
 
   it('should handle edges correctly', async () => {
-    const image = getTestDir() + '/samples/cops.jpg';
+    const image = getTestDir(__dirname) + '/samples/cops.jpg';
     const testPath = image.replace('.jpg', '-test.jpg');
 
     if (process.env.ENV === 'browser') {
@@ -51,7 +52,9 @@ describe('composite', () => {
 
     await background.writeAsync(testPath);
 
-    const one = fs.readFileSync(getTestDir() + '/samples/cops-composited.jpg');
+    const one = fs.readFileSync(
+      getTestDir(__dirname) + '/samples/cops-composited.jpg'
+    );
     const two = fs.readFileSync(testPath);
 
     fs.unlinkSync(testPath);

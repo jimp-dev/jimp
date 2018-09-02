@@ -1,9 +1,9 @@
-import { Jimp, getTestDir, isWeb } from './test-helper';
+import { Jimp, getTestDir, isWeb } from '@jimp/test-utils';
 
 describe('Exif', function() {
   this.timeout(15000);
 
-  const imagesDir = getTestDir() + '/samples/exif-orientation';
+  const imagesDir = getTestDir(__dirname) + '/samples/exif-orientation';
 
   let imgs;
   let firstLandscapeImg;

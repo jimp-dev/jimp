@@ -1,9 +1,9 @@
 /* eslint-disable no-control-regex */
 
-import { Jimp, getTestDir } from './test-helper';
+import { Jimp, getTestDir } from '@jimp/test-utils';
 
 describe('hash', () => {
-  const imagesDir = getTestDir() + '/samples';
+  const imagesDir = getTestDir(__dirname) + '/samples';
 
   it('base 2', async () => {
     const image = await Jimp.read(imagesDir + '/dice.png');

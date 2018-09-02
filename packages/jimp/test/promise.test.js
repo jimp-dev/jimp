@@ -1,9 +1,9 @@
-import { Jimp, getTestDir } from './test-helper';
+import { Jimp, getTestDir } from '@jimp/test-utils';
 
 describe('Load files', () => {
   it('Load images', async () => {
-    const p1 = await Jimp.read(getTestDir() + '/samples/lenna.png');
-    const p2 = await Jimp.read(getTestDir() + '/samples/cops.jpg');
+    const p1 = await Jimp.read(getTestDir(__dirname) + '/samples/lenna.png');
+    const p2 = await Jimp.read(getTestDir(__dirname) + '/samples/cops.jpg');
 
     p1.getMIME().should.be.equal('image/png');
     p2.getMIME().should.be.equal('image/jpeg');
