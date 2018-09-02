@@ -84,7 +84,7 @@ describe('Write text over image', function() {
     const font = await Jimp.loadFont(Jimp.FONT_SANS_16_BLACK);
 
     const expected =
-      getTestDir(__dirname) + '/samples/text-samples/print-number.png';
+      getTestDir(__dirname) + '/images/text-samples/print-number.png';
     const expectedImg = await Jimp.read(expected);
     const image = await Jimp.read('300', '100', 0xff8800ff);
 

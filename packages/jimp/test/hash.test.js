@@ -7,7 +7,7 @@ import plugins from '@jimp/plugins';
 
 const jimp = configure({ types: [types], plugins: [plugins] }, Jimp);
 
-const imagesDir = getTestDir(__dirname) + '/samples';
+const imagesDir = getTestDir(__dirname) + '/images';
 
 describe('hash', () => {
   it('base 2', async () => {
