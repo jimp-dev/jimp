@@ -64,6 +64,8 @@ jobs:
       - image: circleci/node:6.14-browsers
     steps:
       - checkout
+      - attach_workspace:
+          at: ~/jimp
       - run:
           name: Build Packages
           command: yarn build
@@ -77,6 +79,8 @@ jobs:
       - image: circleci/node:8-browsers
     steps:
       - checkout
+      - attach_workspace:
+          at: ~/jimp
       - run:
           name: Build Packages
           command: yarn build
@@ -90,6 +94,8 @@ jobs:
       - image: circleci/node:10-browsers
     steps:
       - checkout
+      - attach_workspace:
+          at: ~/jimp
       - run:
           name: Build Packages
           command: yarn build
