@@ -1,3 +1,35 @@
+## Unreleased (2018-09-02)
+
+#### :rocket: Enhancement
+
+- `jimp`, `plugin-print`
+  - [#589](https://github.com/oliver-moran/jimp/pull/589) Load Font form URL ([@hipstersmoothie](https://github.com/hipstersmoothie))
+  - [#588](https://github.com/oliver-moran/jimp/pull/588) Print number ([@hipstersmoothie](https://github.com/hipstersmoothie))
+  - [#572](https://github.com/oliver-moran/jimp/pull/572) Print ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- `core`, `jimp`
+  - [#586](https://github.com/oliver-moran/jimp/pull/586) Distance from hash ([@hipstersmoothie](https://github.com/hipstersmoothie))
+  - [#585](https://github.com/oliver-moran/jimp/pull/585) Has alpha ([@hipstersmoothie](https://github.com/hipstersmoothie))
+
+#### :bug: Bug Fix
+
+- `jimp`, `plugin-blit`
+  - [#593](https://github.com/oliver-moran/jimp/pull/593) blit alpha bug ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- `jimp`, `plugin-color`
+  - [#587](https://github.com/oliver-moran/jimp/pull/587) Convolution Bug ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- `type-tiff`
+  - [#591](https://github.com/oliver-moran/jimp/pull/591) update utif and fix dep problem ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- `core`
+  - [#584](https://github.com/oliver-moran/jimp/pull/584) Double Callback ([@hipstersmoothie](https://github.com/hipstersmoothie))
+
+#### :house: Internal
+
+- `core`, `custom`, `jimp`, `plugin-blit`, `plugin-color`, `plugin-contain`, `plugin-cover`, `plugin-crop`, `plugin-mask`, `plugin-normalize`, `plugin-print`, `plugin-resize`, `plugin-rotate`, `test-utils`, `type-bmp`, `type-jpeg`, `type-png`, `type-tiff`
+  - [#592](https://github.com/oliver-moran/jimp/pull/592) Move tests to plugins ([@hipstersmoothie](https://github.com/hipstersmoothie))
+
+#### Committers: 1
+
+- Andrew Lisowski ([@hipstersmoothie](https://github.com/hipstersmoothie))
+
 ## v0.3.11 (2018-08-30)
 
 #### :bug: Bug Fix
