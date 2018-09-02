@@ -1,4 +1,8 @@
-import { Jimp, mkJGD, getTestDir } from '@jimp/test-utils';
+import { Jimp as jimp, mkJGD, getTestDir } from '@jimp/test-utils';
+import configure from '@jimp/custom';
+import plugins from '@jimp/plugins';
+
+const Jimp = configure({ plugins: [plugins] }, jimp);
 
 describe('Events', () => {
   describe('on initialized', () => {

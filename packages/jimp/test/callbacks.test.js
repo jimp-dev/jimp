@@ -1,5 +1,10 @@
 import { Jimp, mkJGD, hasOwnProp } from '@jimp/test-utils';
 
+import configure from '@jimp/custom';
+import plugins from '@jimp/plugins';
+
+const jimp = configure({ plugins: [plugins] }, Jimp);
+
 describe('Callbacks', () => {
   const targetJGD = mkJGD('▴▸▾', '◆▪▰', '▵▹▿');
   const miniJGD = mkJGD('□▥', '▥■');
@@ -8,8 +13,8 @@ describe('Callbacks', () => {
   let miniImg; // stores the Jimp instances of the JGD images above.
 
   before(done => {
-    const img1 = Jimp.read(targetJGD);
-    const img2 = Jimp.read(miniJGD);
+    const img1 = jimp.read(targetJGD);
+    const img2 = jimp.read(miniJGD);
     Promise.all([img1, img2])
       .then(images => {
         targetImg = images[0];
@@ -195,11 +200,11 @@ describe('Callbacks', () => {
       result: ['▴▸▾', '◆▪▰', '▵▹▿']
     },
     cover: {
-      args: [3, 2, Jimp.HORIZONTAL_ALIGN_LEFT | Jimp.VERTICAL_ALIGN_TOP],
+      args: [3, 2, jimp.HORIZONTAL_ALIGN_LEFT | jimp.VERTICAL_ALIGN_TOP],
       result: ['▴▸▾', '◆▪▰']
     },
     contain: {
-      args: [3, 2, Jimp.HORIZONTAL_ALIGN_LEFT | Jimp.VERTICAL_ALIGN_TOP],
+      args: [3, 2, jimp.HORIZONTAL_ALIGN_LEFT | jimp.VERTICAL_ALIGN_TOP],
       result: {
         width: 3,
         height: 2,
