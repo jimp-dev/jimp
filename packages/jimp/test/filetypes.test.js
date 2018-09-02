@@ -4,9 +4,9 @@ import fs from 'fs';
 import should from 'should';
 import { Jimp, getTestDir } from './test-helper';
 
-describe('FileType', () => {
-  const imagesDir = getTestDir() + '/samples';
+const imagesDir = getTestDir() + '/samples';
 
+describe('FileType', () => {
   it('write uses original MIME type', async () => {
     if (process.env.ENV === 'browser') {
       return;
@@ -133,5 +133,19 @@ describe('FileType', () => {
     const image = await Jimp.read(getTestDir() + '/samples/windows95.bmp');
 
     image.bitmap.data.should.be.deepEqual(expectedImg.bitmap.data);
+  });
+});
+
+describe('hasAlpha', () => {
+  it('image with no alpha', async () => {
+    const image = await Jimp.read(imagesDir + '/cops.jpg');
+
+    image.hasAlpha().should.be.equal(false);
+  });
+
+  it('image with alpha', async () => {
+    const image = await Jimp.read(imagesDir + '/dice.png');
+
+    image.hasAlpha().should.be.equal(true);
   });
 });
