@@ -67,10 +67,29 @@ export default () => ({
         maxh - y - sy > 0
       ) {
         const dstIdx = baseImage.getPixelIndex(x + sx - srcx, y + sy - srcy);
-        baseImage.bitmap.data[dstIdx] = this.bitmap.data[idx];
-        baseImage.bitmap.data[dstIdx + 1] = this.bitmap.data[idx + 1];
-        baseImage.bitmap.data[dstIdx + 2] = this.bitmap.data[idx + 2];
-        baseImage.bitmap.data[dstIdx + 3] = this.bitmap.data[idx + 3];
+        const src = {
+          r: this.bitmap.data[idx],
+          g: this.bitmap.data[idx + 1],
+          b: this.bitmap.data[idx + 2],
+          a: this.bitmap.data[idx + 3]
+        };
+
+        const dst = {
+          r: baseImage.bitmap.data[dstIdx],
+          g: baseImage.bitmap.data[dstIdx + 1],
+          b: baseImage.bitmap.data[dstIdx + 2],
+          a: baseImage.bitmap.data[dstIdx + 3]
+        };
+
+        baseImage.bitmap.data[dstIdx] =
+          ((src.a * (src.r - dst.r) - dst.r + 255) >> 8) + dst.r;
+        baseImage.bitmap.data[dstIdx + 1] =
+          ((src.a * (src.g - dst.g) - dst.g + 255) >> 8) + dst.g;
+        baseImage.bitmap.data[dstIdx + 2] =
+          ((src.a * (src.b - dst.b) - dst.b + 255) >> 8) + dst.b;
+        baseImage.bitmap.data[dstIdx + 3] = this.constructor.limit255(
+          dst.a + src.a
+        );
       }
     });
 

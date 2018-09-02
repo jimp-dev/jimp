@@ -1,4 +1,4 @@
-import { Jimp, mkJGD } from './test-helper';
+import { Jimp, mkJGD, getTestDir } from './test-helper';
 
 describe('Blit over image', () => {
   const targetJGD = mkJGD(
@@ -147,5 +147,17 @@ describe('Blit over image', () => {
           '▾▾▾□▥▥▥▥'
         )
       );
+  });
+
+  it('blit alpha', async () => {
+    const expectedImg = await Jimp.read(
+      getTestDir() + '/samples/blit-alpha.png'
+    );
+    const dice = await Jimp.read(getTestDir() + '/samples/dice.png');
+    const image = await Jimp.read(getTestDir() + '/samples/cops.jpg');
+
+    image
+      .blit(dice, 0, 0)
+      .bitmap.data.should.be.deepEqual(expectedImg.bitmap.data);
   });
 });
