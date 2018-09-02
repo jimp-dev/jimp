@@ -1,4 +1,8 @@
-import { Jimp, mkJGD, getTestDir } from './test-helper';
+import { Jimp as jimp, mkJGD, getTestDir } from '@jimp/test-utils';
+import configure from '@jimp/custom';
+import plugins from '@jimp/plugins';
+
+const Jimp = configure({ plugins: [plugins] }, jimp);
 
 describe('Events', () => {
   describe('on initialized', () => {
@@ -13,7 +17,7 @@ describe('Events', () => {
     });
 
     it('initializes with a file', done => {
-      new Jimp(getTestDir() + '/samples/lenna.png')
+      new Jimp(getTestDir(__dirname) + '/images/lenna.png')
         .on('initialized', function() {
           this.bitmap.width.should.be.equal(512);
           done();

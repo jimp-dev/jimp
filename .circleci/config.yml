@@ -54,22 +54,25 @@ jobs:
       - run:
           name: Test
           command: yarn test --ci
+      - run:
+          name: Test Browser
+          command: yarn test:browser --ci
 
-  build-node6:
-    working_directory: ~/jimp-6
+  build-node6.14:
+    working_directory: ~/jimp-6.14
     docker:
-      - image: circleci/node:6-browsers
+      - image: circleci/node:6.14-browsers
     steps:
       - checkout
       - run:
           name: Install Dependencies
-          command: yarn install --frozen-lockfile
+          command: yarn install --frozen-lockfile --network-timeout 100000
       - run:
           name: Build Packages
           command: yarn build
       - run:
           name: Test
-          command: yarn test:node --ci
+          command: yarn test --ci
 
   build-node8:
     working_directory: ~/jimp-8
@@ -79,13 +82,13 @@ jobs:
       - checkout
       - run:
           name: Install Dependencies
-          command: yarn install --frozen-lockfile
+          command: yarn install --frozen-lockfile --network-timeout 100000
       - run:
           name: Build Packages
           command: yarn build
       - run:
           name: Test
-          command: yarn test:node --ci
+          command: yarn test --ci
 
   build-node10:
     working_directory: ~/jimp-10
@@ -95,13 +98,13 @@ jobs:
       - checkout
       - run:
           name: Install Dependencies
-          command: yarn install --frozen-lockfile
+          command: yarn install --frozen-lockfile --network-timeout 100000
       - run:
           name: Build Packages
           command: yarn build
       - run:
           name: Test
-          command: yarn test:node --ci
+          command: yarn test --ci
 
 workflows:
   version: 2
@@ -123,7 +126,7 @@ workflows:
           filters:
             tags:
               only: /.*/
-      - build-node6:
+      - build-node6.14:
           requires:
             - lint
             - test

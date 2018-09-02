@@ -1,12 +1,17 @@
 /* eslint-disable no-control-regex */
 
-import { Jimp, getTestDir } from './test-helper';
+import { Jimp, getTestDir } from '@jimp/test-utils';
+import configure from '@jimp/custom';
+import types from '@jimp/types';
+import plugins from '@jimp/plugins';
 
-const imagesDir = getTestDir() + '/samples';
+const jimp = configure({ types: [types], plugins: [plugins] }, Jimp);
+
+const imagesDir = getTestDir(__dirname) + '/images';
 
 describe('hash', () => {
   it('base 2', async () => {
-    const image = await Jimp.read(imagesDir + '/dice.png');
+    const image = await jimp.read(imagesDir + '/dice.png');
 
     image
       .hash(2)
@@ -16,19 +21,19 @@ describe('hash', () => {
   });
 
   it('base 10 (decimal)', async () => {
-    const image = await Jimp.read(imagesDir + '/cops.jpg');
+    const image = await jimp.read(imagesDir + '/cops.jpg');
 
     image.hash(10).should.be.equal('13442314021806033441');
   });
 
   it('base 16 (hex)', async () => {
-    const image = await Jimp.read(imagesDir + '/rgb.tiff');
+    const image = await jimp.read(imagesDir + '/rgb.tiff');
 
     image.hash(16).should.be.equal('949800481007044c');
   });
 
   it('base 64', async () => {
-    const image = await Jimp.read(imagesDir + '/windows95.bmp');
+    const image = await jimp.read(imagesDir + '/windows95.bmp');
 
     image.hash(64).should.be.equal('fb0xj0Mw400');
   });
@@ -37,13 +42,13 @@ describe('hash', () => {
     // large image need large timeout, but this really seems to be an issue
     // with should. If I change the expected value it will complete quicker! :(
     this.timeout(10000);
-    const image = await Jimp.read(imagesDir + '/panoramic.jpg');
+    const image = await jimp.read(imagesDir + '/panoramic.jpg');
 
     image.hash(23).should.be.exactly('0m1m2id7l7cl4fb');
   });
 
   it('base 17', async () => {
-    const image = await Jimp.read(imagesDir + '/lenna.png');
+    const image = await jimp.read(imagesDir + '/lenna.png');
 
     image.hash(17).should.be.equal('4fa6aga5a64ad0c1');
   });

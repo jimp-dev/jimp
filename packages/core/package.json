@@ -18,10 +18,9 @@
     "url": "https://github.com/oliver-moran/jimp/issues"
   },
   "scripts": {
-    "test:node": "cross-env BABEL_ENV=test mocha --require @babel/register test/**/*.js",
-    "test:node:watch": "npm run test:node -- --reporter min --watch",
-    "test:node:coverage": "nyc npm run test:node",
-    "test": "npm run test:node:coverage",
+    "test": "cross-env BABEL_ENV=test mocha --require @babel/register test/**/*.js",
+    "test:watch": "npm run test -- --reporter min --watch",
+    "test:coverage": "nyc npm run test",
     "build": "npm run build:node:production && npm run build:module",
     "build:watch": "npm run build:node:debug -- -- --watch --verbose",
     "build:debug": "npm run build:node:debug",

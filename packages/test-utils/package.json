@@ -1,0 +1,32 @@
+{
+  "name": "@jimp/test-utils",
+  "version": "0.3.9",
+  "description": "Test utils for jimp extensions.",
+  "main": "dist/index.js",
+  "module": "es/index.js",
+  "scripts": {
+    "test": "cross-env BABEL_ENV=test mocha --require @babel/register",
+    "test:watch": "npm run test -- --reporter min --watch",
+    "test:coverage": "nyc npm run test",
+    "build": "npm run build:node:production && npm run build:module",
+    "build:watch": "npm run build:node:debug -- -- --watch --verbose",
+    "build:debug": "npm run build:node:debug",
+    "build:module": "cross-env BABEL_ENV=module babel src -d es --source-maps --config-file ../../babel.config.js",
+    "build:node": "babel src -d dist --source-maps --config-file ../../babel.config.js",
+    "build:node:debug": "cross-env BABEL_ENV=development npm run build:node",
+    "build:node:production": "cross-env BABEL_ENV=production npm run build:node"
+  },
+  "author": "",
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
+  "dependencies": {
+    "core-js": "^2.5.7",
+    "pngjs": "^3.3.3"
+  },
+  "devDependencies": {
+    "@jimp/custom": "^0.3.9",
+    "should": "^13.2.3"
+  }
+}
