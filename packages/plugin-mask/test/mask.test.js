@@ -1,4 +1,9 @@
-import { Jimp, mkJGD } from './test-helper';
+import { Jimp, mkJGD } from '@jimp/test-utils';
+import configure from '@jimp/custom';
+
+import mask from '../src';
+
+const jimp = configure({ plugins: [mask] }, Jimp);
 
 describe('Mask', () => {
   let imgSrcOpaq;
@@ -9,11 +14,11 @@ describe('Mask', () => {
 
   before(done => {
     Promise.all([
-      Jimp.read(mkJGD('▴□▾□■□', '■▴■▾■□', '■□▴□▾□', '■□■▴■▾')),
-      Jimp.read(mkJGD('▴▵▾▿', '▴▵▾▿', '▴▵▾▿')),
-      Jimp.read(mkJGD('048840', '8CFFC8', '8CFFC8', '048840')),
-      Jimp.read(mkJGD('0369', '369C', '69CF')),
-      Jimp.read(mkJGD('▴▴▾▾', '▪▪▰▰', '□□□□'))
+      jimp.read(mkJGD('▴□▾□■□', '■▴■▾■□', '■□▴□▾□', '■□■▴■▾')),
+      jimp.read(mkJGD('▴▵▾▿', '▴▵▾▿', '▴▵▾▿')),
+      jimp.read(mkJGD('048840', '8CFFC8', '8CFFC8', '048840')),
+      jimp.read(mkJGD('0369', '369C', '69CF')),
+      jimp.read(mkJGD('▴▴▾▾', '▪▪▰▰', '□□□□'))
     ])
       .then(imgs => {
         imgSrcOpaq = imgs[0];
