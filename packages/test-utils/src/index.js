@@ -22,10 +22,12 @@ export function getTestDir(dir) {
   ) {
     const scripts = document.getElementsByTagName('script');
 
-    for (let i = 0; i < scripts.length; i++) {
-      if (scripts[i].src.match(testRE)) {
-        return scripts[i].src.replace(testRE, '');
-      }
+    const testScript = [...scripts].find(
+      script => script.src.match(testRE) && script.src.includes(dir)
+    );
+
+    if (testScript) {
+      return testScript.src.replace(testRE, '');
     }
 
     throw new TypeError('Cant discover the web test directory');
