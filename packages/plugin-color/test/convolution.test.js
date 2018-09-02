@@ -1,9 +1,10 @@
 import { Jimp, mkJGD, getTestDir } from '@jimp/test-utils';
 import configure from '@jimp/custom';
+import types from '@jimp/types';
 
 import color from '../src';
 
-const jimp = configure({ plugins: [color] }, Jimp);
+const jimp = configure({ types: [types], plugins: [color] }, Jimp);
 
 describe('Convolution', function() {
   this.timeout(15000);

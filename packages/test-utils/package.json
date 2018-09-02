@@ -22,11 +22,11 @@
     "access": "public"
   },
   "dependencies": {
-    "core-js": "^2.5.7"
+    "core-js": "^2.5.7",
+    "pngjs": "^3.3.3"
   },
   "devDependencies": {
     "@jimp/custom": "^0.3.9",
-    "@jimp/types": "^0.3.9",
     "should": "^13.2.3"
   }
 }

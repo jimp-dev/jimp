@@ -1,12 +1,17 @@
 /* eslint-disable no-control-regex */
 
 import { Jimp, getTestDir } from '@jimp/test-utils';
+import configure from '@jimp/custom';
+
+import bmp from '../src';
+
+const jimp = configure({ types: [bmp] }, Jimp);
 
 describe('BMP', () => {
   const imagesDir = getTestDir(__dirname) + '/images';
 
   it('load BMP', async () => {
-    const image = await Jimp.read(imagesDir + '/windows95.bmp');
+    const image = await jimp.read(imagesDir + '/windows95.bmp');
 
     image.getPixelColor(10, 10).should.be.equal(0xeff7f7ff);
     image.getPixelColor(150, 80).should.be.equal(0x73add6ff);
@@ -14,7 +19,7 @@ describe('BMP', () => {
   });
 
   it('export BMP', async () => {
-    const image = await Jimp.read({
+    const image = await jimp.read({
       width: 3,
       height: 3,
       data: [
@@ -37,10 +42,10 @@ describe('BMP', () => {
   it('uses correct colors for BMP', async function() {
     this.timeout(4000);
 
-    const expectedImg = await Jimp.read(
+    const expectedImg = await jimp.read(
       getTestDir(__dirname) + '/images/windows95.png'
     );
-    const image = await Jimp.read(
+    const image = await jimp.read(
       getTestDir(__dirname) + '/images/windows95.bmp'
     );
 

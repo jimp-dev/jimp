@@ -737,15 +737,15 @@ class Jimp extends EventEmitter {
   setPixelColour = this.setPixelColor;
 }
 
-export function addConstants(constants) {
+export function addConstants(constants, jimpInstance = Jimp) {
   Object.entries(constants).forEach(([name, value]) => {
-    Jimp[name] = value;
+    jimpInstance[name] = value;
   });
 }
 
-export function addJimpMethods(methods) {
+export function addJimpMethods(methods, jimpInstance = Jimp) {
   Object.entries(methods).forEach(([name, value]) => {
-    Jimp.prototype[name] = value;
+    jimpInstance.prototype[name] = value;
   });
 }
 

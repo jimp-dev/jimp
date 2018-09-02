@@ -2,9 +2,10 @@
 
 import { Jimp, getTestDir } from '@jimp/test-utils';
 import configure from '@jimp/custom';
+import types from '@jimp/types';
 import plugins from '@jimp/plugins';
 
-const jimp = configure({ plugins: [plugins] }, Jimp);
+const jimp = configure({ types: [types], plugins: [plugins] }, Jimp);
 
 describe('hash', () => {
   const imagesDir = getTestDir(__dirname) + '/images';

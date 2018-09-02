@@ -1,11 +1,40 @@
 import configure from '@jimp/custom';
-import types from '@jimp/types';
+import { PNG } from 'pngjs';
 
 import JGD from './jgd';
 
 function configureJimp() {
   return configure({
-    types: [types]
+    types: [
+      () => ({
+        mime: { 'image/png': ['png'] },
+
+        constants: {
+          MIME_PNG: 'image/png'
+        },
+
+        hasAlpha: { 'image/png': true },
+        decoders: { 'image/png': PNG.sync.read },
+        encoders: {
+          'image/png': data => {
+            const png = new PNG({
+              width: data.bitmap.width,
+              height: data.bitmap.height,
+              bitDepth: 8,
+              deflateLevel: data._deflateLevel,
+              deflateStrategy: data._deflateStrategy,
+              filterType: data._filterType,
+              colorType: data._rgba ? 6 : 2,
+              inputHasAlpha: true
+            });
+
+            png.data = data.bitmap.data;
+
+            return PNG.sync.write(png);
+          }
+        }
+      })
+    ]
   });
 }
 

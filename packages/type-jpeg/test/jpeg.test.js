@@ -1,12 +1,17 @@
 /* eslint-disable no-control-regex */
 
 import { Jimp, getTestDir } from '@jimp/test-utils';
+import configure from '@jimp/custom';
+
+import jpeg from '../src';
+
+const jimp = configure({ types: [jpeg] }, Jimp);
 
 describe('JPEG', () => {
   const imagesDir = getTestDir(__dirname) + '/images';
 
   it('load JPG', async () => {
-    const image = await Jimp.read(imagesDir + '/cops.jpg');
+    const image = await jimp.read(imagesDir + '/cops.jpg');
 
     image.getPixelColor(10, 10).should.be.equal(0x3f4a02ff);
     image.getPixelColor(220, 190).should.be.equal(0x5d94b6ff);
@@ -14,7 +19,7 @@ describe('JPEG', () => {
   });
 
   it('load JPG with fill bytes', async () => {
-    const image = await Jimp.read(imagesDir + '/fillbytes.jpg');
+    const image = await jimp.read(imagesDir + '/fillbytes.jpg');
 
     image.getPixelColor(10, 10).should.be.equal(0xaeb8c3ff);
     image.getPixelColor(220, 190).should.be.equal(0x262b21ff);
@@ -22,7 +27,7 @@ describe('JPEG', () => {
   });
 
   it('export JPG', async () => {
-    const image = await Jimp.read({
+    const image = await jimp.read({
       width: 3,
       height: 3,
       data: [
