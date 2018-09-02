@@ -1,10 +1,15 @@
-import { Jimp, donutJGD } from './test-helper';
+import { Jimp, donutJGD } from '@jimp/test-utils';
+import configure from '@jimp/custom';
+
+import color from '../src';
+
+const jimp = configure({ plugins: [color] }, Jimp);
 
 describe('canvas color transformation', () => {
   const redDonutJGD = donutJGD(0x00000000, 0xff000088, 0xff0000ff);
 
   it('can apply more than one color transformation', async () => {
-    const image = await Jimp.read(redDonutJGD);
+    const image = await jimp.read(redDonutJGD);
     const newJGD = image
       .color([
         { apply: 'hue', params: [-180] },
@@ -16,7 +21,7 @@ describe('canvas color transformation', () => {
   });
 
   it('lighten', async () => {
-    const image = await Jimp.read(redDonutJGD);
+    const image = await jimp.read(redDonutJGD);
 
     image
       .color([{ apply: 'lighten', params: [25] }])
@@ -25,7 +30,7 @@ describe('canvas color transformation', () => {
   });
 
   it('brighten', async () => {
-    const image = await Jimp.read(redDonutJGD);
+    const image = await jimp.read(redDonutJGD);
 
     image
       .color([{ apply: 'brighten', params: [25] }])
@@ -34,7 +39,7 @@ describe('canvas color transformation', () => {
   });
 
   it('spin hue', async () => {
-    const image = await Jimp.read(redDonutJGD);
+    const image = await jimp.read(redDonutJGD);
 
     image
       .color([{ apply: 'hue', params: [150] }])

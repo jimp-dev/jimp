@@ -1,10 +1,15 @@
-import { Jimp, mkJGD, getTestDir } from './test-helper';
+import { Jimp, mkJGD, getTestDir } from '@jimp/test-utils';
+import configure from '@jimp/custom';
+
+import color from '../src';
+
+const jimp = configure({ plugins: [color] }, Jimp);
 
 describe('Convolution', function() {
   this.timeout(15000);
 
   const imgs = [
-    Jimp.read(
+    jimp.read(
       mkJGD(
         '22222222',
         '22222222',
@@ -16,7 +21,7 @@ describe('Convolution', function() {
         '22222222'
       )
     ),
-    Jimp.read(
+    jimp.read(
       mkJGD(
         '88222222',
         '88222222',
@@ -86,7 +91,7 @@ describe('Convolution', function() {
   it('3x3 sharp matrix on EDGE_WRAP', done => {
     imgMid
       .clone()
-      .convolution(sharpM, Jimp.EDGE_WRAP)
+      .convolution(sharpM, jimp.EDGE_WRAP)
       .getJGDSync()
       .should.be.sameJGD(
         mkJGD(
@@ -103,7 +108,7 @@ describe('Convolution', function() {
       );
     imgTopLeft
       .clone()
-      .convolution(sharpM, Jimp.EDGE_WRAP)
+      .convolution(sharpM, jimp.EDGE_WRAP)
       .getJGDSync()
       .should.be.sameJGD(
         mkJGD(
@@ -124,7 +129,7 @@ describe('Convolution', function() {
   it('3x3 sharp matrix on EDGE_CROP', done => {
     imgMid
       .clone()
-      .convolution(sharpM, Jimp.EDGE_CROP)
+      .convolution(sharpM, jimp.EDGE_CROP)
       .getJGDSync()
       .should.be.sameJGD(
         mkJGD(
@@ -141,7 +146,7 @@ describe('Convolution', function() {
       );
     imgTopLeft
       .clone()
-      .convolution(sharpM, Jimp.EDGE_CROP)
+      .convolution(sharpM, jimp.EDGE_CROP)
       .getJGDSync()
       .should.be.sameJGD(
         mkJGD(
@@ -160,10 +165,10 @@ describe('Convolution', function() {
   });
 
   it('new pixel value is greater than 255', async () => {
-    const expectedImg = await Jimp.read(
-      getTestDir() + '/samples/qr-convoluted.png'
+    const expectedImg = await jimp.read(
+      getTestDir(__dirname) + '/images/qr-convoluted.png'
     );
-    const image = await Jimp.read(getTestDir() + '/samples/qr.jpg');
+    const image = await jimp.read(getTestDir(__dirname) + '/images/qr.jpg');
 
     image
       .convolution([
