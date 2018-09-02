@@ -1,8 +1,13 @@
-import { Jimp, mkJGD } from './test-helper';
+import { Jimp, mkJGD } from '@jimp/test-utils';
+import configure from '@jimp/custom';
+
+import normalize from '../src';
+
+const jimp = configure({ plugins: [normalize] }, Jimp);
 
 describe('Normalize', () => {
   it('change grayscale image', async () => {
-    const image = await Jimp.read(mkJGD('36▦', '6▦9', '▦9C'));
+    const image = await jimp.read(mkJGD('36▦', '6▦9', '▦9C'));
 
     image
       .normalize()
@@ -11,7 +16,7 @@ describe('Normalize', () => {
   });
 
   it('change red/blue image', async () => {
-    const image = await Jimp.read({
+    const image = await jimp.read({
       width: 3,
       height: 2,
       data: [
