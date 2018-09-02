@@ -1,8 +1,13 @@
 import { Jimp, mkJGD } from '@jimp/test-utils';
+import configure from '@jimp/custom';
+
+import crop from '../src';
+
+const jimp = configure({ plugins: [crop] }, Jimp);
 
 describe('Autocrop', () => {
   it('image with transparent surround color', async () => {
-    const imgSrc = await Jimp.read(
+    const imgSrc = await jimp.read(
       mkJGD(
         '          ',
         '    ◆◆    ',
@@ -23,7 +28,7 @@ describe('Autocrop', () => {
   });
 
   it('image with opaque surround color', async () => {
-    const imgSrc = await Jimp.read(
+    const imgSrc = await jimp.read(
       mkJGD(
         '▥▥▥▥▥▥▥▥▥▥',
         '▥▥▥▥◆◆▥▥▥▥',
@@ -44,7 +49,7 @@ describe('Autocrop', () => {
   });
 
   it('image with one color border', async () => {
-    const imgSrc = await Jimp.read(
+    const imgSrc = await jimp.read(
       mkJGD(
         '▥▥▥▥▥▥▥▥▥▥▥▥',
         '▥▥▥▥▥▥▥▥▥▥▥▥',
@@ -67,7 +72,7 @@ describe('Autocrop', () => {
   });
 
   it('image border with small variation', async () => {
-    const imgSrc = await Jimp.read(
+    const imgSrc = await jimp.read(
       mkJGD(
         '323232323232',
         '232323232323',
