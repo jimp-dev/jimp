@@ -1,6 +1,12 @@
 /* eslint key-spacing: ["error", { "align": "value" }] */
 
-import { Jimp, getTestDir, hasOwnProp } from './test-helper';
+import { Jimp, getTestDir, hasOwnProp } from '@jimp/test-utils';
+import configure from '@jimp/custom';
+import crop from '@jimp/plugin-crop';
+
+import print from '../src';
+
+const jimp = configure({ plugins: [print, crop] }, Jimp);
 
 async function createTextImage(
   width,
@@ -10,7 +16,7 @@ async function createTextImage(
   maxWidth,
   maxHeight
 ) {
-  const loadedFont = await Jimp.loadFont(font);
+  const loadedFont = await jimp.loadFont(font);
   const image = await Jimp.create(width, height, 0xffffffff);
 
   return image.print(loadedFont, 0, 0, options, maxWidth, maxHeight);
@@ -37,9 +43,9 @@ describe('Write text over image', function() {
     if (hasOwnProp(fontDefs, fontName))
       ((fontName, conf) => {
         it('Jimp preset ' + fontName + ' bitmap font', async () => {
-          const font = await Jimp.loadFont(Jimp['FONT_' + fontName]);
+          const font = await jimp.loadFont(Jimp['FONT_' + fontName]);
           const expected =
-            getTestDir() + '/samples/text-samples/' + fontName + '.png';
+            getTestDir(__dirname) + '/images/' + fontName + '.png';
 
           const expectedImg = await Jimp.read(expected);
           const image = await Jimp.create(conf.w, conf.h, conf.bg);
@@ -51,9 +57,9 @@ describe('Write text over image', function() {
       })(fontName, fontDefs[fontName]);
 
   it('Jimp preset SANS_16_BLACK bitmap font positioned', async () => {
-    const font = await Jimp.loadFont(Jimp.FONT_SANS_16_BLACK);
+    const font = await jimp.loadFont(Jimp.FONT_SANS_16_BLACK);
     const expected =
-      getTestDir() + '/samples/text-samples/SANS_16_BLACK-positioned.png';
+      getTestDir(__dirname) + '/images/SANS_16_BLACK-positioned.png';
     const expectedImg = await Jimp.read(expected);
     const image = await Jimp.create('300', '100', 0xff8800ff);
 
@@ -63,10 +69,9 @@ describe('Write text over image', function() {
   });
 
   it('Jimp renders ? for unknown characters', async () => {
-    const font = await Jimp.loadFont(Jimp.FONT_SANS_16_BLACK);
+    const font = await jimp.loadFont(Jimp.FONT_SANS_16_BLACK);
 
-    const expected =
-      getTestDir() + '/samples/text-samples/unknown-char-test.png';
+    const expected = getTestDir(__dirname) + '/images/unknown-char-test.png';
     const expectedImg = await Jimp.read(expected);
     const image = await Jimp.read('300', '100', 0xff8800ff);
 
@@ -77,7 +82,7 @@ describe('Write text over image', function() {
 
   it('left-align text by default', async () => {
     const expectedImage = await Jimp.read(
-      getTestDir() + '/samples/text-samples/left-aligned.png'
+      getTestDir(__dirname) + '/images/left-aligned.png'
     );
     const textImage = createTextImage(
       320,
@@ -94,7 +99,7 @@ describe('Write text over image', function() {
 
   it('left-align text by default when passing object', async () => {
     const expectedImage = await Jimp.read(
-      getTestDir() + '/samples/text-samples/left-aligned.png'
+      getTestDir(__dirname) + '/images/left-aligned.png'
     );
     const textImage = createTextImage(
       320,
@@ -111,7 +116,7 @@ describe('Write text over image', function() {
 
   it('left-align text when passing object with alignmentX', async () => {
     const expectedImage = await Jimp.read(
-      getTestDir() + '/samples/text-samples/left-aligned.png'
+      getTestDir(__dirname) + '/images/left-aligned.png'
     );
     const textImage = createTextImage(
       320,
@@ -132,7 +137,7 @@ describe('Write text over image', function() {
 
   it('center-align text when passing object with alignmentX', async () => {
     const expectedImage = await Jimp.read(
-      getTestDir() + '/samples/text-samples/center-aligned.png'
+      getTestDir(__dirname) + '/images/center-aligned.png'
     );
     const textImage = createTextImage(
       320,
@@ -153,7 +158,7 @@ describe('Write text over image', function() {
 
   it('right-align text when passing object with alignmentX', async () => {
     const expectedImage = await Jimp.read(
-      getTestDir() + '/samples/text-samples/right-aligned.png'
+      getTestDir(__dirname) + '/images/right-aligned.png'
     );
     const textImage = createTextImage(
       320,
@@ -174,7 +179,7 @@ describe('Write text over image', function() {
 
   it('middle-align text when passing object with alignmentY', async () => {
     const expectedImage = await Jimp.read(
-      getTestDir() + '/samples/text-samples/middle-aligned.png'
+      getTestDir(__dirname) + '/images/middle-aligned.png'
     );
     const textImage = createTextImage(
       320,
@@ -196,7 +201,7 @@ describe('Write text over image', function() {
 
   it('bottom-align text when passing object with alignmentY', async () => {
     const expectedImage = await Jimp.read(
-      getTestDir() + '/samples/text-samples/bottom-aligned.png'
+      getTestDir(__dirname) + '/images/bottom-aligned.png'
     );
     const textImage = createTextImage(
       320,
@@ -218,10 +223,10 @@ describe('Write text over image', function() {
 
   it('exposes print y position in cb', async () => {
     const expectedImage = await Jimp.read(
-      getTestDir() + '/samples/text-samples/spacing.png'
+      getTestDir(__dirname) + '/images/spacing.png'
     );
 
-    const loadedFont = await Jimp.loadFont(Jimp.FONT_SANS_16_BLACK);
+    const loadedFont = await jimp.loadFont(Jimp.FONT_SANS_16_BLACK);
     const image = await Jimp.create(500, 500, 0xffffffff);
 
     image.print(

@@ -5,7 +5,8 @@ import Jimp, {
   jimpEvChange
 } from '@jimp/core';
 
-export default function configure(configuration) {
+export default function configure(configuration, oldJimp) {
+  const currentJimp = oldJimp ? oldJimp : Jimp;
   const jimpConfig = {
     hasAlpha: {},
     encoders: {},
@@ -50,9 +51,9 @@ export default function configure(configuration) {
   if (configuration.types) {
     configuration.types.forEach(addImageType);
 
-    Jimp.decoders = jimpConfig.decoders;
-    Jimp.encoders = jimpConfig.encoders;
-    Jimp.hasAlpha = jimpConfig.hasAlpha;
+    currentJimp.decoders = jimpConfig.decoders;
+    currentJimp.encoders = jimpConfig.encoders;
+    currentJimp.hasAlpha = jimpConfig.hasAlpha;
   }
 
   if (configuration.plugins) {
