@@ -1,4 +1,4 @@
-import { Jimp, donutJGD } from './test-helper';
+import { Jimp, donutJGD } from '../src';
 
 const donut = donutJGD(
   // RRGGBBAA
