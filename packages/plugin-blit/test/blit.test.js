@@ -1,4 +1,9 @@
-import { Jimp, mkJGD } from './test-helper';
+import { Jimp, mkJGD } from '@jimp/test-utils';
+import configure from '@jimp/custom';
+
+import blit from '../src';
+
+const jimp = configure({ plugins: [blit] }, Jimp);
 
 describe('Blit over image', () => {
   const targetJGD = mkJGD(
@@ -24,8 +29,8 @@ describe('Blit over image', () => {
   let srcImg; // stores the Jimp instances of the JGD images above.
 
   before(done => {
-    const img1 = Jimp.read(targetJGD);
-    const img2 = Jimp.read(srcJGD);
+    const img1 = jimp.read(targetJGD);
+    const img2 = jimp.read(srcJGD);
     Promise.all([img1, img2])
       .then(images => {
         targetImg = images[0];
