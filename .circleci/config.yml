@@ -126,7 +126,7 @@ workflows:
           filters:
             tags:
               only: /.*/
-      - build-node6:
+      - build-node6.14:
           requires:
             - lint
             - test
