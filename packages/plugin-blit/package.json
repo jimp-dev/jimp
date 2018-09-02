@@ -23,6 +23,7 @@
     "core-js": "^2.5.7"
   },
   "devDependencies": {
+    "@jimp/jpeg": "^0.3.9",
     "@jimp/custom": "^0.3.9",
     "@jimp/test-utils": "0.3.9"
   },

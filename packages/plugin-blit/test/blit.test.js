@@ -1,9 +1,10 @@
 import { Jimp, mkJGD, getTestDir } from '@jimp/test-utils';
+import jpeg from '@jimp/jpeg';
 import configure from '@jimp/custom';
 
 import blit from '../src';
 
-const jimp = configure({ plugins: [blit] }, Jimp);
+const jimp = configure({ types: [jpeg], plugins: [blit] }, Jimp);
 
 describe('Blit over image', function() {
   this.timeout(15000);

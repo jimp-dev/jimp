@@ -73,7 +73,7 @@ describe('Write text over image', function() {
       'https://raw.githubusercontent.com/oliver-moran/jimp/master/packages/plugin-print/fonts/open-sans/open-sans-16-black/open-sans-16-black.fnt'
     );
     const expected =
-      getTestDir() + '/samples/text-samples/SANS_16_BLACK-positioned.png';
+      getTestDir(__dirname) + '/images/SANS_16_BLACK-positioned.png';
     const expectedImg = await Jimp.read(expected);
     const image = await Jimp.create('300', '100', 0xff8800ff);
 

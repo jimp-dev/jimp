@@ -208,7 +208,7 @@ describe('Callbacks', () => {
       result: {
         width: 3,
         height: 2,
-        data: [0xaa8e1cff, 0x3955c6ff, 0, 0xaa8e1caa, 0x3955c6aa, 0]
+        data: [0xaa8e1cff, 0x3955c6ff, 0, 0x715f13aa, 0x263984aa, 0]
       }
     },
     opaque: {
