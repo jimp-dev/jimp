@@ -18,7 +18,7 @@
     "url": "https://github.com/oliver-moran/jimp/issues"
   },
   "scripts": {
-    "test": "cross-env BABEL_ENV=test mocha --require @babel/register test/*.js",
+    "test": "cross-env BABEL_ENV=test mocha --require @babel/register test/**/*.js",
     "test:watch": "npm run test -- --reporter min --watch",
     "test:coverage": "nyc npm run test",
     "build": "npm run build:node:production && npm run build:module",
@@ -45,7 +45,6 @@
     "tinycolor2": "^1.4.1"
   },
   "devDependencies": {
-    "@jimp/test-utils": "^0.3.9",
     "should": "^13.2.3"
   },
   "xo": false,
