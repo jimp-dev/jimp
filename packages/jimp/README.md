@@ -265,7 +265,7 @@ image.composite(srcImage, 100, 0, Jimp.BLEND_MULTIPLY, 0.5, 0.9);
 Jimp supports basic typography using BMFont format (.fnt) even ones in different languages! Just find a bitmap font that is suitable [bitmap fonts](https://en.wikipedia.org/wiki/Bitmap_fonts):
 
 ```js
-Jimp.loadFont(path).then(font => {
+Jimp.loadFont(pathOrURL).then(font => {
   // load font from .fnt file
   image.print(font, x, y, message); // print a message on an image. message can be a any type
   image.print(font, x, y, message, maxWidth); // print a message on an image with text wrapped at maxWidth
@@ -275,7 +275,7 @@ Jimp.loadFont(path).then(font => {
 Alignment modes are supported by replacing the `str` argument with an object containing `text`, `alignmentX` and `alignmentY`. `alignmentX` defaults to `Jimp.HORIZONTAL_ALIGN_LEFT` and `alignmentY` defaults to `Jimp.VERTICAL_ALIGN_TOP`.
 
 ```js
-Jimp.loadFont(path).then(font => {
+Jimp.loadFont(pathOrURL).then(font => {
   image.print(
     font,
     x,

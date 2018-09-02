@@ -1,4 +1,4 @@
-import { Jimp, mkJGD } from '@jimp/test-utils';
+import { Jimp, mkJGD, getTestDir } from '@jimp/test-utils';
 import configure from '@jimp/custom';
 
 import blit from '../src';
@@ -152,5 +152,17 @@ describe('Blit over image', () => {
           '▾▾▾□▥▥▥▥'
         )
       );
+  });
+
+  it('blit alpha', async () => {
+    const expectedImg = await Jimp.read(
+      getTestDir(__dirname) + '/samples/blit-alpha.png'
+    );
+    const dice = await Jimp.read(getTestDir(__dirname) + '/samples/dice.png');
+    const image = await Jimp.read(getTestDir(__dirname) + '/samples/cops.jpg');
+
+    image
+      .blit(dice, 0, 0)
+      .bitmap.data.should.be.deepEqual(expectedImg.bitmap.data);
   });
 });

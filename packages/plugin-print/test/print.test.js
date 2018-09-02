@@ -68,6 +68,20 @@ describe('Write text over image', function() {
       .bitmap.data.should.be.deepEqual(expectedImg.bitmap.data);
   });
 
+  it('Jimp loads font from URL', async () => {
+    const font = await Jimp.loadFont(
+      'https://raw.githubusercontent.com/oliver-moran/jimp/master/packages/plugin-print/fonts/open-sans/open-sans-16-black/open-sans-16-black.fnt'
+    );
+    const expected =
+      getTestDir() + '/samples/text-samples/SANS_16_BLACK-positioned.png';
+    const expectedImg = await Jimp.read(expected);
+    const image = await Jimp.create('300', '100', 0xff8800ff);
+
+    image
+      .print(font, 150, 50, 'This is only a test.', 100)
+      .bitmap.data.should.be.deepEqual(expectedImg.bitmap.data);
+  });
+
   it('Jimp renders ? for unknown characters', async () => {
     const font = await jimp.loadFont(Jimp.FONT_SANS_16_BLACK);
 
