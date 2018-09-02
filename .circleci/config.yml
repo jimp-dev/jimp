@@ -59,7 +59,7 @@ jobs:
           command: yarn test:browser --ci
 
   build-node6.14:
-    working_directory: ~/jimp-6.14
+    working_directory: ~/jimp-6p
     docker:
       - image: circleci/node:6.14-browsers
     steps:
@@ -74,7 +74,7 @@ jobs:
           command: yarn test --ci
 
   build-node8:
-    working_directory: ~/jimp-8
+    working_directory: ~/jimp
     docker:
       - image: circleci/node:8-browsers
     steps:
@@ -89,7 +89,7 @@ jobs:
           command: yarn test --ci
 
   build-node10:
-    working_directory: ~/jimp-10
+    working_directory: ~/jimpp
     docker:
       - image: circleci/node:10-browsers
     steps:
