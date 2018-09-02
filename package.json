@@ -10,7 +10,6 @@
   "scripts": {
     "lint": "xo",
     "test": "lerna run test --stream",
-    "test:node": "lerna run test:node --stream",
     "test:browser": "cross-env BABEL_ENV=test ENV=browser CHROME_BIN=\"$(which chrome || which chromium)\" karma start --single-run",
     "test:browser:watch": "npm run -s test:browser start -- --auto-watch",
     "clean": "lerna clean --yes && rm -rf node_modules && npm run clean:build",
