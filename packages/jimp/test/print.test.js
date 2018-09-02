@@ -62,6 +62,20 @@ describe('Write text over image', function() {
       .bitmap.data.should.be.deepEqual(expectedImg.bitmap.data);
   });
 
+  it('Jimp loads font from URL', async () => {
+    const font = await Jimp.loadFont(
+      'https://raw.githubusercontent.com/oliver-moran/jimp/master/packages/plugin-print/fonts/open-sans/open-sans-16-black/open-sans-16-black.fnt'
+    );
+    const expected =
+      getTestDir() + '/samples/text-samples/SANS_16_BLACK-positioned.png';
+    const expectedImg = await Jimp.read(expected);
+    const image = await Jimp.create('300', '100', 0xff8800ff);
+
+    image
+      .print(font, 150, 50, 'This is only a test.', 100)
+      .bitmap.data.should.be.deepEqual(expectedImg.bitmap.data);
+  });
+
   it('Jimp renders ? for unknown characters', async () => {
     const font = await Jimp.loadFont(Jimp.FONT_SANS_16_BLACK);
 
@@ -226,33 +240,5 @@ describe('Write text over image', function() {
     return Promise.all([expectedImage, textImage]).then(results => {
       results[0].bitmap.data.should.be.deepEqual(results[1].bitmap.data);
     });
-  });
-
-  it('exposes print y position in cb', async () => {
-    const expectedImage = await Jimp.read(
-      getTestDir() + '/samples/text-samples/spacing.png'
-    );
-
-    const loadedFont = await Jimp.loadFont(Jimp.FONT_SANS_16_BLACK);
-    const image = await Jimp.create(500, 500, 0xffffffff);
-
-    image.print(
-      loadedFont,
-      0,
-      0,
-      'One two three four fix six seven eight nine ten eleven twelve',
-      250,
-      (err, image, { x, y }) => {
-        image.print(
-          loadedFont,
-          x,
-          y + 50,
-          'thirteen fourteen fifteen sixteen seventeen eighteen nineteen twenty',
-          250
-        );
-      }
-    );
-
-    expectedImage.bitmap.data.should.be.deepEqual(image.bitmap.data);
   });
 });
