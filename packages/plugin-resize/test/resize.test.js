@@ -1,10 +1,15 @@
-import { Jimp, mkJGD, hashForEach } from './test-helper';
+import { Jimp, mkJGD, hashForEach } from '@jimp/test-utils';
+import configure from '@jimp/custom';
+
+import resize from '../src';
+
+const jimp = configure({ plugins: [resize] }, Jimp);
 
 describe('Resize images', () => {
   const testImages = [
     {
       title: 'max contrast 8x8',
-      src: Jimp.read(
+      src: jimp.read(
         mkJGD(
           '■■■■□□□□',
           '■■■■□□□□',
@@ -142,7 +147,7 @@ describe('Resize images', () => {
     /**********************************************************************/
     {
       title: 'max contrast 12x12 with dots',
-      src: Jimp.read(
+      src: jimp.read(
         mkJGD(
           '■■■■■■□□□□□□',
           '■■■■■■□□□□□□',
@@ -314,7 +319,7 @@ describe('Resize images', () => {
     /**********************************************************************/
     {
       title: 'mutch contrast 4x4',
-      src: Jimp.read(mkJGD('▩▩▥▥', '▩▩▥▥', '▥▥▩▩', '▥▥▩▩')),
+      src: jimp.read(mkJGD('▩▩▥▥', '▩▩▥▥', '▥▥▩▩', '▥▥▩▩')),
       results: {
         'default 6x6': {
           width: 6,
