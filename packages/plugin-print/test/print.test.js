@@ -83,8 +83,7 @@ describe('Write text over image', function() {
   it('Jimp can print numbers too', async () => {
     const font = await Jimp.loadFont(Jimp.FONT_SANS_16_BLACK);
 
-    const expected =
-      getTestDir(__dirname) + '/images/text-samples/print-number.png';
+    const expected = getTestDir(__dirname) + '/images/print-number.png';
     const expectedImg = await Jimp.read(expected);
     const image = await Jimp.read('300', '100', 0xff8800ff);
 
