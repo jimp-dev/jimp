@@ -1,4 +1,4 @@
-import { Jimp, mkJGD } from './test-helper';
+import { Jimp, mkJGD } from '@jimp/test-utils';
 
 describe('Autocrop', () => {
   it('image with transparent surround color', async () => {
