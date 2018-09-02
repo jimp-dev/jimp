@@ -554,7 +554,7 @@ class Jimp extends EventEmitter {
   getBase64Async = mime => promisify(this.getBase64, this, mime);
 
   /**
-   * Generates a perceptual hash of the image <https://en.wikipedia.org/wiki/Perceptual_hashing>.
+   * Generates a perceptual hash of the image <https://en.wikipedia.org/wiki/Perceptual_hashing>. And pads the string. Can configure base.
    * @param {number} base (optional) a number between 2 and 64 representing the base for the hash (e.g. 2 is binary, 10 is decimal, 16 is hex, 64 is base 64). Defaults to 64.
    * @param {function(Error, Jimp)} cb (optional) a callback for when complete
    * @returns {string} a string representing the hash
@@ -579,7 +579,7 @@ class Jimp extends EventEmitter {
       );
     }
 
-    let hash = new ImagePHash().getHash(this);
+    let hash = this.pHash();
     hash = anyBase(anyBase.BIN, alphabet.slice(0, base))(hash);
 
     while (hash.length < maxHashLength[base]) {
@@ -591,6 +591,27 @@ class Jimp extends EventEmitter {
     }
 
     return hash;
+  }
+
+  /**
+   * Calculates the perceptual hash
+   * @returns {number} the perceptual hash
+   */
+  pHash() {
+    const pHash = new ImagePHash();
+    return pHash.getHash(this);
+  }
+
+  /**
+   * Calculates the hamming distance of the current image and a hash based on their perceptual hash
+   * @param {hash} compareHash hash to compare to
+   * @returns {number} a number ranging from 0 to 1, 0 means they are believed to be identical
+   */
+  distanceFromHash(compareHash) {
+    const pHash = new ImagePHash();
+    const currentHash = pHash.getHash(this);
+
+    return pHash.distance(currentHash, compareHash);
   }
 
   /**
@@ -735,6 +756,25 @@ class Jimp extends EventEmitter {
   }
 
   setPixelColour = this.setPixelColor;
+
+  /**
+   * Determine if the image contains opaque pixels.
+   * @return {boolean} hasAlpha whether the image contains opaque pixels
+   */
+  hasAlpha() {
+    for (let yIndex = 0; yIndex < this.bitmap.height; yIndex++) {
+      for (let xIndex = 0; xIndex < this.bitmap.width; xIndex++) {
+        const idx = (this.bitmap.width * yIndex + xIndex) << 2;
+        const alpha = this.bitmap.data[idx + 3];
+
+        if (alpha !== 0xff) {
+          return true;
+        }
+      }
+    }
+
+    return false;
+  }
 }
 
 export function addConstants(constants, jimpInstance = Jimp) {
@@ -946,6 +986,18 @@ Jimp.distance = function(img1, img2) {
   const phash = new ImagePHash();
   const hash1 = phash.getHash(img1);
   const hash2 = phash.getHash(img2);
+
+  return phash.distance(hash1, hash2);
+};
+
+/**
+ * Calculates the hamming distance of two images based on their perceptual hash
+ * @param {hash} hash1 a pHash
+ * @param {hash} hash2 a pHash
+ * @returns {number} a number ranging from 0 to 1, 0 means they are believed to be identical
+ */
+Jimp.compareHashes = function(hash1, hash2) {
+  const phash = new ImagePHash();
 
   return phash.distance(hash1, hash2);
 };

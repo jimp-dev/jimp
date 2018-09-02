@@ -58,7 +58,7 @@ declare namespace Jimp {
         };
 
   type PrintableText =
-    | string
+    | any
     | {
         text: string;
         alignmentX: number;
@@ -242,12 +242,14 @@ declare namespace Jimp {
       event: T,
       cb: (data: ListenerData<T>) => any
     ): any;
+    hasAlpha(): boolean;
     getHeight(): number;
     getWidth(): number;
     inspect(): string;
     toString(): string;
     getMIME(): string;
     getExtension(): string;
+    distanceFromHash(hash: string): number;
     write(path: string, cb?: Jimp.ImageCallback): this;
     writeAsync(path: string): Promise<Jimp>;
     deflateLevel(l: number, cb?: Jimp.ImageCallback): this;
@@ -516,6 +518,7 @@ declare namespace Jimp {
       threshold?: number
     ): { percent: number; image: Jimp };
     static distance(img1: Jimp, img2: Jimp): number;
+    static compareHashes(hash1: string, hash2: string): number;
     static colorDiff(rgba1: Jimp.RGB, rgba2: Jimp.RGB): number;
     static colorDiff(rgba1: Jimp.RGBA, rgba2: Jimp.RGBA): number;
     static loadFont(file: string): Promise<Font>;

@@ -151,6 +151,7 @@ image.invert();                   // invert the image colours
 image.normalize();                // normalize the channels in an image
 
 /* Alpha channel */
+image.hasAlpha();                     // determines if an image contains opaque pixels
 image.fade( f );                  // an alternative to opacity, fades the image by a factor 0 - 1. 0 will haven no effect. 1 will turn the image
 image.opacity( f );               // multiply the alpha channel by each pixel by the factor f, 0 - 1
 image.opaque();                   // set the alpha channel on every pixel to fully opaque
@@ -264,17 +265,17 @@ image.composite(srcImage, 100, 0, Jimp.BLEND_MULTIPLY, 0.5, 0.9);
 Jimp supports basic typography using BMFont format (.fnt) even ones in different languages! Just find a bitmap font that is suitable [bitmap fonts](https://en.wikipedia.org/wiki/Bitmap_fonts):
 
 ```js
-Jimp.loadFont(path).then((font) => {
+Jimp.loadFont(path).then(font => {
   // load font from .fnt file
-  image.print(font, x, y, str); // print a message on an image
-  image.print(font, x, y, str, maxWidth); // print a message on an image with text wrapped at maxWidth
+  image.print(font, x, y, message); // print a message on an image. message can be a any type
+  image.print(font, x, y, message, maxWidth); // print a message on an image with text wrapped at maxWidth
 });
 ```
 
 Alignment modes are supported by replacing the `str` argument with an object containing `text`, `alignmentX` and `alignmentY`. `alignmentX` defaults to `Jimp.HORIZONTAL_ALIGN_LEFT` and `alignmentY` defaults to `Jimp.VERTICAL_ALIGN_TOP`.
 
 ```js
-Jimp.loadFont(path).then((font) => {
+Jimp.loadFont(path).then(font => {
   image.print(
     font,
     x,
@@ -316,7 +317,7 @@ Jimp.FONT_SANS_128_WHITE; // Open Sans, 128px, white
 These can be used as follows:
 
 ```js
-Jimp.loadFont(Jimp.FONT_SANS_32_BLACK).then((font) => {
+Jimp.loadFont(Jimp.FONT_SANS_32_BLACK).then(font => {
   image.print(font, 10, 10, 'Hello world!');
 });
 ```
@@ -634,6 +635,16 @@ if (distance < 0.15 || diff.percent < 0.15) {
 } else {
   // not a match
 }
+```
+
+You can also calculate the raw pHash (no padding or custom base). You can then use this in `distanceFromHash` to calculate the hash distance from a loaded image.
+
+```js
+const hash1 = image1.pHash();
+const hash2 = image2.pHash();
+
+image2.distanceFromHash(hash1);
+Jimp.compareHashes(hash1, hash2); // same result as above
 ```
 
 ## Chaining or callbacks
