@@ -157,10 +157,10 @@ describe('Blit over image', function() {
 
   it('blit alpha', async () => {
     const expectedImg = await Jimp.read(
-      getTestDir(__dirname) + '/samples/blit-alpha.png'
+      getTestDir(__dirname) + '/images/blit-alpha.png'
     );
-    const dice = await Jimp.read(getTestDir(__dirname) + '/samples/dice.png');
-    const image = await Jimp.read(getTestDir(__dirname) + '/samples/cops.jpg');
+    const dice = await Jimp.read(getTestDir(__dirname) + '/images/dice.png');
+    const image = await Jimp.read(getTestDir(__dirname) + '/images/cops.jpg');
 
     image
       .blit(dice, 0, 0)
