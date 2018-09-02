@@ -107,6 +107,12 @@
       "max-params": [
         1,
         6
+      ],
+      "import/no-extraneous-dependencies": [
+        1,
+        {
+          "devDependencies": true
+        }
       ]
     },
     "overrides": [
