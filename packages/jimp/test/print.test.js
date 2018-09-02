@@ -75,6 +75,18 @@ describe('Write text over image', function() {
       .bitmap.data.should.be.deepEqual(expectedImg.bitmap.data);
   });
 
+  it('Jimp can print numbers too', async () => {
+    const font = await Jimp.loadFont(Jimp.FONT_SANS_16_BLACK);
+
+    const expected = getTestDir() + '/samples/text-samples/print-number.png';
+    const expectedImg = await Jimp.read(expected);
+    const image = await Jimp.read('300', '100', 0xff8800ff);
+
+    image
+      .print(font, 0, 0, 12345678, 100)
+      .bitmap.data.should.be.deepEqual(expectedImg.bitmap.data);
+  });
+
   it('left-align text by default', async () => {
     const expectedImage = await Jimp.read(
       getTestDir() + '/samples/text-samples/left-aligned.png'
