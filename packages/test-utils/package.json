@@ -1,6 +1,6 @@
 {
   "name": "@jimp/test-utils",
-  "version": "0.3.9",
+  "version": "0.4.0",
   "description": "Test utils for jimp extensions.",
   "main": "dist/index.js",
   "module": "es/index.js",
@@ -26,7 +26,7 @@
     "pngjs": "^3.3.3"
   },
   "devDependencies": {
-    "@jimp/custom": "^0.3.9",
+    "@jimp/custom": "^0.4.0",
     "should": "^13.2.3"
   }
 }

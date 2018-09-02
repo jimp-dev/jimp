@@ -1,6 +1,6 @@
 {
   "name": "@jimp/plugin-blit",
-  "version": "0.3.9",
+  "version": "0.4.0",
   "description": "Blit an image.",
   "main": "dist/index.js",
   "module": "es/index.js",
@@ -19,13 +19,13 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "@jimp/utils": "^0.3.9",
+    "@jimp/utils": "^0.4.0",
     "core-js": "^2.5.7"
   },
   "devDependencies": {
-    "@jimp/jpeg": "^0.3.9",
-    "@jimp/custom": "^0.3.9",
-    "@jimp/test-utils": "0.3.9"
+    "@jimp/custom": "^0.4.0",
+    "@jimp/jpeg": "^0.4.0",
+    "@jimp/test-utils": "^0.4.0"
   },
   "peerDependencies": {
     "@jimp/custom": ">=0.3.5"
