@@ -5,7 +5,8 @@ import blit from '../src';
 
 const jimp = configure({ plugins: [blit] }, Jimp);
 
-describe('Blit over image', () => {
+describe('Blit over image', function() {
+  this.timeout(15000);
   const targetJGD = mkJGD(
     '▴▴▴▴▸▸▸▸',
     '▴▴▴▴▸▸▸▸',
