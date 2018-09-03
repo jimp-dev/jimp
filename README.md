@@ -21,24 +21,30 @@ API documentation can be found in the main [jimp package](./packages/jimp)
 - [png](./packages/type-png)
 - [tiff](./packages/type-tiff)
 
-## Image Manipulation Methods
+## Image Manipulation Methods (Default Plugins)
 
-- [blit](./packages/plugin-blit)
-- [blur](./packages/plugin-blur)
-- [color](./packages/plugin-color)
-- [contain](./packages/plugin-contain)
-- [cover](./packages/plugin-cover)
-- [displace](./packages/plugin-displace)
-- [dither](./packages/plugin-dither)
-- [flip](./packages/plugin-flip)
-- [gaussian](./packages/plugin-gaussian)
-- [invert](./packages/plugin-invert)
-- [mask](./packages/plugin-mask)
-- [normalize](./packages/plugin-normalize)
-- [print](./packages/plugin-print)
-- [resize](./packages/plugin-resize)
-- [rotate](./packages/plugin-rotate)
-- [scale](./packages/plugin-scale)
+- [blit](./packages/plugin-blit) - Blit an image onto another.
+- [blur](./packages/plugin-blur) - Quickly blur an image.
+- [color](./packages/plugin-color) - Various color manipulation methods.
+- [contain](./packages/plugin-contain) - Contain an image within a height and width.
+- [cover](./packages/plugin-cover) - Scale the image so the given width and height keeping the aspect ratio.
+- [displace](./packages/plugin-displace) - Displaces the image based on a displacement map
+- [dither](./packages/plugin-dither) - Apply a dither effect to an image.
+- [flip](./packages/plugin-flip) - Flip an image along it's x or y axis.
+- [gaussian](./packages/plugin-gaussian) - Hardcore blur.
+- [invert](./packages/plugin-invert) - Invert an images colors
+- [mask](./packages/plugin-mask) - Mask one image with another.
+- [normalize](./packages/plugin-normalize) - Normalize the colors in an image
+- [print](./packages/plugin-print) - Print text onto an image
+- [resize](./packages/plugin-resize) - Resize an image.
+- [rotate](./packages/plugin-rotate) - Rotate and image.
+- [scale](./packages/plugin-scale) - Uniformly scales the image by a factor.
+
+## Extra Plugins
+
+- [circle](./packages/plugin-circle) - Creates a circle out of an image.
+
+:rocket: If you want to add your plugins to this list make a PR! :rocket:
 
 ## Custom Jimp
 
