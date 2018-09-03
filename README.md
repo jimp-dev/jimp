@@ -44,6 +44,8 @@ API documentation can be found in the main [jimp package](./packages/jimp)
 
 - [circle](./packages/plugin-circle) - Creates a circle out of an image.
 
+:rocket: If you want to add your plugins to this list make a PR! :rocket:
+
 ## Custom Jimp
 
 If you want to extend jimp or omit types or functions visit [@jimp/custom](./packages).
