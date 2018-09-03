@@ -110,7 +110,7 @@ describe('Write text over image', function() {
     const expectedImage = await Jimp.read(
       getTestDir(__dirname) + '/images/left-aligned.png'
     );
-    const textImage = createTextImage(
+    const textImage = await createTextImage(
       320,
       240,
       Jimp.FONT_SANS_16_BLACK,
@@ -118,16 +118,14 @@ describe('Write text over image', function() {
       100
     );
 
-    return Promise.all([expectedImage, textImage]).then(results => {
-      results[0].bitmap.data.should.be.deepEqual(results[1].bitmap.data);
-    });
+    expectedImage.bitmap.data.should.be.deepEqual(textImage.bitmap.data);
   });
 
   it('left-align text by default when passing object', async () => {
     const expectedImage = await Jimp.read(
       getTestDir(__dirname) + '/images/left-aligned.png'
     );
-    const textImage = createTextImage(
+    const textImage = await createTextImage(
       320,
       240,
       Jimp.FONT_SANS_16_BLACK,
@@ -135,16 +133,14 @@ describe('Write text over image', function() {
       100
     );
 
-    return Promise.all([expectedImage, textImage]).then(results => {
-      results[0].bitmap.data.should.be.deepEqual(results[1].bitmap.data);
-    });
+    expectedImage.bitmap.data.should.be.deepEqual(textImage.bitmap.data);
   });
 
   it('left-align text when passing object with alignmentX', async () => {
     const expectedImage = await Jimp.read(
       getTestDir(__dirname) + '/images/left-aligned.png'
     );
-    const textImage = createTextImage(
+    const textImage = await createTextImage(
       320,
       240,
       Jimp.FONT_SANS_16_BLACK,
@@ -156,16 +152,14 @@ describe('Write text over image', function() {
       100
     );
 
-    return Promise.all([expectedImage, textImage]).then(results => {
-      results[0].bitmap.data.should.be.deepEqual(results[1].bitmap.data);
-    });
+    expectedImage.bitmap.data.should.be.deepEqual(textImage.bitmap.data);
   });
 
   it('center-align text when passing object with alignmentX', async () => {
     const expectedImage = await Jimp.read(
       getTestDir(__dirname) + '/images/center-aligned.png'
     );
-    const textImage = createTextImage(
+    const textImage = await createTextImage(
       320,
       240,
       Jimp.FONT_SANS_16_BLACK,
@@ -177,16 +171,14 @@ describe('Write text over image', function() {
       100
     );
 
-    return Promise.all([expectedImage, textImage]).then(results => {
-      results[0].bitmap.data.should.be.deepEqual(results[1].bitmap.data);
-    });
+    expectedImage.bitmap.data.should.be.deepEqual(textImage.bitmap.data);
   });
 
   it('right-align text when passing object with alignmentX', async () => {
     const expectedImage = await Jimp.read(
       getTestDir(__dirname) + '/images/right-aligned.png'
     );
-    const textImage = createTextImage(
+    const textImage = await createTextImage(
       320,
       240,
       Jimp.FONT_SANS_16_BLACK,
@@ -198,16 +190,14 @@ describe('Write text over image', function() {
       100
     );
 
-    return Promise.all([expectedImage, textImage]).then(results => {
-      results[0].bitmap.data.should.be.deepEqual(results[1].bitmap.data);
-    });
+    expectedImage.bitmap.data.should.be.deepEqual(textImage.bitmap.data);
   });
 
   it('middle-align text when passing object with alignmentY', async () => {
     const expectedImage = await Jimp.read(
       getTestDir(__dirname) + '/images/middle-aligned.png'
     );
-    const textImage = createTextImage(
+    const textImage = await createTextImage(
       320,
       240,
       Jimp.FONT_SANS_16_BLACK,
@@ -220,16 +210,14 @@ describe('Write text over image', function() {
       240
     );
 
-    return Promise.all([expectedImage, textImage]).then(results => {
-      results[0].bitmap.data.should.be.deepEqual(results[1].bitmap.data);
-    });
+    expectedImage.bitmap.data.should.be.deepEqual(textImage.bitmap.data);
   });
 
   it('bottom-align text when passing object with alignmentY', async () => {
     const expectedImage = await Jimp.read(
       getTestDir(__dirname) + '/images/bottom-aligned.png'
     );
-    const textImage = createTextImage(
+    const textImage = await createTextImage(
       320,
       240,
       Jimp.FONT_SANS_16_BLACK,
@@ -242,9 +230,7 @@ describe('Write text over image', function() {
       240
     );
 
-    return Promise.all([expectedImage, textImage]).then(results => {
-      results[0].bitmap.data.should.be.deepEqual(results[1].bitmap.data);
-    });
+    expectedImage.bitmap.data.should.be.deepEqual(textImage.bitmap.data);
   });
 
   it('exposes print y position in cb', async () => {
