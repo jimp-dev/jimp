@@ -12,14 +12,12 @@ async function createTextImage(
   width,
   height,
   font,
-  options,
-  maxWidth,
-  maxHeight
+  { x = 0, y = 0, text, maxWidth, maxHeight }
 ) {
   const loadedFont = await jimp.loadFont(font);
   const image = await Jimp.create(width, height, 0xffffffff);
 
-  return image.print(loadedFont, 0, 0, options, maxWidth, maxHeight);
+  return image.print(loadedFont, x, y, text, maxWidth, maxHeight);
 }
 
 describe('Write text over image', function() {
@@ -110,13 +108,10 @@ describe('Write text over image', function() {
     const expectedImage = await Jimp.read(
       getTestDir(__dirname) + '/images/left-aligned.png'
     );
-    const textImage = await createTextImage(
-      320,
-      240,
-      Jimp.FONT_SANS_16_BLACK,
-      'This is only a test.',
-      100
-    );
+    const textImage = await createTextImage(320, 240, Jimp.FONT_SANS_16_BLACK, {
+      text: 'This is only a test.',
+      maxWidth: 100
+    });
 
     expectedImage.bitmap.data.should.be.deepEqual(textImage.bitmap.data);
   });
@@ -125,13 +120,10 @@ describe('Write text over image', function() {
     const expectedImage = await Jimp.read(
       getTestDir(__dirname) + '/images/left-aligned.png'
     );
-    const textImage = await createTextImage(
-      320,
-      240,
-      Jimp.FONT_SANS_16_BLACK,
-      { text: 'This is only a test.' },
-      100
-    );
+    const textImage = await createTextImage(320, 240, Jimp.FONT_SANS_16_BLACK, {
+      text: { text: 'This is only a test.' },
+      maxWidth: 100
+    });
 
     expectedImage.bitmap.data.should.be.deepEqual(textImage.bitmap.data);
   });
@@ -140,17 +132,14 @@ describe('Write text over image', function() {
     const expectedImage = await Jimp.read(
       getTestDir(__dirname) + '/images/left-aligned.png'
     );
-    const textImage = await createTextImage(
-      320,
-      240,
-      Jimp.FONT_SANS_16_BLACK,
-      {
+    const textImage = await createTextImage(320, 240, Jimp.FONT_SANS_16_BLACK, {
+      text: {
         text: 'This is only a test.',
 
         alignmentX: Jimp.HORIZONTAL_ALIGN_LEFT
       },
-      100
-    );
+      maxWidth: 100
+    });
 
     expectedImage.bitmap.data.should.be.deepEqual(textImage.bitmap.data);
   });
@@ -159,17 +148,14 @@ describe('Write text over image', function() {
     const expectedImage = await Jimp.read(
       getTestDir(__dirname) + '/images/center-aligned.png'
     );
-    const textImage = await createTextImage(
-      320,
-      240,
-      Jimp.FONT_SANS_16_BLACK,
-      {
+    const textImage = await createTextImage(320, 240, Jimp.FONT_SANS_16_BLACK, {
+      text: {
         text: 'This is only a test.',
 
         alignmentX: Jimp.HORIZONTAL_ALIGN_CENTER
       },
-      100
-    );
+      maxWidth: 100
+    });
 
     expectedImage.bitmap.data.should.be.deepEqual(textImage.bitmap.data);
   });
@@ -178,17 +164,14 @@ describe('Write text over image', function() {
     const expectedImage = await Jimp.read(
       getTestDir(__dirname) + '/images/right-aligned.png'
     );
-    const textImage = await createTextImage(
-      320,
-      240,
-      Jimp.FONT_SANS_16_BLACK,
-      {
+    const textImage = await createTextImage(320, 240, Jimp.FONT_SANS_16_BLACK, {
+      text: {
         text: 'This is only a test.',
 
         alignmentX: Jimp.HORIZONTAL_ALIGN_RIGHT
       },
-      100
-    );
+      maxWidth: 100
+    });
 
     expectedImage.bitmap.data.should.be.deepEqual(textImage.bitmap.data);
   });
@@ -197,18 +180,15 @@ describe('Write text over image', function() {
     const expectedImage = await Jimp.read(
       getTestDir(__dirname) + '/images/middle-aligned.png'
     );
-    const textImage = await createTextImage(
-      320,
-      240,
-      Jimp.FONT_SANS_16_BLACK,
-      {
+    const textImage = await createTextImage(320, 240, Jimp.FONT_SANS_16_BLACK, {
+      text: {
         text: 'This is only a test.',
 
         alignmentY: Jimp.VERTICAL_ALIGN_MIDDLE
       },
-      100,
-      240
-    );
+      maxWidth: 100,
+      maxHeight: 240
+    });
 
     expectedImage.bitmap.data.should.be.deepEqual(textImage.bitmap.data);
   });
@@ -217,18 +197,15 @@ describe('Write text over image', function() {
     const expectedImage = await Jimp.read(
       getTestDir(__dirname) + '/images/bottom-aligned.png'
     );
-    const textImage = await createTextImage(
-      320,
-      240,
-      Jimp.FONT_SANS_16_BLACK,
-      {
+    const textImage = await createTextImage(320, 240, Jimp.FONT_SANS_16_BLACK, {
+      text: {
         text: 'This is only a test.',
 
         alignmentY: Jimp.VERTICAL_ALIGN_BOTTOM
       },
-      100,
-      240
-    );
+      maxWidth: 100,
+      maxHeight: 240
+    });
 
     expectedImage.bitmap.data.should.be.deepEqual(textImage.bitmap.data);
   });
