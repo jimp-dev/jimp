@@ -344,7 +344,6 @@ declare namespace Jimp {
     sepia(cb?: Jimp.ImageCallback): this;
     fade(f: number, cb?: Jimp.ImageCallback): this;
     convolution(kernel: number[][], cb?: Jimp.ImageCallback): this;
-    fisheye(cb?: Jimp.ImageCallback): this;
     convolution<T>(
       kernel: number[][],
       edgeHandling: string,
