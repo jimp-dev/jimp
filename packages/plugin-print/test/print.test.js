@@ -190,6 +190,26 @@ describe('Write text over image', function() {
       maxHeight: 240
     });
 
+    textImage.writeAsync('middle-aligned.png');
+
+    expectedImage.bitmap.data.should.be.deepEqual(textImage.bitmap.data);
+  });
+
+  it('middle-align text when passing object with alignmentY can offset y', async () => {
+    const expectedImage = await Jimp.read(
+      getTestDir(__dirname) + '/images/middle-aligned-y.png'
+    );
+    const textImage = await createTextImage(320, 240, Jimp.FONT_SANS_16_BLACK, {
+      y: 50,
+      text: {
+        text: 'This is only a test.',
+
+        alignmentY: Jimp.VERTICAL_ALIGN_MIDDLE
+      },
+      maxWidth: 100,
+      maxHeight: 240
+    });
+
     expectedImage.bitmap.data.should.be.deepEqual(textImage.bitmap.data);
   });
 
@@ -205,6 +225,24 @@ describe('Write text over image', function() {
       },
       maxWidth: 100,
       maxHeight: 240
+    });
+
+    expectedImage.bitmap.data.should.be.deepEqual(textImage.bitmap.data);
+  });
+
+  it('bottom-align text when passing object with alignmentY offset y', async () => {
+    const expectedImage = await Jimp.read(
+      getTestDir(__dirname) + '/images/bottom-aligned-y.png'
+    );
+    const textImage = await createTextImage(320, 240, Jimp.FONT_SANS_16_BLACK, {
+      y: 100,
+      text: {
+        text: 'This is only a test.',
+
+        alignmentY: Jimp.VERTICAL_ALIGN_BOTTOM
+      },
+      maxWidth: 100,
+      maxHeight: 100
     });
 
     expectedImage.bitmap.data.should.be.deepEqual(textImage.bitmap.data);
