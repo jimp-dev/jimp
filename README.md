@@ -43,6 +43,7 @@ API documentation can be found in the main [jimp package](./packages/jimp)
 ## Extra Plugins
 
 - [circle](./packages/plugin-circle) - Creates a circle out of an image.
+- [shadow](./packages/plugin-circle) - Creates a shadow on an image.
 
 :rocket: If you want to add your plugins to this list make a PR! :rocket:
 
