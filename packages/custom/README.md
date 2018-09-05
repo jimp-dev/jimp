@@ -33,6 +33,23 @@ configure({
 })
 ```
 
+#### Extending Jimp Further
+
+You can use configure to add more types and plugins to a jimp multiple times.
+
+```js
+let jimp = configure({
+  types: [bmp]
+});
+
+jimp = configure(
+  {
+    types: [jpeg]
+  },
+  jimp
+);
+```
+
 ## Type Definition
 
 To define a new Jimp image type write a function the takes the current Jimp configuration. In this function you can extend Jimp's internal data structures.
