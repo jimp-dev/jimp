@@ -68,6 +68,7 @@ export default function pluginCrop(event) {
         const minPixelsPerSide = 1; // to avoid cropping completely the image, resulting in an invalid 0 sized image
 
         let cb; // callback
+        let leaveBorder = 0; // Amount of pixels in border to leave
         let tolerance = 0.0002; // percent of color difference tolerance (default value)
         let cropOnlyFrames = true; // flag to force cropping only if the image has a real "frame"
         // i.e. all 4 sides have some border (default value)
@@ -106,6 +107,10 @@ export default function pluginCrop(event) {
             if (typeof config.cropSymmetric !== 'undefined') {
               ({ cropSymmetric } = config);
             }
+
+            if (typeof config.leaveBorder !== 'undefined') {
+              ({ leaveBorder } = config);
+            }
           }
         }
 
@@ -135,6 +140,7 @@ export default function pluginCrop(event) {
 
             if (this.constructor.colorDiff(rgba1, rgba2) > tolerance) {
               // this pixel is too distant from the first one: abort this side scan
+              northPixelsToCrop -= leaveBorder;
               break north;
             }
           }
@@ -151,6 +157,7 @@ export default function pluginCrop(event) {
 
             if (this.constructor.colorDiff(rgba1, rgba2) > tolerance) {
               // this pixel is too distant from the first one: abort this side scan
+              eastPixelsToCrop -= leaveBorder;
               break east;
             }
           }
@@ -171,6 +178,7 @@ export default function pluginCrop(event) {
 
             if (this.constructor.colorDiff(rgba1, rgba2) > tolerance) {
               // this pixel is too distant from the first one: abort this side scan
+              southPixelsToCrop -= leaveBorder;
               break south;
             }
           }
@@ -191,6 +199,7 @@ export default function pluginCrop(event) {
 
             if (this.constructor.colorDiff(rgba1, rgba2) > tolerance) {
               // this pixel is too distant from the first one: abort this side scan
+              westPixelsToCrop -= leaveBorder;
               break west;
             }
           }

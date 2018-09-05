@@ -432,7 +432,8 @@ declare namespace Jimp {
       options: {
         tolerance?: number;
         cropOnlyFrames?: boolean;
-        cropSymmetric: boolean;
+        cropSymmetric?: boolean;
+        leaveBorder?: number;
       },
       cb?: Jimp.ImageCallback
     ): this;
