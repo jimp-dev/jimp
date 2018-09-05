@@ -71,6 +71,8 @@ export default function pluginCrop(event) {
         let tolerance = 0.0002; // percent of color difference tolerance (default value)
         let cropOnlyFrames = true; // flag to force cropping only if the image has a real "frame"
         // i.e. all 4 sides have some border (default value)
+        let cropSymmetric = false; // flag to force cropping top be symmetric.
+        // i.e. north and south / east and west are cropped by the same value
 
         // parse arguments
         for (let a = 0, len = args.length; a < len; a++) {
@@ -88,6 +90,23 @@ export default function pluginCrop(event) {
             // callback value passed
             cb = args[a];
           }
+
+          if (typeof args[a] === 'object') {
+            // config object passed
+            const config = args[a];
+
+            if (typeof config.tolerance !== 'undefined') {
+              ({ tolerance } = config);
+            }
+
+            if (typeof config.cropOnlyFrames !== 'undefined') {
+              ({ cropOnlyFrames } = config);
+            }
+
+            if (typeof config.cropSymmetric !== 'undefined') {
+              ({ cropSymmetric } = config);
+            }
+          }
         }
 
         /**
@@ -98,7 +117,7 @@ export default function pluginCrop(event) {
          */
 
         // scan each side for same color borders
-        const colorTarget = this.getPixelColor(0, 0); // top left pixel color is the target color
+        let colorTarget = this.getPixelColor(0, 0); // top left pixel color is the target color
         const rgba1 = this.constructor.intToRGBA(colorTarget);
 
         // for north and east sides
@@ -108,6 +127,7 @@ export default function pluginCrop(event) {
         let westPixelsToCrop = 0;
 
         // north side (scan rows from north to south)
+        colorTarget = this.getPixelColor(0, 0);
         north: for (let y = 0; y < h - minPixelsPerSide; y++) {
           for (let x = 0; x < w; x++) {
             const colorXY = this.getPixelColor(x, y);
@@ -123,6 +143,7 @@ export default function pluginCrop(event) {
         }
 
         // east side (scan columns from east to west)
+        colorTarget = this.getPixelColor(w, 0);
         east: for (let x = 0; x < w - minPixelsPerSide; x++) {
           for (let y = 0 + northPixelsToCrop; y < h; y++) {
             const colorXY = this.getPixelColor(x, y);
@@ -138,6 +159,7 @@ export default function pluginCrop(event) {
         }
 
         // south side (scan rows from south to north)
+        colorTarget = this.getPixelColor(0, h);
         south: for (
           let y = h - 1;
           y >= northPixelsToCrop + minPixelsPerSide;
@@ -157,6 +179,7 @@ export default function pluginCrop(event) {
         }
 
         // west side (scan columns from west to east)
+        colorTarget = this.getPixelColor(w, h);
         west: for (
           let x = w - 1;
           x >= 0 + eastPixelsToCrop + minPixelsPerSide;
@@ -175,15 +198,23 @@ export default function pluginCrop(event) {
           westPixelsToCrop++;
         }
 
-        // safety checks
-        const widthOfPixelsToCrop = w - (westPixelsToCrop + eastPixelsToCrop);
-        // widthOfPixelsToCrop >= 0 ? widthOfPixelsToCrop : 0;
-        const heightOfPixelsToCrop =
-          h - (southPixelsToCrop + northPixelsToCrop);
-        // heightOfPixelsToCrop >= 0 ? heightOfPixelsToCrop : 0;
-
         // decide if a crop is needed
         let doCrop = false;
+
+        if (cropSymmetric) {
+          const horizontal = Math.min(eastPixelsToCrop, westPixelsToCrop);
+          const vertical = Math.min(northPixelsToCrop, southPixelsToCrop);
+          westPixelsToCrop = horizontal;
+          eastPixelsToCrop = horizontal;
+          northPixelsToCrop = vertical;
+          southPixelsToCrop = vertical;
+        }
+
+        // safety checks
+        const widthOfRemainingPixels =
+          w - (westPixelsToCrop + eastPixelsToCrop);
+        const heightOfRemainingPixels =
+          h - (southPixelsToCrop + northPixelsToCrop);
 
         if (cropOnlyFrames) {
           // crop image if all sides should be cropped
@@ -206,8 +237,8 @@ export default function pluginCrop(event) {
           this.crop(
             eastPixelsToCrop,
             northPixelsToCrop,
-            widthOfPixelsToCrop,
-            heightOfPixelsToCrop
+            widthOfRemainingPixels,
+            heightOfRemainingPixels
           );
         }
 

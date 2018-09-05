@@ -428,6 +428,14 @@ declare namespace Jimp {
       cropOnlyFrames?: boolean,
       cb?: Jimp.ImageCallback
     ): this;
+    autocrop(
+      options: {
+        tolerance?: number;
+        cropOnlyFrames?: boolean;
+        cropSymmetric: boolean;
+      },
+      cb?: Jimp.ImageCallback
+    ): this;
 
     // Text methods
     print(
