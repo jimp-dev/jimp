@@ -9,7 +9,7 @@
 
 ## Usage
 
-- @param {function(Error, Jimp)} options (optional) radius, x, y
+- @param {function(Error, Jimp)} options (optional) radius
 - @param {function(Error, Jimp)} cb (optional) a callback for when complete
 
 ```js
