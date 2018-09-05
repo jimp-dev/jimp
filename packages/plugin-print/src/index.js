@@ -259,7 +259,11 @@ export default () => ({
       let alignmentX;
       let alignmentY;
 
-      if (typeof text === 'object' && text.text !== null && text.text !== undefined) {
+      if (
+        typeof text === 'object' &&
+        text.text !== null &&
+        text.text !== undefined
+      ) {
         alignmentX = text.alignmentX || this.constructor.HORIZONTAL_ALIGN_LEFT;
         alignmentY = text.alignmentY || this.constructor.VERTICAL_ALIGN_TOP;
         ({ text } = text);
@@ -273,12 +277,12 @@ export default () => ({
         maxHeight !== Infinity &&
         alignmentY === this.constructor.VERTICAL_ALIGN_BOTTOM
       ) {
-        y = maxHeight - measureTextHeight(font, text, maxWidth);
+        y += maxHeight - measureTextHeight(font, text, maxWidth);
       } else if (
         maxHeight !== Infinity &&
         alignmentY === this.constructor.VERTICAL_ALIGN_MIDDLE
       ) {
-        y = maxHeight / 2 - measureTextHeight(font, text, maxWidth) / 2;
+        y += maxHeight / 2 - measureTextHeight(font, text, maxWidth) / 2;
       }
 
       const defaultCharWidth = Object.entries(font.chars)[0][1].xadvance;

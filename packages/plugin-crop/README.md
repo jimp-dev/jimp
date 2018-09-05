@@ -36,6 +36,13 @@ AutoCrop same color borders from this image
 _ @param {number} tolerance (optional): a percent value of tolerance for pixels color difference (default: 0.0002%)
 _ @param {boolean} cropOnlyFrames (optional): flag to crop only real frames: all 4 sides of the image must have some border (default: true)
 
+or
+
+- @param {object} options object
+  - tolerance (optional): a percent value of tolerance for pixels color difference (default: 0.0002%)
+  - cropOnlyFrames (optional): flag to crop only real frames: all 4 sides of the image must have some border (default: true)
+  - cropSymetric (optional): flag to force cropping top be symmetric. north and south / east and west are cropped by the same value
+
 ```js
 import jimp from 'jimp';
 
@@ -43,6 +50,7 @@ async function main() {
   const image = await jimp.read('test/image.png');
 
   image.autocrop();
+  image.autocrop({ cropOnlyFrames: false, cropSymmetric: true });
 }
 
 main();
