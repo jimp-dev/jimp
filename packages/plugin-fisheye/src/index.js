@@ -2,6 +2,7 @@ import { isNodePattern } from '@jimp/utils';
 
 /**
  * Creates a circle out of an image.
+ * @param {object} options (optional) r: radius of effect
  * @param {function(Error, Jimp)} cb (optional) a callback for when complete
  * @returns {Jimp} this for chaining of methods
  */
