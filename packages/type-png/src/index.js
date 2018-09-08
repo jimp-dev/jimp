@@ -30,18 +30,20 @@ export default () => ({
     [MIME_TYPE]: data => {
       const png = new PNG({
         width: data.bitmap.width,
+        height: data.bitmap.height
+      });
+
+      png.data = data.bitmap.data;
+
+      return PNG.sync.write(png, {
+        width: data.bitmap.width,
         height: data.bitmap.height,
-        bitDepth: 8,
         deflateLevel: data._deflateLevel,
         deflateStrategy: data._deflateStrategy,
         filterType: data._filterType,
         colorType: data._rgba ? 6 : 2,
         inputHasAlpha: true
       });
-
-      png.data = data.bitmap.data;
-
-      return PNG.sync.write(png);
     }
   },
 
