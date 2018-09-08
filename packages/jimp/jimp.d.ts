@@ -254,6 +254,7 @@ declare namespace Jimp {
     writeAsync(path: string): Promise<Jimp>;
     deflateLevel(l: number, cb?: Jimp.ImageCallback): this;
     deflateStrategy(s: number, cb?: Jimp.ImageCallback): this;
+    colorType(s: number, cb?: Jimp.ImageCallback): this;
     filterType(f: number, cb?: Jimp.ImageCallback): this;
     rgba(bool: boolean, cb?: Jimp.ImageCallback): this;
     quality(n: number, cb?: Jimp.ImageCallback): this;
