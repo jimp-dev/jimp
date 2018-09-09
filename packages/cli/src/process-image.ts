@@ -5,8 +5,8 @@ import Jimp = require('jimp');
 import { log, greenCheck } from './log';
 
 export async function loadFont(
-  font: string,
-  verbose: boolean
+  font?: string,
+  verbose?: boolean
 ): Promise<Jimp.Font> {
   if (font) {
     log(` 🔤  Loading font: ${font} ...`, verbose);
@@ -70,12 +70,7 @@ export async function processImage({
   runActions(image, loadedFont, { actions, verbose });
 
   if (dist) {
-    image.write(dist, error => {
-      if (error) {
-        throw error;
-      }
-
-      log(` ${greenCheck}️ Image successfully written to: ${dist}`, verbose);
-    });
+    await image.writeAsync(dist);
+    log(` ${greenCheck}️ Image successfully written to: ${dist}`, verbose);
   }
 }
