@@ -25,23 +25,11 @@ const { argv } = yargs
     type: 'boolean',
     describe: 'enable more logging'
   })
-
   .alias('h', 'help');
 
-interface ICliOptions extends yargs.Arguments {
-  src: string;
-  dist: string;
-  verbose: boolean;
-}
+const log = message => argv.verbose && console.log(message);
 
-async function processImage({ src, dist, actions, verbose }: ICliOptions) {
-  const log = message => verbose && console.log(message);
-
-  log(` 📷  Loading ${src} ...`);
-
-  const image = await Jimp.read(src);
-  const greenCheck = chalk.green(`${logSymbols.success} `);
-
+function runActions(image: Jimp, actions: string[]) {
   if (actions) {
     actions.map(action => {
       const [fn, ...args] = /\[(\S+)+\]/.exec(action)[1].split(',');
@@ -62,9 +50,24 @@ async function processImage({ src, dist, actions, verbose }: ICliOptions) {
       image[fn](...typedArgs);
     });
   }
+}
+
+interface ICliOptions extends yargs.Arguments {
+  src: string;
+  dist: string;
+  actions: string[];
+}
+
+async function processImage({ src, dist, actions }: ICliOptions) {
+  log(` 📷  Loading ${src} ...`);
+
+  const image = await Jimp.read(src);
+  const greenCheck = chalk.green(`${logSymbols.success} `);
+
+  runActions(image, actions);
 
   if (dist) {
-    image.write(dist, (error, res) => {
+    image.write(dist, error => {
       if (error) {
         throw error;
       }
