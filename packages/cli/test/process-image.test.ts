@@ -2,29 +2,7 @@ import 'should';
 import * as fs from 'fs';
 
 import makePath from './utils/makePath';
-import { loadFont, processImage } from '../src/process-image';
-
-describe('loadFont', () => {
-  it('do nothing when no font set', async () => {
-    const font = await loadFont();
-    (font === undefined).should.be.exactly(true);
-  });
-
-  it('load font constant', async () => {
-    const font = await loadFont('FONT_SANS_32_WHITE');
-    font.should.not.be.exactly(undefined);
-  });
-
-  it('load font path', async () => {
-    const font = await loadFont(
-      makePath(
-        __dirname,
-        '../../plugin-print/fonts/open-sans/open-sans-8-black/open-sans-8-black.fnt'
-      )
-    );
-    font.should.not.be.exactly(undefined);
-  });
-});
+import { processImage } from '../src/process-image';
 
 describe('processImage', () => {
   it('write files correctly', async () => {

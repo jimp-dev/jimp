@@ -4,7 +4,7 @@ import * as yargs from 'yargs';
 import Jimp = require('jimp');
 
 import { logResult } from './log';
-import { loadFont } from './process-image';
+import { loadFont } from './load-font';
 
 export default function setUpCli(args?: string[], log = logResult) {
   const yargsConfig = yargs(args)
