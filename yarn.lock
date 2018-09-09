@@ -1388,12 +1388,6 @@
   version "10.9.2"
   resolved "https://registry.yarnpkg.com/@types/node/-/node-10.9.2.tgz#f0ab8dced5cd6c56b26765e1c0d9e4fdcc9f2a00"
 
-"@types/should@^13.0.0":
-  version "13.0.0"
-  resolved "https://registry.yarnpkg.com/@types/should/-/should-13.0.0.tgz#96c00117f1896177848fdecfa336313c230c879e"
-  dependencies:
-    should "*"
-
 "@types/yargs@^11.1.1":
   version "11.1.1"
   resolved "https://registry.yarnpkg.com/@types/yargs/-/yargs-11.1.1.tgz#2e724257167fd6b615dbe4e54301e65fe597433f"
@@ -7503,7 +7497,7 @@ should-util@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/should-util/-/should-util-1.0.0.tgz#c98cda374aa6b190df8ba87c9889c2b4db620063"
 
-should@*, should@^13.2.3:
+should@^13.2.3:
   version "13.2.3"
   resolved "https://registry.yarnpkg.com/should/-/should-13.2.3.tgz#96d8e5acf3e97b49d89b51feaa5ae8d07ef58f10"
   dependencies:

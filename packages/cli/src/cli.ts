@@ -1,9 +1,10 @@
 #!/usr/bin/env node
 
 import * as yargs from 'yargs';
+import * as custom from '@jimp/custom';
 import Jimp = require('jimp');
 
-import { logResult } from './log';
+import { logResult, log } from './log';
 import { loadFont } from './load-font';
 
 const omitFunctions = [
@@ -32,7 +33,36 @@ const descriptions = {
     'Measure how tall printing a string will be. args: text, width'
 };
 
+function loadPlugins(plugins: string[], verbose: boolean) {
+  log(` 🔄  Loading custom plugins into Jimp...`, verbose);
+
+  if (!plugins || !plugins.length) {
+    return Jimp;
+  }
+
+  const loadedPlugins = plugins.map(plugin => {
+    try {
+      const result = require(plugin);
+      log(` 🔌  Loaded plugin: ${plugin}`, verbose);
+      return result;
+    } catch (error) {
+      log(`Couldn't load plugin [${plugin}]. Make sure it's installed.`, true);
+    }
+  });
+  return custom({ plugins: loadedPlugins }, Jimp);
+}
+
 export default function setUpCli(args?: string[], log = logResult) {
+  // can't call argv before done setting up
+  const plugins = args
+    .map(
+      (arg, index) =>
+        arg === '--plugins' || arg === '-p' ? args[index + 1] : null
+    )
+    .filter(Boolean);
+  const verbose = !!args.find(arg => arg === '-v' || arg === '--verbose');
+  loadPlugins(plugins, verbose);
+
   const yargsConfig = yargs(args)
     .scriptName('jimp')
     .option('src', {
@@ -46,7 +76,13 @@ export default function setUpCli(args?: string[], log = logResult) {
     .option('actions', {
       alias: 'a',
       type: 'array',
-      describe: 'actions (image manipulation) to run on the input image'
+      describe: 'actions (image manipulation) to run on the input image',
+      choices: [...Object.keys(Jimp.prototype).sort()]
+    })
+    .option('plugins', {
+      alias: 'p',
+      type: 'array',
+      describe: 'Jimp plugins to load.'
     })
     .option('verbose', {
       alias: 'v',
@@ -67,7 +103,7 @@ export default function setUpCli(args?: string[], log = logResult) {
       'Apply image manipulations functions'
     )
     .example(
-      '$0 --loadFont FONT_SANS_8_WHITErint,0,0,Some text] --dest output.jpg',
+      '$0 --loadFont FONT_SANS_8_WHITE --src path/to/image.png -a [print,0,0,Some text] --dest output.jpg',
       'Use fonts'
     )
 

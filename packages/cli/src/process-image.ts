@@ -3,7 +3,6 @@
 import Jimp = require('jimp');
 import { log, greenCheck } from './log';
 import { loadFont } from './load-font';
-import { parse } from 'url';
 
 export interface ICliOptions {
   src?: string;
