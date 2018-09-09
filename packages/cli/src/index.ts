@@ -27,6 +27,10 @@ const yargsConfig = yargs
     type: 'boolean',
     describe: 'enable more logging'
   })
+  .option('loadFont', {
+    type: 'string',
+    describe: 'Path of font to load and be used in text operations'
+  })
   .alias('h', 'help');
 
 const omitFunctions = [
@@ -62,12 +66,16 @@ const { argv } = yargsConfig;
 
 const log = message => argv.verbose && console.log(message);
 
-function runActions(image: Jimp, actions: string[]) {
+function runActions(
+  image: Jimp,
+  actions: string[],
+  { font }: { font: Jimp.Font }
+) {
   if (actions) {
     actions.map(action => {
-      const [fn, ...args] = /\[(\S+)+\]/.exec(action)[1].split(',');
+      const [fn, ...args] = /\[([\S\s]*)\]/.exec(action)[1].split(',');
 
-      const typedArgs = args.map(arg => {
+      const typedArgs: any[] = args.map(arg => {
         if (/^\d+$/.test(arg)) {
           return Number(arg);
         }
@@ -80,6 +88,10 @@ function runActions(image: Jimp, actions: string[]) {
         : '';
       log(`️🖍️  Applying ${fn}${argsString}`);
 
+      if (fn === 'print') {
+        typedArgs.unshift(font);
+      }
+
       image[fn](...typedArgs);
     });
   }
@@ -91,12 +103,22 @@ interface ICliOptions extends yargs.Arguments {
   actions: string[];
 }
 
+async function loadFont(): Promise<Jimp.Font> {
+  if (argv.loadFont) {
+    log(` 🔤  Loading font: ${argv.loadFont} ...`);
+    return await Jimp.loadFont(Jimp[argv.loadFont] || argv.loadFont);
+  }
+
+  return;
+}
+
 async function processImage({ src, dist, actions }: ICliOptions) {
-  log(` 📷  Loading ${src} ...`);
+  log(` 📷  Loading source image: ${src} ...`);
 
   const image = await Jimp.read(src);
+  const font = await loadFont();
 
-  runActions(image, actions);
+  runActions(image, actions, { font });
 
   if (dist) {
     image.write(dist, error => {
