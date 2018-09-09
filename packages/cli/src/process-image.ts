@@ -4,16 +4,23 @@ import * as yargs from 'yargs';
 import Jimp = require('jimp');
 import { log, greenCheck } from './log';
 
-export async function loadFont(font: string): Promise<Jimp.Font> {
+export async function loadFont(
+  font: string,
+  verbose: boolean
+): Promise<Jimp.Font> {
   if (font) {
-    log(` 🔤  Loading font: ${font} ...`);
+    log(` 🔤  Loading font: ${font} ...`, verbose);
     return await Jimp.loadFont(Jimp[font] || font);
   }
 
   return;
 }
 
-function runActions(image: Jimp, actions: string[], font: Jimp.Font) {
+function runActions(
+  image: Jimp,
+  loadFont: Jimp.Font,
+  { actions, verbose }: ICliOptions
+) {
   if (actions) {
     actions.map(action => {
       const [fn, ...args] = /\[([\S\s]*)\]/.exec(action)[1].split(',');
@@ -29,10 +36,10 @@ function runActions(image: Jimp, actions: string[], font: Jimp.Font) {
       const argsString = typedArgs.length
         ? ` with args: [ ${typedArgs.join(', ')} ]`
         : '';
-      log(`️🖍️  Applying ${fn}${argsString}`);
+      log(`️🖍️  Applying ${fn}${argsString}`, verbose);
 
       if (fn === 'print') {
-        typedArgs.unshift(font);
+        typedArgs.unshift(loadFont);
       }
 
       image[fn](...typedArgs);
@@ -40,10 +47,11 @@ function runActions(image: Jimp, actions: string[], font: Jimp.Font) {
   }
 }
 
-export interface ICliOptions extends yargs.Arguments {
-  src: string;
-  dist: string;
-  actions: string[];
+export interface ICliOptions {
+  src?: string;
+  dist?: string;
+  actions?: string[];
+  verbose?: boolean;
   loadFont?: string;
 }
 
@@ -51,14 +59,15 @@ export async function processImage({
   src,
   dist,
   actions,
+  verbose,
   loadFont: font
 }: ICliOptions) {
-  log(` 📷  Loading source image: ${src} ...`);
+  log(` 📷  Loading source image: ${src} ...`, verbose);
 
   const image = await Jimp.read(src);
-  const loadedFont = await loadFont(font);
+  const loadedFont = await loadFont(font, verbose);
 
-  runActions(image, actions, loadedFont);
+  runActions(image, loadedFont, { actions, verbose });
 
   if (dist) {
     image.write(dist, error => {
@@ -66,7 +75,7 @@ export async function processImage({
         throw error;
       }
 
-      log(` ${greenCheck}️ Image successfully written to: ${dist}`);
+      log(` ${greenCheck}️ Image successfully written to: ${dist}`, verbose);
     });
   }
 }

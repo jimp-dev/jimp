@@ -120,11 +120,11 @@ export default function setUpCli(args?: string[], log = logResult) {
         x,
         descriptions[x] || `Jimp utility function ${x}`,
         {},
-        async ({ _, font }) => {
+        async ({ _, font, verbose }) => {
           const args: any[] = _.slice(1);
 
           if (x === 'measureText' || x === 'measureTextHeight') {
-            const loadedFont = await loadFont(font);
+            const loadedFont = await loadFont(font, verbose);
             args.unshift(loadedFont);
           }
 
