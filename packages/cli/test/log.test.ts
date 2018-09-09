@@ -1,4 +1,4 @@
-import * as should from 'should/as-function';
+import 'should';
 import { log, logResult } from '../src/log';
 import { mockConsole } from './utils/mock-console';
 
@@ -8,7 +8,7 @@ describe('log', () => {
     const testString = 'Some string';
 
     log(testString, true);
-    should(calls[0]).be.deepEqual([testString]);
+    calls[0].should.be.deepEqual([testString]);
   });
 
   it("shouldn't print when verbose isn't set", () => {
@@ -17,7 +17,7 @@ describe('log', () => {
 
     log(testString);
     reset();
-    should(calls.length).be.exactly(0);
+    calls.length.should.be.exactly(0);
   });
 });
 
@@ -26,7 +26,7 @@ describe('logResult', () => {
     const { calls } = mockConsole();
 
     logResult('function', 100);
-    should(calls[0][0].indexOf('function') > -1).be.exactly(true);
-    should(calls[0][0].indexOf('100') > -1).be.exactly(true);
+    (calls[0][0].indexOf('function') > -1).should.be.exactly(true);
+    (calls[0][0].indexOf('100') > -1).should.be.exactly(true);
   });
 });

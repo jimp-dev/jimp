@@ -1,5 +1,5 @@
+import 'should';
 import * as fs from 'fs';
-import * as should from 'should/as-function';
 
 import makePath from './utils/makePath';
 import { loadFont, processImage } from '../src/process-image';
@@ -7,12 +7,12 @@ import { loadFont, processImage } from '../src/process-image';
 describe('loadFont', () => {
   it('do nothing when no font set', async () => {
     const font = await loadFont();
-    should(font).be.exactly(undefined);
+    (font === undefined).should.be.exactly(true);
   });
 
   it('load font constant', async () => {
     const font = await loadFont('FONT_SANS_32_WHITE');
-    should(font).not.be.exactly(undefined);
+    font.should.not.be.exactly(undefined);
   });
 
   it('load font path', async () => {
@@ -22,7 +22,7 @@ describe('loadFont', () => {
         '../../plugin-print/fonts/open-sans/open-sans-8-black/open-sans-8-black.fnt'
       )
     );
-    should(font).not.be.exactly(undefined);
+    font.should.not.be.exactly(undefined);
   });
 });
 
@@ -30,13 +30,13 @@ describe('processImage', () => {
   it('write files correctly', async () => {
     const output = 'write.png';
     await processImage({ src: makePath(__dirname, './images/tiny-qr.png') });
-    should(fs.existsSync(output)).be.exactly(false);
+    fs.existsSync(output).should.be.exactly(false);
 
     await processImage({
       src: makePath(__dirname, './images/tiny-qr.png'),
       dist: output
     });
-    should(fs.existsSync(output)).be.exactly(true);
+    fs.existsSync(output).should.be.exactly(true);
     fs.unlinkSync(output);
   });
 
@@ -49,7 +49,7 @@ describe('processImage', () => {
       actions: ['[resize,20,20]']
     });
 
-    should(fs.readFileSync(output)).be.deepEqual(
+    fs.readFileSync(output).should.be.deepEqual(
       fs.readFileSync(makePath(__dirname, `./images/${output}`))
     );
     fs.unlinkSync(output);
@@ -64,7 +64,7 @@ describe('processImage', () => {
       actions: ['greyscale']
     });
 
-    should(fs.readFileSync(output)).be.deepEqual(
+    fs.readFileSync(output).should.be.deepEqual(
       fs.readFileSync(makePath(__dirname, `./images/${output}`))
     );
     fs.unlinkSync(output);
@@ -80,7 +80,7 @@ describe('processImage', () => {
       actions: ['[print,0,0,This is a test string!,50]']
     });
 
-    should(fs.readFileSync(output)).be.deepEqual(
+    fs.readFileSync(output).should.be.deepEqual(
       fs.readFileSync(makePath(__dirname, `./images/${output}`))
     );
     fs.unlinkSync(output);

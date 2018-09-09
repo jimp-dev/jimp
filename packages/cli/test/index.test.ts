@@ -1,7 +1,7 @@
+import 'should';
 import { describe, it } from 'mocha';
 
 import * as fs from 'fs';
-import * as should from 'should/as-function';
 import { mockConsole } from './utils/mock-console';
 import makePath from './utils/makePath';
 import { runCLI } from '../src/index';
@@ -24,7 +24,7 @@ describe('index', () => {
     );
 
     reset();
-    should(calls.length).be.exactly(0);
+    calls.length.should.be.exactly(0);
     fs.unlinkSync(output);
   });
 
@@ -41,7 +41,7 @@ describe('index', () => {
     );
 
     reset();
-    should(calls.length).be.exactly(2);
+    calls.length.should.be.exactly(2);
     fs.unlinkSync(output);
   });
 });

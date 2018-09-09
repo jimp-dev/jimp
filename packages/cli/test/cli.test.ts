@@ -1,7 +1,6 @@
+import 'should';
 import * as fs from 'fs';
 import { describe, it } from 'mocha';
-
-import * as should from 'should/as-function';
 
 import makePath from './utils/makePath';
 import setUpCli from '../src/cli';
@@ -14,8 +13,8 @@ describe('CLI', function() {
   describe('diff helper', () => {
     it('diff helper', done => {
       setUpCli(['diff', testImage1, testImage2], (output, result) => {
-        should(output).be.exactly('diff');
-        should(result).be.exactly(0.9747570461662795);
+        output.should.be.exactly('diff');
+        result.should.be.exactly(0.9747570461662795);
         done();
       }).argv;
     });
@@ -24,7 +23,7 @@ describe('CLI', function() {
       setUpCli(['diff', testImage1, testImage2, '-o'], () => {}).argv;
 
       setTimeout(() => {
-        should(fs.existsSync('diff.png')).be.exactly(true);
+        fs.existsSync('diff.png').should.be.exactly(true);
         fs.unlinkSync('diff.png');
         done();
       }, 1000);
@@ -35,7 +34,7 @@ describe('CLI', function() {
         .argv;
 
       setTimeout(() => {
-        should(fs.existsSync('custom.png')).be.exactly(true);
+        fs.existsSync('custom.png').should.be.exactly(true);
         fs.unlinkSync('custom.png');
         done();
       }, 2000);
@@ -45,8 +44,8 @@ describe('CLI', function() {
   describe('distance helper', () => {
     it('calculates distance', done => {
       setUpCli(['distance', testImage1, testImage2], (output, result) => {
-        should(output).be.exactly('distance');
-        should(result).be.exactly(0.125);
+        output.should.be.exactly('distance');
+        result.should.be.exactly(0.125);
         done();
       }).argv;
     });
@@ -54,8 +53,8 @@ describe('CLI', function() {
 
   it('loads other functions', done => {
     setUpCli(['rgbaToInt', '1', '2', '3', '4'], (output, result) => {
-      should(output).be.exactly('rgbaToInt');
-      should(result).be.exactly(16909060);
+      output.should.be.exactly('rgbaToInt');
+      result.should.be.exactly(16909060);
       done();
     }).argv;
   });
@@ -64,8 +63,8 @@ describe('CLI', function() {
     setUpCli(
       ['--font', 'FONT_SANS_32_WHITE', 'measureText', 'some string'],
       (output, result) => {
-        should(output).be.exactly('measureText');
-        should(result).be.exactly(182);
+        output.should.be.exactly('measureText');
+        result.should.be.exactly(182);
         done();
       }
     ).argv;
