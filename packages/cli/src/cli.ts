@@ -33,35 +33,50 @@ const descriptions = {
     'Measure how tall printing a string will be. args: text, width'
 };
 
-function loadPlugins(plugins: string[], verbose: boolean) {
-  log(` 🔄  Loading custom plugins into Jimp...`, verbose);
-
-  if (!plugins || !plugins.length) {
-    return Jimp;
-  }
-
-  const loadedPlugins = plugins.map(plugin => {
+function load(type: string, toLoad: string[], verbose: boolean) {
+  return toLoad.map(entry => {
     try {
-      const result = require(plugin);
-      log(` 🔌  Loaded plugin: ${plugin}`, verbose);
+      const result = require(entry);
+      log(` 🔌  Loaded ${type}: ${entry}`, verbose);
       return result;
     } catch (error) {
-      log(`Couldn't load plugin [${plugin}]. Make sure it's installed.`, true);
+      log(`Couldn't load ${type} [${entry}]. Make sure it's installed.`, true);
     }
   });
-  return custom({ plugins: loadedPlugins }, Jimp);
+}
+
+function loadConfiguration(
+  plugins: string[],
+  types: string[],
+  verbose: boolean
+) {
+  if (!plugins.length && !types.length) {
+    return;
+  }
+
+  log(` 🔄  Loading custom types/plugins into Jimp...`, verbose);
+
+  const loadedPlugins = load('plugin', plugins, verbose);
+  const loadedTypes = load('type', types, verbose);
+
+  custom({ types: loadedTypes, plugins: loadedPlugins }, Jimp);
+}
+
+function getArgs(args: string[], variations: string[]) {
+  return args
+    .map(
+      (arg, index) => (variations.indexOf(arg) > -1 ? args[index + 1] : null)
+    )
+    .filter(Boolean);
 }
 
 export default function setUpCli(args?: string[], log = logResult) {
   // can't call argv before done setting up
-  const plugins = args
-    .map(
-      (arg, index) =>
-        arg === '--plugins' || arg === '-p' ? args[index + 1] : null
-    )
-    .filter(Boolean);
   const verbose = !!args.find(arg => arg === '-v' || arg === '--verbose');
-  loadPlugins(plugins, verbose);
+  const plugins = getArgs(args, ['--plugins', '-p']);
+  const types = getArgs(args, ['--types', '-t']);
+
+  loadConfiguration(plugins || [], types || [], verbose);
 
   const yargsConfig = yargs(args)
     .scriptName('jimp')
@@ -83,6 +98,11 @@ export default function setUpCli(args?: string[], log = logResult) {
       alias: 'p',
       type: 'array',
       describe: 'Jimp plugins to load.'
+    })
+    .option('types', {
+      alias: 't',
+      type: 'array',
+      describe: 'Jimp types to load.'
     })
     .option('verbose', {
       alias: 'v',
