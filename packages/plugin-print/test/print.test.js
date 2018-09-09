@@ -1,5 +1,6 @@
 /* eslint key-spacing: ["error", { "align": "value" }] */
 
+import fs from 'fs';
 import { Jimp, getTestDir, hasOwnProp } from '@jimp/test-utils';
 import configure from '@jimp/custom';
 import crop from '@jimp/plugin-crop';
@@ -196,6 +197,8 @@ describe('Write text over image', function() {
     textImage.writeAsync('middle-aligned.png');
 
     expectedImage.bitmap.data.should.be.deepEqual(textImage.bitmap.data);
+
+    fs.unlinkSync('middle-aligned.png');
   });
 
   it('middle-align text when passing object with alignmentY can offset y', async () => {
