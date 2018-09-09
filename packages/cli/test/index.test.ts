@@ -44,4 +44,43 @@ describe('index', () => {
     calls.length.should.be.exactly(2);
     fs.unlinkSync(output);
   });
+
+  describe('plugins', () => {
+    it('errors if plugin not found', async () => {
+      const { reset } = mockConsole(Infinity);
+
+      try {
+        await run(
+          '--src',
+          makePath(__dirname, './images/tiny-qr.png'),
+          '-p',
+          '@jimp/plugin-non-existant'
+        );
+        reset();
+      } catch (error) {
+        reset();
+        error.should.be.ok();
+      }
+    });
+
+    it('loads plugins', async () => {
+      const { calls, reset } = mockConsole(Infinity);
+      const output = 'plugins-on.png';
+
+      await run(
+        '--src',
+        makePath(__dirname, './images/tiny-qr.png'),
+        '--dist',
+        output,
+        '-v',
+        '-p',
+        '@jimp/plugin-circle'
+      );
+
+      reset();
+      console.log(calls);
+      calls.length.should.be.exactly(4);
+      fs.unlinkSync(output);
+    });
+  });
 });

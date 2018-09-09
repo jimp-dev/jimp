@@ -76,7 +76,7 @@ export default function setUpCli(args?: string[], log = logResult) {
   const plugins = getArgs(args, ['--plugins', '-p']);
   const types = getArgs(args, ['--types', '-t']);
 
-  loadConfiguration(plugins || [], types || [], verbose);
+  loadConfiguration(plugins, types, verbose);
 
   const yargsConfig = yargs(args)
     .scriptName('jimp')
