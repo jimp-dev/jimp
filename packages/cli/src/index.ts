@@ -7,6 +7,8 @@ import chalk from 'chalk';
 import Jimp = require('jimp');
 
 const greenCheck = chalk.green(`${logSymbols.success} `);
+const log = (message, verbose = argv && argv.verbose) =>
+  verbose && console.log(message);
 
 const yargsConfig = yargs
   .option('src', {
@@ -28,19 +30,20 @@ const yargsConfig = yargs
     describe: 'enable more logging'
   })
   .option('loadFont', {
+    alias: 'f',
     type: 'string',
     describe: 'Path of font to load and be used in text operations'
   })
+  .alias('font', 'loadFont')
   .alias('h', 'help');
 
 const omitFunctions = [
   'read',
   'create',
   'appendConstructorOption',
+  'distance', // need to make sure it works
   'diff', // need to make sure it works
-  'measureText', // figure out font loading
-  'measureTextHeight', // figure out font loading
-  'loadFont' // figure out font loading
+  'loadFont'
 ];
 
 Object.keys(Jimp).map(x => {
@@ -50,27 +53,42 @@ Object.keys(Jimp).map(x => {
 
   const utilityFunction = Jimp[x];
   if (typeof utilityFunction === 'function') {
-    yargsConfig.command(x, `Jimp utility function ${x}`, {}, ({ _ }) => {
-      const result = utilityFunction(..._.slice(1));
+    yargsConfig.command(
+      x,
+      `Jimp utility function ${x}`,
+      {},
+      async ({ _, font }) => {
+        const args: any[] = _.slice(1);
 
-      if (result !== undefined) {
-        console.log(
-          `${greenCheck}  Result of running '${x}': ${JSON.stringify(result)}`
-        );
+        if (x === 'measureText' || x === 'measureTextHeight') {
+          const loadedFont = await loadFont(font);
+          args.unshift(loadedFont);
+        }
+
+        const result = utilityFunction(...args);
+
+        if (result !== undefined) {
+          console.log(
+            `${greenCheck}  Result of running '${x}': ${JSON.stringify(result)}`
+          );
+        }
       }
-    });
+    );
   }
 });
 
 const { argv } = yargsConfig;
 
-const log = message => argv.verbose && console.log(message);
+async function loadFont(font: string): Promise<Jimp.Font> {
+  if (font) {
+    log(` 🔤  Loading font: ${font} ...`);
+    return await Jimp.loadFont(Jimp[font] || font);
+  }
 
-function runActions(
-  image: Jimp,
-  actions: string[],
-  { font }: { font: Jimp.Font }
-) {
+  return;
+}
+
+function runActions(image: Jimp, actions: string[], font: Jimp.Font) {
   if (actions) {
     actions.map(action => {
       const [fn, ...args] = /\[([\S\s]*)\]/.exec(action)[1].split(',');
@@ -101,24 +119,21 @@ interface ICliOptions extends yargs.Arguments {
   src: string;
   dist: string;
   actions: string[];
+  loadFont?: string;
 }
 
-async function loadFont(): Promise<Jimp.Font> {
-  if (argv.loadFont) {
-    log(` 🔤  Loading font: ${argv.loadFont} ...`);
-    return await Jimp.loadFont(Jimp[argv.loadFont] || argv.loadFont);
-  }
-
-  return;
-}
-
-async function processImage({ src, dist, actions }: ICliOptions) {
+async function processImage({
+  src,
+  dist,
+  actions,
+  loadFont: font
+}: ICliOptions) {
   log(` 📷  Loading source image: ${src} ...`);
 
   const image = await Jimp.read(src);
-  const font = await loadFont();
+  const loadedFont = await loadFont(font);
 
-  runActions(image, actions, { font });
+  runActions(image, actions, loadedFont);
 
   if (dist) {
     image.write(dist, error => {
