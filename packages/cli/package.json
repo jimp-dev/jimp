@@ -18,7 +18,6 @@
     "chalk": "^2.4.1",
     "jimp": "^0.4.0",
     "log-symbols": "^2.2.0",
-    "log-update": "^2.3.0",
     "yargs": "^12.0.2"
   },
   "publishConfig": {
