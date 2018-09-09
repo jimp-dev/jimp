@@ -36,7 +36,7 @@
       ".tsx"
     ],
     "include": [
-      "src/"
+      "src/*.ts"
     ],
     "reporter": [
       "html",
