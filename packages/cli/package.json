@@ -1,0 +1,29 @@
+{
+  "name": "@jimp/cli",
+  "version": "0.4.0",
+  "description": "jimp library as a cli",
+  "main": "dist/index.js",
+  "module": "es/index.js",
+  "scripts": {
+    "build": "tsc",
+    "build:debug": "npm run build -- --sourceMap",
+    "build:watch": "npm run build -- --watch --sourceMap"
+  },
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "chalk": "^2.4.1",
+    "jimp": "^0.4.0",
+    "log-symbols": "^2.2.0",
+    "log-update": "^2.3.0",
+    "yargs": "^12.0.2"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "devDependencies": {
+    "@types/log-symbols": "^2.0.0",
+    "@types/yargs": "^11.1.1",
+    "typescript": "^3.0.3"
+  }
+}
