@@ -58,6 +58,19 @@ export default function setUpCli(args?: string[], log = logResult) {
       type: 'string',
       describe: 'Path of font to load and be used in text operations'
     })
+    .example(
+      '$0 --src path/to/image.png --dest output.jpg',
+      'Convert images from one type to another'
+    )
+    .example(
+      '$0 --src path/to/image.png -a greyscale -a [resize,150,-1] --dest output.jpg',
+      'Apply image manipulations functions'
+    )
+    .example(
+      '$0 --loadFont FONT_SANS_8_WHITErint,0,0,Some text] --dest output.jpg',
+      'Use fonts'
+    )
+
     .alias('font', 'loadFont')
     .alias('h', 'help')
     .command({
