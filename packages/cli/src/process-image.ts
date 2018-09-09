@@ -3,6 +3,15 @@
 import Jimp = require('jimp');
 import { log, greenCheck } from './log';
 import { loadFont } from './load-font';
+import { parse } from 'url';
+
+export interface ICliOptions {
+  src?: string;
+  dist?: string;
+  actions?: string[];
+  verbose?: boolean;
+  loadFont?: string;
+}
 
 function runActions(
   image: Jimp,
@@ -17,6 +26,20 @@ function runActions(
       const typedArgs: any[] = args.map(arg => {
         if (/^\d+$/.test(arg)) {
           return Number(arg);
+        }
+
+        if (arg === 'true') {
+          return true;
+        }
+
+        if (arg === 'false') {
+          return false;
+        }
+
+        if (arg.indexOf('{') > -1 || arg.indexOf('[') > -1) {
+          try {
+            return JSON.parse(arg);
+          } catch (error) {}
         }
 
         return arg;
@@ -34,14 +57,6 @@ function runActions(
       image[fn](...typedArgs);
     });
   }
-}
-
-export interface ICliOptions {
-  src?: string;
-  dist?: string;
-  actions?: string[];
-  verbose?: boolean;
-  loadFont?: string;
 }
 
 export async function processImage({

@@ -63,4 +63,35 @@ describe('processImage', () => {
     );
     fs.unlinkSync(output);
   });
+
+  it('runs print with object', async () => {
+    const output = 'action-print.png';
+
+    await processImage({
+      src: makePath(__dirname, './images/tiny-qr.png'),
+      loadFont: 'FONT_SANS_8_WHITE',
+      dist: output,
+      actions: ['[print,0,0,{"text":"This is a test string!"},50]']
+    });
+
+    fs.readFileSync(output).should.be.deepEqual(
+      fs.readFileSync(makePath(__dirname, `./images/${output}`))
+    );
+    fs.unlinkSync(output);
+  });
+
+  it('transforms boolean args', async () => {
+    const output = 'action-boolean.png';
+
+    await processImage({
+      src: makePath(__dirname, './images/tiny-qr.png'),
+      dist: output,
+      actions: ['[flip,true,false]']
+    });
+
+    fs.readFileSync(output).should.be.deepEqual(
+      fs.readFileSync(makePath(__dirname, `./images/${output}`))
+    );
+    fs.unlinkSync(output);
+  });
 });
