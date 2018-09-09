@@ -5,6 +5,8 @@
   "main": "dist/index.js",
   "module": "es/index.js",
   "scripts": {
+    "test": "mocha --require ts-node/register test/*.test.ts",
+    "test:coverage": "nyc npm run test -- --require source-map-support/register --recursive",
     "build": "tsc",
     "build:debug": "npm run build -- --sourceMap",
     "build:watch": "npm run build -- --watch --sourceMap"
@@ -23,7 +25,22 @@
   },
   "devDependencies": {
     "@types/log-symbols": "^2.0.0",
+    "@types/mocha": "^5.2.5",
     "@types/yargs": "^11.1.1",
+    "ts-node": "^7.0.1",
     "typescript": "^3.0.3"
+  },
+  "nyc": {
+    "extension": [
+      ".ts",
+      ".tsx"
+    ],
+    "include": [
+      "src/"
+    ],
+    "reporter": [
+      "html",
+      "text"
+    ]
   }
 }

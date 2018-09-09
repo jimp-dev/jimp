@@ -88,7 +88,8 @@
     ],
     "ignores": [
       "omggif.js",
-      "**/*.d.ts"
+      "**/*.d.ts",
+      "*.ts"
     ],
     "rules": {
       "capitalized-comments": 0,
