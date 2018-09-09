@@ -15,6 +15,11 @@ const { argv } = yargs
     alias: 'd',
     describe: 'dist file to output from jimp. (PNG, JPEG, TIFF, or BMP)'
   })
+  .option('actions', {
+    alias: 'a',
+    type: 'array',
+    describe: 'actions (image manipulation) to run on the input image'
+  })
   .alias('h', 'help');
 
 interface ICliOptions extends yargs.Arguments {
@@ -22,11 +27,32 @@ interface ICliOptions extends yargs.Arguments {
   dist: string;
 }
 
-async function processImage({ src, dist }: ICliOptions) {
-  log(`📷   Loading ${src} ...`);
+async function processImage({ src, dist, actions }: ICliOptions) {
+  console.log(` 📷  Loading ${src} ...`);
 
   const image = await Jimp.read(src);
   const greenCheck = chalk.green(`${logSymbols.success} `);
+
+  if (actions) {
+    actions.map(action => {
+      const [fn, ...args] = /\[(\S+)+\]/.exec(action)[1].split(',');
+
+      const typedArgs = args.map(arg => {
+        if (/^\d+$/.test(arg)) {
+          return Number(arg);
+        }
+
+        return arg;
+      });
+
+      const argsString = typedArgs.length
+        ? ` with args: [ ${typedArgs.join(', ')} ]`
+        : '';
+      console.log(`️🖍️  Applying ${fn}${argsString}`);
+
+      image[fn](...typedArgs);
+    });
+  }
 
   if (dist) {
     image.write(dist, (error, res) => {
@@ -34,11 +60,12 @@ async function processImage({ src, dist }: ICliOptions) {
         throw error;
       }
 
-      log(`${greenCheck}️ Image successfully written to: ${dist}`);
+      console.log(` ${greenCheck}️ Image successfully written to: ${dist}`);
     });
   }
 }
 
 if (argv.src) {
+  console.log(argv);
   processImage(argv as ICliOptions);
 }
