@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import setUpCli from './cli';
-import { ICliOptions, loadFont, processImage } from './process-image';
+import { ICliOptions, processImage } from './process-image';
 
 export async function runCLI() {
   const { argv } = setUpCli(process.argv.slice(2));

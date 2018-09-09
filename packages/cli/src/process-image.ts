@@ -1,6 +1,5 @@
 #!/usr/bin/env node
 
-import * as yargs from 'yargs';
 import Jimp = require('jimp');
 import { log, greenCheck } from './log';
 
