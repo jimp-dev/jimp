@@ -21,6 +21,10 @@ Sets the deflate strategy used when saving as PNG format (default is 3)
 
 Sets the filter type used when saving as PNG format (default is automatic filters)
 
+### Jimp.colorType
+
+Sets the color type used when saving as PNG format (one of 0, 2, 4, 6)
+
 ### Filter Types
 
 ```js
