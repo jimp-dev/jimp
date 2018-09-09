@@ -1,7 +1,7 @@
 {
   "name": "@jimp/cli",
   "version": "0.4.0",
-  "description": "jimp library as a cli",
+  "description": "jimp on the cli",
   "main": "dist/index.js",
   "module": "es/index.js",
   "scripts": {

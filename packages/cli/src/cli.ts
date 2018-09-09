@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import * as yargs from 'yargs';
-import * as custom from '@jimp/custom';
+import custom from '@jimp/custom';
 import Jimp = require('jimp');
 
 import { logResult, log } from './log';
@@ -126,7 +126,10 @@ export default function setUpCli(args?: string[], log = logResult) {
       '$0 --loadFont FONT_SANS_8_WHITE --src path/to/image.png -a [print,0,0,Some text] --dest output.jpg',
       'Use fonts'
     )
-
+    .example(
+      '$0 --src path/to/image.png --plugins @jimp/plugin-circle -a circle --dest output.jpg',
+      'Use plugins'
+    )
     .alias('font', 'loadFont')
     .alias('h', 'help')
     .command({
