@@ -78,7 +78,6 @@ describe('index', () => {
       );
 
       reset();
-      console.log(calls);
       calls.length.should.be.exactly(4);
       fs.unlinkSync(output);
     });
