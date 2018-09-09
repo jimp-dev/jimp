@@ -188,7 +188,7 @@ export default function setUpCli(args?: string[], log = logResult) {
     if (typeof utilityFunction === 'function') {
       yargsConfig.command(
         x,
-        descriptions[x] || `Jimp utility function ${x}`,
+        descriptions[x],
         {},
         async ({ _, font, verbose }) => {
           const args: any[] = _.slice(1);
