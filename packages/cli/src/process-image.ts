@@ -18,12 +18,13 @@ export async function loadFont(
 
 function runActions(
   image: Jimp,
-  loadFont: Jimp.Font,
+  loadedFont: Jimp.Font,
   { actions, verbose }: ICliOptions
 ) {
   if (actions) {
     actions.map(action => {
-      const [fn, ...args] = /\[([\S\s]*)\]/.exec(action)[1].split(',');
+      const hasArgs = /\[([\S\s]*)\]/.exec(action);
+      const [fn, ...args] = hasArgs ? hasArgs[1].split(',') : [action];
 
       const typedArgs: any[] = args.map(arg => {
         if (/^\d+$/.test(arg)) {
@@ -39,7 +40,7 @@ function runActions(
       log(`️🖍️  Applying ${fn}${argsString}`, verbose);
 
       if (fn === 'print') {
-        typedArgs.unshift(loadFont);
+        typedArgs.unshift(loadedFont);
       }
 
       image[fn](...typedArgs);

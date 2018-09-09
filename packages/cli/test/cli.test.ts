@@ -1,15 +1,13 @@
 import * as fs from 'fs';
-import * as path from 'path';
 import { describe, it } from 'mocha';
 
 import * as should from 'should/as-function';
 
+import makePath from './utils/makePath';
 import setUpCli from '../src/cli';
 
-const testImage1 = path.resolve(path.join(__dirname, './images/qr.jpg'));
-const testImage2 = path.resolve(
-  path.join(__dirname, './images/qr-convoluted.png')
-);
+const testImage1 = makePath(__dirname, './images/qr.jpg');
+const testImage2 = makePath(__dirname, './images/qr-convoluted.png');
 
 describe('CLI', function() {
   this.timeout(20 * 1000);
