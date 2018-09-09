@@ -6,6 +6,32 @@ import Jimp = require('jimp');
 import { logResult } from './log';
 import { loadFont } from './load-font';
 
+const omitFunctions = [
+  'read',
+  'create',
+  'appendConstructorOption',
+  'distance', // configured above
+  'diff', // configured above
+  'loadFont' // loaded as flag
+];
+
+const descriptions = {
+  rgbaToInt:
+    'A static helper method that converts RGBA values to a single integer value. args: r, g, b, a (0 - 255)',
+  intToRGBA:
+    'A static helper method that converts RGBA values to a single integer value. args: num (eg 0xFF0000FF)',
+  cssColorToHex:
+    ' Converts a css color (Hex, 8-digit (RGBA) Hex, RGB, RGBA, HSL, HSLA, HSV, HSVA, Named) to a hex number',
+  limit255: 'Limits a number to between 0 or 255. args: num',
+  compareHashes:
+    ' Calculates the hamming distance of two images based on their perceptual hash. args: hash1, hash2',
+  colorDiff:
+    'Compute color difference. args: color1, color2 ({r:val, g:val, b:val, a:val})',
+  measureText: 'Measure how wide printing a string will be. args: text',
+  measureTextHeight:
+    'Measure how tall printing a string will be. args: text, width'
+};
+
 export default function setUpCli(args?: string[], log = logResult) {
   const yargsConfig = yargs(args)
     .scriptName('jimp')
@@ -83,38 +109,13 @@ export default function setUpCli(args?: string[], log = logResult) {
       }
     });
 
-  const omitFunctions = [
-    'read',
-    'create',
-    'appendConstructorOption',
-    'distance', // configured above
-    'diff', // configured above
-    'loadFont' // loaded as flag
-  ];
-
-  const descriptions = {
-    rgbaToInt:
-      'A static helper method that converts RGBA values to a single integer value. args: r, g, b, a (0 - 255)',
-    intToRGBA:
-      'A static helper method that converts RGBA values to a single integer value. args: num (eg 0xFF0000FF)',
-    cssColorToHex:
-      ' Converts a css color (Hex, 8-digit (RGBA) Hex, RGB, RGBA, HSL, HSLA, HSV, HSVA, Named) to a hex number',
-    limit255: 'Limits a number to between 0 or 255. args: num',
-    compareHashes:
-      ' Calculates the hamming distance of two images based on their perceptual hash. args: hash1, hash2',
-    colorDiff:
-      'Compute color difference. args: color1, color2 ({r:val, g:val, b:val, a:val})',
-    measureText: 'Measure how wide printing a string will be. args: text',
-    measureTextHeight:
-      'Measure how tall printing a string will be. args: text, width'
-  };
-
   Object.keys(Jimp).map(x => {
     if (omitFunctions.indexOf(x) > -1) {
       return;
     }
 
     const utilityFunction = Jimp[x];
+
     if (typeof utilityFunction === 'function') {
       yargsConfig.command(
         x,
