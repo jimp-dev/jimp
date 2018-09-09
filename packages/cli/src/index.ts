@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import * as yargs from 'yargs';
-import * as log from 'log-update';
+// import * as log from 'log-update';
 import * as logSymbols from 'log-symbols';
 import chalk from 'chalk';
 import Jimp = require('jimp');
@@ -20,15 +20,24 @@ const { argv } = yargs
     type: 'array',
     describe: 'actions (image manipulation) to run on the input image'
   })
+  .option('verbose', {
+    alias: 'v',
+    type: 'boolean',
+    describe: 'enable more logging'
+  })
+
   .alias('h', 'help');
 
 interface ICliOptions extends yargs.Arguments {
   src: string;
   dist: string;
+  verbose: boolean;
 }
 
-async function processImage({ src, dist, actions }: ICliOptions) {
-  console.log(` 📷  Loading ${src} ...`);
+async function processImage({ src, dist, actions, verbose }: ICliOptions) {
+  const log = message => verbose && console.log(message);
+
+  log(` 📷  Loading ${src} ...`);
 
   const image = await Jimp.read(src);
   const greenCheck = chalk.green(`${logSymbols.success} `);
@@ -48,7 +57,7 @@ async function processImage({ src, dist, actions }: ICliOptions) {
       const argsString = typedArgs.length
         ? ` with args: [ ${typedArgs.join(', ')} ]`
         : '';
-      console.log(`️🖍️  Applying ${fn}${argsString}`);
+      log(`️🖍️  Applying ${fn}${argsString}`);
 
       image[fn](...typedArgs);
     });
@@ -60,12 +69,11 @@ async function processImage({ src, dist, actions }: ICliOptions) {
         throw error;
       }
 
-      console.log(` ${greenCheck}️ Image successfully written to: ${dist}`);
+      log(` ${greenCheck}️ Image successfully written to: ${dist}`);
     });
   }
 }
 
 if (argv.src) {
-  console.log(argv);
   processImage(argv as ICliOptions);
 }
