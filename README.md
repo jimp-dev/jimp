@@ -55,7 +55,7 @@ API documentation can be found in the main [jimp package](./packages/jimp)
 
 ## Custom Jimp
 
-If you want to extend jimp or omit types or functions visit [@jimp/custom](./packages).
+If you want to extend jimp or omit types or functions visit [@jimp/custom](./packages/custom).
 
 - Add file-types or switch encoder/decoders
 - Add add/remove plugins (image manipulation methods)
