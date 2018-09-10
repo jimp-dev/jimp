@@ -24,7 +24,7 @@ describe('processImage', () => {
     await processImage({
       img: makePath(__dirname, './images/tiny-qr.png'),
       output: output,
-      actions: ['[resize,20,20]']
+      actions: [['resize', 20, 20]]
     });
 
     fs.readFileSync(output).should.be.deepEqual(
@@ -55,7 +55,7 @@ describe('processImage', () => {
       img: makePath(__dirname, './images/tiny-qr.png'),
       loadFont: 'FONT_SANS_8_WHITE',
       output: output,
-      actions: ['[print,0,0,This is a test string!,50]']
+      actions: [['print', 0, 0, 'This is a test string!', 50]]
     });
 
     fs.readFileSync(output).should.be.deepEqual(
@@ -71,7 +71,7 @@ describe('processImage', () => {
       img: makePath(__dirname, './images/tiny-qr.png'),
       loadFont: 'FONT_SANS_8_WHITE',
       output: output,
-      actions: ['[print,0,0,{"text":"This is a test string!"},50]']
+      actions: [['print', 0, 0, '{ "text": "This is a test string!" }', 50]]
     });
 
     fs.readFileSync(output).should.be.deepEqual(
@@ -86,7 +86,7 @@ describe('processImage', () => {
     await processImage({
       img: makePath(__dirname, './images/tiny-qr.png'),
       output: output,
-      actions: ['[flip,true,false]']
+      actions: [['flip', true, false]]
     });
 
     fs.readFileSync(output).should.be.deepEqual(

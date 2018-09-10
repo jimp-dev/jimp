@@ -42,5 +42,8 @@
       "html",
       "text"
     ]
+  },
+  "yargs": {
+    "flatten-duplicate-arrays": false
   }
 }

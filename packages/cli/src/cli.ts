@@ -6,14 +6,13 @@ import Jimp = require('jimp');
 
 import { logResult, log } from './log';
 import { loadFont } from './load-font';
-import { processImage } from './process-image';
 
 const omitFunctions = [
-  'read',
+  'read', // configured below
   'create',
   'appendConstructorOption',
-  'distance', // configured above
-  'diff', // configured above
+  'distance', // configured below
+  'diff', // configured below
   'loadFont' // loaded as flag
 ];
 
@@ -81,6 +80,7 @@ export default function setUpCli(args?: string[], log = logResult) {
 
   const yargsConfig = yargs(args)
     .scriptName('jimp')
+    .wrap(yargs.terminalWidth())
     .option('plugins', {
       alias: 'p',
       type: 'array',
@@ -120,15 +120,18 @@ export default function setUpCli(args?: string[], log = logResult) {
           .option('actions', {
             alias: 'a',
             type: 'array',
-            describe: 'actions (image manipulation) to run on the input image',
-            choices: [...Object.keys(Jimp.prototype).sort()]
+            describe: `actions (image manipulation) to run on the input image. Loaded functions ${Object.keys(
+              Jimp.prototype
+            )
+              .sort()
+              .join(', ')}`
           })
           .example(
-            '$0 read path/to/image.png -a greyscale -a [resize,150,-1] --output output.jpg',
+            '$0 read path/to/image.png -a greyscale -a  resize 150 -1 --output output.jpg',
             'Apply image manipulations functions'
           )
           .example(
-            '$0 read path/to/image.png --loadFont FONT_SANS_8_WHITE -a [print,0,0,Some text] --output output.jpg',
+            '$0 read path/to/image.png --loadFont FONT_SANS_8_WHITE -a print 0 0 "Some text" --output output.jpg',
             'Use fonts'
           )
           .example(
@@ -187,9 +190,11 @@ export default function setUpCli(args?: string[], log = logResult) {
     const utilityFunction = Jimp[x];
 
     if (typeof utilityFunction === 'function') {
-      yargsConfig
-        .group(x, 'Utility Functions:')
-        .command(x, descriptions[x], {}, async ({ _, font, verbose }) => {
+      yargsConfig.command(
+        x,
+        descriptions[x],
+        {},
+        async ({ _, font, verbose }) => {
           const args: any[] = _.slice(1);
 
           if (x === 'measureText' || x === 'measureTextHeight') {
@@ -200,7 +205,8 @@ export default function setUpCli(args?: string[], log = logResult) {
           const result = utilityFunction(...args);
 
           log(x, result);
-        });
+        }
+      );
     }
   });
 

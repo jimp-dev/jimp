@@ -7,9 +7,33 @@ import { loadFont } from './load-font';
 export interface ICliOptions {
   img?: string;
   output?: string;
-  actions?: string[];
+  actions?: any;
   verbose?: boolean;
   loadFont?: string;
+}
+
+function runAction(
+  image,
+  verbose,
+  loadedFont,
+  [action, ...args]: [string, ...any[]]
+) {
+  const argsString = args.length ? ` with args: [ ${args.join(', ')} ]` : '';
+  log(`️🖍️  Applying ${action}${argsString}`, verbose);
+
+  const parsedArgs = args.map(arg => {
+    try {
+      return JSON.parse(arg);
+    } catch (error) {
+      return arg;
+    }
+  });
+
+  if (action === 'print') {
+    parsedArgs.unshift(loadedFont);
+  }
+
+  image[action](...parsedArgs);
 }
 
 function runActions(
@@ -18,43 +42,13 @@ function runActions(
   { actions, verbose }: ICliOptions
 ) {
   if (actions) {
-    actions.map(action => {
-      const hasArgs = /\[([\S\s]*)\]/.exec(action);
-      const [fn, ...args] = hasArgs ? hasArgs[1].split(',') : [action];
-
-      const typedArgs: any[] = args.map(arg => {
-        if (/^\d+$/.test(arg)) {
-          return Number(arg);
-        }
-
-        if (arg === 'true') {
-          return true;
-        }
-
-        if (arg === 'false') {
-          return false;
-        }
-
-        if (arg.indexOf('{') > -1 || arg.indexOf('[') > -1) {
-          try {
-            return JSON.parse(arg);
-          } catch (error) {}
-        }
-
-        return arg;
-      });
-
-      const argsString = typedArgs.length
-        ? ` with args: [ ${typedArgs.join(', ')} ]`
-        : '';
-      log(`️🖍️  Applying ${fn}${argsString}`, verbose);
-
-      if (fn === 'print') {
-        typedArgs.unshift(loadedFont);
-      }
-
-      image[fn](...typedArgs);
-    });
+    if (Array.isArray(actions[0])) {
+      (actions as [string, ...any[]][]).map(action =>
+        runAction(image, verbose, loadedFont, action)
+      );
+    } else {
+      runAction(image, verbose, loadedFont, actions as [string, ...any[]]);
+    }
   }
 }
 
