@@ -7,8 +7,7 @@ import makePath from './utils/makePath';
 import { runCLI } from '../src/index';
 
 function run(...args) {
-  process.argv = ['', '', ...args];
-  return runCLI();
+  return runCLI(['', '', ...args]);
 }
 
 describe('index', () => {
@@ -17,9 +16,9 @@ describe('index', () => {
     const output = 'verbose-off.png';
 
     await run(
-      '--src',
+      'read',
       makePath(__dirname, './images/tiny-qr.png'),
-      '--dist',
+      '--output',
       output
     );
 
@@ -33,9 +32,9 @@ describe('index', () => {
     const output = 'verbose-on.png';
 
     await run(
-      '--src',
+      'read',
       makePath(__dirname, './images/tiny-qr.png'),
-      '--dist',
+      '--output',
       output,
       '-v'
     );
@@ -51,7 +50,7 @@ describe('index', () => {
 
       try {
         await run(
-          '--src',
+          'read',
           makePath(__dirname, './images/tiny-qr.png'),
           '-p',
           '@jimp/plugin-non-existant'
@@ -68,9 +67,9 @@ describe('index', () => {
       const output = 'plugins-on.png';
 
       await run(
-        '--src',
+        'read',
         makePath(__dirname, './images/tiny-qr.png'),
-        '--dist',
+        '--output',
         output,
         '-v',
         '-p',

@@ -5,8 +5,8 @@ import { log, greenCheck } from './log';
 import { loadFont } from './load-font';
 
 export interface ICliOptions {
-  src?: string;
-  dist?: string;
+  img?: string;
+  output?: string;
   actions?: string[];
   verbose?: boolean;
   loadFont?: string;
@@ -59,21 +59,21 @@ function runActions(
 }
 
 export async function processImage({
-  src,
-  dist,
+  img,
+  output,
   actions,
   verbose,
   loadFont: font
 }: ICliOptions) {
-  log(` 📷  Loading source image: ${src} ...`, verbose);
+  log(` 📷  Loading source image: ${img} ...`, verbose);
 
-  const image = await Jimp.read(src);
+  const image = await Jimp.read(img);
   const loadedFont = await loadFont(font, verbose);
 
   runActions(image, loadedFont, { actions, verbose });
 
-  if (dist) {
-    await image.writeAsync(dist);
-    log(` ${greenCheck}️ Image successfully written to: ${dist}`, verbose);
+  if (output) {
+    await image.writeAsync(output);
+    log(` ${greenCheck}️ Image successfully written to: ${output}`, verbose);
   }
 }

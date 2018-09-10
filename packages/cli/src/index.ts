@@ -1,13 +1,13 @@
 #!/usr/bin/env node
 
 import setUpCli from './cli';
-import { ICliOptions, processImage } from './process-image';
+import { processImage } from './process-image';
 
-export async function runCLI() {
-  const { argv } = setUpCli(process.argv.slice(2));
+export async function runCLI(args = process.argv) {
+  const argv = setUpCli(args.slice(2)).argv;
 
-  if (argv.src) {
-    await processImage(argv as ICliOptions);
+  if (argv._.includes('read')) {
+    await processImage(argv);
   }
 }
 

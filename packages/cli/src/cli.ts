@@ -6,6 +6,7 @@ import Jimp = require('jimp');
 
 import { logResult, log } from './log';
 import { loadFont } from './load-font';
+import { processImage } from './process-image';
 
 const omitFunctions = [
   'read',
@@ -80,20 +81,6 @@ export default function setUpCli(args?: string[], log = logResult) {
 
   const yargsConfig = yargs(args)
     .scriptName('jimp')
-    .option('src', {
-      alias: 's',
-      describe: 'src file to load into jimp. (PNG, JPEG, TIFF, BMP, or GIF)'
-    })
-    .option('dist', {
-      alias: 'd',
-      describe: 'dist file to output from jimp. (PNG, JPEG, TIFF, or BMP)'
-    })
-    .option('actions', {
-      alias: 'a',
-      type: 'array',
-      describe: 'actions (image manipulation) to run on the input image',
-      choices: [...Object.keys(Jimp.prototype).sort()]
-    })
     .option('plugins', {
       alias: 'p',
       type: 'array',
@@ -115,23 +102,40 @@ export default function setUpCli(args?: string[], log = logResult) {
       describe: 'Path of font to load and be used in text operations'
     })
     .example(
-      '$0 --src path/to/image.png --dest output.jpg',
-      'Convert images from one type to another'
-    )
-    .example(
-      '$0 --src path/to/image.png -a greyscale -a [resize,150,-1] --dest output.jpg',
-      'Apply image manipulations functions'
-    )
-    .example(
-      '$0 --loadFont FONT_SANS_8_WHITE --src path/to/image.png -a [print,0,0,Some text] --dest output.jpg',
-      'Use fonts'
-    )
-    .example(
-      '$0 --src path/to/image.png --plugins @jimp/plugin-circle -a circle --dest output.jpg',
-      'Use plugins'
+      '$0 read path/to/image.png --output output.jpg',
+      'Convert images from one type to another. See more under jimp read --help'
     )
     .alias('font', 'loadFont')
     .alias('h', 'help')
+    .demandCommand(1, 'You need at least one command before moving on')
+    .command({
+      command: 'read [img]',
+      describe: 'Read and image into jimp. (PNG, JPEG, TIFF, BMP, or GIF)',
+      builder: yargs =>
+        yargs
+          .option('output', {
+            alias: 'o',
+            describe: 'file to output from jimp. (PNG, JPEG, TIFF, or BMP)'
+          })
+          .option('actions', {
+            alias: 'a',
+            type: 'array',
+            describe: 'actions (image manipulation) to run on the input image',
+            choices: [...Object.keys(Jimp.prototype).sort()]
+          })
+          .example(
+            '$0 read path/to/image.png -a greyscale -a [resize,150,-1] --output output.jpg',
+            'Apply image manipulations functions'
+          )
+          .example(
+            '$0 read path/to/image.png --loadFont FONT_SANS_8_WHITE -a [print,0,0,Some text] --output output.jpg',
+            'Use fonts'
+          )
+          .example(
+            '$0 read path/to/image.png --plugins @jimp/plugin-circle -a circle --output output.jpg',
+            'Use plugins'
+          )
+    })
     .command({
       command: 'distance [img1] [img2]',
       describe:
@@ -140,10 +144,7 @@ export default function setUpCli(args?: string[], log = logResult) {
         return yargs
           .example('$0 distance path/to/image.png path/to/another.png', '')
           .hide('version')
-          .hide('src')
-          .hide('dist')
-          .hide('font')
-          .hide('actions');
+          .hide('font');
       },
       handler: async ({ img1, img2 }) => {
         const base = await Jimp.read(img1);
@@ -164,10 +165,7 @@ export default function setUpCli(args?: string[], log = logResult) {
             describe: 'File to output diff to.'
           })
           .hide('version')
-          .hide('src')
-          .hide('dist')
-          .hide('font')
-          .hide('actions');
+          .hide('font');
       },
       handler: async ({ img1, img2, outputDiff }) => {
         const base = await Jimp.read(img1);
@@ -189,11 +187,9 @@ export default function setUpCli(args?: string[], log = logResult) {
     const utilityFunction = Jimp[x];
 
     if (typeof utilityFunction === 'function') {
-      yargsConfig.command(
-        x,
-        descriptions[x],
-        {},
-        async ({ _, font, verbose }) => {
+      yargsConfig
+        .group(x, 'Utility Functions:')
+        .command(x, descriptions[x], {}, async ({ _, font, verbose }) => {
           const args: any[] = _.slice(1);
 
           if (x === 'measureText' || x === 'measureTextHeight') {
@@ -204,8 +200,7 @@ export default function setUpCli(args?: string[], log = logResult) {
           const result = utilityFunction(...args);
 
           log(x, result);
-        }
-      );
+        });
     }
   });
 

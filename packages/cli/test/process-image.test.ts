@@ -7,12 +7,12 @@ import { processImage } from '../src/process-image';
 describe('processImage', () => {
   it('write files correctly', async () => {
     const output = 'write.png';
-    await processImage({ src: makePath(__dirname, './images/tiny-qr.png') });
+    await processImage({ img: makePath(__dirname, './images/tiny-qr.png') });
     fs.existsSync(output).should.be.exactly(false);
 
     await processImage({
-      src: makePath(__dirname, './images/tiny-qr.png'),
-      dist: output
+      img: makePath(__dirname, './images/tiny-qr.png'),
+      output: output
     });
     fs.existsSync(output).should.be.exactly(true);
     fs.unlinkSync(output);
@@ -22,8 +22,8 @@ describe('processImage', () => {
     const output = 'action-1.png';
 
     await processImage({
-      src: makePath(__dirname, './images/tiny-qr.png'),
-      dist: output,
+      img: makePath(__dirname, './images/tiny-qr.png'),
+      output: output,
       actions: ['[resize,20,20]']
     });
 
@@ -37,8 +37,8 @@ describe('processImage', () => {
     const output = 'action-2.png';
 
     await processImage({
-      src: makePath(__dirname, './images/tiny-qr.png'),
-      dist: output,
+      img: makePath(__dirname, './images/tiny-qr.png'),
+      output: output,
       actions: ['greyscale']
     });
 
@@ -52,9 +52,9 @@ describe('processImage', () => {
     const output = 'action-print.png';
 
     await processImage({
-      src: makePath(__dirname, './images/tiny-qr.png'),
+      img: makePath(__dirname, './images/tiny-qr.png'),
       loadFont: 'FONT_SANS_8_WHITE',
-      dist: output,
+      output: output,
       actions: ['[print,0,0,This is a test string!,50]']
     });
 
@@ -68,9 +68,9 @@ describe('processImage', () => {
     const output = 'action-print.png';
 
     await processImage({
-      src: makePath(__dirname, './images/tiny-qr.png'),
+      img: makePath(__dirname, './images/tiny-qr.png'),
       loadFont: 'FONT_SANS_8_WHITE',
-      dist: output,
+      output: output,
       actions: ['[print,0,0,{"text":"This is a test string!"},50]']
     });
 
@@ -84,8 +84,8 @@ describe('processImage', () => {
     const output = 'action-boolean.png';
 
     await processImage({
-      src: makePath(__dirname, './images/tiny-qr.png'),
-      dist: output,
+      img: makePath(__dirname, './images/tiny-qr.png'),
+      output: output,
       actions: ['[flip,true,false]']
     });
 
