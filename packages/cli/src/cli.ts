@@ -139,6 +139,10 @@ export default function setUpCli(args?: string[], log = logResult) {
             '$0 read path/to/image.png --plugins @jimp/plugin-circle -a circle --output output.jpg',
             'Use plugins'
           )
+          .example(
+            '$0 read path/to/image.png -a blit /path/to/image.png 0 0 --output output.jpg',
+            'Use blit composite or mask'
+          )
     })
     .command({
       command: 'create',
@@ -193,6 +197,10 @@ export default function setUpCli(args?: string[], log = logResult) {
           .example(
             '$0 create -w 100 -he 300 -b 0xff0000ff --loadFont FONT_SANS_8_WHITE -a print 0 0 "Some text" -o output.jpg',
             'Run actions on the new image'
+          )
+          .example(
+            '$0 create path/to/image.png -a blit /path/to/image.png 0 0 --output output.jpg',
+            'Use blit composite or mask'
           )
     })
     .command({

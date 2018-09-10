@@ -15,7 +15,7 @@ export interface ICliOptions {
   background?: string | number;
 }
 
-function runAction(
+async function runAction(
   image,
   verbose,
   loadedFont,
@@ -36,21 +36,30 @@ function runAction(
     parsedArgs.unshift(loadedFont);
   }
 
+  if (action === 'composite' || action === 'blit' || action === 'mask') {
+    parsedArgs[0] = await Jimp.read(parsedArgs[0]);
+  }
+
   image[action](...parsedArgs);
 }
 
-function runActions(
+async function runActions(
   image: Jimp,
   loadedFont: Jimp.Font,
   { actions, verbose }: ICliOptions
 ) {
   if (actions) {
     if (Array.isArray(actions[0])) {
-      (actions as [string, ...any[]][]).map(action =>
-        runAction(image, verbose, loadedFont, action)
+      await Promise.all(
+        (actions as [string, ...any[]][]).map(action =>
+          runAction(image, verbose, loadedFont, action)
+        )
       );
     } else {
-      runAction(image, verbose, loadedFont, actions as [string, ...any[]]);
+      await runAction(image, verbose, loadedFont, actions as [
+        string,
+        ...any[]
+      ]);
     }
   }
 }
@@ -58,7 +67,7 @@ function runActions(
 async function processImage(image, font, actions, output, verbose) {
   const loadedFont = await loadFont(font, verbose);
 
-  runActions(image, loadedFont, { actions, verbose });
+  await runActions(image, loadedFont, { actions, verbose });
 
   if (output) {
     await image.writeAsync(output);

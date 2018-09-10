@@ -80,6 +80,26 @@ describe('index', () => {
       calls.length.should.be.exactly(4);
       fs.unlinkSync(output);
     });
+
+    it('blit', async () => {
+      const output = 'blit.png';
+
+      await run(
+        'read',
+        makePath(__dirname, './images/create.png'),
+        '--output',
+        output,
+        '-a',
+        ['blit', makePath(__dirname, './images/tiny-qr.png'), 0, 0],
+        '-p',
+        '@jimp/plugin-circle'
+      );
+
+      fs.readFileSync(output).should.be.deepEqual(
+        fs.readFileSync(makePath(__dirname, `./images/${output}`))
+      );
+      fs.unlinkSync(output);
+    });
   });
 
   describe('create', () => {
