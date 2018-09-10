@@ -2,6 +2,9 @@
   "name": "@jimp/cli",
   "version": "0.4.0",
   "description": "jimp on the cli",
+  "bin": {
+    "jimp": "dist/index.js"
+  },
   "main": "dist/index.js",
   "module": "es/index.js",
   "scripts": {
