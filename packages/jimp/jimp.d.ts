@@ -225,13 +225,7 @@ declare namespace Jimp {
     constructor(
       w: number,
       h: number,
-      background?: number,
-      cb?: Jimp.ImageCallback
-    );
-    constructor(
-      w: number,
-      h: number,
-      background?: string,
+      background?: number | string,
       cb?: Jimp.ImageCallback
     );
     // For custom constructors when using Jimp.appendConstructorOption
@@ -507,11 +501,19 @@ declare namespace Jimp {
     static read(path: string): Promise<Jimp>;
     static read(image: Jimp): Promise<Jimp>;
     static read(data: Buffer): Promise<Jimp>;
-    static read(w: number, h: number, background?: number): Promise<Jimp>;
+    static read(
+      w: number,
+      h: number,
+      background?: number | string
+    ): Promise<Jimp>;
     static create(path: string): Promise<Jimp>;
     static create(image: Jimp): Promise<Jimp>;
     static create(data: Buffer): Promise<Jimp>;
-    static create(w: number, h: number, background?: number): Promise<Jimp>;
+    static create(
+      w: number,
+      h: number,
+      background?: number | string
+    ): Promise<Jimp>;
     static rgbaToInt(
       r: number,
       g: number,

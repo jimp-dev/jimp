@@ -101,18 +101,19 @@ export default function setUpCli(args?: string[], log = logResult) {
       type: 'string',
       describe: 'Path of font to load and be used in text operations'
     })
+    .group(['plugins', 'types', 'loadFont'], 'Jimp Configuration:')
     .example(
       '$0 read path/to/image.png --output output.jpg',
       'Convert images from one type to another. See more under jimp read --help'
     )
     .alias('font', 'loadFont')
-    .alias('h', 'help')
     .demandCommand(1, 'You need at least one command before moving on')
     .command({
       command: 'read [img]',
       describe: 'Read and image into jimp. (PNG, JPEG, TIFF, BMP, or GIF)',
       builder: yargs =>
         yargs
+          .group(['output', 'actions'], 'Jimp Configuration:')
           .option('output', {
             alias: 'o',
             describe: 'file to output from jimp. (PNG, JPEG, TIFF, or BMP)'
@@ -131,12 +132,67 @@ export default function setUpCli(args?: string[], log = logResult) {
             'Apply image manipulations functions'
           )
           .example(
-            '$0 read path/to/image.png --loadFont FONT_SANS_8_WHITE -a print 0 0 "Some text" --output output.jpg',
+            '$0 read path/to/image.png --loadFont FONT_SANS_8_WHITE -a yarnprint 0 0 "Some text" --output output.jpg',
             'Use fonts'
           )
           .example(
             '$0 read path/to/image.png --plugins @jimp/plugin-circle -a circle --output output.jpg',
             'Use plugins'
+          )
+    })
+    .command({
+      command: 'create',
+      describe: 'Create a new image',
+      builder: yargs =>
+        yargs
+          .group(['width', 'height', 'background'], 'New Image Configuration:')
+          .group(['output', 'actions'], 'Jimp Configuration:')
+          .demandOption(
+            ['width', 'height'],
+            'Please provide both height and width to create new image'
+          )
+          .option('width', {
+            alias: 'w',
+            type: 'number',
+            describe: 'Width of new image'
+          })
+          .option('height', {
+            alias: 'he',
+            type: 'number',
+            describe: 'Height of new image'
+          })
+          .option('background', {
+            alias: 'b',
+            describe: 'Background color - either hex value or css string'
+          })
+          .option('output', {
+            alias: 'o',
+            describe: 'file to output from jimp. (PNG, JPEG, TIFF, or BMP)'
+          })
+          .option('actions', {
+            alias: 'a',
+            type: 'array',
+            describe: `actions (image manipulation) to run on the input image. Loaded functions ${Object.keys(
+              Jimp.prototype
+            )
+              .sort()
+              .join(', ')}`
+          })
+          .example(
+            '$0 create -w 100 -he 300 -o output.jpg',
+            'create a blank image'
+          )
+          .example(
+            '$0 create -w 100 -he 300 -b 0xff0000ff -o output.jpg',
+            'create a red image'
+          )
+          .example(
+            '$0 create -w 100 -he 300 -b "#FFJJED" -o output.jpg',
+            'create a css color image'
+          )
+          .example(
+            '$0 create -w 100 -he 300 -b 0xff0000ff --loadFont FONT_SANS_8_WHITE -a print 0 0 "Some text" -o output.jpg',
+            'Run actions on the new image'
           )
     })
     .command({

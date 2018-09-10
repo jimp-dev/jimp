@@ -10,6 +10,9 @@ export interface ICliOptions {
   actions?: any;
   verbose?: boolean;
   loadFont?: string;
+  width?: number;
+  height?: number;
+  background?: string | number;
 }
 
 function runAction(
@@ -52,7 +55,18 @@ function runActions(
   }
 }
 
-export async function processImage({
+async function processImage(image, font, actions, output, verbose) {
+  const loadedFont = await loadFont(font, verbose);
+
+  runActions(image, loadedFont, { actions, verbose });
+
+  if (output) {
+    await image.writeAsync(output);
+    log(` ${greenCheck}️ Image successfully written to: ${output}`, verbose);
+  }
+}
+
+export async function manipulateImage({
   img,
   output,
   actions,
@@ -62,12 +76,28 @@ export async function processImage({
   log(` 📷  Loading source image: ${img} ...`, verbose);
 
   const image = await Jimp.read(img);
-  const loadedFont = await loadFont(font, verbose);
 
-  runActions(image, loadedFont, { actions, verbose });
+  await processImage(image, font, actions, output, verbose);
+}
+export async function createImage({
+  width,
+  height,
+  background,
+  output,
+  actions,
+  verbose,
+  loadFont: font
+}: ICliOptions) {
+  const backgroundString = background ? ` with background ${background}` : '';
+  log(` 📷  Creating image: [${width} ${height}]${backgroundString}`, verbose);
 
-  if (output) {
-    await image.writeAsync(output);
-    log(` ${greenCheck}️ Image successfully written to: ${output}`, verbose);
+  let image;
+
+  if (background) {
+    image = await Jimp.create(width, height, background);
+  } else {
+    image = await Jimp.create(width, height);
   }
+
+  await processImage(image, font, actions, output, verbose);
 }

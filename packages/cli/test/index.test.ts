@@ -81,4 +81,38 @@ describe('index', () => {
       fs.unlinkSync(output);
     });
   });
+
+  describe('create', () => {
+    it('should create an image with n o background', async () => {
+      const output = 'create-blank.png';
+
+      await run('create', '-w', '100', '--he', '200', '-o', output);
+
+      fs.readFileSync(output).should.be.deepEqual(
+        fs.readFileSync(makePath(__dirname, `./images/${output}`))
+      );
+      fs.unlinkSync(output);
+    });
+
+    it('should create an image with a background', async () => {
+      const output = 'create.png';
+
+      await run(
+        'create',
+        '-w',
+        '100',
+        '--he',
+        '200',
+        '-b',
+        0xff0000ff,
+        '-o',
+        output
+      );
+
+      fs.readFileSync(output).should.be.deepEqual(
+        fs.readFileSync(makePath(__dirname, `./images/${output}`))
+      );
+      fs.unlinkSync(output);
+    });
+  });
 });
