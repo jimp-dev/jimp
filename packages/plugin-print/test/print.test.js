@@ -194,8 +194,6 @@ describe('Write text over image', function() {
       maxHeight: 240
     });
 
-    textImage.writeAsync('middle-aligned.png');
-
     expectedImage.bitmap.data.should.be.deepEqual(textImage.bitmap.data);
 
     fs.unlinkSync('middle-aligned.png');

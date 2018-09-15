@@ -26,7 +26,7 @@ const licence =
   '\n' +
   'https://github.com/oliver-moran/jimp\n' +
   'Ported for the Web by Phil Seaton\n' +
-  fs.readFileSync(fromRoot('LICENSE')) +
+  fs.readFileSync(fromRoot('../../LICENSE')) +
   '*/';
 
 // Browserify and Babelize.

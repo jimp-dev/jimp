@@ -1,3 +1,9 @@
+---
+name: Bug report
+about: Create a report to help us improve
+
+---
+
 <!-- IF YOU DO NOT FILL OUT THE FOLLOWING FORM YOUR ISSUE WILL AUTOMATICALLY BE CLOSED!!! -->
 
 # Expected Behavior
@@ -22,6 +28,10 @@ IF YOUR ISSUE DEPENDS ON A PARTICULAR IMAGE BE SURE TO INCLUDE THIS AS WELL. WE 
 2. step 2
 3. you get it... -->
 
+
+**Screenshots**
+<!-- If applicable, add screenshots to help explain your problem. -->
+
 ## Context
 
 <!-- Please provide any relevant information about your setup. This is important in case the issue is not reproducible except for under certain conditions. -->
@@ -31,5 +41,3 @@ IF YOUR ISSUE DEPENDS ON A PARTICULAR IMAGE BE SURE TO INCLUDE THIS AS WELL. WE 
 - Node version:
 
 ## Failure Logs
-
-<!-- Please include any relevant log snippets or files here.  If it is not a bug, please remove the rest of this template. -->
