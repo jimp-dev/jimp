@@ -55,18 +55,21 @@ export default () => ({
     srcw = Math.round(srcw);
     srch = Math.round(srch);
 
-    const maxw = this.bitmap.width;
-    const maxh = this.bitmap.height;
+    const maxWidth = this.bitmap.width;
+    const maxHeight = this.bitmap.height;
     const baseImage = this;
 
     src.scanQuiet(srcx, srcy, srcw, srch, function(sx, sy, idx) {
+      const xOffset = x + sx - srcx;
+      const yOffset = y + sy - srcy;
+
       if (
-        x + sx >= 0 &&
-        y + sy >= 0 &&
-        maxw - x - sx > 0 &&
-        maxh - y - sy > 0
+        xOffset >= 0 &&
+        yOffset >= 0 &&
+        maxWidth - xOffset > 0 &&
+        maxHeight - yOffset > 0
       ) {
-        const dstIdx = baseImage.getPixelIndex(x + sx - srcx, y + sy - srcy);
+        const dstIdx = baseImage.getPixelIndex(xOffset, yOffset);
         const src = {
           r: this.bitmap.data[idx],
           g: this.bitmap.data[idx + 1],
