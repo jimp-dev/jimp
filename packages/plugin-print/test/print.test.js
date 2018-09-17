@@ -111,6 +111,7 @@ describe('Write text over image', function() {
     );
     const textImage = await createTextImage(320, 240, Jimp.FONT_SANS_16_BLACK, {
       text: 'This is only a test.',
+
       maxWidth: 100
     });
 
@@ -123,6 +124,7 @@ describe('Write text over image', function() {
     );
     const textImage = await createTextImage(320, 240, Jimp.FONT_SANS_16_BLACK, {
       text: { text: 'This is only a test.' },
+
       maxWidth: 100
     });
 
