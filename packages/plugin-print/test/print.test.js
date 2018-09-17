@@ -2,11 +2,11 @@
 
 import { Jimp, getTestDir, hasOwnProp } from '@jimp/test-utils';
 import configure from '@jimp/custom';
-import crop from '@jimp/plugin-crop';
+import blit from '@jimp/plugin-blit';
 
 import print from '../src';
 
-const jimp = configure({ plugins: [print, crop] }, Jimp);
+const jimp = configure({ plugins: [print, blit] }, Jimp);
 
 async function createTextImage(
   width,
@@ -110,6 +110,7 @@ describe('Write text over image', function() {
     );
     const textImage = await createTextImage(320, 240, Jimp.FONT_SANS_16_BLACK, {
       text: 'This is only a test.',
+
       maxWidth: 100
     });
 
@@ -122,6 +123,7 @@ describe('Write text over image', function() {
     );
     const textImage = await createTextImage(320, 240, Jimp.FONT_SANS_16_BLACK, {
       text: { text: 'This is only a test.' },
+
       maxWidth: 100
     });
 
