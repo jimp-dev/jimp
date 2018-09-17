@@ -2,12 +2,11 @@
 
 import { Jimp, getTestDir, hasOwnProp } from '@jimp/test-utils';
 import configure from '@jimp/custom';
-import crop from '@jimp/plugin-crop';
 import blit from '@jimp/plugin-blit';
 
 import print from '../src';
 
-const jimp = configure({ plugins: [print, crop, blit] }, Jimp);
+const jimp = configure({ plugins: [print, blit] }, Jimp);
 
 async function createTextImage(
   width,
