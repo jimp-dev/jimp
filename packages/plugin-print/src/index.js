@@ -50,9 +50,10 @@ function printText(font, x, y, text, defaultCharWidth) {
 
     drawCharacter(this, font, x, y, fontChar || {});
 
-    x +=
-      (fontKerning && fontKerning[text[i + 1]] ? fontKerning[text[i + 1]] : 0) +
-      (fontChar.xadvance || defaultCharWidth);
+    const kerning =
+      fontKerning && fontKerning[text[i + 1]] ? fontKerning[text[i + 1]] : 0;
+
+    x += kerning + (fontChar.xadvance || defaultCharWidth);
   }
 }
 
@@ -291,18 +292,18 @@ export default () => ({
 
       lines.forEach(line => {
         const lineString = line.join(' ');
+        const alignmentWidth = xOffsetBasedOnAlignment(
+          this.constructor,
+          font,
+          lineString,
+          maxWidth,
+          alignmentX
+        );
 
         printText.call(
           this,
           font,
-          x +
-            xOffsetBasedOnAlignment(
-              this.constructor,
-              font,
-              lineString,
-              maxWidth,
-              alignmentX
-            ),
+          x + alignmentWidth,
           y,
           lineString,
           defaultCharWidth
