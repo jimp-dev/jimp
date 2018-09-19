@@ -253,7 +253,7 @@ declare namespace Jimp {
     rgba(bool: boolean, cb?: Jimp.ImageCallback): this;
     quality(n: number, cb?: Jimp.ImageCallback): this;
     getBase64(mime: string, cb: GenericCallback<string, any, this>): this;
-    getBase64Async(mime: string): Promise<Jimp>;
+    getBase64Async(mime: string): Promise<string>;
     hash(cb?: GenericCallback<string, any, this>): this;
     hash(
       base: number | null | undefined,
