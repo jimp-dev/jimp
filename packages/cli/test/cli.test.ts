@@ -64,7 +64,7 @@ describe('CLI', function() {
       ['--font', 'FONT_SANS_32_WHITE', 'measureText', 'some string'],
       (output, result) => {
         output.should.be.exactly('measureText');
-        result.should.be.exactly(182);
+        result.should.be.exactly(167);
         done();
       }
     ).argv;

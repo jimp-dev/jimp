@@ -195,8 +195,6 @@ describe('Write text over image', function() {
     });
 
     expectedImage.bitmap.data.should.be.deepEqual(textImage.bitmap.data);
-
-    fs.unlinkSync('middle-aligned.png');
   });
 
   it('middle-align text when passing object with alignmentY can offset y', async () => {
