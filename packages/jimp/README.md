@@ -110,7 +110,7 @@ Jimp.read('http://www.example.com/path/to/lenna.jpg')
 
 The conveniance method `Jimp.create` also exists. It is just a wrapper around `Jimp.read`.
 
-### Basic methods
+### Methods
 
 Once the promise is fulfilled, the following methods can be called on the image:
 
