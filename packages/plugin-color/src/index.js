@@ -1,5 +1,5 @@
 import tinyColor from 'tinycolor2';
-import { throwError, isNodePattern } from '@jimp/utils';
+import { throwError, isNodePattern, limit255 } from '@jimp/utils';
 
 function applyKernel(im, kernel, x, y) {
   const value = [0, 0, 0];
@@ -55,59 +55,61 @@ function colorFn(actions, cb) {
     y,
     idx
   ) {
-    let clr = tinyColor({
+    // let clr = tinyColor({
+    //   r: this.bitmap.data[idx],
+    //   g: this.bitmap.data[idx + 1],
+    //   b: this.bitmap.data[idx + 2]
+    // });
+
+    let clr = {
       r: this.bitmap.data[idx],
       g: this.bitmap.data[idx + 1],
       b: this.bitmap.data[idx + 2]
-    });
+    };
 
     const colorModifier = function(i, amount) {
-      const c = clr.toRgb();
-      c[i] = Math.max(0, Math.min(c[i] + amount, 255));
-      return tinyColor(c);
+      return originalScope.constructor.limit255(clr[i] + amount);
     };
 
     actions.forEach(action => {
-      if (action.apply === 'mix') {
-        clr = tinyColor.mix(clr, action.params[0], action.params[1]);
-      } else if (action.apply === 'tint') {
-        clr = tinyColor.mix(clr, 'white', action.params[0]);
-      } else if (action.apply === 'shade') {
-        clr = tinyColor.mix(clr, 'black', action.params[0]);
-      } else if (action.apply === 'xor') {
-        const clr2 = tinyColor(action.params[0]).toRgb();
-        clr = clr.toRgb();
-        clr = tinyColor({
-          r: clr.r ^ clr2.r,
-          g: clr.g ^ clr2.g,
-          b: clr.b ^ clr2.b
-        });
-      } else if (action.apply === 'red') {
-        clr = colorModifier('r', action.params[0]);
+      // if (action.apply === 'mix') {
+      //   clr = tinyColor.mix(clr, action.params[0], action.params[1]);
+      // } else if (action.apply === 'tint') {
+      //   clr = tinyColor.mix(clr, 'white', action.params[0]);
+      // } else if (action.apply === 'shade') {
+      //   clr = tinyColor.mix(clr, 'black', action.params[0]);
+      // } else if (action.apply === 'xor') {
+      //   const clr2 = tinyColor(action.params[0]).toRgb();
+      //   clr = clr.toRgb();
+      //   clr = tinyColor({
+      //     r: clr.r ^ clr2.r,
+      //     g: clr.g ^ clr2.g,
+      //     b: clr.b ^ clr2.b
+      //   });
+      // } else
+      if (action.apply === 'red') {
+        clr.r = colorModifier('r', action.params[0]);
       } else if (action.apply === 'green') {
-        clr = colorModifier('g', action.params[0]);
+        clr.g = colorModifier('g', action.params[0]);
       } else if (action.apply === 'blue') {
-        clr = colorModifier('b', action.params[0]);
+        clr.b = colorModifier('b', action.params[0]);
       } else {
-        if (action.apply === 'hue') {
-          action.apply = 'spin';
-        }
-
-        const fn = clr[action.apply];
-
-        if (!fn) {
-          return throwError.call(
-            originalScope,
-            'action ' + action.apply + ' not supported',
-            cb
-          );
-        }
-
-        clr = fn.apply(clr, action.params);
+        // if (action.apply === 'hue') {
+        //   action.apply = 'spin';
+        // }
+        // const fn = clr[action.apply];
+        // if (!fn) {
+        //   return throwError.call(
+        //     originalScope,
+        //     'action ' + action.apply + ' not supported',
+        //     cb
+        //   );
+        // }
+        // clr = fn.apply(clr, action.params);
       }
     });
 
-    clr = clr.toRgb();
+    // clr = clr.toRgb();
     this.bitmap.data[idx] = clr.r;
     this.bitmap.data[idx + 1] = clr.g;
     this.bitmap.data[idx + 2] = clr.b;
