@@ -26,6 +26,36 @@ async function main() {
 main();
 ```
 
+Jimp supports advanced colour manipulation using a single method as follows:
+
+```js
+image.color([
+  { apply: 'hue', params: [-90] },
+  { apply: 'lighten', params: [50] },
+  { apply: 'xor', params: ['#06D'] }
+]);
+```
+
+The method supports the following modifiers:
+
+| Modifier                | Description                                                                                                                                                                                                      |
+| ----------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **lighten** {amount}    | Lighten the color a given amount, from 0 to 100. Providing 100 will always return white (works through [TinyColor](https://github.com/bgrins/TinyColor))                                                         |
+| **brighten** {amount}   | Brighten the color a given amount, from 0 to 100 (works through [TinyColor](https://github.com/bgrins/TinyColor))                                                                                                |
+| **darken** {amount}     | Darken the color a given amount, from 0 to 100. Providing 100 will always return black (works through [TinyColor](https://github.com/bgrins/TinyColor))                                                          |
+| **desaturate** {amount} | Desaturate the color a given amount, from 0 to 100. Providing 100 will is the same as calling greyscale (works through [TinyColor](https://github.com/bgrins/TinyColor))                                         |
+| **saturate** {amount}   | Saturate the color a given amount, from 0 to 100 (works through [TinyColor](https://github.com/bgrins/TinyColor))                                                                                                |
+| **greyscale** {amount}  | Completely desaturates a color into greyscale (works through [TinyColor](https://github.com/bgrins/TinyColor))                                                                                                   |
+| **spin** {degree}       | Spin the hue a given amount, from -360 to 360. Calling with 0, 360, or -360 will do nothing - since it sets the hue back to what it was before. (works through [TinyColor](https://github.com/bgrins/TinyColor)) |
+| **hue** {degree}        | Alias for **spin**                                                                                                                                                                                               |
+| **mix** {color, amount} | Mixes colors by their RGB component values. Amount is opacity of overlaying color                                                                                                                                |
+| **tint** {amount}       | Same as applying **mix** with white color                                                                                                                                                                        |
+| **shade** {amount}      | Same as applying **mix** with black color                                                                                                                                                                        |
+| **xor** {color}         | Treats the two colors as bitfields and applies an XOR operation to the red, green, and blue components                                                                                                           |
+| **red** {amount}        | Modify Red component by a given amount                                                                                                                                                                           |
+| **green** {amount}      | Modify Green component by a given amount                                                                                                                                                                         |
+| **blue** {amount}       | Modify Blue component by a given amount                                                                                                                                                                          |
+
 ## brightness
 
 Adjusts the brightness of the image
@@ -141,7 +171,7 @@ main();
 
 ## convolution
 
-Adds each element of the image to its local neighbors, weighted by the kernel
+Sum neighbor pixels weighted by the kernel matrix. You can find a nice explanation with examples at [GIMP's Convolution Matrix plugin](https://docs.gimp.org/2.6/en/plug-in-convmatrix.html)
 
 - @param {array} kernel a matrix to weight the neighbors sum
 - @param {string} edgeHandling (optional) define how to sum pixels from outside the border

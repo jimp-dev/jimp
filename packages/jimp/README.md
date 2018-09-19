@@ -110,7 +110,7 @@ Jimp.read('http://www.example.com/path/to/lenna.jpg')
 
 The conveniance method `Jimp.create` also exists. It is just a wrapper around `Jimp.read`.
 
-### Basic methods
+### Methods
 
 Once the promise is fulfilled, the following methods can be called on the image:
 
@@ -467,7 +467,7 @@ The method supports the following modifiers:
 
 ### Convolution matrix
 
-Sum neighbor pixels weighted by the kernel matrix. You can find a nice explanation with examples at [GIMP's Convolution Matrix plugin](https://docs.gimp.org/en/plug-in-convmatrix.html)
+Sum neighbor pixels weighted by the kernel matrix. You can find a nice explanation with examples at [GIMP's Convolution Matrix plugin](https://docs.gimp.org/2.6/en/plug-in-convmatrix.html)
 
 Implement emboss effect:
 
@@ -652,7 +652,8 @@ Most instance methods can be chained together, for example as follows:
 
 ```js
 Jimp.read('lenna.png').then(image => {
-  this.greyscale()
+  image
+    .greyscale()
     .scale(0.5)
     .write('lena-half-bw.png');
 });
