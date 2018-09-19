@@ -44,43 +44,46 @@ function greyscale(cb) {
   return this;
 }
 
+function mix(clr, clr2, p = 50) {
+  return {
+    r: (clr2.r - clr.r) * (p / 100) + clr.r,
+    g: (clr2.g - clr.g) * (p / 100) + clr.g,
+    b: (clr2.b - clr.b) * (p / 100) + clr.b
+  };
+}
+
 function colorFn(actions, cb) {
   if (!actions || !Array.isArray(actions)) {
     return throwError.call(this, 'actions must be an array', cb);
   }
 
   actions = actions.map(action => {
-    if (action.apply === 'xor') {
+    if (action.apply === 'xor' || action.apply === 'mix') {
       action.params[0] = tinyColor(action.params[0]).toRgb();
     }
 
     return action;
   });
 
-  const originalScope = this;
-  this.scanQuiet(0, 0, this.bitmap.width, this.bitmap.height, function(
-    x,
-    y,
-    idx
-  ) {
+  this.scanQuiet(0, 0, this.bitmap.width, this.bitmap.height, (x, y, idx) => {
     let clr = {
       r: this.bitmap.data[idx],
       g: this.bitmap.data[idx + 1],
       b: this.bitmap.data[idx + 2]
     };
 
-    const colorModifier = function(i, amount) {
-      return originalScope.constructor.limit255(clr[i] + amount);
-    };
+    function colorModifier(i, amount) {
+      return this.constructor.limit255(clr[i] + amount);
+    }
 
     actions.forEach(action => {
-      // if (action.apply === 'mix') {
-      //   clr = tinyColor.mix(clr, action.params[0], action.params[1]);
-      // } else if (action.apply === 'tint') {
-      //   clr = tinyColor.mix(clr, 'white', action.params[0]);
-      // } else if (action.apply === 'shade') {
-      //   clr = tinyColor.mix(clr, 'black', action.params[0]);
-      if (action.apply === 'xor') {
+      if (action.apply === 'mix') {
+        clr = mix(clr, action.params[0], action.params[1]);
+      } else if (action.apply === 'tint') {
+        clr = mix(clr, { r: 255, g: 255, b: 255 }, action.params[0]);
+      } else if (action.apply === 'shade') {
+        clr = mix(clr, { r: 0, g: 0, b: 0 }, action.params[0]);
+      } else if (action.apply === 'xor') {
         clr = {
           r: clr.r ^ action.params[0].r,
           g: clr.g ^ action.params[0].g,
@@ -93,22 +96,24 @@ function colorFn(actions, cb) {
       } else if (action.apply === 'blue') {
         clr.b = colorModifier('b', action.params[0]);
       } else {
-        // if (action.apply === 'hue') {
-        //   action.apply = 'spin';
-        // }
-        // const fn = clr[action.apply];
-        // if (!fn) {
-        //   return throwError.call(
-        //     originalScope,
-        //     'action ' + action.apply + ' not supported',
-        //     cb
-        //   );
-        // }
-        // clr = fn.apply(clr, action.params);
+        if (action.apply === 'hue') {
+          action.apply = 'spin';
+        }
+
+        clr = tinyColor(clr);
+
+        if (!clr[action.apply]) {
+          return throwError.call(
+            originalScope,
+            'action ' + action.apply + ' not supported',
+            cb
+          );
+        }
+
+        clr = clr[action.apply](...action.params).toRgb();
       }
     });
 
-    // clr = clr.toRgb();
     this.bitmap.data[idx] = clr.r;
     this.bitmap.data[idx + 1] = clr.g;
     this.bitmap.data[idx + 2] = clr.b;
