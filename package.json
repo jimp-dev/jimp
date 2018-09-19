@@ -9,7 +9,7 @@
   },
   "scripts": {
     "lint": "xo",
-    "test": "cross-env BABEL_ENV=test mocha --require @babel/register './packages/**/test/**/*.test.js'",
+    "test": "cross-env BABEL_ENV=test mocha --require @babel/register './packages/**/test/**/*.test.js' --require ts-node/register ./packages/**/test/*.test.ts",
     "test:watch": "npm run test -- --reporter min --watch",
     "test:browser": "cross-env BABEL_ENV=test ENV=browser CHROME_BIN=\"$(which chrome || which chromium)\" karma start --single-run",
     "test:browser:watch": "npm run -s test:browser start -- --auto-watch",
@@ -88,7 +88,9 @@
     ],
     "ignores": [
       "omggif.js",
-      "**/*.d.ts"
+      "**/*.ts",
+      "**/*.d.ts",
+      "*.ts"
     ],
     "rules": {
       "capitalized-comments": 0,

@@ -11,6 +11,10 @@ Installation: `npm install --save jimp`
 
 API documentation can be found in the main [jimp package](./packages/jimp)
 
+## Tools
+
+:hammer: [cli](./packages/cli) - Jimp as a CLI program. Can load and run all plugins
+
 ## Supported Image Types
 
 - [bmp](./packages/type-bmp)
@@ -49,7 +53,7 @@ API documentation can be found in the main [jimp package](./packages/jimp)
 
 ## Custom Jimp
 
-If you want to extend jimp or omit types or functions visit [@jimp/custom](./packages).
+If you want to extend jimp or omit types or functions visit [@jimp/custom](./packages/custom).
 
 - Add file-types or switch encoder/decoders
 - Add add/remove plugins (image manipulation methods)

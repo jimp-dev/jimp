@@ -5,6 +5,23 @@
   <p>Configure jimp with types and plugins.</p>
 </div>
 
+## Useful Defaults
+
+The following wil configure a `jimp` instance with the same functionality as the main `jimp` package.
+
+```js
+import configure from '@jimp/custom';
+// all of jimp's default types
+import types from '@jimp/types';
+// all of jimp's default types
+import plugins from '@jimp/plugins';
+
+configure({
+  types: [types],
+  plugins: [plugins]
+});
+```
+
 ## Available Methods
 
 ### configure
