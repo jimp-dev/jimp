@@ -89,8 +89,12 @@ describe('PNG', () => {
       .colorType(0)
       .getBufferAsync(Jimp.MIME_PNG);
 
-    const expected = fs.readFileSync(imagesDir + '/options.png');
+    const expected = await jimp.read(imagesDir + '/options.png');
+    const expectedBuffer = await expected
+      .deflateStrategy(0)
+      .colorType(0)
+      .getBufferAsync(Jimp.MIME_PNG);
 
-    image.should.be.deepEqual(expected);
+    image.should.be.deepEqual(expectedBuffer);
   });
 });

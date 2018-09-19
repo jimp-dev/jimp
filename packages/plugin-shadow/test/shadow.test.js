@@ -26,7 +26,6 @@ describe('Shadow', () => {
 
     testImage
       .shadow({ x: -1, y: 1, blur: 1 })
-      .write('shadow.png')
       .bitmap.data.should.be.deepEqual(expectedImg.bitmap.data);
   });
 });
