@@ -652,7 +652,8 @@ Most instance methods can be chained together, for example as follows:
 
 ```js
 Jimp.read('lenna.png').then(image => {
-  this.greyscale()
+  image
+    .greyscale()
     .scale(0.5)
     .write('lena-half-bw.png');
 });
