@@ -132,7 +132,7 @@ image.crop( x, y, w, h );         // crop to the given region
 /* Composing */
 image.blit( src, x, y, [srcx, srcy, srcw, srch] );
                                   // blit the image with another Jimp image at x, y, optionally cropped.
-image.composite( src, x, y, [mode, opacitySource, opacityDest] );     // composites another Jimp image over this image at x, y
+image.composite( src, x, y, [{ mode, opacitySource, opacityDest }] );     // composites another Jimp image over this image at x, y
 image.mask( src, x, y );          // masks the image with another Jimp image at x, y using average pixel value
 image.convolute( kernel );        // applies a convolution kernel matrix to the image or a region
 
@@ -256,7 +256,7 @@ Jimp.BLEND_EXCLUSION;
 ```
 
 ```js
-image.composite(srcImage, 100, 0, Jimp.BLEND_MULTIPLY, 0.5, 0.9);
+image.composite(srcImage, 100, 0, { mode: Jimp.BLEND_MULTIPLY, opacitySource: 0.5, opacityDest: 0.9 });
 ```
 
 ### Writing text
