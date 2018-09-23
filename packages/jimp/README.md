@@ -106,6 +106,14 @@ Jimp.read('http://www.example.com/path/to/lenna.jpg')
   .catch(err => {
     // handle an exception
   });
+
+Jimp.read({ url: 'http://www.example.com/path/to/lenna.jpg', headers: { ... } })
+  .then(image => {
+    // do stuff with the image
+  })
+  .catch(err => {
+    // handle an exception
+  });
 ```
 
 The conveniance method `Jimp.create` also exists. It is just a wrapper around `Jimp.read`.
@@ -299,7 +307,11 @@ Jimp.BLEND_EXCLUSION;
 ```
 
 ```js
-image.composite(srcImage, 100, 0, { mode: Jimp.BLEND_MULTIPLY, opacitySource: 0.5, opacityDest: 0.9 });
+image.composite(srcImage, 100, 0, {
+  mode: Jimp.BLEND_MULTIPLY,
+  opacitySource: 0.5,
+  opacityDest: 0.9
+});
 ```
 
 ### Writing text

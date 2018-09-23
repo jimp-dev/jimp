@@ -65,6 +65,14 @@ declare namespace Jimp {
         alignmentY: number;
       };
 
+  type URLOptions = {
+    url: string;
+    compression?: boolean;
+    headers: {
+      [key: string]: any;
+    };
+  };
+
   interface Bitmap {
     data: Buffer;
     width: number;
@@ -218,6 +226,7 @@ declare namespace Jimp {
 
     // Constructors
     constructor(path: string, cb?: Jimp.ImageCallback);
+    constructor(urlOptions: URLOptions, cb?: Jimp.ImageCallback);
     constructor(image: Jimp, cb?: Jimp.ImageCallback);
     constructor(data: Buffer, cb?: Jimp.ImageCallback);
     constructor(data: Bitmap, cb?: Jimp.ImageCallback);
