@@ -1,6 +1,5 @@
 /* eslint key-spacing: ["error", { "align": "value" }] */
 
-import fs from 'fs';
 import { Jimp, getTestDir, hasOwnProp } from '@jimp/test-utils';
 import configure from '@jimp/custom';
 import blit from '@jimp/plugin-blit';

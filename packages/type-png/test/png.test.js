@@ -1,6 +1,5 @@
 /* eslint-disable no-control-regex */
 
-import fs from 'fs';
 import { Jimp, getTestDir } from '@jimp/test-utils';
 import configure from '@jimp/custom';
 
