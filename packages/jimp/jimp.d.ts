@@ -236,6 +236,11 @@ declare namespace Jimp {
       event: T,
       cb: (data: ListenerData<T>) => any
     ): any;
+    parseBitmap(
+      data: Buffer,
+      path: string | null | undefined,
+      cb?: Jimp.ImageCallback
+    );
     hasAlpha(): boolean;
     getHeight(): number;
     getWidth(): number;

@@ -1,5 +1,5 @@
 import tinyColor from 'tinycolor2';
-import { throwError, isNodePattern, limit255 } from '@jimp/utils';
+import { throwError, isNodePattern } from '@jimp/utils';
 
 function applyKernel(im, kernel, x, y) {
   const value = [0, 0, 0];

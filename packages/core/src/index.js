@@ -312,7 +312,7 @@ class Jimp extends EventEmitter {
           return throwError.call(this, err, finish);
         }
 
-        parseBitmap.call(this, data, path, finish);
+        this.parseBitmap(data, path, finish);
       });
     } else if (typeof args[0] === 'object' && Buffer.isBuffer(args[0])) {
       // read from a buffer
@@ -323,7 +323,7 @@ class Jimp extends EventEmitter {
         return throwError.call(this, 'cb must be a function', finish);
       }
 
-      parseBitmap.call(this, data, null, finish);
+      this.parseBitmap(data, null, finish);
     } else {
       // Allow client libs to add new ways to build a Jimp object.
       // Extra constructors must be added by `Jimp.appendConstructorOption()`
@@ -357,6 +357,18 @@ class Jimp extends EventEmitter {
         );
       }
     }
+  }
+
+  /**
+   * Parse a bitmap with the loaded image types.
+   *
+   * @param {Buffer} data raw image data
+   * @param {string} path optional path to file
+   * @param {function(Error, Jimp)} cb (optional) a callback for when complete
+   * @memberof Jimp
+   */
+  parseBitmap(data, path, finish) {
+    parseBitmap.call(this, data, null, finish);
   }
 
   /**
