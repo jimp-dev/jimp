@@ -8,8 +8,8 @@ Jimp.read(url)
   .then(image => {
     image.greyscale().getBuffer(Jimp.MIME_JPEG, onBuffer);
   })
-  .catch(err => {
-    console.error(err);
+  .catch(error => {
+    console.error(error);
   });
 
 function onBuffer(err, buffer) {
