@@ -104,7 +104,7 @@ function colorFn(actions, cb) {
 
         if (!clr[action.apply]) {
           return throwError.call(
-            originalScope,
+            this,
             'action ' + action.apply + ' not supported',
             cb
           );

@@ -19,13 +19,13 @@ if (
         try {
           const data = Buffer.from(this.response);
           cb(null, xhr, data);
-        } catch (err) {
+        } catch (error) {
           return cb(
             new Error(
               'Response is not a buffer for url ' +
                 options.url +
                 '. Error: ' +
-                err.message
+                error.message
             )
           );
         }
