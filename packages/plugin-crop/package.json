@@ -1,6 +1,6 @@
 {
   "name": "@jimp/plugin-crop",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "description": "crop an image.",
   "main": "dist/index.js",
   "module": "es/index.js",
@@ -23,8 +23,8 @@
     "core-js": "^2.5.7"
   },
   "devDependencies": {
-    "@jimp/custom": "^0.5.0",
-    "@jimp/test-utils": "^0.5.0"
+    "@jimp/custom": "^0.5.1",
+    "@jimp/test-utils": "^0.5.1"
   },
   "peerDependencies": {
     "@jimp/custom": ">=0.3.5"

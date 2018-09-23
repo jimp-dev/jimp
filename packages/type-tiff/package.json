@@ -1,6 +1,6 @@
 {
   "name": "@jimp/tiff",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "description": "Default Jimp tiff encoder/decoder.",
   "main": "dist/index.js",
   "module": "es/index.js",
@@ -26,8 +26,8 @@
     "@jimp/custom": ">=0.3.5"
   },
   "devDependencies": {
-    "@jimp/custom": "^0.5.0",
-    "@jimp/test-utils": "^0.5.0"
+    "@jimp/custom": "^0.5.1",
+    "@jimp/test-utils": "^0.5.1"
   },
   "publishConfig": {
     "access": "public"
