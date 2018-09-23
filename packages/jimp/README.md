@@ -110,6 +110,49 @@ Jimp.read('http://www.example.com/path/to/lenna.jpg')
 
 The conveniance method `Jimp.create` also exists. It is just a wrapper around `Jimp.read`.
 
+### Custom Constructor
+
+You might want to initialize jimp in so custom way. To do this Jimp exposes the static function `appendConstructorOption`. The appended constructor options run after all the defaults.
+
+To define a custom constructor provide a name for it, a function to call to determine if the arguments provided to jimp match your constructor, and a function called where you can construct the image however you want.
+
+```js
+Jimp.appendConstructorOption(
+  'Name of Option',
+  args => arg.hasSomeCustomThing,
+  function(resolve, reject, args) {
+    this.bitmap = customParser(args);
+    resolve();
+  }
+);
+```
+
+If you don't want to handle parsing the bitmap. For example if you want to do some sort of authentication for URL request. Jimp exposes `parseBitmap` so you can fall back to jimp to do the heavy lifting.
+
+Parse bitmap takes the raw image data in a Buffer, a path (optional), and a node style callback.
+
+```js
+Jimp.appendConstructorOption('Custom Url', options => options.url, function(
+  resolve,
+  reject,
+  options
+) {
+  phin(options, (err, res) => {
+    if (err) {
+      return reject(err);
+    }
+
+    this.parseBitmap(res.body, options.url, err => {
+      if (err) {
+        return reject(err);
+      }
+
+      resolve();
+    });
+  });
+});
+```
+
 ### Methods
 
 Once the promise is fulfilled, the following methods can be called on the image:
