@@ -1,10 +1,4 @@
-## Unreleased (2018-09-23)
-
-#### :rocket: Enhancement
-
-- `jimp`, `plugin-crop`
-  - [#399](https://github.com/oliver-moran/jimp/pull/399) Add `leaveBorder` to AutoCrop ([@JR-Y](https://github.com/JR-Y))
-  - [#461](https://github.com/oliver-moran/jimp/pull/461) Add 'cropSymmetric' to AutoCrop ([@f-barth](https://github.com/f-barth))
+## v0.5.1 (2018-09-23)
 
 #### :bug: Bug Fix
 
@@ -16,12 +10,6 @@
   - [#622](https://github.com/oliver-moran/jimp/pull/622) Color Perf Gains ([@hipstersmoothie](https://github.com/hipstersmoothie))
 - `plugin-print`
   - [#616](https://github.com/oliver-moran/jimp/pull/616) Print Perf Enhancement ([@hipstersmoothie](https://github.com/hipstersmoothie))
-  - [#611](https://github.com/oliver-moran/jimp/pull/611) Print Offset Bug ([@hipstersmoothie](https://github.com/hipstersmoothie))
-  - [#595](https://github.com/oliver-moran/jimp/pull/595) Vertical Align Y Print Bug ([@hipstersmoothie](https://github.com/hipstersmoothie))
-- `plugin-blit`
-  - [#613](https://github.com/oliver-moran/jimp/pull/613) Blit src params Issue ([@hipstersmoothie](https://github.com/hipstersmoothie))
-- `jimp`, `type-png`
-  - [#604](https://github.com/oliver-moran/jimp/pull/604) Fix PNG Options ([@hipstersmoothie](https://github.com/hipstersmoothie))
 
 #### :house: Internal
 
@@ -29,6 +17,32 @@
   - [#606](https://github.com/oliver-moran/jimp/pull/606) @jimp/cli ([@hipstersmoothie](https://github.com/hipstersmoothie))
 - `jimp`, `plugin-color`, `plugin-contain`, `plugin-cover`, `plugin-print`, `plugin-resize`
   - [#619](https://github.com/oliver-moran/jimp/pull/619) Improve Some Plugin Docs ([@hipstersmoothie](https://github.com/hipstersmoothie))
+
+#### Committers: 2
+
+- Andrew Lisowski ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- Boon ([@apboon](https://github.com/apboon))
+
+## v0.5.0 (2018-09-15)
+
+#### :rocket: Enhancement
+
+- `jimp`, `plugin-crop`
+  - [#399](https://github.com/oliver-moran/jimp/pull/399) Add `leaveBorder` to AutoCrop ([@JR-Y](https://github.com/JR-Y))
+  - [#461](https://github.com/oliver-moran/jimp/pull/461) Add 'cropSymmetric' to AutoCrop ([@f-barth](https://github.com/f-barth))
+
+#### :bug: Bug Fix
+
+- `plugin-blit`
+  - [#613](https://github.com/oliver-moran/jimp/pull/613) Blit src params Issue ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- `plugin-print`
+  - [#611](https://github.com/oliver-moran/jimp/pull/611) Print Offset Bug ([@hipstersmoothie](https://github.com/hipstersmoothie))
+  - [#595](https://github.com/oliver-moran/jimp/pull/595) Vertical Align Y Print Bug ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- `jimp`, `type-png`
+  - [#604](https://github.com/oliver-moran/jimp/pull/604) Fix PNG Options ([@hipstersmoothie](https://github.com/hipstersmoothie))
+
+#### :house: Internal
+
 - `core`, `custom`, `jimp`, `plugin-blit`, `plugin-blur`, `plugin-circle`, `plugin-color`, `plugin-contain`, `plugin-cover`, `plugin-crop`, `plugin-displace`, `plugin-dither`, `plugin-fisheye`, `plugin-flip`, `plugin-gaussian`, `plugin-invert`, `plugin-mask`, `plugin-normalize`, `plugin-print`, `plugin-resize`, `plugin-rotate`, `plugin-scale`, `plugin-shadow`, `plugin-threshold`, `plugins`, `test-utils`, `type-bmp`, `type-gif`, `type-jpeg`, `type-png`, `type-tiff`, `types`, `utils`
   - [#615](https://github.com/oliver-moran/jimp/pull/615) Licenses ([@hipstersmoothie](https://github.com/hipstersmoothie))
   - [#608](https://github.com/oliver-moran/jimp/pull/608) remove link from all docs ([@hipstersmoothie](https://github.com/hipstersmoothie))
@@ -43,10 +57,9 @@
 - `plugin-circle`
   - [#594](https://github.com/oliver-moran/jimp/pull/594) Circle plugin ([@hipstersmoothie](https://github.com/hipstersmoothie))
 
-#### Committers: 6
+#### Committers: 5
 
 - Andrew Lisowski ([@hipstersmoothie](https://github.com/hipstersmoothie))
-- Boon ([@apboon](https://github.com/apboon))
 - John-Robert Yrjölä ([@JR-Y](https://github.com/JR-Y))
 - Vladyslav Turak ([@turakvlad](https://github.com/turakvlad))
 - [@brownrw8](https://github.com/brownrw8)
