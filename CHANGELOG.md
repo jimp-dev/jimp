@@ -1,9 +1,11 @@
-## Unreleased (2018-09-23)
+## v0.5.2 (2018-09-23)
 
-#### :rocket: Enhancement
+#### :bug: Bug Fix
 
 - `core`, `jimp`
   - [#629](https://github.com/oliver-moran/jimp/pull/629) add new constructor option to load url with options ([@hipstersmoothie](https://github.com/hipstersmoothie))
+
+## v0.5.1 (2018-09-23)
 
 #### :bug: Bug Fix
 
