@@ -1,14 +1,20 @@
+## Unreleased (2018-09-23)
+
+#### :bug: Bug Fix
+
+- `core`, `jimp`, `plugin-color`, `test-utils`
+  - [#630](https://github.com/oliver-moran/jimp/pull/630) update deps ([@hipstersmoothie](https://github.com/hipstersmoothie))
+
+#### Committers: 1
+
+- Andrew Lisowski ([@hipstersmoothie](https://github.com/hipstersmoothie))
+
 ## v0.5.2 (2018-09-23)
 
 #### :bug: Bug Fix
 
 - `core`, `jimp`
   - [#629](https://github.com/oliver-moran/jimp/pull/629) add new constructor option to load url with options ([@hipstersmoothie](https://github.com/hipstersmoothie))
-
-## v0.5.1 (2018-09-23)
-
-#### :bug: Bug Fix
-
 - `core`, `jimp`, `plugin-color`, `plugin-print`, `type-png`
   - [#628](https://github.com/oliver-moran/jimp/pull/628) Expose ParseBitmap ([@hipstersmoothie](https://github.com/hipstersmoothie))
 - `jimp`
