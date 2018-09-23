@@ -1,4 +1,4 @@
-## v0.5.0 (2018-09-15)
+## Unreleased (2018-09-23)
 
 #### :rocket: Enhancement
 
@@ -8,16 +8,27 @@
 
 #### :bug: Bug Fix
 
-- `plugin-blit`
-  - [#613](https://github.com/oliver-moran/jimp/pull/613) Blit src params Issue ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- `core`, `jimp`, `plugin-color`, `plugin-print`, `type-png`
+  - [#628](https://github.com/oliver-moran/jimp/pull/628) Expose ParseBitmap ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- `jimp`
+  - [#624](https://github.com/oliver-moran/jimp/pull/624) correct getBase64Async type def ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- `cli`, `plugin-color`, `plugin-print`
+  - [#622](https://github.com/oliver-moran/jimp/pull/622) Color Perf Gains ([@hipstersmoothie](https://github.com/hipstersmoothie))
 - `plugin-print`
+  - [#616](https://github.com/oliver-moran/jimp/pull/616) Print Perf Enhancement ([@hipstersmoothie](https://github.com/hipstersmoothie))
   - [#611](https://github.com/oliver-moran/jimp/pull/611) Print Offset Bug ([@hipstersmoothie](https://github.com/hipstersmoothie))
   - [#595](https://github.com/oliver-moran/jimp/pull/595) Vertical Align Y Print Bug ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- `plugin-blit`
+  - [#613](https://github.com/oliver-moran/jimp/pull/613) Blit src params Issue ([@hipstersmoothie](https://github.com/hipstersmoothie))
 - `jimp`, `type-png`
   - [#604](https://github.com/oliver-moran/jimp/pull/604) Fix PNG Options ([@hipstersmoothie](https://github.com/hipstersmoothie))
 
 #### :house: Internal
 
+- `cli`, `custom`, `jimp`, `plugin-print`
+  - [#606](https://github.com/oliver-moran/jimp/pull/606) @jimp/cli ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- `jimp`, `plugin-color`, `plugin-contain`, `plugin-cover`, `plugin-print`, `plugin-resize`
+  - [#619](https://github.com/oliver-moran/jimp/pull/619) Improve Some Plugin Docs ([@hipstersmoothie](https://github.com/hipstersmoothie))
 - `core`, `custom`, `jimp`, `plugin-blit`, `plugin-blur`, `plugin-circle`, `plugin-color`, `plugin-contain`, `plugin-cover`, `plugin-crop`, `plugin-displace`, `plugin-dither`, `plugin-fisheye`, `plugin-flip`, `plugin-gaussian`, `plugin-invert`, `plugin-mask`, `plugin-normalize`, `plugin-print`, `plugin-resize`, `plugin-rotate`, `plugin-scale`, `plugin-shadow`, `plugin-threshold`, `plugins`, `test-utils`, `type-bmp`, `type-gif`, `type-jpeg`, `type-png`, `type-tiff`, `types`, `utils`
   - [#615](https://github.com/oliver-moran/jimp/pull/615) Licenses ([@hipstersmoothie](https://github.com/hipstersmoothie))
   - [#608](https://github.com/oliver-moran/jimp/pull/608) remove link from all docs ([@hipstersmoothie](https://github.com/hipstersmoothie))
@@ -32,9 +43,10 @@
 - `plugin-circle`
   - [#594](https://github.com/oliver-moran/jimp/pull/594) Circle plugin ([@hipstersmoothie](https://github.com/hipstersmoothie))
 
-#### Committers: 5
+#### Committers: 6
 
 - Andrew Lisowski ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- Boon ([@apboon](https://github.com/apboon))
 - John-Robert Yrjölä ([@JR-Y](https://github.com/JR-Y))
 - Vladyslav Turak ([@turakvlad](https://github.com/turakvlad))
 - [@brownrw8](https://github.com/brownrw8)
@@ -195,4 +207,3 @@
 - Danny Sofftie ([@DannySofftie](https://github.com/DannySofftie))
 - Vojtěch Štěpančík ([@VojtechStep](https://github.com/VojtechStep))
 - [@qw3n](https://github.com/qw3n)
-  Done in 13.68s.
