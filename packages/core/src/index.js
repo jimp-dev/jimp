@@ -1124,7 +1124,7 @@ export function jimpEvMethod(methodName, evName, method) {
       }
     } catch (error) {
       error.methodName = methodName;
-      this.emitErroror(methodName, error);
+      this.emitError(methodName, error);
     }
 
     return result;
