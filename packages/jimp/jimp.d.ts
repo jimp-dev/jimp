@@ -249,7 +249,7 @@ declare namespace Jimp {
       data: Buffer,
       path: string | null | undefined,
       cb?: Jimp.ImageCallback
-    );
+    ): void;
     hasAlpha(): boolean;
     getHeight(): number;
     getWidth(): number;
@@ -511,7 +511,7 @@ declare namespace Jimp {
         reject: (reason: Error) => any,
         ...args: T[]
       ) => any
-    );
+    ): void;
     static read(path: string): Promise<Jimp>;
     static read(image: Jimp): Promise<Jimp>;
     static read(data: Buffer): Promise<Jimp>;
@@ -552,8 +552,8 @@ declare namespace Jimp {
       file: string,
       cb: Jimp.GenericCallback<Font, any, any>
     ): Promise<never>;
-    static measureText(font: Font, text: PrintableText);
-    static measureTextHeight(font: Font, text: PrintableText, maxWidth: number);
+    static measureText(font: Font, text: PrintableText): number;
+    static measureTextHeight(font: Font, text: PrintableText, maxWidth: number): number;
   }
 }
 
