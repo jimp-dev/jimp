@@ -1,8 +1,6 @@
 <div align="center">
-  <a href="https://intuit.github.io/Ignite/">
-    <img width="200" height="200"
-      src="https://s3.amazonaws.com/pix.iemoji.com/images/emoji/apple/ios-11/256/crayon.png">
-  </a>
+  <img width="200" height="200"
+    src="https://s3.amazonaws.com/pix.iemoji.com/images/emoji/apple/ios-11/256/crayon.png">
   <h1>@jimp/png</h1>
   <p>Default Jimp png encoder/decoder.</p>
 </div>
@@ -20,6 +18,10 @@ Sets the deflate strategy used when saving as PNG format (default is 3)
 ### Jimp.filterType
 
 Sets the filter type used when saving as PNG format (default is automatic filters)
+
+### Jimp.colorType
+
+Sets the color type used when saving as PNG format (one of 0, 2, 4, 6)
 
 ### Filter Types
 

@@ -1,8 +1,6 @@
 <div align="center">
-  <a href="https://intuit.github.io/Ignite/">
-    <img width="200" height="200"
-      src="https://s3.amazonaws.com/pix.iemoji.com/images/emoji/apple/ios-11/256/crayon.png">
-  </a>
+  <img width="200" height="200"
+    src="https://s3.amazonaws.com/pix.iemoji.com/images/emoji/apple/ios-11/256/crayon.png">
   <h1>Jimp</h1>
   <p>JavaScript Image Manipulation Program</p>
 </div>
@@ -108,11 +106,62 @@ Jimp.read('http://www.example.com/path/to/lenna.jpg')
   .catch(err => {
     // handle an exception
   });
+
+Jimp.read({ url: 'http://www.example.com/path/to/lenna.jpg', headers: { ... } })
+  .then(image => {
+    // do stuff with the image
+  })
+  .catch(err => {
+    // handle an exception
+  });
 ```
 
 The conveniance method `Jimp.create` also exists. It is just a wrapper around `Jimp.read`.
 
-### Basic methods
+### Custom Constructor
+
+You might want to initialize jimp in so custom way. To do this Jimp exposes the static function `appendConstructorOption`. The appended constructor options run after all the defaults.
+
+To define a custom constructor provide a name for it, a function to call to determine if the arguments provided to jimp match your constructor, and a function called where you can construct the image however you want.
+
+```js
+Jimp.appendConstructorOption(
+  'Name of Option',
+  args => arg.hasSomeCustomThing,
+  function(resolve, reject, args) {
+    this.bitmap = customParser(args);
+    resolve();
+  }
+);
+```
+
+If you don't want to handle parsing the bitmap. For example if you want to do some sort of authentication for URL request. Jimp exposes `parseBitmap` so you can fall back to jimp to do the heavy lifting.
+
+Parse bitmap takes the raw image data in a Buffer, a path (optional), and a node style callback.
+
+```js
+Jimp.appendConstructorOption('Custom Url', options => options.url, function(
+  resolve,
+  reject,
+  options
+) {
+  phin(options, (err, res) => {
+    if (err) {
+      return reject(err);
+    }
+
+    this.parseBitmap(res.body, options.url, err => {
+      if (err) {
+        return reject(err);
+      }
+
+      resolve();
+    });
+  });
+});
+```
+
+### Methods
 
 Once the promise is fulfilled, the following methods can be called on the image:
 
@@ -128,12 +177,13 @@ image.scaleToFit( w, h[, mode] ); // scale the image to the largest size that fi
 
 /* Crop */
 image.autocrop([tolerance, frames]); // automatically crop same-color borders from image (if any), frames must be a Boolean
+image.autocrop(options);          // automatically crop same-color borders from image (if any), options may contain tolerance, cropOnlyFrames, cropSymmetric, leaveBorder
 image.crop( x, y, w, h );         // crop to the given region
 
 /* Composing */
 image.blit( src, x, y, [srcx, srcy, srcw, srch] );
                                   // blit the image with another Jimp image at x, y, optionally cropped.
-image.composite( src, x, y, [mode, opacitySource, opacityDest] );     // composites another Jimp image over this image at x, y
+image.composite( src, x, y, [{ mode, opacitySource, opacityDest }] );     // composites another Jimp image over this image at x, y
 image.mask( src, x, y );          // masks the image with another Jimp image at x, y using average pixel value
 image.convolute( kernel );        // applies a convolution kernel matrix to the image or a region
 
@@ -257,7 +307,11 @@ Jimp.BLEND_EXCLUSION;
 ```
 
 ```js
-image.composite(srcImage, 100, 0, Jimp.BLEND_MULTIPLY, 0.5, 0.9);
+image.composite(srcImage, 100, 0, {
+  mode: Jimp.BLEND_MULTIPLY,
+  opacitySource: 0.5,
+  opacityDest: 0.9
+});
 ```
 
 ### Writing text
@@ -468,7 +522,7 @@ The method supports the following modifiers:
 
 ### Convolution matrix
 
-Sum neighbor pixels weighted by the kernel matrix. You can find a nice explanation with examples at [GIMP's Convolution Matrix plugin](https://docs.gimp.org/en/plug-in-convmatrix.html)
+Sum neighbor pixels weighted by the kernel matrix. You can find a nice explanation with examples at [GIMP's Convolution Matrix plugin](https://docs.gimp.org/2.6/en/plug-in-convmatrix.html)
 
 Implement emboss effect:
 
@@ -653,7 +707,8 @@ Most instance methods can be chained together, for example as follows:
 
 ```js
 Jimp.read('lenna.png').then(image => {
-  this.greyscale()
+  image
+    .greyscale()
     .scale(0.5)
     .write('lena-half-bw.png');
 });

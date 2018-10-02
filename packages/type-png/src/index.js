@@ -30,18 +30,25 @@ export default () => ({
     [MIME_TYPE]: data => {
       const png = new PNG({
         width: data.bitmap.width,
-        height: data.bitmap.height,
-        bitDepth: 8,
-        deflateLevel: data._deflateLevel,
-        deflateStrategy: data._deflateStrategy,
-        filterType: data._filterType,
-        colorType: data._rgba ? 6 : 2,
-        inputHasAlpha: true
+        height: data.bitmap.height
       });
 
       png.data = data.bitmap.data;
 
-      return PNG.sync.write(png);
+      return PNG.sync.write(png, {
+        width: data.bitmap.width,
+        height: data.bitmap.height,
+        deflateLevel: data._deflateLevel,
+        deflateStrategy: data._deflateStrategy,
+        filterType: data._filterType,
+        colorType:
+          typeof data._colorType === 'number'
+            ? data._colorType
+            : data._rgba
+              ? 6
+              : 2,
+        inputHasAlpha: data._rgba
+      });
     }
   },
 
@@ -49,6 +56,7 @@ export default () => ({
     _deflateLevel: 9,
     _deflateStrategy: 3,
     _filterType: PNG_FILTER_AUTO,
+    _colorType: null,
 
     /**
      * Sets the deflate level used when saving as PNG format (default is 9)
@@ -118,6 +126,28 @@ export default () => ({
       }
 
       this._filterType = Math.round(f);
+
+      if (isNodePattern(cb)) {
+        cb.call(this, null, this);
+      }
+
+      return this;
+    },
+    /**
+     * Sets the color type used when saving as PNG format
+     * @param {number} s color type to use 0, 2, 4, 6.
+     * @param {function(Error, Jimp)} cb (optional) a callback for when complete
+     * @returns {Jimp} this for chaining of methods
+     */ colorType(s, cb) {
+      if (typeof s !== 'number') {
+        return throwError.call(this, 's must be a number', cb);
+      }
+
+      if (s !== 0 && s !== 2 && s !== 4 && s !== 6) {
+        return throwError.call(this, 's must be a number 0, 2, 4, 6.', cb);
+      }
+
+      this._colorType = Math.round(s);
 
       if (isNodePattern(cb)) {
         cb.call(this, null, this);

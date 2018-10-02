@@ -44,70 +44,76 @@ function greyscale(cb) {
   return this;
 }
 
+function mix(clr, clr2, p = 50) {
+  return {
+    r: (clr2.r - clr.r) * (p / 100) + clr.r,
+    g: (clr2.g - clr.g) * (p / 100) + clr.g,
+    b: (clr2.b - clr.b) * (p / 100) + clr.b
+  };
+}
+
 function colorFn(actions, cb) {
   if (!actions || !Array.isArray(actions)) {
     return throwError.call(this, 'actions must be an array', cb);
   }
 
-  const originalScope = this;
-  this.scanQuiet(0, 0, this.bitmap.width, this.bitmap.height, function(
-    x,
-    y,
-    idx
-  ) {
-    let clr = tinyColor({
+  actions = actions.map(action => {
+    if (action.apply === 'xor' || action.apply === 'mix') {
+      action.params[0] = tinyColor(action.params[0]).toRgb();
+    }
+
+    return action;
+  });
+
+  this.scanQuiet(0, 0, this.bitmap.width, this.bitmap.height, (x, y, idx) => {
+    let clr = {
       r: this.bitmap.data[idx],
       g: this.bitmap.data[idx + 1],
       b: this.bitmap.data[idx + 2]
-    });
-
-    const colorModifier = function(i, amount) {
-      const c = clr.toRgb();
-      c[i] = Math.max(0, Math.min(c[i] + amount, 255));
-      return tinyColor(c);
     };
+
+    function colorModifier(i, amount) {
+      return this.constructor.limit255(clr[i] + amount);
+    }
 
     actions.forEach(action => {
       if (action.apply === 'mix') {
-        clr = tinyColor.mix(clr, action.params[0], action.params[1]);
+        clr = mix(clr, action.params[0], action.params[1]);
       } else if (action.apply === 'tint') {
-        clr = tinyColor.mix(clr, 'white', action.params[0]);
+        clr = mix(clr, { r: 255, g: 255, b: 255 }, action.params[0]);
       } else if (action.apply === 'shade') {
-        clr = tinyColor.mix(clr, 'black', action.params[0]);
+        clr = mix(clr, { r: 0, g: 0, b: 0 }, action.params[0]);
       } else if (action.apply === 'xor') {
-        const clr2 = tinyColor(action.params[0]).toRgb();
-        clr = clr.toRgb();
-        clr = tinyColor({
-          r: clr.r ^ clr2.r,
-          g: clr.g ^ clr2.g,
-          b: clr.b ^ clr2.b
-        });
+        clr = {
+          r: clr.r ^ action.params[0].r,
+          g: clr.g ^ action.params[0].g,
+          b: clr.b ^ action.params[0].b
+        };
       } else if (action.apply === 'red') {
-        clr = colorModifier('r', action.params[0]);
+        clr.r = colorModifier('r', action.params[0]);
       } else if (action.apply === 'green') {
-        clr = colorModifier('g', action.params[0]);
+        clr.g = colorModifier('g', action.params[0]);
       } else if (action.apply === 'blue') {
-        clr = colorModifier('b', action.params[0]);
+        clr.b = colorModifier('b', action.params[0]);
       } else {
         if (action.apply === 'hue') {
           action.apply = 'spin';
         }
 
-        const fn = clr[action.apply];
+        clr = tinyColor(clr);
 
-        if (!fn) {
+        if (!clr[action.apply]) {
           return throwError.call(
-            originalScope,
+            this,
             'action ' + action.apply + ' not supported',
             cb
           );
         }
 
-        clr = fn.apply(clr, action.params);
+        clr = clr[action.apply](...action.params).toRgb();
       }
     });
 
-    clr = clr.toRgb();
     this.bitmap.data[idx] = clr.r;
     this.bitmap.data[idx + 1] = clr.g;
     this.bitmap.data[idx + 2] = clr.b;

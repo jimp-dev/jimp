@@ -1,8 +1,6 @@
 <div align="center">
-  <a href="https://intuit.github.io/Ignite/">
-    <img width="200" height="200"
-      src="https://s3.amazonaws.com/pix.iemoji.com/images/emoji/apple/ios-11/256/crayon.png">
-  </a>
+  <img width="200" height="200"
+    src="https://s3.amazonaws.com/pix.iemoji.com/images/emoji/apple/ios-11/256/crayon.png">
   <h1>@jimp/plugin-contain</h1>
   <p>Contain an image within a height and width.</p>
 </div>
@@ -27,4 +25,35 @@ async function main() {
 }
 
 main();
+```
+
+### Align modes
+
+The following constants can be passed to `image.contain`:
+
+```js
+Jimp.HORIZONTAL_ALIGN_LEFT;
+Jimp.HORIZONTAL_ALIGN_CENTER;
+Jimp.HORIZONTAL_ALIGN_RIGHT;
+
+Jimp.VERTICAL_ALIGN_TOP;
+Jimp.VERTICAL_ALIGN_MIDDLE;
+Jimp.VERTICAL_ALIGN_BOTTOM;
+```
+
+For example:
+
+```js
+image.contain(250, 250, Jimp.HORIZONTAL_ALIGN_LEFT | Jimp.VERTICAL_ALIGN_TOP);
+image.contain(
+  250,
+  250,
+  Jimp.HORIZONTAL_ALIGN_RIGHT | Jimp.VERTICAL_ALIGN_BOTTOM
+);
+```
+
+Default align mode for `image.contain` is:
+
+```js
+Jimp.HORIZONTAL_ALIGN_CENTER | Jimp.VERTICAL_ALIGN_MIDDLE;
 ```

@@ -90,7 +90,7 @@ export function parseBitmap(data, path, cb) {
   try {
     this._exif = EXIFParser.create(data).parse();
     exifRotate(this); // EXIF data
-  } catch (err) {
+  } catch (error) {
     /* meh */
   }
 

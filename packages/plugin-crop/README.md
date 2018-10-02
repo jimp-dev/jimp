@@ -1,8 +1,6 @@
 <div align="center">
-  <a href="https://intuit.github.io/Ignite/">
-    <img width="200" height="200"
-      src="https://s3.amazonaws.com/pix.iemoji.com/images/emoji/apple/ios-11/256/crayon.png">
-  </a>
+  <img width="200" height="200"
+    src="https://s3.amazonaws.com/pix.iemoji.com/images/emoji/apple/ios-11/256/crayon.png">
   <h1>@jimp/plugin-crop</h1>
   <p>Crop an image.</p>
 </div>
@@ -33,8 +31,16 @@ main();
 
 AutoCrop same color borders from this image
 
-_ @param {number} tolerance (optional): a percent value of tolerance for pixels color difference (default: 0.0002%)
-_ @param {boolean} cropOnlyFrames (optional): flag to crop only real frames: all 4 sides of the image must have some border (default: true)
+- @param {number} tolerance (optional): a percent value of tolerance for pixels color difference (default: 0.0002%)
+- @param {boolean} cropOnlyFrames (optional): flag to crop only real frames: all 4 sides of the image must have some border (default: true)
+
+or
+
+- @param {object} options object
+  - tolerance (optional): a percent value of tolerance for pixels color difference (default: 0.0002%)
+  - cropOnlyFrames (optional): flag to crop only real frames: all 4 sides of the image must have some border (default: true)
+  - cropSymetric (optional): flag to force cropping top be symmetric. north and south / east and west are cropped by the same value
+  - leaveBorder (optional): integer of how many pixels of the background color to leave around the image
 
 ```js
 import jimp from 'jimp';
@@ -43,6 +49,7 @@ async function main() {
   const image = await jimp.read('test/image.png');
 
   image.autocrop();
+  image.autocrop({ cropOnlyFrames: false, cropSymmetric: true });
 }
 
 main();

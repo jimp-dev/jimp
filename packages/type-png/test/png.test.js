@@ -38,4 +38,62 @@ describe('PNG', () => {
 
     buffer.toString().should.match(/^.PNG\r\n/);
   });
+
+  it('should use png options', async () => {
+    const jgd = await jimp.read({
+      width: 20,
+      height: 20,
+      data: [
+        0xff0000ff,
+        0xff0080ff,
+        0xff00ffff,
+        0xff0080ff,
+        0xff00ffff,
+        0x8000ffff,
+        0xff00ffff,
+        0x8000ffff,
+        0x0000ffff,
+        0xff0000ff,
+        0xff0080ff,
+        0xff00ffff,
+        0xff0080ff,
+        0xff00ffff,
+        0x8000ffff,
+        0xff00ffff,
+        0x8000ffff,
+        0x0000ffff,
+        0xff0000ff,
+        0xff0080ff,
+        0xff00ffff,
+        0xff0080ff,
+        0xff00ffff,
+        0x8000ffff,
+        0xff00ffff,
+        0x8000ffff,
+        0x0000ffff,
+        0xff0000ff,
+        0xff0080ff,
+        0xff00ffff,
+        0xff0080ff,
+        0xff00ffff,
+        0x8000ffff,
+        0xff00ffff,
+        0x8000ffff,
+        0x0000ffff
+      ]
+    });
+
+    const image = await jgd
+      .deflateStrategy(0)
+      .colorType(0)
+      .getBufferAsync(Jimp.MIME_PNG);
+
+    const expected = await jimp.read(imagesDir + '/options.png');
+    const expectedBuffer = await expected
+      .deflateStrategy(0)
+      .colorType(0)
+      .getBufferAsync(Jimp.MIME_PNG);
+
+    image.should.be.deepEqual(expectedBuffer);
+  });
 });

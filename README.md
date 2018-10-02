@@ -1,8 +1,6 @@
 <div align="center">
-  <a href="https://intuit.github.io/Ignite/">
-    <img width="200" height="200"
-      src="https://s3.amazonaws.com/pix.iemoji.com/images/emoji/apple/ios-11/256/crayon.png">
-  </a>
+  <img width="200" height="200"
+    src="https://s3.amazonaws.com/pix.iemoji.com/images/emoji/apple/ios-11/256/crayon.png">
   <h1>Jimp</h1>
   <p>JavaScript Image Manipulation Program</p>
 </div>
@@ -12,6 +10,10 @@ An image processing library for Node written entirely in JavaScript, with zero n
 Installation: `npm install --save jimp`
 
 API documentation can be found in the main [jimp package](./packages/jimp)
+
+## Tools
+
+:hammer: [cli](./packages/cli) - Jimp as a CLI program. Can load and run all plugins
 
 ## Supported Image Types
 
@@ -43,12 +45,15 @@ API documentation can be found in the main [jimp package](./packages/jimp)
 ## Extra Plugins
 
 - [circle](./packages/plugin-circle) - Creates a circle out of an image.
+- [shadow](./packages/plugin-circle) - Creates a shadow on an image.
+- [fisheye](./packages/plugin-fisheye) - Apply a fisheye effect to an image.
+- [threshold](./packages/plugin-threshold) - Lighten an image. Good for scanned drawing and signatures.
 
 :rocket: If you want to add your plugins to this list make a PR! :rocket:
 
 ## Custom Jimp
 
-If you want to extend jimp or omit types or functions visit [@jimp/custom](./packages).
+If you want to extend jimp or omit types or functions visit [@jimp/custom](./packages/custom).
 
 - Add file-types or switch encoder/decoders
 - Add add/remove plugins (image manipulation methods)
@@ -86,3 +91,5 @@ Jimp is licensed under the MIT license. Open Sans is licensed under the Apache l
 :star: [differencify](https://www.npmjs.com/package/differencify) - Perceptual diffing tool
 
 :star: [gifwrap](https://www.npmjs.com/package/gifwrap) - A Jimp-compatible library for working with GIFs
+
+:star: [replace-color](https://www.npmjs.com/package/replace-color) - Replace color with another one pixel by pixel

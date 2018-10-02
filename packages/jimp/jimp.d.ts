@@ -65,6 +65,14 @@ declare namespace Jimp {
         alignmentY: number;
       };
 
+  type URLOptions = {
+    url: string;
+    compression?: boolean;
+    headers: {
+      [key: string]: any;
+    };
+  };
+
   interface Bitmap {
     data: Buffer;
     width: number;
@@ -218,6 +226,7 @@ declare namespace Jimp {
 
     // Constructors
     constructor(path: string, cb?: Jimp.ImageCallback);
+    constructor(urlOptions: URLOptions, cb?: Jimp.ImageCallback);
     constructor(image: Jimp, cb?: Jimp.ImageCallback);
     constructor(data: Buffer, cb?: Jimp.ImageCallback);
     constructor(data: Bitmap, cb?: Jimp.ImageCallback);
@@ -225,13 +234,7 @@ declare namespace Jimp {
     constructor(
       w: number,
       h: number,
-      background?: number,
-      cb?: Jimp.ImageCallback
-    );
-    constructor(
-      w: number,
-      h: number,
-      background?: string,
+      background?: number | string,
       cb?: Jimp.ImageCallback
     );
     // For custom constructors when using Jimp.appendConstructorOption
@@ -242,6 +245,11 @@ declare namespace Jimp {
       event: T,
       cb: (data: ListenerData<T>) => any
     ): any;
+    parseBitmap(
+      data: Buffer,
+      path: string | null | undefined,
+      cb?: Jimp.ImageCallback
+    ): void;
     hasAlpha(): boolean;
     getHeight(): number;
     getWidth(): number;
@@ -254,11 +262,12 @@ declare namespace Jimp {
     writeAsync(path: string): Promise<Jimp>;
     deflateLevel(l: number, cb?: Jimp.ImageCallback): this;
     deflateStrategy(s: number, cb?: Jimp.ImageCallback): this;
+    colorType(s: number, cb?: Jimp.ImageCallback): this;
     filterType(f: number, cb?: Jimp.ImageCallback): this;
     rgba(bool: boolean, cb?: Jimp.ImageCallback): this;
     quality(n: number, cb?: Jimp.ImageCallback): this;
     getBase64(mime: string, cb: GenericCallback<string, any, this>): this;
-    getBase64Async(mime: string): Promise<Jimp>;
+    getBase64Async(mime: string): Promise<string>;
     hash(cb?: GenericCallback<string, any, this>): this;
     hash(
       base: number | null | undefined,
@@ -428,6 +437,15 @@ declare namespace Jimp {
       cropOnlyFrames?: boolean,
       cb?: Jimp.ImageCallback
     ): this;
+    autocrop(
+      options: {
+        tolerance?: number;
+        cropOnlyFrames?: boolean;
+        cropSymmetric?: boolean;
+        leaveBorder?: number;
+      },
+      cb?: Jimp.ImageCallback
+    ): this;
 
     // Text methods
     print(
@@ -493,15 +511,23 @@ declare namespace Jimp {
         reject: (reason: Error) => any,
         ...args: T[]
       ) => any
-    );
+    ): void;
     static read(path: string): Promise<Jimp>;
     static read(image: Jimp): Promise<Jimp>;
     static read(data: Buffer): Promise<Jimp>;
-    static read(w: number, h: number, background?: number): Promise<Jimp>;
+    static read(
+      w: number,
+      h: number,
+      background?: number | string
+    ): Promise<Jimp>;
     static create(path: string): Promise<Jimp>;
     static create(image: Jimp): Promise<Jimp>;
     static create(data: Buffer): Promise<Jimp>;
-    static create(w: number, h: number, background?: number): Promise<Jimp>;
+    static create(
+      w: number,
+      h: number,
+      background?: number | string
+    ): Promise<Jimp>;
     static rgbaToInt(
       r: number,
       g: number,
@@ -526,8 +552,8 @@ declare namespace Jimp {
       file: string,
       cb: Jimp.GenericCallback<Font, any, any>
     ): Promise<never>;
-    static measureText(font: Font, text: PrintableText);
-    static measureTextHeight(font: Font, text: PrintableText, maxWidth: number);
+    static measureText(font: Font, text: PrintableText): number;
+    static measureTextHeight(font: Font, text: PrintableText, maxWidth: number): number;
   }
 }
 

@@ -1,8 +1,6 @@
 <div align="center">
-  <a href="https://intuit.github.io/Ignite/">
-    <img width="200" height="200"
-      src="https://s3.amazonaws.com/pix.iemoji.com/images/emoji/apple/ios-11/256/crayon.png">
-  </a>
+  <img width="200" height="200"
+    src="https://s3.amazonaws.com/pix.iemoji.com/images/emoji/apple/ios-11/256/crayon.png">
   <h1>@jimp/plugin-resize</h1>
   <p>Resize an image.</p>
 </div>
@@ -26,4 +24,33 @@ async function main() {
 }
 
 main();
+```
+
+## Auto
+
+`Jimp.AUTO` can be passes to either the height or width and jimp will scale the image accordingly. `Jimp.AUTO` cannot be both height and width.
+
+```js
+// resize the height to 250 and scale the width accordingly
+image.resize(Jimp.AUTO, 250);
+// resize the width to 250 and scale the height accordingly
+image.resize(250, Jimp.AUTO);
+```
+
+### Resize modes
+
+The default resizing algorithm uses a bilinear method.
+
+Optionally, the following constants can be passed to choose a particular resizing algorithm:
+
+```js
+Jimp.RESIZE_NEAREST_NEIGHBOR;
+Jimp.RESIZE_BILINEAR;
+Jimp.RESIZE_BICUBIC;
+Jimp.RESIZE_HERMITE;
+Jimp.RESIZE_BEZIER;
+```
+
+```js
+image.resize(250, 250, Jimp.RESIZE_BEZIER);
 ```

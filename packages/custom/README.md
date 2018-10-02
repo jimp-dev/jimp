@@ -1,11 +1,26 @@
 <div align="center">
-  <a href="https://intuit.github.io/Ignite/">
-    <img width="200" height="200"
-      src="https://s3.amazonaws.com/pix.iemoji.com/images/emoji/apple/ios-11/256/crayon.png">
-  </a>
+  <img width="200" height="200"
+    src="https://s3.amazonaws.com/pix.iemoji.com/images/emoji/apple/ios-11/256/crayon.png">
   <h1>@jimp/custom</h1>
   <p>Configure jimp with types and plugins.</p>
 </div>
+
+## Useful Defaults
+
+The following wil configure a `jimp` instance with the same functionality as the main `jimp` package.
+
+```js
+import configure from '@jimp/custom';
+// all of jimp's default types
+import types from '@jimp/types';
+// all of jimp's default types
+import plugins from '@jimp/plugins';
+
+configure({
+  types: [types],
+  plugins: [plugins]
+});
+```
 
 ## Available Methods
 
@@ -31,6 +46,23 @@ configure({
 configure({
   types: [bmp, jpeg, ...]
 })
+```
+
+#### Extending Jimp Further
+
+You can use configure to add more types and plugins to a jimp multiple times.
+
+```js
+let jimp = configure({
+  types: [bmp]
+});
+
+jimp = configure(
+  {
+    types: [jpeg]
+  },
+  jimp
+);
 ```
 
 ## Type Definition

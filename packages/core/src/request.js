@@ -10,27 +10,27 @@ if (
   // If we run into a browser or the electron renderer process,
   // use XHR method instead of Request node module.
 
-  module.exports = function(url, cb) {
+  module.exports = function(options, cb) {
     const xhr = new XMLHttpRequest();
-    xhr.open('GET', url, true);
+    xhr.open('GET', options.url, true);
     xhr.responseType = 'arraybuffer';
     xhr.addEventListener('load', function() {
       if (xhr.status < 400) {
         try {
           const data = Buffer.from(this.response);
           cb(null, xhr, data);
-        } catch (err) {
+        } catch (error) {
           return cb(
             new Error(
               'Response is not a buffer for url ' +
-                url +
+                options.url +
                 '. Error: ' +
-                err.message
+                error.message
             )
           );
         }
       } else {
-        cb(new Error('HTTP Status ' + xhr.status + ' for url ' + url));
+        cb(new Error('HTTP Status ' + xhr.status + ' for url ' + options.url));
       }
     });
     xhr.addEventListener('error', e => {
@@ -39,10 +39,10 @@ if (
     xhr.send();
   };
 } else {
-  module.exports = function(url, cb) {
+  module.exports = function({ ...options }, cb) {
     const p = require('phin');
 
-    p({ url, compression: true }, (err, res) => {
+    p({ compression: true, ...options }, (err, res) => {
       if (err === null) {
         cb(null, res, res.body);
       } else {

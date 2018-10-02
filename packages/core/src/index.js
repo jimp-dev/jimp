@@ -58,6 +58,28 @@ function bufferFromArrayBuffer(arrayBuffer) {
   return buffer;
 }
 
+function loadFromURL(options, cb) {
+  request(options, (err, response, data) => {
+    if (err) {
+      return cb(err);
+    }
+
+    if (typeof data === 'object' && Buffer.isBuffer(data)) {
+      return cb(null, data);
+    }
+
+    const msg =
+      'Could not load Buffer from <' +
+      options.url +
+      '> ' +
+      '(HTTP: ' +
+      response.statusCode +
+      ')';
+
+    return new Error(msg);
+  });
+}
+
 function loadBufferFromPath(src, cb) {
   if (
     fs &&
@@ -66,25 +88,7 @@ function loadBufferFromPath(src, cb) {
   ) {
     fs.readFile(src, cb);
   } else {
-    request(src, (err, response, data) => {
-      if (err) {
-        return cb(err);
-      }
-
-      if (typeof data === 'object' && Buffer.isBuffer(data)) {
-        return cb(null, data);
-      }
-
-      const msg =
-        'Could not load Buffer from <' +
-        src +
-        '> ' +
-        '(HTTP: ' +
-        response.statusCode +
-        ')';
-
-      return new Error(msg);
-    });
+    loadFromURL({ url: src }, cb);
   }
 }
 
@@ -133,6 +137,12 @@ const emptyBitmap = {
 /**
  * Jimp constructor (from a file)
  * @param path a path to the image
+ * @param {function(Error, Jimp)} cb (optional) a function to call when the image is parsed to a bitmap
+ */
+
+/**
+ * Jimp constructor (from a url with options)
+ * @param options { url, otherOptions}
  * @param {function(Error, Jimp)} cb (optional) a function to call when the image is parsed to a bitmap
  */
 
@@ -249,6 +259,20 @@ class Jimp extends EventEmitter {
       }
 
       finish(null, this);
+    } else if (typeof args[0] === 'object' && args[0].url) {
+      cb = args[1] || noop;
+
+      if (typeof cb !== 'function') {
+        return throwError.call(this, 'cb must be a function', finish);
+      }
+
+      loadFromURL(args[0], (err, data) => {
+        if (err) {
+          return throwError.call(this, err, finish);
+        }
+
+        this.parseBitmap(data, args[0].url, finish);
+      });
     } else if (args[0] instanceof Jimp) {
       // clone an existing Jimp
       const [original] = args;
@@ -312,7 +336,7 @@ class Jimp extends EventEmitter {
           return throwError.call(this, err, finish);
         }
 
-        parseBitmap.call(this, data, path, finish);
+        this.parseBitmap(data, path, finish);
       });
     } else if (typeof args[0] === 'object' && Buffer.isBuffer(args[0])) {
       // read from a buffer
@@ -323,7 +347,7 @@ class Jimp extends EventEmitter {
         return throwError.call(this, 'cb must be a function', finish);
       }
 
-      parseBitmap.call(this, data, null, finish);
+      this.parseBitmap(data, null, finish);
     } else {
       // Allow client libs to add new ways to build a Jimp object.
       // Extra constructors must be added by `Jimp.appendConstructorOption()`
@@ -357,6 +381,18 @@ class Jimp extends EventEmitter {
         );
       }
     }
+  }
+
+  /**
+   * Parse a bitmap with the loaded image types.
+   *
+   * @param {Buffer} data raw image data
+   * @param {string} path optional path to file
+   * @param {function(Error, Jimp)} cb (optional) a callback for when complete
+   * @memberof Jimp
+   */
+  parseBitmap(data, path, finish) {
+    parseBitmap.call(this, data, null, finish);
   }
 
   /**
@@ -1086,9 +1122,9 @@ export function jimpEvMethod(methodName, evName, method) {
           [methodName]: result
         });
       }
-    } catch (err) {
-      err.methodName = methodName;
-      this.emitError(methodName, err);
+    } catch (error) {
+      error.methodName = methodName;
+      this.emitError(methodName, error);
     }
 
     return result;
