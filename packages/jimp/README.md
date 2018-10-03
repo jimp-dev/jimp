@@ -85,38 +85,60 @@ The static `Jimp.read` method takes the path to a file, URL, dimensions, a Jimp 
 ```js
 Jimp.read('./path/to/image.jpg')
   .then(image => {
-    // do stuff with the image
+    // Do stuff with the image.
   })
   .catch(err => {
-    // handle an exception
+    // Handle an exception.
   });
-
-Jimp.read(lenna.buffer)
-  .then(image => {
-    // do stuff with the image
-  })
-  .catch(err => {
-    // handle an exception
-  });
-
+  
 Jimp.read('http://www.example.com/path/to/lenna.jpg')
   .then(image => {
-    // do stuff with the image
+    // Do stuff with the image.
   })
   .catch(err => {
-    // handle an exception
+    // Handle an exception.
+  });
+  
+Jimp.read(jimpInstance)
+  .then(image => {
+    // Do stuff with the image.
+  })
+  .catch(err => {
+    // Handle an exception.
   });
 
-Jimp.read({ url: 'http://www.example.com/path/to/lenna.jpg', headers: { ... } })
+Jimp.read(buffer)
   .then(image => {
-    // do stuff with the image
+    // Do stuff with the image.
   })
   .catch(err => {
-    // handle an exception
+    // Handle an exception.
   });
 ```
 
-The conveniance method `Jimp.create` also exists. It is just a wrapper around `Jimp.read`.
+In some cases, you need to pass additional parameters with an image's URL. You can pass an object to the `Jimp.read` method:
+
+```js
+Jimp.read({
+  url: 'http://www.example.com/path/to/lenna.jpg', // Required!
+  headers: {},
+  ...
+})
+  .then(image => {
+    // Do stuff with the image.
+  })
+  .catch(err => {
+    // Handle an exception.
+  });
+```
+
+Jimp uses [phin](https://github.com/ethanent/phin) as it's HTTP client. Phin uses [`http.request(options[, callback])`](https://nodejs.org/dist/latest-v8.x/docs/api/http.html#http_http_request_options_callback) or [`https.request(options[, callback])`](https://nodejs.org/dist/latest-v8.x/docs/api/https.html#https_https_request_options_callback) methods for making HTTP requests. Phin parses a `url` with the `url.parse(...)` method and passes it with all the other parameters as an `options` to the [`http.request(options[, callback])`](https://nodejs.org/dist/latest-v8.x/docs/api/http.html#http_http_request_options_callback) or [`https.request(options[, callback])`](https://nodejs.org/dist/latest-v8.x/docs/api/https.html#https_https_request_options_callback) methods.
+
+Briefly speaking, you can pass any options from [`http.request(options[, callback])`](https://nodejs.org/dist/latest-v8.x/docs/api/http.html#http_http_request_options_callback), [`https.request(options[, callback])`](https://nodejs.org/dist/latest-v8.x/docs/api/https.html#https_https_request_options_callback) or even [`tls.connect(options[, callback])`](https://nodejs.org/dist/latest-v8.x/docs/api/tls.html#tls_tls_connect_options_callback).
+
+Phin parses a `url` and combines it with any options you want. This behavior can be very useful when you need to pass some additional `headers`. Also, you can pass `rejectUnauthorized: false` if you don't require an SSL certificate to be valid (it helps to prevent `unable to verify the first certificate` error). 
+
+The convenience method `Jimp.create` also exists. It is just a wrapper around `Jimp.read`.
 
 ### Custom Constructor
 
