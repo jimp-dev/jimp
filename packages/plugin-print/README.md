@@ -62,7 +62,7 @@ _ @param {number} maxHeight (optional) the boundary height to draw in - @param {
 import Jimp from 'jimp';
 
 async function main() {
-  const font = await Jimp.read(Jimp.FONT_SANS_32_BLACK);
+  const font = await Jimp.loadFont(Jimp.FONT_SANS_32_BLACK);
   const image = await Jimp.read(1000, 1000, 0x0000ffff);
 
   image.print(font, 10, 10, 'Hello World!');
