@@ -1,6 +1,6 @@
 {
   "name": "@jimp/plugin-resize",
-  "version": "0.5.3",
+  "version": "0.5.4",
   "description": "Resize an image.",
   "main": "dist/index.js",
   "module": "es/index.js",
@@ -26,8 +26,8 @@
     "@jimp/custom": ">=0.3.5"
   },
   "devDependencies": {
-    "@jimp/custom": "^0.5.3",
-    "@jimp/test-utils": "^0.5.3"
+    "@jimp/custom": "^0.5.4",
+    "@jimp/test-utils": "^0.5.4"
   },
   "publishConfig": {
     "access": "public"
