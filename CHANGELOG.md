@@ -1,3 +1,18 @@
+## Unreleased (2018-10-12)
+
+#### :bug: Bug Fix
+
+- `plugin-color`
+  - [#644](https://github.com/oliver-moran/jimp/pull/644) Correct mistype of variable name ([@tombull](https://github.com/tombull))
+
+#### Committers: 5
+
+- Marat Nagayev ([@nagayev](https://github.com/nagayev))
+- Mario Adrian ([@many20](https://github.com/many20))
+- Tom Bull ([@tombull](https://github.com/tombull))
+- Vladyslav Turak ([@turakvlad](https://github.com/turakvlad))
+- [@Autom3](https://github.com/Autom3)
+
 ## v0.5.3 (2018-09-23)
 
 #### :bug: Bug Fix
