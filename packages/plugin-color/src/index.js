@@ -539,7 +539,7 @@ export default () => ({
 
     x = x || 0;
     y = y || 0;
-    w = isDef(w) ? x : this.bitmap.width - x;
+    w = isDef(w) ? w : this.bitmap.width - x;
     h = isDef(h) ? h : this.bitmap.height - y;
 
     const source = this.cloneQuiet();
