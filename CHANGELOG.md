@@ -1,4 +1,17 @@
-## v0.5.4 (2018-10-12)
+## Unreleased (2018-10-26)
+
+#### :bug: Bug Fix
+
+- `plugin-color`
+  - [#650](https://github.com/oliver-moran/jimp/pull/650) fix 'this' bug ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- `jimp`
+  - [#649](https://github.com/oliver-moran/jimp/pull/649) fix type bug ([@hipstersmoothie](https://github.com/hipstersmoothie))
+
+#### Committers: 1
+
+- Andrew Lisowski ([@hipstersmoothie](https://github.com/hipstersmoothie))
+
+## v0.5.4 (2018-10-11)
 
 #### :bug: Bug Fix
 
