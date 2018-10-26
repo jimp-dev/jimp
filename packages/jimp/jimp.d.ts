@@ -290,12 +290,12 @@ declare namespace Jimp {
       x: number,
       y: number,
       cb?: GenericCallback<number, any, this>
-    ): this;
+    ): number;
     getPixelColour(
       x: number,
       y: number,
       cb?: GenericCallback<number, any, this>
-    ): this;
+    ): number;
     setPixelColor(
       hex: number,
       x: number,
@@ -553,7 +553,11 @@ declare namespace Jimp {
       cb: Jimp.GenericCallback<Font, any, any>
     ): Promise<never>;
     static measureText(font: Font, text: PrintableText): number;
-    static measureTextHeight(font: Font, text: PrintableText, maxWidth: number): number;
+    static measureTextHeight(
+      font: Font,
+      text: PrintableText,
+      maxWidth: number
+    ): number;
   }
 }
 
