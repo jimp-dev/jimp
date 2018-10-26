@@ -279,13 +279,13 @@ declare namespace Jimp {
       x: number,
       y: number,
       cb?: GenericCallback<number, any, this>
-    ): this;
+    ): number;
     getPixelIndex(
       x: number,
       y: number,
       edgeHandling: string,
       cb?: GenericCallback<number, any, this>
-    ): this;
+    ): number;
     getPixelColor(
       x: number,
       y: number,
