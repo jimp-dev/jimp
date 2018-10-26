@@ -1,6 +1,6 @@
 {
   "name": "@jimp/plugins",
-  "version": "0.5.4",
+  "version": "0.5.5",
   "description": "Default Jimp plugin.",
   "main": "dist/index.js",
   "module": "es/index.js",
@@ -18,7 +18,7 @@
   "dependencies": {
     "@jimp/plugin-blit": "^0.5.4",
     "@jimp/plugin-blur": "^0.5.0",
-    "@jimp/plugin-color": "^0.5.4",
+    "@jimp/plugin-color": "^0.5.5",
     "@jimp/plugin-contain": "^0.5.4",
     "@jimp/plugin-cover": "^0.5.4",
     "@jimp/plugin-crop": "^0.5.4",
