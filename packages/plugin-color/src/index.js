@@ -72,9 +72,8 @@ function colorFn(actions, cb) {
       b: this.bitmap.data[idx + 2]
     };
 
-    function colorModifier(i, amount) {
-      return this.constructor.limit255(clr[i] + amount);
-    }
+    const colorModifier = (i, amount) =>
+      this.constructor.limit255(clr[i] + amount);
 
     actions.forEach(action => {
       if (action.apply === 'mix') {
