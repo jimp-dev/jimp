@@ -561,6 +561,6 @@ declare namespace Jimp {
   }
 }
 
-declare module 'jimp' {
-  export = Jimp.Jimp;
-}
+// @ts-ignore
+declare var exportedJimp = Jimp.Jimp;
+export = exportedJimp;
