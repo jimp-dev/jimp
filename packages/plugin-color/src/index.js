@@ -190,7 +190,7 @@ export default () => ({
       );
     }
 
-    const factor = (amount + 1) / (1 - amount);
+    const factor = (val + 1) / (1 - val);
 
     function adjust(value) {
       value = Math.floor(factor * (value - 127) + 127);
