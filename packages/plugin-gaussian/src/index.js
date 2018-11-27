@@ -18,6 +18,19 @@ export default () => ({
     }
 
     const rs = Math.ceil(r * 2.57); // significant radius
+    const range = rs * 2 + 1;
+    const rr2 = r * r * 2;
+    const rr2pi = rr2 * Math.PI;
+
+    const weights = [];
+
+    for (let y = 0; y < range; y++) {
+      weights[y] = [];
+      for (let x = 0; x < range; x++) {
+        const dsq = (x - rs) ** 2 + (y - rs) ** 2 ;
+        weights[y][x] = Math.exp(-dsq / rr2) / rr2pi;
+      }
+    }
 
     for (let y = 0; y < this.bitmap.height; y++) {
       for (let x = 0; x < this.bitmap.width; x++) {
@@ -27,19 +40,18 @@ export default () => ({
         let alpha = 0;
         let wsum = 0;
 
-        for (let iy = y - rs; iy < y + rs + 1; iy++) {
-          for (let ix = x - rs; ix < x + rs + 1; ix++) {
-            const x1 = Math.min(this.bitmap.width - 1, Math.max(0, ix));
-            const y1 = Math.min(this.bitmap.height - 1, Math.max(0, iy));
-            const dsq = (ix - x) * (ix - x) + (iy - y) * (iy - y);
-            const wght = Math.exp(-dsq / (2 * r * r)) / (Math.PI * 2 * r * r);
+        for (let iy = 0; iy < range; iy++) {
+          for (let ix = 0; ix < range; ix++) {
+            const x1 = Math.min(this.bitmap.width - 1, Math.max(0, ix + x - rs ));
+            const y1 = Math.min(this.bitmap.height - 1, Math.max(0, iy + y - rs));
+            const weight = weights[iy][ix];
             const idx = (y1 * this.bitmap.width + x1) << 2;
 
-            red += this.bitmap.data[idx] * wght;
-            green += this.bitmap.data[idx + 1] * wght;
-            blue += this.bitmap.data[idx + 2] * wght;
-            alpha += this.bitmap.data[idx + 3] * wght;
-            wsum += wght;
+            red += this.bitmap.data[idx] * weight;
+            green += this.bitmap.data[idx + 1] * weight;
+            blue += this.bitmap.data[idx + 2] * weight;
+            alpha += this.bitmap.data[idx + 3] * weight;
+            wsum += weight;
           }
 
           const idx = (y * this.bitmap.width + x) << 2;
