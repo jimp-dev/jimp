@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import * as yargs from 'yargs';
+import yargs from 'yargs';
 import * as custom from '@jimp/custom';
 import Jimp = require('jimp');
 

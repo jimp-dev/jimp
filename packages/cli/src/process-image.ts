@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import Jimp = require('jimp');
+import Jimp from 'jimp';
 import { log, greenCheck } from './log';
 import { loadFont } from './load-font';
 
@@ -45,7 +45,7 @@ async function runAction(
 
 async function runActions(
   image: Jimp,
-  loadedFont: Jimp.Font,
+  loadedFont: any,
   { actions, verbose }: ICliOptions
 ) {
   if (actions) {
