@@ -55,6 +55,32 @@ Jimp.read('lenna.png')
   });
 ```
 
+## TypeScript Usage
+
+If you're using this library with TypeScript the method of importing slightly differs from JavaScript. You can import the library with three methods
+
+First of all using [`import = require()`](https://www.typescriptlang.org/docs/handbook/modules.html#export--and-import--require) method to import it as a `commonJS` module:
+
+```ts
+import Jimp = require('jimp');
+```
+
+Alternatively you can import it with ES6 default import scheme, if you set the `esModuleInterop` compiler flag to `true` in your `tsconfig`
+
+```ts
+import Jimp from 'jimp';
+```
+
+Lastly you can import it with a synthetic default import. This requires setting the `allowSyntheticDefaultImports` compiler option to `true` in your `tsconfig`
+
+```ts
+import * as Jimp from 'jimp';
+```
+
+**Note 1**: `esModuleInterop` implicitly sets `allowSyntheticDefaultImports` to `true`
+
+**Note 2**: `allowSyntheticDefaultImports` nor `esModuleInterop` change the runtime behavior of your code at all. They are just flags that tells TypeScript you need the compatibility they offer.
+
 ## Module Build
 
 If you're using a web bundles (webpack, rollup, parcel) you can benefit from using the `module` build of jimp. Using the module build will allow your bundler to understand your code better and exclude things you aren't using.
@@ -90,7 +116,7 @@ Jimp.read('./path/to/image.jpg')
   .catch(err => {
     // Handle an exception.
   });
-  
+
 Jimp.read('http://www.example.com/path/to/lenna.jpg')
   .then(image => {
     // Do stuff with the image.
@@ -98,7 +124,7 @@ Jimp.read('http://www.example.com/path/to/lenna.jpg')
   .catch(err => {
     // Handle an exception.
   });
-  
+
 Jimp.read(jimpInstance)
   .then(image => {
     // Do stuff with the image.
@@ -136,7 +162,7 @@ Jimp uses [phin](https://github.com/ethanent/phin) as it's HTTP client. Phin use
 
 Briefly speaking, you can pass any options from [`http.request(options[, callback])`](https://nodejs.org/dist/latest-v8.x/docs/api/http.html#http_http_request_options_callback), [`https.request(options[, callback])`](https://nodejs.org/dist/latest-v8.x/docs/api/https.html#https_https_request_options_callback) or even [`tls.connect(options[, callback])`](https://nodejs.org/dist/latest-v8.x/docs/api/tls.html#tls_tls_connect_options_callback).
 
-Phin parses a `url` and combines it with any options you want. This behavior can be very useful when you need to pass some additional `headers`. Also, you can pass `rejectUnauthorized: false` if you don't require an SSL certificate to be valid (it helps to prevent `unable to verify the first certificate` error). 
+Phin parses a `url` and combines it with any options you want. This behavior can be very useful when you need to pass some additional `headers`. Also, you can pass `rejectUnauthorized: false` if you don't require an SSL certificate to be valid (it helps to prevent `unable to verify the first certificate` error).
 
 The convenience method `Jimp.create` also exists. It is just a wrapper around `Jimp.read`.
 
