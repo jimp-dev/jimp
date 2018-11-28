@@ -1,566 +1,528 @@
-declare namespace Jimp {
-  type GenericCallback<T, U = any, TThis = any> = (
-    this: TThis,
-    err: Error | null,
-    value: T
-  ) => U;
-  type ImageCallback<U = any> = (
-    this: Jimp,
-    err: Error | null,
-    value: Jimp,
-    coords: {
-      x: number;
-      y: number;
-    }
-  ) => U;
-  type ColorActionName =
-    | 'mix'
-    | 'tint'
-    | 'shade'
-    | 'xor'
-    | 'red'
-    | 'green'
-    | 'blue'
-    | 'hue';
-  type ColorAction = { apply: ColorActionName; params: any };
-  type BlendMode = {
-    mode: string;
-    opacitySource: number;
-    opacityDest: number;
+declare const Jimp: Jimp;
+export = Jimp;
+
+interface Jimp {
+  // Constructors
+  new (path: string, cb?: ImageCallback): Jimp;
+  new (urlOptions: URLOptions, cb?: ImageCallback): Jimp;
+  new (image: Jimp, cb?: ImageCallback): Jimp;
+  new (data: Buffer, cb?: ImageCallback): Jimp;
+  new (data: Bitmap, cb?: ImageCallback): Jimp;
+  new (w: number, h: number, cb?: ImageCallback): Jimp;
+  new (
+    w: number,
+    h: number,
+    background?: number | string,
+    cb?: ImageCallback
+  ): Jimp;
+  // For custom constructors when using Jimp.appendConstructorOption
+  new (...args: any[]): Jimp;
+  prototype: Jimp;
+
+  // Constants
+  AUTO: -1;
+
+  // supported mime types
+  MIME_PNG: 'image/png';
+  MIME_TIFF: 'image/tiff';
+  MIME_JPEG: 'image/jpeg';
+  MIME_JGD: 'image/jgd';
+  MIME_BMP: 'image/bmp';
+  MIME_X_MS_BMP: 'image/x-ms-bmp';
+  MIME_GIF: 'image/gif';
+  // PNG filter types
+  PNG_FILTER_AUTO: -1;
+  PNG_FILTER_NONE: 0;
+  PNG_FILTER_SUB: 1;
+  PNG_FILTER_UP: 2;
+  PNG_FILTER_AVERAGE: 3;
+  PNG_FILTER_PATH: 4;
+
+  // resize methods
+  RESIZE_NEAREST_NEIGHBOR: 'nearestNeighbor';
+  RESIZE_BILINEAR: 'bilinearInterpolation';
+  RESIZE_BICUBIC: 'bicubicInterpolation';
+  RESIZE_HERMITE: 'hermiteInterpolation';
+  RESIZE_BEZIER: 'bezierInterpolation';
+
+  // blend modes
+  BLEND_SOURCE_OVER: string;
+  BLEND_DESTINATION_OVER: string;
+  BLEND_MULTIPLY: string;
+  BLEND_SCREEN: string;
+  BLEND_OVERLAY: string;
+  BLEND_DARKEN: string;
+  BLEND_LIGHTEN: string;
+  BLEND_HARDLIGHT: string;
+  BLEND_DIFFERENCE: string;
+  BLEND_EXCLUSION: string;
+
+  // Align modes for cover, contain, bit masks
+  HORIZONTAL_ALIGN_LEFT: 1;
+  HORIZONTAL_ALIGN_CENTER: 2;
+  HORIZONTAL_ALIGN_RIGHT: 4;
+
+  VERTICAL_ALIGN_TOP: 8;
+  VERTICAL_ALIGN_MIDDLE: 16;
+  VERTICAL_ALIGN_BOTTOM: 32;
+
+  // Font locations
+  FONT_SANS_8_BLACK: string;
+  FONT_SANS_10_BLACK: string;
+  FONT_SANS_12_BLACK: string;
+  FONT_SANS_14_BLACK: string;
+  FONT_SANS_16_BLACK: string;
+  FONT_SANS_32_BLACK: string;
+  FONT_SANS_64_BLACK: string;
+  FONT_SANS_128_BLACK: string;
+
+  FONT_SANS_8_WHITE: string;
+  FONT_SANS_16_WHITE: string;
+  FONT_SANS_32_WHITE: string;
+  FONT_SANS_64_WHITE: string;
+  FONT_SANS_128_WHITE: string;
+
+  // Edge Handling
+  EDGE_EXTEND: 1;
+  EDGE_WRAP: 2;
+  EDGE_CROP: 3;
+
+  // Properties
+  bitmap: Bitmap;
+
+  _quality: number;
+  _deflateLevel: number;
+  _deflateStrategy: number;
+  _filterType: number;
+  _rgba: boolean;
+  _background: number;
+  _originalMime: string;
+
+  // Methods
+  on<T extends ListenableName>(
+    event: T,
+    cb: (data: ListenerData<T>) => any
+  ): any;
+  parseBitmap(
+    data: Buffer,
+    path: string | null | undefined,
+    cb?: ImageCallback
+  ): void;
+  hasAlpha(): boolean;
+  getHeight(): number;
+  getWidth(): number;
+  inspect(): string;
+  toString(): string;
+  getMIME(): string;
+  getExtension(): string;
+  distanceFromHash(hash: string): number;
+  write(path: string, cb?: ImageCallback): this;
+  writeAsync(path: string): Promise<Jimp>;
+  deflateLevel(l: number, cb?: ImageCallback): this;
+  deflateStrategy(s: number, cb?: ImageCallback): this;
+  colorType(s: number, cb?: ImageCallback): this;
+  filterType(f: number, cb?: ImageCallback): this;
+  rgba(bool: boolean, cb?: ImageCallback): this;
+  quality(n: number, cb?: ImageCallback): this;
+  getBase64(mime: string, cb: GenericCallback<string, any, this>): this;
+  getBase64Async(mime: string): Promise<string>;
+  hash(cb?: GenericCallback<string, any, this>): this;
+  hash(
+    base: number | null | undefined,
+    cb?: GenericCallback<string, any, this>
+  ): this;
+  getBuffer(mime: string, cb: GenericCallback<Buffer>): this;
+  getBufferAsync(mime: string): Promise<Buffer>;
+  getPixelIndex(
+    x: number,
+    y: number,
+    cb?: GenericCallback<number, any, this>
+  ): number;
+  getPixelIndex(
+    x: number,
+    y: number,
+    edgeHandling: string,
+    cb?: GenericCallback<number, any, this>
+  ): number;
+  getPixelColor(
+    x: number,
+    y: number,
+    cb?: GenericCallback<number, any, this>
+  ): number;
+  getPixelColour(
+    x: number,
+    y: number,
+    cb?: GenericCallback<number, any, this>
+  ): number;
+  setPixelColor(hex: number, x: number, y: number, cb?: ImageCallback): this;
+  setPixelColour(hex: number, x: number, y: number, cb?: ImageCallback): this;
+  clone(cb?: ImageCallback): this;
+  cloneQuiet(cb?: ImageCallback): this;
+  background(hex: number, cb?: ImageCallback): this;
+  backgroundQuiet(hex: number, cb?: ImageCallback): this;
+  scan(
+    x: number,
+    y: number,
+    w: number,
+    h: number,
+    f: (this: this, x: number, y: number, idx: number) => any,
+    cb?: ImageCallback
+  ): this;
+  scanQuiet(
+    x: number,
+    y: number,
+    w: number,
+    h: number,
+    f: (this: this, x: number, y: number, idx: number) => any,
+    cb?: ImageCallback
+  ): this;
+  crop(x: number, y: number, w: number, h: number, cb?: ImageCallback): this;
+  cropQuiet(
+    x: number,
+    y: number,
+    w: number,
+    h: number,
+    cb?: ImageCallback
+  ): this;
+
+  // Color methods
+  brightness(val: number, cb?: ImageCallback): this;
+  contrast(val: number, cb?: ImageCallback): this;
+  posterize(n: number, cb?: ImageCallback): this;
+  greyscale(cb?: ImageCallback): this;
+  grayscale(cb?: ImageCallback): this;
+  opacity(f: number, cb?: ImageCallback): this;
+  sepia(cb?: ImageCallback): this;
+  fade(f: number, cb?: ImageCallback): this;
+  convolution(kernel: number[][], cb?: ImageCallback): this;
+  convolution<T>(
+    kernel: number[][],
+    edgeHandling: string,
+    cb?: ImageCallback
+  ): this;
+  opaque(cb?: ImageCallback): this;
+  pixelate(size: number, cb?: ImageCallback): this;
+  pixelate(
+    size: number,
+    x: number,
+    y: number,
+    w: number,
+    h: number,
+    cb?: ImageCallback
+  ): this;
+  convolute(kernel: number[][], cb?: ImageCallback): this;
+  convolute(
+    kernel: number[][],
+    x: number,
+    y: number,
+    w: number,
+    h: number,
+    cb?: ImageCallback
+  ): this;
+  color(actions: ColorAction[], cb?: ImageCallback): this;
+  colour(actions: ColorAction[], cb?: ImageCallback): this;
+
+  // Shape methods
+  rotate(deg: number, cb?: ImageCallback): this;
+  rotate(deg: number, mode: string | boolean, cb?: ImageCallback): this;
+  flip(horizontal: boolean, vertical: boolean, cb?: ImageCallback): this;
+  mirror(horizontal: boolean, vertical: boolean, cb?: ImageCallback): this;
+  resize(w: number, h: number, cb?: ImageCallback): this;
+  resize(w: number, h: number, mode?: string, cb?: ImageCallback): this;
+  cover(w: number, h: number, cb?: ImageCallback): this;
+  cover(w: number, h: number, alignBits?: number, cb?: ImageCallback): this;
+  cover(
+    w: number,
+    h: number,
+    alignBits?: number,
+    mode?: string,
+    cb?: ImageCallback
+  ): this;
+  contain(w: number, h: number, cb?: ImageCallback): this;
+  contain(w: number, h: number, mode?: string, cb?: ImageCallback): this;
+  contain(w: number, h: number, alignBits?: number, cb?: ImageCallback): this;
+  contain(
+    w: number,
+    h: number,
+    alignBits?: number,
+    mode?: string,
+    cb?: ImageCallback
+  ): this;
+  scale(f: number, cb?: ImageCallback): this;
+  scale(f: number, mode?: string, cb?: ImageCallback): this;
+  scaleToFit(w: number, h: number, cb?: ImageCallback): this;
+  scaleToFit(w: number, h: number, mode?: string, cb?: ImageCallback): this;
+  displace(map: Jimp, offset: number, cb?: ImageCallback): this;
+  autocrop(tolerance?: number, cb?: ImageCallback): this;
+  autocrop(cropOnlyFrames?: boolean, cb?: ImageCallback): this;
+  autocrop(
+    tolerance?: number,
+    cropOnlyFrames?: boolean,
+    cb?: ImageCallback
+  ): this;
+  autocrop(
+    options: {
+      tolerance?: number;
+      cropOnlyFrames?: boolean;
+      cropSymmetric?: boolean;
+      leaveBorder?: number;
+    },
+    cb?: ImageCallback
+  ): this;
+
+  // Text methods
+  print(
+    font: Font,
+    x: number,
+    y: number,
+    text: PrintableText,
+    cb?: ImageCallback
+  ): this;
+  print(
+    font: Font,
+    x: number,
+    y: number,
+    text: PrintableText,
+    maxWidth?: number,
+    cb?: ImageCallback
+  ): this;
+  print(
+    font: Font,
+    x: number,
+    y: number,
+    text: PrintableText,
+    maxWidth?: number,
+    maxHeight?: number,
+    cb?: ImageCallback
+  ): this;
+
+  // Effect methods
+  blur(r: number, cb?: ImageCallback): this;
+  dither565(cb?: ImageCallback): this;
+  dither16(cb?: ImageCallback): this;
+  histogram(): {
+    r: number[];
+    g: number[];
+    b: number[];
   };
+  normalize(cb?: ImageCallback): this;
+  invert(cb?: ImageCallback): this;
+  gaussian(r: number, cb?: ImageCallback): this;
+  composite(
+    src: Jimp,
+    x: number,
+    y: number,
+    options?: BlendMode,
+    cb?: ImageCallback
+  ): this;
+  blit(src: Jimp, x: number, y: number, cb?: ImageCallback): this;
+  blit(
+    src: Jimp,
+    x: number,
+    y: number,
+    srcx: number,
+    srcy: number,
+    srcw: number,
+    srch: number,
+    cb?: ImageCallback
+  ): this;
+  mask(src: Jimp, x: number, y: number, cb?: ImageCallback): this;
 
-  type ChangeName = 'background' | 'scan' | 'crop';
-
-  type ListenableName =
-    | 'any'
-    | 'initialized'
-    | 'before-change'
-    | 'changed'
-    | 'before-clone'
-    | 'cloned'
-    | ChangeName;
-
-  type ListenerData<T extends ListenableName> = T extends 'any'
-    ? any
-    : T extends ChangeName
-      ? {
-          eventName: 'before-change' | 'changed';
-          methodName: T;
-          [key: string]: any;
-        }
-      : {
-          eventName: T;
-          methodName: T extends 'initialized'
-            ? 'constructor'
-            : T extends 'before-change' | 'changed'
-              ? ChangeName
-              : T extends 'before-clone' | 'cloned' ? 'clone' : any;
-        };
-
-  type PrintableText =
-    | any
-    | {
-        text: string;
-        alignmentX: number;
-        alignmentY: number;
-      };
-
-  type URLOptions = {
-    url: string;
-    compression?: boolean;
-    headers: {
-      [key: string]: any;
-    };
+  // Functions
+  appendConstructorOption<T extends any[]>(
+    name: string,
+    test: (...args: T[]) => boolean,
+    run: (
+      this: Jimp,
+      resolve: (jimp: Jimp) => any,
+      reject: (reason: Error) => any,
+      ...args: T[]
+    ) => any
+  ): void;
+  read(path: string): Promise<Jimp>;
+  read(image: Jimp): Promise<Jimp>;
+  read(data: Buffer): Promise<Jimp>;
+  read(w: number, h: number, background?: number | string): Promise<Jimp>;
+  create(path: string): Promise<Jimp>;
+  create(image: Jimp): Promise<Jimp>;
+  create(data: Buffer): Promise<Jimp>;
+  create(w: number, h: number, background?: number | string): Promise<Jimp>;
+  rgbaToInt(
+    r: number,
+    g: number,
+    b: number,
+    a: number,
+    cb: GenericCallback<number, any, Jimp>
+  ): number;
+  intToRGBA(i: number, cb?: GenericCallback<RGBA>): RGBA;
+  cssColorToHex(cssColor: string): number;
+  limit255(n: number): number;
+  diff(
+    img1: Jimp,
+    img2: Jimp,
+    threshold?: number
+  ): {
+    percent: number;
+    image: Jimp;
   };
-
-  interface Bitmap {
-    data: Buffer;
-    width: number;
-    height: number;
-  }
-  interface RGB {
-    r: number;
-    g: number;
-    b: number;
-  }
-  interface RGBA {
-    r: number;
-    g: number;
-    b: number;
-    a: number;
-  }
-
-  interface FontChar {
-    id: number;
-    x: number;
-    y: number;
-    width: number;
-    height: number;
-    xoffset: number;
-    yoffset: number;
-    xadvance: number;
-    page: number;
-    chnl: number;
-  }
-
-  interface FontInfo {
-    face: string;
-    size: number;
-    bold: number;
-    italic: number;
-    charset: string;
-    unicode: number;
-    stretchH: number;
-    smooth: number;
-    aa: number;
-    padding: [number, number, number, number];
-    spacing: [number, number];
-  }
-
-  interface FontCommon {
-    lineHeight: number;
-    base: number;
-    scaleW: number;
-    scaleH: number;
-    pages: number;
-    packed: number;
-    alphaChnl: number;
-    redChnl: number;
-    greenChnl: number;
-    blueChnl: number;
-  }
-
-  interface Font {
-    chars: {
-      [char: string]: FontChar;
-    };
-    kernings: {
-      [firstString: string]: {
-        [secondString: string]: number;
-      };
-    };
-    pages: string[];
-    common: FontCommon;
-    info: FontInfo;
-  }
-
-  class Jimp {
-    // Constants
-    static AUTO: -1;
-
-    // supported mime types
-    static MIME_PNG: 'image/png';
-    static MIME_TIFF: 'image/tiff';
-    static MIME_JPEG: 'image/jpeg';
-    static MIME_JGD: 'image/jgd';
-    static MIME_BMP: 'image/bmp';
-    static MIME_X_MS_BMP: 'image/x-ms-bmp';
-    static MIME_GIF: 'image/gif';
-    // PNG filter types
-    static PNG_FILTER_AUTO: -1;
-    static PNG_FILTER_NONE: 0;
-    static PNG_FILTER_SUB: 1;
-    static PNG_FILTER_UP: 2;
-    static PNG_FILTER_AVERAGE: 3;
-    static PNG_FILTER_PATH: 4;
-
-    // resize methods
-    static RESIZE_NEAREST_NEIGHBOR: 'nearestNeighbor';
-    static RESIZE_BILINEAR: 'bilinearInterpolation';
-    static RESIZE_BICUBIC: 'bicubicInterpolation';
-    static RESIZE_HERMITE: 'hermiteInterpolation';
-    static RESIZE_BEZIER: 'bezierInterpolation';
-
-    // blend modes
-    static BLEND_SOURCE_OVER: string;
-    static BLEND_DESTINATION_OVER: string;
-    static BLEND_MULTIPLY: string;
-    static BLEND_SCREEN: string;
-    static BLEND_OVERLAY: string;
-    static BLEND_DARKEN: string;
-    static BLEND_LIGHTEN: string;
-    static BLEND_HARDLIGHT: string;
-    static BLEND_DIFFERENCE: string;
-    static BLEND_EXCLUSION: string;
-
-    // Align modes for cover, contain, bit masks
-    static HORIZONTAL_ALIGN_LEFT: 1;
-    static HORIZONTAL_ALIGN_CENTER: 2;
-    static HORIZONTAL_ALIGN_RIGHT: 4;
-
-    static VERTICAL_ALIGN_TOP: 8;
-    static VERTICAL_ALIGN_MIDDLE: 16;
-    static VERTICAL_ALIGN_BOTTOM: 32;
-
-    // Font locations
-    static FONT_SANS_8_BLACK: string;
-    static FONT_SANS_10_BLACK: string;
-    static FONT_SANS_12_BLACK: string;
-    static FONT_SANS_14_BLACK: string;
-    static FONT_SANS_16_BLACK: string;
-    static FONT_SANS_32_BLACK: string;
-    static FONT_SANS_64_BLACK: string;
-    static FONT_SANS_128_BLACK: string;
-
-    static FONT_SANS_8_WHITE: string;
-    static FONT_SANS_16_WHITE: string;
-    static FONT_SANS_32_WHITE: string;
-    static FONT_SANS_64_WHITE: string;
-    static FONT_SANS_128_WHITE: string;
-
-    // Edge Handling
-    static EDGE_EXTEND: 1;
-    static EDGE_WRAP: 2;
-    static EDGE_CROP: 3;
-
-    // Properties
-    bitmap: Bitmap;
-
-    private _quality: number;
-    private _deflateLevel: number;
-    private _deflateStrategy: number;
-    private _filterType: number;
-    private _rgba: boolean;
-    private _background: number;
-    private _originalMime: string;
-
-    // Constructors
-    constructor(path: string, cb?: Jimp.ImageCallback);
-    constructor(urlOptions: URLOptions, cb?: Jimp.ImageCallback);
-    constructor(image: Jimp, cb?: Jimp.ImageCallback);
-    constructor(data: Buffer, cb?: Jimp.ImageCallback);
-    constructor(data: Bitmap, cb?: Jimp.ImageCallback);
-    constructor(w: number, h: number, cb?: Jimp.ImageCallback);
-    constructor(
-      w: number,
-      h: number,
-      background?: number | string,
-      cb?: Jimp.ImageCallback
-    );
-    // For custom constructors when using Jimp.appendConstructorOption
-    constructor(...args: any[]);
-
-    // Methods
-    on<T extends ListenableName>(
-      event: T,
-      cb: (data: ListenerData<T>) => any
-    ): any;
-    parseBitmap(
-      data: Buffer,
-      path: string | null | undefined,
-      cb?: Jimp.ImageCallback
-    ): void;
-    hasAlpha(): boolean;
-    getHeight(): number;
-    getWidth(): number;
-    inspect(): string;
-    toString(): string;
-    getMIME(): string;
-    getExtension(): string;
-    distanceFromHash(hash: string): number;
-    write(path: string, cb?: Jimp.ImageCallback): this;
-    writeAsync(path: string): Promise<Jimp>;
-    deflateLevel(l: number, cb?: Jimp.ImageCallback): this;
-    deflateStrategy(s: number, cb?: Jimp.ImageCallback): this;
-    colorType(s: number, cb?: Jimp.ImageCallback): this;
-    filterType(f: number, cb?: Jimp.ImageCallback): this;
-    rgba(bool: boolean, cb?: Jimp.ImageCallback): this;
-    quality(n: number, cb?: Jimp.ImageCallback): this;
-    getBase64(mime: string, cb: GenericCallback<string, any, this>): this;
-    getBase64Async(mime: string): Promise<string>;
-    hash(cb?: GenericCallback<string, any, this>): this;
-    hash(
-      base: number | null | undefined,
-      cb?: GenericCallback<string, any, this>
-    ): this;
-    getBuffer(mime: string, cb: GenericCallback<Buffer>): this;
-    getBufferAsync(mime: string): Promise<Buffer>;
-    getPixelIndex(
-      x: number,
-      y: number,
-      cb?: GenericCallback<number, any, this>
-    ): number;
-    getPixelIndex(
-      x: number,
-      y: number,
-      edgeHandling: string,
-      cb?: GenericCallback<number, any, this>
-    ): number;
-    getPixelColor(
-      x: number,
-      y: number,
-      cb?: GenericCallback<number, any, this>
-    ): number;
-    getPixelColour(
-      x: number,
-      y: number,
-      cb?: GenericCallback<number, any, this>
-    ): number;
-    setPixelColor(
-      hex: number,
-      x: number,
-      y: number,
-      cb?: Jimp.ImageCallback
-    ): this;
-    setPixelColour(
-      hex: number,
-      x: number,
-      y: number,
-      cb?: Jimp.ImageCallback
-    ): this;
-    clone(cb?: Jimp.ImageCallback): this;
-    cloneQuiet(cb?: Jimp.ImageCallback): this;
-    background(hex: number, cb?: Jimp.ImageCallback): this;
-    backgroundQuiet(hex: number, cb?: Jimp.ImageCallback): this;
-    scan(
-      x: number,
-      y: number,
-      w: number,
-      h: number,
-      f: (this: this, x: number, y: number, idx: number) => any,
-      cb?: Jimp.ImageCallback
-    ): this;
-    scanQuiet(
-      x: number,
-      y: number,
-      w: number,
-      h: number,
-      f: (this: this, x: number, y: number, idx: number) => any,
-      cb?: Jimp.ImageCallback
-    ): this;
-    crop(
-      x: number,
-      y: number,
-      w: number,
-      h: number,
-      cb?: Jimp.ImageCallback
-    ): this;
-    cropQuiet(
-      x: number,
-      y: number,
-      w: number,
-      h: number,
-      cb?: Jimp.ImageCallback
-    ): this;
-
-    // Color methods
-    brightness(val: number, cb?: Jimp.ImageCallback): this;
-    contrast(val: number, cb?: Jimp.ImageCallback): this;
-    posterize(n: number, cb?: Jimp.ImageCallback): this;
-    greyscale(cb?: Jimp.ImageCallback): this;
-    grayscale(cb?: Jimp.ImageCallback): this;
-    opacity(f: number, cb?: Jimp.ImageCallback): this;
-    sepia(cb?: Jimp.ImageCallback): this;
-    fade(f: number, cb?: Jimp.ImageCallback): this;
-    convolution(kernel: number[][], cb?: Jimp.ImageCallback): this;
-    convolution<T>(
-      kernel: number[][],
-      edgeHandling: string,
-      cb?: Jimp.ImageCallback
-    ): this;
-    opaque(cb?: Jimp.ImageCallback): this;
-    pixelate(size: number, cb?: Jimp.ImageCallback): this;
-    pixelate(
-      size: number,
-      x: number,
-      y: number,
-      w: number,
-      h: number,
-      cb?: Jimp.ImageCallback
-    ): this;
-    convolute(kernel: number[][], cb?: Jimp.ImageCallback): this;
-    convolute(
-      kernel: number[][],
-      x: number,
-      y: number,
-      w: number,
-      h: number,
-      cb?: Jimp.ImageCallback
-    ): this;
-    color(actions: ColorAction[], cb?: Jimp.ImageCallback): this;
-    colour(actions: ColorAction[], cb?: Jimp.ImageCallback): this;
-
-    // Shape methods
-    rotate(deg: number, cb?: Jimp.ImageCallback): this;
-    rotate(deg: number, mode: string | boolean, cb?: Jimp.ImageCallback): this;
-    flip(horizontal: boolean, vertical: boolean, cb?: Jimp.ImageCallback): this;
-    mirror(
-      horizontal: boolean,
-      vertical: boolean,
-      cb?: Jimp.ImageCallback
-    ): this;
-    resize(w: number, h: number, cb?: Jimp.ImageCallback): this;
-    resize(w: number, h: number, mode?: string, cb?: Jimp.ImageCallback): this;
-    cover(w: number, h: number, cb?: Jimp.ImageCallback): this;
-    cover(
-      w: number,
-      h: number,
-      alignBits?: number,
-      cb?: Jimp.ImageCallback
-    ): this;
-    cover(
-      w: number,
-      h: number,
-      alignBits?: number,
-      mode?: string,
-      cb?: Jimp.ImageCallback
-    ): this;
-    contain(w: number, h: number, cb?: Jimp.ImageCallback): this;
-    contain(w: number, h: number, mode?: string, cb?: Jimp.ImageCallback): this;
-    contain(
-      w: number,
-      h: number,
-      alignBits?: number,
-      cb?: Jimp.ImageCallback
-    ): this;
-    contain(
-      w: number,
-      h: number,
-      alignBits?: number,
-      mode?: string,
-      cb?: Jimp.ImageCallback
-    ): this;
-    scale(f: number, cb?: Jimp.ImageCallback): this;
-    scale(f: number, mode?: string, cb?: Jimp.ImageCallback): this;
-    scaleToFit(w: number, h: number, cb?: Jimp.ImageCallback): this;
-    scaleToFit(
-      w: number,
-      h: number,
-      mode?: string,
-      cb?: Jimp.ImageCallback
-    ): this;
-    displace(map: Jimp, offset: number, cb?: Jimp.ImageCallback): this;
-    autocrop(tolerance?: number, cb?: Jimp.ImageCallback): this;
-    autocrop(cropOnlyFrames?: boolean, cb?: Jimp.ImageCallback): this;
-    autocrop(
-      tolerance?: number,
-      cropOnlyFrames?: boolean,
-      cb?: Jimp.ImageCallback
-    ): this;
-    autocrop(
-      options: {
-        tolerance?: number;
-        cropOnlyFrames?: boolean;
-        cropSymmetric?: boolean;
-        leaveBorder?: number;
-      },
-      cb?: Jimp.ImageCallback
-    ): this;
-
-    // Text methods
-    print(
-      font: Font,
-      x: number,
-      y: number,
-      text: PrintableText,
-      cb?: Jimp.ImageCallback
-    ): this;
-    print(
-      font: Font,
-      x: number,
-      y: number,
-      text: PrintableText,
-      maxWidth?: number,
-      cb?: Jimp.ImageCallback
-    ): this;
-    print(
-      font: Font,
-      x: number,
-      y: number,
-      text: PrintableText,
-      maxWidth?: number,
-      maxHeight?: number,
-      cb?: Jimp.ImageCallback
-    ): this;
-
-    // Effect methods
-    blur(r: number, cb?: Jimp.ImageCallback): this;
-    dither565(cb?: Jimp.ImageCallback): this;
-    dither16(cb?: Jimp.ImageCallback): this;
-    histogram(): { r: number[]; g: number[]; b: number[] };
-    normalize(cb?: Jimp.ImageCallback): this;
-    invert(cb?: Jimp.ImageCallback): this;
-    gaussian(r: number, cb?: Jimp.ImageCallback): this;
-    composite(
-      src: Jimp,
-      x: number,
-      y: number,
-      options?: Jimp.BlendMode,
-      cb?: Jimp.ImageCallback
-    ): this;
-    blit(src: Jimp, x: number, y: number, cb?: Jimp.ImageCallback): this;
-    blit(
-      src: Jimp,
-      x: number,
-      y: number,
-      srcx: number,
-      srcy: number,
-      srcw: number,
-      srch: number,
-      cb?: Jimp.ImageCallback
-    ): this;
-    mask(src: Jimp, x: number, y: number, cb?: Jimp.ImageCallback): this;
-
-    // Functions
-    static appendConstructorOption<T extends any[]>(
-      name: string,
-      test: (...args: T[]) => boolean,
-      run: (
-        this: Jimp,
-        resolve: (jimp: Jimp) => any,
-        reject: (reason: Error) => any,
-        ...args: T[]
-      ) => any
-    ): void;
-    static read(path: string): Promise<Jimp>;
-    static read(image: Jimp): Promise<Jimp>;
-    static read(data: Buffer): Promise<Jimp>;
-    static read(
-      w: number,
-      h: number,
-      background?: number | string
-    ): Promise<Jimp>;
-    static create(path: string): Promise<Jimp>;
-    static create(image: Jimp): Promise<Jimp>;
-    static create(data: Buffer): Promise<Jimp>;
-    static create(
-      w: number,
-      h: number,
-      background?: number | string
-    ): Promise<Jimp>;
-    static rgbaToInt(
-      r: number,
-      g: number,
-      b: number,
-      a: number,
-      cb: GenericCallback<number, any, Jimp>
-    ): number;
-    static intToRGBA(i: number, cb?: GenericCallback<Jimp.RGBA>): Jimp.RGBA;
-    static cssColorToHex(cssColor: string): number;
-    static limit255(n: number): number;
-    static diff(
-      img1: Jimp,
-      img2: Jimp,
-      threshold?: number
-    ): { percent: number; image: Jimp };
-    static distance(img1: Jimp, img2: Jimp): number;
-    static compareHashes(hash1: string, hash2: string): number;
-    static colorDiff(rgba1: Jimp.RGB, rgba2: Jimp.RGB): number;
-    static colorDiff(rgba1: Jimp.RGBA, rgba2: Jimp.RGBA): number;
-    static loadFont(file: string): Promise<Font>;
-    static loadFont(
-      file: string,
-      cb: Jimp.GenericCallback<Font, any, any>
-    ): Promise<never>;
-    static measureText(font: Font, text: PrintableText): number;
-    static measureTextHeight(
-      font: Font,
-      text: PrintableText,
-      maxWidth: number
-    ): number;
-  }
+  distance(img1: Jimp, img2: Jimp): number;
+  compareHashes(hash1: string, hash2: string): number;
+  colorDiff(rgba1: RGB, rgba2: RGB): number;
+  colorDiff(rgba1: RGBA, rgba2: RGBA): number;
+  loadFont(file: string): Promise<Font>;
+  loadFont(file: string, cb: GenericCallback<Font, any, any>): Promise<never>;
+  measureText(font: Font, text: PrintableText): number;
+  measureTextHeight(font: Font, text: PrintableText, maxWidth: number): number;
 }
 
-declare module 'jimp' {
-  export = Jimp.Jimp;
+type GenericCallback<T, U = any, TThis = any> = (
+  this: TThis,
+  err: Error | null,
+  value: T
+) => U;
+
+type ImageCallback<U = any> = (
+  this: Jimp,
+  err: Error | null,
+  value: Jimp,
+  coords: {
+    x: number;
+    y: number;
+  }
+) => U;
+
+type ColorActionName =
+  | 'mix'
+  | 'tint'
+  | 'shade'
+  | 'xor'
+  | 'red'
+  | 'green'
+  | 'blue'
+  | 'hue';
+
+type ColorAction = {
+  apply: ColorActionName;
+  params: any;
+};
+
+type BlendMode = {
+  mode: string;
+  opacitySource: number;
+  opacityDest: number;
+};
+
+type ChangeName = 'background' | 'scan' | 'crop';
+
+type ListenableName =
+  | 'any'
+  | 'initialized'
+  | 'before-change'
+  | 'changed'
+  | 'before-clone'
+  | 'cloned'
+  | ChangeName;
+
+type ListenerData<T extends ListenableName> = T extends 'any'
+  ? any
+  : T extends ChangeName
+    ? {
+        eventName: 'before-change' | 'changed';
+        methodName: T;
+        [key: string]: any;
+      }
+    : {
+        eventName: T;
+        methodName: T extends 'initialized'
+          ? 'constructor'
+          : T extends 'before-change' | 'changed'
+            ? ChangeName
+            : T extends 'before-clone' | 'cloned' ? 'clone' : any;
+      };
+
+type PrintableText =
+  | any
+  | {
+      text: string;
+      alignmentX: number;
+      alignmentY: number;
+    };
+
+type URLOptions = {
+  url: string;
+  compression?: boolean;
+  headers: {
+    [key: string]: any;
+  };
+};
+
+interface Bitmap {
+  data: Buffer;
+  width: number;
+  height: number;
+}
+interface RGB {
+  r: number;
+  g: number;
+  b: number;
+}
+interface RGBA {
+  r: number;
+  g: number;
+  b: number;
+  a: number;
+}
+
+interface FontChar {
+  id: number;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  xoffset: number;
+  yoffset: number;
+  xadvance: number;
+  page: number;
+  chnl: number;
+}
+
+interface FontInfo {
+  face: string;
+  size: number;
+  bold: number;
+  italic: number;
+  charset: string;
+  unicode: number;
+  stretchH: number;
+  smooth: number;
+  aa: number;
+  padding: [number, number, number, number];
+  spacing: [number, number];
+}
+
+interface FontCommon {
+  lineHeight: number;
+  base: number;
+  scaleW: number;
+  scaleH: number;
+  pages: number;
+  packed: number;
+  alphaChnl: number;
+  redChnl: number;
+  greenChnl: number;
+  blueChnl: number;
+}
+
+interface Font {
+  chars: {
+    [char: string]: FontChar;
+  };
+  kernings: {
+    [firstString: string]: {
+      [secondString: string]: number;
+    };
+  };
+  pages: string[];
+  common: FontCommon;
+  info: FontInfo;
 }
