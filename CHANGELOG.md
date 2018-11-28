@@ -1,3 +1,16 @@
+## Unreleased (2018-11-28)
+
+#### :rocket: Enhancement
+
+- `plugin-color`
+  - [#658](https://github.com/oliver-moran/jimp/pull/658) Make contrast behave more like CSS/Photoshop legacy constrast ([@nrkn](https://github.com/nrkn))
+
+#### Committers: 3
+
+- Dustin Hagemeier ([@ShynRou](https://github.com/ShynRou))
+- Jeroen Claassens (Favna) ([@Favna](https://github.com/Favna))
+- Nik Coughlin ([@nrkn](https://github.com/nrkn))
+
 ## v0.5.5 (2018-10-25)
 
 #### :bug: Bug Fix
@@ -43,6 +56,15 @@
 
 - `core`, `jimp`
   - [#629](https://github.com/oliver-moran/jimp/pull/629) add new constructor option to load url with options ([@hipstersmoothie](https://github.com/hipstersmoothie))
+
+#### Committers: 1
+
+- Andrew Lisowski ([@hipstersmoothie](https://github.com/hipstersmoothie))
+
+## v0.5.1 (2018-09-23)
+
+#### :bug: Bug Fix
+
 - `core`, `jimp`, `plugin-color`, `plugin-print`, `type-png`
   - [#628](https://github.com/oliver-moran/jimp/pull/628) Expose ParseBitmap ([@hipstersmoothie](https://github.com/hipstersmoothie))
 - `jimp`
@@ -258,6 +280,6 @@
 #### Committers: 4
 
 - Andrew Lisowski ([@hipstersmoothie](https://github.com/hipstersmoothie))
-- Danny Sofftie ([@DannySofftie](https://github.com/DannySofftie))
+- Danny Sofftie ([@dannysofftie](https://github.com/dannysofftie))
 - Vojtěch Štěpančík ([@VojtechStep](https://github.com/VojtechStep))
 - [@qw3n](https://github.com/qw3n)
