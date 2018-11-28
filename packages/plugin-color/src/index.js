@@ -190,30 +190,12 @@ export default () => ({
       );
     }
 
+    const factor = (val + 1) / (1 - val);
+
     function adjust(value) {
-      let x;
+      value = Math.floor(factor * (value - 127) + 127);
 
-      if (val < 0) {
-        x = value > 127 ? 1 - value / 255 : value / 255;
-
-        if (x < 0) {
-          x = 0;
-        }
-
-        x = 0.5 * Math.pow(x * 2, 1 + val);
-
-        return value > 127 ? (1.0 - x) * 255 : x * 255;
-      }
-
-      x = value > 127 ? 1 - value / 255 : value / 255;
-
-      if (x < 0) {
-        x = 0;
-      }
-
-      x = 0.5 * Math.pow(2 * x, val === 1 ? 127 : 1 / (1 - val));
-
-      return value > 127 ? (1 - x) * 255 : x * 255;
+      return value < 0 ? 0 : value > 255 ? 255 : value;
     }
 
     this.scanQuiet(0, 0, this.bitmap.width, this.bitmap.height, function(
