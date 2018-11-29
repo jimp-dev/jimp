@@ -316,6 +316,17 @@ Jimp.VERTICAL_ALIGN_MIDDLE;
 Jimp.VERTICAL_ALIGN_BOTTOM;
 ```
 
+Where the align mode changes the position of the associated axis as described in the table below.
+
+Align Mode | Axis Point
+--- | ---
+`Jimp.HORIZONTAL_ALIGN_LEFT` | Positions the x-axis at the left of the image
+`Jimp.HORIZONTAL_ALIGN_CENTER` | Positions the x-axis at the center of the image
+`Jimp.HORIZONTAL_ALIGN_RIGHT` | Positions the x-axis at the right of the image
+`Jimp.VERTICAL_ALIGN_TOP` | Positions the y-axis at the top of the image
+`Jimp.VERTICAL_ALIGN_MIDDLE` | Positions the y-axis at the center of the image
+`Jimp.VERTICAL_ALIGN_BOTTOM` | Positions the y-axis at the bottom of the image
+
 For example:
 
 ```js
@@ -389,7 +400,7 @@ Jimp.loadFont(pathOrURL).then(font => {
     },
     maxWidth,
     maxHeight
-  ); // prints 'Hello world!' on an image, middle and center-aligned
+  ); // prints 'Hello world!' on an image, middle and center-aligned, when x = 0 and y = 0
 });
 ```
 
