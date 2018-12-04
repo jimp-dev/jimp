@@ -51,12 +51,12 @@ main();
 
 Draws a text on a image on a given boundary
 
-_ @param {Jimp} font a bitmap font loaded from `Jimp.loadFont` command
-_ @param {number} x the x position to start drawing the text
-_ @param {number} y the y position to start drawing the text
-_ @param {string} text the text to draw (string or object with `text`, `alignmentX`, and/or `alignmentY`)
-_ @param {number} maxWidth (optional) the boundary width to draw in
-_ @param {number} maxHeight (optional) the boundary height to draw in - @param {function(Error, Jimp)} cb (optional) a function to call when the text is written
+- @param {Jimp} font a bitmap font loaded from `Jimp.loadFont` command
+- @param {number} x the x position to start drawing the text
+- @param {number} y the y position to start drawing the text
+- @param {string} text the text to draw (string or object with `text`, `alignmentX`, and/or `alignmentY`)
+- @param {number} maxWidth (optional) the boundary width to draw in
+- @param {number} maxHeight (optional) the boundary height to draw in - @param {function(Error, Jimp)} cb (optional) a function to call when the text is written
 
 ```js
 import Jimp from 'jimp';
