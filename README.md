@@ -45,7 +45,7 @@ API documentation can be found in the main [jimp package](./packages/jimp)
 ## Extra Plugins
 
 - [circle](./packages/plugin-circle) - Creates a circle out of an image.
-- [shadow](./packages/plugin-circle) - Creates a shadow on an image.
+- [shadow](./packages/plugin-shadow) - Creates a shadow on an image.
 - [fisheye](./packages/plugin-fisheye) - Apply a fisheye effect to an image.
 - [threshold](./packages/plugin-threshold) - Lighten an image. Good for scanned drawing and signatures.
 
