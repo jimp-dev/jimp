@@ -21,9 +21,9 @@ import jimp from 'jimp';
 async function main() {
   const image = await jimp.read('test/image.png');
 
-  image.boxShadow();
+  image.shadow();
   // or
-  image.boxShadow({ opacity: 0.8, size: 1.2, blur: 10, x: -75, y: -75 });
+  image.shadow({ opacity: 0.8, size: 1.2, blur: 10, x: -75, y: -75 });
 }
 
 main();
