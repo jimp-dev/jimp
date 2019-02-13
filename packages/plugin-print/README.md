@@ -113,6 +113,8 @@ image.print(
   maxHeight
 );
 ```
+__Note__: although `maxWidth` and `maxHeight` parameters are optional to `print()`, they are needed to correctly align the text using the requested alignment mode.
+
 
 #### Staggering Text
 
