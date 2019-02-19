@@ -1,62 +1,135 @@
 {
-  "name": "jimp",
-  "version": "0.2.27",
-  "description": "An image processing library written entirely in JavaScript (i.e. zero external or native dependencies).",
-  "main": "index.js",
-  "scripts": {
-    "test": "./test/tests.sh",
-    "prepublish": "./browser/browserify-build.sh",
-    "minify-jimp": "uglifyjs browser/tmp.jimp.js --compress warnings=false --mangle -o browser/tmp.jimp.min.js"
-  },
-  "keywords": [
-    "image",
-    "image processing",
-    "image manipulation",
-    "png",
-    "jpg",
-    "jpeg",
-    "bmp",
-    "resize",
-    "scale",
-    "crop"
+  "private": true,
+  "workspaces": [
+    "packages/*"
   ],
-  "author": "Oliver Moran <oliver.moran@gmail.com>",
-  "license": "MIT",
-  "dependencies": {
-    "bignumber.js": "^2.1.0",
-    "bmp-js": "0.0.2",
-    "es6-promise": "^3.0.2",
-    "exif-parser": "^0.1.9",
-    "file-type": "^3.1.0",
-    "jpeg-js": "^0.2.0",
-    "load-bmfont": "^1.2.3",
-    "mime": "^1.3.4",
-    "pixelmatch": "^4.0.0",
-    "pngjs": "^3.0.0",
-    "read-chunk": "^1.0.1",
-    "request": "^2.65.0",
-    "stream-to-buffer": "^0.1.0",
-    "tinycolor2": "^1.1.2",
-    "url-regex": "^3.0.0"
-  },
-  "devDependencies": {
-    "babel": "^6.0.14",
-    "babel-cli": "^6.0.0",
-    "babel-preset-es2015": "^6.0.14",
-    "babel-preset-stage-0": "^6.0.14",
-    "browserify": "^13.0.0",
-    "envify": "^3.4.0",
-    "express": "^4.13.4",
-    "uglify-js": "^2.6.1",
-    "uglifyify": "^3.0.1"
-  },
   "repository": {
     "type": "git",
     "url": "https://github.com/oliver-moran/jimp.git"
   },
-  "bugs": {
-    "url": "https://github.com/oliver-moran/jimp/issues"
+  "scripts": {
+    "lint": "xo",
+    "test": "cross-env BABEL_ENV=test mocha --require @babel/register './packages/**/test/**/*.test.js' --require ts-node/register ./packages/**/test/*.test.ts",
+    "test:watch": "npm run test -- --reporter min --watch",
+    "test:browser": "cross-env BABEL_ENV=test ENV=browser CHROME_BIN=\"$(which chrome || which chromium)\" karma start --single-run",
+    "test:browser:watch": "npm run -s test:browser start -- --auto-watch",
+    "clean": "lerna clean --yes && rm -rf node_modules && npm run clean:build",
+    "clean:build": "rm -rf packages/**/es packages/**/dist",
+    "build": "npm run clean:build && lerna run build --stream",
+    "build:watch": "lerna run build:watch --parallel",
+    "version": "lerna-changelog --from v0.2.28 > CHANGELOG.md && git add CHANGELOG.md && git commit -m 'Update CHANGELOG.md'",
+    "publish:packages": "npm run build && lerna publish --npm-client npm"
   },
-  "tonicExampleFilename": "example.js",
-  "browser": "browser/lib/jimp.js"
+  "devDependencies": {
+    "@babel/cli": "^7.1.0",
+    "@babel/core": "^7.1.0",
+    "@babel/plugin-proposal-class-properties": "^7.1.0",
+    "@babel/plugin-syntax-object-rest-spread": "^7.0.0",
+    "@babel/preset-env": "^7.1.0",
+    "@babel/register": "^7.0.0",
+    "babel-eslint": "^9.0.0",
+    "babel-plugin-add-module-exports": "^1.0.0",
+    "babel-plugin-istanbul": "^5.0.1",
+    "babel-plugin-source-map-support": "^2.0.1",
+    "babel-plugin-transform-inline-environment-variables": "^0.4.3",
+    "cross-env": "^5.2.0",
+    "eslint-plugin-prettier": "^2.6.2",
+    "husky": "^1.0.0-rc.15",
+    "lerna": "^3.4.0",
+    "lerna-changelog": "^0.8.0",
+    "lint-staged": "^7.3.0",
+    "prettier": "^1.14.3",
+    "should": "^13.2.3",
+    "source-map-support": "^0.5.9",
+    "tfilter": "^1.0.1",
+    "xo": "^0.23.0",
+    "babelify": "^10.0.0",
+    "browserify": "^16.2.2",
+    "envify": "^4.1.0",
+    "express": "^4.16.3",
+    "karma": "^3.0.0",
+    "karma-browserify": "^5.3.0",
+    "karma-chrome-launcher": "^2.2.0",
+    "karma-firefox-launcher": "^1.1.0",
+    "karma-mocha": "^1.3.0",
+    "karma-mocha-reporter": "^2.2.5",
+    "mocha": "^5.2.0",
+    "nyc": "^13.0.1",
+    "uglify-js": "^3.4.9",
+    "watchify": "^3.11.0"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "lint-staged": {
+    "*.{js,css,md}": [
+      "prettier --write",
+      "git add"
+    ]
+  },
+  "prettier": {
+    "singleQuote": true,
+    "tabWidth": 2
+  },
+  "xo": {
+    "parser": "babel-eslint",
+    "extends": [
+      "prettier"
+    ],
+    "plugins": [
+      "prettier"
+    ],
+    "env": [
+      "browser",
+      "node",
+      "jest"
+    ],
+    "ignores": [
+      "omggif.js",
+      "**/*.ts",
+      "**/*.d.ts",
+      "*.ts"
+    ],
+    "rules": {
+      "capitalized-comments": 0,
+      "unicorn/number-literal-case": 0,
+      "no-control-regex": 1,
+      "prefer-rest-params": 1,
+      "no-new": 0,
+      "no-console": [
+        2,
+        {
+          "allow": [
+            "warn",
+            "error"
+          ]
+        }
+      ],
+      "max-params": [
+        1,
+        6
+      ],
+      "import/no-extraneous-dependencies": [
+        1,
+        {
+          "devDependencies": true
+        }
+      ],
+      "unicorn/prefer-exponentiation-operator": 0
+    },
+    "overrides": [
+      {
+        "files": "**/test/**/*.js",
+        "esnext": false,
+        "globals": [
+          "before"
+        ],
+        "rules": {
+          "max-nested-callbacks": 0
+        }
+      }
+    ]
+  }
 }
