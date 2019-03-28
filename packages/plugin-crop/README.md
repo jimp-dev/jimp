@@ -39,7 +39,7 @@ or
 - @param {object} options object
   - tolerance (optional): a percent value of tolerance for pixels color difference (default: 0.0002%)
   - cropOnlyFrames (optional): flag to crop only real frames: all 4 sides of the image must have some border (default: true)
-  - cropSymetric (optional): flag to force cropping top be symmetric. north and south / east and west are cropped by the same value
+  - cropSymmetric (optional): flag to force cropping top be symmetric. north and south / east and west are cropped by the same value
   - leaveBorder (optional): integer of how many pixels of the background color to leave around the image
 
 ```js
