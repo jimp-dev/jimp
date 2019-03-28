@@ -20,40 +20,6 @@ function rotate90degrees(bitmap, dstBuffer, clockwise) {
 }
 
 /**
- * Rotates an image clockwise by a number of degrees rounded to the nearest 90 degrees. NB: 'this' must be a Jimp object.
- * @param {number} deg the number of degrees to rotate the image by
- */
-function simpleRotate(deg) {
-  let steps = Math.round(deg / 90) % 4;
-  steps += steps < 0 ? 4 : 0;
-
-  if (steps === 0) return;
-
-  const srcBuffer = this.bitmap.data;
-  const len = srcBuffer.length;
-  const dstBuffer = Buffer.allocUnsafe(len);
-
-  let tmp;
-
-  if (steps === 2) {
-    // Upside-down
-    for (let srcOffset = 0; srcOffset < len; srcOffset += 4) {
-      tmp = srcBuffer.readUInt32BE(srcOffset, true);
-      dstBuffer.writeUInt32BE(tmp, len - srcOffset - 4, true);
-    }
-  } else {
-    // Clockwise or counter-clockwise rotation by 90 degree
-    rotate90degrees(this.bitmap, dstBuffer, steps === 1);
-
-    tmp = this.bitmap.width;
-    this.bitmap.width = this.bitmap.height;
-    this.bitmap.height = tmp;
-  }
-
-  this.bitmap.data = dstBuffer;
-}
-
-/**
  * Rotates an image clockwise by an arbitrary number of degrees. NB: 'this' must be a Jimp object.
  * @param {number} deg the number of degrees to rotate the image by
  * @param {string|boolean} mode (optional) resize mode or a boolean, if false then the width and height of the image will not be changed
@@ -191,11 +157,7 @@ export default () => ({
       return throwError.call(this, 'mode must be a boolean or a string', cb);
     }
 
-    if (deg % 90 === 0 && Boolean(mode) === false) {
-      simpleRotate.call(this, deg, cb);
-    } else {
-      advancedRotate.call(this, deg, mode, cb);
-    }
+    advancedRotate.call(this, deg, mode, cb);
 
     if (isNodePattern(cb)) {
       cb.call(this, null, this);
