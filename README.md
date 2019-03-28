@@ -39,7 +39,7 @@ API documentation can be found in the main [jimp package](./packages/jimp)
 - [normalize](./packages/plugin-normalize) - Normalize the colors in an image
 - [print](./packages/plugin-print) - Print text onto an image
 - [resize](./packages/plugin-resize) - Resize an image.
-- [rotate](./packages/plugin-rotate) - Rotate and image.
+- [rotate](./packages/plugin-rotate) - Rotate an image.
 - [scale](./packages/plugin-scale) - Uniformly scales the image by a factor.
 
 ## Extra Plugins
