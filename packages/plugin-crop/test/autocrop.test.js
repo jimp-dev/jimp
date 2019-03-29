@@ -5,7 +5,7 @@ import crop from '../src';
 
 const jimp = configure({ plugins: [crop] }, Jimp);
 
-describe('Autocrop', () => {
+describe.only('Autocrop', () => {
   it('image with transparent surround color', async () => {
     const imgSrc = await jimp.read(
       mkJGD(
@@ -280,6 +280,40 @@ describe('Autocrop', () => {
           '3  ◆▦▦◆  2',
           '2   ◆◆   3',
           '3232323232'
+        )
+      );
+  });
+
+  it('image with top and bottom frame and leaveBorder', async () => {
+    const imgSrc = await Jimp.read(
+      mkJGD(
+        '▥▥▥▥▥▥▥▥',
+        '▥▥▥▥▥▥▥▥',
+        '▥▥▥▥▥▥▥▥',
+        '   ◆◆   ',
+        '  ◆▦▦◆  ',
+        ' ◆▦▦▦▦◆ ',
+        '  ◆▦▦◆  ',
+        '   ◆◆   ',
+        '▥▥▥▥▥▥▥▥',
+        '▥▥▥▥▥▥▥▥',
+        '▥▥▥▥▥▥▥▥'
+      )
+    );
+    imgSrc
+      .autocrop({ cropSymmetric: true, cropOnlyFrames: false, leaveBorder: 2 })
+      .getJGDSync()
+      .should.be.sameJGD(
+        mkJGD(
+          '▥▥▥▥▥▥▥▥',
+          '▥▥▥▥▥▥▥▥',
+          '   ◆◆   ',
+          '  ◆▦▦◆  ',
+          ' ◆▦▦▦▦◆ ',
+          '  ◆▦▦◆  ',
+          '   ◆◆   ',
+          '▥▥▥▥▥▥▥▥',
+          '▥▥▥▥▥▥▥▥'
         )
       );
   });
