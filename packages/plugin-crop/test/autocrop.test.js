@@ -5,7 +5,7 @@ import crop from '../src';
 
 const jimp = configure({ plugins: [crop] }, Jimp);
 
-describe.only('Autocrop', () => {
+describe('Autocrop', () => {
   it('image with transparent surround color', async () => {
     const imgSrc = await jimp.read(
       mkJGD(
