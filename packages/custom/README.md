@@ -164,7 +164,7 @@ class: {
 
 Defining a plugin has access to all the same things in the type definition. Mainly plugins use just the `constants` and `class` config options.
 
-Below is the `invert` plugin. If a plugin doesn return an obkect with `constants` and `class`, all keys are treated as class functions.
+Below is the `invert` plugin. If a plugin doesn return an object with `constants` and `class`, all keys are treated as class functions.
 
 ```js
 import { isNodePattern } from '@jimp/utils';
