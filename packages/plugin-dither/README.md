@@ -19,7 +19,7 @@ import jimp from 'jimp';
 async function main() {
   const image = await jimp.read('test/image.png');
 
-  image.dither(150, jimp.AUTO);
+  image.dither565();
 }
 
 main();
