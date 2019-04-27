@@ -1,6 +1,6 @@
 {
   "name": "@jimp/gif",
-  "version": "0.6.0",
+  "version": "0.6.3",
   "description": "Default Jimp gif encoder/decoder.",
   "main": "dist/index.js",
   "module": "es/index.js",
@@ -16,7 +16,7 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "@jimp/utils": "^0.6.0",
+    "@jimp/utils": "^0.6.3",
     "core-js": "^2.5.7",
     "omggif": "^1.0.9"
   },

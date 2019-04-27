@@ -52,13 +52,13 @@
   "license": "MIT",
   "dependencies": {
     "@babel/polyfill": "^7.0.0",
-    "@jimp/custom": "^0.6.2",
-    "@jimp/plugins": "^0.6.2",
-    "@jimp/types": "^0.6.2",
+    "@jimp/custom": "^0.6.3",
+    "@jimp/plugins": "^0.6.3",
+    "@jimp/types": "^0.6.3",
     "core-js": "^2.5.7"
   },
   "devDependencies": {
-    "@jimp/test-utils": "^0.6.2",
+    "@jimp/test-utils": "^0.6.3",
     "express": "^4.16.3"
   },
   "xo": false,
