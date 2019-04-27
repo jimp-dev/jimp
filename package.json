@@ -18,7 +18,7 @@
     "build": "npm run clean:build && lerna run build --stream",
     "build:watch": "lerna run build:watch --parallel",
     "version": "lerna-changelog --from v0.2.28 > CHANGELOG.md && git add CHANGELOG.md && git commit -m 'Update CHANGELOG.md'",
-    "publish:packages": "npm run build && lerna publish --npm-client npm"
+    "publish:packages": "npm run build && lerna publish --force-publish=* --npm-client npm"
   },
   "devDependencies": {
     "@babel/cli": "^7.1.0",
