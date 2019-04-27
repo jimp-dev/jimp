@@ -140,7 +140,6 @@ export default function pluginCrop(event) {
 
             if (this.constructor.colorDiff(rgba1, rgba2) > tolerance) {
               // this pixel is too distant from the first one: abort this side scan
-              northPixelsToCrop -= leaveBorder;
               break north;
             }
           }
@@ -157,7 +156,6 @@ export default function pluginCrop(event) {
 
             if (this.constructor.colorDiff(rgba1, rgba2) > tolerance) {
               // this pixel is too distant from the first one: abort this side scan
-              eastPixelsToCrop -= leaveBorder;
               break east;
             }
           }
@@ -178,7 +176,6 @@ export default function pluginCrop(event) {
 
             if (this.constructor.colorDiff(rgba1, rgba2) > tolerance) {
               // this pixel is too distant from the first one: abort this side scan
-              southPixelsToCrop -= leaveBorder;
               break south;
             }
           }
@@ -199,7 +196,6 @@ export default function pluginCrop(event) {
 
             if (this.constructor.colorDiff(rgba1, rgba2) > tolerance) {
               // this pixel is too distant from the first one: abort this side scan
-              westPixelsToCrop -= leaveBorder;
               break west;
             }
           }
@@ -209,6 +205,12 @@ export default function pluginCrop(event) {
 
         // decide if a crop is needed
         let doCrop = false;
+
+        // apply leaveBorder
+        westPixelsToCrop = westPixelsToCrop - leaveBorder;
+        eastPixelsToCrop = eastPixelsToCrop - leaveBorder;
+        northPixelsToCrop = northPixelsToCrop - leaveBorder;
+        southPixelsToCrop = southPixelsToCrop - leaveBorder;
 
         if (cropSymmetric) {
           const horizontal = Math.min(eastPixelsToCrop, westPixelsToCrop);
@@ -224,6 +226,12 @@ export default function pluginCrop(event) {
           w - (westPixelsToCrop + eastPixelsToCrop);
         const heightOfRemainingPixels =
           h - (southPixelsToCrop + northPixelsToCrop);
+
+        // make sure that crops are > 0
+        westPixelsToCrop = westPixelsToCrop >= 0 ? westPixelsToCrop : 0;
+        eastPixelsToCrop = eastPixelsToCrop >= 0 ? eastPixelsToCrop : 0;
+        northPixelsToCrop = northPixelsToCrop >= 0 ? northPixelsToCrop : 0;
+        southPixelsToCrop = southPixelsToCrop >= 0 ? southPixelsToCrop : 0;
 
         if (cropOnlyFrames) {
           // crop image if all sides should be cropped
