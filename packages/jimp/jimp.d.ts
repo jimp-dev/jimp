@@ -1,7 +1,6 @@
 declare const Jimp: Jimp;
-export = Jimp;
 
-interface Jimp {
+export interface Jimp {
   // Constructors
   new (path: string, cb?: ImageCallback): Jimp;
   new (urlOptions: URLOptions, cb?: ImageCallback): Jimp;
@@ -456,24 +455,24 @@ type URLOptions = {
   };
 };
 
-interface Bitmap {
+export interface Bitmap {
   data: Buffer;
   width: number;
   height: number;
 }
-interface RGB {
+export interface RGB {
   r: number;
   g: number;
   b: number;
 }
-interface RGBA {
+export interface RGBA {
   r: number;
   g: number;
   b: number;
   a: number;
 }
 
-interface FontChar {
+export interface FontChar {
   id: number;
   x: number;
   y: number;
@@ -486,7 +485,7 @@ interface FontChar {
   chnl: number;
 }
 
-interface FontInfo {
+export interface FontInfo {
   face: string;
   size: number;
   bold: number;
@@ -500,7 +499,7 @@ interface FontInfo {
   spacing: [number, number];
 }
 
-interface FontCommon {
+export interface FontCommon {
   lineHeight: number;
   base: number;
   scaleW: number;
@@ -513,7 +512,7 @@ interface FontCommon {
   blueChnl: number;
 }
 
-interface Font {
+export interface Font {
   chars: {
     [char: string]: FontChar;
   };
