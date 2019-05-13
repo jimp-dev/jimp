@@ -24,6 +24,10 @@ async function main() {
   const image = await jimp.read('test/image.png');
 
   image.blur(5);
+
+  // or
+
+  image.blur(5, { x: 30, y: 45, w: 100, h: 75 });
 }
 
 main();
