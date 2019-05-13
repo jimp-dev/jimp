@@ -10,6 +10,11 @@ A fast blur algorithm that produces similar effect to a Gaussian blur - but MUCH
 ## Usage
 
 - @param {number} r the pixel radius of the blur
+- @param {Object} dim (optional) the object containing the dimensions of the blur area
+  - @param {number} dim.x the top left x coordinate of the blur area
+  - @param {number} dim.y the top left y coordinate of the blur area
+  - @param {number} dim.w the width of the blur area
+  - @param {number} dim.h the height of the blur area
 - @param {function(Error, Jimp)} cb (optional) a callback for when complete
 
 ```js

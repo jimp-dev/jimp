@@ -33,10 +33,15 @@ export default () => ({
   /**
    * A fast blur algorithm that produces similar effect to a Gaussian blur - but MUCH quicker
    * @param {number} r the pixel radius of the blur
+   * @param {Object} dim (optional) the object containing the dimensions of the blur area
+   * @param {number} dim.x the top left x coordinate of the blur area
+   * @param {number} dim.y the top left y coordinate of the blur area
+   * @param {number} dim.w the width of the blur area
+   * @param {number} dim.h the height of the blur area
    * @param {function(Error, Jimp)} cb (optional) a callback for when complete
    * @returns {Jimp} this for chaining of methods
    */
-  blur(r, cb) {
+  blur(r, dim, cb) {
     if (typeof r !== 'number')
       return throwError.call(this, 'r must be a number', cb);
     if (r < 1) return throwError.call(this, 'r must be greater than 0', cb);
@@ -56,9 +61,12 @@ export default () => ({
     let yw;
     let pa;
 
-    const wm = this.bitmap.width - 1;
-    const hm = this.bitmap.height - 1;
-    // const wh = this.bitmap.width * this.bitmap.height;
+    const copy = this.cloneQuiet();
+
+    if (typeof dim === 'function') cb = dim;
+    const wm = copy.bitmap.width - 1;
+    const hm = copy.bitmap.height - 1;
+
     const rad1 = r + 1;
 
     const mulSum = mulTable[r];
@@ -78,21 +86,21 @@ export default () => ({
       yi = 0;
       yw = 0;
 
-      for (y = 0; y < this.bitmap.height; y++) {
-        rsum = this.bitmap.data[yw] * rad1;
-        gsum = this.bitmap.data[yw + 1] * rad1;
-        bsum = this.bitmap.data[yw + 2] * rad1;
-        asum = this.bitmap.data[yw + 3] * rad1;
+      for (y = 0; y < copy.bitmap.height; y++) {
+        rsum = copy.bitmap.data[yw] * rad1;
+        gsum = copy.bitmap.data[yw + 1] * rad1;
+        bsum = copy.bitmap.data[yw + 2] * rad1;
+        asum = copy.bitmap.data[yw + 3] * rad1;
 
         for (i = 1; i <= r; i++) {
           p = yw + ((i > wm ? wm : i) << 2);
-          rsum += this.bitmap.data[p++];
-          gsum += this.bitmap.data[p++];
-          bsum += this.bitmap.data[p++];
-          asum += this.bitmap.data[p];
+          rsum += copy.bitmap.data[p++];
+          gsum += copy.bitmap.data[p++];
+          bsum += copy.bitmap.data[p++];
+          asum += copy.bitmap.data[p];
         }
 
-        for (x = 0; x < this.bitmap.width; x++) {
+        for (x = 0; x < copy.bitmap.width; x++) {
           red[yi] = rsum;
           green[yi] = gsum;
           blue[yi] = bsum;
@@ -106,17 +114,17 @@ export default () => ({
           p1 = yw + vmin[x];
           p2 = yw + vmax[x];
 
-          rsum += this.bitmap.data[p1++] - this.bitmap.data[p2++];
-          gsum += this.bitmap.data[p1++] - this.bitmap.data[p2++];
-          bsum += this.bitmap.data[p1++] - this.bitmap.data[p2++];
-          asum += this.bitmap.data[p1] - this.bitmap.data[p2];
+          rsum += copy.bitmap.data[p1++] - copy.bitmap.data[p2++];
+          gsum += copy.bitmap.data[p1++] - copy.bitmap.data[p2++];
+          bsum += copy.bitmap.data[p1++] - copy.bitmap.data[p2++];
+          asum += copy.bitmap.data[p1] - copy.bitmap.data[p2];
 
           yi++;
         }
-        yw += this.bitmap.width << 2;
+        yw += copy.bitmap.width << 2;
       }
 
-      for (x = 0; x < this.bitmap.width; x++) {
+      for (x = 0; x < copy.bitmap.width; x++) {
         yp = x;
         rsum = red[yp] * rad1;
         gsum = green[yp] * rad1;
@@ -124,7 +132,7 @@ export default () => ({
         asum = alpha[yp] * rad1;
 
         for (i = 1; i <= r; i++) {
-          yp += i > hm ? 0 : this.bitmap.width;
+          yp += i > hm ? 0 : copy.bitmap.width;
           rsum += red[yp];
           gsum += green[yp];
           bsum += blue[yp];
@@ -133,29 +141,29 @@ export default () => ({
 
         yi = x << 2;
 
-        for (y = 0; y < this.bitmap.height; y++) {
+        for (y = 0; y < copy.bitmap.height; y++) {
           pa = (asum * mulSum) >>> shgSum;
-          this.bitmap.data[yi + 3] = pa;
+          copy.bitmap.data[yi + 3] = pa;
 
           // normalize alpha
           if (pa > 255) {
-            this.bitmap.data[yi + 3] = 255;
+            copy.bitmap.data[yi + 3] = 255;
           }
 
           if (pa > 0) {
             pa = 255 / pa;
-            this.bitmap.data[yi] = ((rsum * mulSum) >>> shgSum) * pa;
-            this.bitmap.data[yi + 1] = ((gsum * mulSum) >>> shgSum) * pa;
-            this.bitmap.data[yi + 2] = ((bsum * mulSum) >>> shgSum) * pa;
+            copy.bitmap.data[yi] = ((rsum * mulSum) >>> shgSum) * pa;
+            copy.bitmap.data[yi + 1] = ((gsum * mulSum) >>> shgSum) * pa;
+            copy.bitmap.data[yi + 2] = ((bsum * mulSum) >>> shgSum) * pa;
           } else {
-            this.bitmap.data[yi + 2] = 0;
-            this.bitmap.data[yi + 1] = 0;
-            this.bitmap.data[yi] = 0;
+            copy.bitmap.data[yi + 2] = 0;
+            copy.bitmap.data[yi + 1] = 0;
+            copy.bitmap.data[yi] = 0;
           }
 
           if (x === 0) {
-            vmin[y] = ((p = y + rad1) < hm ? p : hm) * this.bitmap.width;
-            vmax[y] = (p = y - r) > 0 ? p * this.bitmap.width : 0;
+            vmin[y] = ((p = y + rad1) < hm ? p : hm) * copy.bitmap.width;
+            vmax[y] = (p = y - r) > 0 ? p * copy.bitmap.width : 0;
           }
 
           p1 = x + vmin[y];
@@ -166,9 +174,32 @@ export default () => ({
           bsum += blue[p1] - blue[p2];
           asum += alpha[p1] - alpha[p2];
 
-          yi += this.bitmap.width << 2;
+          yi += copy.bitmap.width << 2;
         }
       }
+    }
+
+    if (typeof dim !== 'function' && typeof dim !== 'undefined') {
+      if (dim.x + dim.w > this.bitmap.width)
+        return throwError.call(
+          this,
+          'dimensions must be smaller than image',
+          cb
+        );
+      if (dim.y + dim.h > this.bitmap.height)
+        return throwError.call(
+          this,
+          'dimensions must be smaller than image',
+          cb
+        );
+      this.scanQuiet(dim.x, dim.y, dim.w, dim.h, function(sx, sy, idx) {
+        this.bitmap.data[idx] = copy.bitmap.data[idx];
+        this.bitmap.data[idx + 1] = copy.bitmap.data[idx + 1];
+        this.bitmap.data[idx + 2] = copy.bitmap.data[idx + 2];
+        this.bitmap.data[idx + 3] = copy.bitmap.data[idx + 3];
+      });
+    } else {
+      this.bitmap = copy.bitmap;
     }
 
     if (isNodePattern(cb)) {
