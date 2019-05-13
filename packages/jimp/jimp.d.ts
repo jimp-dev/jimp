@@ -297,7 +297,14 @@ interface Jimp {
   ): this;
 
   // Effect methods
-  blur(r: number, cb?: ImageCallback): this;
+  blur(r: number,
+    dim?: {
+      x: number;
+      y: number;
+      w: number;
+      h: number;
+    },
+    cb?: ImageCallback): this;
   dither565(cb?: ImageCallback): this;
   dither16(cb?: ImageCallback): this;
   histogram(): {
