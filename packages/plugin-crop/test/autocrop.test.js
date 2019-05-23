@@ -250,7 +250,7 @@ describe('Autocrop', () => {
       );
   });
 
-  it('image without frame and with with some border left', async () => {
+  it('image without frame and with some border left', async () => {
     const imgSrc = await Jimp.read(
       mkJGD(
         '323232323232',
@@ -269,6 +269,40 @@ describe('Autocrop', () => {
       .autocrop({
         tolerance: 0.005,
         leaveBorder: 1
+      })
+      .getJGDSync()
+      .should.be.sameJGD(
+        mkJGD(
+          '3232323232',
+          '2   ◆◆   3',
+          '3  ◆▦▦◆  2',
+          '2 ◆▦▦▦▦◆ 3',
+          '3  ◆▦▦◆  2',
+          '2   ◆◆   3',
+          '3232323232'
+        )
+      );
+  });
+
+  it('image without frame and with some border left', async () => {
+    const imgSrc = await Jimp.read(
+      mkJGD(
+        '323232323232',
+        '232323232323',
+        '32   ◆◆   32',
+        '23  ◆▦▦◆  23',
+        '32 ◆▦▦▦▦◆ 32',
+        '23  ◆▦▦◆  23',
+        '32   ◆◆   32',
+        '232323232323',
+        '323232323232'
+      )
+    );
+
+    imgSrc
+      .autocrop({
+        tolerance: 0.005,
+        leaveBorder: 5
       })
       .getJGDSync()
       .should.be.sameJGD(
