@@ -126,11 +126,11 @@ interface Jimp {
   quality(n: number, cb?: ImageCallback): this;
   getBase64(mime: string, cb: GenericCallback<string, any, this>): this;
   getBase64Async(mime: string): Promise<string>;
-  hash(cb?: GenericCallback<string, any, this>): this;
+  hash(cb?: GenericCallback<string, any, this>): string | Error;
   hash(
     base: number | null | undefined,
     cb?: GenericCallback<string, any, this>
-  ): this;
+  ): string | Error;
   getBuffer(mime: string, cb: GenericCallback<Buffer>): this;
   getBufferAsync(mime: string): Promise<Buffer>;
   getPixelIndex(
