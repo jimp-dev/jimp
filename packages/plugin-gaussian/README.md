@@ -18,7 +18,7 @@ import jimp from 'jimp';
 async function main() {
   const image = await jimp.read('test/image.png');
 
-  image.resize(150, jimp.AUTO);
+  image.gaussian(15);
 }
 
 main();
