@@ -525,26 +525,3 @@ interface Font {
   common: FontCommon;
   info: FontInfo;
 }
-
-export interface ITypePluginReturn<ImageType extends Image = Image> extends Plugin<ImageType> {
-  mime: {
-    [key: string]: string[];
-  };
-  decoders: {
-    [key: string]: (data: Buffer) => ImageType;
-  };
-  encoders: {
-    [key: string]: (image: ImageType) => Buffer;
-  };
-}
-
-export interface Image {
-  bitmap: Bitmap;
-}
-
-export interface Plugin<ClassT> {
-  class?: ClassT;
-  constants: {
-    [key: string]: string;
-  };
-}

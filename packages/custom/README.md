@@ -69,7 +69,7 @@ jimp = configure(
 
 To define a new Jimp image type write a function the takes the current Jimp configuration. In this function you can extend Jimp's internal data structures.
 
-This function must return and array whose first element is the mime type and second element is an array of valid file extensions.
+This function must return an object whose key is the mime type and value is an array of valid file extensions.
 
 ```js
 const special = require('special-js');
@@ -77,7 +77,7 @@ const special = require('special-js');
 const MIME_TYPE = 'image/special';
 
 export default () => ({
-  mime: [MIME_TYPE, ['spec', 'special']],
+  mime: {[MIME_TYPE], ['spec', 'special']},
 
   constants: {
     MIME_SPECIAL: MIME_TYPE
