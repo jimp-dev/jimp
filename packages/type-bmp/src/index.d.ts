@@ -1,3 +1,5 @@
-import { ITypePluginReturn } from '../../types/src';
+interface Bmp {
+  MIME_BMP: 'image/bmp';
+  MIME_X_MS_BMP: 'image/x-ms-bmp';
 
-export default function(): ITypePluginReturn;
+} 

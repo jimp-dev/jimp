@@ -1,14 +1,5 @@
-import Jimp = require('jimp');
-import { ITypePluginReturn, Image} from '../../types/src';
-
-
-interface JpegImage extends Image {
+interface Jpeg {
+    MIME_JPEG: 'image/jpeg';
     _quality: number;
-    quality: (n: number, cb?: (err: Error, jimp: Jimp) => void) => Jimp;
+    quality: (n: number, cb?: ImageCallback) => this;
 }
-
-interface TypeJpegRet extends ITypePluginReturn<JpegImage> {
-  class: JpegImage;
-}
-
-export default function(): TypeJpegRet;

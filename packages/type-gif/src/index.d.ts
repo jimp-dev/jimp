@@ -1,3 +1,3 @@
-import { ITypePluginReturn } from '../../types/src';
-
-export default function(): Omit<ITypePluginReturn, 'encoders'>;
+interface Gif {
+  MIME_GIF: 'image/gif';
+}

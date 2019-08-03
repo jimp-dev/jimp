@@ -27,22 +27,6 @@ export default interface Jimp {
   // Constants
   AUTO: -1;
 
-  // supported mime types
-  MIME_PNG: 'image/png';
-  MIME_TIFF: 'image/tiff';
-  MIME_JPEG: 'image/jpeg';
-  MIME_JGD: 'image/jgd';
-  MIME_BMP: 'image/bmp';
-  MIME_X_MS_BMP: 'image/x-ms-bmp';
-  MIME_GIF: 'image/gif';
-  // PNG filter types
-  PNG_FILTER_AUTO: -1;
-  PNG_FILTER_NONE: 0;
-  PNG_FILTER_SUB: 1;
-  PNG_FILTER_UP: 2;
-  PNG_FILTER_AVERAGE: 3;
-  PNG_FILTER_PATH: 4;
-
   // blend modes
   BLEND_SOURCE_OVER: string;
   BLEND_DESTINATION_OVER: string;
@@ -160,11 +144,6 @@ export default interface Jimp {
   ): this;
 
   // Effect methods
-  histogram(): {
-    r: number[];
-    g: number[];
-    b: number[];
-  };
   composite(
     src: Jimp,
     x: number,

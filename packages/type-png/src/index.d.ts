@@ -1,21 +1,20 @@
-import Jimp, {ImageCallback, ITypePluginReturn, Image} from 'jimp';
-
-interface PNGImage extends Image {
+interface PNG {
     _deflateLevel: number,
     _deflateStrategy: number,
     _filterType: number,
     _colorType: number,
-    deflateLevel(l: number, cb?: ImageCallback): Jimp;
-    deflateStrategy(s: number, cb?: ImageCallback): Jimp;
-    filterType(f: number, cb?: ImageCallback): Jimp;
-    colorType(s: number, cb?: ImageCallback): Jimp;
-}
+    deflateLevel(l: number, cb?: ImageCallback): this;
+    deflateStrategy(s: number, cb?: ImageCallback): this;
+    filterType(f: number, cb?: ImageCallback): this;
+    colorType(s: number, cb?: ImageCallback): this;
 
-interface TypePngRet extends ITypePluginReturn<PNGImage> {
-  hasAlpha: {
-    [key: string]: boolean;
-  };
-  class: PNGImage;
-}
+  MIME_PNG: 'image/png';
 
-export default function(): TypePngRet;
+  // PNG filter types
+  PNG_FILTER_AUTO: -1;
+  PNG_FILTER_NONE: 0;
+  PNG_FILTER_SUB: 1;
+  PNG_FILTER_UP: 2;
+  PNG_FILTER_AVERAGE: 3;
+  PNG_FILTER_PATH: 4;
+}
