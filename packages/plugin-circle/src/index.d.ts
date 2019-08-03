@@ -4,4 +4,5 @@ interface Circle {
     x: number,
     y: number
   }, cb?: ImageCallback): this;
+  circle(cb?: ImageCallback): this;
 }

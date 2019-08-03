@@ -1,3 +1,4 @@
 interface Fisheye {
-  fishEye: (opts?: {r: number}, cb?: ImageCallback): Jimp;
+  fishEye(opts?: { r: number }, cb?: ImageCallback): this;
+  fishEye(cb?: ImageCallback): this;
 }
