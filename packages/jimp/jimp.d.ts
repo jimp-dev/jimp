@@ -1,8 +1,6 @@
 declare const Jimp: Jimp;
 
-export default Jimp;
-
-export interface Jimp {
+export default interface Jimp {
   // Constructors
   new (path: string, cb?: ImageCallback): Jimp;
   new (urlOptions: URLOptions, cb?: ImageCallback): Jimp;
@@ -127,11 +125,11 @@ export interface Jimp {
   quality(n: number, cb?: ImageCallback): this;
   getBase64(mime: string, cb: GenericCallback<string, any, this>): this;
   getBase64Async(mime: string): Promise<string>;
-  hash(cb?: GenericCallback<string, any, this>): string;
+  hash(cb?: GenericCallback<string, any, this>): this;
   hash(
     base: number | null | undefined,
     cb?: GenericCallback<string, any, this>
-  ): string;
+  ): this;
   getBuffer(mime: string, cb: GenericCallback<Buffer>): this;
   getBufferAsync(mime: string): Promise<Buffer>;
   getPixelIndex(
@@ -376,13 +374,13 @@ export interface Jimp {
   measureTextHeight(font: Font, text: PrintableText, maxWidth: number): number;
 }
 
-type GenericCallback<T, U = any, TThis = any> = (
+export type GenericCallback<T, U = any, TThis = any> = (
   this: TThis,
   err: Error | null,
   value: T
 ) => U;
 
-type ImageCallback<U = any> = (
+export type ImageCallback<U = any> = (
   this: Jimp,
   err: Error | null,
   value: Jimp,
@@ -462,19 +460,19 @@ export interface Bitmap {
   width: number;
   height: number;
 }
-export interface RGB {
+interface RGB {
   r: number;
   g: number;
   b: number;
 }
-export interface RGBA {
+interface RGBA {
   r: number;
   g: number;
   b: number;
   a: number;
 }
 
-export interface FontChar {
+interface FontChar {
   id: number;
   x: number;
   y: number;
@@ -487,7 +485,7 @@ export interface FontChar {
   chnl: number;
 }
 
-export interface FontInfo {
+interface FontInfo {
   face: string;
   size: number;
   bold: number;
@@ -501,7 +499,7 @@ export interface FontInfo {
   spacing: [number, number];
 }
 
-export interface FontCommon {
+interface FontCommon {
   lineHeight: number;
   base: number;
   scaleW: number;
@@ -514,7 +512,7 @@ export interface FontCommon {
   blueChnl: number;
 }
 
-export interface Font {
+interface Font {
   chars: {
     [char: string]: FontChar;
   };
@@ -526,4 +524,27 @@ export interface Font {
   pages: string[];
   common: FontCommon;
   info: FontInfo;
+}
+
+export interface ITypePluginReturn<ImageType extends Image = Image> extends Plugin<ImageType> {
+  mime: {
+    [key: string]: string[];
+  };
+  decoders: {
+    [key: string]: (data: Buffer) => ImageType;
+  };
+  encoders: {
+    [key: string]: (image: ImageType) => Buffer;
+  };
+}
+
+export interface Image {
+  bitmap: Bitmap;
+}
+
+export interface Plugin<ClassT> {
+  class?: ClassT;
+  constants: {
+    [key: string]: string;
+  };
 }
