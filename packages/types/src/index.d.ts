@@ -11,12 +11,9 @@ export interface Image {
 }
 
 
-export interface ITypePluginReturn<ImageType extends Image = Image> {
+export interface ITypePluginReturn<ImageType extends Image = Image> extends Plugin<ImageType> {
   mime: {
     [key: string]: string[];
-  };
-  constants: {
-    [key: string]: string;
   };
   decoders: {
     [key: string]: (data: Buffer) => ImageType;
@@ -25,3 +22,5 @@ export interface ITypePluginReturn<ImageType extends Image = Image> {
     [key: string]: (image: ImageType) => Buffer;
   };
 }
+
+export default function(): ITypePluginReturn;
