@@ -43,13 +43,6 @@ export default interface Jimp {
   PNG_FILTER_AVERAGE: 3;
   PNG_FILTER_PATH: 4;
 
-  // resize methods
-  RESIZE_NEAREST_NEIGHBOR: 'nearestNeighbor';
-  RESIZE_BILINEAR: 'bilinearInterpolation';
-  RESIZE_BICUBIC: 'bicubicInterpolation';
-  RESIZE_HERMITE: 'hermiteInterpolation';
-  RESIZE_BEZIER: 'bezierInterpolation';
-
   // blend modes
   BLEND_SOURCE_OVER: string;
   BLEND_DESTINATION_OVER: string;
@@ -70,22 +63,6 @@ export default interface Jimp {
   VERTICAL_ALIGN_TOP: 8;
   VERTICAL_ALIGN_MIDDLE: 16;
   VERTICAL_ALIGN_BOTTOM: 32;
-
-  // Font locations
-  FONT_SANS_8_BLACK: string;
-  FONT_SANS_10_BLACK: string;
-  FONT_SANS_12_BLACK: string;
-  FONT_SANS_14_BLACK: string;
-  FONT_SANS_16_BLACK: string;
-  FONT_SANS_32_BLACK: string;
-  FONT_SANS_64_BLACK: string;
-  FONT_SANS_128_BLACK: string;
-
-  FONT_SANS_8_WHITE: string;
-  FONT_SANS_16_WHITE: string;
-  FONT_SANS_32_WHITE: string;
-  FONT_SANS_64_WHITE: string;
-  FONT_SANS_128_WHITE: string;
 
   // Edge Handling
   EDGE_EXTEND: 1;
@@ -183,43 +160,12 @@ export default interface Jimp {
   ): this;
 
   // Shape methods
-  rotate(deg: number, cb?: ImageCallback): this;
-  rotate(deg: number, mode: string | boolean, cb?: ImageCallback): this;
-  flip(horizontal: boolean, vertical: boolean, cb?: ImageCallback): this;
-  mirror(horizontal: boolean, vertical: boolean, cb?: ImageCallback): this;
-  resize(w: number, h: number, cb?: ImageCallback): this;
-  resize(w: number, h: number, mode?: string, cb?: ImageCallback): this;
 
   scale(f: number, cb?: ImageCallback): this;
   scale(f: number, mode?: string, cb?: ImageCallback): this;
   scaleToFit(w: number, h: number, cb?: ImageCallback): this;
   scaleToFit(w: number, h: number, mode?: string, cb?: ImageCallback): this;
 
-  // Text methods
-  print(
-    font: Font,
-    x: number,
-    y: number,
-    text: PrintableText,
-    cb?: ImageCallback
-  ): this;
-  print(
-    font: Font,
-    x: number,
-    y: number,
-    text: PrintableText,
-    maxWidth?: number,
-    cb?: ImageCallback
-  ): this;
-  print(
-    font: Font,
-    x: number,
-    y: number,
-    text: PrintableText,
-    maxWidth?: number,
-    maxHeight?: number,
-    cb?: ImageCallback
-  ): this;
 
   // Effect methods
   histogram(): {
@@ -227,9 +173,6 @@ export default interface Jimp {
     g: number[];
     b: number[];
   };
-  normalize(cb?: ImageCallback): this;
-  invert(cb?: ImageCallback): this;
-  gaussian(r: number, cb?: ImageCallback): this;
   composite(
     src: Jimp,
     x: number,
@@ -237,7 +180,6 @@ export default interface Jimp {
     options?: BlendMode,
     cb?: ImageCallback
   ): this;
-  mask(src: Jimp, x: number, y: number, cb?: ImageCallback): this;
 
   // Functions
   appendConstructorOption<T extends any[]>(
@@ -280,10 +222,6 @@ export default interface Jimp {
   compareHashes(hash1: string, hash2: string): number;
   colorDiff(rgba1: RGB, rgba2: RGB): number;
   colorDiff(rgba1: RGBA, rgba2: RGBA): number;
-  loadFont(file: string): Promise<Font>;
-  loadFont(file: string, cb: GenericCallback<Font, any, any>): Promise<never>;
-  measureText(font: Font, text: PrintableText): number;
-  measureTextHeight(font: Font, text: PrintableText, maxWidth: number): number;
 }
 
 export type GenericCallback<T, U = any, TThis = any> = (

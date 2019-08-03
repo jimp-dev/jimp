@@ -1,14 +1,11 @@
-import Jimp = require('jimp');
+interface Resize {
+  // resize methods
+  RESIZE_NEAREST_NEIGHBOR: 'nearestNeighbor';
+  RESIZE_BILINEAR: 'bilinearInterpolation';
+  RESIZE_BICUBIC: 'bicubicInterpolation';
+  RESIZE_HERMITE: 'hermiteInterpolation';
+  RESIZE_BEZIER: 'bezierInterpolation';
 
-export default function (): {
-  constants: {
-    RESIZE_NEAREST_NEIGHBOR: 'nearestNeighbor',
-    RESIZE_BILINEAR: 'bilinearInterpolation',
-    RESIZE_BICUBIC: 'bicubicInterpolation',
-    RESIZE_HERMITE: 'hermiteInterpolation',
-    RESIZE_BEZIER: 'bezierInterpolation'
-  },
-  class: {
-    resize: (w: number, h: number, mode?: string, cb?: (err: Error, jimp: Jimp) => void) => Jimp
-  }
+  resize(w: number, h: number, cb?: ImageCallback): this;
+  resize(w: number, h: number, mode?: string, cb?: ImageCallback): this;
 }
