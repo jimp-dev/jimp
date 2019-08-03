@@ -1,19 +1,3 @@
-import Jimp = require('jimp');
+import { ITypePluginReturn } from '../../types/src';
 
-export interface TypeJpeg {
-  mime: {
-    [key: string]: string[];
-  };
-  constants: {
-    [key: string]: string;
-  };
-  decoders: {
-    [key: string]: (
-      image: Buffer
-    ) => {
-      data: Buffer;
-      width: number;
-      height: number;
-    };
-  };
-}
+export default function(): Omit<ITypePluginReturn, 'encoders'>;

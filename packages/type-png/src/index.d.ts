@@ -1,10 +1,6 @@
 import Jimp = require('jimp');
 
-interface Image {
-  bitmap: Buffer;
-}
-
-type jimpCB = (err: Error, jimp: Jimp) => void;
+import { ITypePluginReturn, Image, jimpCB } from '../../types/src';
 
 interface PNGImage extends Image {
     _deflateLevel: number,
@@ -17,27 +13,11 @@ interface PNGImage extends Image {
     colorType(s: number, cb?: jimpCB): Jimp;
 }
 
-export interface TypeJpeg {
-  mime: {
-    [key: string]: string[];
-  };
-  constants: {
-    [key: string]: string | number;
-  };
+interface TypePngRet extends ITypePluginReturn<PNGImage> {
   hasAlpha: {
     [key: string]: boolean;
   };
-  decoders: {
-    [key: string]: (
-      data: Buffer
-    ) => {
-      height: number;
-      width: number;
-      data: Buffer;
-    };
-  };
-  encoders: {
-    [key: string]: (image: Buffer) => Buffer;
-  };
   class: PNGImage;
 }
+
+export default function(): TypePngRet;

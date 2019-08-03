@@ -1,8 +1,17 @@
 import Jimp = require('jimp');
 
+export type jimpCB = (err: Error, jimp: Jimp) => void;
+
+export interface Image {
+  bitmap: {
+    width: number;
+    height: number;
+    data: Buffer;
+  };
+}
 
 
-export interface ITypePluginReturn {
+export interface ITypePluginReturn<ImageType extends Image = Image> {
   mime: {
     [key: string]: string[];
   };
@@ -10,23 +19,9 @@ export interface ITypePluginReturn {
     [key: string]: string;
   };
   decoders: {
-    [key: string]: (
-      image: {
-        width: number;
-        height: number;
-        data: Buffer;
-      }
-    ) => Buffer;
+    [key: string]: (data: Buffer) => ImageType;
   };
   encoders: {
-    [key: string]: (
-      image: {
-        bitmap: {
-          width: number;
-          height: number;
-          data: Buffer;
-        };
-      }
-    ) => Buffer;
+    [key: string]: (image: ImageType) => Buffer;
   };
 }
