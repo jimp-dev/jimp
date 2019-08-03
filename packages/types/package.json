@@ -27,6 +27,9 @@
   "peerDependencies": {
     "@jimp/custom": ">=0.3.5"
   },
+  "devDependencies": {
+    "@types/node": "^12.6.8"
+  },
   "publishConfig": {
     "access": "public"
   }
