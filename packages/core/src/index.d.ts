@@ -204,6 +204,9 @@ interface  IllformedPlugin {
   [classFunc: string]: Function
 }
 
+export type DecoderFn = (data: Buffer) => Bitmap
+export type EncoderFn<ImageType extends Image = Image> = (image: ImageType) => Buffer
+
 interface WellFormedPlugin<ImageType extends Image = Image> {
   mime: {
     [MIME_TYPE: string]: string[];
@@ -216,11 +219,11 @@ interface WellFormedPlugin<ImageType extends Image = Image> {
     [MIME_SPECIAL: string]: any;
   };
   decoders?: {
-    [MIME_TYPE: string]: (data: Buffer) => Bitmap;
+    [MIME_TYPE: string]: DecoderFn;
   };
   encoders?: {
     // Jimp Image
-    [MIME_TYPE: string]: (image: ImageType) => Buffer;
+    [MIME_TYPE: string]: EncoderFn<ImageType>;
   };
   // Extend the Jimp class with the following constants, etc
   class?: any;
