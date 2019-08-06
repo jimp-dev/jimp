@@ -1,4 +1,4 @@
-import { IllformedPlugin, ImageCallback } from '@jimp/core/src';
+import { IllformedPlugin, ImageCallback } from '@jimp/core';
 
 interface Invert extends IllformedPlugin {
   invert(cb?: ImageCallback): this;

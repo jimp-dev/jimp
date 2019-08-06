@@ -1,4 +1,4 @@
-import { ImageCallback } from '@jimp/core/src';
+import { ImageCallback } from '@jimp/core';
 
 interface Threshold {
   threshold(opts: {

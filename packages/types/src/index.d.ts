@@ -1,8 +1,8 @@
-import jpeg from '@jimp/jpeg/src';
-import png from '@jimp/png/src';
-import bmp from '@jimp/bmp/src';
-import tiff from '@jimp/tiff/src';
-import gif from '@jimp/gif/src';
+import jpeg from '@jimp/jpeg';
+import png from '@jimp/png';
+import bmp from '@jimp/bmp';
+import tiff from '@jimp/tiff';
+import gif from '@jimp/gif';
 
 type JpegRet = ReturnType<typeof jpeg>
 type PngRet = ReturnType<typeof png>

@@ -1,20 +1,20 @@
-import dither from '@jimp/plugin-dither/src';
-import resize from '@jimp/plugin-resize/src';
-import blit from '@jimp/plugin-blit/src';
-import rotate from '@jimp/plugin-rotate/src';
-import color from '@jimp/plugin-color/src';
-import print from '@jimp/plugin-print/src';
-import blur from '@jimp/plugin-blur/src';
-import crop from '@jimp/plugin-crop/src';
-import normalize from '@jimp/plugin-normalize/src';
-import invert from '@jimp/plugin-invert/src';
-import gaussian from '@jimp/plugin-gaussian/src';
-import flip from '@jimp/plugin-flip/src';
-import mask from '@jimp/plugin-mask/src';
-import scale from '@jimp/plugin-scale/src';
-import displace from '@jimp/plugin-displace/src';
-import contain from '@jimp/plugin-contain/src';
-import cover from '@jimp/plugin-cover/src';
+import dither from '@jimp/plugin-dither';
+import resize from '@jimp/plugin-resize';
+import blit from '@jimp/plugin-blit';
+import rotate from '@jimp/plugin-rotate';
+import color from '@jimp/plugin-color';
+import print from '@jimp/plugin-print';
+import blur from '@jimp/plugin-blur';
+import crop from '@jimp/plugin-crop';
+import normalize from '@jimp/plugin-normalize';
+import invert from '@jimp/plugin-invert';
+import gaussian from '@jimp/plugin-gaussian';
+import flip from '@jimp/plugin-flip';
+import mask from '@jimp/plugin-mask';
+import scale from '@jimp/plugin-scale';
+import displace from '@jimp/plugin-displace';
+import contain from '@jimp/plugin-contain';
+import cover from '@jimp/plugin-cover';
 
 type DitherRet = ReturnType<typeof dither>
 type ResizeRet = ReturnType<typeof resize>

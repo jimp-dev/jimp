@@ -1,4 +1,4 @@
-import { IllformedPlugin, ImageCallback } from '@jimp/core/src';
+import { IllformedPlugin, ImageCallback } from '@jimp/core';
 
 interface Scale extends IllformedPlugin {
   scale(f: number, cb?: ImageCallback): this;

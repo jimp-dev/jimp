@@ -1,4 +1,4 @@
-import { ImageCallback } from '@jimp/core/src';
+import { ImageCallback } from '@jimp/core';
 
 interface Circle {
   circle(options?: {
@@ -9,4 +9,4 @@ interface Circle {
   circle(cb?: ImageCallback): this;
 }
 
-export default function(): Circle; 
+export default function(): Circle;

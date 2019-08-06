@@ -1,4 +1,4 @@
-import { Jimp, JimpPlugin, JimpType } from '@jimp/core/src';
+import { Jimp, JimpPlugin, JimpType } from '@jimp/core';
 
 export default function configure<Type extends JimpType,
   Plugin extends JimpPlugin,

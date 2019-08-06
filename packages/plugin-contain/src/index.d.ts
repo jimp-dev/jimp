@@ -1,4 +1,4 @@
-import { IllformedPlugin, ImageCallback } from '@jimp/core/src';
+import { IllformedPlugin, ImageCallback } from '@jimp/core';
 
 interface Contain extends IllformedPlugin {
   contain(w: number, h: number, cb?: ImageCallback): this;

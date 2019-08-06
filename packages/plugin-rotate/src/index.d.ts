@@ -1,4 +1,4 @@
-import { IllformedPlugin, ImageCallback } from '@jimp/core/src';
+import { IllformedPlugin, ImageCallback } from '@jimp/core';
 
 interface Rotate extends IllformedPlugin {
   rotate(deg: number, cb?: ImageCallback): this;

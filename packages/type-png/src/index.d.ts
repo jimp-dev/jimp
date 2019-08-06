@@ -1,4 +1,4 @@
-import { Jimp, DecoderFn, EncoderFn, ImageCallback } from '@jimp/core/src';
+import { Jimp, DecoderFn, EncoderFn, ImageCallback } from '@jimp/core';
 
 interface PNG<This = Jimp> {
 

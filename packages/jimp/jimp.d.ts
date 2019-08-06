@@ -1,6 +1,6 @@
-import { Jimp as JimpType } from '@jimp/core/src';
-import typeFn from '@jimp/types/src';
-import pluginFn from '@jimp/plugins/src';
+import { Jimp as JimpType } from '@jimp/core';
+import typeFn from '@jimp/types';
+import pluginFn from '@jimp/plugins';
 
 type Types = ReturnType<typeof typeFn>;
 type Plugins = ReturnType<typeof pluginFn>;

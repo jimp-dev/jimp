@@ -1,4 +1,4 @@
-import { IllformedPlugin, ImageCallback } from '@jimp/core/src';
+import { IllformedPlugin, ImageCallback } from '@jimp/core';
 
 interface Flip extends IllformedPlugin {
   flip(horizontal: boolean, vertical: boolean, cb?: ImageCallback): this;

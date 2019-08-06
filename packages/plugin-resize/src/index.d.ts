@@ -1,4 +1,4 @@
-import { Jimp, ImageCallback } from '@jimp/core/src';
+import { Jimp, ImageCallback } from '@jimp/core';
 
 interface Resize<This = Jimp> {
   constants: {
