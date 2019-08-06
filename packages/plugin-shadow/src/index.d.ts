@@ -1,4 +1,5 @@
-import { ImageCallback } from 'jimp';
+import { ImageCallback } from '@jimp/core/src';
+
 interface Shadow {
   shadow(options?: {
     size?: number,
@@ -9,3 +10,5 @@ interface Shadow {
   cb?: ImageCallback): this;
   shadow(cb?: ImageCallback): this;
 }
+
+export default function(): Shadow;

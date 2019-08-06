@@ -208,7 +208,7 @@ export type DecoderFn = (data: Buffer) => Bitmap
 export type EncoderFn<ImageType extends Image = Image> = (image: ImageType) => Buffer
 
 interface WellFormedPlugin<ImageType extends Image = Image> {
-  mime: {
+  mime?: {
     [MIME_TYPE: string]: string[];
   };
   hasAlpha?: {
@@ -226,7 +226,7 @@ interface WellFormedPlugin<ImageType extends Image = Image> {
     [MIME_TYPE: string]: EncoderFn<ImageType>;
   };
   // Extend the Jimp class with the following constants, etc
-  class?: any;
+  class: any;
 }
 
 export type JimpType<T extends Image = Image> = WellFormedPlugin<T>;

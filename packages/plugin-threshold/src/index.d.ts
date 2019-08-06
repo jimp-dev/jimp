@@ -1,3 +1,5 @@
+import { ImageCallback } from '@jimp/core/src';
+
 interface Threshold {
   threshold(opts: {
     max: number,
@@ -5,3 +7,5 @@ interface Threshold {
     autoGreyscale?: boolean
   }, cb?: ImageCallback): this;
 }
+
+export default function (): Threshold;
