@@ -9,16 +9,16 @@ interface Bmp {
   mime: {
     'image/bmp': string[]
   }
-  
+
   decoders: {
     'image/bmp': DecoderFn
     'image/x-ms-bmp': DecoderFn
   }
-  
+
   encoders: {
     'image/bmp': EncoderFn
     'image/x-ms-bmp': EncoderFn
   }
-} 
+}
 
 export default function(): Bmp;

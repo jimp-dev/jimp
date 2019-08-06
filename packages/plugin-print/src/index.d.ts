@@ -86,7 +86,7 @@ interface Print<This = Jimp> {
     loadFont(file: string): Promise<Font>;
     loadFont(file: string, cb: GenericCallback<Font, any, any>): Promise<never>;
   }
-  
+
   class: {
     // Text methods
     print(

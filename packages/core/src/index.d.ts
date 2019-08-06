@@ -4,28 +4,10 @@ export function jimpEvMethod(methodName: string, evName: string, method: Functio
 export function jimpEvChange(methodName: string, method: Function): void;
 export function addType(mime: string, extensions: string[]): void;
 
-
 interface BaseJimp {
-  // Constructors
-  new (path: string, cb?: ImageCallback): Jimp;
-  new (urlOptions: URLOptions, cb?: ImageCallback): Jimp;
-  new (image: Jimp, cb?: ImageCallback): Jimp;
-  new (data: Buffer, cb?: ImageCallback): Jimp;
-  new (data: Bitmap, cb?: ImageCallback): Jimp;
-  new (w: number, h: number, cb?: ImageCallback): Jimp;
-  new (
-    w: number,
-    h: number,
-    background?: number | string,
-    cb?: ImageCallback
-  ): Jimp;
-  // For custom constructors when using Jimp.appendConstructorOption
-  new (...args: any[]): Jimp;
   prototype: Jimp;
-
   // Constants
   AUTO: -1;
-
   // blend modes
   BLEND_SOURCE_OVER: string;
   BLEND_DESTINATION_OVER: string;
@@ -37,24 +19,19 @@ interface BaseJimp {
   BLEND_HARDLIGHT: string;
   BLEND_DIFFERENCE: string;
   BLEND_EXCLUSION: string;
-
   // Align modes for cover, contain, bit masks
   HORIZONTAL_ALIGN_LEFT: 1;
   HORIZONTAL_ALIGN_CENTER: 2;
   HORIZONTAL_ALIGN_RIGHT: 4;
-
   VERTICAL_ALIGN_TOP: 8;
   VERTICAL_ALIGN_MIDDLE: 16;
   VERTICAL_ALIGN_BOTTOM: 32;
-
   // Edge Handling
   EDGE_EXTEND: 1;
   EDGE_WRAP: 2;
   EDGE_CROP: 3;
-
   // Properties
   bitmap: Bitmap;
-
   _quality: number;
   _deflateLevel: number;
   _deflateStrategy: number;
@@ -62,7 +39,21 @@ interface BaseJimp {
   _rgba: boolean;
   _background: number;
   _originalMime: string;
-
+  // Constructors
+  new(path: string, cb?: ImageCallback): Jimp;
+  new(urlOptions: URLOptions, cb?: ImageCallback): Jimp;
+  new(image: Jimp, cb?: ImageCallback): Jimp;
+  new(data: Buffer, cb?: ImageCallback): Jimp;
+  new(data: Bitmap, cb?: ImageCallback): Jimp;
+  new(w: number, h: number, cb?: ImageCallback): Jimp;
+  new(
+    w: number,
+    h: number,
+    background?: number | string,
+    cb?: ImageCallback
+  ): Jimp;
+  // For custom constructors when using Jimp.appendConstructorOption
+  new(...args: any[]): Jimp;
   // Methods
   on<T extends ListenableName>(
     event: T,
@@ -198,7 +189,7 @@ export interface Image {
   bitmap: Bitmap;
 }
 
-interface  IllformedPlugin {
+interface IllformedPlugin {
   class?: never;
   constants?: never;
   [classFunc: string]: Function
@@ -236,14 +227,17 @@ export type JimpPlugin = WellFormedPlugin | IllformedPlugin;
 // This is required as providing type arrays gives a union of all the generic
 // types in the array rather than an intersection
 type UnionToIntersection<U> =
-  (U extends any ? (k: U)=>void : never) extends ((k: infer I)=>void) ? I : never
+  (U extends any ? (k: U) => void : never) extends ((k: infer I) => void) ? I : never
 
 // The values to be extracted from a WellFormedPlugin to put onto the Jimp instance
 type WellFormedValues<T extends WellFormedPlugin> = T['class'] & T['constants'];
 
 // Jimp generic to be able to put plugins and types into, thus allowing
 // `configure` from `@jimp/custom` to have proper typings
-export type Jimp<T extends JimpType | undefined = undefined, P extends JimpPlugin | undefined = undefined> = BaseJimp & UnionToIntersection<WellFormedValues<T>> & UnionToIntersection<(P extends WellFormedPlugin ? WellFormedValues<P> : P)>
+export type Jimp<T extends JimpType | undefined = undefined, P extends JimpPlugin | undefined = undefined> =
+  BaseJimp
+  & UnionToIntersection<WellFormedValues<T>>
+  & UnionToIntersection<(P extends WellFormedPlugin ? WellFormedValues<P> : P)>
 
 export type GenericCallback<T, U = any, TThis = any> = (
   this: TThis,
@@ -282,18 +276,18 @@ type ListenerData<T extends ListenableName> = T extends 'any'
   ? any
   : T extends ChangeName
     ? {
-        eventName: 'before-change' | 'changed';
-        methodName: T;
-        [key: string]: any;
-      }
+      eventName: 'before-change' | 'changed';
+      methodName: T;
+      [key: string]: any;
+    }
     : {
-        eventName: T;
-        methodName: T extends 'initialized'
-          ? 'constructor'
-          : T extends 'before-change' | 'changed'
-            ? ChangeName
-            : T extends 'before-clone' | 'cloned' ? 'clone' : any;
-      };
+      eventName: T;
+      methodName: T extends 'initialized'
+        ? 'constructor'
+        : T extends 'before-change' | 'changed'
+          ? ChangeName
+          : T extends 'before-clone' | 'cloned' ? 'clone' : any;
+    };
 
 type URLOptions = {
   url: string;
@@ -308,11 +302,13 @@ export interface Bitmap {
   width: number;
   height: number;
 }
+
 interface RGB {
   r: number;
   g: number;
   b: number;
 }
+
 interface RGBA {
   r: number;
   g: number;

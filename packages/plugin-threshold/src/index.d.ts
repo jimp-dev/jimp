@@ -8,4 +8,4 @@ interface Threshold {
   }, cb?: ImageCallback): this;
 }
 
-export default function (): Threshold;
+export default function(): Threshold;
