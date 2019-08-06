@@ -1,3 +1,5 @@
+import { ImageCallback } from '@jimp/core/src';
+
 interface Circle {
   circle(options?: {
     radius: number,
@@ -6,3 +8,5 @@ interface Circle {
   }, cb?: ImageCallback): this;
   circle(cb?: ImageCallback): this;
 }
+
+export default function(): Circle; 

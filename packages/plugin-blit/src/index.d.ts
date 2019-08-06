@@ -1,5 +1,6 @@
-interface Blit {
+import {Jimp, ImageCallback } from '@jimp/core/src';
 
+interface Blit {
   blit(src: Jimp, x: number, y: number, cb?: ImageCallback): this;
   blit(
     src: Jimp,
@@ -12,3 +13,5 @@ interface Blit {
     cb?: ImageCallback
   ): this;
 }
+
+export default function(): Blit;

@@ -1,3 +1,20 @@
+import { ImageCallback } from '@jimp/core/src';
+
+type ColorActionName =
+  | 'mix'
+  | 'tint'
+  | 'shade'
+  | 'xor'
+  | 'red'
+  | 'green'
+  | 'blue'
+  | 'hue';
+
+type ColorAction = {
+  apply: ColorActionName;
+  params: any;
+};
+
 interface Color {
   brightness(val: number, cb?: ImageCallback): this;
   contrast(val: number, cb?: ImageCallback): this;
@@ -35,3 +52,5 @@ interface Color {
   color(actions: ColorAction[], cb?: ImageCallback): this;
   colour(actions: ColorAction[], cb?: ImageCallback): this;
 }
+
+export default function(): Color;

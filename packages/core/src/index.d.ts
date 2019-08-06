@@ -1,12 +1,11 @@
-import Jimp from 'jimp';
-
 export function addConstants(constants: [string, string | number], jimpInstance?: Jimp): void;
 export function addJimpMethods(methods: [string, Function], jimpInstance?: Jimp): void;
 export function jimpEvMethod(methodName: string, evName: string, method: Function): void;
 export function jimpEvChange(methodName: string, method: Function): void;
 export function addType(mime: string, extensions: string[]): void;
 
-export default interface Jimp {
+
+interface BaseJimp {
   // Constructors
   new (path: string, cb?: ImageCallback): Jimp;
   new (urlOptions: URLOptions, cb?: ImageCallback): Jimp;
@@ -195,6 +194,54 @@ export default interface Jimp {
   colorDiff(rgba1: RGBA, rgba2: RGBA): number;
 }
 
+export interface Image {
+  bitmap: Bitmap;
+}
+
+interface  IllformedPlugin {
+  class?: never;
+  constants?: never;
+  [classFunc: string]: Function
+}
+
+interface WellFormedPlugin<ImageType extends Image = Image> {
+  mime: {
+    [MIME_TYPE: string]: string[];
+  };
+  hasAlpha?: {
+    [MIME_SPECIAL: string]: boolean;
+  };
+  constants?: {
+    // Contants to assign to the Jimp instance
+    [MIME_SPECIAL: string]: any;
+  };
+  decoders?: {
+    [MIME_TYPE: string]: (data: Buffer) => Bitmap;
+  };
+  encoders?: {
+    // Jimp Image
+    [MIME_TYPE: string]: (image: ImageType) => Buffer;
+  };
+  // Extend the Jimp class with the following constants, etc
+  class?: any;
+}
+
+export type JimpType<T extends Image = Image> = WellFormedPlugin<T>;
+
+export type JimpPlugin = WellFormedPlugin | IllformedPlugin;
+
+// This is required as providing type arrays gives a union of all the generic
+// types in the array rather than an intersection
+type UnionToIntersection<U> =
+  (U extends any ? (k: U)=>void : never) extends ((k: infer I)=>void) ? I : never
+
+// The values to be extracted from a WellFormedPlugin to put onto the Jimp instance
+type WellFormedValues<T extends WellFormedPlugin> = T['class'] & T['constants'];
+
+// Jimp generic to be able to put plugins and types into, thus allowing
+// `configure` from `@jimp/custom` to have proper typings
+export type Jimp<T extends JimpType | undefined = undefined, P extends JimpPlugin | undefined = undefined> = BaseJimp & UnionToIntersection<WellFormedValues<T>> & UnionToIntersection<(P extends WellFormedPlugin ? WellFormedValues<P> : P)>
+
 export type GenericCallback<T, U = any, TThis = any> = (
   this: TThis,
   err: Error | null,
@@ -210,21 +257,6 @@ export type ImageCallback<U = any> = (
     y: number;
   }
 ) => U;
-
-type ColorActionName =
-  | 'mix'
-  | 'tint'
-  | 'shade'
-  | 'xor'
-  | 'red'
-  | 'green'
-  | 'blue'
-  | 'hue';
-
-type ColorAction = {
-  apply: ColorActionName;
-  params: any;
-};
 
 type BlendMode = {
   mode: string;
@@ -284,3 +316,5 @@ interface RGBA {
   b: number;
   a: number;
 }
+
+export default Jimp;

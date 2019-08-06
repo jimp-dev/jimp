@@ -1,3 +1,5 @@
+import { ImageCallback } from '@jimp/core/src';
+
 interface Cover {
   cover(w: number, h: number, cb?: ImageCallback): this;
   cover(w: number, h: number, alignBits?: number, cb?: ImageCallback): this;
@@ -9,3 +11,5 @@ interface Cover {
     cb?: ImageCallback
   ): this;
 }
+
+export default function(): Cover;
