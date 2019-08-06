@@ -1,6 +1,10 @@
 import { Jimp, JimpPlugin, JimpType } from '@jimp/core/src';
 
-export default function configure<T extends JimpType, P extends JimpPlugin>(configuration: {
-  types?: T[],
-  plugins?: P[]
-}, jimpInstance?: Jimp): Jimp<T, P>;
+export default function configure<
+  Type extends JimpType,
+  Plugin extends JimpPlugin,
+  JimpInst extends Jimp = Jimp
+>(configuration: {
+  types?: JimpType[],
+  plugins?: Plugin[]
+}, jimpInstance?: JimpInst): JimpInst & Jimp<JimpType, Plugin>;

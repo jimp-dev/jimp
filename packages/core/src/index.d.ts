@@ -217,12 +217,18 @@ interface WellFormedPlugin<ImageType extends Image = Image> {
     [MIME_TYPE: string]: EncoderFn<ImageType>;
   };
   // Extend the Jimp class with the following constants, etc
-  class: any;
+  class?: any;
 }
 
-export type JimpType<T extends Image = Image> = WellFormedPlugin<T>;
+type ClassOrConstantPlugin<T extends Image> = WellFormedPlugin<T> & (
+  Required<Pick<WellFormedPlugin<T>, 'class'>> | Required<Pick<WellFormedPlugin<T>, 'constants'>>
+);
 
-export type JimpPlugin = WellFormedPlugin | IllformedPlugin;
+// A Jimp type requires mime, but not class
+export type JimpType<T extends Image = Image> = WellFormedPlugin<T> & Required<Pick<WellFormedPlugin<T>, 'mime'>>;
+
+// Jimp plugin either MUST have class OR constant or be illformed
+export type JimpPlugin<T extends Image = Image> = ClassOrConstantPlugin<T> | IllformedPlugin;
 
 // This is required as providing type arrays gives a union of all the generic
 // types in the array rather than an intersection
