@@ -1,6 +1,6 @@
-import { ImageCallback } from '@jimp/core/src';
+import { IllformedPlugin, ImageCallback } from '@jimp/core/src';
 
-interface Dither {
+interface Dither extends IllformedPlugin {
   dither565(cb?: ImageCallback): this;
   dither16(cb?: ImageCallback): this;
 }

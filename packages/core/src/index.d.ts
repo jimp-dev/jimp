@@ -189,7 +189,8 @@ export interface Image {
   bitmap: Bitmap;
 }
 
-interface IllformedPlugin {
+// This must be exported to fix the "index signature missing" error
+export interface IllformedPlugin {
   class?: never;
   constants?: never;
   [classFunc: string]: Function
@@ -222,7 +223,7 @@ interface WellFormedPlugin<ImageType extends Image = Image> {
 
 type ClassOrConstantPlugin<T extends Image> = WellFormedPlugin<T> & (
   Required<Pick<WellFormedPlugin<T>, 'class'>> | Required<Pick<WellFormedPlugin<T>, 'constants'>>
-);
+  );
 
 // A Jimp type requires mime, but not class
 export type JimpType<T extends Image = Image> = WellFormedPlugin<T> & Required<Pick<WellFormedPlugin<T>, 'mime'>>;

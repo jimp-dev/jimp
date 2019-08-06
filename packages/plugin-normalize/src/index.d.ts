@@ -1,6 +1,6 @@
-import { ImageCallback } from '@jimp/core/src';
+import { IllformedPlugin, ImageCallback } from '@jimp/core/src';
 
-interface Normalize {
+interface Normalize extends IllformedPlugin {
   normalize(cb ?: ImageCallback): this;
 }
 

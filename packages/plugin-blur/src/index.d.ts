@@ -1,6 +1,6 @@
-import { ImageCallback } from '@jimp/core/src';
+import { IllformedPlugin, ImageCallback } from '@jimp/core/src';
 
-interface Blur {
+interface Blur extends IllformedPlugin {
   blur(r: number, cb?: ImageCallback): this;
 }
 

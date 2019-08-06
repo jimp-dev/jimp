@@ -1,4 +1,4 @@
-import {Jimp as JimpType} from '@jimp/core/src';
+import { Jimp as JimpType } from '@jimp/core/src';
 import typeFn from '@jimp/types/src';
 import pluginFn from '@jimp/plugins/src';
 
