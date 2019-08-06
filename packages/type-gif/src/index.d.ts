@@ -1,3 +1,17 @@
+import { DecoderFn } from '@jimp/core/src';
+
 interface Gif {
-  MIME_GIF: 'image/gif';
+  mime: {
+    'image/gif': string[]
+  }
+
+  constants: {
+    MIME_GIF: 'image/gif';
+  }
+
+  decoders: {
+    'image/gif': DecoderFn
+  }
 }
+
+export default function(): Gif;

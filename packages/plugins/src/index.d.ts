@@ -1,4 +1,3 @@
-import Jimp from '@jimp/core/src';
 import dither from '@jimp/plugin-dither/src';
 import resize from '@jimp/plugin-resize/src';
 import blit from '@jimp/plugin-blit/src';
@@ -35,22 +34,22 @@ type DisplaceRet = ReturnType<typeof displace>
 type ContainRet = ReturnType<typeof contain>
 type CoverRet = ReturnType<typeof cover>
 
-type Plugins = DitherRet |
-ResizeRet |
-BlitRet |
-RotateRet |
-ColorRet |
-PrintRet |
-BlurRet |
-CropRet |
-NormalizeRet |
-InvertRet |
-GaussianRet |
-FlipRet |
-MaskRet |
-ScaleRet |
-DisplaceRet |
-ContainRet |
-CoverRet;
+type Plugins = DitherRet &
+  ResizeRet &
+  BlitRet &
+  RotateRet &
+  ColorRet &
+  PrintRet &
+  BlurRet &
+  CropRet &
+  NormalizeRet &
+  InvertRet &
+  GaussianRet &
+  FlipRet &
+  MaskRet &
+  ScaleRet &
+  DisplaceRet &
+  ContainRet &
+  CoverRet;
 
-export default function(jimpEvChange: any): Jimp<undefined, Plugins>;
+export default function(jimpEvChange: any): Plugins;
