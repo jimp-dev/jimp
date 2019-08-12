@@ -14,7 +14,7 @@ export const addType = (mime, extensions) => {
  */
 export const getType = path => {
   const pathParts = path.split('/').slice(-1);
-  const extension = pathParts[pathParts.length - 1].split('.')[1];
+  let extension = pathParts[pathParts.length - 1].split('.').pop();
   const type = findType(extension);
 
   return type[0];
