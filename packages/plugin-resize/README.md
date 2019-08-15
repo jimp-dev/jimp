@@ -25,7 +25,7 @@ async function main() {
 	await image.resize(150, jimp.AUTO);
 
 	// Save and overwrite the image
-	await image.write('test/image.png');
+	await image.writeAsync('test/image.png');
 }
 
 main();
