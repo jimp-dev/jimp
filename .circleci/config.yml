@@ -114,23 +114,21 @@ workflows:
       - lint:
           requires:
             - install
-          
-      - test:
-          requires:
-            - install
-          
+
       - build-node6.14:
           requires:
             - lint
-            - test
           
       - build-node8:
           requires:
             - lint
-            - test
           
       - build-node10:
           requires:
             - lint
-            - test
           
+      - test:
+          requires:
+            - build-node6.14
+            - build-node8
+            - build-node10
