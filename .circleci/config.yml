@@ -45,18 +45,6 @@ jobs:
           name: Lint
           command: yarn lint
 
-  test:
-    <<: *defaults
-    steps:
-      - attach_workspace:
-          at: ~/jimp
-      - run:
-          name: Test
-          command: yarn test --ci
-      - run:
-          name: Test Browser
-          command: yarn test:browser --ci
-
   build-node6.14:
     working_directory: ~/jimp-6.14
     docker:
@@ -88,6 +76,9 @@ jobs:
       - run:
           name: Test
           command: yarn test --ci
+      - run:
+          name: Test Browser
+          command: yarn test:browser --ci
 
   build-node10:
     working_directory: ~/jimp-10
@@ -114,7 +105,7 @@ workflows:
       - lint:
           requires:
             - install
-
+          
       - build-node6.14:
           requires:
             - lint
@@ -125,10 +116,4 @@ workflows:
           
       - build-node10:
           requires:
-            - lint
-          
-      - test:
-          requires:
-            - build-node6.14
-            - build-node8
-            - build-node10
+            - lint          
