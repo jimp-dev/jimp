@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import yargs from 'yargs';
-import * as custom from '@jimp/custom';
+import custom from '@jimp/custom';
 import Jimp = require('jimp');
 
 import { logResult, log } from './log';
