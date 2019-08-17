@@ -1,5 +1,7 @@
 declare const Jimp: Jimp;
 
+export default Jimp;
+
 export interface Jimp {
   // Constructors
   new (path: string, cb?: ImageCallback): Jimp;
