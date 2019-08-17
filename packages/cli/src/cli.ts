@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import yargs from 'yargs';
-import * as custom from '@jimp/custom';
+import custom from '@jimp/custom';
 import Jimp = require('jimp');
 
 import { logResult, log } from './log';
@@ -80,7 +80,6 @@ export default function setUpCli(args?: string[], log = logResult) {
 
   const yargsConfig = yargs(args)
     .scriptName('jimp')
-    .wrap(yargs.terminalWidth())
     .option('plugins', {
       alias: 'p',
       type: 'array',

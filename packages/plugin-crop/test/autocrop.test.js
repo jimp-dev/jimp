@@ -283,38 +283,4 @@ describe('Autocrop', () => {
         )
       );
   });
-
-  it('image with top and bottom frame and leaveBorder', async () => {
-    const imgSrc = await Jimp.read(
-      mkJGD(
-        '▥▥▥▥▥▥▥▥',
-        '▥▥▥▥▥▥▥▥',
-        '▥▥▥▥▥▥▥▥',
-        '   ◆◆   ',
-        '  ◆▦▦◆  ',
-        ' ◆▦▦▦▦◆ ',
-        '  ◆▦▦◆  ',
-        '   ◆◆   ',
-        '▥▥▥▥▥▥▥▥',
-        '▥▥▥▥▥▥▥▥',
-        '▥▥▥▥▥▥▥▥'
-      )
-    );
-    imgSrc
-      .autocrop({ cropSymmetric: true, cropOnlyFrames: false, leaveBorder: 2 })
-      .getJGDSync()
-      .should.be.sameJGD(
-        mkJGD(
-          '▥▥▥▥▥▥▥▥',
-          '▥▥▥▥▥▥▥▥',
-          '   ◆◆   ',
-          '  ◆▦▦◆  ',
-          ' ◆▦▦▦▦◆ ',
-          '  ◆▦▦◆  ',
-          '   ◆◆   ',
-          '▥▥▥▥▥▥▥▥',
-          '▥▥▥▥▥▥▥▥'
-        )
-      );
-  });
 });

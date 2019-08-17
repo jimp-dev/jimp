@@ -1,10 +1,13 @@
 version: 2
 
+defaults: &defaults
+  working_directory: ~/jimp
+  docker:
+    - image: circleci/node:8.14-browsers
+
 jobs:
   install:
-    working_directory: ~/jimp
-    docker:
-      - image: circleci/node:latest-browsers
+    <<: *defaults
     steps:
       - checkout
       - restore_cache:
@@ -34,29 +37,13 @@ jobs:
             - .
 
   lint:
-    working_directory: ~/jimp
-    docker:
-      - image: circleci/node:latest-browsers
+    <<: *defaults
     steps:
       - attach_workspace:
           at: ~/jimp
       - run:
           name: Lint
           command: yarn lint
-
-  test:
-    working_directory: ~/jimp
-    docker:
-      - image: circleci/node:latest-browsers
-    steps:
-      - attach_workspace:
-          at: ~/jimp
-      - run:
-          name: Test
-          command: yarn test --ci
-      - run:
-          name: Test Browser
-          command: yarn test:browser --ci
 
   build-node6.14:
     working_directory: ~/jimp-6.14
@@ -89,6 +76,9 @@ jobs:
       - run:
           name: Test
           command: yarn test --ci
+      - run:
+          name: Test Browser
+          command: yarn test:browser --ci
 
   build-node10:
     working_directory: ~/jimp-10
@@ -110,40 +100,20 @@ workflows:
   version: 2
   build_and_test:
     jobs:
-      - install:
-          filters:
-            tags:
-              only: /.*/
+      - install
+          
       - lint:
           requires:
             - install
-          filters:
-            tags:
-              only: /.*/
-      - test:
-          requires:
-            - install
-          filters:
-            tags:
-              only: /.*/
+          
       - build-node6.14:
           requires:
             - lint
-            - test
-          filters:
-            tags:
-              only: /.*/
+          
       - build-node8:
           requires:
             - lint
-            - test
-          filters:
-            tags:
-              only: /.*/
+          
       - build-node10:
           requires:
-            - lint
-            - test
-          filters:
-            tags:
-              only: /.*/
+            - lint          

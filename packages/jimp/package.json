@@ -59,7 +59,12 @@
   },
   "devDependencies": {
     "@jimp/test-utils": "^0.6.4",
-    "express": "^4.16.3"
+    "browserify": "^16.2.2",
+    "babelify": "^10.0.0",
+    "express": "^4.16.3",
+    "envify": "^4.1.0",
+    "tfilter": "^1.0.1",
+    "uglify-js": "^3.4.9"
   },
   "xo": false,
   "nyc": {

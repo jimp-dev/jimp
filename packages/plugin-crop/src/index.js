@@ -207,10 +207,10 @@ export default function pluginCrop(event) {
         let doCrop = false;
 
         // apply leaveBorder
-        westPixelsToCrop = westPixelsToCrop - leaveBorder;
-        eastPixelsToCrop = eastPixelsToCrop - leaveBorder;
-        northPixelsToCrop = northPixelsToCrop - leaveBorder;
-        southPixelsToCrop = southPixelsToCrop - leaveBorder;
+        westPixelsToCrop -= leaveBorder;
+        eastPixelsToCrop -= leaveBorder;
+        northPixelsToCrop -= leaveBorder;
+        southPixelsToCrop -= leaveBorder;
 
         if (cropSymmetric) {
           const horizontal = Math.min(eastPixelsToCrop, westPixelsToCrop);

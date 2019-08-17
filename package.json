@@ -32,10 +32,7 @@
     "babel-plugin-istanbul": "^5.0.1",
     "babel-plugin-source-map-support": "^2.0.1",
     "babel-plugin-transform-inline-environment-variables": "^0.4.3",
-    "babelify": "^10.0.0",
-    "browserify": "^16.2.2",
     "cross-env": "^5.2.0",
-    "envify": "^4.1.0",
     "eslint-plugin-prettier": "^2.6.2",
     "express": "^4.16.3",
     "husky": "^1.0.0-rc.15",
@@ -53,8 +50,6 @@
     "prettier": "^1.14.3",
     "should": "^13.2.3",
     "source-map-support": "^0.5.9",
-    "tfilter": "^1.0.1",
-    "uglify-js": "^3.4.9",
     "watchify": "^3.11.0",
     "xo": "^0.23.0"
   },
@@ -112,10 +107,7 @@
         6
       ],
       "import/no-extraneous-dependencies": [
-        1,
-        {
-          "devDependencies": true
-        }
+        1
       ],
       "unicorn/prefer-exponentiation-operator": 0
     },
@@ -127,6 +119,7 @@
           "before"
         ],
         "rules": {
+          "import/no-extraneous-dependencies": 0,
           "max-nested-callbacks": 0
         }
       }
