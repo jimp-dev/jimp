@@ -1,10 +1,13 @@
 version: 2
 
+defaults: &defaults
+  working_directory: ~/jimp
+  docker:
+    - image: circleci/node:8.14-browsers
+
 jobs:
   install:
-    working_directory: ~/jimp
-    docker:
-      - image: circleci/node:latest-browsers
+    <<: *defaults
     steps:
       - checkout
       - restore_cache:
@@ -34,9 +37,7 @@ jobs:
             - .
 
   lint:
-    working_directory: ~/jimp
-    docker:
-      - image: circleci/node:latest-browsers
+    <<: *defaults
     steps:
       - attach_workspace:
           at: ~/jimp
@@ -45,9 +46,7 @@ jobs:
           command: yarn lint
 
   test:
-    working_directory: ~/jimp
-    docker:
-      - image: circleci/node:latest-browsers
+    <<: *defaults
     steps:
       - attach_workspace:
           at: ~/jimp
@@ -110,40 +109,28 @@ workflows:
   version: 2
   build_and_test:
     jobs:
-      - install:
-          filters:
-            tags:
-              only: /.*/
+      - install
+          
       - lint:
           requires:
             - install
-          filters:
-            tags:
-              only: /.*/
+          
       - test:
           requires:
             - install
-          filters:
-            tags:
-              only: /.*/
+          
       - build-node6.14:
           requires:
             - lint
             - test
-          filters:
-            tags:
-              only: /.*/
+          
       - build-node8:
           requires:
             - lint
             - test
-          filters:
-            tags:
-              only: /.*/
+          
       - build-node10:
           requires:
             - lint
             - test
-          filters:
-            tags:
-              only: /.*/
+          

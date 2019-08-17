@@ -80,7 +80,6 @@ export default function setUpCli(args?: string[], log = logResult) {
 
   const yargsConfig = yargs(args)
     .scriptName('jimp')
-    .wrap(yargs.terminalWidth())
     .option('plugins', {
       alias: 'p',
       type: 'array',

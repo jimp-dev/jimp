@@ -147,10 +147,6 @@ describe('Callbacks', () => {
         data: [0xaa8e1cff, 0x3955c6ff, 0xaa8e1caa, 0x3955c6aa]
       }
     },
-    rotate: {
-      args: [90, false],
-      result: ['▾▰▿', '▸▪▹', '▴◆▵']
-    },
     brightness: {
       args: [0.5],
       result: {
