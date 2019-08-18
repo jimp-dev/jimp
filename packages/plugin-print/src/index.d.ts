@@ -1,6 +1,6 @@
 import { Jimp, GenericCallback, ImageCallback } from '@jimp/core';
 
-interface FontChar {
+export interface FontChar {
   id: number;
   x: number;
   y: number;
@@ -13,7 +13,7 @@ interface FontChar {
   chnl: number;
 }
 
-interface FontInfo {
+export interface FontInfo {
   face: string;
   size: number;
   bold: number;
@@ -27,7 +27,7 @@ interface FontInfo {
   spacing: [number, number];
 }
 
-interface FontCommon {
+export interface FontCommon {
   lineHeight: number;
   base: number;
   scaleW: number;

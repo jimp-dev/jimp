@@ -82,11 +82,11 @@ interface BaseJimp {
   quality(n: number, cb?: ImageCallback): this;
   getBase64(mime: string, cb: GenericCallback<string, any, this>): this;
   getBase64Async(mime: string): Promise<string>;
-  hash(cb?: GenericCallback<string, any, this>): this;
+  hash(cb?: GenericCallback<string, any, this>): string;
   hash(
     base: number | null | undefined,
     cb?: GenericCallback<string, any, this>
-  ): this;
+  ): string;
   getBuffer(mime: string, cb: GenericCallback<Buffer>): this;
   getBufferAsync(mime: string): Promise<Buffer>;
   getPixelIndex(
@@ -310,13 +310,13 @@ export interface Bitmap {
   height: number;
 }
 
-interface RGB {
+export interface RGB {
   r: number;
   g: number;
   b: number;
 }
 
-interface RGBA {
+export interface RGBA {
   r: number;
   g: number;
   b: number;
