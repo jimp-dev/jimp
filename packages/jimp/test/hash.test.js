@@ -66,7 +66,7 @@ describe('pHash', () => {
       .should.be.equal(Jimp.distance(image1, image2));
   });
 
-  it('should calculate the distance using compareHashes', async function() {
+  it('should calculate the distance using compareHashes.', async function() {
     this.timeout(10000);
     const image1 = await Jimp.read(imagesDir + '/lenna.png');
     const image2 = await Jimp.read(imagesDir + '/mask.png');

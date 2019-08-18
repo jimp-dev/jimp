@@ -2,7 +2,7 @@
 
 import yargs from 'yargs';
 import custom from '@jimp/custom';
-import Jimp = require('jimp');
+import Jimp from 'jimp';
 
 import { logResult, log } from './log';
 import { loadFont } from './load-font';
