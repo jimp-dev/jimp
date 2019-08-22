@@ -1,6 +1,6 @@
 {
   "name": "@jimp/plugin-dither",
-  "version": "0.6.3",
+  "version": "0.6.4",
   "description": "Dither an image.",
   "main": "dist/index.js",
   "module": "es/index.js",
@@ -16,7 +16,7 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "@jimp/utils": "^0.6.3",
+    "@jimp/utils": "^0.6.4",
     "core-js": "^2.5.7"
   },
   "peerDependencies": {

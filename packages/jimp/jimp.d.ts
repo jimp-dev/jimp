@@ -1,7 +1,8 @@
 declare const Jimp: Jimp;
-export = Jimp;
 
-interface Jimp {
+export default Jimp;
+
+export interface Jimp {
   // Constructors
   new (path: string, cb?: ImageCallback): Jimp;
   new (urlOptions: URLOptions, cb?: ImageCallback): Jimp;
@@ -126,11 +127,11 @@ interface Jimp {
   quality(n: number, cb?: ImageCallback): this;
   getBase64(mime: string, cb: GenericCallback<string, any, this>): this;
   getBase64Async(mime: string): Promise<string>;
-  hash(cb?: GenericCallback<string, any, this>): this;
+  hash(cb?: GenericCallback<string, any, this>): string;
   hash(
     base: number | null | undefined,
     cb?: GenericCallback<string, any, this>
-  ): this;
+  ): string;
   getBuffer(mime: string, cb: GenericCallback<Buffer>): this;
   getBufferAsync(mime: string): Promise<Buffer>;
   getPixelIndex(
@@ -456,24 +457,24 @@ type URLOptions = {
   };
 };
 
-interface Bitmap {
+export interface Bitmap {
   data: Buffer;
   width: number;
   height: number;
 }
-interface RGB {
+export interface RGB {
   r: number;
   g: number;
   b: number;
 }
-interface RGBA {
+export interface RGBA {
   r: number;
   g: number;
   b: number;
   a: number;
 }
 
-interface FontChar {
+export interface FontChar {
   id: number;
   x: number;
   y: number;
@@ -486,7 +487,7 @@ interface FontChar {
   chnl: number;
 }
 
-interface FontInfo {
+export interface FontInfo {
   face: string;
   size: number;
   bold: number;
@@ -500,7 +501,7 @@ interface FontInfo {
   spacing: [number, number];
 }
 
-interface FontCommon {
+export interface FontCommon {
   lineHeight: number;
   base: number;
   scaleW: number;
@@ -513,7 +514,7 @@ interface FontCommon {
   blueChnl: number;
 }
 
-interface Font {
+export interface Font {
   chars: {
     [char: string]: FontChar;
   };

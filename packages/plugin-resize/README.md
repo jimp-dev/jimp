@@ -18,9 +18,14 @@ Resizes the image to a set width and height using a 2-pass bilinear algorithm/
 import jimp from 'jimp';
 
 async function main() {
-  const image = await jimp.read('test/image.png');
+	// Read the image.
+	const image = await jimp.read('test/image.png');
 
-  image.resize(150, jimp.AUTO);
+	// Resize the image to width 150 and auto height.
+	await image.resize(150, jimp.AUTO);
+
+	// Save and overwrite the image
+	await image.writeAsync('test/image.png');
 }
 
 main();

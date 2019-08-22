@@ -1,6 +1,6 @@
 {
   "name": "@jimp/plugin-cover",
-  "version": "0.6.3",
+  "version": "0.6.4",
   "description": "cover an image.",
   "main": "dist/index.js",
   "module": "es/index.js",
@@ -19,7 +19,7 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "@jimp/utils": "^0.6.3",
+    "@jimp/utils": "^0.6.4",
     "core-js": "^2.5.7"
   },
   "peerDependencies": {
@@ -29,11 +29,11 @@
     "@jimp/plugin-scale": ">=0.3.5"
   },
   "devDependencies": {
-    "@jimp/custom": "^0.6.3",
-    "@jimp/plugin-crop": "^0.6.3",
-    "@jimp/plugin-resize": "^0.6.3",
-    "@jimp/plugin-scale": "^0.6.3",
-    "@jimp/test-utils": "^0.6.3"
+    "@jimp/custom": "^0.6.4",
+    "@jimp/plugin-crop": "^0.6.4",
+    "@jimp/plugin-resize": "^0.6.4",
+    "@jimp/plugin-scale": "^0.6.4",
+    "@jimp/test-utils": "^0.6.4"
   },
   "publishConfig": {
     "access": "public"

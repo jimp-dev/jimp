@@ -388,7 +388,7 @@ class Jimp extends EventEmitter {
    *
    * @param {Buffer} data raw image data
    * @param {string} path optional path to file
-   * @param {function(Error, Jimp)} cb (optional) a callback for when complete
+   * @param {function(Error, Jimp)} finish (optional) a callback for when complete
    * @memberof Jimp
    */
   parseBitmap(data, path, finish) {

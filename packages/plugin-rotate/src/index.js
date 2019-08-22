@@ -1,24 +1,5 @@
 import { throwError, isNodePattern } from '@jimp/utils';
 
-function rotate90degrees(bitmap, dstBuffer, clockwise) {
-  const dstOffsetStep = clockwise ? -4 : 4;
-  let dstOffset = clockwise ? dstBuffer.length - 4 : 0;
-
-  let tmp;
-  let x;
-  let y;
-  let srcOffset;
-
-  for (x = 0; x < bitmap.width; x++) {
-    for (y = bitmap.height - 1; y >= 0; y--) {
-      srcOffset = (bitmap.width * y + x) << 2;
-      tmp = bitmap.data.readUInt32BE(srcOffset, true);
-      dstBuffer.writeUInt32BE(tmp, dstOffset, true);
-      dstOffset += dstOffsetStep;
-    }
-  }
-}
-
 /**
  * Rotates an image clockwise by an arbitrary number of degrees. NB: 'this' must be a Jimp object.
  * @param {number} deg the number of degrees to rotate the image by

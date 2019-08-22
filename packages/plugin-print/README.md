@@ -146,7 +146,7 @@ async function main() {
   const font = await jimp.read(jimp.FONT_SANS_32_BLACK);
   const image = await jimp.read(1000, 1000, 0x0000ffff);
 
-  image.measureText(font, 'Hello World!');
+  jimp.measureText(font, 'Hello World!');
 }
 
 main();
@@ -163,7 +163,7 @@ async function main() {
   const font = await jimp.read(jimp.FONT_SANS_32_BLACK);
   const image = await jimp.read(1000, 1000, 0x0000ffff);
 
-  image.measureTextHeight(font, 'Hello World!', 100);
+  jimp.measureTextHeight(font, 'Hello World!', 100);
 }
 
 main();

@@ -44,7 +44,7 @@ async function runAction(
 }
 
 async function runActions(
-  image: Jimp,
+  image: typeof Jimp,
   loadedFont: any,
   { actions, verbose }: ICliOptions
 ) {
