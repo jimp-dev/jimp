@@ -284,7 +284,7 @@ describe('Autocrop', () => {
       );
   });
 
-  it('should NOT crop an image given an out of bounds "leaveBorder" value ', async () => {
+  it('image not cropped given an out of bounds "leaveBorder" value ', async () => {
     const imgSrc = await Jimp.read(
       mkJGD(
         '323232323232',
@@ -302,7 +302,7 @@ describe('Autocrop', () => {
     imgSrc
       .autocrop({
         tolerance: 0.005,
-        leaveBorder: 5
+        leaveBorder: 100
       })
       .getJGDSync()
       .should.be.sameJGD(
