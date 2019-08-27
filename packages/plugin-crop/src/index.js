@@ -221,7 +221,7 @@ export default function pluginCrop(event) {
           southPixelsToCrop = vertical;
         }
 
-        // make sure that crops are > 0
+        // make sure that crops are >= 0
         westPixelsToCrop = westPixelsToCrop >= 0 ? westPixelsToCrop : 0;
         eastPixelsToCrop = eastPixelsToCrop >= 0 ? eastPixelsToCrop : 0;
         northPixelsToCrop = northPixelsToCrop >= 0 ? northPixelsToCrop : 0;
