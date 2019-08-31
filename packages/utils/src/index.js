@@ -23,6 +23,14 @@ export function throwError(error, cb) {
 }
 
 export function scan(image, x, y, w, h, f) {
+  for (const { x, y, idx, image } of scanIterator(image, x, y, w, h)) {
+    f.call(image, x, y, idx);
+  }
+
+  return image;
+}
+
+export function* scanIterator(image, x, y, w, h) {
   // round input
   x = Math.round(x);
   y = Math.round(y);
@@ -32,9 +40,7 @@ export function scan(image, x, y, w, h, f) {
   for (let _y = y; _y < y + h; _y++) {
     for (let _x = x; _x < x + w; _x++) {
       const idx = (image.bitmap.width * _y + _x) << 2;
-      f.call(image, _x, _y, idx);
+      yield { x: _x, y: _y, idx, image };
     }
   }
-
-  return image;
 }

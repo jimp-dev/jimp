@@ -2,7 +2,7 @@ import fs from 'fs';
 import Path from 'path';
 import EventEmitter from 'events';
 
-import { isNodePattern, throwError, scan } from '@jimp/utils';
+import { isNodePattern, throwError, scan, scanIterator } from '@jimp/utils';
 import anyBase from 'any-base';
 import mkdirp from 'mkdirp';
 import pixelMatch from 'pixelmatch';
@@ -810,6 +810,26 @@ class Jimp extends EventEmitter {
     }
 
     return false;
+  }
+
+  /**
+   * Iterate scan through a region of the bitmap
+   * @param {number} x the x coordinate to begin the scan at
+   * @param {number} y the y coordinate to begin the scan at
+   * @param w the width of the scan region
+   * @param h the height of the scan region
+   * @returns {IterableIterator<{x: number, y: number, idx: number, image: Jimp}>}
+   */
+  scanIterator(x, y, w, h) {
+    if (typeof x !== 'number' || typeof y !== 'number') {
+      return throwError.call(this, 'x and y must be numbers');
+    }
+
+    if (typeof w !== 'number' || typeof h !== 'number') {
+      return throwError.call(this, 'w and h must be numbers');
+    }
+
+    return scanIterator(this, x, y, w, h);
   }
 }
 

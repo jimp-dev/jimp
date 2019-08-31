@@ -177,6 +177,12 @@ export interface Jimp {
     f: (this: this, x: number, y: number, idx: number) => any,
     cb?: ImageCallback
   ): this;
+  scanIterator(
+    x: number,
+    y: number,
+    w: number,
+    h: number
+  ): IterableIterator<{x: number, y: number, idx: number, image: Jimp}>;
   crop(x: number, y: number, w: number, h: number, cb?: ImageCallback): this;
   cropQuiet(
     x: number,
