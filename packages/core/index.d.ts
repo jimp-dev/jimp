@@ -231,6 +231,9 @@ export type JimpType<T extends Image = Image> = WellFormedPlugin<T> & Required<P
 // Jimp plugin either MUST have class OR constant or be illformed
 export type JimpPlugin<T extends Image = Image> = ClassOrConstantPlugin<T> | IllformedPlugin;
 
+export type PluginFunction = () => JimpPlugin;
+export type TypeFunction = () => JimpType;
+
 // This is required as providing type arrays gives a union of all the generic
 // types in the array rather than an intersection
 type UnionToIntersection<U> =

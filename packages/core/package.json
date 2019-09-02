@@ -4,10 +4,11 @@
   "description": "Jimp core",
   "main": "dist/index.js",
   "module": "es/index.js",
+  "types": "index.d.ts",
   "files": [
     "dist",
     "es",
-    "jimp.d.ts",
+    "index.d.ts",
     "fonts"
   ],
   "repository": {

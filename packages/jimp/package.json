@@ -5,13 +5,13 @@
   "main": "dist/index.js",
   "module": "es/index.js",
   "browser": "browser/lib/jimp.js",
-  "types": "jimp.d.ts",
+  "types": "index.d.ts",
   "tonicExampleFilename": "example.js",
   "files": [
     "browser",
     "dist",
     "es",
-    "jimp.d.ts",
+    "index.d.ts",
     "fonts"
   ],
   "repository": {
