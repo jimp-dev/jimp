@@ -1,6 +1,6 @@
 {
   "name": "@jimp/plugin-fisheye",
-  "version": "0.6.4",
+  "version": "0.6.6",
   "description": "Apply a fisheye effect to an image.",
   "main": "dist/index.js",
   "module": "es/index.js",
@@ -19,15 +19,15 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "@jimp/utils": "^0.6.4",
+    "@jimp/utils": "^0.6.6",
     "core-js": "^2.5.7"
   },
   "peerDependencies": {
     "@jimp/custom": ">=0.3.5"
   },
   "devDependencies": {
-    "@jimp/custom": "^0.6.4",
-    "@jimp/test-utils": "^0.6.4"
+    "@jimp/custom": "^0.6.6",
+    "@jimp/test-utils": "^0.6.6"
   },
   "publishConfig": {
     "access": "public"
