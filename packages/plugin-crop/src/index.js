@@ -221,17 +221,17 @@ export default function pluginCrop(event) {
           southPixelsToCrop = vertical;
         }
 
+        // make sure that crops are >= 0
+        westPixelsToCrop = westPixelsToCrop >= 0 ? westPixelsToCrop : 0;
+        eastPixelsToCrop = eastPixelsToCrop >= 0 ? eastPixelsToCrop : 0;
+        northPixelsToCrop = northPixelsToCrop >= 0 ? northPixelsToCrop : 0;
+        southPixelsToCrop = southPixelsToCrop >= 0 ? southPixelsToCrop : 0;
+
         // safety checks
         const widthOfRemainingPixels =
           w - (westPixelsToCrop + eastPixelsToCrop);
         const heightOfRemainingPixels =
           h - (southPixelsToCrop + northPixelsToCrop);
-
-        // make sure that crops are > 0
-        westPixelsToCrop = westPixelsToCrop >= 0 ? westPixelsToCrop : 0;
-        eastPixelsToCrop = eastPixelsToCrop >= 0 ? eastPixelsToCrop : 0;
-        northPixelsToCrop = northPixelsToCrop >= 0 ? northPixelsToCrop : 0;
-        southPixelsToCrop = southPixelsToCrop >= 0 ? southPixelsToCrop : 0;
 
         if (cropOnlyFrames) {
           // crop image if all sides should be cropped
