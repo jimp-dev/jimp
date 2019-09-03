@@ -1,6 +1,6 @@
 {
   "name": "@jimp/plugin-gaussian",
-  "version": "0.6.4",
+  "version": "0.6.5",
   "description": "gaussian blur an image.",
   "main": "dist/index.js",
   "module": "es/index.js",
@@ -16,7 +16,7 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "@jimp/utils": "^0.6.4",
+    "@jimp/utils": "^0.6.5",
     "core-js": "^2.5.7"
   },
   "peerDependencies": {
