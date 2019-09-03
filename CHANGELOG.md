@@ -1,3 +1,17 @@
+# v0.6.8 (Tue Sep 03 2019)
+
+#### 🐛  Bug Fix
+
+- `jimp`
+  - Remove dependency '@babel/polyfill' and add 'regenerator-runtime' [#783](https://github.com/oliver-moran/jimp/pull/783) ([@ebual](https://github.com/ebual) [@hipstersmoothie](https://github.com/hipstersmoothie))
+
+#### Authors: 2
+
+- Philipp Laube ([@ebual](https://github.com/ebual))
+- Andrew Lisowski ([@hipstersmoothie](https://github.com/hipstersmoothie))
+
+---
+
 # v0.6.7 (Tue Sep 03 2019)
 
 #### 🐛  Bug Fix
