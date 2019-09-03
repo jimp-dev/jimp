@@ -1,3 +1,16 @@
+# v0.6.7 (Tue Sep 03 2019)
+
+#### 🐛  Bug Fix
+
+- `@jimp/plugin-crop`
+  - Plugin crop/fix safety checks [#743](https://github.com/oliver-moran/jimp/pull/743) ([@jagaSto](https://github.com/jagaSto))
+
+#### Authors: 1
+
+- Janik Gassner ([@jagaSto](https://github.com/jagaSto))
+
+---
+
 # v0.6.6 (Tue Sep 03 2019)
 
 #### 🐛  Bug Fix
