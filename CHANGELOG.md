@@ -1,3 +1,16 @@
+# v0.6.6 (Tue Sep 03 2019)
+
+#### 🐛  Bug Fix
+
+- `@jimp/plugin-crop`
+  - Fix cropping full width slices [#741](https://github.com/oliver-moran/jimp/pull/741) ([@NiGhTTraX](https://github.com/NiGhTTraX))
+
+#### Authors: 1
+
+- Andrei Picus ([@NiGhTTraX](https://github.com/NiGhTTraX))
+
+---
+
 # v0.6.5 (Tue Sep 03 2019)
 
 #### 🐛  Bug Fix
