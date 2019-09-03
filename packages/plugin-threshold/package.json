@@ -1,6 +1,6 @@
 {
   "name": "@jimp/plugin-threshold",
-  "version": "0.6.5",
+  "version": "0.6.6",
   "description": "Lightens an image.",
   "main": "dist/index.js",
   "module": "es/index.js",
@@ -19,7 +19,7 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "@jimp/utils": "^0.6.5",
+    "@jimp/utils": "^0.6.6",
     "core-js": "^2.5.7"
   },
   "peerDependencies": {
@@ -28,11 +28,11 @@
     "@jimp/plugin-resize": "^0.6.3"
   },
   "devDependencies": {
-    "@jimp/custom": "^0.6.5",
-    "@jimp/jpeg": "^0.6.5",
-    "@jimp/plugin-color": "^0.6.5",
-    "@jimp/plugin-resize": "^0.6.5",
-    "@jimp/test-utils": "^0.6.5"
+    "@jimp/custom": "^0.6.6",
+    "@jimp/jpeg": "^0.6.6",
+    "@jimp/plugin-color": "^0.6.6",
+    "@jimp/plugin-resize": "^0.6.6",
+    "@jimp/test-utils": "^0.6.6"
   },
   "publishConfig": {
     "access": "public"
