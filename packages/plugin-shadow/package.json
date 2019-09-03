@@ -1,6 +1,6 @@
 {
   "name": "@jimp/plugin-shadow",
-  "version": "0.6.6",
+  "version": "0.6.7",
   "description": "Creates a shadow on an image.",
   "main": "dist/index.js",
   "module": "es/index.js",
@@ -19,7 +19,7 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "@jimp/utils": "^0.6.6",
+    "@jimp/utils": "^0.6.7",
     "core-js": "^2.5.7"
   },
   "peerDependencies": {
@@ -28,10 +28,10 @@
     "@jimp/plugin-resize": ">=0.3.5"
   },
   "devDependencies": {
-    "@jimp/custom": "^0.6.6",
-    "@jimp/plugin-blur": "^0.6.6",
-    "@jimp/plugin-resize": "^0.6.6",
-    "@jimp/test-utils": "^0.6.6"
+    "@jimp/custom": "^0.6.7",
+    "@jimp/plugin-blur": "^0.6.7",
+    "@jimp/plugin-resize": "^0.6.7",
+    "@jimp/test-utils": "^0.6.7"
   },
   "publishConfig": {
     "access": "public"
