@@ -101,6 +101,7 @@ jobs:
     steps:
       - attach_workspace:
           at: ~/jimp
+      - run: mkdir ~/.ssh/ && echo -e "Host github.com\n\tStrictHostKeyChecking no\n" > ~/.ssh/config
       - run:
           name: Release the Project
           command: yarn release
