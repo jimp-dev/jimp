@@ -1,6 +1,6 @@
 {
   "name": "@jimp/plugin-mask",
-  "version": "0.6.7",
+  "version": "0.6.8",
   "description": "mask an image.",
   "main": "dist/index.js",
   "module": "es/index.js",
@@ -19,15 +19,15 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "@jimp/utils": "^0.6.7",
+    "@jimp/utils": "^0.6.8",
     "core-js": "^2.5.7"
   },
   "peerDependencies": {
     "@jimp/custom": ">=0.3.5"
   },
   "devDependencies": {
-    "@jimp/custom": "^0.6.7",
-    "@jimp/test-utils": "^0.6.7"
+    "@jimp/custom": "^0.6.8",
+    "@jimp/test-utils": "^0.6.8"
   },
   "publishConfig": {
     "access": "public"
