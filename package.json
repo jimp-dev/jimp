@@ -7,6 +7,9 @@
   ],
   "repository": "oliver-moran/jimp",
   "author": "Andrew Lisowski <lisowski54@gmail.com>",
+  "publishConfig": {
+    "registry":"https://registry.npmjs.org/"
+  },
   "scripts": {
     "lint": "xo",
     "test": "cross-env BABEL_ENV=test mocha --require @babel/register './packages/**/test/**/*.test.js' --require ts-node/register ./packages/**/test/*.test.ts",
