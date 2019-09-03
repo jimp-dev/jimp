@@ -51,11 +51,11 @@
   "author": "Oliver Moran <oliver.moran@gmail.com>",
   "license": "MIT",
   "dependencies": {
-    "@babel/polyfill": "^7.0.0",
     "@jimp/custom": "^0.6.7",
     "@jimp/plugins": "^0.6.7",
     "@jimp/types": "^0.6.7",
-    "core-js": "^2.5.7"
+    "core-js": "^2.5.7",
+    "regenerator-runtime": "^0.13.3"
   },
   "devDependencies": {
     "@jimp/test-utils": "^0.6.7",
