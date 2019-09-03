@@ -9,7 +9,7 @@
   "author": "Andrew Lisowski <lisowski54@gmail.com>",
   "publishConfig": {
     "registry":"https://registry.npmjs.org/"
-  },
+    },
   "scripts": {
     "lint": "xo",
     "test": "cross-env BABEL_ENV=test mocha --require @babel/register './packages/**/test/**/*.test.js' --require ts-node/register ./packages/**/test/*.test.ts",
@@ -20,7 +20,7 @@
     "clean:build": "rm -rf packages/**/es packages/**/dist",
     "build": "npm run clean:build && lerna run build --stream",
     "build:watch": "lerna run build:watch --parallel",
-    "release": "auto shipit -w"
+    "release": "auto shipit"
   },
   "devDependencies": {
     "@babel/cli": "^7.1.0",
