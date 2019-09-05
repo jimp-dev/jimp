@@ -637,6 +637,14 @@ image.scan(0, 0, image.bitmap.width, image.bitmap.height, function(x, y, idx) {
 });
 ```
 
+It's possible to make an iterator scan with a `for ... of`, if you want to `break` the scan before it reaches the end, but note, that this iterator has a huge performance implication:
+
+```js
+for (const { x, y, idx, image } of image.scanIterator(0, 0, image.bitmap.width, image.bitmap.height)) {
+    
+}
+```
+
 A helper to locate a particular pixel within the raw bitmap buffer:
 
 ```js
