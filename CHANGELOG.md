@@ -1,3 +1,16 @@
+# v0.7.0 (Fri Sep 06 2019)
+
+#### 🚀  Enhancement
+
+- `@jimp/core`, `jimp`, `@jimp/utils`
+  - Feature scanIterator [#781](https://github.com/oliver-moran/jimp/pull/781) ([@ozelot379](https://github.com/ozelot379))
+
+#### Authors: 1
+
+- [@ozelot379](https://github.com/ozelot379)
+
+---
+
 # v0.6.8 (Tue Sep 03 2019)
 
 #### 🐛  Bug Fix
