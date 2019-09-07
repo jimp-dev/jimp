@@ -1,3 +1,16 @@
+# v0.8.0 (Sat Sep 07 2019)
+
+#### 🚀  Enhancement
+
+- `@jimp/core`, `@jimp/custom`, `jimp`, `@jimp/plugin-blit`, `@jimp/plugin-blur`, `@jimp/plugin-circle`, `@jimp/plugin-color`, `@jimp/plugin-contain`, `@jimp/plugin-cover`, `@jimp/plugin-crop`, `@jimp/plugin-displace`, `@jimp/plugin-dither`, `@jimp/plugin-fisheye`, `@jimp/plugin-flip`, `@jimp/plugin-gaussian`, `@jimp/plugin-invert`, `@jimp/plugin-mask`, `@jimp/plugin-normalize`, `@jimp/plugin-print`, `@jimp/plugin-resize`, `@jimp/plugin-rotate`, `@jimp/plugin-scale`, `@jimp/plugin-shadow`, `@jimp/plugin-threshold`, `@jimp/plugins`, `@jimp/bmp`, `@jimp/gif`, `@jimp/jpeg`, `@jimp/png`, `@jimp/tiff`, `@jimp/types`, `@jimp/utils`
+  - Made typings plugin friendly & add typings for every package [#770](https://github.com/oliver-moran/jimp/pull/770) ([@crutchcorn](https://github.com/crutchcorn))
+
+#### Authors: 1
+
+- Corbin Crutchley ([@crutchcorn](https://github.com/crutchcorn))
+
+---
+
 # v0.7.0 (Fri Sep 06 2019)
 
 #### 🚀 Enhancement
