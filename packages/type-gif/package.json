@@ -4,6 +4,7 @@
   "description": "Default Jimp gif encoder/decoder.",
   "main": "dist/index.js",
   "module": "es/index.js",
+  "types": "index.d.ts",
   "scripts": {
     "build": "npm run build:node:production && npm run build:module",
     "build:watch": "npm run build:node:debug -- -- --watch --verbose",
