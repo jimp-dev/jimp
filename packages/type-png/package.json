@@ -1,6 +1,6 @@
 {
   "name": "@jimp/png",
-  "version": "0.7.0",
+  "version": "0.8.0",
   "description": "Default Jimp png encoder/decoder.",
   "main": "dist/index.js",
   "module": "es/index.js",
@@ -20,7 +20,7 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "@jimp/utils": "^0.7.0",
+    "@jimp/utils": "^0.8.0",
     "core-js": "^2.5.7",
     "pngjs": "^3.3.3"
   },
@@ -28,8 +28,8 @@
     "@jimp/custom": ">=0.3.5"
   },
   "devDependencies": {
-    "@jimp/custom": "^0.7.0",
-    "@jimp/test-utils": "^0.7.0"
+    "@jimp/custom": "^0.8.0",
+    "@jimp/test-utils": "^0.8.0"
   },
   "publishConfig": {
     "access": "public"
