@@ -132,6 +132,12 @@ interface BaseJimp {
     f: (this: this, x: number, y: number, idx: number) => any,
     cb?: ImageCallback
   ): this;
+  scanIterator(
+    x: number,
+    y: number,
+    w: number,
+    h: number
+  ): IterableIterator<{x: number, y: number, idx: number, image: Jimp}>;
 
   // Effect methods
   composite(

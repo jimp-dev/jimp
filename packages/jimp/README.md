@@ -318,14 +318,14 @@ Jimp.VERTICAL_ALIGN_BOTTOM;
 
 Where the align mode changes the position of the associated axis as described in the table below.
 
-Align Mode | Axis Point
---- | ---
-`Jimp.HORIZONTAL_ALIGN_LEFT` | Positions the x-axis at the left of the image
-`Jimp.HORIZONTAL_ALIGN_CENTER` | Positions the x-axis at the center of the image
-`Jimp.HORIZONTAL_ALIGN_RIGHT` | Positions the x-axis at the right of the image
-`Jimp.VERTICAL_ALIGN_TOP` | Positions the y-axis at the top of the image
-`Jimp.VERTICAL_ALIGN_MIDDLE` | Positions the y-axis at the center of the image
-`Jimp.VERTICAL_ALIGN_BOTTOM` | Positions the y-axis at the bottom of the image
+| Align Mode                     | Axis Point                                      |
+| ------------------------------ | ----------------------------------------------- |
+| `Jimp.HORIZONTAL_ALIGN_LEFT`   | Positions the x-axis at the left of the image   |
+| `Jimp.HORIZONTAL_ALIGN_CENTER` | Positions the x-axis at the center of the image |
+| `Jimp.HORIZONTAL_ALIGN_RIGHT`  | Positions the x-axis at the right of the image  |
+| `Jimp.VERTICAL_ALIGN_TOP`      | Positions the y-axis at the top of the image    |
+| `Jimp.VERTICAL_ALIGN_MIDDLE`   | Positions the y-axis at the center of the image |
+| `Jimp.VERTICAL_ALIGN_BOTTOM`   | Positions the y-axis at the bottom of the image |
 
 For example:
 
@@ -635,6 +635,18 @@ image.scan(0, 0, image.bitmap.width, image.bitmap.height, function(x, y, idx) {
     // image scan finished, do your stuff
   }
 });
+```
+
+It's possible to make an iterator scan with a `for ... of`, if you want to `break` the scan before it reaches the end, but note, that this iterator has a huge performance implication:
+
+```js
+for (const { x, y, idx, image } of image.scanIterator(
+  0,
+  0,
+  image.bitmap.width,
+  image.bitmap.height
+)) {
+}
 ```
 
 A helper to locate a particular pixel within the raw bitmap buffer:

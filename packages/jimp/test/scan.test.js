@@ -24,6 +24,31 @@ describe('Scan (pixel matrix modification)', () => {
       .should.be.sameJGD(barsJGD, 'Color bars');
   });
 
+  it('draw bars with iterate scan', async () => {
+    const image = await Jimp.create(8, 3);
+
+    for (const { x, y, idx, image } of image.scanIterator(
+      0,
+      0,
+      image.bitmap.width,
+      image.bitmap.height
+    )) {
+      const color = [
+        [0xff, 0x00, 0x00],
+        [0x00, 0xff, 0x00],
+        [0x00, 0x00, 0xff],
+        [0xff, 0xff, 0x00]
+      ][Math.floor(x / (image.bitmap.width / 4))];
+
+      image.bitmap.data[idx] = color[0];
+      image.bitmap.data[idx + 1] = color[1];
+      image.bitmap.data[idx + 2] = color[2];
+      image.bitmap.data[idx + 3] = y === 2 ? 0x7f : 0xff;
+    }
+
+    image.getJGDSync().should.be.sameJGD(barsJGD, 'Color bars');
+  });
+
   it('draw bars with (get|set)PixelColor', async () => {
     const image = await Jimp.read(barsJGD);
 

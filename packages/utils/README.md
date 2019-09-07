@@ -50,3 +50,18 @@ function removeRed(image) {
   });
 }
 ```
+
+### scanIterator
+
+It's possible to make an iterator scan with a `for ... of`, if you want to `break` the scan before it reaches the end, but note, that this iterator has a huge performance implication:
+
+```js
+for (const { x, y, idx, image } of scanIterator(
+  image,
+  0,
+  0,
+  image.bitmap.width,
+  image.bitmap.height
+)) {
+}
+```
