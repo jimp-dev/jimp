@@ -195,11 +195,11 @@ export interface Image {
   bitmap: Bitmap;
 }
 
-// This must be exported to fix the "index signature missing" error
 export interface IllformedPlugin {
   class?: never;
   constants?: never;
-  [classFunc: string]: Function
+  // Because non-existant keys ARE undefined, this is technically valid
+  [key: string]: Function | undefined;
 }
 
 export type DecoderFn = (data: Buffer) => Bitmap
@@ -237,9 +237,6 @@ export type JimpType<T extends Image = Image> = WellFormedPlugin<T> & Required<P
 // Jimp plugin either MUST have class OR constant or be illformed
 export type JimpPlugin<T extends Image = Image> = ClassOrConstantPlugin<T> | IllformedPlugin;
 
-export type PluginFunction = () => JimpPlugin;
-export type TypeFunction = () => JimpType;
-
 // This is required as providing type arrays gives a union of all the generic
 // types in the array rather than an intersection
 type UnionToIntersection<U> =
@@ -251,9 +248,13 @@ type WellFormedValues<T extends WellFormedPlugin> = T['class'] & T['constants'];
 // Jimp generic to be able to put plugins and types into, thus allowing
 // `configure` from `@jimp/custom` to have proper typings
 export type Jimp<T extends JimpType | undefined = undefined, P extends JimpPlugin | undefined = undefined> =
-  BaseJimp
-  & UnionToIntersection<WellFormedValues<T>>
-  & UnionToIntersection<(P extends WellFormedPlugin ? WellFormedValues<P> : P)>
+  UnionToIntersection<
+    BaseJimp
+      & (T extends JimpType ? UnionToIntersection<WellFormedValues<T>> : {})
+      & (P extends JimpPlugin ? UnionToIntersection<
+          (P extends IllformedPlugin ? P : WellFormedValues<P>)
+        > : {})
+    >
 
 export type GenericCallback<T, U = any, TThis = any> = (
   this: TThis,

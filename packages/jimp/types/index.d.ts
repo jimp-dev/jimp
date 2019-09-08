@@ -1,4 +1,6 @@
-import { 
+// TypeScript Version: 2.8
+
+import {
     Jimp as JimpType,
     Bitmap,
     RGB,
