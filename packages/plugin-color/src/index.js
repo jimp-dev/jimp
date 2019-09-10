@@ -550,10 +550,11 @@ export default () => ({
    * @param {number} y (optional) the y position of the region to apply convolution to
    * @param {number} w (optional) the width of the region to apply convolution to
    * @param {number} h (optional) the height of the region to apply convolution to
+   * @param {number} divisor (optional) the final divisor to be applied to each value
    * @param {function(Error, Jimp)} cb (optional) a callback for when complete
    * @returns {Jimp }this for chaining of methods
    */
-  convolute(kernel, x, y, w, h, cb) {
+  convolute(kernel, x, y, w, h, divisor, cb) {
     if (!Array.isArray(kernel))
       return throwError.call(this, 'the kernel must be an array', cb);
 
@@ -563,6 +564,7 @@ export default () => ({
       y = null;
       w = null;
       h = null;
+      divisor = 1;
     } else {
       if (isDef(x) && typeof x !== 'number') {
         return throwError.call(this, 'x must be a number', cb);
@@ -579,6 +581,14 @@ export default () => ({
       if (isDef(h) && typeof h !== 'number') {
         return throwError.call(this, 'h must be a number', cb);
       }
+
+      if (isDef(cb)) {
+        if (isDef(divisor) && (typeof divisor !== 'number' || divisor <= 0)) {
+          return throwError.call(this, 'divisor must be a non-zero, positive number', cb);
+        }
+      } else {
+        divisor = 1;
+      }
     }
 
     const ksize = (kernel.length - 1) / 2;
@@ -592,7 +602,9 @@ export default () => ({
 
     this.scanQuiet(x, y, w, h, function(xx, yx, idx) {
       const value = applyKernel(source, kernel, xx, yx);
-
+      value[0] /= divisor;
+      value[1] /= divisor;
+      value[2] /= divisor;
       this.bitmap.data[idx] = this.constructor.limit255(value[0]);
       this.bitmap.data[idx + 1] = this.constructor.limit255(value[1]);
       this.bitmap.data[idx + 2] = this.constructor.limit255(value[2]);
