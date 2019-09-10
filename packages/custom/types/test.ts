@@ -4,6 +4,8 @@ import png from '@jimp/png';
 import displace from '@jimp/plugin-displace';
 import resize from '@jimp/plugin-resize';
 import scale from '@jimp/plugin-scale';
+import types from '@jimp/types';
+import plugins from '@jimp/plugins';
 
 // configure should return a valid Jimp type with addons
 const CustomJimp = configure({
@@ -12,7 +14,7 @@ const CustomJimp = configure({
 });
 
 // Methods from types should be applied
-CustomJimp.filterType(4);
+CustomJimp.deflateLevel(4);
 // Constants from types should be applied
 // $ExpectType 0
 CustomJimp.PNG_FILTER_NONE;
@@ -35,42 +37,116 @@ CustomJimp.test;
 // $ExpectError
 CustomJimp.func();
 
-// Can compose
-const OtherCustomJimp = configure({
-  plugins: [scale]
-}, CustomJimp);
+test('can compose', () => {
+  const OtherCustomJimp = configure({
+      plugins: [scale]
+    }, CustomJimp);
 
-// Methods from new plugins should be applied
-OtherCustomJimp.scale(3);
+  // Methods from new plugins should be applied
+  OtherCustomJimp.scale(3);
 
-// Methods from types should be applied
-OtherCustomJimp.filterType(4);
-// Constants from types should be applied
-/**
- * This is commented out as TS assigns the value of `any` due to the complexity of typing
- * 
- * This may be fixed/improved in a future version of TS, but as-of 3.6 even this relatively
- * trivial composing of `configure` will be typed as `any`
- * 
- * Tests left for future-proofing all-the-same
- */
-//// $ExpectType 0
-OtherCustomJimp.PNG_FILTER_NONE;
+  // Methods from types should be applied
+  OtherCustomJimp.filterType(4);
+  // Constants from types should be applied
+  // $ExpectType 0
+  OtherCustomJimp.PNG_FILTER_NONE;
 
-// Core functions should still work from Jimp
-OtherCustomJimp.read('Test');
+  // Core functions should still work from Jimp
+  OtherCustomJimp.read('Test');
 
-// Constants should be applied from ill-formed plugins
-OtherCustomJimp.displace(OtherCustomJimp, 2);
+  // Constants should be applied from ill-formed plugins
+  OtherCustomJimp.displace(OtherCustomJimp, 2);
 
-// Methods should be applied from well-formed plugins
-OtherCustomJimp.resize(40, 40)
+  // Methods should be applied from well-formed plugins
+  OtherCustomJimp.resize(40, 40);
 
-// Constants should be applied from well-formed plugins
-OtherCustomJimp.RESIZE_NEAREST_NEIGHBOR
+  // Constants should be applied from well-formed plugins
+  OtherCustomJimp.RESIZE_NEAREST_NEIGHBOR;
 
-//// $ExpectError
-OtherCustomJimp.test;
+  // $ExpectError
+  OtherCustomJimp.test;
 
-//// $ExpectError
-OtherCustomJimp.func();
+  // $ExpectError
+  OtherCustomJimp.func();
+});
+
+test('can handle only plugins', () => {
+  const PluginsJimp = configure({
+    plugins: [plugins]
+  });
+
+  // Core functions should still work from Jimp
+  PluginsJimp.read('Test');
+
+  // Constants should be applied from ill-formed plugins
+  PluginsJimp.displace(PluginsJimp, 2);
+
+  // Methods should be applied from well-formed plugins
+  PluginsJimp.resize(40, 40);
+
+  // Constants should be applied from well-formed plugins
+  // $ExpectType "nearestNeighbor"
+  PluginsJimp.RESIZE_NEAREST_NEIGHBOR;
+
+  // $ExpectError
+  PluginsJimp.test;
+
+  // $ExpectError
+  PluginsJimp.func();
+})
+
+test('can handle only all types', () => {
+  const TypesJimp = configure({
+    types: [types]
+  });
+
+  // Methods from types should be applied
+  TypesJimp.filterType(4);
+  // Constants from types should be applied
+  // Commented for complexity errors
+  // $ExpectType 0
+  TypesJimp.PNG_FILTER_NONE;
+
+  // $ExpectError
+  TypesJimp.test;
+
+  // $ExpectError
+  TypesJimp.func();
+});
+
+test('can handle only one type', () => {
+  const PngJimp = configure({
+    types: [png]
+  });
+
+  // Constants from types should be applied
+  // Commented for complexity errors
+  // $ExpectType 0
+  PngJimp.PNG_FILTER_NONE;
+  
+  // $ExpectError
+  PngJimp.test;
+
+  // $ExpectError
+  PngJimp.func();
+});
+
+
+test('can handle only one plugin', () => {
+  const PngJimp = configure({
+    plugins: [resize]
+  });
+
+  // Constants from types should be applied
+  // Commented for complexity errors
+  // $ExpectType "nearestNeighbor"
+  PngJimp.RESIZE_NEAREST_NEIGHBOR;
+
+  PngJimp.resize(2, 2);
+
+  // $ExpectError
+  PngJimp.test;
+
+  // $ExpectError
+  PngJimp.func();
+});

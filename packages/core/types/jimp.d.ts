@@ -38,10 +38,6 @@ export interface Jimp {
   EDGE_CROP: 3;
   // Properties
   bitmap: Bitmap;
-  _quality: number;
-  _deflateLevel: number;
-  _deflateStrategy: number;
-  _filterType: number;
   _rgba: boolean;
   _background: number;
   _originalMime: string;
@@ -80,12 +76,7 @@ export interface Jimp {
   distanceFromHash(hash: string): number;
   write(path: string, cb?: ImageCallback): this;
   writeAsync(path: string): Promise<Jimp>;
-  deflateLevel(l: number, cb?: ImageCallback): this;
-  deflateStrategy(s: number, cb?: ImageCallback): this;
-  colorType(s: number, cb?: ImageCallback): this;
-  filterType(f: number, cb?: ImageCallback): this;
   rgba(bool: boolean, cb?: ImageCallback): this;
-  quality(n: number, cb?: ImageCallback): this;
   getBase64(mime: string, cb: GenericCallback<string, any, this>): this;
   getBase64Async(mime: string): Promise<string>;
   hash(cb?: GenericCallback<string, any, this>): string;

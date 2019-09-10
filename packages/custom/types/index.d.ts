@@ -5,10 +5,36 @@ import {
   GetIntersectionAddons,
   Jimp,
   JimpPlugin,
-  JimpType
+  JimpType,
+  GetIntersectionPlugins
 } from '@jimp/core';
 
-export default function configure<
+declare function configure<
+  PluginFuncArr extends FunctionRet<JimpPlugin>,
+  JimpInstance extends Jimp = Jimp
+>(
+  configuration: {
+    plugins: PluginFuncArr;
+  },
+  jimpInstance?: JimpInstance
+  // Since JimpInstance is required, we want to use the default `Jimp` type
+): Exclude<JimpInstance, undefined> &
+  GetIntersectionPlugins<JimpPlugin, PluginFuncArr>;
+
+
+declare function configure<
+  TypesFuncArr extends FunctionRet<JimpType>,
+  JimpInstance extends Jimp = Jimp
+>(
+  configuration: {
+    types: TypesFuncArr;
+  },
+  jimpInstance?: JimpInstance
+  // Since JimpInstance is required, we want to use the default `Jimp` type
+): Exclude<JimpInstance, undefined> &
+  GetIntersectionPlugins<JimpType, TypesFuncArr>;
+
+declare function configure<
   TypesFuncArr extends FunctionRet<JimpType>,
   PluginFuncArr extends FunctionRet<JimpPlugin>,
   JimpInstance extends Jimp = Jimp
@@ -21,3 +47,5 @@ export default function configure<
   // Since JimpInstance is required, we want to use the default `Jimp` type
 ): Exclude<JimpInstance, undefined> &
   GetIntersectionAddons<TypesFuncArr, PluginFuncArr>;
+
+  export default configure;

@@ -5,4 +5,5 @@ export * from './utils';
 import {Jimp} from './jimp';
 
 export { Jimp };
-export default Jimp;
+declare const defaultExp: Jimp;
+export default defaultExp;

@@ -13,10 +13,13 @@ export type UnionToIntersection<U> =
  * The values to be extracted from a WellFormedPlugin to put onto the Jimp instance
  * Left loose as "any" in order to enable the GetPluginValue to work properly
  */
-export type WellFormedValues<T extends any> = T['class'] & T['constants'];
+export type WellFormedValues<T extends any> = 
+  T['class'] &
+  T['constants'];
 
 // Util type for the functions that deal with `@jimp/custom`
-export type FunctionRet<T> = Array<() => T>;
+// Must accept any or no props thanks to typing of the `plugins` intersected function
+export type FunctionRet<T> = Array<(...props: any[] | never) => T>;
 
 /**
  * This conditional cannot be flipped. TS assumes that Q is `WellFormed` even
@@ -43,6 +46,11 @@ type GetPluginFuncArrValues<PluginFuncArr> =
   : // This should never be reached
     undefined;
 
+export type GetIntersectionPlugins<
+  T extends JimpPlugin | JimpType,
+  PluginFuncArr extends FunctionRet<T>
+> = UnionToIntersection<GetPluginFuncArrValues<PluginFuncArr>>;
+
 /**
  * A helper type to get the values to be intersected with `Jimp` to give
  * the proper typing given an array of functions for plugins and types
@@ -51,9 +59,8 @@ export type GetIntersectionAddons<
   TypesFuncArr extends FunctionRet<JimpType>,
   PluginFuncArr extends FunctionRet<JimpPlugin>
 > = 
-  UnionToIntersection<TypesFuncArr extends undefined ? {} : GetTypeFuncArrValues<TypesFuncArr>> &
-  UnionToIntersection<PluginFuncArr extends undefined ? {} : GetPluginFuncArrValues<PluginFuncArr>
->;
+  GetIntersectionPlugins<JimpType, TypesFuncArr> &
+  GetIntersectionPlugins<JimpPlugin, PluginFuncArr>;
 
 /**
  * While this was added to TS 3.5, in order to support down to TS 2.8, we need

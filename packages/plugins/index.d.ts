@@ -60,4 +60,4 @@ type Plugins = DitherRet |
   ContainRet |
   CoverRet;
 
-export default function(jimpEvChange: any): Plugins;
+export default function(): Plugins;
