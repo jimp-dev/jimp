@@ -45,6 +45,15 @@ jobs:
           name: Lint
           command: yarn lint
 
+  test-types:
+    <<: *defaults
+    steps:
+      - attach_workspace:
+          at: ~/jimp
+      - run:
+          name: Test Types
+          command: yarn tsTest:custom && yarn tsTest:main
+
   build-node6.14:
     working_directory: ~/jimp-6.14
     docker:
@@ -115,17 +124,24 @@ workflows:
           requires:
             - install
 
+      - test-types:
+          requires:
+            - install
+
       - build-node6.14:
           requires:
             - lint
+            - test-types
 
       - build-node8:
           requires:
             - lint
+            - test-types
 
       - build-node10:
           requires:
             - lint
+            - test-types
 
       - release:
           requires:
