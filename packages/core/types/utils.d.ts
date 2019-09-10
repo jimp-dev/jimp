@@ -50,9 +50,9 @@ type GetPluginFuncArrValues<PluginFuncArr> =
 export type GetIntersectionAddons<
   TypesFuncArr extends FunctionRet<JimpType>,
   PluginFuncArr extends FunctionRet<JimpPlugin>
-> = UnionToIntersection<
-  TypesFuncArr extends undefined ? {} : GetTypeFuncArrValues<TypesFuncArr> &
-  PluginFuncArr extends undefined ? {} : GetPluginFuncArrValues<PluginFuncArr>
+> = 
+  UnionToIntersection<TypesFuncArr extends undefined ? {} : GetTypeFuncArrValues<TypesFuncArr>> &
+  UnionToIntersection<PluginFuncArr extends undefined ? {} : GetPluginFuncArrValues<PluginFuncArr>
 >;
 
 /**

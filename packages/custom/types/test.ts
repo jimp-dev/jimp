@@ -1,5 +1,3 @@
-// TypeScript Version: 2.8
-
 import configure from '@jimp/custom';
 import gif from '@jimp/gif';
 import png from '@jimp/png';
@@ -31,6 +29,12 @@ CustomJimp.resize(40, 40)
 // Constants should be applied from well-formed plugins
 CustomJimp.RESIZE_NEAREST_NEIGHBOR
 
+// $ExpectError
+CustomJimp.test;
+
+// $ExpectError
+CustomJimp.func();
+
 // Can compose
 const OtherCustomJimp = configure({
   plugins: [scale]
@@ -50,7 +54,7 @@ OtherCustomJimp.filterType(4);
  * 
  * Tests left for future-proofing all-the-same
  */
-// $ExpectType 0
+//// $ExpectType 0
 OtherCustomJimp.PNG_FILTER_NONE;
 
 // Core functions should still work from Jimp
@@ -64,3 +68,9 @@ OtherCustomJimp.resize(40, 40)
 
 // Constants should be applied from well-formed plugins
 OtherCustomJimp.RESIZE_NEAREST_NEIGHBOR
+
+//// $ExpectError
+OtherCustomJimp.test;
+
+//// $ExpectError
+OtherCustomJimp.func();
