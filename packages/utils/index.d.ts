@@ -1,4 +1,4 @@
-import { Image } from './../../types/src/index.d';
+import { Image } from '@jimp/core';
 import { ThrowStatement } from 'typescript';
 
 export function isNodePattern(cb: Function): true;
