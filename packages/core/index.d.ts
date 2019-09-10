@@ -4,8 +4,8 @@ export function jimpEvMethod(methodName: string, evName: string, method: Functio
 export function jimpEvChange(methodName: string, method: Function): void;
 export function addType(mime: string, extensions: string[]): void;
 
-interface BaseJimp {
-  prototype: Jimp;
+export interface Jimp {
+  prototype: this;
   // Constants
   AUTO: -1;
   // blend modes
@@ -40,12 +40,12 @@ interface BaseJimp {
   _background: number;
   _originalMime: string;
   // Constructors
-  new(path: string, cb?: ImageCallback): Jimp;
-  new(urlOptions: URLOptions, cb?: ImageCallback): Jimp;
-  new(image: Jimp, cb?: ImageCallback): Jimp;
-  new(data: Buffer, cb?: ImageCallback): Jimp;
-  new(data: Bitmap, cb?: ImageCallback): Jimp;
-  new(w: number, h: number, cb?: ImageCallback): Jimp;
+  new(path: string, cb?: ImageCallback): this;
+  new(urlOptions: URLOptions, cb?: ImageCallback): this;
+  new(image: Jimp, cb?: ImageCallback): this;
+  new(data: Buffer, cb?: ImageCallback): this;
+  new(data: Bitmap, cb?: ImageCallback): this;
+  new(w: number, h: number, cb?: ImageCallback): this;
   new(
     w: number,
     h: number,
@@ -159,20 +159,20 @@ interface BaseJimp {
       ...args: T[]
     ) => any
   ): void;
-  read(path: string): Promise<Jimp>;
-  read(image: Jimp): Promise<Jimp>;
-  read(data: Buffer): Promise<Jimp>;
-  read(w: number, h: number, background?: number | string): Promise<Jimp>;
-  create(path: string): Promise<Jimp>;
-  create(image: Jimp): Promise<Jimp>;
-  create(data: Buffer): Promise<Jimp>;
-  create(w: number, h: number, background?: number | string): Promise<Jimp>;
+  read(path: string): Promise<this>;
+  read(image: Jimp): Promise<this>;
+  read(data: Buffer): Promise<this>;
+  read(w: number, h: number, background?: number | string): Promise<this>;
+  create(path: string): Promise<this>;
+  create(image: Jimp): Promise<this>;
+  create(data: Buffer): Promise<this>;
+  create(w: number, h: number, background?: number | string): Promise<this>;
   rgbaToInt(
     r: number,
     g: number,
     b: number,
     a: number,
-    cb: GenericCallback<number, any, Jimp>
+    cb: GenericCallback<number, any, this>
   ): number;
   intToRGBA(i: number, cb?: GenericCallback<RGBA>): RGBA;
   cssColorToHex(cssColor: string): number;
@@ -205,7 +205,7 @@ export interface IllformedPlugin {
 export type DecoderFn = (data: Buffer) => Bitmap
 export type EncoderFn<ImageType extends Image = Image> = (image: ImageType) => Buffer
 
-interface WellFormedPlugin<ImageType extends Image = Image> {
+export interface WellFormedPlugin<ImageType extends Image = Image> {
   mime?: {
     [MIME_TYPE: string]: string[];
   };
@@ -236,25 +236,6 @@ export type JimpType<T extends Image = Image> = WellFormedPlugin<T> & Required<P
 
 // Jimp plugin either MUST have class OR constant or be illformed
 export type JimpPlugin<T extends Image = Image> = ClassOrConstantPlugin<T> | IllformedPlugin;
-
-// This is required as providing type arrays gives a union of all the generic
-// types in the array rather than an intersection
-type UnionToIntersection<U> =
-  (U extends any ? (k: U) => void : never) extends ((k: infer I) => void) ? I : never
-
-// The values to be extracted from a WellFormedPlugin to put onto the Jimp instance
-type WellFormedValues<T extends WellFormedPlugin> = T['class'] & T['constants'];
-
-// Jimp generic to be able to put plugins and types into, thus allowing
-// `configure` from `@jimp/custom` to have proper typings
-export type Jimp<T extends JimpType | undefined = undefined, P extends JimpPlugin | undefined = undefined> =
-  UnionToIntersection<
-    BaseJimp
-      & (T extends JimpType ? UnionToIntersection<WellFormedValues<T>> : {})
-      & (P extends JimpPlugin ? UnionToIntersection<
-          (P extends IllformedPlugin ? P : WellFormedValues<P>)
-        > : {})
-    >
 
 export type GenericCallback<T, U = any, TThis = any> = (
   this: TThis,
@@ -333,4 +314,57 @@ export interface RGBA {
   a: number;
 }
 
+/**
+ * While this was added to TS 3.5, in order to support down to TS 2.8, we need
+ * to export this and use it in sub-packges that utilize it
+ */
+export type Omit<T, K> = Pick<T, Exclude<keyof T, K>>;
+
+
+
 export default Jimp;
+
+
+// This is required as providing type arrays gives a union of all the generic
+// types in the array rather than an intersection
+export type UnionToIntersection<U> =
+  (U extends any ? (k: U) => void : never) extends ((k: infer I) => void) ? I : never
+
+// The values to be extracted from a WellFormedPlugin to put onto the Jimp instance
+export type WellFormedValues<T extends WellFormedPlugin> = T['class'] & T['constants'];
+
+
+// Util type for the functions that deal with `@jimp/custom`
+export type FunctionRet<T> = Array<() => T>;
+
+/**
+ * This conditional cannot be flipped. TS assumes that Q is `WellFormed` even
+ * it does not have the `class` or `constant` props. As a result, it will end
+ * up `undefined`. Because we're always extending `IllformedPlugin` on the
+ * plugins, this should work fine
+ */
+export type GetPluginVal<Q> = Q extends IllformedPlugin ? Q : WellFormedValues<Q>
+
+type GetTypeFuncArrValues<TypeFuncArr> =
+  // Given an array of types infer `Q` (Q should be the type value)
+  TypeFuncArr extends Array<() => infer Q> ?
+    // Get the well formed value to add to the union
+    WellFormedValues<Q>
+    // This should never be reached
+    : undefined;
+
+type GetPluginFuncArrValues<PluginFuncArr> =
+  PluginFuncArr extends Array<() => infer Q> ?
+    // Get the plugin value, may be ill-formed or well-formed
+    GetPluginVal<Q>
+    // This should never be reached
+    : undefined;
+
+export type GetIntersectionAddons<
+  TypesFuncArr extends FunctionRet<JimpType>,
+  PluginFuncArr extends FunctionRet<JimpPlugin>
+> =
+  UnionToIntersection<
+    GetTypeFuncArrValues<TypesFuncArr> &
+    GetPluginFuncArrValues<PluginFuncArr>
+  >;

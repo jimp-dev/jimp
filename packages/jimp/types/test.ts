@@ -4,5 +4,5 @@ import Jimp from 'jimp';
 Jimp.read('Test');
 Jimp.displace(Jimp, 2);
 Jimp.resize(40, 40);
-Jimp.RESIZE_NEAREST_NEIGHBOR;
-
+// $ExpectType 0
+Jimp.PNG_FILTER_NONE;

@@ -1,26 +1,23 @@
-// TypeScript Version: 2.8
+// TypeScript Version: 3.1
+// See the `jimp` package index.d.ts for why the version is not 2.8
 import {
+  FunctionRet,
+  GetIntersectionAddons,
   Jimp,
   JimpPlugin,
   JimpType
 } from '@jimp/core';
 
-export type FunctionRet<T> = Array<() => T>;
-
-export type InferedRet<T> = T extends Array<() => infer Q> ? Q : undefined;
-
 export default function configure<
-  Typee extends FunctionRet<JimpType>,
-  Pluginn extends FunctionRet<JimpPlugin>,
-  JimpInst extends Jimp = Jimp
+  TypesFuncArr extends FunctionRet<JimpType>,
+  PluginFuncArr extends FunctionRet<JimpPlugin>,
+  JimpInstance extends Jimp = Jimp
 >(
   configuration: {
-    types?: Typee;
-    plugins?: Pluginn;
+    types?: TypesFuncArr;
+    plugins?: PluginFuncArr;
   },
-  jimpInstance?: JimpInst
-): JimpInst &
-  Jimp<
-    InferedRet<Typee>,
-    InferedRet<Pluginn>
-  >;
+  jimpInstance?: JimpInstance
+  // Since JimpInstance is required, we want to use the default `Jimp` type
+): Exclude<JimpInstance, undefined> &
+  GetIntersectionAddons<TypesFuncArr, PluginFuncArr>;
