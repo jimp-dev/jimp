@@ -31,17 +31,13 @@ CustomJimp.resize(40, 40)
 // Constants should be applied from well-formed plugins
 CustomJimp.RESIZE_NEAREST_NEIGHBOR
 
-type A = typeof CustomJimp & {test: 3};
-
-const test: A = {} as any;
-
-// $ExpectType 0
-test.PNG_FILTER_NONE;
-
 // Can compose
 const OtherCustomJimp = configure({
   plugins: [scale]
 }, CustomJimp);
+
+// Methods from new plugins should be applied
+OtherCustomJimp.scale(3);
 
 // Methods from types should be applied
 OtherCustomJimp.filterType(4);
@@ -54,7 +50,7 @@ OtherCustomJimp.filterType(4);
  * 
  * Tests left for future-proofing all-the-same
  */
-//// $ExpectType 0
+// $ExpectType 0
 OtherCustomJimp.PNG_FILTER_NONE;
 
 // Core functions should still work from Jimp

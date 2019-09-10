@@ -1,6 +1,6 @@
-import { IllformedPlugin, ImageCallback } from '@jimp/core';
+import { ImageCallback } from '@jimp/core';
 
-interface Gaussian extends IllformedPlugin {
+interface Gaussian{
   gaussian(r: number, cb?: ImageCallback): this;
 }
 

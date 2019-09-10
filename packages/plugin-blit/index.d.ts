@@ -1,6 +1,6 @@
 import { Jimp, ImageCallback, IllformedPlugin } from '@jimp/core';
 
-interface Blit extends IllformedPlugin {
+interface Blit {
   blit(src: Jimp, x: number, y: number, cb?: ImageCallback): this;
   blit(
     src: Jimp,

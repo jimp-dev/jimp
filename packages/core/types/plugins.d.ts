@@ -10,11 +10,13 @@ import {
   DecoderFn
 } from './etc';
 
-export interface IllformedPlugin {
+import {
+  Omit
+} from './utils';
+
+export type IllformedPlugin = Omit<any, 'class' | 'constants'> & {
   class?: never;
   constants?: never;
-  // Because non-existant keys ARE undefined, this is technically valid
-  [key: string]: Function | undefined;
 }
 
 export interface WellFormedPlugin<ImageType extends Image = Image> {

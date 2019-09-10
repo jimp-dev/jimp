@@ -1,6 +1,5 @@
 import {
   WellFormedPlugin,
-  IllformedPlugin,
   JimpType,
   JimpPlugin,
 } from './plugins';
@@ -10,9 +9,11 @@ import {
 export type UnionToIntersection<U> =
   (U extends any ? (k: U) => void : never) extends ((k: infer I) => void) ? I : never;
 
-// The values to be extracted from a WellFormedPlugin to put onto the Jimp instance
-export type WellFormedValues<T extends WellFormedPlugin> = T['class'] &
-  T['constants'];
+/**
+ * The values to be extracted from a WellFormedPlugin to put onto the Jimp instance
+ * Left loose as "any" in order to enable the GetPluginValue to work properly
+ */
+export type WellFormedValues<T extends any> = T['class'] & T['constants'];
 
 // Util type for the functions that deal with `@jimp/custom`
 export type FunctionRet<T> = Array<() => T>;
@@ -23,9 +24,9 @@ export type FunctionRet<T> = Array<() => T>;
  * up `undefined`. Because we're always extending `IllformedPlugin` on the
  * plugins, this should work fine
  */
-export type GetPluginVal<Q> = Q extends IllformedPlugin
-  ? Q
-  : WellFormedValues<Q>;
+export type GetPluginVal<Q> = Q extends Required<{class: any}> | Required<{constant: never}>
+  ? WellFormedValues<Q>
+  : Q;
 
 type GetTypeFuncArrValues<TypeFuncArr> =
   // Given an array of types infer `Q` (Q should be the type value)
@@ -50,7 +51,8 @@ export type GetIntersectionAddons<
   TypesFuncArr extends FunctionRet<JimpType>,
   PluginFuncArr extends FunctionRet<JimpPlugin>
 > = UnionToIntersection<
-  GetTypeFuncArrValues<TypesFuncArr> & GetPluginFuncArrValues<PluginFuncArr>
+  TypesFuncArr extends undefined ? {} : GetTypeFuncArrValues<TypesFuncArr> &
+  PluginFuncArr extends undefined ? {} : GetPluginFuncArrValues<PluginFuncArr>
 >;
 
 /**
