@@ -22,7 +22,7 @@
     "build:watch": "lerna run build:watch --parallel",
     "release": "auto shipit",
     "tsTest:custom": "dtslint packages/custom/types --expectOnly",
-    "tsTest:main": "dtslint packages/jimp/types --expectOnly "
+    "tsTest:main": "dtslint packages/jimp/types --expectOnly"
   },
   "devDependencies": {
     "@babel/cli": "^7.1.0",
