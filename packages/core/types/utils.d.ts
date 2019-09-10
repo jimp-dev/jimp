@@ -31,36 +31,22 @@ export type GetPluginVal<Q> = Q extends Required<{class: any}> | Required<{const
   ? WellFormedValues<Q>
   : Q;
 
-type GetTypeFuncArrValues<TypeFuncArr> =
-  // Given an array of types infer `Q` (Q should be the type value)
-  TypeFuncArr extends Array<() => infer Q>
-    ? // Get the well formed value to add to the union
-      WellFormedValues<Q>
-    : // This should never be reached
-      undefined;
-
 type GetPluginFuncArrValues<PluginFuncArr> =
+  // Given an array of types infer `Q` (Q should be the type value)
   PluginFuncArr extends Array<() => infer Q>
   ? // Get the plugin value, may be ill-formed or well-formed
     GetPluginVal<Q>
   : // This should never be reached
     undefined;
 
-export type GetIntersectionPlugins<
-  T extends JimpPlugin | JimpType,
-  PluginFuncArr extends FunctionRet<T>
-> = UnionToIntersection<GetPluginFuncArrValues<PluginFuncArr>>;
 
 /**
  * A helper type to get the values to be intersected with `Jimp` to give
  * the proper typing given an array of functions for plugins and types
  */
-export type GetIntersectionAddons<
-  TypesFuncArr extends FunctionRet<JimpType>,
-  PluginFuncArr extends FunctionRet<JimpPlugin>
-> = 
-  GetIntersectionPlugins<JimpType, TypesFuncArr> &
-  GetIntersectionPlugins<JimpPlugin, PluginFuncArr>;
+export type GetIntersectionFromPlugins<
+  PluginFuncArr extends FunctionRet<JimpPlugin | JimpType>
+> = UnionToIntersection<GetPluginFuncArrValues<PluginFuncArr>>;
 
 /**
  * While this was added to TS 3.5, in order to support down to TS 2.8, we need

@@ -2,11 +2,10 @@
 // See the `jimp` package index.d.ts for why the version is not 2.8
 import {
   FunctionRet,
-  GetIntersectionAddons,
   Jimp,
   JimpPlugin,
   JimpType,
-  GetIntersectionPlugins
+  GetIntersectionFromPlugins
 } from '@jimp/core';
 
 declare function configure<
@@ -19,7 +18,7 @@ declare function configure<
   jimpInstance?: JimpInstance
   // Since JimpInstance is required, we want to use the default `Jimp` type
 ): Exclude<JimpInstance, undefined> &
-  GetIntersectionPlugins<JimpPlugin, PluginFuncArr>;
+  GetIntersectionFromPlugins<PluginFuncArr>;
 
 
 declare function configure<
@@ -32,7 +31,7 @@ declare function configure<
   jimpInstance?: JimpInstance
   // Since JimpInstance is required, we want to use the default `Jimp` type
 ): Exclude<JimpInstance, undefined> &
-  GetIntersectionPlugins<JimpType, TypesFuncArr>;
+  GetIntersectionFromPlugins<TypesFuncArr>;
 
 declare function configure<
   TypesFuncArr extends FunctionRet<JimpType>,
@@ -46,6 +45,7 @@ declare function configure<
   jimpInstance?: JimpInstance
   // Since JimpInstance is required, we want to use the default `Jimp` type
 ): Exclude<JimpInstance, undefined> &
-  GetIntersectionAddons<TypesFuncArr, PluginFuncArr>;
+  GetIntersectionFromPlugins<TypesFuncArr> &
+  GetIntersectionFromPlugins<PluginFuncArr>;
 
   export default configure;
