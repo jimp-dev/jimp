@@ -546,48 +546,50 @@ export default () => ({
   /**
    * Applies a convolution kernel to the image or a region
    * @param {array} kernel the convolution kernel
+   * @param {number} divisor (optional) the final divisor to be applied to each value
    * @param {number} x (optional) the x position of the region to apply convolution to
    * @param {number} y (optional) the y position of the region to apply convolution to
    * @param {number} w (optional) the width of the region to apply convolution to
    * @param {number} h (optional) the height of the region to apply convolution to
-   * @param {number} divisor (optional) the final divisor to be applied to each value
    * @param {function(Error, Jimp)} cb (optional) a callback for when complete
    * @returns {Jimp }this for chaining of methods
    */
-  convolute(kernel, x, y, w, h, divisor, cb) {
-    if (!Array.isArray(kernel))
-      return throwError.call(this, 'the kernel must be an array', cb);
+  convolute: function convolute(kernel, divisor, x, y, w, h, cb) {
+    if (!Array.isArray(kernel)) return _utils.throwError.call(this, 'the kernel must be an array', cb);
 
-    if (typeof x === 'function') {
-      cb = x;
+    if (typeof divisor === 'function') {
+      cb = divisor;
       x = null;
       y = null;
       w = null;
       h = null;
       divisor = 1;
     } else {
-      if (isDef(x) && typeof x !== 'number') {
-        return throwError.call(this, 'x must be a number', cb);
+      if (isDef(divisor) && (typeof divisor !== 'number' || divisor <= 0)) {
+        return throwError.call(this, 'divisor must be a non-zero, positive number', cb);
       }
-
-      if (isDef(y) && typeof y !== 'number') {
-        return throwError.call(this, 'y must be a number', cb);
-      }
-
-      if (isDef(w) && typeof w !== 'number') {
-        return throwError.call(this, 'w must be a number', cb);
-      }
-
-      if (isDef(h) && typeof h !== 'number') {
-        return throwError.call(this, 'h must be a number', cb);
-      }
-
-      if (isDef(cb)) {
-        if (isDef(divisor) && (typeof divisor !== 'number' || divisor <= 0)) {
-          return throwError.call(this, 'divisor must be a non-zero, positive number', cb);
-        }
+      if (isDef(divisor) && typeof divisor === 'number' && isDef(x) && typeof x === 'function') {
+        cb = x;
+        x = null;
+        y = null;
+        w = null;
+        h = null;
       } else {
-        divisor = 1;
+        if (isDef(x) && typeof x !== 'number') {
+          return _utils.throwError.call(this, 'x must be a number', cb);
+        }
+
+        if (isDef(y) && typeof y !== 'number') {
+          return _utils.throwError.call(this, 'y must be a number', cb);
+        }
+
+        if (isDef(w) && typeof w !== 'number') {
+          return _utils.throwError.call(this, 'w must be a number', cb);
+        }
+
+        if (isDef(h) && typeof h !== 'number') {
+          return _utils.throwError.call(this, 'h must be a number', cb);
+        }
       }
     }
 
