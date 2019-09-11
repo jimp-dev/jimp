@@ -1,6 +1,6 @@
 import { ImageCallback } from '@jimp/core';
 
-interface Blur{
+interface Blur {
   blur(r: number, cb?: ImageCallback): this;
 }
 

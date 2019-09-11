@@ -1,6 +1,6 @@
 import { ImageCallback } from '@jimp/core';
 
-interface Normalize{
+interface Normalize {
   normalize(cb ?: ImageCallback): this;
 }
 

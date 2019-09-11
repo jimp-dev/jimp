@@ -16,10 +16,8 @@ declare function configure<
     plugins: PluginFuncArr;
   },
   jimpInstance?: JimpInstance
-  // Since JimpInstance is required, we want to use the default `Jimp` type
 ): Exclude<JimpInstance, undefined> &
   GetIntersectionFromPlugins<PluginFuncArr>;
-
 
 declare function configure<
   TypesFuncArr extends FunctionRet<JimpType>,
@@ -29,7 +27,6 @@ declare function configure<
     types: TypesFuncArr;
   },
   jimpInstance?: JimpInstance
-  // Since JimpInstance is required, we want to use the default `Jimp` type
 ): Exclude<JimpInstance, undefined> &
   GetIntersectionFromPlugins<TypesFuncArr>;
 

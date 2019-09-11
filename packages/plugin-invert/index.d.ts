@@ -1,6 +1,6 @@
 import { ImageCallback } from '@jimp/core';
 
-interface Invert{
+interface Invert {
   invert(cb?: ImageCallback): this;
 }
 

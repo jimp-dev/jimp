@@ -27,7 +27,7 @@ export type FunctionRet<T> = Array<(...props: any[] | never) => T>;
  * up `undefined`. Because we're always extending `IllformedPlugin` on the
  * plugins, this should work fine
  */
-export type GetPluginVal<Q> = Q extends Required<{class: any}> | Required<{constant: never}>
+export type GetPluginVal<Q> = Q extends Required<{class: any}> | Required<{constant: any}>
   ? WellFormedValues<Q>
   : Q;
 
@@ -38,7 +38,6 @@ type GetPluginFuncArrValues<PluginFuncArr> =
     GetPluginVal<Q>
   : // This should never be reached
     undefined;
-
 
 /**
  * A helper type to get the values to be intersected with `Jimp` to give

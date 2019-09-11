@@ -1,6 +1,6 @@
 import { IllformedPlugin, ImageCallback, Jimp } from '@jimp/core';
 
-interface Mask{
+interface Mask {
   mask(src: Jimp, x: number, y: number, cb?: ImageCallback): this;
 }
 

@@ -1,6 +1,6 @@
 import { ImageCallback } from '@jimp/core';
 
-interface Gaussian{
+interface Gaussian {
   gaussian(r: number, cb?: ImageCallback): this;
 }
 

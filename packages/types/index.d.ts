@@ -18,7 +18,7 @@ type GifRet = ReturnType<typeof gif>
  * In reality, this should be an intersection but our type data isn't
  * clever enough to figure out what's a class and what's not/etc
  */
-export type Types = JpegRet |
+type Types = JpegRet |
   PngRet |
   BmpRet |
   TiffRet |

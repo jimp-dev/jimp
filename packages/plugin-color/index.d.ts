@@ -15,7 +15,7 @@ type ColorAction = {
   params: any;
 };
 
-interface Color{
+interface Color {
   brightness(val: number, cb?: ImageCallback): this;
   contrast(val: number, cb?: ImageCallback): this;
   posterize(n: number, cb?: ImageCallback): this;
