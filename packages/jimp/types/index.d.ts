@@ -1,23 +1,27 @@
 // TypeScript Version: 2.8
 
+declare const Jimp: Jimp;
+
+export default Jimp;
+
 /**
  * @deprecated Jimp typings for TS <3.1 are being depreciated. Please upgrade your TypeScript version
  */
-declare class Jimp {
+export interface Jimp {
   // Constructors
-  constructor(path: string, cb?: ImageCallback);
-  constructor(urlOptions: URLOptions, cb?: ImageCallback);
-  constructor(image: Jimp, cb?: ImageCallback);
-  constructor(data: Buffer | Bitmap, cb?: ImageCallback);
-  constructor(w: number, h: number, cb?: ImageCallback);
-  constructor(
+  new(path: string, cb?: ImageCallback): Jimp;
+  new(urlOptions: URLOptions, cb?: ImageCallback): Jimp;
+  new(image: Jimp, cb?: ImageCallback): Jimp;
+  new(data: Buffer | Bitmap, cb?: ImageCallback): Jimp;
+  new(w: number, h: number, cb?: ImageCallback): Jimp;
+  new(
     w: number,
     h: number,
     background?: number | string,
     cb?: ImageCallback
-  );
+  ): Jimp;
   // For custom constructors when using Jimp.appendConstructorOption
-  constructor(...args: any[]);
+  new(...args: any[]): Jimp;
   prototype: Jimp;
 
   // Constants
@@ -410,10 +414,6 @@ declare class Jimp {
     cb?: ImageCallback
   ): this;
 }
-
-declare const JimpInst: Jimp;
-
-export default JimpInst;
 
 type GenericCallback<T, U = any, TThis = any> = (
   this: TThis,
