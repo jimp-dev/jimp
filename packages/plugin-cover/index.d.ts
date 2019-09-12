@@ -1,6 +1,6 @@
-import { IllformedPlugin, ImageCallback } from '@jimp/core';
+import { ImageCallback } from '@jimp/core';
 
-interface Cover extends IllformedPlugin {
+interface Cover {
   cover(w: number, h: number, cb?: ImageCallback): this;
   cover(w: number, h: number, alignBits?: number, cb?: ImageCallback): this;
   cover(

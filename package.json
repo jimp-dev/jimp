@@ -8,8 +8,8 @@
   "repository": "oliver-moran/jimp",
   "author": "Andrew Lisowski <lisowski54@gmail.com>",
   "publishConfig": {
-    "registry":"https://registry.npmjs.org/"
-    },
+    "registry": "https://registry.npmjs.org/"
+  },
   "scripts": {
     "lint": "xo",
     "test": "cross-env BABEL_ENV=test mocha --require @babel/register './packages/**/test/**/*.test.js' --require ts-node/register ./packages/**/test/*.test.ts",
@@ -20,7 +20,9 @@
     "clean:build": "rm -rf packages/**/es packages/**/dist",
     "build": "npm run clean:build && lerna run build --stream",
     "build:watch": "lerna run build:watch --parallel",
-    "release": "auto shipit"
+    "release": "auto shipit",
+    "tsTest:custom": "dtslint packages/custom/types --expectOnly",
+    "tsTest:main": "dtslint packages/jimp/types --expectOnly"
   },
   "devDependencies": {
     "@babel/cli": "^7.1.0",
@@ -36,6 +38,7 @@
     "babel-plugin-source-map-support": "^2.0.1",
     "babel-plugin-transform-inline-environment-variables": "^0.4.3",
     "cross-env": "^5.2.0",
+    "dtslint": "^0.9.6",
     "eslint-plugin-prettier": "^2.6.2",
     "express": "^4.16.3",
     "husky": "^1.0.0-rc.15",

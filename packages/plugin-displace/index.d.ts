@@ -1,6 +1,6 @@
 import { Jimp, ImageCallback, IllformedPlugin } from '@jimp/core';
 
-interface Displace extends IllformedPlugin {
+interface Displace {
   displace(map: Jimp, offset: number, cb?: ImageCallback): this;
 }
 

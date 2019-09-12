@@ -1,4 +1,4 @@
-import { IllformedPlugin, ImageCallback } from '@jimp/core';
+import { ImageCallback } from '@jimp/core';
 
 type ColorActionName =
   | 'mix'
@@ -15,7 +15,7 @@ type ColorAction = {
   params: any;
 };
 
-interface Color extends IllformedPlugin {
+interface Color {
   brightness(val: number, cb?: ImageCallback): this;
   contrast(val: number, cb?: ImageCallback): this;
   posterize(n: number, cb?: ImageCallback): this;
