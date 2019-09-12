@@ -10,10 +10,11 @@ import {
   Bitmap,
   RGB,
   RGBA,
-  WellFormedValues,
   UnionToIntersection,
-  GetPluginVal
-} from '@jimp/core';
+  GetPluginVal,
+  ImageCallback,
+  URLOptions
+} from "@jimp/core";
 import typeFn from '@jimp/types';
 import pluginFn from '@jimp/plugins';
 
@@ -24,6 +25,25 @@ export { Bitmap, RGB, RGBA };
 
 export { FontChar, FontInfo, FontCommon, Font } from '@jimp/plugin-print';
 
-export type FullJimpType = JimpType & UnionToIntersection<GetPluginVal<Types>> & UnionToIntersection<GetPluginVal<Plugins>>;
-declare const Jimp: FullJimpType;
+type Jimp = InstanceType<typeof JimpType> & UnionToIntersection<GetPluginVal<Types> | GetPluginVal<Plugins>>;
+
+// This adds these constructors to `Jimp`
+declare const Jimp: {
+  // Have to copy constructors from Jimp, unfortunately to fix constructor errors
+  new(path: string, cb?: ImageCallback): Jimp;
+  new(urlOptions: URLOptions, cb?: ImageCallback): Jimp;
+  new(image: Jimp, cb?: ImageCallback): Jimp;
+  new(data: Buffer, cb?: ImageCallback): Jimp;
+  new(data: Bitmap, cb?: ImageCallback): Jimp;
+  new(w: number, h: number, cb?: ImageCallback): Jimp;
+  new(
+    w: number,
+    h: number,
+    background?: number | string,
+    cb?: ImageCallback
+  ): Jimp;
+  // For custom constructors when using Jimp.appendConstructorOption
+  new(...args: any[]): Jimp;
+} & Jimp;
+
 export default Jimp;

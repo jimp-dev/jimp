@@ -1,13 +1,14 @@
 // TypeScript Version: 2.8
 
+
 declare const Jimp: Jimp;
 
-export default Jimp;
+export = Jimp;
 
 /**
  * @deprecated Jimp typings for TS <3.1 are being depreciated. Please upgrade your TypeScript version
  */
-export interface Jimp {
+interface Jimp {
   // Constructors
   new(path: string, cb?: ImageCallback): Jimp;
   new(urlOptions: URLOptions, cb?: ImageCallback): Jimp;
@@ -467,26 +468,26 @@ type ListenerData<T extends ListenableName> = T extends 'any'
   ? any
   : T extends ChangeName
     ? {
-        eventName: 'before-change' | 'changed';
-        methodName: T;
-        [key: string]: any;
-      }
+      eventName: 'before-change' | 'changed';
+      methodName: T;
+      [key: string]: any;
+    }
     : {
-        eventName: T;
-        methodName: T extends 'initialized'
-          ? 'constructor'
-          : T extends 'before-change' | 'changed'
-            ? ChangeName
-            : T extends 'before-clone' | 'cloned' ? 'clone' : any;
-      };
+      eventName: T;
+      methodName: T extends 'initialized'
+        ? 'constructor'
+        : T extends 'before-change' | 'changed'
+          ? ChangeName
+          : T extends 'before-clone' | 'cloned' ? 'clone' : any;
+    };
 
 type PrintableText =
   | any
   | {
-      text: string;
-      alignmentX: number;
-      alignmentY: number;
-    };
+  text: string;
+  alignmentX: number;
+  alignmentY: number;
+};
 
 type URLOptions = {
   url: string;
@@ -499,7 +500,7 @@ type URLOptions = {
 /**
  * @deprecated Jimp typings for TS <3.1 are being depreciated. Please upgrade your TypeScript version
  */
-export interface Bitmap {
+interface Bitmap {
   data: Buffer;
   width: number;
   height: number;
@@ -507,7 +508,7 @@ export interface Bitmap {
 /**
  * @deprecated Jimp typings for TS <3.1 are being depreciated. Please upgrade your TypeScript version
  */
-export interface RGB {
+interface RGB {
   r: number;
   g: number;
   b: number;
@@ -516,7 +517,7 @@ export interface RGB {
 /**
  * @deprecated Jimp typings for TS <3.1 are being depreciated. Please upgrade your TypeScript version
  */
-export interface RGBA {
+interface RGBA {
   r: number;
   g: number;
   b: number;
@@ -526,7 +527,7 @@ export interface RGBA {
 /**
  * @deprecated Jimp typings for TS <3.1 are being depreciated. Please upgrade your TypeScript version
  */
-export interface FontChar {
+interface FontChar {
   id: number;
   x: number;
   y: number;
@@ -542,7 +543,7 @@ export interface FontChar {
 /**
  * @deprecated Jimp typings for TS <3.1 are being depreciated. Please upgrade your TypeScript version
  */
-export interface FontInfo {
+interface FontInfo {
   face: string;
   size: number;
   bold: number;
@@ -559,7 +560,7 @@ export interface FontInfo {
 /**
  * @deprecated Jimp typings for TS <3.1 are being depreciated. Please upgrade your TypeScript version
  */
-export interface FontCommon {
+interface FontCommon {
   lineHeight: number;
   base: number;
   scaleW: number;
@@ -575,7 +576,7 @@ export interface FontCommon {
 /**
  * @deprecated Jimp typings for TS <3.1 are being depreciated. Please upgrade your TypeScript version
  */
-export interface Font {
+interface Font {
   chars: {
     [char: string]: FontChar;
   };
