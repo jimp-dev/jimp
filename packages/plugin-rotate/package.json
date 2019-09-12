@@ -1,6 +1,6 @@
 {
   "name": "@jimp/plugin-rotate",
-  "version": "0.8.0",
+  "version": "0.8.1",
   "description": "Rotate an image.",
   "main": "dist/index.js",
   "module": "es/index.js",
@@ -20,7 +20,7 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "@jimp/utils": "^0.8.0",
+    "@jimp/utils": "^0.8.1",
     "core-js": "^2.5.7"
   },
   "peerDependencies": {
@@ -30,11 +30,11 @@
     "@jimp/plugin-resize": ">=0.3.5"
   },
   "devDependencies": {
-    "@jimp/custom": "^0.8.0",
-    "@jimp/plugin-blit": "^0.8.0",
-    "@jimp/plugin-crop": "^0.8.0",
-    "@jimp/plugin-resize": "^0.8.0",
-    "@jimp/test-utils": "^0.8.0"
+    "@jimp/custom": "^0.8.1",
+    "@jimp/plugin-blit": "^0.8.1",
+    "@jimp/plugin-crop": "^0.8.1",
+    "@jimp/plugin-resize": "^0.8.1",
+    "@jimp/test-utils": "^0.8.1"
   },
   "publishConfig": {
     "access": "public"

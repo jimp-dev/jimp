@@ -1,6 +1,6 @@
 {
   "name": "@jimp/plugin-displace",
-  "version": "0.8.0",
+  "version": "0.8.1",
   "description": "displace an image.",
   "main": "dist/index.js",
   "module": "es/index.js",
@@ -17,7 +17,7 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "@jimp/utils": "^0.8.0",
+    "@jimp/utils": "^0.8.1",
     "core-js": "^2.5.7"
   },
   "peerDependencies": {
