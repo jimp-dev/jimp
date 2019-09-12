@@ -1,3 +1,17 @@
+# v0.8.1 (Thu Sep 12 2019)
+
+#### 🐛  Bug Fix
+
+- `@jimp/cli`, `@jimp/core`, `@jimp/custom`, `jimp`, `@jimp/plugin-blit`, `@jimp/plugin-blur`, `@jimp/plugin-color`, `@jimp/plugin-contain`, `@jimp/plugin-cover`, `@jimp/plugin-displace`, `@jimp/plugin-dither`, `@jimp/plugin-flip`, `@jimp/plugin-gaussian`, `@jimp/plugin-invert`, `@jimp/plugin-mask`, `@jimp/plugin-normalize`, `@jimp/plugin-rotate`, `@jimp/plugin-scale`, `@jimp/plugin-threshold`, `@jimp/plugins`, `@jimp/utils`
+  - Fix 0.8 typings, add type tests [#786](https://github.com/oliver-moran/jimp/pull/786) ([@crutchcorn](https://github.com/crutchcorn) [@hipstersmoothie](https://github.com/hipstersmoothie))
+
+#### Authors: 2
+
+- Corbin Crutchley ([@crutchcorn](https://github.com/crutchcorn))
+- Andrew Lisowski ([@hipstersmoothie](https://github.com/hipstersmoothie))
+
+---
+
 # v0.8.0 (Sat Sep 07 2019)
 
 #### 🚀  Enhancement
