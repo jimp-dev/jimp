@@ -64,7 +64,7 @@ function loadFromURL(options, cb) {
       return cb(err);
     }
     
-    if('location' in response.headers){
+    if('headers' in response && 'location' in response.headers){
       options.url = response.headers.location;
       return loadFromURL(options, cb);
     }
