@@ -1,3 +1,16 @@
+# v0.8.2 (Fri Sep 13 2019)
+
+#### 🐛  Bug Fix
+
+- `jimp`
+  - must ship types [#794](https://github.com/oliver-moran/jimp/pull/794) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+
+#### Authors: 1
+
+- Andrew Lisowski ([@hipstersmoothie](https://github.com/hipstersmoothie))
+
+---
+
 # v0.8.1 (Thu Sep 12 2019)
 
 #### 🐛  Bug Fix
