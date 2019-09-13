@@ -64,8 +64,8 @@ function loadFromURL(options, cb) {
       return cb(err);
     }
     
-    if(response.headers.hasOwnProperty('location') ){
-      options.url = response.headers['location'];
+    if('location' in response.headers){
+      options.url = response.headers.location;
       return loadFromURL(options, cb);
     }
 
