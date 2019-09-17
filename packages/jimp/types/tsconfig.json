@@ -5,8 +5,6 @@
     "noImplicitAny": true,
     "noImplicitThis": true,
     "strictNullChecks": true,
-    "allowSyntheticDefaultImports": true,
-    "esModuleInterop": true,
     "strictFunctionTypes": true,
     "noEmit": true,
 

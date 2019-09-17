@@ -57,29 +57,11 @@ Jimp.read('lenna.png')
 
 ## TypeScript Usage
 
-If you're using this library with TypeScript the method of importing slightly differs from JavaScript. You can import the library with three methods
-
-First of all using [`import = require()`](https://www.typescriptlang.org/docs/handbook/modules.html#export--and-import--require) method to import it as a `commonJS` module:
-
-```ts
-import Jimp = require('jimp');
-```
-
-Alternatively you can import it with ES6 default import scheme, if you set the `esModuleInterop` compiler flag to `true` in your `tsconfig`
+If you're using this library with TypeScript the method of importing slightly differs from JavaScript. Instead of using require, you must import it with ES6 default import scheme
 
 ```ts
 import Jimp from 'jimp';
 ```
-
-Lastly you can import it with a synthetic default import. This requires setting the `allowSyntheticDefaultImports` compiler option to `true` in your `tsconfig`
-
-```ts
-import * as Jimp from 'jimp';
-```
-
-**Note 1**: `esModuleInterop` implicitly sets `allowSyntheticDefaultImports` to `true`
-
-**Note 2**: `allowSyntheticDefaultImports` nor `esModuleInterop` change the runtime behavior of your code at all. They are just flags that tells TypeScript you need the compatibility they offer.
 
 ## Module Build
 
