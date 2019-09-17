@@ -6,6 +6,13 @@
   "module": "es/index.js",
   "browser": "browser/lib/jimp.js",
   "types": "types/index.d.ts",
+  "typesVersions": {
+    ">=3.1.0-0": {
+      "*": [
+        "types/ts3.1/index.d.ts"
+      ]
+    }
+  },
   "tonicExampleFilename": "example.js",
   "files": [
     "browser",

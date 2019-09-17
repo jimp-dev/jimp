@@ -12,7 +12,8 @@ import {
   RGBA,
   UnionToIntersection,
   GetPluginVal,
-} from "@jimp/core";
+  JimpConstructors
+} from '@jimp/core';
 import typeFn from '@jimp/types';
 import pluginFn from '@jimp/plugins';
 
@@ -23,6 +24,8 @@ export { Bitmap, RGB, RGBA };
 
 export { FontChar, FontInfo, FontCommon, Font } from '@jimp/plugin-print';
 
-type Jimp = JimpType & UnionToIntersection<GetPluginVal<Types> | GetPluginVal<Plugins>>;
+type Jimp = InstanceType<JimpType> & UnionToIntersection<GetPluginVal<Types> | GetPluginVal<Plugins>>;
+
+declare const Jimp: JimpConstructors & Jimp;
 
 export default Jimp;

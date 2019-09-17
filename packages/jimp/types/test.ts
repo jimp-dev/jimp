@@ -1,4 +1,4 @@
-import * as Jimp from 'jimp';
+import Jimp from 'jimp';
 
 const jimpInst: Jimp = new Jimp('test');
 
