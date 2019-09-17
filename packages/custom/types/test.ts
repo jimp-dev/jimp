@@ -257,7 +257,7 @@ test('can handle only one plugin', () => {
   ResizeJimp.func();
 
 
-  const Jiimp = new ResizeJimp('test');
+  const Jiimp: typeof ResizeJimp = new ResizeJimp('test');
   // Constants from other plugins should be not applied
   // $ExpectError
   Jiimp.FONT_SANS_8_BLACK;

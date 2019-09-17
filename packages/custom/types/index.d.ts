@@ -6,27 +6,8 @@ import {
   JimpPlugin,
   JimpType,
   GetIntersectionFromPlugins,
-  ImageCallback, 
-  URLOptions, 
-  Bitmap
+  JimpConstructors
 } from '@jimp/core';
-
-interface JimpConstructors {
-  new(path: string, cb?: ImageCallback): this;
-  new(urlOptions: URLOptions, cb?: ImageCallback): this;
-  new(image: Jimp, cb?: ImageCallback): this;
-  new(data: Buffer, cb?: ImageCallback): this;
-  new(data: Bitmap, cb?: ImageCallback): this;
-  new(w: number, h: number, cb?: ImageCallback): this;
-  new(
-    w: number,
-    h: number,
-    background?: number | string,
-    cb?: ImageCallback
-  ): this;
-  // For custom constructors when using Jimp.appendConstructorOption
-  new(...args: any[]): this; 
-}
 
 type JimpInstance<
   TypesFuncArr extends FunctionRet<JimpType> | undefined,

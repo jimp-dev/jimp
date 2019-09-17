@@ -10,22 +10,24 @@ import {
   RGB
 } from './etc';
 
-export declare class Jimp {
-  // Constructors
-  constructor(path: string, cb?: ImageCallback);
-  constructor(urlOptions: URLOptions, cb?: ImageCallback);
-  constructor(image: Jimp, cb?: ImageCallback);
-  constructor(data: Buffer, cb?: ImageCallback);
-  constructor(data: Bitmap, cb?: ImageCallback);
-  constructor(w: number, h: number, cb?: ImageCallback);
-  constructor(
+export interface JimpConstructors {
+  new(path: string, cb?: ImageCallback): this;
+  new(urlOptions: URLOptions, cb?: ImageCallback): this;
+  new(image: Jimp, cb?: ImageCallback): this;
+  new(data: Buffer, cb?: ImageCallback): this;
+  new(data: Bitmap, cb?: ImageCallback): this;
+  new(w: number, h: number, cb?: ImageCallback): this;
+  new(
     w: number,
     h: number,
     background?: number | string,
     cb?: ImageCallback
-  );
+  ): this;
   // For custom constructors when using Jimp.appendConstructorOption
-  constructor(...args: any[]);
+  new(...args: any[]): this;
+}
+
+export interface Jimp extends JimpConstructors {
   prototype: this;
   // Constants
   AUTO: -1;
