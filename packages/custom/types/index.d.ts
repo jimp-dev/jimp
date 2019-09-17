@@ -9,30 +9,8 @@ import {
 } from '@jimp/core';
 
 declare function configure<
-  PluginFuncArr extends FunctionRet<JimpPlugin>,
-  JimpInstance extends Jimp = Jimp
->(
-  configuration: {
-    plugins: PluginFuncArr;
-  },
-  jimpInstance?: JimpInstance
-): Exclude<JimpInstance, undefined> &
-  GetIntersectionFromPlugins<PluginFuncArr>;
-
-declare function configure<
-  TypesFuncArr extends FunctionRet<JimpType>,
-  JimpInstance extends Jimp = Jimp
->(
-  configuration: {
-    types: TypesFuncArr;
-  },
-  jimpInstance?: JimpInstance
-): Exclude<JimpInstance, undefined> &
-  GetIntersectionFromPlugins<TypesFuncArr>;
-
-declare function configure<
-  TypesFuncArr extends FunctionRet<JimpType>,
-  PluginFuncArr extends FunctionRet<JimpPlugin>,
+  TypesFuncArr extends FunctionRet<JimpType> | undefined = undefined,
+  PluginFuncArr extends FunctionRet<JimpPlugin> | undefined = undefined,
   JimpInstance extends Jimp = Jimp
 >(
   configuration: {
@@ -42,7 +20,6 @@ declare function configure<
   jimpInstance?: JimpInstance
   // Since JimpInstance is required, we want to use the default `Jimp` type
 ): Exclude<JimpInstance, undefined> &
-  GetIntersectionFromPlugins<TypesFuncArr> &
-  GetIntersectionFromPlugins<PluginFuncArr>;
+  GetIntersectionFromPlugins<Exclude<TypesFuncArr | PluginFuncArr, undefined>>;
 
   export default configure;
