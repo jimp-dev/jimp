@@ -63,6 +63,8 @@ If you're using this library with TypeScript the method of importing slightly di
 import Jimp from 'jimp';
 ```
 
+**Note**: This change in import does not change the runtime behavior of your code at all.
+
 ## Module Build
 
 If you're using a web bundles (webpack, rollup, parcel) you can benefit from using the `module` build of jimp. Using the module build will allow your bundler to understand your code better and exclude things you aren't using.
