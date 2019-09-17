@@ -5,21 +5,48 @@ import {
   Jimp,
   JimpPlugin,
   JimpType,
-  GetIntersectionFromPlugins
+  GetIntersectionFromPlugins,
+  ImageCallback, 
+  URLOptions, 
+  Bitmap
 } from '@jimp/core';
+
+interface JimpConstructors {
+  new(path: string, cb?: ImageCallback): this;
+  new(urlOptions: URLOptions, cb?: ImageCallback): this;
+  new(image: Jimp, cb?: ImageCallback): this;
+  new(data: Buffer, cb?: ImageCallback): this;
+  new(data: Bitmap, cb?: ImageCallback): this;
+  new(w: number, h: number, cb?: ImageCallback): this;
+  new(
+    w: number,
+    h: number,
+    background?: number | string,
+    cb?: ImageCallback
+  ): this;
+  // For custom constructors when using Jimp.appendConstructorOption
+  new(...args: any[]): this; 
+}
+
+type JimpInstance<
+  TypesFuncArr extends FunctionRet<JimpType> | undefined,
+  PluginFuncArr extends FunctionRet<JimpPlugin> | undefined,
+  J extends Jimp
+> = Exclude<J, undefined> &
+  GetIntersectionFromPlugins<Exclude<TypesFuncArr | PluginFuncArr, undefined>> &
+  JimpConstructors;
 
 declare function configure<
   TypesFuncArr extends FunctionRet<JimpType> | undefined = undefined,
   PluginFuncArr extends FunctionRet<JimpPlugin> | undefined = undefined,
-  JimpInstance extends Jimp = Jimp
+  J extends Jimp = Jimp
 >(
   configuration: {
     types?: TypesFuncArr;
     plugins?: PluginFuncArr;
   },
-  jimpInstance?: JimpInstance
+  jimpInstance?: J
   // Since JimpInstance is required, we want to use the default `Jimp` type
-): Exclude<JimpInstance, undefined> &
-  GetIntersectionFromPlugins<Exclude<TypesFuncArr | PluginFuncArr, undefined>>;
+): JimpInstance<TypesFuncArr, PluginFuncArr, J>;
 
-  export default configure;
+export default configure;

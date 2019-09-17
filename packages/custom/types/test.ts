@@ -13,29 +13,56 @@ const CustomJimp = configure({
   plugins: [displace, resize]
 });
 
-// Methods from types should be applied
-CustomJimp.deflateLevel(4);
-// Constants from types should be applied
-// $ExpectType 0
-CustomJimp.PNG_FILTER_NONE;
+test('can handle custom jimp', () => {
+  // Methods from types should be applied
+  CustomJimp.deflateLevel(4);
+  // Constants from types should be applied
+  // $ExpectType 0
+  CustomJimp.PNG_FILTER_NONE;
+  
+  // Core functions should still work from Jimp
+  CustomJimp.read('Test');
+  
+  // Constants should be applied from ill-formed plugins
+  CustomJimp.displace(CustomJimp, 2);
+  
+  // Methods should be applied from well-formed plugins
+  CustomJimp.resize(40, 40)
+  
+  // Constants should be applied from well-formed plugins
+  CustomJimp.RESIZE_NEAREST_NEIGHBOR
+  
+  // $ExpectError
+  CustomJimp.test;
+  
+  // $ExpectError
+  CustomJimp.func();
 
-// Core functions should still work from Jimp
-CustomJimp.read('Test');
+  const Jiimp = new CustomJimp('test');
+  // Methods from types should be applied
+  Jiimp.deflateLevel(4);
+  // Constants from types should be applied
+  // $ExpectType 0
+  Jiimp.PNG_FILTER_NONE;
 
-// Constants should be applied from ill-formed plugins
-CustomJimp.displace(CustomJimp, 2);
+  // Core functions should still work from Jimp
+  Jiimp.read('Test');
 
-// Methods should be applied from well-formed plugins
-CustomJimp.resize(40, 40)
+  // Constants should be applied from ill-formed plugins
+  Jiimp.displace(Jiimp, 2);
 
-// Constants should be applied from well-formed plugins
-CustomJimp.RESIZE_NEAREST_NEIGHBOR
+  // Methods should be applied from well-formed plugins
+  Jiimp.resize(40, 40)
 
-// $ExpectError
-CustomJimp.test;
+  // Constants should be applied from well-formed plugins
+  Jiimp.RESIZE_NEAREST_NEIGHBOR
 
-// $ExpectError
-CustomJimp.func();
+  // $ExpectError
+  Jiimp.test;
+
+  // $ExpectError
+  Jiimp.func();
+});
 
 test('can compose', () => {
   const OtherCustomJimp = configure({
@@ -68,6 +95,31 @@ test('can compose', () => {
 
   // $ExpectError
   OtherCustomJimp.func();
+  
+  const Jiimp = new OtherCustomJimp('test');
+  // Methods from types should be applied
+  Jiimp.deflateLevel(4);
+  // Constants from types should be applied
+  // $ExpectType 0
+  Jiimp.PNG_FILTER_NONE;
+
+  // Core functions should still work from Jimp
+  Jiimp.read('Test');
+
+  // Constants should be applied from ill-formed plugins
+  Jiimp.displace(Jiimp, 2);
+
+  // Methods should be applied from well-formed plugins
+  Jiimp.resize(40, 40)
+
+  // Constants should be applied from well-formed plugins
+  Jiimp.RESIZE_NEAREST_NEIGHBOR
+
+  // $ExpectError
+  Jiimp.test;
+
+  // $ExpectError
+  Jiimp.func();
 });
 
 test('can handle only plugins', () => {
@@ -93,6 +145,26 @@ test('can handle only plugins', () => {
 
   // $ExpectError
   PluginsJimp.func();
+
+  const Jiimp = new PluginsJimp('test');
+  
+  // Core functions should still work from Jimp
+  Jiimp.read('Test');
+
+  // Constants should be applied from ill-formed plugins
+  Jiimp.displace(Jiimp, 2);
+
+  // Methods should be applied from well-formed plugins
+  Jiimp.resize(40, 40)
+
+  // Constants should be applied from well-formed plugins
+  Jiimp.RESIZE_NEAREST_NEIGHBOR
+
+  // $ExpectError
+  Jiimp.test;
+
+  // $ExpectError
+  Jiimp.func();
 })
 
 test('can handle only all types', () => {
@@ -103,7 +175,6 @@ test('can handle only all types', () => {
   // Methods from types should be applied
   TypesJimp.filterType(4);
   // Constants from types should be applied
-  // Commented for complexity errors
   // $ExpectType 0
   TypesJimp.PNG_FILTER_NONE;
 
@@ -112,6 +183,19 @@ test('can handle only all types', () => {
 
   // $ExpectError
   TypesJimp.func();
+
+  const Jiimp = new TypesJimp('test');
+  // Methods from types should be applied
+  Jiimp.filterType(4);
+  // Constants from types should be applied
+  // $ExpectType 0
+  Jiimp.PNG_FILTER_NONE;
+
+  // $ExpectError
+  Jiimp.test;
+
+  // $ExpectError
+  Jiimp.func();
 });
 
 test('can handle only one type', () => {
@@ -119,8 +203,11 @@ test('can handle only one type', () => {
     types: [png]
   });
 
+  // Constants from other types should be not applied
+  // $ExpectError
+  PngJimp.MIME_TIFF;
+
   // Constants from types should be applied
-  // Commented for complexity errors
   // $ExpectType 0
   PngJimp.PNG_FILTER_NONE;
   
@@ -129,24 +216,61 @@ test('can handle only one type', () => {
 
   // $ExpectError
   PngJimp.func();
+
+
+  const Jiimp = new PngJimp('test');
+  // Constants from other types should be not applied
+  // $ExpectError
+  Jiimp.MIME_TIFF;
+
+  // Constants from types should be applied
+  // $ExpectType 0
+  Jiimp.PNG_FILTER_NONE;
+
+  // $ExpectError
+  Jiimp.test;
+
+  // $ExpectError
+  Jiimp.func();
 });
 
 
 test('can handle only one plugin', () => {
-  const PngJimp = configure({
+  const ResizeJimp = configure({
     plugins: [resize]
   });
 
-  // Constants from types should be applied
-  // Commented for complexity errors
+  // Constants from other plugins should be not applied
+  // $ExpectError
+  ResizeJimp.FONT_SANS_8_BLACK;
+
+  // Constants from plugin should be applied
   // $ExpectType "nearestNeighbor"
-  PngJimp.RESIZE_NEAREST_NEIGHBOR;
+  ResizeJimp.RESIZE_NEAREST_NEIGHBOR;
 
-  PngJimp.resize(2, 2);
-
-  // $ExpectError
-  PngJimp.test;
+  ResizeJimp.resize(2, 2);
 
   // $ExpectError
-  PngJimp.func();
+  ResizeJimp.test;
+
+  // $ExpectError
+  ResizeJimp.func();
+
+
+  const Jiimp = new ResizeJimp('test');
+  // Constants from other plugins should be not applied
+  // $ExpectError
+  Jiimp.FONT_SANS_8_BLACK;
+
+  // Constants from plugin should be applied
+  // $ExpectType "nearestNeighbor"
+  Jiimp.RESIZE_NEAREST_NEIGHBOR;
+
+  Jiimp.resize(2, 2);
+
+  // $ExpectError
+  Jiimp.test;
+
+  // $ExpectError
+  Jiimp.func();
 });
