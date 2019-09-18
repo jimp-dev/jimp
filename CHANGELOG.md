@@ -1,3 +1,16 @@
+# v0.8.3 (Wed Sep 18 2019)
+
+#### 🐛  Bug Fix
+
+- `@jimp/core`, `@jimp/custom`, `jimp`
+  - Fix issues with typings using classes, publish @core typings, and fix 3.1 typings [#792](https://github.com/oliver-moran/jimp/pull/792) ([@crutchcorn](https://github.com/crutchcorn))
+
+#### Authors: 1
+
+- Corbin Crutchley ([@crutchcorn](https://github.com/crutchcorn))
+
+---
+
 # v0.8.2 (Fri Sep 13 2019)
 
 #### 🐛  Bug Fix
