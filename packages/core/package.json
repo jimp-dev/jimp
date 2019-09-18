@@ -9,7 +9,8 @@
     "dist",
     "es",
     "index.d.ts",
-    "fonts"
+    "fonts",
+    "types"
   ],
   "repository": {
     "type": "git",
