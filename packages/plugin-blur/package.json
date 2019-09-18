@@ -1,6 +1,6 @@
 {
   "name": "@jimp/plugin-blur",
-  "version": "0.8.2",
+  "version": "0.8.3",
   "description": "blur an image.",
   "main": "dist/index.js",
   "module": "es/index.js",
@@ -17,7 +17,7 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "@jimp/utils": "^0.8.2",
+    "@jimp/utils": "^0.8.3",
     "core-js": "^2.5.7"
   },
   "peerDependencies": {
