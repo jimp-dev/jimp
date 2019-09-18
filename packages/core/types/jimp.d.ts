@@ -77,7 +77,7 @@ export interface Jimp extends JimpConstructors {
   getExtension(): string;
   distanceFromHash(hash: string): number;
   write(path: string, cb?: ImageCallback): this;
-  writeAsync(path: string): Promise<Jimp>;
+  writeAsync(path: string): Promise<this>;
   rgba(bool: boolean, cb?: ImageCallback): this;
   getBase64(mime: string, cb: GenericCallback<string, any, this>): this;
   getBase64Async(mime: string): Promise<string>;
@@ -152,8 +152,8 @@ export interface Jimp extends JimpConstructors {
     name: string,
     test: (...args: T[]) => boolean,
     run: (
-      this: Jimp,
-      resolve: (jimp: Jimp) => any,
+      this: this,
+      resolve: (jimp: this) => any,
       reject: (reason: Error) => any,
       ...args: T[]
     ) => any

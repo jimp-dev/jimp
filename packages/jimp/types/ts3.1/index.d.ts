@@ -24,8 +24,12 @@ export { Bitmap, RGB, RGBA };
 
 export { FontChar, FontInfo, FontCommon, Font } from '@jimp/plugin-print';
 
-type Jimp = InstanceType<JimpType> & UnionToIntersection<GetPluginVal<Types> | GetPluginVal<Plugins>>;
+type IntersectedPluginTypes = UnionToIntersection<
+  GetPluginVal<Types> | GetPluginVal<Plugins>
+  >;
 
-declare const Jimp: JimpConstructors & Jimp;
+type Jimp = InstanceType<JimpType & ThisType<JimpType & IntersectedPluginTypes>> & ThisType<JimpType & IntersectedPluginTypes> & IntersectedPluginTypes;
+
+declare const Jimp: JimpConstructors & ThisType<JimpType & IntersectedPluginTypes> & Jimp;
 
 export default Jimp;

@@ -27,3 +27,11 @@ Jimp.test;
 
 // $ExpectError
 Jimp.func();
+
+test('can clone properly', async () => {
+  const baseImage = await Jimp.read('filename');
+  const finalImage = baseImage.clone()
+    .resize(1, 1)
+    .setPixelColor(0x00000000, 0, 0)
+    .resize(2, 2);  
+});
