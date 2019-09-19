@@ -26,10 +26,10 @@ export { FontChar, FontInfo, FontCommon, Font } from '@jimp/plugin-print';
 
 type IntersectedPluginTypes = UnionToIntersection<
   GetPluginVal<Types> | GetPluginVal<Plugins>
-  >;
+>;
 
-type Jimp = InstanceType<JimpType & ThisType<JimpType & IntersectedPluginTypes>> & ThisType<JimpType & IntersectedPluginTypes> & IntersectedPluginTypes;
+type Jimp = InstanceType<JimpType> & IntersectedPluginTypes;
 
-declare const Jimp: JimpConstructors & ThisType<JimpType & IntersectedPluginTypes> & Jimp;
+declare const Jimp: JimpConstructors & Jimp;
 
 export default Jimp;

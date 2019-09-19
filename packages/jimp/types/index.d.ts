@@ -1,29 +1,29 @@
 // TypeScript Version: 2.8
 
 
-declare const Jimp: Jimp;
+declare const DepreciatedJimp: DepreciatedJimp;
 
-export default Jimp;
+export default DepreciatedJimp;
 
 /**
  * @deprecated Jimp typings for TS <3.1 are being depreciated. Please upgrade your TypeScript version
  */
-interface Jimp {
+interface DepreciatedJimp {
   // Constructors
-  new(path: string, cb?: ImageCallback): Jimp;
-  new(urlOptions: URLOptions, cb?: ImageCallback): Jimp;
-  new(image: Jimp, cb?: ImageCallback): Jimp;
-  new(data: Buffer | Bitmap, cb?: ImageCallback): Jimp;
-  new(w: number, h: number, cb?: ImageCallback): Jimp;
+  new(path: string, cb?: ImageCallback): this;
+  new(urlOptions: URLOptions, cb?: ImageCallback): this;
+  new(image: DepreciatedJimp, cb?: ImageCallback): this;
+  new(data: Buffer | Bitmap, cb?: ImageCallback): this;
+  new(w: number, h: number, cb?: ImageCallback): this;
   new(
     w: number,
     h: number,
     background?: number | string,
     cb?: ImageCallback
-  ): Jimp;
+  ): this;
   // For custom constructors when using Jimp.appendConstructorOption
-  new(...args: any[]): Jimp;
-  prototype: Jimp;
+  new(...args: any[]): this;
+  prototype: this;
 
   // Constants
   AUTO: -1;
@@ -123,7 +123,7 @@ interface Jimp {
   getExtension(): string;
   distanceFromHash(hash: string): number;
   write(path: string, cb?: ImageCallback): this;
-  writeAsync(path: string): Promise<Jimp>;
+  writeAsync(path: string): Promise<this>;
   deflateLevel(l: number, cb?: ImageCallback): this;
   deflateStrategy(s: number, cb?: ImageCallback): this;
   colorType(s: number, cb?: ImageCallback): this;
@@ -187,7 +187,7 @@ interface Jimp {
     y: number,
     w: number,
     h: number
-  ): IterableIterator<{ x: number; y: number; idx: number; image: Jimp }>;
+  ): IterableIterator<{ x: number; y: number; idx: number; image: DepreciatedJimp }>;
   crop(x: number, y: number, w: number, h: number, cb?: ImageCallback): this;
   cropQuiet(
     x: number,
@@ -264,7 +264,7 @@ interface Jimp {
   scale(f: number, mode?: string, cb?: ImageCallback): this;
   scaleToFit(w: number, h: number, cb?: ImageCallback): this;
   scaleToFit(w: number, h: number, mode?: string, cb?: ImageCallback): this;
-  displace(map: Jimp, offset: number, cb?: ImageCallback): this;
+  displace(map: DepreciatedJimp, offset: number, cb?: ImageCallback): this;
   autocrop(tolerance?: number, cb?: ImageCallback): this;
   autocrop(cropOnlyFrames?: boolean, cb?: ImageCallback): this;
   autocrop(
@@ -321,15 +321,15 @@ interface Jimp {
   invert(cb?: ImageCallback): this;
   gaussian(r: number, cb?: ImageCallback): this;
   composite(
-    src: Jimp,
+    src: DepreciatedJimp,
     x: number,
     y: number,
     options?: BlendMode,
     cb?: ImageCallback
   ): this;
-  blit(src: Jimp, x: number, y: number, cb?: ImageCallback): this;
+  blit(src: DepreciatedJimp, x: number, y: number, cb?: ImageCallback): this;
   blit(
-    src: Jimp,
+    src: DepreciatedJimp,
     x: number,
     y: number,
     srcx: number,
@@ -338,46 +338,46 @@ interface Jimp {
     srch: number,
     cb?: ImageCallback
   ): this;
-  mask(src: Jimp, x: number, y: number, cb?: ImageCallback): this;
+  mask(src: this, x: number, y: number, cb?: ImageCallback): this;
 
   // Functions
   appendConstructorOption<T extends any[]>(
     name: string,
     test: (...args: T[]) => boolean,
     run: (
-      this: Jimp,
-      resolve: (jimp: Jimp) => any,
+      this: this,
+      resolve: (jimp: this) => any,
       reject: (reason: Error) => any,
       ...args: T[]
     ) => any
   ): void;
-  read(path: string): Promise<Jimp>;
-  read(image: Jimp): Promise<Jimp>;
-  read(data: Buffer): Promise<Jimp>;
-  read(w: number, h: number, background?: number | string): Promise<Jimp>;
-  create(path: string): Promise<Jimp>;
-  create(image: Jimp): Promise<Jimp>;
-  create(data: Buffer): Promise<Jimp>;
-  create(w: number, h: number, background?: number | string): Promise<Jimp>;
+  read(path: string): Promise<this>;
+  read(image: this): Promise<this>;
+  read(data: Buffer): Promise<this>;
+  read(w: number, h: number, background?: number | string): Promise<this>;
+  create(path: string): Promise<this>;
+  create(image: this): Promise<this>;
+  create(data: Buffer): Promise<this>;
+  create(w: number, h: number, background?: number | string): Promise<this>;
   rgbaToInt(
     r: number,
     g: number,
     b: number,
     a: number,
-    cb: GenericCallback<number, any, Jimp>
+    cb: GenericCallback<number, any, this>
   ): number;
   intToRGBA(i: number, cb?: GenericCallback<RGBA>): RGBA;
   cssColorToHex(cssColor: string): number;
   limit255(n: number): number;
   diff(
-    img1: Jimp,
-    img2: Jimp,
+    img1: this,
+    img2: this,
     threshold?: number
   ): {
     percent: number;
-    image: Jimp;
+    image: DepreciatedJimp;
   };
-  distance(img1: Jimp, img2: Jimp): number;
+  distance(img1: this, img2: this): number;
   compareHashes(hash1: string, hash2: string): number;
   colorDiff(rgba1: RGB, rgba2: RGB): number;
   colorDiff(rgba1: RGBA, rgba2: RGBA): number;
@@ -423,9 +423,9 @@ type GenericCallback<T, U = any, TThis = any> = (
 ) => U;
 
 type ImageCallback<U = any> = (
-  this: Jimp,
+  this: DepreciatedJimp,
   err: Error | null,
-  value: Jimp,
+  value: DepreciatedJimp,
   coords: {
     x: number;
     y: number;

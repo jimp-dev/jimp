@@ -28,23 +28,15 @@ Jimp.test;
 // $ExpectError
 Jimp.func();
 
-/**
- * FIXME: Enable the 3.1 typings again, this is the last part that needs
- *  fixing.
- *  
- *  3.1 typing can be fixed by adding the following to the package.json:
- "typesVersions": {
-    ">=3.1.0-0": {
-      "*": [
-        "types/ts3.1/index.d.ts"
-      ]
-    }
-  },
- */
 test('can clone properly', async () => {
   const baseImage = await Jimp.read('filename');
-  const finalImage = baseImage.clone()
+  const cloneBaseImage = baseImage.clone();
+
+  // $ExpectType -1
+  cloneBaseImage.PNG_FILTER_AUTO;
+
+  cloneBaseImage
     .resize(1, 1)
     .setPixelColor(0x00000000, 0, 0)
-    .resize(2, 2);
+    .resize(1, 1);
 });
