@@ -1,4 +1,4 @@
-import { Jimp, GenericCallback, ImageCallback } from '@jimp/core';
+import { GenericCallback, ImageCallback } from '@jimp/core';
 
 export interface FontChar {
   id: number;
@@ -69,7 +69,7 @@ interface PrintClass {
     x: number,
     y: number,
     text: PrintableText,
-    cb?: ImageCallback
+    cb?: ImageCallback<this>
   ): this;
   print(
     font: Font,
@@ -77,7 +77,7 @@ interface PrintClass {
     y: number,
     text: PrintableText,
     maxWidth?: number,
-    cb?: ImageCallback
+    cb?: ImageCallback<this>
   ): this;
   print(
     font: Font,
@@ -86,7 +86,7 @@ interface PrintClass {
     text: PrintableText,
     maxWidth?: number,
     maxHeight?: number,
-    cb?: ImageCallback
+    cb?: ImageCallback<this>
   ): this;
 }
 

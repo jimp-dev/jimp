@@ -1,14 +1,14 @@
-import { Jimp, DecoderFn, EncoderFn, ImageCallback } from '@jimp/core';
+import { DecoderFn, EncoderFn, ImageCallback } from '@jimp/core';
 
 interface PNGClass {
   _deflateLevel: number,
   _deflateStrategy: number,
   _filterType: number,
   _colorType: number,
-  deflateLevel(l: number, cb?: ImageCallback): this;
-  deflateStrategy(s: number, cb?: ImageCallback): this;
-  filterType(f: number, cb?: ImageCallback): this;
-  colorType(s: number, cb?: ImageCallback): this;
+  deflateLevel(l: number, cb?: ImageCallback<this>): this;
+  deflateStrategy(s: number, cb?: ImageCallback<this>): this;
+  filterType(f: number, cb?: ImageCallback<this>): this;
+  colorType(s: number, cb?: ImageCallback<this>): this;
 }
 
 interface PNG {

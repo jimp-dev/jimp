@@ -1,8 +1,8 @@
-import { Jimp, ImageCallback } from '@jimp/core';
+import { ImageCallback } from '@jimp/core';
 
 interface ResizeClass {
-  resize(w: number, h: number, cb?: ImageCallback): this;
-  resize(w: number, h: number, mode?: string, cb?: ImageCallback): this;
+  resize(w: number, h: number, cb?: ImageCallback<this>): this;
+  resize(w: number, h: number, mode?: string, cb?: ImageCallback<this>): this;
 }
 
 interface Resize {

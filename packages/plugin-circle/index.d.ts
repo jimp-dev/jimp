@@ -5,8 +5,8 @@ interface Circle {
     radius: number,
     x: number,
     y: number
-  }, cb?: ImageCallback): this;
-  circle(cb?: ImageCallback): this;
+  }, cb?: ImageCallback<this>): this;
+  circle(cb?: ImageCallback<this>): this;
 }
 
 export default function(): Circle;

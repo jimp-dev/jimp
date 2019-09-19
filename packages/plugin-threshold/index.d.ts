@@ -5,7 +5,7 @@ interface Threshold {
     max: number,
     replace?: number,
     autoGreyscale?: boolean
-  }, cb?: ImageCallback): this;
+  }, cb?: ImageCallback<this>): this;
 }
 
 export default function(): Threshold;

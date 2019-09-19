@@ -1,5 +1,4 @@
 import {
-  WellFormedPlugin,
   JimpType,
   JimpPlugin,
 } from './plugins';
