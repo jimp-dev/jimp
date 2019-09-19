@@ -13,6 +13,77 @@ const CustomJimp = configure({
   plugins: [displace, resize]
 });
 
+test('should function the same as the `jimp` types', () => {
+  const FullCustomJimp = configure({
+    types: [types],
+    plugins: [plugins]
+  });
+
+  const jimpInst = new FullCustomJimp('test');
+
+  // Main Jimp export should already have all of these already applied
+  jimpInst.read('Test');
+  jimpInst.displace(jimpInst, 2);
+  jimpInst.resize(40, 40);
+  // $ExpectType 0
+  jimpInst.PNG_FILTER_NONE;
+
+  // $ExpectError
+  jimpInst.test;
+
+  // $ExpectError
+  jimpInst.func();
+
+  // Main Jimp export should already have all of these already applied
+  FullCustomJimp.read('Test');
+  FullCustomJimp.displace(FullCustomJimp, 2);
+  FullCustomJimp.resize(40, 40);
+  // $ExpectType 0
+  FullCustomJimp.PNG_FILTER_NONE;
+
+  // $ExpectError
+  FullCustomJimp.test;
+
+  // $ExpectError
+  FullCustomJimp.func();
+
+  test('can clone properly', async () => {
+    const baseImage = await FullCustomJimp.read('filename');
+    const cloneBaseImage = baseImage.clone();
+
+    // $ExpectType -1
+    cloneBaseImage.PNG_FILTER_AUTO;
+
+    test('can handle `this` returns properly', () => {
+      cloneBaseImage
+        .resize(1, 1)
+        .crop(0, 0, 0, 0)
+        .mask(cloneBaseImage, 2, 2)
+        .print('a' as any, 2, 2, 'a' as any)
+        .resize(1, 1)
+        .quality(1)
+        .deflateLevel(2)
+        .PNG_FILTER_AUTO;
+    });
+
+    test('can handle imageCallbacks `this` properly', () => {
+      cloneBaseImage.rgba(false, (_, jimpCBIn) => {
+        jimpCBIn.read('Test');
+        jimpCBIn.displace(jimpInst, 2);
+        jimpCBIn.resize(40, 40);
+        // $ExpectType 0
+        jimpCBIn.PNG_FILTER_NONE;
+
+        // $ExpectError
+        jimpCBIn.test;
+
+        // $ExpectError
+        jimpCBIn.func();
+      })
+    })
+  });
+});
+
 test('can handle custom jimp', () => {
   // Methods from types should be applied
   CustomJimp.deflateLevel(4);

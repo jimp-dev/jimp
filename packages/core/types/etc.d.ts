@@ -27,7 +27,7 @@ export type ImageCallback<jimp = Jimp> = (
     x: number;
     y: number;
   }
-) => jimp;
+) => any;
 
 type BlendMode = {
   mode: string;
