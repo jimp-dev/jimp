@@ -10,16 +10,16 @@ import {
   RGB
 } from './etc';
 
-interface DiffReturn {
+interface DiffReturn<This> {
   percent: number;
-  image: this;
+  image: This;
 }
 
-interface ScanIteratorReturn {
+interface ScanIteratorReturn<This> {
   x: number;
   y: number;
   idx: number;
-  image: this;
+  image: This;
 }
 
 export interface JimpConstructors {
@@ -148,7 +148,7 @@ export interface Jimp extends JimpConstructors {
     y: number,
     w: number,
     h: number
-  ): IterableIterator<ScanIteratorReturn>;
+  ): IterableIterator<ScanIteratorReturn<this>>;
 
   // Effect methods
   composite(
@@ -192,7 +192,7 @@ export interface Jimp extends JimpConstructors {
     img1: Jimp,
     img2: Jimp,
     threshold?: number
-  ): DiffReturn;
+  ): DiffReturn<this>;
   distance(img1: Jimp, img2: Jimp): number;
   compareHashes(hash1: string, hash2: string): number;
   colorDiff(rgba1: RGB, rgba2: RGB): number;

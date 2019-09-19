@@ -54,6 +54,11 @@ test('should function the same as the `jimp` types', () => {
     // $ExpectType -1
     cloneBaseImage.PNG_FILTER_AUTO;
 
+    test('can handle `this` returns on the core type properly', () => {
+      // $ExpectType -1
+      cloneBaseImage.diff(jimpInst, jimpInst).image.PNG_FILTER_AUTO
+    });
+
     test('can handle `this` returns properly', () => {
       cloneBaseImage
         .resize(1, 1)
