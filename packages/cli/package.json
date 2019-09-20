@@ -20,15 +20,14 @@
     "@jimp/custom": "^0.8.4",
     "chalk": "^2.4.1",
     "jimp": "^0.8.4",
-    "log-symbols": "^2.2.0",
+    "log-symbols": "^3.0.0",
     "yargs": "^12.0.2"
   },
   "publishConfig": {
     "access": "public"
   },
   "devDependencies": {
-    "@types/log-symbols": "^2.0.0",
-    "@types/mocha": "^5.2.5",
+    "@types/mocha": "^5.2.7",
     "@types/yargs": "^11.1.1",
     "ts-node": "^7.0.1",
     "typescript": "^3.1.3"
