@@ -34,20 +34,30 @@ const httpHandler = (req, res) => {
 
 const httpServer = http.createServer(httpHandler);
 describe('redirect', function() {
-  before(function() {
-    httpServer.listen(5136);
-  });
+  if (
+    process.browser ||
+    process.env.ENVIRONMENT === 'BROWSER' ||
+    (typeof process.versions.electron !== 'undefined' &&
+      process.type === 'renderer' &&
+      typeof XMLHttpRequest === 'function')
+  ) {
+    xit('Not testing redirects in browser');
+  } else {
+    before(function() {
+      httpServer.listen(5136);
+    });
 
-  it('follows 301 redirect', function(done) {
-    jimp
-      .read('http://localhost:5136/redirect.png')
-      .then(() => {
-        httpServer.close();
-        done();
-      })
-      .catch(error => {
-        httpServer.close();
-        done(error);
-      });
-  });
+    it('follows 301 redirect', function(done) {
+      jimp
+        .read('http://localhost:5136/redirect.png')
+        .then(() => {
+          httpServer.close();
+          done();
+        })
+        .catch(error => {
+          httpServer.close();
+          done(error);
+        });
+    });
+  }
 });
