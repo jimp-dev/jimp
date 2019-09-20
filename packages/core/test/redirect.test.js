@@ -34,13 +34,7 @@ const httpHandler = (req, res) => {
 
 const httpServer = http.createServer(httpHandler);
 describe('redirect', function() {
-  if (
-    process.browser ||
-    process.env.ENVIRONMENT === 'BROWSER' ||
-    (typeof process.versions.electron !== 'undefined' &&
-      process.type === 'renderer' &&
-      typeof XMLHttpRequest === 'function')
-  ) {
+  if (typeof window !== 'undefined' && typeof window.document !== 'undefined') {
     xit('Not testing redirects in browser');
   } else {
     before(function() {
