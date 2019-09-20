@@ -1,6 +1,6 @@
 {
   "name": "jimp",
-  "version": "0.8.3",
+  "version": "0.8.4",
   "description": "An image processing library written entirely in JavaScript (i.e. zero external or native dependencies)",
   "main": "dist/index.js",
   "module": "es/index.js",
@@ -59,14 +59,14 @@
   "author": "Oliver Moran <oliver.moran@gmail.com>",
   "license": "MIT",
   "dependencies": {
-    "@jimp/custom": "^0.8.3",
-    "@jimp/plugins": "^0.8.3",
-    "@jimp/types": "^0.8.3",
+    "@jimp/custom": "^0.8.4",
+    "@jimp/plugins": "^0.8.4",
+    "@jimp/types": "^0.8.4",
     "core-js": "^2.5.7",
     "regenerator-runtime": "^0.13.3"
   },
   "devDependencies": {
-    "@jimp/test-utils": "^0.8.3",
+    "@jimp/test-utils": "^0.8.4",
     "babelify": "^10.0.0",
     "browserify": "^16.2.2",
     "envify": "^4.1.0",

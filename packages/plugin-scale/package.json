@@ -1,6 +1,6 @@
 {
   "name": "@jimp/plugin-scale",
-  "version": "0.8.3",
+  "version": "0.8.4",
   "description": "scale an image.",
   "main": "dist/index.js",
   "module": "es/index.js",
@@ -17,7 +17,7 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "@jimp/utils": "^0.8.3",
+    "@jimp/utils": "^0.8.4",
     "core-js": "^2.5.7"
   },
   "peerDependencies": {
