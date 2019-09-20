@@ -1,6 +1,8 @@
 import { Jimp as jimp, getTestDir } from '@jimp/test-utils';
+
 const fs = require('fs');
 const http = require('http');
+
 const imagesDir = getTestDir(__dirname) + '/images';
 
 const httpHandler = (req, res) => {
@@ -12,10 +14,11 @@ const httpHandler = (req, res) => {
             Location: 'http://localhost:5136/corrected.png'
           });
           res.end();
+          break;
         case '/corrected.png':
-          const img = fs.readFileSync(imagesDir + '/pixel.png');
           res.writeHead(200, { 'Content-Type': 'image/png' });
-          res.end(img, 'binary');
+          res.end(fs.readFileSync(imagesDir + '/pixel.png'), 'binary');
+          break;
         default:
           res.writeHead(404);
           res.end('Not a valid test endpoint');
@@ -35,18 +38,16 @@ describe('redirect', function() {
     httpServer.listen(5136);
   });
 
-  after(function() {
-    httpServer.close();
-  });
-
   it('follows 301 redirect', function(done) {
     jimp
       .read('http://localhost:5136/redirect.png')
-      .then(image => {
+      .then(() => {
+        httpServer.close();
         done();
       })
-      .catch(err => {
-        done(err);
+      .catch(error => {
+        httpServer.close();
+        done(error);
       });
   });
 });
