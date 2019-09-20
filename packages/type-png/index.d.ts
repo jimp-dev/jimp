@@ -1,6 +1,17 @@
-import { Jimp, DecoderFn, EncoderFn, ImageCallback } from '@jimp/core';
+import { DecoderFn, EncoderFn, ImageCallback } from '@jimp/core';
 
-interface PNG<This = Jimp> {
+interface PNGClass {
+  _deflateLevel: number,
+  _deflateStrategy: number,
+  _filterType: number,
+  _colorType: number,
+  deflateLevel(l: number, cb?: ImageCallback<this>): this;
+  deflateStrategy(s: number, cb?: ImageCallback<this>): this;
+  filterType(f: number, cb?: ImageCallback<this>): this;
+  colorType(s: number, cb?: ImageCallback<this>): this;
+}
+
+interface PNG {
 
   mime: { 'image/png': string[] },
 
@@ -13,16 +24,8 @@ interface PNG<This = Jimp> {
     'image/png': EncoderFn
   }
 
-  class: {
-    _deflateLevel: number,
-    _deflateStrategy: number,
-    _filterType: number,
-    _colorType: number,
-    deflateLevel(l: number, cb?: ImageCallback): This;
-    deflateStrategy(s: number, cb?: ImageCallback): This;
-    filterType(f: number, cb?: ImageCallback): This;
-    colorType(s: number, cb?: ImageCallback): This;
-  }
+  class: PNGClass
+  
   constants: {
     MIME_PNG: 'image/png';
     // PNG filter types

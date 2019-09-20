@@ -1,7 +1,7 @@
-import { IllformedPlugin, ImageCallback, Jimp } from '@jimp/core';
+import { ImageCallback, Jimp } from '@jimp/core';
 
 interface Mask {
-  mask(src: Jimp, x: number, y: number, cb?: ImageCallback): this;
+  mask(src: Jimp, x: number, y: number, cb?: ImageCallback<this>): this;
 }
 
 export default function(): Mask;

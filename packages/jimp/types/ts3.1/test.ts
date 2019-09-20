@@ -28,23 +28,43 @@ Jimp.test;
 // $ExpectError
 Jimp.func();
 
-/**
- * FIXME: Enable the 3.1 typings again, this is the last part that needs
- *  fixing.
- *  
- *  3.1 typing can be fixed by adding the following to the package.json:
- "typesVersions": {
-    ">=3.1.0-0": {
-      "*": [
-        "types/ts3.1/index.d.ts"
-      ]
-    }
-  },
- */
 test('can clone properly', async () => {
   const baseImage = await Jimp.read('filename');
-  const finalImage = baseImage.clone()
-    .resize(1, 1)
-    .setPixelColor(0x00000000, 0, 0)
-    .resize(2, 2);
+  const cloneBaseImage = baseImage.clone();
+
+  // $ExpectType -1
+  cloneBaseImage.PNG_FILTER_AUTO;
+
+  test('can handle `this` returns on the core type properly', () => {
+    // $ExpectType -1
+    cloneBaseImage.diff(jimpInst, jimpInst).image.PNG_FILTER_AUTO
+  });
+  
+  test('can handle `this` returns properly', () => {
+    cloneBaseImage
+      .resize(1, 1)
+      .crop(0, 0, 0, 0)
+      .mask(cloneBaseImage, 2, 2)
+      .print('a' as any, 2, 2, 'a' as any)
+      .resize(1, 1)
+      .quality(1)
+      .deflateLevel(2)
+      .PNG_FILTER_AUTO;
+  });
+  
+  test('can handle imageCallbacks `this` properly', () => {
+    cloneBaseImage.rgba(false, (_, jimpCBIn) => {
+      jimpCBIn.read('Test');
+      jimpCBIn.displace(jimpInst, 2);
+      jimpCBIn.resize(40, 40);
+      // $ExpectType 0
+      jimpCBIn.PNG_FILTER_NONE;
+
+      // $ExpectError
+      jimpCBIn.test;
+
+      // $ExpectError
+      jimpCBIn.func();
+    })
+  })
 });

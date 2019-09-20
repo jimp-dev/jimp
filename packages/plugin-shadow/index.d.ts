@@ -7,8 +7,8 @@ interface Shadow {
            x?: number,
            y?: number
          },
-         cb?: ImageCallback): this;
-  shadow(cb?: ImageCallback): this;
+         cb?: ImageCallback<this>): this;
+  shadow(cb?: ImageCallback<this>): this;
 }
 
 export default function(): Shadow;

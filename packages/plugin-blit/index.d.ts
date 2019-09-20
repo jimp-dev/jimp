@@ -1,7 +1,7 @@
-import { Jimp, ImageCallback, IllformedPlugin } from '@jimp/core';
+import { Jimp, ImageCallback } from '@jimp/core';
 
 interface Blit {
-  blit(src: Jimp, x: number, y: number, cb?: ImageCallback): this;
+  blit(src: Jimp, x: number, y: number, cb?: ImageCallback<this>): this;
   blit(
     src: Jimp,
     x: number,
@@ -10,7 +10,7 @@ interface Blit {
     srcy: number,
     srcw: number,
     srch: number,
-    cb?: ImageCallback
+    cb?: ImageCallback<this>
   ): this;
 }
 

@@ -10,18 +10,30 @@ import {
   RGB
 } from './etc';
 
+interface DiffReturn<This> {
+  percent: number;
+  image: This;
+}
+
+interface ScanIteratorReturn<This> {
+  x: number;
+  y: number;
+  idx: number;
+  image: This;
+}
+
 export interface JimpConstructors {
-  new(path: string, cb?: ImageCallback): this;
-  new(urlOptions: URLOptions, cb?: ImageCallback): this;
-  new(image: Jimp, cb?: ImageCallback): this;
-  new(data: Buffer, cb?: ImageCallback): this;
-  new(data: Bitmap, cb?: ImageCallback): this;
-  new(w: number, h: number, cb?: ImageCallback): this;
+  new(path: string, cb?: ImageCallback<this>): this;
+  new(urlOptions: URLOptions, cb?: ImageCallback<this>): this;
+  new(image: Jimp, cb?: ImageCallback<this>): this;
+  new(data: Buffer, cb?: ImageCallback<this>): this;
+  new(data: Bitmap, cb?: ImageCallback<this>): this;
+  new(w: number, h: number, cb?: ImageCallback<this>): this;
   new(
     w: number,
     h: number,
     background?: number | string,
-    cb?: ImageCallback
+    cb?: ImageCallback<this>
   ): this;
   // For custom constructors when using Jimp.appendConstructorOption
   new(...args: any[]): this;
@@ -66,7 +78,7 @@ export interface Jimp extends JimpConstructors {
   parseBitmap(
     data: Buffer,
     path: string | null | undefined,
-    cb?: ImageCallback
+    cb?: ImageCallback<this>
   ): void;
   hasAlpha(): boolean;
   getHeight(): number;
@@ -76,9 +88,9 @@ export interface Jimp extends JimpConstructors {
   getMIME(): string;
   getExtension(): string;
   distanceFromHash(hash: string): number;
-  write(path: string, cb?: ImageCallback): this;
+  write(path: string, cb?: ImageCallback<this>): this;
   writeAsync(path: string): Promise<this>;
-  rgba(bool: boolean, cb?: ImageCallback): this;
+  rgba(bool: boolean, cb?: ImageCallback<this>): this;
   getBase64(mime: string, cb: GenericCallback<string, any, this>): this;
   getBase64Async(mime: string): Promise<string>;
   hash(cb?: GenericCallback<string, any, this>): string;
@@ -109,19 +121,19 @@ export interface Jimp extends JimpConstructors {
     y: number,
     cb?: GenericCallback<number, any, this>
   ): number;
-  setPixelColor(hex: number, x: number, y: number, cb?: ImageCallback): this;
-  setPixelColour(hex: number, x: number, y: number, cb?: ImageCallback): this;
-  clone(cb?: ImageCallback): this;
-  cloneQuiet(cb?: ImageCallback): this;
-  background(hex: number, cb?: ImageCallback): this;
-  backgroundQuiet(hex: number, cb?: ImageCallback): this;
+  setPixelColor(hex: number, x: number, y: number, cb?: ImageCallback<this>): this;
+  setPixelColour(hex: number, x: number, y: number, cb?: ImageCallback<this>): this;
+  clone(cb?: ImageCallback<this>): this;
+  cloneQuiet(cb?: ImageCallback<this>): this;
+  background(hex: number, cb?: ImageCallback<this>): this;
+  backgroundQuiet(hex: number, cb?: ImageCallback<this>): this;
   scan(
     x: number,
     y: number,
     w: number,
     h: number,
     f: (this: this, x: number, y: number, idx: number) => any,
-    cb?: ImageCallback
+    cb?: ImageCallback<this>
   ): this;
   scanQuiet(
     x: number,
@@ -129,14 +141,14 @@ export interface Jimp extends JimpConstructors {
     w: number,
     h: number,
     f: (this: this, x: number, y: number, idx: number) => any,
-    cb?: ImageCallback
+    cb?: ImageCallback<this>
   ): this;
   scanIterator(
     x: number,
     y: number,
     w: number,
     h: number
-  ): IterableIterator<{ x: number; y: number; idx: number; image: Jimp }>;
+  ): IterableIterator<ScanIteratorReturn<this>>;
 
   // Effect methods
   composite(
@@ -144,7 +156,7 @@ export interface Jimp extends JimpConstructors {
     x: number,
     y: number,
     options?: BlendMode,
-    cb?: ImageCallback
+    cb?: ImageCallback<this>
   ): this;
 
   // Functions
@@ -180,10 +192,7 @@ export interface Jimp extends JimpConstructors {
     img1: Jimp,
     img2: Jimp,
     threshold?: number
-  ): {
-    percent: number;
-    image: Jimp;
-  };
+  ): DiffReturn<this>;
   distance(img1: Jimp, img2: Jimp): number;
   compareHashes(hash1: string, hash2: string): number;
   colorDiff(rgba1: RGB, rgba2: RGB): number;

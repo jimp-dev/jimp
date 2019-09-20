@@ -1,6 +1,12 @@
-import { Jimp, DecoderFn, EncoderFn, ImageCallback } from '@jimp/core';
+import { DecoderFn, EncoderFn, ImageCallback } from '@jimp/core';
 
-interface Jpeg<This = Jimp> {
+interface JpegClass {
+  MIME_JPEG: 'image/jpeg';
+  _quality: number;
+  quality: (n: number, cb?: ImageCallback<this>) => this;
+}
+
+interface Jpeg {
   mime: { 'image/jpeg': string[] },
 
   constants: {
@@ -15,11 +21,7 @@ interface Jpeg<This = Jimp> {
     'image/jpeg': DecoderFn
   }
 
-  class: {
-    MIME_JPEG: 'image/jpeg';
-    _quality: number;
-    quality: (n: number, cb?: ImageCallback) => This;
-  }
+  class: JpegClass
 }
 
 export default function(): Jpeg;

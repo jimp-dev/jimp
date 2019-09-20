@@ -1,4 +1,4 @@
-import { Jimp, GenericCallback, ImageCallback } from '@jimp/core';
+import { GenericCallback, ImageCallback } from '@jimp/core';
 
 export interface FontChar {
   id: number;
@@ -62,7 +62,35 @@ type PrintableText =
   alignmentY: number;
 };
 
-interface Print<This = Jimp> {
+interface PrintClass {
+  // Text methods
+  print(
+    font: Font,
+    x: number,
+    y: number,
+    text: PrintableText,
+    cb?: ImageCallback<this>
+  ): this;
+  print(
+    font: Font,
+    x: number,
+    y: number,
+    text: PrintableText,
+    maxWidth?: number,
+    cb?: ImageCallback<this>
+  ): this;
+  print(
+    font: Font,
+    x: number,
+    y: number,
+    text: PrintableText,
+    maxWidth?: number,
+    maxHeight?: number,
+    cb?: ImageCallback<this>
+  ): this;
+}
+
+interface Print {
   constants: {
     measureText(font: Font, text: PrintableText): number;
     measureTextHeight(font: Font, text: PrintableText, maxWidth: number): number;
@@ -87,33 +115,7 @@ interface Print<This = Jimp> {
     loadFont(file: string, cb: GenericCallback<Font, any, any>): Promise<never>;
   }
 
-  class: {
-    // Text methods
-    print(
-      font: Font,
-      x: number,
-      y: number,
-      text: PrintableText,
-      cb?: ImageCallback
-    ): This;
-    print(
-      font: Font,
-      x: number,
-      y: number,
-      text: PrintableText,
-      maxWidth?: number,
-      cb?: ImageCallback
-    ): This;
-    print(
-      font: Font,
-      x: number,
-      y: number,
-      text: PrintableText,
-      maxWidth?: number,
-      maxHeight?: number,
-      cb?: ImageCallback
-    ): This;
-  }
+  class: PrintClass
 }
 
 export default function(): Print;

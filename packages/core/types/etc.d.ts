@@ -15,15 +15,19 @@ export type GenericCallback<T, U = any, TThis = any> = (
   value: T
 ) => U;
 
-export type ImageCallback<U = any> = (
-  this: Jimp,
+/**
+ * `jimp` must be defined otherwise `this` will not apply properly
+ * for custom configurations where plugins and types are needed
+ */
+export type ImageCallback<jimp = Jimp> = (
+  this: jimp,
   err: Error | null,
-  value: Jimp,
+  value: jimp,
   coords: {
     x: number;
     y: number;
   }
-) => U;
+) => any;
 
 type BlendMode = {
   mode: string;
