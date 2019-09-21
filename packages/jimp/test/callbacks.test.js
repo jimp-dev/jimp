@@ -279,6 +279,7 @@ describe('Callbacks', () => {
         image.getJGDSync().should.be.sameJGD(result);
         done();
       }
+
       targetImg.clone()[op](...args.concat(save));
     });
   }

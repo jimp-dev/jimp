@@ -199,6 +199,7 @@ describe('Blit over image', function() {
         imgHeight
       );
     }
+
     newImage.blit(
       head,
       butt.bitmap.width + fuzz.bitmap.width * longCat,

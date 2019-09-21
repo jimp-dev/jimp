@@ -18,6 +18,7 @@ function Resize(
   this.interpolationPass = Boolean(interpolationPass);
   this.resizeCallback =
     typeof resizeCallback === 'function' ? resizeCallback : function() {};
+
   this.targetWidthMultipliedByChannels = this.targetWidth * this.colorChannels;
   this.originalWidthMultipliedByChannels =
     this.widthOriginal * this.colorChannels;
@@ -63,6 +64,7 @@ Resize.prototype.configurePasses = function() {
         this.colorChannels === 4 ? this.resizeWidthRGBA : this.resizeWidthRGB;
     }
   }
+
   if (this.heightOriginal === this.targetHeight) {
     // Bypass the height resizer pass:
     this.resizeHeight = this.bypassResizer;
@@ -114,6 +116,7 @@ Resize.prototype._resizeWidthInterpolatedRGBChannels = function(
         outputBuffer[finalOffset + 3] = buffer[pixelOffset + 3];
     }
   }
+
   // Adjust for overshoot of the last pass's counter:
   weight -= 1 / 3;
   let interpolationWidthSourceReadStop;
@@ -234,6 +237,7 @@ Resize.prototype._resizeWidthRGBChannels = function(buffer, fourthChannel) {
           trustworthyColorsCount[line / channelsNum - 1] += a ? multiplier : 0;
         }
       }
+
       if (weight >= amountToNext) {
         actualPosition += channelsNum;
         currentPosition = actualPosition;
@@ -267,6 +271,7 @@ Resize.prototype._resizeWidthRGBChannels = function(buffer, fourthChannel) {
 
     outputOffset += channelsNum;
   } while (outputOffset < this.targetWidthMultipliedByChannels);
+
   return outputBuffer;
 };
 
@@ -442,6 +447,7 @@ Resize.prototype.resizeHeightInterpolated = function(buffer) {
       );
     }
   }
+
   // Handle for only one interpolation input being valid for end calculation:
   while (finalOffset < this.finalResultSize) {
     for (
@@ -457,6 +463,7 @@ Resize.prototype.resizeHeightInterpolated = function(buffer) {
       );
     }
   }
+
   return outputBuffer;
 };
 

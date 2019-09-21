@@ -62,6 +62,7 @@ module.exports = {
       if (kMin === kMax) {
         return vMin;
       }
+
       return Math.round((k - kMin) * vMax + (kMax - k) * vMin);
     };
 
@@ -244,6 +245,7 @@ module.exports = {
         Math.min(255, a0 * (t * t * t) + a1 * (t * t) + a2 * t + a3)
       );
     };
+
     return this._interpolate2D(src, dst, options, interpolateCubic);
   },
 
@@ -258,6 +260,7 @@ module.exports = {
         Math.min(255, Math.round(((c3 * t + c2) * t + c1) * t + c0))
       );
     };
+
     return this._interpolate2D(src, dst, options, interpolateHermite);
   },
 
@@ -284,6 +287,7 @@ module.exports = {
       const c3 = x2 * t * t * t;
       return Math.max(0, Math.min(255, Math.round(c0 + c1 + c2 + c3)));
     };
+
     return this._interpolate2D(src, dst, options, interpolateBezier);
   }
 };

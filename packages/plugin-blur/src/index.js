@@ -113,6 +113,7 @@ export default () => ({
 
           yi++;
         }
+
         yw += this.bitmap.width << 2;
       }
 

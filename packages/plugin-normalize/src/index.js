@@ -1,5 +1,3 @@
-/* eslint-disable no-labels */
-
 import { isNodePattern } from '@jimp/utils';
 
 /**
