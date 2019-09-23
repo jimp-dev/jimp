@@ -63,7 +63,11 @@ If you're using this library with TypeScript the method of importing slightly di
 import Jimp from 'jimp';
 ```
 
-**Note**: This change in import does not change the runtime behavior of your code at all.
+This requires setting the `allowSyntheticDefaultImports` compiler option to `true` in your `tsconfig`
+
+**Note 1**: `esModuleInterop` implicitly sets `allowSyntheticDefaultImports` to `true`
+
+**Note 2**: `allowSyntheticDefaultImports` nor `esModuleInterop` change the runtime behavior of your code at all. They are just flags that tells TypeScript you need the compatibility they offer.
 
 ## Module Build
 
