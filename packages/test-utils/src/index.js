@@ -20,7 +20,7 @@ export function getTestDir(dir) {
     document &&
     document.getElementsByTagName
   ) {
-    const scripts = document.getElementsByTagName('script');
+    const scripts = document.querySelectorAll('script');
 
     const testScript = [...scripts].find(
       script => script.src.match(testRE) && script.src.includes(dir)
@@ -275,6 +275,7 @@ export function mkJGD(...args) {
       }
     }
   }
+
   return jgd;
 }
 
@@ -293,5 +294,6 @@ export function jgdToStr(jgd) {
       lines[y] += k;
     }
   }
+
   return lines.map(l => "'" + l + "'").join('\n');
 }

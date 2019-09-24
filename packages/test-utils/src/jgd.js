@@ -45,6 +45,7 @@ function decode(jgd) {
   for (let i = 0; i < length; i++) {
     bitmap.data.writeUInt32BE(jgd.data[i], i * 4);
   }
+
   return bitmap;
 }
 

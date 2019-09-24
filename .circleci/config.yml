@@ -10,16 +10,6 @@ jobs:
     <<: *defaults
     steps:
       - checkout
-      - restore_cache:
-          keys:
-            # Find a cache corresponding to this specific package.json checksum
-            # when this file is changed, this key will fail
-            - jimp-{{ .Branch }}-{{ checksum "yarn.lock" }}-{{ checksum ".circleci/config.yml" }}
-            - jimp-{{ .Branch }}-{{ checksum "yarn.lock" }}
-            - jimp-{{ .Branch }}
-            # Find the most recent cache used from any branch
-            - jimp-master
-            - jimp-
       - run:
           name: Install Dependencies
           command: yarn install --frozen-lockfile

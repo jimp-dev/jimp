@@ -14,6 +14,7 @@ function applyKernel(im, kernel, x, y) {
       value[2] += im.bitmap.data[idx + 2] * kernel[kx][ky];
     }
   }
+
   return value;
 }
 

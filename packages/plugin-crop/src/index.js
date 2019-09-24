@@ -143,6 +143,7 @@ export default function pluginCrop(event) {
               break north;
             }
           }
+
           // this row contains all pixels with the same color: increment this side pixels to crop
           northPixelsToCrop++;
         }
@@ -159,6 +160,7 @@ export default function pluginCrop(event) {
               break east;
             }
           }
+
           // this column contains all pixels with the same color: increment this side pixels to crop
           eastPixelsToCrop++;
         }
@@ -179,6 +181,7 @@ export default function pluginCrop(event) {
               break south;
             }
           }
+
           // this row contains all pixels with the same color: increment this side pixels to crop
           southPixelsToCrop++;
         }
@@ -199,6 +202,7 @@ export default function pluginCrop(event) {
               break west;
             }
           }
+
           // this column contains all pixels with the same color: increment this side pixels to crop
           westPixelsToCrop++;
         }

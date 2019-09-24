@@ -1,5 +1,3 @@
-/* eslint-disable no-control-regex */
-
 import fs from 'fs';
 import should from 'should';
 import { Jimp, getTestDir } from '@jimp/test-utils';

@@ -584,6 +584,7 @@ describe('Resize images', () => {
         for (let i = 0; i < imgsJimp.length; i++) {
           testImages[i].src = imgsJimp[i];
         }
+
         done();
       })
       .catch(done);

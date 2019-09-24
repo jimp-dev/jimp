@@ -1125,6 +1125,7 @@ export function jimpEvMethod(methodName, evName, method) {
 
         cb.apply(this, args);
       };
+
       args[args.length - 1] = wrappedCb;
     } else {
       wrappedCb = false;

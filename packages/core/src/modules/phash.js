@@ -45,23 +45,24 @@ ImagePHash.prototype.distance = function(s1, s2) {
       counter++;
     }
   }
+
   return counter / s1.length;
 };
 
 // Returns a 'binary string' (like. 001010111011100010) which is easy to do a hamming distance on.
 ImagePHash.prototype.getHash = function(img) {
   /* 1. Reduce size.
-     * Like Average Hash, pHash starts with a small image.
-     * However, the image is larger than 8x8; 32x32 is a good size.
-     * This is really done to simplify the DCT computation and not
-     * because it is needed to reduce the high frequencies.
-     */
+   * Like Average Hash, pHash starts with a small image.
+   * However, the image is larger than 8x8; 32x32 is a good size.
+   * This is really done to simplify the DCT computation and not
+   * because it is needed to reduce the high frequencies.
+   */
   img = img.clone().resize(this.size, this.size);
 
   /* 2. Reduce color.
-     * The image is reduced to a grayscale just to further simplify
-     * the number of computations.
-     */
+   * The image is reduced to a grayscale just to further simplify
+   * the number of computations.
+   */
   img.grayscale();
 
   const vals = [];
@@ -74,23 +75,23 @@ ImagePHash.prototype.getHash = function(img) {
   }
 
   /* 3. Compute the DCT.
-     * The DCT separates the image into a collection of frequencies
-     * and scalars. While JPEG uses an 8x8 DCT, this algorithm uses
-     * a 32x32 DCT.
-     */
+   * The DCT separates the image into a collection of frequencies
+   * and scalars. While JPEG uses an 8x8 DCT, this algorithm uses
+   * a 32x32 DCT.
+   */
   const dctVals = applyDCT(vals, this.size);
 
   /* 4. Reduce the DCT.
-     * This is the magic step. While the DCT is 32x32, just keep the
-     * top-left 8x8. Those represent the lowest frequencies in the
-     * picture.
-     */
+   * This is the magic step. While the DCT is 32x32, just keep the
+   * top-left 8x8. Those represent the lowest frequencies in the
+   * picture.
+   */
   /* 5. Compute the average value.
-     * Like the Average Hash, compute the mean DCT value (using only
-     * the 8x8 DCT low-frequency values and excluding the first term
-     * since the DC coefficient can be significantly different from
-     * the other values and will throw off the average).
-     */
+   * Like the Average Hash, compute the mean DCT value (using only
+   * the 8x8 DCT low-frequency values and excluding the first term
+   * since the DC coefficient can be significantly different from
+   * the other values and will throw off the average).
+   */
   let total = 0;
 
   for (let x = 0; x < this.smallerSize; x++) {
@@ -102,15 +103,15 @@ ImagePHash.prototype.getHash = function(img) {
   const avg = total / (this.smallerSize * this.smallerSize);
 
   /* 6. Further reduce the DCT.
-     * This is the magic step. Set the 64 hash bits to 0 or 1
-     * depending on whether each of the 64 DCT values is above or
-     * below the average value. The result doesn't tell us the
-     * actual low frequencies; it just tells us the very-rough
-     * relative scale of the frequencies to the mean. The result
-     * will not vary as long as the overall structure of the image
-     * remains the same; this can survive gamma and color histogram
-     * adjustments without a problem.
-     */
+   * This is the magic step. Set the 64 hash bits to 0 or 1
+   * depending on whether each of the 64 DCT values is above or
+   * below the average value. The result doesn't tell us the
+   * actual low frequencies; it just tells us the very-rough
+   * relative scale of the frequencies to the mean. The result
+   * will not vary as long as the overall structure of the image
+   * remains the same; this can survive gamma and color histogram
+   * adjustments without a problem.
+   */
   let hash = '';
 
   for (let x = 0; x < this.smallerSize; x++) {
@@ -169,6 +170,7 @@ function applyDCT(f, size) {
             f[i][j];
         }
       }
+
       sum *= (c[u] * c[v]) / 4;
       F[u][v] = sum;
     }

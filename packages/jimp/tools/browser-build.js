@@ -100,6 +100,7 @@ if (!module.parent) {
         config = {};
         baseFiles = process.argv.slice(3);
       }
+
       if (baseFiles.length === 0) throw new Error('No file given.');
       bundle(baseFiles, config, (err, code) => {
         if (err) throw err;

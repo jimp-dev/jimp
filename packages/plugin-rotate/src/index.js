@@ -97,6 +97,7 @@ function advancedRotate(deg, mode) {
       }
     }
   }
+
   this.bitmap.data = dstBuffer;
 
   if (mode === true || typeof mode === 'string') {
