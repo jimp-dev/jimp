@@ -32,11 +32,11 @@ const httpHandler = (req, res) => {
   }
 };
 
-const httpServer = http.createServer(httpHandler);
 describe('redirect', function() {
   if (typeof window !== 'undefined' && typeof window.document !== 'undefined') {
     xit('Not testing redirects in browser');
   } else {
+    const httpServer = http.createServer(httpHandler);
     before(function() {
       httpServer.listen(5136);
     });
