@@ -1,3 +1,27 @@
+# v0.8.5 (Fri Oct 18 2019)
+
+#### 🐛  Bug Fix
+
+- `@jimp/core`
+  - Image dimensions during exif rotation have been corrected [#791](https://github.com/oliver-moran/jimp/pull/791) (alexander.shcherbakov@btsdigital.kz [@popinguy](https://github.com/popinguy))
+
+#### 🏠  Internal
+
+- `@jimp/cli`, `@jimp/core`, `jimp`, `@jimp/plugin-blit`, `@jimp/plugin-blur`, `@jimp/plugin-color`, `@jimp/plugin-crop`, `@jimp/plugin-normalize`, `@jimp/plugin-resize`, `@jimp/plugin-rotate`, `@jimp/test-utils`, `@jimp/jpeg`, `@jimp/png`, `@jimp/tiff`, `@jimp/types`
+  - Upgrade nearly-all dev deps [#799](https://github.com/oliver-moran/jimp/pull/799) ([@popinguy](https://github.com/popinguy) [@hipstersmoothie](https://github.com/hipstersmoothie))
+
+#### 📝  Documentation
+
+- Added back mention of required tsconfig options [#800](https://github.com/oliver-moran/jimp/pull/800) ([@popinguy](https://github.com/popinguy))
+
+#### Authors: 3
+
+- [@popinguy](https://github.com/popinguy)
+- Andrew Lisowski ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- Alexander Shcherbakov (alexander.shcherbakov@btsdigital.kz)
+
+---
+
 # v0.8.4 (Fri Sep 20 2019)
 
 #### 🐛  Bug Fix
