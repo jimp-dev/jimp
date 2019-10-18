@@ -1,6 +1,6 @@
 {
   "name": "@jimp/plugin-contain",
-  "version": "0.8.4",
+  "version": "0.8.5",
   "description": "contain an image.",
   "main": "dist/index.js",
   "module": "es/index.js",
@@ -20,7 +20,7 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "@jimp/utils": "^0.8.4",
+    "@jimp/utils": "^0.8.5",
     "core-js": "^2.5.7"
   },
   "peerDependencies": {
@@ -30,11 +30,11 @@
     "@jimp/plugin-scale": ">=0.3.5"
   },
   "devDependencies": {
-    "@jimp/custom": "^0.8.4",
-    "@jimp/plugin-blit": "^0.8.4",
-    "@jimp/plugin-resize": "^0.8.4",
-    "@jimp/plugin-scale": "^0.8.4",
-    "@jimp/test-utils": "^0.8.4"
+    "@jimp/custom": "^0.8.5",
+    "@jimp/plugin-blit": "^0.8.5",
+    "@jimp/plugin-resize": "^0.8.5",
+    "@jimp/plugin-scale": "^0.8.5",
+    "@jimp/test-utils": "^0.8.5"
   },
   "publishConfig": {
     "access": "public"
