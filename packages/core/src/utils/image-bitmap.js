@@ -27,7 +27,7 @@ function getMIMEFromBuffer(buffer, path) {
 /*
  * Automagically rotates an image based on its EXIF data (if present)
  * @param img a constants object
-*/
+ */
 function exifRotate(img) {
   const exif = img._exif;
 
@@ -40,22 +40,22 @@ function exifRotate(img) {
         img.mirror(true, false);
         break;
       case 3: // Rotate 180
-        img.rotate(180, false);
+        img.rotate(180);
         break;
       case 4: // Mirror vertical
         img.mirror(false, true);
         break;
       case 5: // Mirror horizontal and rotate 270 CW
-        img.rotate(-90, false).mirror(true, false);
+        img.rotate(-90).mirror(true, false);
         break;
       case 6: // Rotate 90 CW
-        img.rotate(-90, false);
+        img.rotate(-90);
         break;
       case 7: // Mirror horizontal and rotate 90 CW
-        img.rotate(90, false).mirror(true, false);
+        img.rotate(90).mirror(true, false);
         break;
       case 8: // Rotate 270 CW
-        img.rotate(-270, false);
+        img.rotate(-270);
         break;
       default:
         break;
