@@ -121,8 +121,18 @@ export interface Jimp extends JimpConstructors {
     y: number,
     cb?: GenericCallback<number, any, this>
   ): number;
-  setPixelColor(hex: number, x: number, y: number, cb?: ImageCallback<this>): this;
-  setPixelColour(hex: number, x: number, y: number, cb?: ImageCallback<this>): this;
+  setPixelColor(
+    hex: number,
+    x: number,
+    y: number,
+    cb?: ImageCallback<this>
+  ): this;
+  setPixelColour(
+    hex: number,
+    x: number,
+    y: number,
+    cb?: ImageCallback<this>
+  ): this;
   clone(cb?: ImageCallback<this>): this;
   cloneQuiet(cb?: ImageCallback<this>): this;
   background(hex: number, cb?: ImageCallback<this>): this;
@@ -170,10 +180,15 @@ export interface Jimp extends JimpConstructors {
       ...args: T[]
     ) => any
   ): void;
-  read(path: string): Promise<this>;
-  read(image: Jimp): Promise<this>;
-  read(data: Buffer): Promise<this>;
-  read(w: number, h: number, background?: number | string): Promise<this>;
+  read(path: string, cb?: ImageCallback<this>): Promise<this>;
+  read(image: Jimp, cb?: ImageCallback<this>): Promise<this>;
+  read(data: Buffer, cb?: ImageCallback<this>): Promise<this>;
+  read(
+    w: number,
+    h: number,
+    background?: number | string,
+    cb?: ImageCallback<this>
+  ): Promise<this>;
   create(path: string): Promise<this>;
   create(image: Jimp): Promise<this>;
   create(data: Buffer): Promise<this>;
@@ -188,11 +203,7 @@ export interface Jimp extends JimpConstructors {
   intToRGBA(i: number, cb?: GenericCallback<RGBA>): RGBA;
   cssColorToHex(cssColor: string): number;
   limit255(n: number): number;
-  diff(
-    img1: Jimp,
-    img2: Jimp,
-    threshold?: number
-  ): DiffReturn<this>;
+  diff(img1: Jimp, img2: Jimp, threshold?: number): DiffReturn<this>;
   distance(img1: Jimp, img2: Jimp): number;
   compareHashes(hash1: string, hash2: string): number;
   colorDiff(rgba1: RGB, rgba2: RGB): number;
