@@ -6,7 +6,8 @@ module.exports = api => {
       [
         '@babel/env',
         {
-          useBuiltIns: 'usage'
+          useBuiltIns: 'usage',
+          corejs: 3
         }
       ]
     ],
@@ -18,6 +19,12 @@ module.exports = api => {
       [
         'transform-inline-environment-variables',
         { include: ['BABEL_ENV', 'ENV'] }
+      ],
+      [
+        '@babel/plugin-transform-runtime',
+        {
+          regenerator: true
+        }
       ]
     ].filter(Boolean),
 

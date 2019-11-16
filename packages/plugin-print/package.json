@@ -21,7 +21,8 @@
   "license": "MIT",
   "dependencies": {
     "@jimp/utils": "^0.8.5",
-    "core-js": "^2.5.7",
+    "core-js": "^3.4.1",
+    "@babel/runtime": "^7.7.2",
     "load-bmfont": "^1.4.0"
   },
   "peerDependencies": {
