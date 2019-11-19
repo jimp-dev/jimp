@@ -34,7 +34,7 @@
     "@jimp/plugin-resize": "^0.8.5",
     "@jimp/plugin-rotate": "^0.8.5",
     "@jimp/plugin-scale": "^0.8.5",
-    "core-js": "^2.5.7",
+    "core-js": "^3.4.1",
     "timm": "^1.6.1"
   },
   "peerDependencies": {

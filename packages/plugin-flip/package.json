@@ -18,7 +18,7 @@
   "license": "MIT",
   "dependencies": {
     "@jimp/utils": "^0.8.5",
-    "core-js": "^2.5.7"
+    "core-js": "^3.4.1"
   },
   "peerDependencies": {
     "@jimp/custom": ">=0.3.5",

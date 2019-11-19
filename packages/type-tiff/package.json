@@ -20,7 +20,7 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "core-js": "^2.5.7",
+    "core-js": "^3.4.1",
     "utif": "^2.0.1"
   },
   "peerDependencies": {
