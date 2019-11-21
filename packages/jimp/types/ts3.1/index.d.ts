@@ -20,10 +20,6 @@ import pluginFn from '@jimp/plugins';
 type Types = ReturnType<typeof typeFn>;
 type Plugins = ReturnType<typeof pluginFn>;
 
-export { Bitmap, RGB, RGBA };
-
-export { FontChar, FontInfo, FontCommon, Font } from '@jimp/plugin-print';
-
 type IntersectedPluginTypes = UnionToIntersection<
   GetPluginVal<Types> | GetPluginVal<Plugins>
 >;
@@ -32,4 +28,4 @@ type Jimp = InstanceType<JimpType> & IntersectedPluginTypes;
 
 declare const Jimp: JimpConstructors & Jimp;
 
-export default Jimp;
+export = Jimp;
