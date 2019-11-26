@@ -1,3 +1,16 @@
+# v0.9.1 (Tue Nov 26 2019)
+
+#### 🐛  Bug Fix
+
+- `@jimp/core`, `jimp`
+  - Added callback to jimp constructor typings [#810](https://github.com/oliver-moran/jimp/pull/810) ([@crutchcorn](https://github.com/crutchcorn))
+
+#### Authors: 1
+
+- Corbin Crutchley ([@crutchcorn](https://github.com/crutchcorn))
+
+---
+
 # v0.9.0 (Tue Nov 26 2019)
 
 #### 🚀  Enhancement
