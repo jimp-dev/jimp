@@ -1,3 +1,16 @@
+# v0.9.0 (Tue Nov 26 2019)
+
+#### 🚀  Enhancement
+
+- `jimp`
+  - Revert exports to match 0.6.4 TS definitions [#820](https://github.com/oliver-moran/jimp/pull/820) ([@crutchcorn](https://github.com/crutchcorn))
+
+#### Authors: 1
+
+- Corbin Crutchley ([@crutchcorn](https://github.com/crutchcorn))
+
+---
+
 # v0.8.5 (Fri Oct 18 2019)
 
 #### 🐛  Bug Fix
