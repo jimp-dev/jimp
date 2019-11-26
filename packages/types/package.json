@@ -17,12 +17,13 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "@jimp/bmp": "^0.9.1",
-    "@jimp/gif": "^0.9.1",
-    "@jimp/jpeg": "^0.9.1",
-    "@jimp/png": "^0.9.1",
-    "@jimp/tiff": "^0.9.1",
-    "core-js": "^2.5.7",
+    "@jimp/bmp": "link:../type-bmp",
+    "@jimp/gif": "link:../type-gif",
+    "@jimp/jpeg": "link:../type-jpeg",
+    "@jimp/png": "link:../type-png",
+    "@jimp/tiff": "link:../type-tiff",
+    "core-js": "^3.4.1",
+    "@babel/runtime": "^7.7.2",
     "timm": "^1.6.1"
   },
   "peerDependencies": {

@@ -24,6 +24,7 @@ const httpHandler = (req, res) => {
           res.end('Not a valid test endpoint');
           break;
       }
+
       break;
     default:
       res.writeHead(404);

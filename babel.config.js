@@ -4,9 +4,10 @@ module.exports = api => {
   return {
     presets: [
       [
-        '@babel/env',
+        '@babel/preset-env',
         {
-          useBuiltIns: 'usage'
+          useBuiltIns: 'usage',
+          corejs: 3
         }
       ]
     ],
@@ -18,6 +19,12 @@ module.exports = api => {
       [
         'transform-inline-environment-variables',
         { include: ['BABEL_ENV', 'ENV'] }
+      ],
+      [
+        '@babel/plugin-transform-runtime',
+        {
+          regenerator: true
+        }
       ]
     ].filter(Boolean),
 
@@ -31,7 +38,7 @@ module.exports = api => {
         )
       },
       module: {
-        presets: [['@babel/env', { modules: false }]]
+        presets: [['@babel/preset-env']]
       }
     }
   };
