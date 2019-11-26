@@ -21,7 +21,7 @@ module.exports = function(config) {
 
     // list of files / patterns to load in the browser
     files: [
-      './packages/**/test/*.js',
+      './packages/**/!(node_modules)/**/test/*.js',
       {
         pattern: 'packages/**/test/images/**/*',
         watched: false,
