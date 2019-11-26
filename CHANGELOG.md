@@ -52,7 +52,7 @@
 #### 🏠 Internal
 
 - `@jimp/cli`, `@jimp/core`, `jimp`, `@jimp/plugin-blit`, `@jimp/plugin-blur`, `@jimp/plugin-color`, `@jimp/plugin-crop`, `@jimp/plugin-normalize`, `@jimp/plugin-resize`, `@jimp/plugin-rotate`, `@jimp/test-utils`, `@jimp/jpeg`, `@jimp/png`, `@jimp/tiff`, `@jimp/types`
-  - Upgrade nearly-all dev deps [#799](https://github.com/oliver-moran/jimp/pull/799) ([@popinguy](https://github.com/popinguy) [@hipstersmoothie](https://github.com/hipstersmoothie))
+  - Upgrade nearly-all dev deps [#799](https://github.com/oliver-moran/jimp/pull/799) ([@crutchcorn](https://github.com/crutchcorn))
 
 #### 📝 Documentation
 
@@ -63,6 +63,7 @@
 - [@popinguy](https://github.com/popinguy)
 - Andrew Lisowski ([@hipstersmoothie](https://github.com/hipstersmoothie))
 - Alexander Shcherbakov (alexander.shcherbakov@btsdigital.kz)
+- Corbin Crutchley ([@crutchcorn](https://github.com/crutchcorn))
 
 ---
 

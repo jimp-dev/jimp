@@ -1,5 +1,11 @@
 // Karma configuration
 // Generated on Sat Jan 28 2017 19:40:10 GMT-0300 (BRT)
+const { execSync } = require('child_process');
+
+const allowed = `?(${execSync('ls packages', { encoding: 'utf8' })
+  .trim()
+  .split('\n')
+  .join('|')})`;
 
 module.exports = function(config) {
   config.set({
@@ -16,12 +22,12 @@ module.exports = function(config) {
     },
 
     preprocessors: {
-      'packages/**/**/*.js': 'browserify'
+      [`packages/${allowed}/test/**/*.js`]: 'browserify'
     },
 
     // list of files / patterns to load in the browser
     files: [
-      './packages/**/test/*.js',
+      `./packages/${allowed}/test/**/*.test.js`,
       {
         pattern: 'packages/**/test/images/**/*',
         watched: false,
