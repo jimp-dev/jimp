@@ -27,7 +27,7 @@
     "pngjs": "^3.3.3"
   },
   "devDependencies": {
-    "@jimp/custom": "^0.9.1",
+    "@jimp/custom": "link:../custom",
     "should": "^13.2.3"
   }
 }

@@ -17,7 +17,7 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "@jimp/custom": "^0.9.1",
+    "@jimp/custom": "link:../custom",
     "chalk": "^2.4.1",
     "jimp": "^0.9.1",
     "log-symbols": "^2.2.0",

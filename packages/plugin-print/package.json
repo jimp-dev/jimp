@@ -1,6 +1,6 @@
 {
   "name": "@jimp/plugin-print",
-  "version": "0.8.5",
+  "version": "0.9.1",
   "description": "print an image.",
   "main": "dist/index.js",
   "module": "es/index.js",
@@ -20,7 +20,7 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "@jimp/utils": "^0.8.5",
+    "@jimp/utils": "link:../utils",
     "core-js": "^3.4.1",
     "@babel/runtime": "^7.7.2",
     "load-bmfont": "^1.4.0"
@@ -30,9 +30,9 @@
     "@jimp/plugin-blit": ">=0.3.5"
   },
   "devDependencies": {
-    "@jimp/custom": "^0.8.5",
-    "@jimp/plugin-blit": "^0.8.5",
-    "@jimp/test-utils": "^0.8.5"
+    "@jimp/custom": "link:../custom",
+    "@jimp/plugin-blit": "link:../plugin-blit",
+    "@jimp/test-utils": "link:../test-utils"
   },
   "publishConfig": {
     "access": "public"
