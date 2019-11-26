@@ -33,7 +33,7 @@
     "@babel/preset-env": "^7.7.1",
     "@babel/register": "^7.7.0",
     "@babel/runtime": "^7.7.2",
-    "auto": "^7.6.0",
+    "auto": "^7.16.3",
     "babel-eslint": "^10.0.3",
     "babel-plugin-add-module-exports": "^1.0.2",
     "babel-plugin-istanbul": "^5.2.0",
