@@ -1,6 +1,6 @@
 {
   "name": "@jimp/plugin-shadow",
-  "version": "0.9.2",
+  "version": "0.9.3",
   "description": "Creates a shadow on an image.",
   "main": "dist/index.js",
   "module": "es/index.js",
