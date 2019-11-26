@@ -1,6 +1,6 @@
 {
   "name": "@jimp/plugins",
-  "version": "0.9.1",
+  "version": "0.9.2",
   "description": "Default Jimp plugin.",
   "main": "dist/index.js",
   "module": "es/index.js",
@@ -17,6 +17,7 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
+    "@babel/runtime": "^7.7.2",
     "@jimp/plugin-blit": "link:../plugin-blit",
     "@jimp/plugin-blur": "link:../plugin-blur",
     "@jimp/plugin-color": "link:../plugin-color",
@@ -35,7 +36,6 @@
     "@jimp/plugin-rotate": "link:../plugin-rotate",
     "@jimp/plugin-scale": "link:../plugin-scale",
     "core-js": "^3.4.1",
-    "@babel/runtime": "^7.7.2",
     "timm": "^1.6.1"
   },
   "peerDependencies": {

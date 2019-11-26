@@ -1,6 +1,6 @@
 {
   "name": "@jimp/plugin-rotate",
-  "version": "0.9.1",
+  "version": "0.9.2",
   "description": "Rotate an image.",
   "main": "dist/index.js",
   "module": "es/index.js",
@@ -20,9 +20,9 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
+    "@babel/runtime": "^7.7.2",
     "@jimp/utils": "link:../utils",
-    "core-js": "^3.4.1",
-    "@babel/runtime": "^7.7.2"
+    "core-js": "^3.4.1"
   },
   "peerDependencies": {
     "@jimp/custom": ">=0.3.5",

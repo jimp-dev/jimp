@@ -1,6 +1,6 @@
 {
   "name": "@jimp/tiff",
-  "version": "0.9.1",
+  "version": "0.9.2",
   "description": "Default Jimp tiff encoder/decoder.",
   "main": "dist/index.js",
   "module": "es/index.js",
@@ -20,8 +20,8 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "core-js": "^3.4.1",
     "@babel/runtime": "^7.7.2",
+    "core-js": "^3.4.1",
     "utif": "^2.0.1"
   },
   "peerDependencies": {

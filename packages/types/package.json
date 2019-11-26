@@ -1,6 +1,6 @@
 {
   "name": "@jimp/types",
-  "version": "0.9.1",
+  "version": "0.9.2",
   "description": "Default Jimp encoder/decoders.",
   "main": "dist/index.js",
   "module": "es/index.js",
@@ -17,13 +17,13 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
+    "@babel/runtime": "^7.7.2",
     "@jimp/bmp": "link:../type-bmp",
     "@jimp/gif": "link:../type-gif",
     "@jimp/jpeg": "link:../type-jpeg",
     "@jimp/png": "link:../type-png",
     "@jimp/tiff": "link:../type-tiff",
     "core-js": "^3.4.1",
-    "@babel/runtime": "^7.7.2",
     "timm": "^1.6.1"
   },
   "peerDependencies": {
