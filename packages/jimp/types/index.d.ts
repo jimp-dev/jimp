@@ -3,7 +3,7 @@
 
 declare const DepreciatedJimp: DepreciatedJimp;
 
-export default DepreciatedJimp;
+export = DepreciatedJimp;
 
 /**
  * @deprecated Jimp typings for TS <3.1 are being depreciated. Please upgrade your TypeScript version
@@ -351,11 +351,15 @@ interface DepreciatedJimp {
       ...args: T[]
     ) => any
   ): void;
-  read(path: string): Promise<this>;
-  read(image: this): Promise<this>;
-  read(data: Buffer): Promise<this>;
-  read(w: number, h: number, background?: number | string): Promise<this>;
-  create(path: string): Promise<this>;
+  read(path: string, cb?: ImageCallback): Promise<this>;
+  read(image: this, cb?: ImageCallback): Promise<this>;
+  read(data: Buffer, cb?: ImageCallback): Promise<this>;
+  read(
+    w: number,
+    h: number,
+    background?: number | string,
+    cb?: ImageCallback
+  ): Promise<this>;  create(path: string): Promise<this>;
   create(image: this): Promise<this>;
   create(data: Buffer): Promise<this>;
   create(w: number, h: number, background?: number | string): Promise<this>;
@@ -500,7 +504,7 @@ type URLOptions = {
 /**
  * @deprecated Jimp typings for TS <3.1 are being depreciated. Please upgrade your TypeScript version
  */
-export interface Bitmap {
+interface Bitmap {
   data: Buffer;
   width: number;
   height: number;
@@ -508,7 +512,7 @@ export interface Bitmap {
 /**
  * @deprecated Jimp typings for TS <3.1 are being depreciated. Please upgrade your TypeScript version
  */
-export interface RGB {
+interface RGB {
   r: number;
   g: number;
   b: number;
@@ -517,7 +521,7 @@ export interface RGB {
 /**
  * @deprecated Jimp typings for TS <3.1 are being depreciated. Please upgrade your TypeScript version
  */
-export interface RGBA {
+interface RGBA {
   r: number;
   g: number;
   b: number;
@@ -527,7 +531,7 @@ export interface RGBA {
 /**
  * @deprecated Jimp typings for TS <3.1 are being depreciated. Please upgrade your TypeScript version
  */
-export interface FontChar {
+interface FontChar {
   id: number;
   x: number;
   y: number;
@@ -543,7 +547,7 @@ export interface FontChar {
 /**
  * @deprecated Jimp typings for TS <3.1 are being depreciated. Please upgrade your TypeScript version
  */
-export interface FontInfo {
+interface FontInfo {
   face: string;
   size: number;
   bold: number;
@@ -560,7 +564,7 @@ export interface FontInfo {
 /**
  * @deprecated Jimp typings for TS <3.1 are being depreciated. Please upgrade your TypeScript version
  */
-export interface FontCommon {
+interface FontCommon {
   lineHeight: number;
   base: number;
   scaleW: number;
@@ -576,7 +580,7 @@ export interface FontCommon {
 /**
  * @deprecated Jimp typings for TS <3.1 are being depreciated. Please upgrade your TypeScript version
  */
-export interface Font {
+interface Font {
   chars: {
     [char: string]: FontChar;
   };

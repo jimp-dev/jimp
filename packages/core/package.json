@@ -1,6 +1,6 @@
 {
   "name": "@jimp/core",
-  "version": "0.8.5",
+  "version": "0.9.1",
   "description": "Jimp core",
   "main": "dist/index.js",
   "module": "es/index.js",
@@ -34,7 +34,7 @@
   "author": "Oliver Moran <oliver.moran@gmail.com>",
   "license": "MIT",
   "dependencies": {
-    "@jimp/utils": "^0.8.5",
+    "@jimp/utils": "^0.9.1",
     "any-base": "^1.1.0",
     "buffer": "^5.2.0",
     "core-js": "^3.4.1",

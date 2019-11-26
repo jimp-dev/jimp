@@ -1,4 +1,4 @@
-import Jimp from 'jimp';
+import * as Jimp from 'jimp';
 
 const jimpInst: Jimp = new Jimp('test');
 
@@ -68,3 +68,21 @@ test('can clone properly', async () => {
     })
   })
 });
+
+test('Can handle callback with constructor', () => {
+  const myBmpBuffer: Buffer = {} as any;
+
+  Jimp.read(myBmpBuffer, (err, cbJimpInst) => {
+    cbJimpInst.read('Test');
+    cbJimpInst.displace(jimpInst, 2);
+    cbJimpInst.resize(40, 40);
+    // $ExpectType 0
+    cbJimpInst.PNG_FILTER_NONE;
+
+    // $ExpectError
+    cbJimpInst.test;
+
+    // $ExpectError
+    cbJimpInst.func();
+  });
+})
