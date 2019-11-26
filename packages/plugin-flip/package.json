@@ -1,6 +1,6 @@
 {
   "name": "@jimp/plugin-flip",
-  "version": "0.9.0",
+  "version": "0.9.1",
   "description": "flip an image.",
   "main": "dist/index.js",
   "module": "es/index.js",
@@ -17,7 +17,7 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "@jimp/utils": "^0.9.0",
+    "@jimp/utils": "^0.9.1",
     "core-js": "^2.5.7"
   },
   "peerDependencies": {

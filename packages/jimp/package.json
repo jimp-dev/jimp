@@ -1,6 +1,6 @@
 {
   "name": "jimp",
-  "version": "0.9.0",
+  "version": "0.9.1",
   "description": "An image processing library written entirely in JavaScript (i.e. zero external or native dependencies)",
   "main": "dist/index.js",
   "module": "es/index.js",
@@ -59,9 +59,9 @@
   "author": "Oliver Moran <oliver.moran@gmail.com>",
   "license": "MIT",
   "dependencies": {
-    "@jimp/custom": "^0.9.0",
-    "@jimp/plugins": "^0.9.0",
-    "@jimp/types": "^0.9.0",
+    "@jimp/custom": "^0.9.1",
+    "@jimp/plugins": "^0.9.1",
+    "@jimp/types": "^0.9.1",
     "core-js": "^2.5.7",
     "regenerator-runtime": "^0.13.3"
   },
@@ -72,7 +72,7 @@
     "@babel/plugin-syntax-object-rest-spread": "^7.2.0",
     "@babel/preset-env": "^7.6.0",
     "@babel/register": "^7.6.0",
-    "@jimp/test-utils": "^0.9.0",
+    "@jimp/test-utils": "^0.9.1",
     "auto": "^7.6.0",
     "babel-eslint": "^10.0.3",
     "babel-plugin-add-module-exports": "^1.0.2",
