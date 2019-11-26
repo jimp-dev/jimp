@@ -351,11 +351,15 @@ interface DepreciatedJimp {
       ...args: T[]
     ) => any
   ): void;
-  read(path: string): Promise<this>;
-  read(image: this): Promise<this>;
-  read(data: Buffer): Promise<this>;
-  read(w: number, h: number, background?: number | string): Promise<this>;
-  create(path: string): Promise<this>;
+  read(path: string, cb?: ImageCallback): Promise<this>;
+  read(image: this, cb?: ImageCallback): Promise<this>;
+  read(data: Buffer, cb?: ImageCallback): Promise<this>;
+  read(
+    w: number,
+    h: number,
+    background?: number | string,
+    cb?: ImageCallback
+  ): Promise<this>;  create(path: string): Promise<this>;
   create(image: this): Promise<this>;
   create(data: Buffer): Promise<this>;
   create(w: number, h: number, background?: number | string): Promise<this>;
