@@ -4,6 +4,7 @@ interface Shadow {
   shadow(options?: {
            size?: number,
            opacity?: number,
+           blur: number,
            x?: number,
            y?: number
          },
