@@ -9,6 +9,9 @@ Jimp supports basic typography using BMFont format (.fnt) even ones in different
 
 Online tools are also available to convert TTF fonts to BMFont format. They can be used to create color font or sprite packs.
 
+
+:star: [ttf2fnt](https://ttf2fnt.com/)
+
 :star: [Littera](http://kvazars.com/littera/)
 
 :star: [Hiero](https://github.com/libgdx/libgdx/wiki/Hiero)
