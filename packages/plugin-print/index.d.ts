@@ -40,7 +40,7 @@ export interface FontCommon {
   blueChnl: number;
 }
 
-interface Font {
+export interface Font {
   chars: {
     [char: string]: FontChar;
   };
