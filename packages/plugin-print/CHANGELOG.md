@@ -1,3 +1,21 @@
+# v0.9.5 (Tue Mar 03 2020)
+
+#### 🐛  Bug Fix
+
+- `@jimp/plugin-print`
+  - Export font type [#838](https://github.com/oliver-moran/jimp/pull/838) ([@DomiR](https://github.com/DomiR))
+
+#### 📝  Documentation
+
+- `@jimp/plugin-print`
+  - Added ttf2fnt.com to the list [#845](https://github.com/oliver-moran/jimp/pull/845) ([@mbejda](https://github.com/mbejda))
+
+#### Authors: 1
+
+- Dominique Rau ([@DomiR](https://github.com/DomiR))
+
+---
+
 # v0.9.3 (Tue Nov 26 2019)
 
 #### 🐛  Bug Fix
