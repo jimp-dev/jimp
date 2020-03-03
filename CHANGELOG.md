@@ -1,3 +1,16 @@
+# v0.9.4 (Tue Mar 03 2020)
+
+#### 🐛  Bug Fix
+
+- `@jimp/plugin-shadow`
+  - Update plugin-shadow type definition. [#841](https://github.com/oliver-moran/jimp/pull/841) ([@lekoaf](https://github.com/lekoaf))
+
+#### Authors: 1
+
+- Martin ([@lekoaf](https://github.com/lekoaf))
+
+---
+
 # v0.9.2 (Tue Nov 26 2019)
 
 #### 🐛  Bug Fix
