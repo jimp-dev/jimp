@@ -341,14 +341,19 @@ interface DepreciatedJimp {
   mask(src: this, x: number, y: number, cb?: ImageCallback): this;
 
   // Functions
-  appendConstructorOption<T extends any[]>(
+  /**
+   * I'd like to make `Args` generic and used in `run` and `test` but alas,
+   * it's not possible RN:
+   * https://github.com/microsoft/TypeScript/issues/26113
+   */
+  appendConstructorOption<Args extends any[]>(
     name: string,
-    test: (...args: T[]) => boolean,
+    test: (...args: any[]) => boolean,
     run: (
       this: this,
-      resolve: (jimp: this) => any,
+      resolve: (jimp?: this) => any,
       reject: (reason: Error) => any,
-      ...args: T[]
+      ...args: any[]
     ) => any
   ): void;
   read(path: string, cb?: ImageCallback): Promise<this>;

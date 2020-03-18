@@ -170,14 +170,19 @@ export interface Jimp extends JimpConstructors {
   ): this;
 
   // Functions
-  appendConstructorOption<T extends any[]>(
+  /**
+   * I'd like to make `Args` generic and used in `run` and `test` but alas,
+   * it's not possible RN:
+   * https://github.com/microsoft/TypeScript/issues/26113
+   */
+  appendConstructorOption<Args extends any[], J extends Jimp = this>(
     name: string,
-    test: (...args: T[]) => boolean,
+    test: (...args: any[]) => boolean,
     run: (
-      this: this,
-      resolve: (jimp: this) => any,
+      this: J,
+      resolve: (jimp?: J) => any,
       reject: (reason: Error) => any,
-      ...args: T[]
+      ...args: any[]
     ) => any
   ): void;
   read(path: string, cb?: ImageCallback<this>): Promise<this>;

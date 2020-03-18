@@ -6,6 +6,7 @@ import resize from '@jimp/plugin-resize';
 import scale from '@jimp/plugin-scale';
 import types from '@jimp/types';
 import plugins from '@jimp/plugins';
+import * as Jimp from 'jimp';
 
 // configure should return a valid Jimp type with addons
 const CustomJimp = configure({
@@ -349,4 +350,21 @@ test('can handle only one plugin', () => {
 
   // $ExpectError
   Jiimp.func();
+});
+
+
+test('Can handle appendConstructorOption', () => {
+  const AppendJimp = configure({});
+
+  AppendJimp.appendConstructorOption(
+    'Name of Option',
+    args => args.hasSomeCustomThing,
+    function(resolve, reject, args) {
+      // $ExpectError
+      this.bitmap = 3;
+      // $ExpectError
+      AppendJimp.resize(2, 2);
+      resolve();
+    }
+  );
 });
