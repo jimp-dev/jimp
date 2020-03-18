@@ -86,3 +86,16 @@ test('Can handle callback with constructor', () => {
     cbJimpInst.func();
   });
 })
+
+test('Can handle appendConstructorOption', () => {
+  Jimp.appendConstructorOption(
+    'Name of Option',
+    args => args.hasSomeCustomThing,
+    function(resolve, reject, args) {
+      // $ExpectError
+      this.bitmap = 3;
+      Jimp.resize(2, 2);
+      resolve();
+    }
+  );
+});

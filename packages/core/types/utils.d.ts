@@ -13,8 +13,8 @@ export type UnionToIntersection<U> =
  * Left loose as "any" in order to enable the GetPluginValue to work properly
  */
 export type WellFormedValues<T extends any> = 
-  T['class'] &
-  T['constants'];
+  (T extends {class: any} ? T['class'] : {}) &
+  (T extends {constants: any} ? T['constants'] : {});
 
 // Util type for the functions that deal with `@jimp/custom`
 // Must accept any or no props thanks to typing of the `plugins` intersected function
