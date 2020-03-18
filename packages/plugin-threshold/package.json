@@ -26,8 +26,8 @@
   },
   "peerDependencies": {
     "@jimp/custom": ">=0.3.5",
-    "@jimp/plugin-color": "^0.8.0",
-    "@jimp/plugin-resize": "^0.8.0"
+    "@jimp/plugin-color": ">=0.8.0",
+    "@jimp/plugin-resize": ">=0.8.0"
   },
   "devDependencies": {
     "@jimp/custom": "link:../custom",
