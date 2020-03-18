@@ -3,7 +3,7 @@ version: 2
 defaults: &defaults
   working_directory: ~/jimp
   docker:
-    - image: circleci/node:8.14-browsers
+    - image: circleci/node:10-browsers
 
 jobs:
   install:
