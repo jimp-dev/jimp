@@ -1,3 +1,20 @@
+# v0.9.6 (Wed Mar 18 2020)
+
+#### 🐛 Bug Fix
+
+- upgrade auto [#860](https://github.com/oliver-moran/jimp/pull/860) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+
+#### 🏠 Internal
+
+- Fix TypeScript error on 'next' [#858](https://github.com/oliver-moran/jimp/pull/858) ([@crutchcorn](https://github.com/crutchcorn))
+
+#### Authors: 2
+
+- Andrew Lisowski ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- Corbin Crutchley ([@crutchcorn](https://github.com/crutchcorn))
+
+---
+
 # v0.9.3 (Tue Nov 26 2019)
 
 #### 🐛  Bug Fix

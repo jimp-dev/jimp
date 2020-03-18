@@ -1,3 +1,24 @@
+# v0.9.6 (Wed Mar 18 2020)
+
+#### 🐛 Bug Fix
+
+- `jimp`
+  - upgrade auto [#860](https://github.com/oliver-moran/jimp/pull/860) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- `@jimp/core`
+  - Relax mkdirp dependency to allow newer minimist [#857](https://github.com/oliver-moran/jimp/pull/857) ([@Den-dp](https://github.com/Den-dp))
+
+#### 🏠 Internal
+
+- Fix TypeScript error on 'next' [#858](https://github.com/oliver-moran/jimp/pull/858) ([@crutchcorn](https://github.com/crutchcorn))
+
+#### Authors: 3
+
+- Andrew Lisowski ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- Corbin Crutchley ([@crutchcorn](https://github.com/crutchcorn))
+- Denis Bendrikov ([@Den-dp](https://github.com/Den-dp))
+
+---
+
 # v0.9.5 (Tue Mar 03 2020)
 
 #### 🐛  Bug Fix
