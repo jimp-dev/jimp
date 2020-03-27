@@ -1,3 +1,15 @@
+# v0.9.7 (Fri Mar 27 2020)
+
+#### 🐛 Bug Fix
+
+- Relax version range of plugin-threshold peerDependencies [#859](https://github.com/oliver-moran/jimp/pull/859) ([@pasieronen](https://github.com/pasieronen))
+
+#### Authors: 1
+
+- Pasi Eronen ([@pasieronen](https://github.com/pasieronen))
+
+---
+
 # v0.9.3 (Tue Nov 26 2019)
 
 #### 🐛  Bug Fix

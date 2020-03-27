@@ -1,3 +1,22 @@
+# v0.9.7 (Fri Mar 27 2020)
+
+#### 🐛 Bug Fix
+
+- Bump acorn from 6.3.0 to 6.4.1 [#854](https://github.com/oliver-moran/jimp/pull/854) ([@dependabot[bot]](https://github.com/dependabot[bot]))
+- Bump handlebars from 4.2.1 to 4.7.3 [#861](https://github.com/oliver-moran/jimp/pull/861) ([@dependabot[bot]](https://github.com/dependabot[bot]))
+- `jimp`, `@jimp/plugins`
+  - Added missing plugins to the types [#863](https://github.com/oliver-moran/jimp/pull/863) ([@crutchcorn](https://github.com/crutchcorn))
+- `@jimp/plugin-threshold`
+  - Relax version range of plugin-threshold peerDependencies [#859](https://github.com/oliver-moran/jimp/pull/859) ([@pasieronen](https://github.com/pasieronen))
+
+#### Authors: 3
+
+- [@dependabot[bot]](https://github.com/dependabot[bot])
+- Corbin Crutchley ([@crutchcorn](https://github.com/crutchcorn))
+- Pasi Eronen ([@pasieronen](https://github.com/pasieronen))
+
+---
+
 # v0.9.6 (Wed Mar 18 2020)
 
 #### 🐛 Bug Fix

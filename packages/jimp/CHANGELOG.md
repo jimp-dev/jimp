@@ -1,3 +1,15 @@
+# v0.9.7 (Fri Mar 27 2020)
+
+#### 🐛 Bug Fix
+
+- Added missing plugins to the types [#863](https://github.com/oliver-moran/jimp/pull/863) ([@crutchcorn](https://github.com/crutchcorn))
+
+#### Authors: 1
+
+- Corbin Crutchley ([@crutchcorn](https://github.com/crutchcorn))
+
+---
+
 # v0.9.6 (Wed Mar 18 2020)
 
 #### 🐛 Bug Fix
