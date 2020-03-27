@@ -1,6 +1,6 @@
 {
   "name": "@jimp/custom",
-  "version": "0.9.6",
+  "version": "0.9.7",
   "description": "Interface to customize jimp configuration",
   "main": "dist/index.js",
   "module": "es/index.js",
