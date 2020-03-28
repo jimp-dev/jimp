@@ -10,17 +10,17 @@ export type UnionToIntersection<U> =
 
 /**
  * The values to be extracted from a WellFormedPlugin to put onto the Jimp instance
- * Left loose as "any" in order to enable the GetPluginValue to work properly
+ * Left loose as "any" in order to enable the GetPluginVal to work properly
  */
 export type WellFormedValues<T extends any> = 
-  (T extends {class: any} ? T['class'] : {});
+  (T extends {class: infer Class} ? Class : {});
 
 /**
  * The constants to be extracted from a WellFormedPlugin to put onto the Jimp instance
  * Left loose as "any" in order to enable the GetPluginConstants to work properly
  */
 export type WellFormedConstants<T extends any> =
-  (T extends {constants: any} ? T['constants'] : {});
+  (T extends {constants: infer Constants} ? Constants : {});
 
 // Util type for the functions that deal with `@jimp/custom`
 // Must accept any or no props thanks to typing of the `plugins` intersected function
@@ -39,6 +39,12 @@ export type GetPluginVal<Q> = Q extends Required<{class: any}> | Required<{const
 export type GetPluginConst<Q> = Q extends Required<{class: any}> | Required<{constants: any}>
   ? WellFormedConstants<Q>
   : {};
+
+export type GetPluginDecoders<Q> = Q extends Required<{class: any}> | Required<{constants: any}>
+  ? Q extends {decoders: infer Decoders} ? Decoders : {} : {};
+
+export type GetPluginEncoders<Q> = Q extends Required<{class: any}> | Required<{constants: any}>
+  ? Q extends {encoders: infer Encoders} ? Encoders : {} : {};
 
 type GetPluginFuncArrValues<PluginFuncArr> =
   // Given an array of types infer `Q` (Q should be the type value)
