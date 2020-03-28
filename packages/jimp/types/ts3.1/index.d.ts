@@ -12,6 +12,7 @@ import {
   RGBA,
   UnionToIntersection,
   GetPluginVal,
+  GetPluginConst,
   JimpConstructors
 } from '@jimp/core';
 import typeFn from '@jimp/types';
@@ -24,8 +25,12 @@ type IntersectedPluginTypes = UnionToIntersection<
   GetPluginVal<Types> | GetPluginVal<Plugins>
 >;
 
-type Jimp = InstanceType<JimpType> & IntersectedPluginTypes;
+type IntersectedPluginConsts = UnionToIntersection<
+  GetPluginConst<Types> | GetPluginConst<Plugins>
+>;
 
-declare const Jimp: JimpConstructors & Jimp;
+type Jimp = JimpType & IntersectedPluginTypes;
+
+declare const Jimp: JimpConstructors & IntersectedPluginConsts & { prototype: Jimp };
 
 export = Jimp;
