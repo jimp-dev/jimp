@@ -1,3 +1,15 @@
+# v0.9.8 (Sat Mar 28 2020)
+
+#### 🐛 Bug Fix
+
+- Export the four missing plugins from plugin package [#866](https://github.com/oliver-moran/jimp/pull/866) ([@crutchcorn](https://github.com/crutchcorn))
+
+#### Authors: 1
+
+- Corbin Crutchley ([@crutchcorn](https://github.com/crutchcorn))
+
+---
+
 # v0.9.7 (Fri Mar 27 2020)
 
 #### 🐛 Bug Fix
