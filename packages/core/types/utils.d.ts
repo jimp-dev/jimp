@@ -32,11 +32,11 @@ export type FunctionRet<T> = Array<(...props: any[] | never) => T>;
  * up `undefined`. Because we're always extending `IllformedPlugin` on the
  * plugins, this should work fine
  */
-export type GetPluginVal<Q> = Q extends Required<{class: any}> | Required<{constant: any}>
+export type GetPluginVal<Q> = Q extends Required<{class: any}> | Required<{constants: any}>
   ? WellFormedValues<Q>
   : Q;
 
-export type GetPluginConst<Q> = Q extends Required<{class: any}> | Required<{constant: any}>
+export type GetPluginConst<Q> = Q extends Required<{class: any}> | Required<{constants: any}>
   ? WellFormedConstants<Q>
   : {};
 
