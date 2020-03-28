@@ -44,7 +44,7 @@ type Jimp = JimpType & IntersectedPluginTypes;
 declare const Jimp: JimpConstructors & IntersectedPluginConsts & {
   prototype: Jimp;
   encoders: IntersectedPluginEncoders;
-  decoders: IntersectedPluginDecoders
+  decoders: IntersectedPluginDecoders;
 };
 
 export = Jimp;

@@ -48,7 +48,7 @@ export type GetPluginEncoders<Q> = Q extends Required<{class: any}> | Required<{
 
 type GetPluginFuncArrValues<PluginFuncArr> =
   // Given an array of types infer `Q` (Q should be the type value)
-  PluginFuncArr extends Array<() => infer Q>
+  PluginFuncArr extends ReadonlyArray<() => infer Q>
   ? // Get the plugin value, may be ill-formed or well-formed
     GetPluginVal<Q>
   : // This should never be reached
@@ -61,6 +61,41 @@ type GetPluginFuncArrValues<PluginFuncArr> =
 export type GetIntersectionFromPlugins<
   PluginFuncArr extends FunctionRet<JimpPlugin | JimpType>
 > = UnionToIntersection<GetPluginFuncArrValues<PluginFuncArr>>;
+
+type GetPluginFuncArrConsts<PluginFuncArr> =
+  // Given an array of types infer `Q` (Q should be the type value)
+  PluginFuncArr extends ReadonlyArray<() => infer Q>
+  ? // Get the plugin constants, may be ill-formed or well-formed
+    GetPluginConst<Q>
+  : // This should never be reached
+    undefined;
+
+type GetPluginFuncArrEncoders<PluginFuncArr> =
+  // Given an array of types infer `Q` (Q should be the type value)
+  PluginFuncArr extends ReadonlyArray<() => infer Q>
+  ? // Get the plugin encoders, may be ill-formed or well-formed
+    GetPluginEncoders<Q>
+  : // This should never be reached
+    undefined;
+
+type GetPluginFuncArrDecoders<PluginFuncArr> =
+  // Given an array of types infer `Q` (Q should be the type value)
+  PluginFuncArr extends ReadonlyArray<() => infer Q>
+  ? // Get the plugin decoders, may be ill-formed or well-formed
+    GetPluginDecoders<Q>
+  : // This should never be reached
+    undefined;
+
+/**
+ * A helper type to get the statics to be intersected with `Jimp` to give
+ * the proper typing given an array of functions for plugins and types
+ */
+export type GetIntersectionFromPluginsStatics<
+  PluginFuncArr extends FunctionRet<JimpPlugin | JimpType>
+> = UnionToIntersection<GetPluginFuncArrConsts<PluginFuncArr>> & {
+  encoders: UnionToIntersection<GetPluginFuncArrEncoders<PluginFuncArr>>;
+  decoders: UnionToIntersection<GetPluginFuncArrDecoders<PluginFuncArr>>;
+};
 
 /**
  * While this was added to TS 3.5, in order to support down to TS 2.8, we need
