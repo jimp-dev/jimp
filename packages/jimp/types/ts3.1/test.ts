@@ -23,7 +23,6 @@ jimpInst.func();
 // Main Jimp export should already have all of these already applied
 Jimp.read('Test');
 
-Jimp.resize(40, 40);
 // $ExpectType 0
 Jimp.PNG_FILTER_NONE;
 
@@ -84,7 +83,7 @@ test('Can handle callback with constructor', () => {
     cbJimpInst.displace(jimpInst, 2);
     cbJimpInst.resize(40, 40);
     // $ExpectType number
-    jimpCBIn._filterType;
+    cbJimpInst._filterType;
 
     // $ExpectError
     cbJimpInst.test;
