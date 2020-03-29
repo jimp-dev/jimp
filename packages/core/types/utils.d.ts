@@ -48,11 +48,11 @@ export type GetPluginEncoders<Q> = Q extends Required<{class: any}> | Required<{
 
 type GetPluginFuncArrValues<PluginFuncArr> =
   // Given an array of types infer `Q` (Q should be the type value)
-  PluginFuncArr extends ReadonlyArray<() => infer Q>
+  PluginFuncArr extends ReadonlyArray<infer F> ? F extends () => infer Q
   ? // Get the plugin value, may be ill-formed or well-formed
     GetPluginVal<Q>
   : // This should never be reached
-    undefined;
+    undefined : undefined;
 
 /**
  * A helper type to get the values to be intersected with `Jimp` to give
@@ -60,31 +60,31 @@ type GetPluginFuncArrValues<PluginFuncArr> =
  */
 export type GetIntersectionFromPlugins<
   PluginFuncArr extends FunctionRet<JimpPlugin | JimpType>
-> = UnionToIntersection<GetPluginFuncArrValues<PluginFuncArr>>;
+> = UnionToIntersection<Exclude<GetPluginFuncArrValues<PluginFuncArr>, undefined>>;
 
 type GetPluginFuncArrConsts<PluginFuncArr> =
   // Given an array of types infer `Q` (Q should be the type value)
-  PluginFuncArr extends ReadonlyArray<() => infer Q>
+  PluginFuncArr extends ReadonlyArray<infer F> ? F extends () => infer Q
   ? // Get the plugin constants, may be ill-formed or well-formed
     GetPluginConst<Q>
   : // This should never be reached
-    undefined;
+    undefined : undefined;
 
 type GetPluginFuncArrEncoders<PluginFuncArr> =
   // Given an array of types infer `Q` (Q should be the type value)
-  PluginFuncArr extends ReadonlyArray<() => infer Q>
+  PluginFuncArr extends ReadonlyArray<infer F> ? F extends () => infer Q
   ? // Get the plugin encoders, may be ill-formed or well-formed
     GetPluginEncoders<Q>
   : // This should never be reached
-    undefined;
+    undefined : undefined;
 
 type GetPluginFuncArrDecoders<PluginFuncArr> =
   // Given an array of types infer `Q` (Q should be the type value)
-  PluginFuncArr extends ReadonlyArray<() => infer Q>
+  PluginFuncArr extends ReadonlyArray<infer F> ? F extends () => infer Q
   ? // Get the plugin decoders, may be ill-formed or well-formed
     GetPluginDecoders<Q>
   : // This should never be reached
-    undefined;
+    undefined : undefined;
 
 /**
  * A helper type to get the statics to be intersected with `Jimp` to give
