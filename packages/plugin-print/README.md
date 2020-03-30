@@ -41,10 +41,10 @@ Loads a bitmap font from a file
 - @returns {Promise} a promise
 
 ```js
-import jimp from 'jimp';
+import Jimp from 'jimp';
 
 async function main() {
-  const font = await jimp.read(jimp.FONT_SANS_32_BLACK);
+  const font = await Jimp.loadFont(Jimp.FONT_SANS_32_BLACK);
 }
 
 main();
@@ -143,13 +143,13 @@ image.print(
 Measure how wide a piece of text will be.
 
 ```js
-import jimp from 'jimp';
+import Jimp from 'jimp';
 
 async function main() {
-  const font = await jimp.read(jimp.FONT_SANS_32_BLACK);
-  const image = await jimp.read(1000, 1000, 0x0000ffff);
+  const font = await Jimp.loadFont(Jimp.FONT_SANS_32_BLACK);
+  const image = await Jimp.read(1000, 1000, 0x0000ffff);
 
-  jimp.measureText(font, 'Hello World!');
+  Jimp.measureText(font, 'Hello World!');
 }
 
 main();
@@ -160,13 +160,13 @@ main();
 Measure how tall a piece of text will be.
 
 ```js
-import jimp from 'jimp';
+import Jimp from 'jimp';
 
 async function main() {
-  const font = await jimp.read(jimp.FONT_SANS_32_BLACK);
-  const image = await jimp.read(1000, 1000, 0x0000ffff);
+  const font = await Jimp.loadFont(Jimp.FONT_SANS_32_BLACK);
+  const image = await Jimp.read(1000, 1000, 0x0000ffff);
 
-  jimp.measureTextHeight(font, 'Hello World!', 100);
+  Jimp.measureTextHeight(font, 'Hello World!', 100);
 }
 
 main();
