@@ -23,24 +23,7 @@ interface ScanIteratorReturn<This> {
 }
 
 export interface JimpConstructors {
-  new(path: string, cb?: ImageCallback<this>): this;
-  new(urlOptions: URLOptions, cb?: ImageCallback<this>): this;
-  new(image: Jimp, cb?: ImageCallback<this>): this;
-  new(data: Buffer, cb?: ImageCallback<this>): this;
-  new(data: Bitmap, cb?: ImageCallback<this>): this;
-  new(w: number, h: number, cb?: ImageCallback<this>): this;
-  new(
-    w: number,
-    h: number,
-    background?: number | string,
-    cb?: ImageCallback<this>
-  ): this;
-  // For custom constructors when using Jimp.appendConstructorOption
-  new(...args: any[]): this;
-}
-
-export interface Jimp extends JimpConstructors {
-  prototype: this;
+  prototype: Jimp;
   // Constants
   AUTO: -1;
   // blend modes
@@ -65,6 +48,70 @@ export interface Jimp extends JimpConstructors {
   EDGE_EXTEND: 1;
   EDGE_WRAP: 2;
   EDGE_CROP: 3;
+
+  // Constructors
+  new(path: string, cb?: ImageCallback<this['prototype']>): this['prototype'];
+  new(urlOptions: URLOptions, cb?: ImageCallback<this['prototype']>): this['prototype'];
+  new(image: Jimp, cb?: ImageCallback<this['prototype']>): this['prototype'];
+  new(data: Buffer, cb?: ImageCallback<this['prototype']>): this['prototype'];
+  new(data: Bitmap, cb?: ImageCallback<this['prototype']>): this['prototype'];
+  new(w: number, h: number, cb?: ImageCallback<this['prototype']>): this['prototype'];
+  new(
+    w: number,
+    h: number,
+    background?: number | string,
+    cb?: ImageCallback<this['prototype']>
+  ): this['prototype'];
+  // For custom constructors when using Jimp.appendConstructorOption
+  new(...args: any[]): this['prototype'];
+
+  // Functions
+  /**
+   * I'd like to make `Args` generic and used in `run` and `test` but alas,
+   * it's not possible RN:
+   * https://github.com/microsoft/TypeScript/issues/26113
+   */
+  appendConstructorOption<Args extends any[], J extends Jimp = this['prototype']>(
+    name: string,
+    test: (...args: any[]) => boolean,
+    run: (
+      this: J,
+      resolve: (jimp?: J) => any,
+      reject: (reason: Error) => any,
+      ...args: any[]
+    ) => any
+  ): void;
+  read(path: string, cb?: ImageCallback<this['prototype']>): Promise<this['prototype']>;
+  read(image: Jimp, cb?: ImageCallback<this['prototype']>): Promise<this['prototype']>;
+  read(data: Buffer, cb?: ImageCallback<this['prototype']>): Promise<this['prototype']>;
+  read(
+    w: number,
+    h: number,
+    background?: number | string,
+    cb?: ImageCallback<this['prototype']>
+  ): Promise<this['prototype']>;
+  create(path: string): Promise<this['prototype']>;
+  create(image: Jimp): Promise<this['prototype']>;
+  create(data: Buffer): Promise<this['prototype']>;
+  create(w: number, h: number, background?: number | string): Promise<this['prototype']>;
+  rgbaToInt(
+    r: number,
+    g: number,
+    b: number,
+    a: number,
+    cb: GenericCallback<number, any, this['prototype']>
+  ): number;
+  intToRGBA(i: number, cb?: GenericCallback<RGBA>): RGBA;
+  cssColorToHex(cssColor: string): number;
+  limit255(n: number): number;
+  diff(img1: Jimp, img2: Jimp, threshold?: number): DiffReturn<this['prototype']>;
+  distance(img1: Jimp, img2: Jimp): number;
+  compareHashes(hash1: string, hash2: string): number;
+  colorDiff(rgba1: RGB, rgba2: RGB): number;
+  colorDiff(rgba1: RGBA, rgba2: RGBA): number;
+}
+
+export interface Jimp {
   // Properties
   bitmap: Bitmap;
   _rgba: boolean;
@@ -168,49 +215,4 @@ export interface Jimp extends JimpConstructors {
     options?: BlendMode,
     cb?: ImageCallback<this>
   ): this;
-
-  // Functions
-  /**
-   * I'd like to make `Args` generic and used in `run` and `test` but alas,
-   * it's not possible RN:
-   * https://github.com/microsoft/TypeScript/issues/26113
-   */
-  appendConstructorOption<Args extends any[], J extends Jimp = this>(
-    name: string,
-    test: (...args: any[]) => boolean,
-    run: (
-      this: J,
-      resolve: (jimp?: J) => any,
-      reject: (reason: Error) => any,
-      ...args: any[]
-    ) => any
-  ): void;
-  read(path: string, cb?: ImageCallback<this>): Promise<this>;
-  read(image: Jimp, cb?: ImageCallback<this>): Promise<this>;
-  read(data: Buffer, cb?: ImageCallback<this>): Promise<this>;
-  read(
-    w: number,
-    h: number,
-    background?: number | string,
-    cb?: ImageCallback<this>
-  ): Promise<this>;
-  create(path: string): Promise<this>;
-  create(image: Jimp): Promise<this>;
-  create(data: Buffer): Promise<this>;
-  create(w: number, h: number, background?: number | string): Promise<this>;
-  rgbaToInt(
-    r: number,
-    g: number,
-    b: number,
-    a: number,
-    cb: GenericCallback<number, any, this>
-  ): number;
-  intToRGBA(i: number, cb?: GenericCallback<RGBA>): RGBA;
-  cssColorToHex(cssColor: string): number;
-  limit255(n: number): number;
-  diff(img1: Jimp, img2: Jimp, threshold?: number): DiffReturn<this>;
-  distance(img1: Jimp, img2: Jimp): number;
-  compareHashes(hash1: string, hash2: string): number;
-  colorDiff(rgba1: RGB, rgba2: RGB): number;
-  colorDiff(rgba1: RGBA, rgba2: RGBA): number;
 }
