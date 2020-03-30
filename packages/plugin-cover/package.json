@@ -1,6 +1,6 @@
 {
   "name": "@jimp/plugin-cover",
-  "version": "0.9.8",
+  "version": "0.10.0",
   "description": "cover an image.",
   "main": "dist/index.js",
   "module": "es/index.js",
