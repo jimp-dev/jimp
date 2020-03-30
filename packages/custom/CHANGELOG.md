@@ -1,3 +1,15 @@
+# v0.10.0 (Mon Mar 30 2020)
+
+#### 🚀 Enhancement
+
+- Properly split constructor and instance types [#867](https://github.com/oliver-moran/jimp/pull/867) ([@forivall](https://github.com/forivall))
+
+#### Authors: 1
+
+- Emily Marigold Klassen ([@forivall](https://github.com/forivall))
+
+---
+
 # v0.9.6 (Wed Mar 18 2020)
 
 #### 🏠 Internal
