@@ -1,6 +1,6 @@
 {
   "name": "@jimp/plugin-resize",
-  "version": "0.10.0",
+  "version": "0.10.1",
   "description": "Resize an image.",
   "main": "dist/index.js",
   "module": "es/index.js",
