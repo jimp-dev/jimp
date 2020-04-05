@@ -1,3 +1,15 @@
+# v0.10.1 (Sun Apr 05 2020)
+
+#### 📝 Documentation
+
+- Fix a `loadFont` and case inconsistency of `jimp` [#868](https://github.com/oliver-moran/jimp/pull/868) ([@xinbenlv](https://github.com/xinbenlv))
+
+#### Authors: 1
+
+- xinbenlv ([@xinbenlv](https://github.com/xinbenlv))
+
+---
+
 # v0.9.5 (Tue Mar 03 2020)
 
 #### 🐛  Bug Fix

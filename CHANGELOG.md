@@ -1,3 +1,22 @@
+# v0.10.1 (Sun Apr 05 2020)
+
+#### 🐛 Bug Fix
+
+- `@jimp/utils`
+  - Update package.json [#870](https://github.com/oliver-moran/jimp/pull/870) ([@arcanis](https://github.com/arcanis))
+
+#### 📝 Documentation
+
+- `@jimp/plugin-print`
+  - Fix a `loadFont` and case inconsistency of `jimp` [#868](https://github.com/oliver-moran/jimp/pull/868) ([@xinbenlv](https://github.com/xinbenlv))
+
+#### Authors: 2
+
+- Maël Nison ([@arcanis](https://github.com/arcanis))
+- xinbenlv ([@xinbenlv](https://github.com/xinbenlv))
+
+---
+
 # v0.10.0 (Mon Mar 30 2020)
 
 #### 🚀 Enhancement
