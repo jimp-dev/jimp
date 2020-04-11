@@ -1,8 +1,7 @@
 import { Image, Omit } from '@jimp/core';
 import { ThrowStatement } from 'typescript';
 
-export function isNodePattern(cb: Function): true;
-export function isNodePattern(cb: Omit<any, Function>): false;
+export function isNodePattern(cb: any): cb is Function;
 
 export function throwError(error: string | Error, cb?: (err: Error) => void): ThrowStatement;
 

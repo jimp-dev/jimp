@@ -636,7 +636,7 @@ class Jimp extends EventEmitter {
 
   /**
    * Calculates the perceptual hash
-   * @returns {number} the perceptual hash
+   * @returns {string} the perceptual hash
    */
   pHash() {
     const pHash = new ImagePHash();
@@ -669,8 +669,8 @@ class Jimp extends EventEmitter {
    * Returns the offset of a pixel in the bitmap buffer
    * @param {number} x the x coordinate
    * @param {number} y the y coordinate
-   * @param {string} edgeHandling (optional) define how to sum pixels from outside the border
-   * @param {number} cb (optional) a callback for when complete
+   * @param {string} [edgeHandling] (optional) define how to sum pixels from outside the border
+   * @param {(err: null, value: number) => void} [cb] (optional) a callback for when complete
    * @returns {number} the index of the pixel or -1 if not found
    */
   getPixelIndex(x, y, edgeHandling, cb) {
@@ -772,7 +772,7 @@ class Jimp extends EventEmitter {
    * @param {number} x the x coordinate
    * @param {number} y the y coordinate
    * @param {function(Error, Jimp)} cb (optional) a callback for when complete
-   * @returns {number} the index of the pixel or -1 if not found
+   * @returns {this}
    */
   setPixelColor(hex, x, y, cb) {
     if (
@@ -969,7 +969,7 @@ Jimp.intToRGBA = function(i, cb) {
 
 /**
  * Converts a css color (Hex, 8-digit (RGBA) Hex, RGB, RGBA, HSL, HSLA, HSV, HSVA, Named) to a hex number
- * @param {string} cssColor a number
+ * @param {string | number} cssColor a number
  * @returns {number} a hex number representing a color
  */
 Jimp.cssColorToHex = function(cssColor) {
@@ -1066,8 +1066,8 @@ Jimp.compareHashes = function(hash1, hash2) {
 /**
  * Compute color difference
  * 0 means no difference, 1 means maximum difference.
- * @param {number} rgba1:    first color to compare.
- * @param {number} rgba2:    second color to compare.
+ * @param {import('../types/etc').RGBA} rgba1:    first color to compare.
+ * @param {import('../types/etc').RGBA} rgba2:    second color to compare.
  * Both parameters must be an color object {r:val, g:val, b:val, a:val}
  * Where `a` is optional and `val` is an integer between 0 and 255.
  * @returns {number} float between 0 and 1.
