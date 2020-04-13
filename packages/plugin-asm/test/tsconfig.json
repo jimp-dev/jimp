@@ -1,0 +1,12 @@
+{
+  "extends": "../../../node_modules/assemblyscript/tsconfig-base.json",
+  "compilerOptions": {
+    "noImplicitAny": false,
+    "noImplicitReturns": false,
+    "noEmitOnError": false,
+    "experimentalDecorators": false
+  },
+  "include": [
+    "./**/*.ts"
+  ]
+}

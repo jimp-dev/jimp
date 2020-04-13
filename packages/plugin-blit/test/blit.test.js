@@ -3,8 +3,10 @@ import jpeg from '@jimp/jpeg';
 import configure from '@jimp/custom';
 
 import blit from '../src';
+import asm from '@jimp/plugin-asm';
 
-const jimp = configure({ types: [jpeg], plugins: [blit] }, Jimp);
+// const jimp = configure({ types: [jpeg], plugins: [blit] }, Jimp);
+const jimp = configure({ types: [jpeg], plugins: [blit, asm] }, Jimp);
 const testDir = getTestDir(__dirname);
 
 describe('Blit over image', function() {

@@ -12,6 +12,15 @@ interface Blit {
     srch: number,
     cb?: ImageCallback<this>
   ): this;
+  __internal__blit(
+    src: Jimp,
+    x: number,
+    y: number,
+    srcx: number,
+    srcy: number,
+    srcw: number,
+    srch: number,
+  ): void;
 }
 
 export default function(): Blit;

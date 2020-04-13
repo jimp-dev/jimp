@@ -1,0 +1,46 @@
+{
+  "name": "@jimp/plugin-asm",
+  "version": "0.10.1",
+  "description": "Speedups for Jimp using assemblyscript and webassembly.",
+  "main": "dist/index.js",
+  "module": "es/index.js",
+  "types": "index.d.ts",
+  "keywords": [
+    "jimp",
+    "webassembly",
+    "assemblyscript"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/oliver-moran/jimp.git"
+  },
+  "bugs": {
+    "url": "https://github.com/oliver-moran/jimp/issues"
+  },
+  "scripts": {
+    "test": "echo \"Error: run tests from root\" && exit 1",
+    "build": "npm run build:node:production && npm run build:module",
+    "build:dts": "tsc -p src --emitDeclarationOnly",
+    "build:watch": "npm run build:node:debug -- -- --watch --verbose",
+    "build:debug": "npm run build:node:debug",
+    "build:module": "cross-env BABEL_ENV=module babel src -d es --extensions .ts --ignore '**/*.d.ts' --source-maps --config-file ../../babel.config.js",
+    "build:node": "babel src -d dist --extensions .ts --ignore '**/*.d.ts' --source-maps --config-file ../../babel.config.js",
+    "build:node:debug": "cross-env BABEL_ENV=development npm run build:node",
+    "build:node:production": "cross-env BABEL_ENV=production npm run build:node",
+    "asbuild:untouched": "asc assembly/index.ts -b build/untouched.wasm -t build/untouched.wat --validate --sourceMap --debug",
+    "asbuild:optimized": "asc assembly/index.ts -b build/optimized.wasm -t build/optimized.wat --validate --sourceMap --optimize",
+    "asbuild": "npm run asbuild:untouched && npm run asbuild:optimized"
+  },
+  "author": "Emily Marigold Klassen <forivall@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "@assemblyscript/loader": "^0.9.4"
+  },
+  "devDependencies": {
+    "assemblyscript": "^0.9.4"
+  },
+  "xo": false,
+  "publishConfig": {
+    "access": "public"
+  }
+}

@@ -55,6 +55,25 @@ export default () => ({
     srcw = Math.round(srcw);
     srch = Math.round(srch);
 
+    this.__internal__blit(src, x, y, srcx, srcy, srcw, srch);
+
+    if (isNodePattern(cb)) {
+      cb.call(this, null, this);
+    }
+
+    return this;
+  },
+  /**
+   * Internal function, for plugin-asm to override
+   * @param {Jimp} src the source Jimp instance
+   * @param {number} x the x position to blit the image
+   * @param {number} y the y position to blit the image
+   * @param {number} srcx (optional) the x position from which to crop the source image
+   * @param {number} srcy (optional) the y position from which to crop the source image
+   * @param {number} srcw (optional) the width to which to crop the source image
+   * @param {number} srch (optional) the height to which to crop the source image
+   */
+  __internal__blit(src, x, y, srcx, srcy, srcw, srch) {
     const maxWidth = this.bitmap.width;
     const maxHeight = this.bitmap.height;
     const baseImage = this;
@@ -95,11 +114,5 @@ export default () => ({
         );
       }
     });
-
-    if (isNodePattern(cb)) {
-      cb.call(this, null, this);
-    }
-
-    return this;
   }
 });
