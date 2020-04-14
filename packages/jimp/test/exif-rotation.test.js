@@ -1,9 +1,8 @@
 import { Jimp, getTestDir } from '@jimp/test-utils';
 
 import configure from '@jimp/custom';
-import plugins from '@jimp/plugins';
 
-const jimp = configure({ plugins: [plugins] }, Jimp);
+const jimp = configure({ plugins: [] }, Jimp);
 
 describe('EXIF orientation', () => {
   for (let orientation = 1; orientation <= 8; orientation++) {
