@@ -1,3 +1,16 @@
+# v0.10.2 (Tue Apr 14 2020)
+
+#### 🐛 Bug Fix
+
+- `@jimp/core`, `jimp`
+  - Rewrite handling EXIF orientation — add tests, make it plugin-independent [#875](https://github.com/oliver-moran/jimp/pull/875) ([@skalee](https://github.com/skalee))
+
+#### Authors: 1
+
+- Sebastian Skałacki ([@skalee](https://github.com/skalee))
+
+---
+
 # v0.10.1 (Sun Apr 05 2020)
 
 #### 🐛 Bug Fix
