@@ -1,6 +1,6 @@
 {
   "name": "@jimp/plugin-crop",
-  "version": "0.10.1",
+  "version": "0.10.2",
   "description": "crop an image.",
   "main": "dist/index.js",
   "module": "es/index.js",
