@@ -25,8 +25,8 @@ function getMIMEFromBuffer(buffer, path) {
 }
 
 /*
- * Automagically rotates an image based on its EXIF data (if present)
- * @param img a constants object
+ * Automagically rotates an image based on its EXIF data (if present).
+ * @param img {Jimp} a Jimp image object
  */
 function exifRotate(img) {
   const exif = img._exif;
