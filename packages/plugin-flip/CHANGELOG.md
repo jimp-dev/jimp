@@ -1,3 +1,15 @@
+# v0.10.3 (Mon Apr 20 2020)
+
+#### 🐛 Bug Fix
+
+- Simplify and fix flip [#879](https://github.com/oliver-moran/jimp/pull/879) ([@skalee](https://github.com/skalee))
+
+#### Authors: 1
+
+- Sebastian Skałacki ([@skalee](https://github.com/skalee))
+
+---
+
 # v0.9.3 (Tue Nov 26 2019)
 
 #### 🐛  Bug Fix
