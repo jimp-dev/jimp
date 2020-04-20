@@ -15,11 +15,6 @@ function flipFn(horizontal, vertical, cb) {
       cb
     );
 
-  if (horizontal && vertical) {
-    // shortcut
-    return this.rotate(180, true, cb);
-  }
-
   const bitmap = Buffer.alloc(this.bitmap.data.length);
   this.scanQuiet(0, 0, this.bitmap.width, this.bitmap.height, function(
     x,
