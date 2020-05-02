@@ -1,6 +1,6 @@
 {
   "name": "@jimp/bmp",
-  "version": "0.10.3",
+  "version": "0.10.4",
   "description": "Default Jimp bmp encoder/decoder.",
   "main": "dist/index.js",
   "module": "es/index.js",
@@ -22,8 +22,7 @@
   "dependencies": {
     "@babel/runtime": "^7.7.2",
     "@jimp/utils": "link:../utils",
-    "bmp-js": "^0.1.0",
-    "core-js": "^3.4.1"
+    "bmp-js": "^0.1.0"
   },
   "peerDependencies": {
     "@jimp/custom": ">=0.3.5"

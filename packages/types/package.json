@@ -1,6 +1,6 @@
 {
   "name": "@jimp/types",
-  "version": "0.10.3",
+  "version": "0.10.4",
   "description": "Default Jimp encoder/decoders.",
   "main": "dist/index.js",
   "module": "es/index.js",
@@ -23,7 +23,6 @@
     "@jimp/jpeg": "link:../type-jpeg",
     "@jimp/png": "link:../type-png",
     "@jimp/tiff": "link:../type-tiff",
-    "core-js": "^3.4.1",
     "timm": "^1.6.1"
   },
   "peerDependencies": {

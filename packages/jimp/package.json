@@ -1,6 +1,6 @@
 {
   "name": "jimp",
-  "version": "0.10.3",
+  "version": "0.10.4",
   "description": "An image processing library written entirely in JavaScript (i.e. zero external or native dependencies)",
   "main": "dist/index.js",
   "module": "es/index.js",
@@ -63,7 +63,6 @@
     "@jimp/custom": "link:../custom",
     "@jimp/plugins": "link:../plugins",
     "@jimp/types": "link:../types",
-    "core-js": "^3.4.1",
     "regenerator-runtime": "^0.13.3"
   },
   "devDependencies": {

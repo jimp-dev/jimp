@@ -1,6 +1,6 @@
 {
   "name": "@jimp/png",
-  "version": "0.10.3",
+  "version": "0.10.4",
   "description": "Default Jimp png encoder/decoder.",
   "main": "dist/index.js",
   "module": "es/index.js",
@@ -22,7 +22,6 @@
   "dependencies": {
     "@babel/runtime": "^7.7.2",
     "@jimp/utils": "link:../utils",
-    "core-js": "^3.4.1",
     "pngjs": "^3.3.3"
   },
   "peerDependencies": {

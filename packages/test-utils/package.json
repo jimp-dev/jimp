@@ -1,6 +1,6 @@
 {
   "name": "@jimp/test-utils",
-  "version": "0.10.3",
+  "version": "0.10.4",
   "description": "Test utils for jimp extensions.",
   "main": "dist/index.js",
   "module": "es/index.js",
@@ -23,7 +23,6 @@
   },
   "dependencies": {
     "@babel/runtime": "^7.7.2",
-    "core-js": "^3.4.1",
     "pngjs": "^3.3.3"
   },
   "devDependencies": {
