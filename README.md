@@ -11,6 +11,10 @@ Installation: `npm install --save jimp`
 
 API documentation can be found in the main [jimp package](./packages/jimp)
 
+> ## Notice of potentially breaking change
+>
+> As of v0.10.4, core-js is no longer included with jimp or its extensions. If you rely on core-js, install it with either `yarn add core-js` or `npm i core-js`
+
 ## Tools
 
 :hammer: [cli](./packages/cli) - Jimp as a CLI program. Can load and run all plugins
@@ -70,7 +74,7 @@ Jimp is licensed under the MIT license. Open Sans is licensed under the Apache l
 
 ## Project Using Jimp
 
-:star: [nimp](https://nimp.app/) - Node based image manipulator.  Procedurally create and edit images.
+:star: [nimp](https://nimp.app/) - Node based image manipulator. Procedurally create and edit images.
 
 :star: [favicons](https://www.npmjs.com/package/favicons) - A Node.js module for generating favicons and their associated files.
 
