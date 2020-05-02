@@ -1008,21 +1008,19 @@
     which "^1.3.1"
 
 "@jimp/bmp@link:packages/type-bmp":
-  version "0.9.6"
+  version "0.10.3"
   dependencies:
     "@babel/runtime" "^7.7.2"
     "@jimp/utils" "link:packages/utils"
     bmp-js "^0.1.0"
-    core-js "^3.4.1"
 
 "@jimp/core@link:packages/core":
-  version "0.9.6"
+  version "0.10.3"
   dependencies:
     "@babel/runtime" "^7.7.2"
     "@jimp/utils" "link:packages/utils"
     any-base "^1.1.0"
     buffer "^5.2.0"
-    core-js "^3.4.1"
     exif-parser "^0.1.12"
     file-type "^9.0.0"
     load-bmfont "^1.3.1"
@@ -1032,161 +1030,167 @@
     tinycolor2 "^1.4.1"
 
 "@jimp/custom@link:packages/custom":
-  version "0.9.6"
+  version "0.10.3"
   dependencies:
     "@babel/runtime" "^7.7.2"
     "@jimp/core" "link:packages/core"
-    core-js "^3.4.1"
 
 "@jimp/gif@link:packages/type-gif":
-  version "0.9.6"
+  version "0.10.3"
   dependencies:
     "@babel/runtime" "^7.7.2"
     "@jimp/utils" "link:packages/utils"
-    core-js "^3.4.1"
     omggif "^1.0.9"
 
 "@jimp/jpeg@link:packages/type-jpeg":
-  version "0.9.6"
+  version "0.10.3"
   dependencies:
     "@babel/runtime" "^7.7.2"
     "@jimp/utils" "link:packages/utils"
-    core-js "^3.4.1"
     jpeg-js "^0.3.4"
 
 "@jimp/plugin-blit@link:packages/plugin-blit":
-  version "0.9.6"
+  version "0.10.3"
   dependencies:
     "@babel/runtime" "^7.7.2"
     "@jimp/utils" "link:packages/utils"
-    core-js "^3.4.1"
 
 "@jimp/plugin-blur@link:packages/plugin-blur":
-  version "0.9.6"
+  version "0.10.3"
   dependencies:
     "@babel/runtime" "^7.7.2"
     "@jimp/utils" "link:packages/utils"
-    core-js "^3.4.1"
+
+"@jimp/plugin-circle@link:packages/plugin-circle":
+  version "0.10.3"
+  dependencies:
+    "@babel/runtime" "^7.7.2"
+    "@jimp/utils" "link:packages/utils"
 
 "@jimp/plugin-color@link:packages/plugin-color":
-  version "0.9.6"
+  version "0.10.3"
   dependencies:
     "@babel/runtime" "^7.7.2"
     "@jimp/utils" "link:packages/utils"
-    core-js "^3.4.1"
     tinycolor2 "^1.4.1"
 
 "@jimp/plugin-contain@link:packages/plugin-contain":
-  version "0.9.6"
+  version "0.10.3"
   dependencies:
     "@babel/runtime" "^7.7.2"
     "@jimp/utils" "link:packages/utils"
-    core-js "^3.4.1"
 
 "@jimp/plugin-cover@link:packages/plugin-cover":
-  version "0.9.6"
+  version "0.10.3"
   dependencies:
     "@babel/runtime" "^7.7.2"
     "@jimp/utils" "link:packages/utils"
-    core-js "^3.4.1"
 
 "@jimp/plugin-crop@link:packages/plugin-crop":
-  version "0.9.6"
+  version "0.10.3"
   dependencies:
     "@babel/runtime" "^7.7.2"
     "@jimp/utils" "link:packages/utils"
-    core-js "^3.4.1"
 
 "@jimp/plugin-displace@link:packages/plugin-displace":
-  version "0.9.6"
+  version "0.10.3"
   dependencies:
     "@babel/runtime" "^7.7.2"
     "@jimp/utils" "link:packages/utils"
-    core-js "^3.4.1"
 
 "@jimp/plugin-dither@link:packages/plugin-dither":
-  version "0.9.6"
+  version "0.10.3"
   dependencies:
     "@babel/runtime" "^7.7.2"
     "@jimp/utils" "link:packages/utils"
-    core-js "^3.4.1"
+
+"@jimp/plugin-fisheye@link:packages/plugin-fisheye":
+  version "0.10.3"
+  dependencies:
+    "@babel/runtime" "^7.7.2"
+    "@jimp/utils" "link:packages/utils"
 
 "@jimp/plugin-flip@link:packages/plugin-flip":
-  version "0.9.6"
+  version "0.10.3"
   dependencies:
     "@babel/runtime" "^7.7.2"
     "@jimp/utils" "link:packages/utils"
-    core-js "^3.4.1"
 
 "@jimp/plugin-gaussian@link:packages/plugin-gaussian":
-  version "0.9.6"
+  version "0.10.3"
   dependencies:
     "@babel/runtime" "^7.7.2"
     "@jimp/utils" "link:packages/utils"
-    core-js "^3.4.1"
 
 "@jimp/plugin-invert@link:packages/plugin-invert":
-  version "0.9.6"
+  version "0.10.3"
   dependencies:
     "@babel/runtime" "^7.7.2"
     "@jimp/utils" "link:packages/utils"
-    core-js "^3.4.1"
 
 "@jimp/plugin-mask@link:packages/plugin-mask":
-  version "0.9.6"
+  version "0.10.3"
   dependencies:
     "@babel/runtime" "^7.7.2"
     "@jimp/utils" "link:packages/utils"
-    core-js "^3.4.1"
 
 "@jimp/plugin-normalize@link:packages/plugin-normalize":
-  version "0.9.6"
+  version "0.10.3"
   dependencies:
     "@babel/runtime" "^7.7.2"
     "@jimp/utils" "link:packages/utils"
-    core-js "^3.4.1"
 
 "@jimp/plugin-print@link:packages/plugin-print":
-  version "0.9.6"
+  version "0.10.3"
   dependencies:
     "@babel/runtime" "^7.7.2"
     "@jimp/utils" "link:packages/utils"
-    core-js "^3.4.1"
     load-bmfont "^1.4.0"
 
 "@jimp/plugin-resize@link:packages/plugin-resize":
-  version "0.9.6"
+  version "0.10.3"
   dependencies:
     "@babel/runtime" "^7.7.2"
     "@jimp/utils" "link:packages/utils"
-    core-js "^3.4.1"
 
 "@jimp/plugin-rotate@link:packages/plugin-rotate":
-  version "0.9.6"
+  version "0.10.3"
   dependencies:
     "@babel/runtime" "^7.7.2"
     "@jimp/utils" "link:packages/utils"
-    core-js "^3.4.1"
 
 "@jimp/plugin-scale@link:packages/plugin-scale":
-  version "0.9.6"
+  version "0.10.3"
   dependencies:
     "@babel/runtime" "^7.7.2"
     "@jimp/utils" "link:packages/utils"
-    core-js "^3.4.1"
+
+"@jimp/plugin-shadow@link:packages/plugin-shadow":
+  version "0.10.3"
+  dependencies:
+    "@babel/runtime" "^7.7.2"
+    "@jimp/utils" "link:packages/utils"
+
+"@jimp/plugin-threshold@link:packages/plugin-threshold":
+  version "0.10.3"
+  dependencies:
+    "@babel/runtime" "^7.7.2"
+    "@jimp/utils" "link:packages/utils"
 
 "@jimp/plugins@link:packages/plugins":
-  version "0.9.6"
+  version "0.10.3"
   dependencies:
     "@babel/runtime" "^7.7.2"
     "@jimp/plugin-blit" "link:packages/plugin-blit"
     "@jimp/plugin-blur" "link:packages/plugin-blur"
+    "@jimp/plugin-circle" "link:packages/plugin-circle"
     "@jimp/plugin-color" "link:packages/plugin-color"
     "@jimp/plugin-contain" "link:packages/plugin-contain"
     "@jimp/plugin-cover" "link:packages/plugin-cover"
     "@jimp/plugin-crop" "link:packages/plugin-crop"
     "@jimp/plugin-displace" "link:packages/plugin-displace"
     "@jimp/plugin-dither" "link:packages/plugin-dither"
+    "@jimp/plugin-fisheye" "link:packages/plugin-fisheye"
     "@jimp/plugin-flip" "link:packages/plugin-flip"
     "@jimp/plugin-gaussian" "link:packages/plugin-gaussian"
     "@jimp/plugin-invert" "link:packages/plugin-invert"
@@ -1196,33 +1200,31 @@
     "@jimp/plugin-resize" "link:packages/plugin-resize"
     "@jimp/plugin-rotate" "link:packages/plugin-rotate"
     "@jimp/plugin-scale" "link:packages/plugin-scale"
-    core-js "^3.4.1"
+    "@jimp/plugin-shadow" "link:packages/plugin-shadow"
+    "@jimp/plugin-threshold" "link:packages/plugin-threshold"
     timm "^1.6.1"
 
 "@jimp/png@link:packages/type-png":
-  version "0.9.6"
+  version "0.10.3"
   dependencies:
     "@babel/runtime" "^7.7.2"
     "@jimp/utils" "link:packages/utils"
-    core-js "^3.4.1"
     pngjs "^3.3.3"
 
 "@jimp/test-utils@link:packages/test-utils":
-  version "0.9.6"
+  version "0.10.3"
   dependencies:
     "@babel/runtime" "^7.7.2"
-    core-js "^3.4.1"
     pngjs "^3.3.3"
 
 "@jimp/tiff@link:packages/type-tiff":
-  version "0.9.6"
+  version "0.10.3"
   dependencies:
     "@babel/runtime" "^7.7.2"
-    core-js "^3.4.1"
     utif "^2.0.1"
 
 "@jimp/types@link:packages/types":
-  version "0.9.6"
+  version "0.10.3"
   dependencies:
     "@babel/runtime" "^7.7.2"
     "@jimp/bmp" "link:packages/type-bmp"
@@ -1230,14 +1232,13 @@
     "@jimp/jpeg" "link:packages/type-jpeg"
     "@jimp/png" "link:packages/type-png"
     "@jimp/tiff" "link:packages/type-tiff"
-    core-js "^3.4.1"
     timm "^1.6.1"
 
 "@jimp/utils@link:packages/utils":
-  version "0.9.6"
+  version "0.10.3"
   dependencies:
     "@babel/runtime" "^7.7.2"
-    core-js "^3.4.1"
+    regenerator-runtime "^0.13.3"
 
 "@lerna/add@3.16.2":
   version "3.16.2"
@@ -3855,11 +3856,6 @@ core-js@^3.1.3:
   version "3.2.1"
   resolved "https://registry.yarnpkg.com/core-js/-/core-js-3.2.1.tgz#cd41f38534da6cc59f7db050fe67307de9868b09"
   integrity sha512-Qa5XSVefSVPRxy2XfUC13WbvqkxhkwB3ve+pgCQveNgYzbM/UxZeu1dcOX/xr4UmfUd+muuvsaxilQzCyUurMw==
-
-core-js@^3.4.1:
-  version "3.4.1"
-  resolved "https://registry.yarnpkg.com/core-js/-/core-js-3.4.1.tgz#76dd6828412900ab27c8ce0b22e6114d7ce21b18"
-  integrity sha512-KX/dnuY/J8FtEwbnrzmAjUYgLqtk+cxM86hfG60LGiW3MmltIc2yAmDgBgEkfm0blZhUrdr1Zd84J2Y14mLxzg==
 
 core-util-is@1.0.2, core-util-is@~1.0.0:
   version "1.0.2"

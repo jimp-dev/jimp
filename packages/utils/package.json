@@ -21,7 +21,6 @@
   },
   "dependencies": {
     "@babel/runtime": "^7.7.2",
-    "core-js": "^3.4.1",
     "regenerator-runtime": "^0.13.3"
   }
 }

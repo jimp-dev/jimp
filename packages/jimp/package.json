@@ -63,7 +63,6 @@
     "@jimp/custom": "link:../custom",
     "@jimp/plugins": "link:../plugins",
     "@jimp/types": "link:../types",
-    "core-js": "^3.4.1",
     "regenerator-runtime": "^0.13.3"
   },
   "devDependencies": {

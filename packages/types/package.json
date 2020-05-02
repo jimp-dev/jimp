@@ -23,7 +23,6 @@
     "@jimp/jpeg": "link:../type-jpeg",
     "@jimp/png": "link:../type-png",
     "@jimp/tiff": "link:../type-tiff",
-    "core-js": "^3.4.1",
     "timm": "^1.6.1"
   },
   "peerDependencies": {
