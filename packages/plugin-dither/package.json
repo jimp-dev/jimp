@@ -1,6 +1,6 @@
 {
   "name": "@jimp/plugin-dither",
-  "version": "0.10.3",
+  "version": "0.10.4",
   "description": "Dither an image.",
   "main": "dist/index.js",
   "module": "es/index.js",
