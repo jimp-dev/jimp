@@ -1,6 +1,6 @@
 {
   "name": "@jimp/plugin-blit",
-  "version": "0.10.4",
+  "version": "0.11.0",
   "description": "Blit an image.",
   "main": "dist/index.js",
   "module": "es/index.js",
