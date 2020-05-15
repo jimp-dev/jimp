@@ -99,7 +99,7 @@ export interface JimpConstructors {
     g: number,
     b: number,
     a: number,
-    cb: GenericCallback<number, any, this['prototype']>
+    cb?: GenericCallback<number, any, this['prototype']>
   ): number;
   intToRGBA(i: number, cb?: GenericCallback<RGBA>): RGBA;
   cssColorToHex(cssColor: string): number;
