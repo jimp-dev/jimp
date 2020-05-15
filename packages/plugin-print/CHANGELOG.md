@@ -1,3 +1,15 @@
+# v0.11.0 (Fri May 15 2020)
+
+#### 🚀 Enhancement
+
+- Removed Core-JS as a dependency. [#882](https://github.com/oliver-moran/jimp/pull/882) ([@EricRabil](https://github.com/EricRabil))
+
+#### Authors: 1
+
+- Eric Rabil ([@EricRabil](https://github.com/EricRabil))
+
+---
+
 # v0.10.1 (Sun Apr 05 2020)
 
 #### 📝 Documentation

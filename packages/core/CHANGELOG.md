@@ -1,3 +1,20 @@
+# v0.11.0 (Fri May 15 2020)
+
+#### 🚀 Enhancement
+
+- Removed Core-JS as a dependency. [#882](https://github.com/oliver-moran/jimp/pull/882) ([@EricRabil](https://github.com/EricRabil))
+
+#### 🐛 Bug Fix
+
+- Make callback optional for Jimp.rgbaToInt [#889](https://github.com/oliver-moran/jimp/pull/889) ([@HanKruiger](https://github.com/HanKruiger))
+
+#### Authors: 2
+
+- Eric Rabil ([@EricRabil](https://github.com/EricRabil))
+- Han Kruiger ([@HanKruiger](https://github.com/HanKruiger))
+
+---
+
 # v0.10.2 (Tue Apr 14 2020)
 
 #### 🐛 Bug Fix
