@@ -1,3 +1,29 @@
+# v0.12.0 (Sun May 17 2020)
+
+### Release Notes
+
+_From #891_
+
+This also drops support for node 6.14.
+
+---
+
+#### 🚀 Enhancement
+
+- Remove compiling polyfills into published code [#891](https://github.com/oliver-moran/jimp/pull/891) ([@danez](https://github.com/danez) [@hipstersmoothie](https://github.com/hipstersmoothie))
+
+#### ⚠️  Pushed to `master`
+
+- Fix package.json ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- Add readme description ([@hipstersmoothie](https://github.com/hipstersmoothie))
+
+#### Authors: 2
+
+- Andrew Lisowski ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- Daniel Tschinder ([@danez](https://github.com/danez))
+
+---
+
 # v0.11.0 (Fri May 15 2020)
 
 #### 🚀 Enhancement
