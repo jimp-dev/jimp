@@ -5,7 +5,7 @@
   "workspaces": [
     "packages/*"
   ],
-  "description", "The jimp monorepo.",
+  "description": "The jimp monorepo.",
   "repository": "oliver-moran/jimp",
   "author": "Andrew Lisowski <lisowski54@gmail.com>",
   "publishConfig": {
