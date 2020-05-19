@@ -1,3 +1,16 @@
+# v0.12.1 (Tue May 19 2020)
+
+#### 🐛 Bug Fix
+
+- `@jimp/jpeg`
+  - update jpeg-js [#892](https://github.com/oliver-moran/jimp/pull/892) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+
+#### Authors: 1
+
+- Andrew Lisowski ([@hipstersmoothie](https://github.com/hipstersmoothie))
+
+---
+
 # v0.12.0 (Sun May 17 2020)
 
 ### Release Notes
