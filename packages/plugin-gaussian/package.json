@@ -1,6 +1,6 @@
 {
   "name": "@jimp/plugin-gaussian",
-  "version": "0.12.0",
+  "version": "0.12.1",
   "description": "gaussian blur an image.",
   "main": "dist/index.js",
   "module": "es/index.js",
