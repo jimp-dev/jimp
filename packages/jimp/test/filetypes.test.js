@@ -36,6 +36,13 @@ describe('FileType', () => {
 
     image.getMIME().should.be.equal(clone.getMIME());
   });
+
+  it('clones gif with the correct MIME type', async () => {
+    const image = await Jimp.read(imagesDir + '/flower.gif');
+    const clone = image.clone();
+
+    image.getMIME().should.be.equal(clone.getMIME());
+  });
 });
 
 describe('hasAlpha', () => {
