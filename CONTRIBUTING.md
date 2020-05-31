@@ -50,7 +50,7 @@ yarn test
 ...or only specific tests based on describe text:
 
 ```sh
-yarn test --grep 'FileType'
+yarn test --grep 'my test description'
 ```
 
 ...or run each time a file changes:
