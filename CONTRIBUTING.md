@@ -47,10 +47,10 @@ While developing you may want to test only on node.js:
 yarn test
 ```
 
-...or only one test file:
+...or only specific tests based on describe text:
 
 ```sh
-yarn test test/some.test.js
+yarn test --grep 'my test description'
 ```
 
 ...or run each time a file changes:
