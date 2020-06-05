@@ -1,3 +1,21 @@
+# v0.13.0 (Fri Jun 05 2020)
+
+#### 🚀 Enhancement
+
+- `jimp`, `@jimp/gif`
+  - Add single frame encoder for type-gif [#899](https://github.com/oliver-moran/jimp/pull/899) ([@jeffbseeking](https://github.com/jeffbseeking) [@hipstersmoothie](https://github.com/hipstersmoothie))
+
+#### 📝 Documentation
+
+- Fix one file testing instructions [#898](https://github.com/oliver-moran/jimp/pull/898) ([@jeffbseeking](https://github.com/jeffbseeking))
+
+#### Authors: 2
+
+- Andrew Lisowski ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- Jeff Bonnes ([@jeffbseeking](https://github.com/jeffbseeking))
+
+---
+
 # v0.12.1 (Tue May 19 2020)
 
 #### 🐛 Bug Fix

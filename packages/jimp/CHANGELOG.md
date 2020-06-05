@@ -1,3 +1,16 @@
+# v0.13.0 (Fri Jun 05 2020)
+
+#### 🚀 Enhancement
+
+- Add single frame encoder for type-gif [#899](https://github.com/oliver-moran/jimp/pull/899) ([@jeffbseeking](https://github.com/jeffbseeking) [@hipstersmoothie](https://github.com/hipstersmoothie))
+
+#### Authors: 2
+
+- Andrew Lisowski ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- Jeff Bonnes ([@jeffbseeking](https://github.com/jeffbseeking))
+
+---
+
 # v0.11.0 (Fri May 15 2020)
 
 #### 🚀 Enhancement
