@@ -1,4 +1,5 @@
 import GIF from 'omggif';
+import { GifUtil, GifFrame, BitmapImage, GifCodec } from 'gifwrap';
 
 const MIME_TYPE = 'image/gif';
 
@@ -21,6 +22,18 @@ export default () => ({
         width: gifObj.width,
         height: gifObj.height
       };
+    }
+  },
+
+  encoders: {
+    [MIME_TYPE]: data => {
+      const bitmap = new BitmapImage(data.bitmap);
+      GifUtil.quantizeDekker(bitmap, 256);
+      const newFrame = new GifFrame(bitmap);
+      const gifCodec = new GifCodec();
+      return gifCodec.encodeGif([newFrame], {}).then(newGif => {
+        return newGif.buffer;
+      });
     }
   }
 });
