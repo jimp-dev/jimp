@@ -27,10 +27,10 @@ export default () => ({
 
   encoders: {
     [MIME_TYPE]: data => {
-      let bitmap = new BitmapImage(data.bitmap);
+      const bitmap = new BitmapImage(data.bitmap);
       GifUtil.quantizeDekker(bitmap, 256);
-      let newFrame = new GifFrame(bitmap);
-      let gifCodec = new GifCodec();
+      const newFrame = new GifFrame(bitmap);
+      const gifCodec = new GifCodec();
       return gifCodec.encodeGif([newFrame], {}).then(newGif => {
         return newGif.buffer;
       });

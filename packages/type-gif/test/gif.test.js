@@ -21,6 +21,9 @@ describe('GIF', () => {
   it('export GIF', async () => {
     const jgd = await jimp.read(imagesDir + '/flower.gif');
     const buffer = await jgd.getBufferAsync('image/gif');
-    buffer.toString().should.match(/^GIF/);
+    buffer
+      .toString()
+      .startsWith('GIF')
+      .should.be.equal(true);
   });
 });
