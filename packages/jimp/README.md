@@ -344,6 +344,7 @@ The following modes can be used for compositing two images together. mode defaul
 Jimp.BLEND_SOURCE_OVER;
 Jimp.BLEND_DESTINATION_OVER;
 Jimp.BLEND_MULTIPLY;
+Jimp.BLEND_ADD;
 Jimp.BLEND_SCREEN;
 Jimp.BLEND_OVERLAY;
 Jimp.BLEND_DARKEN;
