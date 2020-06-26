@@ -42,6 +42,26 @@ export function multiply(src, dst, ops = 1) {
   return { r, g, b, a };
 }
 
+export function add(src, dst, ops = 1) {
+  src.a *= ops;
+
+  const a = dst.a + src.a - dst.a * src.a;
+
+  const sra = src.r * src.a;
+  const sga = src.g * src.a;
+  const sba = src.b * src.a;
+
+  const dra = dst.r * dst.a;
+  const dga = dst.g * dst.a;
+  const dba = dst.b * dst.a;
+
+  const r = (sra + dra) / a;
+  const g = (sga + dga) / a;
+  const b = (sba + dba) / a;
+
+  return { r, g, b, a };
+}
+
 export function screen(src, dst, ops = 1) {
   src.a *= ops;
 
