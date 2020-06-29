@@ -14,6 +14,7 @@ export const VERTICAL_ALIGN_BOTTOM = 32;
 export const BLEND_SOURCE_OVER = 'srcOver';
 export const BLEND_DESTINATION_OVER = 'dstOver';
 export const BLEND_MULTIPLY = 'multiply';
+export const BLEND_ADD = 'add';
 export const BLEND_SCREEN = 'screen';
 export const BLEND_OVERLAY = 'overlay';
 export const BLEND_DARKEN = 'darken';

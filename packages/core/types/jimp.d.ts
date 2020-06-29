@@ -30,6 +30,7 @@ export interface JimpConstructors {
   BLEND_SOURCE_OVER: string;
   BLEND_DESTINATION_OVER: string;
   BLEND_MULTIPLY: string;
+  BLEND_ADD: string;
   BLEND_SCREEN: string;
   BLEND_OVERLAY: string;
   BLEND_DARKEN: string;
