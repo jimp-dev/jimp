@@ -1,3 +1,15 @@
+# v0.14.0 (Mon Jun 29 2020)
+
+#### 🚀 Enhancement
+
+- include Addition (Add) blending mode + Officially drop support for Node 8 [#904](https://github.com/oliver-moran/jimp/pull/904) ([@GlitchyPSIX](https://github.com/GlitchyPSIX))
+
+#### Authors: 1
+
+- GlitchyPSI ([@GlitchyPSIX](https://github.com/GlitchyPSIX))
+
+---
+
 # v0.13.0 (Fri Jun 05 2020)
 
 #### 🚀 Enhancement
