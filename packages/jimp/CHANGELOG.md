@@ -1,3 +1,15 @@
+# v0.15.0 (Fri Aug 07 2020)
+
+#### 🚀 Enhancement
+
+- Remove 'browser' field from main jimp package's package.json. [#918](https://github.com/oliver-moran/jimp/pull/918) ([@Gustavo6046](https://github.com/Gustavo6046))
+
+#### Authors: 1
+
+- Gustavo Ramos Rehermann ([@Gustavo6046](https://github.com/Gustavo6046))
+
+---
+
 # v0.14.0 (Mon Jun 29 2020)
 
 #### 🚀 Enhancement
