@@ -117,6 +117,7 @@ export default function pluginCrop(event) {
             if (typeof config.leaveBorder !== 'undefined') {
               ({ leaveBorder } = config);
             }
+
             if (typeof config.ignoreSides !== 'undefined') {
               ({ ignoreSides } = config);
             }
@@ -177,6 +178,7 @@ export default function pluginCrop(event) {
             eastPixelsToCrop++;
           }
         }
+
         // south side (scan rows from south to north)
         colorTarget = this.getPixelColor(0, h);
 
@@ -200,6 +202,7 @@ export default function pluginCrop(event) {
             southPixelsToCrop++;
           }
         }
+
         // west side (scan columns from west to east)
         colorTarget = this.getPixelColor(w, h);
         if (!ignoreSides.west) {

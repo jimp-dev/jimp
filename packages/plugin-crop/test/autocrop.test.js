@@ -353,4 +353,77 @@ describe('Autocrop', () => {
         )
       );
   });
+
+  it('ignore sides north', async () => {
+    const imgSrc = await jimp.read(
+      mkJGD(
+        '          ',
+        '    ◆◆    ',
+        '   ◆▦▦◆   ',
+        '  ◆▦▦▦▦◆  ',
+        '   ◆▦▦◆   ',
+        '    ◆◆    ',
+        '          '
+      )
+    );
+
+    imgSrc
+      .autocrop({ cropOnlyFrames: false, ignoreSides: { north: true } })
+      .getJGDSync()
+      .should.be.sameJGD(
+        mkJGD('      ', '  ◆◆  ', ' ◆▦▦◆ ', '◆▦▦▦▦◆', ' ◆▦▦◆ ', '  ◆◆  ')
+      );
+  });
+
+  it('ignore sides south and west', async () => {
+    const imgSrc = await jimp.read(
+      mkJGD(
+        '          ',
+        '    ◆◆    ',
+        '   ◆▦▦◆   ',
+        '  ◆▦▦▦▦◆  ',
+        '   ◆▦▦◆   ',
+        '    ◆◆    ',
+        '          '
+      )
+    );
+
+    imgSrc
+      .autocrop({
+        cropOnlyFrames: false,
+        ignoreSides: { west: true, south: true }
+      })
+      .getJGDSync()
+      .should.be.sameJGD(
+        mkJGD(
+          '  ◆◆    ',
+          ' ◆▦▦◆   ',
+          '◆▦▦▦▦◆  ',
+          ' ◆▦▦◆   ',
+          '  ◆◆    ',
+          '        '
+        )
+      );
+  });
+
+  it('ignore sides east', async () => {
+    const imgSrc = await jimp.read(
+      mkJGD(
+        '          ',
+        '    ◆◆    ',
+        '   ◆▦▦◆   ',
+        '  ◆▦▦▦▦◆  ',
+        '   ◆▦▦◆   ',
+        '    ◆◆    ',
+        '          '
+      )
+    );
+
+    imgSrc
+      .autocrop({ cropOnlyFrames: false, ignoreSides: { east: true } })
+      .getJGDSync()
+      .should.be.sameJGD(
+        mkJGD('    ◆◆  ', '   ◆▦▦◆ ', '  ◆▦▦▦▦◆', '   ◆▦▦◆ ', '    ◆◆  ')
+      );
+  });
 });
