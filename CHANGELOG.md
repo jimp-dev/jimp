@@ -1,3 +1,16 @@
+# v0.16.0 (Sat Aug 08 2020)
+
+#### 🚀 Enhancement
+
+- `@jimp/plugin-crop`
+  - added ability to ignore sides on autocrop [#924](https://github.com/oliver-moran/jimp/pull/924) ([@cbanfiel](https://github.com/cbanfiel))
+
+#### Authors: 1
+
+- Chad Banfield ([@cbanfiel](https://github.com/cbanfiel))
+
+---
+
 # v0.15.0 (Fri Aug 07 2020)
 
 #### 🚀 Enhancement
