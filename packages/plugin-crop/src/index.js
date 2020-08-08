@@ -74,6 +74,12 @@ export default function pluginCrop(event) {
         // i.e. all 4 sides have some border (default value)
         let cropSymmetric = false; // flag to force cropping top be symmetric.
         // i.e. north and south / east and west are cropped by the same value
+        let ignoreSides = {
+          north: false,
+          south: false,
+          east: false,
+          west: false
+        };
 
         // parse arguments
         for (let a = 0, len = args.length; a < len; a++) {
@@ -111,6 +117,10 @@ export default function pluginCrop(event) {
             if (typeof config.leaveBorder !== 'undefined') {
               ({ leaveBorder } = config);
             }
+
+            if (typeof config.ignoreSides !== 'undefined') {
+              ({ ignoreSides } = config);
+            }
           }
         }
 
@@ -133,78 +143,87 @@ export default function pluginCrop(event) {
 
         // north side (scan rows from north to south)
         colorTarget = this.getPixelColor(0, 0);
-        north: for (let y = 0; y < h - minPixelsPerSide; y++) {
-          for (let x = 0; x < w; x++) {
-            const colorXY = this.getPixelColor(x, y);
-            const rgba2 = this.constructor.intToRGBA(colorXY);
+        if (!ignoreSides.north) {
+          north: for (let y = 0; y < h - minPixelsPerSide; y++) {
+            for (let x = 0; x < w; x++) {
+              const colorXY = this.getPixelColor(x, y);
+              const rgba2 = this.constructor.intToRGBA(colorXY);
 
-            if (this.constructor.colorDiff(rgba1, rgba2) > tolerance) {
-              // this pixel is too distant from the first one: abort this side scan
-              break north;
+              if (this.constructor.colorDiff(rgba1, rgba2) > tolerance) {
+                // this pixel is too distant from the first one: abort this side scan
+                break north;
+              }
             }
-          }
 
-          // this row contains all pixels with the same color: increment this side pixels to crop
-          northPixelsToCrop++;
+            // this row contains all pixels with the same color: increment this side pixels to crop
+            northPixelsToCrop++;
+          }
         }
 
         // east side (scan columns from east to west)
         colorTarget = this.getPixelColor(w, 0);
-        east: for (let x = 0; x < w - minPixelsPerSide; x++) {
-          for (let y = 0 + northPixelsToCrop; y < h; y++) {
-            const colorXY = this.getPixelColor(x, y);
-            const rgba2 = this.constructor.intToRGBA(colorXY);
+        if (!ignoreSides.east) {
+          east: for (let x = 0; x < w - minPixelsPerSide; x++) {
+            for (let y = 0 + northPixelsToCrop; y < h; y++) {
+              const colorXY = this.getPixelColor(x, y);
+              const rgba2 = this.constructor.intToRGBA(colorXY);
 
-            if (this.constructor.colorDiff(rgba1, rgba2) > tolerance) {
-              // this pixel is too distant from the first one: abort this side scan
-              break east;
+              if (this.constructor.colorDiff(rgba1, rgba2) > tolerance) {
+                // this pixel is too distant from the first one: abort this side scan
+                break east;
+              }
             }
-          }
 
-          // this column contains all pixels with the same color: increment this side pixels to crop
-          eastPixelsToCrop++;
+            // this column contains all pixels with the same color: increment this side pixels to crop
+            eastPixelsToCrop++;
+          }
         }
 
         // south side (scan rows from south to north)
         colorTarget = this.getPixelColor(0, h);
-        south: for (
-          let y = h - 1;
-          y >= northPixelsToCrop + minPixelsPerSide;
-          y--
-        ) {
-          for (let x = w - eastPixelsToCrop - 1; x >= 0; x--) {
-            const colorXY = this.getPixelColor(x, y);
-            const rgba2 = this.constructor.intToRGBA(colorXY);
 
-            if (this.constructor.colorDiff(rgba1, rgba2) > tolerance) {
-              // this pixel is too distant from the first one: abort this side scan
-              break south;
+        if (!ignoreSides.south) {
+          south: for (
+            let y = h - 1;
+            y >= northPixelsToCrop + minPixelsPerSide;
+            y--
+          ) {
+            for (let x = w - eastPixelsToCrop - 1; x >= 0; x--) {
+              const colorXY = this.getPixelColor(x, y);
+              const rgba2 = this.constructor.intToRGBA(colorXY);
+
+              if (this.constructor.colorDiff(rgba1, rgba2) > tolerance) {
+                // this pixel is too distant from the first one: abort this side scan
+                break south;
+              }
             }
-          }
 
-          // this row contains all pixels with the same color: increment this side pixels to crop
-          southPixelsToCrop++;
+            // this row contains all pixels with the same color: increment this side pixels to crop
+            southPixelsToCrop++;
+          }
         }
 
         // west side (scan columns from west to east)
         colorTarget = this.getPixelColor(w, h);
-        west: for (
-          let x = w - 1;
-          x >= 0 + eastPixelsToCrop + minPixelsPerSide;
-          x--
-        ) {
-          for (let y = h - 1; y >= 0 + northPixelsToCrop; y--) {
-            const colorXY = this.getPixelColor(x, y);
-            const rgba2 = this.constructor.intToRGBA(colorXY);
+        if (!ignoreSides.west) {
+          west: for (
+            let x = w - 1;
+            x >= 0 + eastPixelsToCrop + minPixelsPerSide;
+            x--
+          ) {
+            for (let y = h - 1; y >= 0 + northPixelsToCrop; y--) {
+              const colorXY = this.getPixelColor(x, y);
+              const rgba2 = this.constructor.intToRGBA(colorXY);
 
-            if (this.constructor.colorDiff(rgba1, rgba2) > tolerance) {
-              // this pixel is too distant from the first one: abort this side scan
-              break west;
+              if (this.constructor.colorDiff(rgba1, rgba2) > tolerance) {
+                // this pixel is too distant from the first one: abort this side scan
+                break west;
+              }
             }
-          }
 
-          // this column contains all pixels with the same color: increment this side pixels to crop
-          westPixelsToCrop++;
+            // this column contains all pixels with the same color: increment this side pixels to crop
+            westPixelsToCrop++;
+          }
         }
 
         // decide if a crop is needed

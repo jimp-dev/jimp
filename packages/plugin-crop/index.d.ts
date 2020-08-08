@@ -22,6 +22,12 @@ interface CropClass {
       cropOnlyFrames?: boolean;
       cropSymmetric?: boolean;
       leaveBorder?: number;
+      ignoreSides?: {
+        north: boolean;
+        south: boolean;
+        east: boolean;
+        west: boolean;
+      }
     },
     cb?: ImageCallback<this>
   ): this;
