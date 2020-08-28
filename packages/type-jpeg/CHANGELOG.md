@@ -1,3 +1,16 @@
+# v0.16.1 (Fri Aug 28 2020)
+
+#### 🐛 Bug Fix
+
+- upgrade jpeg-js dependency [#933](https://github.com/oliver-moran/jimp/pull/933) (vincentdufrasnes@vincent-dufrasnes [@Chupsy](https://github.com/Chupsy))
+
+#### Authors: 2
+
+- Vincent Dufrasnes ([@Chupsy](https://github.com/Chupsy))
+- vincent dufrasnes (vincentdufrasnes@vincent-dufrasnes)
+
+---
+
 # v0.12.1 (Tue May 19 2020)
 
 #### 🐛 Bug Fix
