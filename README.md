@@ -99,3 +99,5 @@ Jimp is licensed under the MIT license. Open Sans is licensed under the Apache l
 :star: [gifwrap](https://www.npmjs.com/package/gifwrap) - A Jimp-compatible library for working with GIFs
 
 :star: [replace-color](https://www.npmjs.com/package/replace-color) - Replace color with another one pixel by pixel
+
+:star: [handwritten.js](https://www.npmjs.com/package/handwritten.js) - Convert typed text to realistic handwriting!
