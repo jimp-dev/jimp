@@ -281,4 +281,15 @@ describe('Write text over image', function() {
 
     expectedImage.bitmap.data.should.be.deepEqual(image.bitmap.data);
   });
+
+  it('measureText is consistent with measureTextWidth', async () => {
+    const font = await jimp.loadFont(Jimp.FONT_SANS_16_BLACK);
+
+    const text = 'n n n';
+    const width = jimp.measureText(font, text);
+    const height = jimp.measureTextHeight(font, text, width);
+    const lineHeight = jimp.measureTextHeight(font, text, Infinity);
+
+    height.should.be.deepEqual(lineHeight);
+  });
 });
