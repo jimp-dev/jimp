@@ -25,9 +25,10 @@ const alphabet =
 const maxHashLength = [NaN, NaN];
 
 for (let i = 2; i < 65; i++) {
-  const maxHash = anyBase(anyBase.BIN, alphabet.slice(0, i))(
-    new Array(64 + 1).join('1')
-  );
+  const maxHash = anyBase(
+    anyBase.BIN,
+    alphabet.slice(0, i)
+  )(new Array(64 + 1).join('1'));
   maxHashLength.push(maxHash.length);
 }
 
@@ -713,7 +714,7 @@ class Jimp extends EventEmitter {
       }
 
       if (y < 0) {
-        xi = this.bitmap.height + y;
+        yi = this.bitmap.height + y;
       }
 
       if (y >= this.bitmap.height) {

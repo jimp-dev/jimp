@@ -49,7 +49,11 @@ describe('Convolution', function() {
       .catch(done);
   });
 
-  const sharpM = [[-1, -1, 0], [-1, 1, 1], [0, 1, 1]];
+  const sharpM = [
+    [-1, -1, 0],
+    [-1, 1, 1],
+    [0, 1, 1]
+  ];
 
   it('3x3 sharp matrix on EDGE_EXTEND', done => {
     imgMid
@@ -96,7 +100,7 @@ describe('Convolution', function() {
       .getJGDSync()
       .should.be.sameJGD(
         mkJGD(
-          '66666666',
+          '22222222',
           '28EEE822',
           '2EFFF802',
           '2EF88002',
@@ -113,7 +117,7 @@ describe('Convolution', function() {
       .getJGDSync()
       .should.be.sameJGD(
         mkJGD(
-          'FC06666F',
+          'F802222E',
           '80022228',
           '00022222',
           '22222222',
