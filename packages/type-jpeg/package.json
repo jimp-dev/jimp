@@ -22,7 +22,7 @@
   "dependencies": {
     "@babel/runtime": "^7.7.2",
     "@jimp/utils": "link:../utils",
-    "jpeg-js": "0.4.2"
+    "jpeg-js": "0.4.3"
   },
   "peerDependencies": {
     "@jimp/custom": ">=0.3.5"
