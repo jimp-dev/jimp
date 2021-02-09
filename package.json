@@ -21,6 +21,7 @@
     "clean:build": "rm -rf packages/**/es packages/**/dist",
     "build": "npm run clean:build && lerna run build --stream",
     "build:watch": "lerna run build:watch --parallel",
+    "build:readme-toc": "npx doctoc ./README.md",
     "release": "auto shipit",
     "tsTest:custom": "dtslint packages/custom/types --expectOnly",
     "tsTest:main": "dtslint packages/jimp/types --expectOnly"

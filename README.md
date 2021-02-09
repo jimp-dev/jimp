@@ -1,19 +1,37 @@
+
 <div align="center">
   <img width="200" height="200"
     src="https://s3.amazonaws.com/pix.iemoji.com/images/emoji/apple/ios-11/256/crayon.png">
   <h1>Jimp</h1>
   <p>JavaScript Image Manipulation Program</p>
+  <p>An image processing library for Node written entirely in JavaScript, with zero native dependencies.</p>
 </div>
 
-An image processing library for Node written entirely in JavaScript, with zero native dependencies.
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**  *generated with [DocToc](https://github.com/thlorenz/doctoc)*
 
-Installation: `npm install --save jimp`
+- [Installation](#installation)
+- [Tools](#tools)
+- [Supported Image Types](#supported-image-types)
+- [Image Manipulation Methods (Default Plugins)](#image-manipulation-methods-default-plugins)
+- [Extra Plugins](#extra-plugins)
+- [Custom Jimp](#custom-jimp)
+- [Contributing](#contributing)
+- [License](#license)
+- [Project Using Jimp](#project-using-jimp)
 
-API documentation can be found in the main [jimp package](./packages/jimp)
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
 > ## Notice of potentially breaking change
 >
 > As of v0.10.4, core-js is no longer included with jimp or its extensions. If you rely on core-js, install it with either `yarn add core-js` or `npm i core-js`
+
+## Installation
+
+Installation: `npm install --save jimp`
+
+API documentation can be found in the main [jimp package](./packages/jimp)
 
 ## Tools
 
