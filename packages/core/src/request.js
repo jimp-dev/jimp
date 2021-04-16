@@ -54,8 +54,8 @@ if (
           cb(err);
         }
       });
-    } catch (e) {
-      cb(e);
+    } catch (error) {
+      cb(error);
     }
   };
 }
