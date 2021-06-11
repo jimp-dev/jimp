@@ -1256,3 +1256,7 @@ if (process.env.ENVIRONMENT === 'BROWSER') {
 export { addType } from './utils/mime';
 
 export default Jimp;
+
+if (typeof module !== "undefined") {
+  module.exports = Object.assign(Jimp, module.exports);
+}
