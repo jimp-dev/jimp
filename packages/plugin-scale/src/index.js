@@ -51,10 +51,7 @@ export default () => ({
       mode = null;
     }
 
-    const f =
-      w / h > this.bitmap.width / this.bitmap.height
-        ? h / this.bitmap.height
-        : w / this.bitmap.width;
+    const f = Math.max(w / this.bitmap.width, h / this.bitmap.height);
     this.scale(f, mode);
 
     if (isNodePattern(cb)) {
