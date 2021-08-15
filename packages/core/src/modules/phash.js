@@ -171,7 +171,7 @@ function applyDCT(f, size) {
         }
       }
 
-      sum *= (c[u] * c[v]) / 4;
+      sum *= (c[u] * c[v]) * (2 / Math.sqrt(N*N));
       F[u][v] = sum;
     }
   }
