@@ -26,6 +26,7 @@ export function scan(image, x, y, w, h, f) {
   // round input
   x = Math.round(x);
   y = Math.round(y);
+  // round from w h 
   w = Math.round(w);
   h = Math.round(h);
 
