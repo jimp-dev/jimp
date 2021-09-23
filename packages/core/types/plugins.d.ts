@@ -14,6 +14,12 @@ import {
   Omit
 } from './utils';
 
+import { Jimp } from "./jimp";
+
+interface jimpClassExtension extends Jimp {
+  [index: string]: unknown
+}
+
 export type IllformedPlugin = Omit<any, 'class' | 'constants'> & {
   class?: never;
   constants?: never;
@@ -38,7 +44,7 @@ export interface WellFormedPlugin<ImageType extends Image = Image> {
     [MIME_TYPE: string]: EncoderFn<ImageType>;
   };
   // Extend the Jimp class with the following constants, etc
-  class?: any;
+  class?: jimpClassExtension;
 }
 
 type ClassOrConstantPlugin<T extends Image> = WellFormedPlugin<T> &
