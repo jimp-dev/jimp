@@ -1,6 +1,6 @@
 import { Canvg, presets } from 'canvg';
 import { DOMParser } from 'xmldom';
-import * as canvas from 'canvas';
+import canvas from 'pureimage';
 import fetch from 'node-fetch';
 
 const MIME_TYPE = 'image/svg+xml';
