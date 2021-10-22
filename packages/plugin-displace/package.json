@@ -3,6 +3,11 @@
   "version": "0.16.1",
   "description": "displace an image.",
   "main": "dist/index.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/oliver-moran/jimp.git",
+    "directory": "packages/plugin-displace"
+  },
   "module": "es/index.js",
   "types": "index.d.ts",
   "scripts": {

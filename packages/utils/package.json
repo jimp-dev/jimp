@@ -3,6 +3,11 @@
   "version": "0.16.1",
   "description": "Utils for jimp extensions.",
   "main": "dist/index.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/oliver-moran/jimp.git",
+    "directory": "packages/utils"
+  },
   "module": "es/index.js",
   "types": "index.d.ts",
   "scripts": {

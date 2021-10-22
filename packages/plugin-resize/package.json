@@ -3,6 +3,11 @@
   "version": "0.16.1",
   "description": "Resize an image.",
   "main": "dist/index.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/oliver-moran/jimp.git",
+    "directory": "packages/plugin-resize"
+  },
   "module": "es/index.js",
   "types": "index.d.ts",
   "scripts": {

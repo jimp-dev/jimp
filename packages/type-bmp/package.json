@@ -3,6 +3,11 @@
   "version": "0.16.1",
   "description": "Default Jimp bmp encoder/decoder.",
   "main": "dist/index.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/oliver-moran/jimp.git",
+    "directory": "packages/type-bmp"
+  },
   "module": "es/index.js",
   "types": "index.d.ts",
   "scripts": {

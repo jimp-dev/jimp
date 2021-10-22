@@ -3,6 +3,11 @@
   "version": "0.16.1",
   "description": "Rotate an image.",
   "main": "dist/index.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/oliver-moran/jimp.git",
+    "directory": "packages/plugin-rotate"
+  },
   "module": "es/index.js",
   "types": "index.d.ts",
   "scripts": {

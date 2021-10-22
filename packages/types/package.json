@@ -3,6 +3,11 @@
   "version": "0.16.1",
   "description": "Default Jimp encoder/decoders.",
   "main": "dist/index.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/oliver-moran/jimp.git",
+    "directory": "packages/types"
+  },
   "module": "es/index.js",
   "types": "index.d.ts",
   "scripts": {

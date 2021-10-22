@@ -6,6 +6,11 @@
     "jimp": "dist/index.js"
   },
   "main": "dist/index.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/oliver-moran/jimp.git",
+    "directory": "packages/cli"
+  },
   "module": "es/index.js",
   "scripts": {
     "test": "mocha --require ts-node/register test/*.test.ts",
