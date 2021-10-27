@@ -271,7 +271,7 @@ class Jimp extends EventEmitter {
         return throwError.call(this, 'cb must be a function', finish);
       }
 
-      loadFromURL(args[0], (err, data) => {
+      loadFromURL(args[0].url, (err, data) => {
         if (err) {
           return throwError.call(this, err, finish);
         }
