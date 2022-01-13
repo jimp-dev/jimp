@@ -1,7 +1,7 @@
 import { throwError, isNodePattern } from '@jimp/utils';
 
 /**
- * Rotates an image clockwise by an arbitrary number of degrees. NB: 'this' must be a Jimp object.
+ * Rotates an image counter-clockwise by an arbitrary number of degrees. NB: 'this' must be a Jimp object.
  * @param {number} deg the number of degrees to rotate the image by
  * @param {string|boolean} mode (optional) resize mode or a boolean, if false then the width and height of the image will not be changed
  */
@@ -110,7 +110,7 @@ function advancedRotate(deg, mode) {
 
 export default () => ({
   /**
-   * Rotates the image clockwise by a number of degrees. By default the width and height of the image will be resized appropriately.
+   * Rotates the image counter-clockwise by a number of degrees. By default the width and height of the image will be resized appropriately.
    * @param {number} deg the number of degrees to rotate the image by
    * @param {string|boolean} mode (optional) resize mode or a boolean, if false then the width and height of the image will not be changed
    * @param {function(Error, Jimp)} cb (optional) a callback for when complete
