@@ -1,5 +1,5 @@
 module.exports = {
-  Convolution: function(
+  convolution: (
     bitmap,
     matrixX,
     matrixY,
@@ -10,45 +10,51 @@ module.exports = {
     clamp,
     color,
     alpha
-  ) {
-    var srcPixels = new Uint8ClampedArray(bitmap.data),
-      srcWidth = bitmap.width,
-      srcHeight = bitmap.height,
-      dstPixels = bitmap.data;
+  ) => {
+    const srcPixels = new Uint8ClampedArray(bitmap.data);
+    const srcWidth = bitmap.width;
+    const srcHeight = bitmap.height;
+    const dstPixels = bitmap.data;
 
     divisor = divisor || 1;
     bias = bias || 0;
 
     // default true
-    preserveAlpha !== false && (preserveAlpha = true);
-    clamp !== false && (clamp = true);
+    if (!preserveAlpha && preserveAlpha !== false) {
+      preserveAlpha = true;
+    }
+
+    if (!clamp && clamp !== false) {
+      clamp = true;
+    }
 
     color = color || 0;
     alpha = alpha || 0;
 
-    var index = 0,
-      rows = matrixX >> 1,
-      cols = matrixY >> 1,
-      clampR = (color >> 16) & 0xff,
-      clampG = (color >> 8) & 0xff,
-      clampB = color & 0xff,
-      clampA = alpha * 0xff;
+    const cols = matrixY >> 1;
+    const rows = matrixX >> 1;
+    const clampG = (color >> 8) & 0xff;
+    const clampB = color & 0xff;
+    const clampA = alpha * 0xff;
 
-    for (var y = 0; y < srcHeight; y += 1) {
-      for (var x = 0; x < srcWidth; x += 1, index += 4) {
-        var r = 0,
-          g = 0,
-          b = 0,
-          a = 0,
-          replace = false,
-          mIndex = 0,
-          v;
+    let index = 0;
+    const clampR = (color >> 16) & 0xff;
 
-        for (var row = -rows; row <= rows; row += 1) {
-          var rowIndex = y + row,
-            offset;
+    for (let y = 0; y < srcHeight; y += 1) {
+      for (let x = 0; x < srcWidth; x += 1, index += 4) {
+        let r = 0;
+        let g = 0;
+        let b = 0;
+        let a = 0;
+        let replace = false;
+        let mIndex = 0;
+        let v;
 
-          if (0 <= rowIndex && rowIndex < srcHeight) {
+        for (let row = -rows; row <= rows; row += 1) {
+          const rowIndex = y + row;
+          let offset;
+
+          if (rowIndex >= 0 && rowIndex < srcHeight) {
             offset = rowIndex * srcWidth;
           } else if (clamp) {
             offset = y * srcWidth;
@@ -56,13 +62,13 @@ module.exports = {
             replace = true;
           }
 
-          for (var col = -cols; col <= cols; col += 1) {
-            var m = matrix[mIndex++];
+          for (let col = -cols; col <= cols; col += 1) {
+            const m = matrix[mIndex++];
 
             if (m !== 0) {
-              var colIndex = x + col;
+              let colIndex = x + col;
 
-              if (!(0 <= colIndex && colIndex < srcWidth)) {
+              if (!(colIndex >= 0 && colIndex < srcWidth)) {
                 if (clamp) {
                   colIndex = x;
                 } else {
@@ -76,7 +82,7 @@ module.exports = {
                 b += m * clampB;
                 a += m * clampA;
               } else {
-                var p = (offset + colIndex) << 2;
+                const p = (offset + colIndex) << 2;
                 r += m * srcPixels[p];
                 g += m * srcPixels[p + 1];
                 b += m * srcPixels[p + 2];

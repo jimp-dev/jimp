@@ -11,9 +11,9 @@ export default () => ({
      * @returns {Jimp} this for chaining of methods
      */
     sharpen(factor, cb) {
-      factor = +factor || 3;
+      factor = Number(factor) || 3;
 
-      Util.Convolution(this.bitmap, 3, 3, [
+      Util.convolution(this.bitmap, 3, 3, [
         -factor / 16,
         -factor / 8,
         -factor / 16,
