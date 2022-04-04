@@ -350,7 +350,7 @@ export default () => ({
   /**
    * Adds each element of the image to its local neighbors, weighted by the kernel
    * @param {array} kernel a matrix to weight the neighbors sum
-   * @param {string} edgeHandling (optional) define how to sum pixels from outside the border
+   * @param {number} edgeHandling (optional) define how to sum pixels from outside the border
    * @param {function(Error, Jimp)} cb (optional) a callback for when complete
    * @returns {Jimp }this for chaining of methods
    */

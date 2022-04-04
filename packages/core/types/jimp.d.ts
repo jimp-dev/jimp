@@ -156,7 +156,7 @@ export interface Jimp {
   getPixelIndex(
     x: number,
     y: number,
-    edgeHandling: string,
+    edgeHandling: number,
     cb?: GenericCallback<number, any, this>
   ): number;
   getPixelColor(

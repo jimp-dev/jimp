@@ -147,7 +147,7 @@ interface DepreciatedJimp {
   getPixelIndex(
     x: number,
     y: number,
-    edgeHandling: string,
+    edgeHandling: number,
     cb?: GenericCallback<number, any, this>
   ): number;
   getPixelColor(
@@ -209,7 +209,7 @@ interface DepreciatedJimp {
   convolution(kernel: number[][], cb?: ImageCallback): this;
   convolution<T>(
     kernel: number[][],
-    edgeHandling: string,
+    edgeHandling: number,
     cb?: ImageCallback
   ): this;
   opaque(cb?: ImageCallback): this;
