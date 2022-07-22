@@ -1008,21 +1008,21 @@
     which "^1.3.1"
 
 "@jimp/bmp@link:packages/type-bmp":
-  version "0.16.0"
+  version "0.16.1"
   dependencies:
     "@babel/runtime" "^7.7.2"
     "@jimp/utils" "link:packages/utils"
     bmp-js "^0.1.0"
 
 "@jimp/core@link:packages/core":
-  version "0.16.0"
+  version "0.16.1"
   dependencies:
     "@babel/runtime" "^7.7.2"
     "@jimp/utils" "link:packages/utils"
     any-base "^1.1.0"
     buffer "^5.2.0"
     exif-parser "^0.1.12"
-    file-type "^9.0.0"
+    file-type "^16.5.4"
     load-bmfont "^1.3.1"
     mkdirp "^0.5.1"
     phin "^2.9.1"
@@ -1030,13 +1030,13 @@
     tinycolor2 "^1.4.1"
 
 "@jimp/custom@link:packages/custom":
-  version "0.16.0"
+  version "0.16.1"
   dependencies:
     "@babel/runtime" "^7.7.2"
     "@jimp/core" "link:packages/core"
 
 "@jimp/gif@link:packages/type-gif":
-  version "0.16.0"
+  version "0.16.1"
   dependencies:
     "@babel/runtime" "^7.7.2"
     "@jimp/utils" "link:packages/utils"
@@ -1044,142 +1044,142 @@
     omggif "^1.0.9"
 
 "@jimp/jpeg@link:packages/type-jpeg":
-  version "0.16.0"
+  version "0.16.1"
   dependencies:
     "@babel/runtime" "^7.7.2"
     "@jimp/utils" "link:packages/utils"
-    jpeg-js "^0.4.0"
+    jpeg-js "0.4.2"
 
 "@jimp/plugin-blit@link:packages/plugin-blit":
-  version "0.16.0"
+  version "0.16.1"
   dependencies:
     "@babel/runtime" "^7.7.2"
     "@jimp/utils" "link:packages/utils"
 
 "@jimp/plugin-blur@link:packages/plugin-blur":
-  version "0.16.0"
+  version "0.16.1"
   dependencies:
     "@babel/runtime" "^7.7.2"
     "@jimp/utils" "link:packages/utils"
 
 "@jimp/plugin-circle@link:packages/plugin-circle":
-  version "0.16.0"
+  version "0.16.1"
   dependencies:
     "@babel/runtime" "^7.7.2"
     "@jimp/utils" "link:packages/utils"
 
 "@jimp/plugin-color@link:packages/plugin-color":
-  version "0.16.0"
+  version "0.16.1"
   dependencies:
     "@babel/runtime" "^7.7.2"
     "@jimp/utils" "link:packages/utils"
     tinycolor2 "^1.4.1"
 
 "@jimp/plugin-contain@link:packages/plugin-contain":
-  version "0.16.0"
+  version "0.16.1"
   dependencies:
     "@babel/runtime" "^7.7.2"
     "@jimp/utils" "link:packages/utils"
 
 "@jimp/plugin-cover@link:packages/plugin-cover":
-  version "0.16.0"
+  version "0.16.1"
   dependencies:
     "@babel/runtime" "^7.7.2"
     "@jimp/utils" "link:packages/utils"
 
 "@jimp/plugin-crop@link:packages/plugin-crop":
-  version "0.16.0"
+  version "0.16.1"
   dependencies:
     "@babel/runtime" "^7.7.2"
     "@jimp/utils" "link:packages/utils"
 
 "@jimp/plugin-displace@link:packages/plugin-displace":
-  version "0.16.0"
+  version "0.16.1"
   dependencies:
     "@babel/runtime" "^7.7.2"
     "@jimp/utils" "link:packages/utils"
 
 "@jimp/plugin-dither@link:packages/plugin-dither":
-  version "0.16.0"
+  version "0.16.1"
   dependencies:
     "@babel/runtime" "^7.7.2"
     "@jimp/utils" "link:packages/utils"
 
 "@jimp/plugin-fisheye@link:packages/plugin-fisheye":
-  version "0.16.0"
+  version "0.16.1"
   dependencies:
     "@babel/runtime" "^7.7.2"
     "@jimp/utils" "link:packages/utils"
 
 "@jimp/plugin-flip@link:packages/plugin-flip":
-  version "0.16.0"
+  version "0.16.1"
   dependencies:
     "@babel/runtime" "^7.7.2"
     "@jimp/utils" "link:packages/utils"
 
 "@jimp/plugin-gaussian@link:packages/plugin-gaussian":
-  version "0.16.0"
+  version "0.16.1"
   dependencies:
     "@babel/runtime" "^7.7.2"
     "@jimp/utils" "link:packages/utils"
 
 "@jimp/plugin-invert@link:packages/plugin-invert":
-  version "0.16.0"
+  version "0.16.1"
   dependencies:
     "@babel/runtime" "^7.7.2"
     "@jimp/utils" "link:packages/utils"
 
 "@jimp/plugin-mask@link:packages/plugin-mask":
-  version "0.16.0"
+  version "0.16.1"
   dependencies:
     "@babel/runtime" "^7.7.2"
     "@jimp/utils" "link:packages/utils"
 
 "@jimp/plugin-normalize@link:packages/plugin-normalize":
-  version "0.16.0"
+  version "0.16.1"
   dependencies:
     "@babel/runtime" "^7.7.2"
     "@jimp/utils" "link:packages/utils"
 
 "@jimp/plugin-print@link:packages/plugin-print":
-  version "0.16.0"
+  version "0.16.1"
   dependencies:
     "@babel/runtime" "^7.7.2"
     "@jimp/utils" "link:packages/utils"
     load-bmfont "^1.4.0"
 
 "@jimp/plugin-resize@link:packages/plugin-resize":
-  version "0.16.0"
+  version "0.16.1"
   dependencies:
     "@babel/runtime" "^7.7.2"
     "@jimp/utils" "link:packages/utils"
 
 "@jimp/plugin-rotate@link:packages/plugin-rotate":
-  version "0.16.0"
+  version "0.16.1"
   dependencies:
     "@babel/runtime" "^7.7.2"
     "@jimp/utils" "link:packages/utils"
 
 "@jimp/plugin-scale@link:packages/plugin-scale":
-  version "0.16.0"
+  version "0.16.1"
   dependencies:
     "@babel/runtime" "^7.7.2"
     "@jimp/utils" "link:packages/utils"
 
 "@jimp/plugin-shadow@link:packages/plugin-shadow":
-  version "0.16.0"
+  version "0.16.1"
   dependencies:
     "@babel/runtime" "^7.7.2"
     "@jimp/utils" "link:packages/utils"
 
 "@jimp/plugin-threshold@link:packages/plugin-threshold":
-  version "0.16.0"
+  version "0.16.1"
   dependencies:
     "@babel/runtime" "^7.7.2"
     "@jimp/utils" "link:packages/utils"
 
 "@jimp/plugins@link:packages/plugins":
-  version "0.16.0"
+  version "0.16.1"
   dependencies:
     "@babel/runtime" "^7.7.2"
     "@jimp/plugin-blit" "link:packages/plugin-blit"
@@ -1206,26 +1206,26 @@
     timm "^1.6.1"
 
 "@jimp/png@link:packages/type-png":
-  version "0.16.0"
+  version "0.16.1"
   dependencies:
     "@babel/runtime" "^7.7.2"
     "@jimp/utils" "link:packages/utils"
     pngjs "^3.3.3"
 
 "@jimp/test-utils@link:packages/test-utils":
-  version "0.16.0"
+  version "0.16.1"
   dependencies:
     "@babel/runtime" "^7.7.2"
     pngjs "^3.3.3"
 
 "@jimp/tiff@link:packages/type-tiff":
-  version "0.16.0"
+  version "0.16.1"
   dependencies:
     "@babel/runtime" "^7.7.2"
     utif "^2.0.1"
 
 "@jimp/types@link:packages/types":
-  version "0.16.0"
+  version "0.16.1"
   dependencies:
     "@babel/runtime" "^7.7.2"
     "@jimp/bmp" "link:packages/type-bmp"
@@ -1236,7 +1236,7 @@
     timm "^1.6.1"
 
 "@jimp/utils@link:packages/utils":
-  version "0.16.0"
+  version "0.16.1"
   dependencies:
     "@babel/runtime" "^7.7.2"
     regenerator-runtime "^0.13.3"
@@ -2165,6 +2165,11 @@
   integrity sha512-MI4Xx6LHs4Webyvi6EbspgyAb4D2Q2VtnCQ1blOJcoLS6mVa8lNN2rkIy1CVxfTUpoyIbCTkXES1rLXztFD1lg==
   dependencies:
     any-observable "^0.3.0"
+
+"@tokenizer/token@^0.3.0":
+  version "0.3.0"
+  resolved "https://registry.yarnpkg.com/@tokenizer/token/-/token-0.3.0.tgz#fe98a93fe789247e998c75e74e9c7c63217aa276"
+  integrity sha512-OvjF+z51L3ov0OyAU0duzsYuvO01PH7x4t6DJx+guahgTnBHkhJdG7soQeTSFLWN3efnHyibZ4Z8l2EuWwJN3A==
 
 "@types/color-name@^1.1.1":
   version "1.1.1"
@@ -5285,9 +5290,14 @@ file-entry-cache@^5.0.1:
   dependencies:
     flat-cache "^2.0.1"
 
-file-type@^9.0.0:
-  version "9.0.0"
-  resolved "https://registry.yarnpkg.com/file-type/-/file-type-9.0.0.tgz#a68d5ad07f486414dfb2c8866f73161946714a18"
+file-type@^16.5.4:
+  version "16.5.4"
+  resolved "https://registry.yarnpkg.com/file-type/-/file-type-16.5.4.tgz#474fb4f704bee427681f98dd390058a172a6c2fd"
+  integrity sha512-/yFHK0aGjFEgDJjEKP0pWCplsPFPhwyfwevf/pVxiN0tmE4L9LmwWxWukdJSHdoCli4VgQLehjJtwQBnqmsKcw==
+  dependencies:
+    readable-web-to-node-stream "^3.0.0"
+    strtok3 "^6.2.4"
+    token-types "^4.1.1"
 
 fill-range@^4.0.0:
   version "4.0.0"
@@ -6138,6 +6148,11 @@ ieee754@^1.1.4:
   resolved "https://registry.yarnpkg.com/ieee754/-/ieee754-1.1.13.tgz#ec168558e95aa181fd87d37f55c32bbcb6708b84"
   integrity sha512-4vf7I2LYV/HaWerSo3XmlMkp5eZ83i+/CDluXi/IGTs/O1sejBNhTtnxzmRZfvOUqj7lZjqHkeTvpgSFDlWZTg==
 
+ieee754@^1.2.1:
+  version "1.2.1"
+  resolved "https://registry.yarnpkg.com/ieee754/-/ieee754-1.2.1.tgz#8eb7a10a63fff25d15a57b001586d177d1b0d352"
+  integrity sha512-dcyqhDvX1C46lXZcVqCpK+FtMRQVdIMN6/Df5js2zouUsqG7I6sFxitIC+7KYK29KdXOLHdu9zL4sFnoVQnqaA==
+
 iferr@^0.1.5:
   version "0.1.5"
   resolved "https://registry.yarnpkg.com/iferr/-/iferr-0.1.5.tgz#c60eed69e6d8fdb6b3104a1fcbca1c192dc5b501"
@@ -6829,11 +6844,6 @@ jpeg-js@0.4.2:
   version "0.4.2"
   resolved "https://registry.yarnpkg.com/jpeg-js/-/jpeg-js-0.4.2.tgz#8b345b1ae4abde64c2da2fe67ea216a114ac279d"
   integrity sha512-+az2gi/hvex7eLTMTlbRLOhH6P6WFdk2ITI8HJsaH2VqYO0I594zXSYEP+tf4FW+8Cy68ScDXoAsQdyQanv3sw==
-
-jpeg-js@^0.4.0:
-  version "0.4.0"
-  resolved "https://registry.yarnpkg.com/jpeg-js/-/jpeg-js-0.4.0.tgz#39adab7245b6d11e918ba5d4b49263ff2fc6a2f9"
-  integrity sha512-960VHmtN1vTpasX/1LupLohdP5odwAT7oK/VSm6mW0M58LbrBnowLAPWAZhWGhDAGjzbMnPXZxzB/QYgBwkN0w==
 
 js-levenshtein@^1.1.3:
   version "1.1.6"
@@ -8864,6 +8874,11 @@ pbkdf2@^3.0.3:
     safe-buffer "^5.0.1"
     sha.js "^2.4.8"
 
+peek-readable@^4.1.0:
+  version "4.1.0"
+  resolved "https://registry.yarnpkg.com/peek-readable/-/peek-readable-4.1.0.tgz#4ece1111bf5c2ad8867c314c81356847e8a62e72"
+  integrity sha512-ZI3LnwUv5nOGbQzD9c2iDG6toheuXSZP5esSHBjopsXH4dg19soufvpUGA3uohi5anFtGb2lhAVdHzH6R/Evvg==
+
 performance-now@^2.1.0:
   version "2.1.0"
   resolved "https://registry.yarnpkg.com/performance-now/-/performance-now-2.1.0.tgz#6309f4e0e5fa913ec1c69307ae364b4b377c9e7b"
@@ -9341,6 +9356,22 @@ read@1, read@~1.0.1:
     inherits "^2.0.3"
     string_decoder "^1.1.1"
     util-deprecate "^1.0.1"
+
+readable-stream@^3.6.0:
+  version "3.6.0"
+  resolved "https://registry.yarnpkg.com/readable-stream/-/readable-stream-3.6.0.tgz#337bbda3adc0706bd3e024426a286d4b4b2c9198"
+  integrity sha512-BViHy7LKeTz4oNnkcLJ+lVSL6vpiFeX6/d3oSH8zCW7UxP2onchk+vTGB143xuFjHS3deTgkKoXXymXqymiIdA==
+  dependencies:
+    inherits "^2.0.3"
+    string_decoder "^1.1.1"
+    util-deprecate "^1.0.1"
+
+readable-web-to-node-stream@^3.0.0:
+  version "3.0.2"
+  resolved "https://registry.yarnpkg.com/readable-web-to-node-stream/-/readable-web-to-node-stream-3.0.2.tgz#5d52bb5df7b54861fd48d015e93a2cb87b3ee0bb"
+  integrity sha512-ePeK6cc1EcKLEhJFt/AebMCLL+GgSKhuygrZ/GLaKZYEecIgIECf4UaUuaByiGtzckwR4ain9VzUh95T1exYGw==
+  dependencies:
+    readable-stream "^3.6.0"
 
 readdir-scoped-modules@^1.0.0:
   version "1.1.0"
@@ -10389,6 +10420,14 @@ strong-log-transformer@^2.0.0:
     minimist "^1.2.0"
     through "^2.3.4"
 
+strtok3@^6.2.4:
+  version "6.3.0"
+  resolved "https://registry.yarnpkg.com/strtok3/-/strtok3-6.3.0.tgz#358b80ffe6d5d5620e19a073aa78ce947a90f9a0"
+  integrity sha512-fZtbhtvI9I48xDSywd/somNqgUHl2L2cstmXCCif0itOf96jeW18MBSyrLuNicYQVkvpOxkZtkzujiTJ9LW5Jw==
+  dependencies:
+    "@tokenizer/token" "^0.3.0"
+    peek-readable "^4.1.0"
+
 subarg@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/subarg/-/subarg-1.0.0.tgz#f62cf17581e996b48fc965699f54c06ae268b8d2"
@@ -10668,6 +10707,14 @@ toidentifier@1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/toidentifier/-/toidentifier-1.0.0.tgz#7e1be3470f1e77948bc43d94a3c8f4d7752ba553"
   integrity sha512-yaOH/Pk/VEhBWWTlhI+qXxDFXlejDGcQipMlyxda9nthulaxLZUNcUqFxokp0vcYnvteJln5FNQDRrxj3YcbVw==
+
+token-types@^4.1.1:
+  version "4.2.0"
+  resolved "https://registry.yarnpkg.com/token-types/-/token-types-4.2.0.tgz#b66bc3d67420c6873222a424eee64a744f4c2f13"
+  integrity sha512-P0rrp4wUpefLncNamWIef62J0v0kQR/GfDVji9WKY7GDCWy5YbVSrKUTam07iWPZQGy0zWNOfstYTykMmPNR7w==
+  dependencies:
+    "@tokenizer/token" "^0.3.0"
+    ieee754 "^1.2.1"
 
 tough-cookie@~2.4.3:
   version "2.4.3"
