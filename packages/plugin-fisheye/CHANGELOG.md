@@ -1,3 +1,15 @@
+# v0.16.2 (Thu Sep 15 2022)
+
+#### 📝 Documentation
+
+- added the "e" back to @jimp/plugin-fisheye [#947](https://github.com/oliver-moran/jimp/pull/947) ([@mynameismax](https://github.com/mynameismax))
+
+#### Authors: 1
+
+- Max ([@mynameismax](https://github.com/mynameismax))
+
+---
+
 # v0.11.0 (Fri May 15 2020)
 
 #### 🚀 Enhancement

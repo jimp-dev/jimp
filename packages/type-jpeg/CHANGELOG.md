@@ -1,3 +1,15 @@
+# v0.16.2 (Thu Sep 15 2022)
+
+#### 🐛 Bug Fix
+
+- Bump jpeg-js over 0.4.4 to avoid cve-2022-25851 [#1093](https://github.com/oliver-moran/jimp/pull/1093) ([@melhadad](https://github.com/melhadad))
+
+#### Authors: 1
+
+- Michael Elhadad ([@melhadad](https://github.com/melhadad))
+
+---
+
 # v0.16.1 (Fri Aug 28 2020)
 
 #### 🐛 Bug Fix

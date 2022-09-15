@@ -1,3 +1,26 @@
+# v0.16.2 (Thu Sep 15 2022)
+
+#### 🐛 Bug Fix
+
+- `@jimp/jpeg`
+  - Bump jpeg-js over 0.4.4 to avoid cve-2022-25851 [#1093](https://github.com/oliver-moran/jimp/pull/1093) ([@melhadad](https://github.com/melhadad))
+
+#### 📝 Documentation
+
+- docs: toc added for easier reading [#984](https://github.com/oliver-moran/jimp/pull/984) ([@j-d-carmichael](https://github.com/j-d-carmichael))
+- feat: add handwritten.js project [#946](https://github.com/oliver-moran/jimp/pull/946) ([@alias-rahil](https://github.com/alias-rahil))
+- `@jimp/plugin-fisheye`
+  - added the "e" back to @jimp/plugin-fisheye [#947](https://github.com/oliver-moran/jimp/pull/947) ([@mynameismax](https://github.com/mynameismax))
+
+#### Authors: 4
+
+- J D Carmichael ([@j-d-carmichael](https://github.com/j-d-carmichael))
+- Max ([@mynameismax](https://github.com/mynameismax))
+- Michael Elhadad ([@melhadad](https://github.com/melhadad))
+- Rahil Kabani ([@alias-rahil](https://github.com/alias-rahil))
+
+---
+
 # v0.16.1 (Fri Aug 28 2020)
 
 #### 🐛 Bug Fix
