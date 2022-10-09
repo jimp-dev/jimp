@@ -82,8 +82,8 @@ function advancedRotate(deg, mode) {
     for (let x = 1; x <= bW; x++) {
       const cartesian = translate2Cartesian(x, y);
       const source = translate2Screen(
-        cosine * cartesian.x - sine * cartesian.y,
-        cosine * cartesian.y + sine * cartesian.x
+        cosine * cartesian.x + sine * cartesian.y,
+        cosine * cartesian.y - sine * cartesian.x
       );
       const dstIdx = (bW * (y - 1) + x - 1) << 2;
 
