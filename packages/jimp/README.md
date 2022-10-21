@@ -429,8 +429,8 @@ Jimp.loadFont(Jimp.FONT_SANS_32_BLACK).then(font => {
 If you need to do calculations on where to place your text jimp provides two methods that measure how wide and how tall a piece of text will be. You can use these methods to lay out multiple pieces of text in relation to each other
 
 ```js
-Jimp.measureText(Jimp.FONT_SANS_32_BLACK, 'Some string'); // width of text
-Jimp.measureTextHeight(Jimp.FONT_SANS_32_BLACK, 'Some string', 100); // height of text
+Jimp.measureText(font, 'Some string'); // width of text
+Jimp.measureTextHeight(font, 'Some string', 100); // height of text
 ```
 
 #### Staggering Text
