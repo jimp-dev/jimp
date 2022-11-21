@@ -22,7 +22,7 @@ about: Create a report to help us improve
 
 <!-- Please provide detailed steps for reproducing the issue. Or provide a small runnable code example.
 
-IF YOUR ISSUE DEPENDS ON A PARTICULAR IMAGE BE SURE TO INCLUDE THIS AS WELL. WE CAN'T REPORDUCE IF WE DON'T HAVE YOUR IMAGE
+IF YOUR ISSUE DEPENDS ON A PARTICULAR IMAGE BE SURE TO INCLUDE THIS AS WELL. WE CAN'T REPRODUCE IF WE DON'T HAVE YOUR IMAGE
 
 1. step 1
 2. step 2
