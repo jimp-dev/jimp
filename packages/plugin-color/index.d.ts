@@ -27,7 +27,7 @@ interface Color {
   convolution(kernel: number[][], cb?: ImageCallback<this>): this;
   convolution<T>(
     kernel: number[][],
-    edgeHandling: string,
+    edgeHandling: number,
     cb?: ImageCallback<this>
   ): this;
   opaque(cb?: ImageCallback<this>): this;

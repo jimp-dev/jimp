@@ -174,7 +174,7 @@ main();
 Sum neighbor pixels weighted by the kernel matrix. You can find a nice explanation with examples at [GIMP's Convolution Matrix plugin](https://docs.gimp.org/2.6/en/plug-in-convmatrix.html)
 
 - @param {array} kernel a matrix to weight the neighbors sum
-- @param {string} edgeHandling (optional) define how to sum pixels from outside the border
+- @param {number} edgeHandling (optional) define how to sum pixels from outside the border
 - @param {function(Error, Jimp)} cb (optional) a callback for when complete
 
 ```js
@@ -183,8 +183,11 @@ import jimp from 'jimp';
 async function main() {
   const image = await jimp.read('test/image.png');
 
-  // make me better
-  image.convolution(weights);
+  image.convolution([
+    [-1, -1, -1],
+    [-1,  8, -1],
+    [-1, -1, -1],
+  ], jimp.EDGE_EXTEND);
 }
 
 main();

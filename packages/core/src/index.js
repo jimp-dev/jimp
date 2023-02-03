@@ -669,7 +669,7 @@ class Jimp extends EventEmitter {
    * Returns the offset of a pixel in the bitmap buffer
    * @param {number} x the x coordinate
    * @param {number} y the y coordinate
-   * @param {string} edgeHandling (optional) define how to sum pixels from outside the border
+   * @param {number} edgeHandling (optional) define how to sum pixels from outside the border
    * @param {number} cb (optional) a callback for when complete
    * @returns {number} the index of the pixel or -1 if not found
    */
