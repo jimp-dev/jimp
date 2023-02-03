@@ -1,0 +1,65 @@
+name: build
+
+on: [push]
+
+jobs:
+  # Run install in one step so deps can be cached for other steps
+  install:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: recursive
+      - uses: ./.github/actions/setup
+
+  lint:
+    runs-on: ubuntu-latest
+    needs: install
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: recursive
+      - uses: ./.github/actions/setup
+      - run: yarn lint
+
+  test-types:
+    runs-on: ubuntu-latest
+    needs: install
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: recursive
+      - uses: ./.github/actions/setup
+      - run: yarn tsTest:custom && yarn tsTest:main
+
+  test:
+    runs-on: ubuntu-latest
+    needs: install
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: recursive
+      - uses: ./.github/actions/setup
+      - run: yarn test
+
+  test-ci:
+    runs-on: ubuntu-latest
+    needs: install
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: recursive
+      - uses: ./.github/actions/setup
+      - run: yarn test:browser --ci
+
+  build:
+    runs-on: ubuntu-latest
+    needs: install
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: recursive
+      - uses: ./.github/actions/setup
+      - run: |
+          yarn build
+          yarn release
