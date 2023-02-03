@@ -27,7 +27,7 @@ export default function pluginCrop(event) {
     if (x === 0 && w === this.bitmap.width) {
       // shortcut
       const start = (w * y + x) << 2;
-      const end = (start + h * w) << 2;
+      const end = start + (h * w << 2);
 
       this.bitmap.data = this.bitmap.data.slice(start, end);
     } else {
