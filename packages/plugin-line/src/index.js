@@ -106,14 +106,4 @@ function drawLine(x0, y0, x1, y1, img)
 	}
 }
 
-// Jimp.read('blank.jpeg', (error, img) => {
-// 	if(error) throw error;
-// 	console.log(img);
-// 	//wuDrawLine(50, 500, 1000, 500, img);
-// 	wuDrawLine(1000, 200, 1000, 540, img);
-// 	//drawLine(300, 200, 1080, 540, img);
-// 	img.write("result.jpeg");
-// 	console.log('done');
-// });
-
 module.exports = { wuDrawLine, drawLine }
