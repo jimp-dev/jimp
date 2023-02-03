@@ -59,7 +59,8 @@ Draws a text on a image on a given boundary
 - @param {number} y the y position to start drawing the text
 - @param {string} text the text to draw (string or object with `text`, `alignmentX`, and/or `alignmentY`)
 - @param {number} maxWidth (optional) the boundary width to draw in
-- @param {number} maxHeight (optional) the boundary height to draw in - @param {function(Error, Jimp)} cb (optional) a function to call when the text is written
+- @param {number} maxHeight (optional) the boundary height to draw in 
+- @param {function(Error, Jimp)} cb (optional) a function to call when the text is written
 
 ```js
 import Jimp from 'jimp';
