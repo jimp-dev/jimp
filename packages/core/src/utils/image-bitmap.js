@@ -1,4 +1,4 @@
-import fileType from 'file-type';
+import FileType from 'file-type';
 
 import EXIFParser from 'exif-parser';
 import { throwError } from '@jimp/utils';
@@ -7,8 +7,8 @@ import * as constants from '../constants';
 import * as MIME from './mime';
 import promisify from './promisify';
 
-function getMIMEFromBuffer(buffer, path) {
-  const fileTypeFromBuffer = fileType(buffer);
+async function getMIMEFromBuffer(buffer, path) {
+  const fileTypeFromBuffer = await FileType.fromBuffer(buffer);
 
   if (fileTypeFromBuffer) {
     // If fileType returns something for buffer, then return the mime given
@@ -149,8 +149,8 @@ function exifRotate(img) {
 }
 
 // parses a bitmap from the constructor to the JIMP bitmap property
-export function parseBitmap(data, path, cb) {
-  const mime = getMIMEFromBuffer(data, path);
+export async function parseBitmap(data, path, cb) {
+  const mime = await getMIMEFromBuffer(data, path);
 
   if (typeof mime !== 'string') {
     return cb(new Error('Could not find MIME for Buffer <' + path + '>'));
