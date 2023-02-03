@@ -1,5 +1,5 @@
-import Jimp from 'jimp';
-import { log } from './log';
+import Jimp from "jimp";
+import { log } from "./log";
 
 export async function loadFont(font?: string, verbose?: boolean) {
   if (font) {

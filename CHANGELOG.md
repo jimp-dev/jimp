@@ -119,7 +119,7 @@ This also drops support for node 6.14.
 
 - Remove compiling polyfills into published code [#891](https://github.com/oliver-moran/jimp/pull/891) ([@danez](https://github.com/danez) [@hipstersmoothie](https://github.com/hipstersmoothie))
 
-#### ⚠️  Pushed to `master`
+#### ⚠️ Pushed to `master`
 
 - Fix package.json ([@hipstersmoothie](https://github.com/hipstersmoothie))
 - Add readme description ([@hipstersmoothie](https://github.com/hipstersmoothie))
@@ -263,12 +263,12 @@ This also drops support for node 6.14.
 
 # v0.9.5 (Tue Mar 03 2020)
 
-#### 🐛  Bug Fix
+#### 🐛 Bug Fix
 
 - `@jimp/plugin-print`
   - Export font type [#838](https://github.com/oliver-moran/jimp/pull/838) ([@DomiR](https://github.com/DomiR))
 
-#### 📝  Documentation
+#### 📝 Documentation
 
 - `@jimp/plugin-print`
   - Added ttf2fnt.com to the list [#845](https://github.com/oliver-moran/jimp/pull/845) ([@mbejda](https://github.com/mbejda))
@@ -281,7 +281,7 @@ This also drops support for node 6.14.
 
 # v0.9.4 (Tue Mar 03 2020)
 
-#### 🐛  Bug Fix
+#### 🐛 Bug Fix
 
 - `@jimp/plugin-shadow`
   - Update plugin-shadow type definition. [#841](https://github.com/oliver-moran/jimp/pull/841) ([@lekoaf](https://github.com/lekoaf))
@@ -294,7 +294,7 @@ This also drops support for node 6.14.
 
 # v0.9.2 (Tue Nov 26 2019)
 
-#### 🐛  Bug Fix
+#### 🐛 Bug Fix
 
 - fix automation [#825](https://github.com/oliver-moran/jimp/pull/825) ([@hipstersmoothie](https://github.com/hipstersmoothie))
 - `@jimp/cli`, `@jimp/core`, `@jimp/custom`, `jimp`, `@jimp/plugin-blit`, `@jimp/plugin-blur`, `@jimp/plugin-circle`, `@jimp/plugin-color`, `@jimp/plugin-contain`, `@jimp/plugin-cover`, `@jimp/plugin-crop`, `@jimp/plugin-displace`, `@jimp/plugin-dither`, `@jimp/plugin-fisheye`, `@jimp/plugin-flip`, `@jimp/plugin-gaussian`, `@jimp/plugin-invert`, `@jimp/plugin-mask`, `@jimp/plugin-normalize`, `@jimp/plugin-print`, `@jimp/plugin-resize`, `@jimp/plugin-rotate`, `@jimp/plugin-scale`, `@jimp/plugin-shadow`, `@jimp/plugin-threshold`, `@jimp/plugins`, `@jimp/test-utils`, `@jimp/bmp`, `@jimp/gif`, `@jimp/jpeg`, `@jimp/png`, `@jimp/tiff`, `@jimp/types`, `@jimp/utils`
@@ -302,7 +302,7 @@ This also drops support for node 6.14.
 - `@jimp/core`
   - Follow redirects [#789](https://github.com/oliver-moran/jimp/pull/789) ([@SaWey](https://github.com/SaWey) sander@solora.be)
 
-#### 🏠  Internal
+#### 🏠 Internal
 
 - update auto [#824](https://github.com/oliver-moran/jimp/pull/824) ([@hipstersmoothie](https://github.com/hipstersmoothie))
 

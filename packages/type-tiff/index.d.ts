@@ -1,16 +1,16 @@
-import { DecoderFn, EncoderFn } from '@jimp/core';
+import { DecoderFn, EncoderFn } from "@jimp/core";
 
 interface Tiff {
-  mime: { 'image/tiff': string[] }
+  mime: { "image/tiff": string[] };
   decoders: {
-    'image/tiff': DecoderFn
-  }
+    "image/tiff": DecoderFn;
+  };
   encoders: {
-    'image/tiff': EncoderFn
-  }
+    "image/tiff": EncoderFn;
+  };
   constants: {
-    MIME_TIFF: 'image/tiff';
-  }
+    MIME_TIFF: "image/tiff";
+  };
 }
 
-export default function(): Tiff;
+export default function (): Tiff;

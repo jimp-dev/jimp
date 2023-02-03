@@ -44,7 +44,6 @@
     "cross-env": "^6.0.0",
     "dtslint": "^0.9.8",
     "eslint": "^6.4.0",
-    "eslint-config-prettier": "^6.3.0",
     "express": "^4.17.1",
     "husky": "^3.0.5",
     "karma": "^4.3.0",
@@ -58,7 +57,7 @@
     "lint-staged": "^9.2.5",
     "mocha": "^6.2.0",
     "nyc": "^14.1.1",
-    "prettier": "^1.18.2",
+    "prettier": "^2.8.3",
     "should": "^13.2.3",
     "source-map-support": "^0.5.13",
     "watchify": "^3.11.1",
@@ -81,18 +80,8 @@
       "git add"
     ]
   },
-  "prettier": {
-    "singleQuote": true,
-    "tabWidth": 2
-  },
   "xo": {
     "parser": "babel-eslint",
-    "extends": [
-      "prettier"
-    ],
-    "plugins": [
-      "prettier"
-    ],
     "env": [
       "browser",
       "node",

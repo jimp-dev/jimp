@@ -1,11 +1,11 @@
-import FileType from 'file-type';
+import FileType from "file-type";
 
-import EXIFParser from 'exif-parser';
-import { throwError } from '@jimp/utils';
+import EXIFParser from "exif-parser";
+import { throwError } from "@jimp/utils";
 
-import * as constants from '../constants';
-import * as MIME from './mime';
-import promisify from './promisify';
+import * as constants from "../constants";
+import * as MIME from "./mime";
+import promisify from "./promisify";
 
 async function getMIMEFromBuffer(buffer, path) {
   const fileTypeFromBuffer = await FileType.fromBuffer(buffer);
@@ -54,37 +54,37 @@ function getExifOrientationTransformation(img) {
       return null;
 
     case 2: // Mirror horizontal
-      return function(x, y) {
+      return function (x, y) {
         return [w - x - 1, y];
       };
 
     case 3: // Rotate 180
-      return function(x, y) {
+      return function (x, y) {
         return [w - x - 1, h - y - 1];
       };
 
     case 4: // Mirror vertical
-      return function(x, y) {
+      return function (x, y) {
         return [x, h - y - 1];
       };
 
     case 5: // Mirror horizontal and rotate 270 CW
-      return function(x, y) {
+      return function (x, y) {
         return [y, x];
       };
 
     case 6: // Rotate 90 CW
-      return function(x, y) {
+      return function (x, y) {
         return [y, h - x - 1];
       };
 
     case 7: // Mirror horizontal and rotate 90 CW
-      return function(x, y) {
+      return function (x, y) {
         return [w - y - 1, h - x - 1];
       };
 
     case 8: // Rotate 270 CW
-      return function(x, y) {
+      return function (x, y) {
         return [w - y - 1, x];
       };
 
@@ -152,8 +152,8 @@ function exifRotate(img) {
 export async function parseBitmap(data, path, cb) {
   const mime = await getMIMEFromBuffer(data, path);
 
-  if (typeof mime !== 'string') {
-    return cb(new Error('Could not find MIME for Buffer <' + path + '>'));
+  if (typeof mime !== "string") {
+    return cb(new Error("Could not find MIME for Buffer <" + path + ">"));
   }
 
   this._originalMime = mime.toLowerCase();
@@ -164,7 +164,7 @@ export async function parseBitmap(data, path, cb) {
     if (this.constructor.decoders[mime]) {
       this.bitmap = this.constructor.decoders[mime](data);
     } else {
-      return throwError.call(this, 'Unsupported MIME type: ' + mime, cb);
+      return throwError.call(this, "Unsupported MIME type: " + mime, cb);
     }
   } catch (error) {
     return cb.call(this, error, this);
@@ -202,12 +202,12 @@ export function getBuffer(mime, cb) {
     mime = this.getMIME();
   }
 
-  if (typeof mime !== 'string') {
-    return throwError.call(this, 'mime must be a string', cb);
+  if (typeof mime !== "string") {
+    return throwError.call(this, "mime must be a string", cb);
   }
 
-  if (typeof cb !== 'function') {
-    return throwError.call(this, 'cb must be a function', cb);
+  if (typeof cb !== "function") {
+    return throwError.call(this, "cb must be a function", cb);
   }
 
   mime = mime.toLowerCase();
@@ -227,7 +227,7 @@ export function getBuffer(mime, cb) {
     const buffer = this.constructor.encoders[mime](this);
     cb.call(this, null, buffer);
   } else {
-    cb.call(this, 'Unsupported MIME type: ' + mime);
+    cb.call(this, "Unsupported MIME type: " + mime);
   }
 
   return this;

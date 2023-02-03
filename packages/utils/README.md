@@ -33,21 +33,24 @@ Scans through a region of the bitmap, calling a function for each pixel.
 
 ```js
 function removeRed(image) {
-  return scan(image, 0, 0, image.bitmap.width, image.bitmap.height, function(
-    x,
-    y,
-    index
-  ) {
-    const red = this.bitmap.data[index + 0];
-    const green = this.bitmap.data[index + 1];
-    const blue = this.bitmap.data[index + 2];
-    const alpha = this.bitmap.data[index + 3];
+  return scan(
+    image,
+    0,
+    0,
+    image.bitmap.width,
+    image.bitmap.height,
+    function (x, y, index) {
+      const red = this.bitmap.data[index + 0];
+      const green = this.bitmap.data[index + 1];
+      const blue = this.bitmap.data[index + 2];
+      const alpha = this.bitmap.data[index + 3];
 
-    this.bitmap.data[index + 0] = 0;
-    this.bitmap.data[index + 1] = green;
-    this.bitmap.data[index + 2] = blue;
-    this.bitmap.data[index + 3] = alpha;
-  });
+      this.bitmap.data[index + 0] = 0;
+      this.bitmap.data[index + 1] = green;
+      this.bitmap.data[index + 2] = blue;
+      this.bitmap.data[index + 3] = alpha;
+    }
+  );
 }
 ```
 

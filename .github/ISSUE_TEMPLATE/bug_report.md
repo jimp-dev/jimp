@@ -1,7 +1,6 @@
 ---
 name: Bug report
 about: Create a report to help us improve
-
 ---
 
 <!-- IF YOU DO NOT FILL OUT THE FOLLOWING FORM YOUR ISSUE WILL AUTOMATICALLY BE CLOSED!!! -->
@@ -28,8 +27,8 @@ IF YOUR ISSUE DEPENDS ON A PARTICULAR IMAGE BE SURE TO INCLUDE THIS AS WELL. WE 
 2. step 2
 3. you get it... -->
 
-
 **Screenshots**
+
 <!-- If applicable, add screenshots to help explain your problem. -->
 
 ## Context

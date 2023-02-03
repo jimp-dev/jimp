@@ -16,10 +16,10 @@ Crops the image at a given point to a give size
 - @param {function(Error, Jimp)} cb (optional) a callback for when complete
 
 ```js
-import jimp from 'jimp';
+import jimp from "jimp";
 
 async function main() {
-  const image = await jimp.read('test/image.png');
+  const image = await jimp.read("test/image.png");
 
   image.crop(150, 150);
 }
@@ -43,10 +43,10 @@ or
   - leaveBorder (optional): integer of how many pixels of the background color to leave around the image
 
 ```js
-import jimp from 'jimp';
+import jimp from "jimp";
 
 async function main() {
-  const image = await jimp.read('test/image.png');
+  const image = await jimp.read("test/image.png");
 
   image.autocrop();
   image.autocrop({ cropOnlyFrames: false, cropSymmetric: true });

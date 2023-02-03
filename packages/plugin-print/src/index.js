@@ -1,7 +1,7 @@
-import Path from 'path';
-import bMFont from 'load-bmfont';
-import { isNodePattern, throwError } from '@jimp/utils';
-import { measureText, measureTextHeight } from './measure-text';
+import Path from "path";
+import bMFont from "load-bmfont";
+import { isNodePattern, throwError } from "@jimp/utils";
+import { measureText, measureTextHeight } from "./measure-text";
 
 function xOffsetBasedOnAlignment(constants, font, line, maxWidth, alignment) {
   if (alignment === constants.HORIZONTAL_ALIGN_LEFT) {
@@ -40,9 +40,9 @@ function printText(font, x, y, text, defaultCharWidth) {
     if (font.chars[text[i]]) {
       char = text[i];
     } else if (/\s/.test(text[i])) {
-      char = '';
+      char = "";
     } else {
-      char = '?';
+      char = "?";
     }
 
     const fontChar = font.chars[char] || {};
@@ -58,13 +58,13 @@ function printText(font, x, y, text, defaultCharWidth) {
 }
 
 function splitLines(font, text, maxWidth) {
-  const words = text.split(' ');
+  const words = text.split(" ");
   const lines = [];
   let currentLine = [];
   let longestLine = 0;
 
-  words.forEach(word => {
-    const line = [...currentLine, word].join(' ');
+  words.forEach((word) => {
+    const line = [...currentLine, word].join(" ");
     const length = measureText(font, line);
 
     if (length <= maxWidth) {
@@ -83,13 +83,13 @@ function splitLines(font, text, maxWidth) {
 
   return {
     lines,
-    longestLine
+    longestLine,
   };
 }
 
 function loadPages(Jimp, dir, pages) {
-  const newPages = pages.map(page => {
-    return Jimp.read(dir + '/' + page);
+  const newPages = pages.map((page) => {
+    return Jimp.read(dir + "/" + page);
   });
 
   return Promise.all(newPages);
@@ -103,56 +103,56 @@ export default () => ({
     measureTextHeight,
     FONT_SANS_8_BLACK: Path.join(
       dir,
-      'fonts/open-sans/open-sans-8-black/open-sans-8-black.fnt'
+      "fonts/open-sans/open-sans-8-black/open-sans-8-black.fnt"
     ),
     FONT_SANS_10_BLACK: Path.join(
       dir,
-      'fonts/open-sans/open-sans-10-black/open-sans-10-black.fnt'
+      "fonts/open-sans/open-sans-10-black/open-sans-10-black.fnt"
     ),
     FONT_SANS_12_BLACK: Path.join(
       dir,
-      'fonts/open-sans/open-sans-12-black/open-sans-12-black.fnt'
+      "fonts/open-sans/open-sans-12-black/open-sans-12-black.fnt"
     ),
     FONT_SANS_14_BLACK: Path.join(
       dir,
-      'fonts/open-sans/open-sans-14-black/open-sans-14-black.fnt'
+      "fonts/open-sans/open-sans-14-black/open-sans-14-black.fnt"
     ),
     FONT_SANS_16_BLACK: Path.join(
       dir,
-      'fonts/open-sans/open-sans-16-black/open-sans-16-black.fnt'
+      "fonts/open-sans/open-sans-16-black/open-sans-16-black.fnt"
     ),
     FONT_SANS_32_BLACK: Path.join(
       dir,
-      'fonts/open-sans/open-sans-32-black/open-sans-32-black.fnt'
+      "fonts/open-sans/open-sans-32-black/open-sans-32-black.fnt"
     ),
     FONT_SANS_64_BLACK: Path.join(
       dir,
-      'fonts/open-sans/open-sans-64-black/open-sans-64-black.fnt'
+      "fonts/open-sans/open-sans-64-black/open-sans-64-black.fnt"
     ),
     FONT_SANS_128_BLACK: Path.join(
       dir,
-      'fonts/open-sans/open-sans-128-black/open-sans-128-black.fnt'
+      "fonts/open-sans/open-sans-128-black/open-sans-128-black.fnt"
     ),
 
     FONT_SANS_8_WHITE: Path.join(
       dir,
-      'fonts/open-sans/open-sans-8-white/open-sans-8-white.fnt'
+      "fonts/open-sans/open-sans-8-white/open-sans-8-white.fnt"
     ),
     FONT_SANS_16_WHITE: Path.join(
       dir,
-      'fonts/open-sans/open-sans-16-white/open-sans-16-white.fnt'
+      "fonts/open-sans/open-sans-16-white/open-sans-16-white.fnt"
     ),
     FONT_SANS_32_WHITE: Path.join(
       dir,
-      'fonts/open-sans/open-sans-32-white/open-sans-32-white.fnt'
+      "fonts/open-sans/open-sans-32-white/open-sans-32-white.fnt"
     ),
     FONT_SANS_64_WHITE: Path.join(
       dir,
-      'fonts/open-sans/open-sans-64-white/open-sans-64-white.fnt'
+      "fonts/open-sans/open-sans-64-white/open-sans-64-white.fnt"
     ),
     FONT_SANS_128_WHITE: Path.join(
       dir,
-      'fonts/open-sans/open-sans-128-white/open-sans-128-white.fnt'
+      "fonts/open-sans/open-sans-128-white/open-sans-128-white.fnt"
     ),
 
     /**
@@ -162,13 +162,13 @@ export default () => ({
      * @returns {Promise} a promise
      */
     loadFont(file, cb) {
-      if (typeof file !== 'string')
-        return throwError.call(this, 'file must be a string', cb);
+      if (typeof file !== "string")
+        return throwError.call(this, "file must be a string", cb);
 
       return new Promise((resolve, reject) => {
         cb =
           cb ||
-          function(err, font) {
+          function (err, font) {
             if (err) reject(err);
             else resolve(font);
           };
@@ -193,18 +193,18 @@ export default () => ({
             ] = font.kernings[i].amount;
           }
 
-          loadPages(this, Path.dirname(file), font.pages).then(pages => {
+          loadPages(this, Path.dirname(file), font.pages).then((pages) => {
             cb(null, {
               chars,
               kernings,
               pages,
               common: font.common,
-              info: font.info
+              info: font.info,
             });
           });
         });
       });
-    }
+    },
   },
 
   class: {
@@ -220,49 +220,49 @@ export default () => ({
      * @returns {Jimp} this for chaining of methods
      */
     print(font, x, y, text, maxWidth, maxHeight, cb) {
-      if (typeof maxWidth === 'function' && typeof cb === 'undefined') {
+      if (typeof maxWidth === "function" && typeof cb === "undefined") {
         cb = maxWidth;
         maxWidth = Infinity;
       }
 
-      if (typeof maxWidth === 'undefined') {
+      if (typeof maxWidth === "undefined") {
         maxWidth = Infinity;
       }
 
-      if (typeof maxHeight === 'function' && typeof cb === 'undefined') {
+      if (typeof maxHeight === "function" && typeof cb === "undefined") {
         cb = maxHeight;
         maxHeight = Infinity;
       }
 
-      if (typeof maxHeight === 'undefined') {
+      if (typeof maxHeight === "undefined") {
         maxHeight = Infinity;
       }
 
-      if (typeof font !== 'object') {
-        return throwError.call(this, 'font must be a Jimp loadFont', cb);
+      if (typeof font !== "object") {
+        return throwError.call(this, "font must be a Jimp loadFont", cb);
       }
 
       if (
-        typeof x !== 'number' ||
-        typeof y !== 'number' ||
-        typeof maxWidth !== 'number'
+        typeof x !== "number" ||
+        typeof y !== "number" ||
+        typeof maxWidth !== "number"
       ) {
-        return throwError.call(this, 'x, y and maxWidth must be numbers', cb);
+        return throwError.call(this, "x, y and maxWidth must be numbers", cb);
       }
 
-      if (typeof maxWidth !== 'number') {
-        return throwError.call(this, 'maxWidth must be a number', cb);
+      if (typeof maxWidth !== "number") {
+        return throwError.call(this, "maxWidth must be a number", cb);
       }
 
-      if (typeof maxHeight !== 'number') {
-        return throwError.call(this, 'maxHeight must be a number', cb);
+      if (typeof maxHeight !== "number") {
+        return throwError.call(this, "maxHeight must be a number", cb);
       }
 
       let alignmentX;
       let alignmentY;
 
       if (
-        typeof text === 'object' &&
+        typeof text === "object" &&
         text.text !== null &&
         text.text !== undefined
       ) {
@@ -290,8 +290,8 @@ export default () => ({
       const defaultCharWidth = Object.entries(font.chars)[0][1].xadvance;
       const { lines, longestLine } = splitLines(font, text, maxWidth);
 
-      lines.forEach(line => {
-        const lineString = line.join(' ');
+      lines.forEach((line) => {
+        const lineString = line.join(" ");
         const alignmentWidth = xOffsetBasedOnAlignment(
           this.constructor,
           font,
@@ -317,6 +317,6 @@ export default () => ({
       }
 
       return this;
-    }
-  }
+    },
+  },
 });

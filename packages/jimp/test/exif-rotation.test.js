@@ -1,10 +1,10 @@
-import { Jimp, getTestDir } from '@jimp/test-utils';
+import { Jimp, getTestDir } from "@jimp/test-utils";
 
-import configure from '@jimp/custom';
+import configure from "@jimp/custom";
 
 const jimp = configure({ plugins: [] }, Jimp);
 
-describe('EXIF orientation', () => {
+describe("EXIF orientation", () => {
   for (let orientation = 1; orientation <= 8; orientation++) {
     it(`is fixed when EXIF orientation is ${orientation}`, async () => {
       const regularImg = await imageWithOrientation(1);
@@ -19,6 +19,6 @@ describe('EXIF orientation', () => {
 
 function imageWithOrientation(orientation) {
   const imageName = `Landscape_${orientation}.jpg`;
-  const path = getTestDir(__dirname) + '/images/exif-orientation/' + imageName;
+  const path = getTestDir(__dirname) + "/images/exif-orientation/" + imageName;
   return jimp.read(path);
 }

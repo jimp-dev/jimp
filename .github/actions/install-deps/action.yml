@@ -1,8 +1,8 @@
-name: 'Setup'
+name: "Setup"
 description: Setup action
 
 runs:
-  using: 'composite'
+  using: "composite"
   steps:
     - name: Use nodejs
       uses: actions/setup-node@v3

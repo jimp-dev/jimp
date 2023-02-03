@@ -1,5 +1,5 @@
-import { throwError, isNodePattern } from '@jimp/utils';
-import { mulTable, shgTable } from './blur-tables';
+import { throwError, isNodePattern } from "@jimp/utils";
+import { mulTable, shgTable } from "./blur-tables";
 
 /*
     Superfast Blur (0.5)
@@ -37,9 +37,9 @@ export default () => ({
    * @returns {Jimp} this for chaining of methods
    */
   blur(r, cb) {
-    if (typeof r !== 'number')
-      return throwError.call(this, 'r must be a number', cb);
-    if (r < 1) return throwError.call(this, 'r must be greater than 0', cb);
+    if (typeof r !== "number")
+      return throwError.call(this, "r must be a number", cb);
+    if (r < 1) return throwError.call(this, "r must be greater than 0", cb);
 
     let rsum;
     let gsum;
@@ -177,5 +177,5 @@ export default () => ({
     }
 
     return this;
-  }
+  },
 });

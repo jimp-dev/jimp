@@ -1,14 +1,14 @@
-import { ImageCallback } from '@jimp/core';
+import { ImageCallback } from "@jimp/core";
 
 type ColorActionName =
-  | 'mix'
-  | 'tint'
-  | 'shade'
-  | 'xor'
-  | 'red'
-  | 'green'
-  | 'blue'
-  | 'hue';
+  | "mix"
+  | "tint"
+  | "shade"
+  | "xor"
+  | "red"
+  | "green"
+  | "blue"
+  | "hue";
 
 type ColorAction = {
   apply: ColorActionName;
@@ -53,4 +53,4 @@ interface Color {
   colour(actions: ColorAction[], cb?: ImageCallback<this>): this;
 }
 
-export default function(): Color;
+export default function (): Color;

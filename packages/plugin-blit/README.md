@@ -21,11 +21,11 @@ Blits a source image on to this image
 - @param {function(Error, Jimp)} cb (optional) a callback for when complete
 
 ```js
-import jimp from 'jimp';
+import jimp from "jimp";
 
 async function main() {
-  const image = await jimp.read('test/image.png');
-  const parrot = await jimp.read('test/party-parrot.png');
+  const image = await jimp.read("test/image.png");
+  const parrot = await jimp.read("test/party-parrot.png");
 
   image.blit(parrot, x, y);
 }

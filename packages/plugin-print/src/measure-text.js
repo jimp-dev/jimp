@@ -16,17 +16,17 @@ export function measureText(font, text) {
 }
 
 export function measureTextHeight(font, text, maxWidth) {
-  const words = text.split(' ');
-  let line = '';
+  const words = text.split(" ");
+  let line = "";
   let textTotalHeight = font.common.lineHeight;
 
   for (let n = 0; n < words.length; n++) {
-    const testLine = line + words[n] + ' ';
+    const testLine = line + words[n] + " ";
     const testWidth = measureText(font, testLine);
 
     if (testWidth > maxWidth && n > 0) {
       textTotalHeight += font.common.lineHeight;
-      line = words[n] + ' ';
+      line = words[n] + " ";
     } else {
       line = testLine;
     }

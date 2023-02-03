@@ -10,15 +10,15 @@
 The following wil configure a `jimp` instance with the same functionality as the main `jimp` package.
 
 ```js
-import configure from '@jimp/custom';
+import configure from "@jimp/custom";
 // all of jimp's default types
-import types from '@jimp/types';
+import types from "@jimp/types";
 // all of jimp's default types
-import plugins from '@jimp/plugins';
+import plugins from "@jimp/plugins";
 
 configure({
   types: [types],
-  plugins: [plugins]
+  plugins: [plugins],
 });
 ```
 
@@ -54,12 +54,12 @@ You can use configure to add more types and plugins to a jimp multiple times.
 
 ```js
 let jimp = configure({
-  types: [bmp]
+  types: [bmp],
 });
 
 jimp = configure(
   {
-    types: [jpeg]
+    types: [jpeg],
   },
   jimp
 );
@@ -167,7 +167,7 @@ Defining a plugin has access to all the same things in the type definition. Main
 Below is the `invert` plugin. If a plugin doesn return an object with `constants` and `class`, all keys are treated as class functions.
 
 ```js
-import { isNodePattern } from '@jimp/utils';
+import { isNodePattern } from "@jimp/utils";
 
 /**
  * Inverts the image
@@ -176,21 +176,23 @@ import { isNodePattern } from '@jimp/utils';
  */
 export default () => ({
   invert(cb) {
-    this.scanQuiet(0, 0, this.bitmap.width, this.bitmap.height, function(
-      x,
-      y,
-      idx
-    ) {
-      this.bitmap.data[idx] = 255 - this.bitmap.data[idx];
-      this.bitmap.data[idx + 1] = 255 - this.bitmap.data[idx + 1];
-      this.bitmap.data[idx + 2] = 255 - this.bitmap.data[idx + 2];
-    });
+    this.scanQuiet(
+      0,
+      0,
+      this.bitmap.width,
+      this.bitmap.height,
+      function (x, y, idx) {
+        this.bitmap.data[idx] = 255 - this.bitmap.data[idx];
+        this.bitmap.data[idx + 1] = 255 - this.bitmap.data[idx + 1];
+        this.bitmap.data[idx + 2] = 255 - this.bitmap.data[idx + 2];
+      }
+    );
 
     if (isNodePattern(cb)) {
       cb.call(this, null, this);
     }
 
     return this;
-  }
+  },
 });
 ```

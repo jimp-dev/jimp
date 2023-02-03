@@ -14,10 +14,10 @@ Uniformly scales the image by a factor.
 - @param {function(Error, Jimp)} cb (optional) a callback for when complete
 
 ```js
-import jimp from 'jimp';
+import jimp from "jimp";
 
 async function main() {
-  const image = await jimp.read('test/image.png');
+  const image = await jimp.read("test/image.png");
 
   image.scale(2);
   image.scale(2, jimp.RESIZE_BEZIER);
@@ -36,10 +36,10 @@ Scale the image to the largest size that fits inside the rectangle that has the 
 - @param {function(Error, Jimp)} cb (optional) a callback for when complete
 
 ```js
-import jimp from 'jimp';
+import jimp from "jimp";
 
 async function main() {
-  const image = await jimp.read('test/image.png');
+  const image = await jimp.read("test/image.png");
 
   image.scaleToFit(100, 100);
 }
