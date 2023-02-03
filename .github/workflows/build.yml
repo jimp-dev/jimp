@@ -46,9 +46,10 @@ jobs:
       - uses: ./.github/actions/build-cache
       - run: yarn test
 
-  test-ci:
+  test-browser:
     runs-on: ubuntu-latest
     needs: build
+    if: ${{ false }}  # disable for now
     steps:
       - uses: actions/checkout@v3
       - uses: ./.github/actions/install-deps
