@@ -47,7 +47,7 @@
     "eslint-config-prettier": "^6.3.0",
     "express": "^4.17.1",
     "husky": "^3.0.5",
-    "karma": "^4.3.0",
+    "karma": "^6.3.16",
     "karma-browserify": "^6.1.0",
     "karma-chrome-launcher": "^3.1.0",
     "karma-firefox-launcher": "^1.2.0",
