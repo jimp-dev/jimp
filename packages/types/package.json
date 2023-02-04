@@ -1,6 +1,6 @@
 {
   "name": "@jimp/types",
-  "version": "0.16.1",
+  "version": "0.17.3",
   "description": "Default Jimp encoder/decoders.",
   "main": "dist/index.js",
   "module": "es/index.js",

@@ -1,4 +1,4 @@
-import { throwError, isNodePattern } from '@jimp/utils';
+import { throwError, isNodePattern } from "@jimp/utils";
 
 export default () => ({
   /**
@@ -15,14 +15,14 @@ export default () => ({
    */
   blit(src, x, y, srcx, srcy, srcw, srch, cb) {
     if (!(src instanceof this.constructor)) {
-      return throwError.call(this, 'The source must be a Jimp image', cb);
+      return throwError.call(this, "The source must be a Jimp image", cb);
     }
 
-    if (typeof x !== 'number' || typeof y !== 'number') {
-      return throwError.call(this, 'x and y must be numbers', cb);
+    if (typeof x !== "number" || typeof y !== "number") {
+      return throwError.call(this, "x and y must be numbers", cb);
     }
 
-    if (typeof srcx === 'function') {
+    if (typeof srcx === "function") {
       cb = srcx;
       srcx = 0;
       srcy = 0;
@@ -40,7 +40,7 @@ export default () => ({
     } else {
       return throwError.call(
         this,
-        'srcx, srcy, srcw, srch must be numbers',
+        "srcx, srcy, srcw, srch must be numbers",
         cb
       );
     }
@@ -59,7 +59,7 @@ export default () => ({
     const maxHeight = this.bitmap.height;
     const baseImage = this;
 
-    src.scanQuiet(srcx, srcy, srcw, srch, function(sx, sy, idx) {
+    src.scanQuiet(srcx, srcy, srcw, srch, function (sx, sy, idx) {
       const xOffset = x + sx - srcx;
       const yOffset = y + sy - srcy;
 
@@ -74,14 +74,14 @@ export default () => ({
           r: this.bitmap.data[idx],
           g: this.bitmap.data[idx + 1],
           b: this.bitmap.data[idx + 2],
-          a: this.bitmap.data[idx + 3]
+          a: this.bitmap.data[idx + 3],
         };
 
         const dst = {
           r: baseImage.bitmap.data[dstIdx],
           g: baseImage.bitmap.data[dstIdx + 1],
           b: baseImage.bitmap.data[dstIdx + 2],
-          a: baseImage.bitmap.data[dstIdx + 3]
+          a: baseImage.bitmap.data[dstIdx + 3],
         };
 
         baseImage.bitmap.data[dstIdx] =
@@ -101,5 +101,5 @@ export default () => ({
     }
 
     return this;
-  }
+  },
 });

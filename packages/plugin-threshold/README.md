@@ -16,10 +16,10 @@ This is useful as a simplified method for processing scanned drawings, signature
 - @param {function(Error, Jimp)} cb (optional) a callback for when complete
 
 ```js
-import jimp from 'jimp';
+import jimp from "jimp";
 
 async function main() {
-  const image = await jimp.read('test/image.png');
+  const image = await jimp.read("test/image.png");
 
   image.threshold({ max: 150 });
   // or

@@ -74,5 +74,5 @@ function encode(bitmap) {
 
 export default {
   encode,
-  decode
+  decode,
 };

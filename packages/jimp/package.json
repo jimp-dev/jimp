@@ -1,6 +1,6 @@
 {
   "name": "jimp",
-  "version": "0.16.1",
+  "version": "0.17.3",
   "description": "An image processing library written entirely in JavaScript (i.e. zero external or native dependencies)",
   "main": "dist/index.js",
   "module": "es/index.js",
@@ -21,13 +21,7 @@
     "fonts",
     "types"
   ],
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/oliver-moran/jimp.git"
-  },
-  "bugs": {
-    "url": "https://github.com/oliver-moran/jimp/issues"
-  },
+  "repository": "jimp-dev/jimp",
   "scripts": {
     "test": "cross-env BABEL_ENV=test mocha --require @babel/register",
     "test:watch": "npm run test -- --reporter min --watch",
@@ -82,7 +76,6 @@
     "dtslint": "^0.9.8",
     "envify": "^4.1.0",
     "eslint": "^6.4.0",
-    "eslint-plugin-prettier": "^3.1.1",
     "express": "^4.17.1",
     "husky": "^3.0.5",
     "karma": "^4.3.0",
@@ -94,14 +87,11 @@
     "lint-staged": "^9.2.5",
     "mocha": "^6.2.0",
     "nyc": "^14.1.1",
-    "prettier": "^1.18.2",
     "source-map-support": "^0.5.13",
     "tfilter": "^1.0.1",
     "uglify-js": "^3.6.0",
-    "watchify": "^3.11.1",
-    "xo": "^0.24.0"
+    "watchify": "^3.11.1"
   },
-  "xo": false,
   "nyc": {
     "sourceMap": false,
     "instrument": false,

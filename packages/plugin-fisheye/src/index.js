@@ -1,4 +1,4 @@
-import { isNodePattern } from '@jimp/utils';
+import { isNodePattern } from "@jimp/utils";
 
 /**
  * Creates a circle out of an image.
@@ -8,7 +8,7 @@ import { isNodePattern } from '@jimp/utils';
  */
 export default () => ({
   fisheye(options = { r: 2.5 }, cb) {
-    if (typeof options === 'function') {
+    if (typeof options === "function") {
       cb = options;
       options = { r: 2.5 };
     }
@@ -42,5 +42,5 @@ export default () => ({
     }
 
     return this;
-  }
+  },
 });

@@ -1,15 +1,15 @@
-import { throwError, isNodePattern } from '@jimp/utils';
+import { throwError, isNodePattern } from "@jimp/utils";
 
-import Resize from './modules/resize';
-import Resize2 from './modules/resize2';
+import Resize from "./modules/resize";
+import Resize2 from "./modules/resize2";
 
 export default () => ({
   constants: {
-    RESIZE_NEAREST_NEIGHBOR: 'nearestNeighbor',
-    RESIZE_BILINEAR: 'bilinearInterpolation',
-    RESIZE_BICUBIC: 'bicubicInterpolation',
-    RESIZE_HERMITE: 'hermiteInterpolation',
-    RESIZE_BEZIER: 'bezierInterpolation'
+    RESIZE_NEAREST_NEIGHBOR: "nearestNeighbor",
+    RESIZE_BILINEAR: "bilinearInterpolation",
+    RESIZE_BICUBIC: "bicubicInterpolation",
+    RESIZE_HERMITE: "hermiteInterpolation",
+    RESIZE_BEZIER: "bezierInterpolation",
   },
 
   class: {
@@ -22,17 +22,17 @@ export default () => ({
      * @returns {Jimp} this for chaining of methods
      */
     resize(w, h, mode, cb) {
-      if (typeof w !== 'number' || typeof h !== 'number') {
-        return throwError.call(this, 'w and h must be numbers', cb);
+      if (typeof w !== "number" || typeof h !== "number") {
+        return throwError.call(this, "w and h must be numbers", cb);
       }
 
-      if (typeof mode === 'function' && typeof cb === 'undefined') {
+      if (typeof mode === "function" && typeof cb === "undefined") {
         cb = mode;
         mode = null;
       }
 
       if (w === this.constructor.AUTO && h === this.constructor.AUTO) {
-        return throwError.call(this, 'w and h cannot both be set to auto', cb);
+        return throwError.call(this, "w and h cannot both be set to auto", cb);
       }
 
       if (w === this.constructor.AUTO) {
@@ -44,18 +44,18 @@ export default () => ({
       }
 
       if (w < 0 || h < 0) {
-        return throwError.call(this, 'w and h must be positive numbers', cb);
+        return throwError.call(this, "w and h must be positive numbers", cb);
       }
 
       // round inputs
       w = Math.round(w);
       h = Math.round(h);
 
-      if (typeof Resize2[mode] === 'function') {
+      if (typeof Resize2[mode] === "function") {
         const dst = {
           data: Buffer.alloc(w * h * 4),
           width: w,
-          height: h
+          height: h,
         };
         Resize2[mode](this.bitmap, dst);
         this.bitmap = dst;
@@ -68,7 +68,7 @@ export default () => ({
           h,
           true,
           true,
-          buffer => {
+          (buffer) => {
             image.bitmap.data = Buffer.from(buffer);
             image.bitmap.width = w;
             image.bitmap.height = h;
@@ -82,6 +82,6 @@ export default () => ({
       }
 
       return this;
-    }
-  }
+    },
+  },
 });

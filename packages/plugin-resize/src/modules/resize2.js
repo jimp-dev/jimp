@@ -57,7 +57,7 @@ module.exports = {
     const bufSrc = src.data;
     const bufDst = dst.data;
 
-    const interpolate = function(k, kMin, vMin, kMax, vMax) {
+    const interpolate = function (k, kMin, vMin, kMax, vMax) {
       // special case - k is integer
       if (kMin === kMax) {
         return vMin;
@@ -66,7 +66,7 @@ module.exports = {
       return Math.round((k - kMin) * vMax + (kMax - k) * vMin);
     };
 
-    const assign = function(pos, offset, x, xMin, xMax, y, yMin, yMax) {
+    const assign = function (pos, offset, x, xMin, xMax, y, yMin, yMax) {
       let posMin = (yMin * wSrc + xMin) * 4 + offset;
       let posMax = (yMin * wSrc + xMax) * 4 + offset;
       const vMin = interpolate(x, xMin, bufSrc[posMin], xMax, bufSrc[posMax]);
@@ -235,7 +235,7 @@ module.exports = {
   },
 
   bicubicInterpolation(src, dst, options) {
-    const interpolateCubic = function(x0, x1, x2, x3, t) {
+    const interpolateCubic = function (x0, x1, x2, x3, t) {
       const a0 = x3 - x2 - x0 + x1;
       const a1 = x0 - x1 - a0;
       const a2 = x2 - x0;
@@ -250,7 +250,7 @@ module.exports = {
   },
 
   hermiteInterpolation(src, dst, options) {
-    const interpolateHermite = function(x0, x1, x2, x3, t) {
+    const interpolateHermite = function (x0, x1, x2, x3, t) {
       const c0 = x1;
       const c1 = 0.5 * (x2 - x0);
       const c2 = x0 - 2.5 * x1 + 2 * x2 - 0.5 * x3;
@@ -276,7 +276,7 @@ module.exports = {
     //  y(-1) = y(0) - 2*(y(1)-y(0))
     //  y(w) = y(w-1) + 2*(y(w-1)-y(w-2))
     // but can go with y(-1) = y(0) and y(w) = y(w-1)
-    const interpolateBezier = function(x0, x1, x2, x3, t) {
+    const interpolateBezier = function (x0, x1, x2, x3, t) {
       // x1, x2 are the knots, use x0 and x3 to calculate control points
       const cp1 = x1 + (x2 - x0) / 4;
       const cp2 = x2 - (x3 - x1) / 4;
@@ -289,5 +289,5 @@ module.exports = {
     };
 
     return this._interpolate2D(src, dst, options, interpolateBezier);
-  }
+  },
 };

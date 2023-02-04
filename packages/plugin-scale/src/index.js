@@ -1,4 +1,4 @@
-import { isNodePattern, throwError } from '@jimp/utils';
+import { isNodePattern, throwError } from "@jimp/utils";
 
 export default () => ({
   /**
@@ -9,15 +9,15 @@ export default () => ({
    * @returns {Jimp} this for chaining of methods
    */
   scale(f, mode, cb) {
-    if (typeof f !== 'number') {
-      return throwError.call(this, 'f must be a number', cb);
+    if (typeof f !== "number") {
+      return throwError.call(this, "f must be a number", cb);
     }
 
     if (f < 0) {
-      return throwError.call(this, 'f must be a positive number', cb);
+      return throwError.call(this, "f must be a positive number", cb);
     }
 
-    if (typeof mode === 'function' && typeof cb === 'undefined') {
+    if (typeof mode === "function" && typeof cb === "undefined") {
       cb = mode;
       mode = null;
     }
@@ -42,11 +42,11 @@ export default () => ({
    * @returns {Jimp} this for chaining of methods
    */
   scaleToFit(w, h, mode, cb) {
-    if (typeof w !== 'number' || typeof h !== 'number') {
-      return throwError.call(this, 'w and h must be numbers', cb);
+    if (typeof w !== "number" || typeof h !== "number") {
+      return throwError.call(this, "w and h must be numbers", cb);
     }
 
-    if (typeof mode === 'function' && typeof cb === 'undefined') {
+    if (typeof mode === "function" && typeof cb === "undefined") {
       cb = mode;
       mode = null;
     }
@@ -62,5 +62,5 @@ export default () => ({
     }
 
     return this;
-  }
+  },
 });

@@ -1,16 +1,16 @@
 #!/usr/bin/env node
 
-import setUpCli from './cli';
-import { manipulateImage, createImage } from './process-image';
+import setUpCli from "./cli";
+import { manipulateImage, createImage } from "./process-image";
 
 export async function runCLI(args = process.argv) {
-  const argv = setUpCli(args.slice(2)).argv;
+  const { argv } = setUpCli(args.slice(2));
 
-  if (argv._.includes('read')) {
+  if (argv._.includes("read")) {
     await manipulateImage(argv);
   }
 
-  if (argv._.includes('create')) {
+  if (argv._.includes("create")) {
     await createImage(argv);
   }
 }

@@ -1,4 +1,4 @@
-import {Jimp} from './jimp';
+import { Jimp } from "./jimp";
 
 export interface Image {
   bitmap: Bitmap;
@@ -35,33 +35,35 @@ type BlendMode = {
   opacityDest: number;
 };
 
-type ChangeName = 'background' | 'scan' | 'crop';
+type ChangeName = "background" | "scan" | "crop";
 
 type ListenableName =
-  | 'any'
-  | 'initialized'
-  | 'before-change'
-  | 'changed'
-  | 'before-clone'
-  | 'cloned'
+  | "any"
+  | "initialized"
+  | "before-change"
+  | "changed"
+  | "before-clone"
+  | "cloned"
   | ChangeName;
 
-type ListenerData<T extends ListenableName> = T extends 'any'
+type ListenerData<T extends ListenableName> = T extends "any"
   ? any
   : T extends ChangeName
-    ? {
-        eventName: 'before-change' | 'changed';
-        methodName: T;
-        [key: string]: any;
-      }
-    : {
-        eventName: T;
-        methodName: T extends 'initialized'
-          ? 'constructor'
-          : T extends 'before-change' | 'changed'
-            ? ChangeName
-            : T extends 'before-clone' | 'cloned' ? 'clone' : any;
-      };
+  ? {
+      eventName: "before-change" | "changed";
+      methodName: T;
+      [key: string]: any;
+    }
+  : {
+      eventName: T;
+      methodName: T extends "initialized"
+        ? "constructor"
+        : T extends "before-change" | "changed"
+        ? ChangeName
+        : T extends "before-clone" | "cloned"
+        ? "clone"
+        : any;
+    };
 
 type URLOptions = {
   url: string;
