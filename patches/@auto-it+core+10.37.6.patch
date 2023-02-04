@@ -1,5 +1,5 @@
 diff --git a/node_modules/@auto-it/core/dist/auto.js b/node_modules/@auto-it/core/dist/auto.js
-index b388374..f5c1019 100644
+index b388374..75ef459 100644
 --- a/node_modules/@auto-it/core/dist/auto.js
 +++ b/node_modules/@auto-it/core/dist/auto.js
 @@ -316,7 +316,7 @@ class Auto {
@@ -20,3 +20,12 @@ index b388374..f5c1019 100644
              if (await this.git.verifyAuth(urlWithAuth)) {
                  this.logger.veryVerbose.note("Using token + html URL as remote");
                  return urlWithAuth;
+@@ -333,7 +335,7 @@ class Auto {
+             this.logger.veryVerbose.note("Using bare html URL as remote");
+             return html_url;
+         }
+-        this.logger.veryVerbose.note("Using remote set in environment");
++        this.logger.veryVerbose.note("Using remote set in environment!!!!!");
+         return configuredRemote;
+     }
+     /** Interactive prompt for initializing an .autorc */
