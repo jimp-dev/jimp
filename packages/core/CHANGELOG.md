@@ -1,3 +1,15 @@
+# v0.17.6 (Sat Feb 04 2023)
+
+#### 🐛 Bug Fix
+
+- fix(jimp.d.ts): fix getBase64 and getBase64Async function arguments [#1094](https://github.com/jimp-dev/jimp/pull/1094) ([@pkjy](https://github.com/pkjy))
+
+#### Authors: 1
+
+- 彭君怡 ([@pkjy](https://github.com/pkjy))
+
+---
+
 # v0.17.5 (Sat Feb 04 2023)
 
 #### 🐛 Bug Fix

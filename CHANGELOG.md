@@ -1,3 +1,26 @@
+# v0.17.6 (Sat Feb 04 2023)
+
+#### 🐛 Bug Fix
+
+- `@jimp/plugin-color`
+  - Fix types not assignable to 'ColorActionName'. [#1086](https://github.com/jimp-dev/jimp/pull/1086) ([@lucyyyyyyy](https://github.com/lucyyyyyyy) [@hipstersmoothie](https://github.com/hipstersmoothie))
+- `@jimp/plugin-print`
+  - Update ordering of overrides so ReturnType pulls correct typing. [#1077](https://github.com/jimp-dev/jimp/pull/1077) ([@dcbartlett](https://github.com/dcbartlett) [@hipstersmoothie](https://github.com/hipstersmoothie))
+- `@jimp/core`
+  - fix(jimp.d.ts): fix getBase64 and getBase64Async function arguments [#1094](https://github.com/jimp-dev/jimp/pull/1094) ([@pkjy](https://github.com/pkjy))
+- `jimp`, `@jimp/plugin-rotate`
+  - fix documentation about rotation direction. [#1062](https://github.com/jimp-dev/jimp/pull/1062) ([@fabb](https://github.com/fabb))
+
+#### Authors: 5
+
+- [@fabb](https://github.com/fabb)
+- Andrew Lisowski ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- Dennis Bartlett ([@dcbartlett](https://github.com/dcbartlett))
+- Lucy ([@lucyyyyyyy](https://github.com/lucyyyyyyy))
+- 彭君怡 ([@pkjy](https://github.com/pkjy))
+
+---
+
 # v0.17.5 (Sat Feb 04 2023)
 
 #### 🐛 Bug Fix

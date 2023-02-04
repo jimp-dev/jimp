@@ -1,3 +1,16 @@
+# v0.17.6 (Sat Feb 04 2023)
+
+#### 🐛 Bug Fix
+
+- Fix types not assignable to 'ColorActionName'. [#1086](https://github.com/jimp-dev/jimp/pull/1086) ([@lucyyyyyyy](https://github.com/lucyyyyyyy) [@hipstersmoothie](https://github.com/hipstersmoothie))
+
+#### Authors: 2
+
+- Andrew Lisowski ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- Lucy ([@lucyyyyyyy](https://github.com/lucyyyyyyy))
+
+---
+
 # v0.17.3 (Sat Feb 04 2023)
 
 #### 🐛 Bug Fix

@@ -1,3 +1,16 @@
+# v0.17.6 (Sat Feb 04 2023)
+
+#### 🐛 Bug Fix
+
+- Update ordering of overrides so ReturnType pulls correct typing. [#1077](https://github.com/jimp-dev/jimp/pull/1077) ([@dcbartlett](https://github.com/dcbartlett) [@hipstersmoothie](https://github.com/hipstersmoothie))
+
+#### Authors: 2
+
+- Andrew Lisowski ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- Dennis Bartlett ([@dcbartlett](https://github.com/dcbartlett))
+
+---
+
 # v0.17.2 (Sat Feb 04 2023)
 
 #### 🐛 Bug Fix
