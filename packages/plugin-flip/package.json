@@ -1,6 +1,6 @@
 {
   "name": "@jimp/plugin-flip",
-  "version": "0.16.2",
+  "version": "0.16.13",
   "description": "flip an image.",
   "main": "dist/index.js",
   "module": "es/index.js",
