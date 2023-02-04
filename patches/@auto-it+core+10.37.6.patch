@@ -1,5 +1,5 @@
 diff --git a/node_modules/@auto-it/core/dist/auto.js b/node_modules/@auto-it/core/dist/auto.js
-index b388374..41949be 100644
+index b388374..f5c1019 100644
 --- a/node_modules/@auto-it/core/dist/auto.js
 +++ b/node_modules/@auto-it/core/dist/auto.js
 @@ -316,7 +316,7 @@ class Auto {
@@ -11,3 +11,12 @@ index b388374..41949be 100644
          if (ssh_url && (await this.git.verifyAuth(ssh_url))) {
              this.logger.veryVerbose.note("Using ssh URL as remote");
              return ssh_url;
+@@ -324,6 +324,8 @@ class Auto {
+         if (gitCredentials) {
+             const _a = url_1.parse(html_url), { port, hostname } = _a, parsed = tslib_1.__rest(_a, ["port", "hostname"]);
+             const urlWithAuth = url_1.format(Object.assign(Object.assign({}, parsed), { auth: gitCredentials, host: `${hostname}${port ? `:${port}` : ""}` }));
++
++            console.log(process.env, urlWithAuth.replace(gitCredentials,'gitCredentials'))
+             if (await this.git.verifyAuth(urlWithAuth)) {
+                 this.logger.veryVerbose.note("Using token + html URL as remote");
+                 return urlWithAuth;
