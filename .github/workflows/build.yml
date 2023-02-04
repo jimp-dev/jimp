@@ -8,8 +8,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-        with:
-          submodules: recursive
       - uses: ./.github/actions/install-deps
 
   build:
@@ -65,6 +63,8 @@ jobs:
       - uses: actions/checkout@v3
       - uses: ./.github/actions/install-deps
       - uses: ./.github/actions/build-cache
+      - name: Prepare repository
+        run: git fetch --unshallow --tags
       - name: Create Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
