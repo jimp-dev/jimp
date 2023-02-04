@@ -1,9 +1,14 @@
-import { ImageCallback } from '@jimp/core';
+import { ImageCallback } from "@jimp/core";
 
 interface Contain {
   contain(w: number, h: number, cb?: ImageCallback<this>): this;
   contain(w: number, h: number, mode?: string, cb?: ImageCallback<this>): this;
-  contain(w: number, h: number, alignBits?: number, cb?: ImageCallback<this>): this;
+  contain(
+    w: number,
+    h: number,
+    alignBits?: number,
+    cb?: ImageCallback<this>
+  ): this;
   contain(
     w: number,
     h: number,
@@ -13,4 +18,4 @@ interface Contain {
   ): this;
 }
 
-export default function(): Contain;
+export default function (): Contain;

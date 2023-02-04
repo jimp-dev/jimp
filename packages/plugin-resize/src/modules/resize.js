@@ -17,7 +17,7 @@ function Resize(
   this.colorChannels = blendAlpha ? 4 : 3;
   this.interpolationPass = Boolean(interpolationPass);
   this.resizeCallback =
-    typeof resizeCallback === 'function' ? resizeCallback : function() {};
+    typeof resizeCallback === "function" ? resizeCallback : function () {};
 
   this.targetWidthMultipliedByChannels = this.targetWidth * this.colorChannels;
   this.originalWidthMultipliedByChannels =
@@ -31,7 +31,7 @@ function Resize(
   this.initialize();
 }
 
-Resize.prototype.initialize = function() {
+Resize.prototype.initialize = function () {
   // Perform some checks:
   if (
     this.widthOriginal > 0 &&
@@ -41,11 +41,11 @@ Resize.prototype.initialize = function() {
   ) {
     this.configurePasses();
   } else {
-    throw new Error('Invalid settings specified for the resizer.');
+    throw new Error("Invalid settings specified for the resizer.");
   }
 };
 
-Resize.prototype.configurePasses = function() {
+Resize.prototype.configurePasses = function () {
   if (this.widthOriginal === this.targetWidth) {
     // Bypass the width resizer pass:
     this.resizeWidth = this.bypassResizer;
@@ -82,7 +82,7 @@ Resize.prototype.configurePasses = function() {
   }
 };
 
-Resize.prototype._resizeWidthInterpolatedRGBChannels = function(
+Resize.prototype._resizeWidthInterpolatedRGBChannels = function (
   buffer,
   fourthChannel
 ) {
@@ -178,7 +178,7 @@ Resize.prototype._resizeWidthInterpolatedRGBChannels = function(
   return outputBuffer;
 };
 
-Resize.prototype._resizeWidthRGBChannels = function(buffer, fourthChannel) {
+Resize.prototype._resizeWidthRGBChannels = function (buffer, fourthChannel) {
   const channelsNum = fourthChannel ? 4 : 3;
   const ratioWeight = this.ratioWeightWidthPass;
   const ratioWeightDivisor = 1 / ratioWeight;
@@ -275,7 +275,7 @@ Resize.prototype._resizeWidthRGBChannels = function(buffer, fourthChannel) {
   return outputBuffer;
 };
 
-Resize.prototype._resizeHeightRGBChannels = function(buffer, fourthChannel) {
+Resize.prototype._resizeHeightRGBChannels = function (buffer, fourthChannel) {
   const ratioWeight = this.ratioWeightHeightPass;
   const ratioWeightDivisor = 1 / ratioWeight;
   const output = this.outputHeightWorkBench;
@@ -380,23 +380,23 @@ Resize.prototype._resizeHeightRGBChannels = function(buffer, fourthChannel) {
   return outputBuffer;
 };
 
-Resize.prototype.resizeWidthInterpolatedRGB = function(buffer) {
+Resize.prototype.resizeWidthInterpolatedRGB = function (buffer) {
   return this._resizeWidthInterpolatedRGBChannels(buffer, false);
 };
 
-Resize.prototype.resizeWidthInterpolatedRGBA = function(buffer) {
+Resize.prototype.resizeWidthInterpolatedRGBA = function (buffer) {
   return this._resizeWidthInterpolatedRGBChannels(buffer, true);
 };
 
-Resize.prototype.resizeWidthRGB = function(buffer) {
+Resize.prototype.resizeWidthRGB = function (buffer) {
   return this._resizeWidthRGBChannels(buffer, false);
 };
 
-Resize.prototype.resizeWidthRGBA = function(buffer) {
+Resize.prototype.resizeWidthRGBA = function (buffer) {
   return this._resizeWidthRGBChannels(buffer, true);
 };
 
-Resize.prototype.resizeHeightInterpolated = function(buffer) {
+Resize.prototype.resizeHeightInterpolated = function (buffer) {
   const ratioWeight = this.ratioWeightHeightPass;
   const outputBuffer = this.heightBuffer;
 
@@ -467,24 +467,24 @@ Resize.prototype.resizeHeightInterpolated = function(buffer) {
   return outputBuffer;
 };
 
-Resize.prototype.resizeHeightRGB = function(buffer) {
+Resize.prototype.resizeHeightRGB = function (buffer) {
   return this._resizeHeightRGBChannels(buffer, false);
 };
 
-Resize.prototype.resizeHeightRGBA = function(buffer) {
+Resize.prototype.resizeHeightRGBA = function (buffer) {
   return this._resizeHeightRGBChannels(buffer, true);
 };
 
-Resize.prototype.resize = function(buffer) {
+Resize.prototype.resize = function (buffer) {
   this.resizeCallback(this.resizeHeight(this.resizeWidth(buffer)));
 };
 
-Resize.prototype.bypassResizer = function(buffer) {
+Resize.prototype.bypassResizer = function (buffer) {
   // Just return the buffer passed:
   return buffer;
 };
 
-Resize.prototype.initializeFirstPassBuffers = function(BILINEARAlgo) {
+Resize.prototype.initializeFirstPassBuffers = function (BILINEARAlgo) {
   // Initialize the internal width pass buffers:
   this.widthBuffer = this.generateFloatBuffer(this.widthPassResultSize);
 
@@ -501,7 +501,7 @@ Resize.prototype.initializeFirstPassBuffers = function(BILINEARAlgo) {
   }
 };
 
-Resize.prototype.initializeSecondPassBuffers = function(BILINEARAlgo) {
+Resize.prototype.initializeSecondPassBuffers = function (BILINEARAlgo) {
   // Initialize the internal height pass buffers:
   this.heightBuffer = this.generateUint8Buffer(this.finalResultSize);
 
@@ -518,7 +518,7 @@ Resize.prototype.initializeSecondPassBuffers = function(BILINEARAlgo) {
   }
 };
 
-Resize.prototype.generateFloatBuffer = function(bufferLength) {
+Resize.prototype.generateFloatBuffer = function (bufferLength) {
   // Generate a float32 typed array buffer:
   try {
     return new Float32Array(bufferLength);
@@ -527,7 +527,7 @@ Resize.prototype.generateFloatBuffer = function(bufferLength) {
   }
 };
 
-Resize.prototype.generateFloat64Buffer = function(bufferLength) {
+Resize.prototype.generateFloat64Buffer = function (bufferLength) {
   // Generate a float64 typed array buffer:
   try {
     return new Float64Array(bufferLength);
@@ -536,7 +536,7 @@ Resize.prototype.generateFloat64Buffer = function(bufferLength) {
   }
 };
 
-Resize.prototype.generateUint8Buffer = function(bufferLength) {
+Resize.prototype.generateUint8Buffer = function (bufferLength) {
   // Generate a uint8 typed array buffer:
   try {
     return new Uint8Array(bufferLength);

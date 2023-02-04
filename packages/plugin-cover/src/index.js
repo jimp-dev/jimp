@@ -1,4 +1,4 @@
-import { isNodePattern, throwError } from '@jimp/utils';
+import { isNodePattern, throwError } from "@jimp/utils";
 
 /**
  * Scale the image so the given width and height keeping the aspect ratio. Some parts of the image may be clipped.
@@ -11,19 +11,19 @@ import { isNodePattern, throwError } from '@jimp/utils';
  */
 export default () => ({
   cover(w, h, alignBits, mode, cb) {
-    if (typeof w !== 'number' || typeof h !== 'number') {
-      return throwError.call(this, 'w and h must be numbers', cb);
+    if (typeof w !== "number" || typeof h !== "number") {
+      return throwError.call(this, "w and h must be numbers", cb);
     }
 
     if (
       alignBits &&
-      typeof alignBits === 'function' &&
-      typeof cb === 'undefined'
+      typeof alignBits === "function" &&
+      typeof cb === "undefined"
     ) {
       cb = alignBits;
       alignBits = null;
       mode = null;
-    } else if (typeof mode === 'function' && typeof cb === 'undefined') {
+    } else if (typeof mode === "function" && typeof cb === "undefined") {
       cb = mode;
       mode = null;
     }
@@ -44,7 +44,7 @@ export default () => ({
     )
       return throwError.call(
         this,
-        'only use one flag per alignment direction',
+        "only use one flag per alignment direction",
         cb
       );
 
@@ -68,5 +68,5 @@ export default () => ({
     }
 
     return this;
-  }
+  },
 });

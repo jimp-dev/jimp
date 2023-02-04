@@ -1,7 +1,7 @@
-import { isNodePattern, throwError } from '@jimp/utils';
-import * as constants from '../constants';
+import { isNodePattern, throwError } from "@jimp/utils";
+import * as constants from "../constants";
 
-import * as compositeModes from './composite-modes';
+import * as compositeModes from "./composite-modes";
 
 /**
  * Composites a source image over to this image respecting alpha channels
@@ -13,17 +13,17 @@ import * as compositeModes from './composite-modes';
  * @returns {Jimp} this for chaining of methods
  */
 export default function composite(src, x, y, options = {}, cb) {
-  if (typeof options === 'function') {
+  if (typeof options === "function") {
     cb = options;
     options = {};
   }
 
   if (!(src instanceof this.constructor)) {
-    return throwError.call(this, 'The source must be a Jimp image', cb);
+    return throwError.call(this, "The source must be a Jimp image", cb);
   }
 
-  if (typeof x !== 'number' || typeof y !== 'number') {
-    return throwError.call(this, 'x and y must be numbers', cb);
+  if (typeof x !== "number" || typeof y !== "number") {
+    return throwError.call(this, "x and y must be numbers", cb);
   }
 
   let { mode, opacitySource, opacityDest } = options;
@@ -33,17 +33,18 @@ export default function composite(src, x, y, options = {}, cb) {
   }
 
   if (
-    typeof opacitySource !== 'number' ||
+    typeof opacitySource !== "number" ||
     opacitySource < 0 ||
     opacitySource > 1
   ) {
     opacitySource = 1.0;
   }
 
-  if (typeof opacityDest !== 'number' || opacityDest < 0 || opacityDest > 1) {
+  if (typeof opacityDest !== "number" || opacityDest < 0 || opacityDest > 1) {
     opacityDest = 1.0;
   }
 
+  // eslint-disable-next-line import/namespace
   const blendmode = compositeModes[mode];
 
   // round input
@@ -56,41 +57,47 @@ export default function composite(src, x, y, options = {}, cb) {
     baseImage.opacity(opacityDest);
   }
 
-  src.scanQuiet(0, 0, src.bitmap.width, src.bitmap.height, function(
-    sx,
-    sy,
-    idx
-  ) {
-    const dstIdx = baseImage.getPixelIndex(x + sx, y + sy, constants.EDGE_CROP);
-    const blended = blendmode(
-      {
-        r: this.bitmap.data[idx + 0] / 255,
-        g: this.bitmap.data[idx + 1] / 255,
-        b: this.bitmap.data[idx + 2] / 255,
-        a: this.bitmap.data[idx + 3] / 255
-      },
-      {
-        r: baseImage.bitmap.data[dstIdx + 0] / 255,
-        g: baseImage.bitmap.data[dstIdx + 1] / 255,
-        b: baseImage.bitmap.data[dstIdx + 2] / 255,
-        a: baseImage.bitmap.data[dstIdx + 3] / 255
-      },
-      opacitySource
-    );
+  src.scanQuiet(
+    0,
+    0,
+    src.bitmap.width,
+    src.bitmap.height,
+    function (sx, sy, idx) {
+      const dstIdx = baseImage.getPixelIndex(
+        x + sx,
+        y + sy,
+        constants.EDGE_CROP
+      );
+      const blended = blendmode(
+        {
+          r: this.bitmap.data[idx + 0] / 255,
+          g: this.bitmap.data[idx + 1] / 255,
+          b: this.bitmap.data[idx + 2] / 255,
+          a: this.bitmap.data[idx + 3] / 255,
+        },
+        {
+          r: baseImage.bitmap.data[dstIdx + 0] / 255,
+          g: baseImage.bitmap.data[dstIdx + 1] / 255,
+          b: baseImage.bitmap.data[dstIdx + 2] / 255,
+          a: baseImage.bitmap.data[dstIdx + 3] / 255,
+        },
+        opacitySource
+      );
 
-    baseImage.bitmap.data[dstIdx + 0] = this.constructor.limit255(
-      blended.r * 255
-    );
-    baseImage.bitmap.data[dstIdx + 1] = this.constructor.limit255(
-      blended.g * 255
-    );
-    baseImage.bitmap.data[dstIdx + 2] = this.constructor.limit255(
-      blended.b * 255
-    );
-    baseImage.bitmap.data[dstIdx + 3] = this.constructor.limit255(
-      blended.a * 255
-    );
-  });
+      baseImage.bitmap.data[dstIdx + 0] = this.constructor.limit255(
+        blended.r * 255
+      );
+      baseImage.bitmap.data[dstIdx + 1] = this.constructor.limit255(
+        blended.g * 255
+      );
+      baseImage.bitmap.data[dstIdx + 2] = this.constructor.limit255(
+        blended.b * 255
+      );
+      baseImage.bitmap.data[dstIdx + 3] = this.constructor.limit255(
+        blended.a * 255
+      );
+    }
+  );
 
   if (isNodePattern(cb)) {
     cb.call(this, null, this);

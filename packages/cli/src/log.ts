@@ -1,5 +1,5 @@
-import * as logSymbols from 'log-symbols';
-import chalk from 'chalk';
+import * as logSymbols from "log-symbols";
+import chalk from "chalk";
 
 export const greenCheck = chalk.green(`${logSymbols.success} `);
 

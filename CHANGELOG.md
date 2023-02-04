@@ -1,3 +1,107 @@
+# v0.17.0 (Sat Feb 04 2023)
+
+### Release Notes
+
+#### update jpeg-js ([#1131](https://github.com/jimp-dev/jimp/pull/1131))
+
+This release changes the minimum node version from 8 to 16
+
+---
+
+#### 🚀 Enhancement
+
+- `@jimp/jpeg`
+  - update jpeg-js [#1131](https://github.com/jimp-dev/jimp/pull/1131) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+
+#### Authors: 1
+
+- Andrew Lisowski ([@hipstersmoothie](https://github.com/hipstersmoothie))
+
+---
+
+# v0.16.3 (Sat Feb 04 2023)
+
+#### 🐛 Bug Fix
+
+- Bump qs from 6.5.2 to 6.5.3 [#1130](https://github.com/jimp-dev/jimp/pull/1130) ([@dependabot[bot]](https://github.com/dependabot[bot]))
+- Fixed typo in the bug report template [#1109](https://github.com/jimp-dev/jimp/pull/1109) ([@danielholmes](https://github.com/danielholmes))
+- `@jimp/plugin-crop`
+  - fixed plugin-crop full width slices math [#1073](https://github.com/jimp-dev/jimp/pull/1073) ([@endreszabo](https://github.com/endreszabo))
+- `@jimp/core`, `jimp`, `@jimp/plugin-color`
+  - Fix edgeHandling types [#1080](https://github.com/jimp-dev/jimp/pull/1080) ([@domdomegg](https://github.com/domdomegg))
+- `jimp`
+  - Readme: Fix measureText sample code [#1102](https://github.com/jimp-dev/jimp/pull/1102) ([@dkong](https://github.com/dkong) [@hipstersmoothie](https://github.com/hipstersmoothie))
+- `@jimp/plugin-print`
+  - Update README.md [#1120](https://github.com/jimp-dev/jimp/pull/1120) ([@mfuatnuroglu](https://github.com/mfuatnuroglu))
+- `@jimp/core`
+  - upgrade file-type [#1108](https://github.com/jimp-dev/jimp/pull/1108) ([@krudos](https://github.com/krudos))
+
+#### ⚠️ Pushed to `master`
+
+- set at org ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- set user directly ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- try this ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- update key ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- fix patch ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- fixing release ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- test auto fix ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- fix repo ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- testing ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- fix token ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- actually fix release ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- fix checkout? ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- `@jimp/core`, `jimp`, `@jimp/plugin-print`
+  - try this ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- `@jimp/cli`, `@jimp/core`, `jimp`, `@jimp/plugin-blit`, `@jimp/plugin-color`, `@jimp/test-utils`, `@jimp/png`
+  - update linting ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- `@jimp/cli`, `@jimp/core`, `@jimp/custom`, `jimp`, `@jimp/plugin-blit`, `@jimp/plugin-blur`, `@jimp/plugin-circle`, `@jimp/plugin-color`, `@jimp/plugin-contain`, `@jimp/plugin-cover`, `@jimp/plugin-crop`, `@jimp/plugin-displace`, `@jimp/plugin-dither`, `@jimp/plugin-fisheye`, `@jimp/plugin-flip`, `@jimp/plugin-gaussian`, `@jimp/plugin-invert`, `@jimp/plugin-mask`, `@jimp/plugin-normalize`, `@jimp/plugin-print`, `@jimp/plugin-resize`, `@jimp/plugin-rotate`, `@jimp/plugin-scale`, `@jimp/plugin-shadow`, `@jimp/plugin-threshold`, `@jimp/plugins`, `@jimp/test-utils`, `@jimp/bmp`, `@jimp/gif`, `@jimp/jpeg`, `@jimp/png`, `@jimp/tiff`, `@jimp/types`, `@jimp/utils`
+  - upgrade prettier ([@hipstersmoothie](https://github.com/hipstersmoothie))
+
+#### 🏠 Internal
+
+- only build node 16 [#1127](https://github.com/jimp-dev/jimp/pull/1127) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+
+#### 📝 Documentation
+
+- it's -> its ;) [#992](https://github.com/jimp-dev/jimp/pull/992) ([@stuarth](https://github.com/stuarth))
+
+#### Authors: 9
+
+- [@dependabot[bot]](https://github.com/dependabot[bot])
+- [@krudos](https://github.com/krudos)
+- [@mfuatnuroglu](https://github.com/mfuatnuroglu)
+- Adam Jones ([@domdomegg](https://github.com/domdomegg))
+- Andrew Lisowski ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- Daniel Holmes ([@danielholmes](https://github.com/danielholmes))
+- Dara Kong ([@dkong](https://github.com/dkong))
+- Endre Szabo ([@endreszabo](https://github.com/endreszabo))
+- Stuart Hinson ([@stuarth](https://github.com/stuarth))
+
+---
+
+# v0.16.2 (Thu Sep 15 2022)
+
+#### 🐛 Bug Fix
+
+- `@jimp/jpeg`
+  - Bump jpeg-js over 0.4.4 to avoid cve-2022-25851 [#1093](https://github.com/oliver-moran/jimp/pull/1093) ([@melhadad](https://github.com/melhadad))
+
+#### 📝 Documentation
+
+- docs: toc added for easier reading [#984](https://github.com/oliver-moran/jimp/pull/984) ([@j-d-carmichael](https://github.com/j-d-carmichael))
+- feat: add handwritten.js project [#946](https://github.com/oliver-moran/jimp/pull/946) ([@alias-rahil](https://github.com/alias-rahil))
+- `@jimp/plugin-fisheye`
+  - added the "e" back to @jimp/plugin-fisheye [#947](https://github.com/oliver-moran/jimp/pull/947) ([@mynameismax](https://github.com/mynameismax))
+
+#### Authors: 4
+
+- J D Carmichael ([@j-d-carmichael](https://github.com/j-d-carmichael))
+- Max ([@mynameismax](https://github.com/mynameismax))
+- Michael Elhadad ([@melhadad](https://github.com/melhadad))
+- Rahil Kabani ([@alias-rahil](https://github.com/alias-rahil))
+
+---
+
 # v0.16.1 (Fri Aug 28 2020)
 
 #### 🐛 Bug Fix
@@ -96,7 +200,7 @@ This also drops support for node 6.14.
 
 - Remove compiling polyfills into published code [#891](https://github.com/oliver-moran/jimp/pull/891) ([@danez](https://github.com/danez) [@hipstersmoothie](https://github.com/hipstersmoothie))
 
-#### ⚠️  Pushed to `master`
+#### ⚠️ Pushed to `master`
 
 - Fix package.json ([@hipstersmoothie](https://github.com/hipstersmoothie))
 - Add readme description ([@hipstersmoothie](https://github.com/hipstersmoothie))
@@ -240,12 +344,12 @@ This also drops support for node 6.14.
 
 # v0.9.5 (Tue Mar 03 2020)
 
-#### 🐛  Bug Fix
+#### 🐛 Bug Fix
 
 - `@jimp/plugin-print`
   - Export font type [#838](https://github.com/oliver-moran/jimp/pull/838) ([@DomiR](https://github.com/DomiR))
 
-#### 📝  Documentation
+#### 📝 Documentation
 
 - `@jimp/plugin-print`
   - Added ttf2fnt.com to the list [#845](https://github.com/oliver-moran/jimp/pull/845) ([@mbejda](https://github.com/mbejda))
@@ -258,7 +362,7 @@ This also drops support for node 6.14.
 
 # v0.9.4 (Tue Mar 03 2020)
 
-#### 🐛  Bug Fix
+#### 🐛 Bug Fix
 
 - `@jimp/plugin-shadow`
   - Update plugin-shadow type definition. [#841](https://github.com/oliver-moran/jimp/pull/841) ([@lekoaf](https://github.com/lekoaf))
@@ -271,7 +375,7 @@ This also drops support for node 6.14.
 
 # v0.9.2 (Tue Nov 26 2019)
 
-#### 🐛  Bug Fix
+#### 🐛 Bug Fix
 
 - fix automation [#825](https://github.com/oliver-moran/jimp/pull/825) ([@hipstersmoothie](https://github.com/hipstersmoothie))
 - `@jimp/cli`, `@jimp/core`, `@jimp/custom`, `jimp`, `@jimp/plugin-blit`, `@jimp/plugin-blur`, `@jimp/plugin-circle`, `@jimp/plugin-color`, `@jimp/plugin-contain`, `@jimp/plugin-cover`, `@jimp/plugin-crop`, `@jimp/plugin-displace`, `@jimp/plugin-dither`, `@jimp/plugin-fisheye`, `@jimp/plugin-flip`, `@jimp/plugin-gaussian`, `@jimp/plugin-invert`, `@jimp/plugin-mask`, `@jimp/plugin-normalize`, `@jimp/plugin-print`, `@jimp/plugin-resize`, `@jimp/plugin-rotate`, `@jimp/plugin-scale`, `@jimp/plugin-shadow`, `@jimp/plugin-threshold`, `@jimp/plugins`, `@jimp/test-utils`, `@jimp/bmp`, `@jimp/gif`, `@jimp/jpeg`, `@jimp/png`, `@jimp/tiff`, `@jimp/types`, `@jimp/utils`
@@ -279,7 +383,7 @@ This also drops support for node 6.14.
 - `@jimp/core`
   - Follow redirects [#789](https://github.com/oliver-moran/jimp/pull/789) ([@SaWey](https://github.com/SaWey) sander@solora.be)
 
-#### 🏠  Internal
+#### 🏠 Internal
 
 - update auto [#824](https://github.com/oliver-moran/jimp/pull/824) ([@hipstersmoothie](https://github.com/hipstersmoothie))
 

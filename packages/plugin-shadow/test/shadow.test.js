@@ -1,26 +1,26 @@
-import { Jimp, mkJGD, getTestDir } from '@jimp/test-utils';
-import configure from '@jimp/custom';
-import resize from '@jimp/plugin-resize';
-import blur from '@jimp/plugin-blur';
+import { Jimp, mkJGD, getTestDir } from "@jimp/test-utils";
+import configure from "@jimp/custom";
+import resize from "@jimp/plugin-resize";
+import blur from "@jimp/plugin-blur";
 
-import shadow from '../src';
+import shadow from "../src";
 
 const jimp = configure({ plugins: [shadow, resize, blur] }, Jimp);
 
-describe('Shadow', () => {
-  it('creates a shadow', async () => {
+describe("Shadow", () => {
+  it("creates a shadow", async () => {
     const expectedImg = await jimp.read(
-      getTestDir(__dirname) + '/images/shadow.png'
+      getTestDir(__dirname) + "/images/shadow.png"
     );
     const testImage = await jimp.read(
       mkJGD(
-        '          ',
-        '    ◆◆    ',
-        '   ◆▦▦◆   ',
-        '  ◆▦▦▦▦◆  ',
-        '   ◆▦▦◆   ',
-        '    ◆◆    ',
-        '          '
+        "          ",
+        "    ◆◆    ",
+        "   ◆▦▦◆   ",
+        "  ◆▦▦▦▦◆  ",
+        "   ◆▦▦◆   ",
+        "    ◆◆    ",
+        "          "
       )
     );
 

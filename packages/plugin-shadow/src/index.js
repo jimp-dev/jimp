@@ -1,4 +1,4 @@
-import { isNodePattern } from '@jimp/utils';
+import { isNodePattern } from "@jimp/utils";
 
 /**
  * Creates a circle out of an image.
@@ -13,7 +13,7 @@ import { isNodePattern } from '@jimp/utils';
  */
 export default () => ({
   shadow(options = {}, cb) {
-    if (typeof options === 'function') {
+    if (typeof options === "function") {
       cb = options;
       options = {};
     }
@@ -60,5 +60,5 @@ export default () => ({
     }
 
     return this;
-  }
+  },
 });
