@@ -16,9 +16,9 @@ runs:
         path: |
           node_modules
           packages/*/node_modules
-        key: node-modules-${{ runner.os }}-${{ steps.node-version.outputs.version }}-${{ hashFiles('yarn.lock', 'patches/*.patch') }}
+        key: node-modules-v2-${{ runner.os }}-${{ steps.node-version.outputs.version }}-${{ hashFiles('yarn.lock', 'patches/*.patch') }}
         restore-keys: |
-          node-modules-${{ runner.os }}-${{ steps.node-version.outputs.version }}-
+          node-modules-v2-${{ runner.os }}-${{ steps.node-version.outputs.version }}-
 
     - run: yarn install --frozen-lockfile --network-timeout 9000000
       if: steps.node_modules.outputs.cache-hit != 'true'
