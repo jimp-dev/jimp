@@ -712,7 +712,7 @@ class Jimp extends EventEmitter {
       }
 
       if (y < 0) {
-        xi = this.bitmap.height + y;
+        yi = this.bitmap.height + y;
       }
 
       if (y >= this.bitmap.height) {
