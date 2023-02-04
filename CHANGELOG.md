@@ -1,3 +1,16 @@
+# v0.17.6 (Sat Feb 04 2023)
+
+#### 🐛 Bug Fix
+
+- `jimp`, `@jimp/plugin-rotate`
+  - fix documentation about rotation direction. [#1062](https://github.com/jimp-dev/jimp/pull/1062) ([@fabb](https://github.com/fabb))
+
+#### Authors: 1
+
+- [@fabb](https://github.com/fabb)
+
+---
+
 # v0.17.5 (Sat Feb 04 2023)
 
 #### 🐛 Bug Fix
