@@ -70,6 +70,8 @@ jobs:
         run: git fetch --unshallow --tags
       - name: Create Release
         run: |
+          git config git config user.email lisowski54@gmail.com
+          git config user.name "Andrew Lisowski"
           git remote rm origin
           git remote add origin https://$GH_TOKEN@github.com/jimp-dev/jimp
           yarn auto shipit -vv
