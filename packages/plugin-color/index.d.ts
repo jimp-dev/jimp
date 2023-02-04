@@ -8,7 +8,9 @@ type ColorActionName =
   | "red"
   | "green"
   | "blue"
-  | "hue";
+  | "hue"
+  | "lighten"
+  | "darken";
 
 type ColorAction = {
   apply: ColorActionName;
