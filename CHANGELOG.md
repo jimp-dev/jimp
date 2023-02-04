@@ -1,3 +1,24 @@
+# v0.17.0 (Sat Feb 04 2023)
+
+### Release Notes
+
+#### update jpeg-js ([#1131](https://github.com/jimp-dev/jimp/pull/1131))
+
+This release changes the minimum node version from 8 to 16
+
+---
+
+#### 🚀 Enhancement
+
+- `@jimp/jpeg`
+  - update jpeg-js [#1131](https://github.com/jimp-dev/jimp/pull/1131) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+
+#### Authors: 1
+
+- Andrew Lisowski ([@hipstersmoothie](https://github.com/hipstersmoothie))
+
+---
+
 # v0.16.3 (Sat Feb 04 2023)
 
 #### 🐛 Bug Fix
