@@ -1,6 +1,6 @@
 {
   "name": "@jimp/plugin-mask",
-  "version": "0.17.8",
+  "version": "0.17.10",
   "description": "mask an image.",
   "main": "dist/index.js",
   "module": "es/index.js",

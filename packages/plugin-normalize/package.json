@@ -1,6 +1,6 @@
 {
   "name": "@jimp/plugin-normalize",
-  "version": "0.17.8",
+  "version": "0.17.10",
   "description": "normalize an image.",
   "main": "dist/index.js",
   "module": "es/index.js",

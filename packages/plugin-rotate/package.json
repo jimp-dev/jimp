@@ -1,6 +1,6 @@
 {
   "name": "@jimp/plugin-rotate",
-  "version": "0.17.8",
+  "version": "0.17.10",
   "description": "Rotate an image.",
   "main": "dist/index.js",
   "module": "es/index.js",
