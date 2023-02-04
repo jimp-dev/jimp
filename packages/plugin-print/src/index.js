@@ -1,7 +1,7 @@
 import Path from "path";
 import bMFont from "load-bmfont";
 import { isNodePattern, throwError } from "@jimp/utils";
-import { measureText, measureTextHeight } from "./measure-text";
+import { measureText, measureTextHeight, splitLines } from "./measure-text";
 
 function xOffsetBasedOnAlignment(constants, font, line, maxWidth, alignment) {
   if (alignment === constants.HORIZONTAL_ALIGN_LEFT) {
@@ -55,36 +55,6 @@ function printText(font, x, y, text, defaultCharWidth) {
 
     x += kerning + (fontChar.xadvance || defaultCharWidth);
   }
-}
-
-function splitLines(font, text, maxWidth) {
-  const words = text.split(" ");
-  const lines = [];
-  let currentLine = [];
-  let longestLine = 0;
-
-  words.forEach((word) => {
-    const line = [...currentLine, word].join(" ");
-    const length = measureText(font, line);
-
-    if (length <= maxWidth) {
-      if (length > longestLine) {
-        longestLine = length;
-      }
-
-      currentLine.push(word);
-    } else {
-      lines.push(currentLine);
-      currentLine = [word];
-    }
-  });
-
-  lines.push(currentLine);
-
-  return {
-    lines,
-    longestLine,
-  };
 }
 
 function loadPages(Jimp, dir, pages) {
