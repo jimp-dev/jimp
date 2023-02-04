@@ -1,6 +1,6 @@
 {
   "name": "@jimp/tiff",
-  "version": "0.17.2",
+  "version": "0.17.3",
   "description": "Default Jimp tiff encoder/decoder.",
   "main": "dist/index.js",
   "module": "es/index.js",
