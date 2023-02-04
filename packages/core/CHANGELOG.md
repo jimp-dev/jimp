@@ -1,3 +1,15 @@
+# v0.17.2 (Sat Feb 04 2023)
+
+#### 🐛 Bug Fix
+
+- remove extra bm-font dep [#1134](https://github.com/jimp-dev/jimp/pull/1134) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+
+#### Authors: 1
+
+- Andrew Lisowski ([@hipstersmoothie](https://github.com/hipstersmoothie))
+
+---
+
 # v0.16.3 (Sat Feb 04 2023)
 
 #### 🐛 Bug Fix
