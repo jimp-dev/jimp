@@ -6,7 +6,7 @@
     "packages/*"
   ],
   "description": "The jimp monorepo.",
-  "repository": "oliver-moran/jimp",
+  "repository": "jimp-dev/jimp",
   "author": "Andrew Lisowski <lisowski54@gmail.com>",
   "publishConfig": {
     "registry": "https://registry.npmjs.org/"
