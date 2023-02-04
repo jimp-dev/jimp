@@ -69,7 +69,6 @@
     "babel-plugin-add-module-exports": "^1.0.2",
     "babel-plugin-istanbul": "^5.2.0",
     "babel-plugin-source-map-support": "^2.1.1",
-    "dtslint": "^0.9.8",
     "express": "^4.17.1",
     "path-browserify": "^1.0.1",
     "source-map-support": "^0.5.13",
