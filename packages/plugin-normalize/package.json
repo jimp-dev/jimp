@@ -5,6 +5,7 @@
   "main": "dist/index.js",
   "module": "es/index.js",
   "types": "index.d.ts",
+  "repository": "jimp-dev/jimp",
   "scripts": {
     "test": "cross-env BABEL_ENV=test mocha --require @babel/register",
     "test:watch": "npm run test -- --reporter min --watch",
