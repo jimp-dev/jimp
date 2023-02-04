@@ -69,7 +69,10 @@ jobs:
       - name: Prepare repository
         run: git fetch --unshallow --tags
       - name: Create Release
-        run: yarn auto shipit -vv
+        run: |
+          git remote rm origin
+          git remote add origin https://$GH_TOKEN@github.com/jimp-dev/jimp
+          yarn auto shipit -vv
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
