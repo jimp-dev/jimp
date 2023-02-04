@@ -115,9 +115,9 @@ interface Print {
     FONT_SANS_64_WHITE: string;
     FONT_SANS_128_WHITE: string;
 
-    loadFont(file: string): Promise<Font>;
     loadFont(file: string, cb: GenericCallback<Font, any, any>): Promise<never>;
-  };
+    loadFont(file: string): Promise<Font>;
+  }
 
   class: PrintClass;
 }
