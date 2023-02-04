@@ -1,6 +1,6 @@
 {
   "name": "@jimp/plugin-contain",
-  "version": "0.17.0",
+  "version": "0.17.1",
   "description": "contain an image.",
   "main": "dist/index.js",
   "module": "es/index.js",
