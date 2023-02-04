@@ -1,3 +1,15 @@
+# v0.17.9 (Sat Feb 04 2023)
+
+#### 🐛 Bug Fix
+
+- switch from browserify to webpack [#1140](https://github.com/jimp-dev/jimp/pull/1140) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+
+#### Authors: 1
+
+- Andrew Lisowski ([@hipstersmoothie](https://github.com/hipstersmoothie))
+
+---
+
 # v0.16.3 (Sat Feb 04 2023)
 
 #### ⚠️ Pushed to `master`

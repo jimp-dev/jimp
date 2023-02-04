@@ -1,3 +1,17 @@
+# v0.17.9 (Sat Feb 04 2023)
+
+#### 🐛 Bug Fix
+
+- switch from browserify to webpack [#1140](https://github.com/jimp-dev/jimp/pull/1140) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- Throw error instead of resolving to string [#1138](https://github.com/jimp-dev/jimp/pull/1138) ([@nopeless](https://github.com/nopeless))
+
+#### Authors: 2
+
+- Andrew Lisowski ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- nopeless ([@nopeless](https://github.com/nopeless))
+
+---
+
 # v0.17.6 (Sat Feb 04 2023)
 
 #### 🐛 Bug Fix
