@@ -1,4 +1,4 @@
-import should from "should"; // Ensure should to load in browser through browserify.
+import should from "should";
 
 export const Jimp = require("./jgd-wrapper");
 

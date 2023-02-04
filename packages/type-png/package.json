@@ -23,14 +23,15 @@
   "dependencies": {
     "@babel/runtime": "^7.7.2",
     "@jimp/utils": "link:../utils",
-    "pngjs": "^3.3.3"
+    "pngjs": "^6.0.0"
   },
   "peerDependencies": {
     "@jimp/custom": ">=0.3.5"
   },
   "devDependencies": {
     "@jimp/custom": "link:../custom",
-    "@jimp/test-utils": "link:../test-utils"
+    "@jimp/test-utils": "link:../test-utils",
+    "@types/pngjs": "^6.0.1"
   },
   "publishConfig": {
     "access": "public"

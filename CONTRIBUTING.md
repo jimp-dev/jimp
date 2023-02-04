@@ -31,7 +31,7 @@ If you know how to code, we welcome you to send fixes and new features, but in o
 ```sh
 yarn # install and link all packages in monorepo
 
-yarn build # build ES5, ESM, and browserify
+yarn build
 # or
 yarn build:watch # build ES5 version in watch mode. Good to run while testing or developing.
 ```
