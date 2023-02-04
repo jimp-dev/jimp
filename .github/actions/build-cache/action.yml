@@ -10,5 +10,7 @@ runs:
         path: |
           node_modules
           packages/*/dist
+          packages/*/es
+          packages/jimp/browser/lib
         key: ${{ github.run_id }}
         restore-keys: ${{ github.run_id }}
