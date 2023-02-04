@@ -1,23 +1,17 @@
 /**
  * These files pertain to the typings of plugins or types
- * 
+ *
  * They're not meant as utils to decode types, but rather
  * the type definitons themsleves for plugins and types of various kinds
  */
-import {
-  Image,
-  EncoderFn,
-  DecoderFn
-} from './etc';
+import { Image, EncoderFn, DecoderFn } from "./etc";
 
-import {
-  Omit
-} from './utils';
+import { Omit } from "./utils";
 
-export type IllformedPlugin = Omit<any, 'class' | 'constants'> & {
+export type IllformedPlugin = Omit<any, "class" | "constants"> & {
   class?: never;
   constants?: never;
-}
+};
 
 export interface WellFormedPlugin<ImageType extends Image = Image> {
   mime?: {
@@ -43,13 +37,13 @@ export interface WellFormedPlugin<ImageType extends Image = Image> {
 
 type ClassOrConstantPlugin<T extends Image> = WellFormedPlugin<T> &
   (
-    | Required<Pick<WellFormedPlugin<T>, 'class'>>
-    | Required<Pick<WellFormedPlugin<T>, 'constants'>>
+    | Required<Pick<WellFormedPlugin<T>, "class">>
+    | Required<Pick<WellFormedPlugin<T>, "constants">>
   );
 
 // A Jimp type requires mime, but not class
 export type JimpType<T extends Image = Image> = WellFormedPlugin<T> &
-  Required<Pick<WellFormedPlugin<T>, 'mime'>>;
+  Required<Pick<WellFormedPlugin<T>, "mime">>;
 
 // Jimp plugin either MUST have class OR constant or be illformed
 export type JimpPlugin<T extends Image = Image> =

@@ -1,4 +1,4 @@
-import { DecoderFn, EncoderFn, ImageCallback } from '@jimp/core';
+import { DecoderFn, EncoderFn, ImageCallback } from "@jimp/core";
 
 interface JpegClass {
   _quality: number;
@@ -6,21 +6,21 @@ interface JpegClass {
 }
 
 interface Jpeg {
-  mime: { 'image/jpeg': string[] },
+  mime: { "image/jpeg": string[] };
 
   constants: {
-    MIME_JPEG: 'image/jpeg';
-  }
+    MIME_JPEG: "image/jpeg";
+  };
 
   encoders: {
-    'image/jpeg': EncoderFn
-  }
+    "image/jpeg": EncoderFn;
+  };
 
   decoders: {
-    'image/jpeg': DecoderFn
-  }
+    "image/jpeg": DecoderFn;
+  };
 
-  class: JpegClass
+  class: JpegClass;
 }
 
-export default function(): Jpeg;
+export default function (): Jpeg;

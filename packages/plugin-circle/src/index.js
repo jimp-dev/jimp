@@ -1,4 +1,4 @@
-import { isNodePattern } from '@jimp/utils';
+import { isNodePattern } from "@jimp/utils";
 
 /**
  * Creates a circle out of an image.
@@ -8,7 +8,7 @@ import { isNodePattern } from '@jimp/utils';
  */
 export default () => ({
   circle(options = {}, cb) {
-    if (typeof options === 'function') {
+    if (typeof options === "function") {
       cb = options;
       options = {};
     }
@@ -20,30 +20,32 @@ export default () => ({
         : this.bitmap.width) / 2;
 
     const center = {
-      x: typeof options.x === 'number' ? options.x : this.bitmap.width / 2,
-      y: typeof options.y === 'number' ? options.y : this.bitmap.height / 2
+      x: typeof options.x === "number" ? options.x : this.bitmap.width / 2,
+      y: typeof options.y === "number" ? options.y : this.bitmap.height / 2,
     };
 
-    this.scanQuiet(0, 0, this.bitmap.width, this.bitmap.height, function(
-      x,
-      y,
-      idx
-    ) {
-      const curR = Math.sqrt(
-        Math.pow(x - center.x, 2) + Math.pow(y - center.y, 2)
-      );
+    this.scanQuiet(
+      0,
+      0,
+      this.bitmap.width,
+      this.bitmap.height,
+      function (x, y, idx) {
+        const curR = Math.sqrt(
+          Math.pow(x - center.x, 2) + Math.pow(y - center.y, 2)
+        );
 
-      if (radius - curR <= 0.0) {
-        this.bitmap.data[idx + 3] = 0;
-      } else if (radius - curR < 1.0) {
-        this.bitmap.data[idx + 3] = 255 * (radius - curR);
+        if (radius - curR <= 0.0) {
+          this.bitmap.data[idx + 3] = 0;
+        } else if (radius - curR < 1.0) {
+          this.bitmap.data[idx + 3] = 255 * (radius - curR);
+        }
       }
-    });
+    );
 
     if (isNodePattern(cb)) {
       cb.call(this, null, this);
     }
 
     return this;
-  }
+  },
 });

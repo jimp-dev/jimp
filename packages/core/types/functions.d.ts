@@ -1,4 +1,4 @@
-import {Jimp} from './jimp';
+import { Jimp } from "./jimp";
 
 export function addConstants(
   constants: [string, string | number],

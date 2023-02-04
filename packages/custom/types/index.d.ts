@@ -7,16 +7,22 @@ import {
   JimpType,
   GetIntersectionFromPlugins,
   GetIntersectionFromPluginsStatics,
-  JimpConstructors
-} from '@jimp/core';
+  JimpConstructors,
+} from "@jimp/core";
 
 type JimpInstance<
   TypesFuncArr extends FunctionRet<JimpType> | undefined,
   PluginFuncArr extends FunctionRet<JimpPlugin> | undefined,
   J extends JimpConstructors
-> = J & GetIntersectionFromPluginsStatics<Exclude<TypesFuncArr | PluginFuncArr, undefined>> & {
-  prototype: JimpType & GetIntersectionFromPlugins<Exclude<TypesFuncArr | PluginFuncArr, undefined>>
-};
+> = J &
+  GetIntersectionFromPluginsStatics<
+    Exclude<TypesFuncArr | PluginFuncArr, undefined>
+  > & {
+    prototype: JimpType &
+      GetIntersectionFromPlugins<
+        Exclude<TypesFuncArr | PluginFuncArr, undefined>
+      >;
+  };
 
 declare function configure<
   TypesFuncArr extends FunctionRet<JimpType> | undefined = undefined,

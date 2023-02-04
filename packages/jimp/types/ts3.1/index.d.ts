@@ -15,10 +15,10 @@ import {
   GetPluginConst,
   GetPluginEncoders,
   GetPluginDecoders,
-  JimpConstructors
-} from '@jimp/core';
-import typeFn from '@jimp/types';
-import pluginFn from '@jimp/plugins';
+  JimpConstructors,
+} from "@jimp/core";
+import typeFn from "@jimp/types";
+import pluginFn from "@jimp/plugins";
 
 type Types = ReturnType<typeof typeFn>;
 type Plugins = ReturnType<typeof pluginFn>;
@@ -41,10 +41,11 @@ type IntersectedPluginDecoders = UnionToIntersection<
 
 type Jimp = JimpType & IntersectedPluginTypes;
 
-declare const Jimp: JimpConstructors & IntersectedPluginConsts & {
-  prototype: Jimp;
-  encoders: IntersectedPluginEncoders;
-  decoders: IntersectedPluginDecoders;
-};
+declare const Jimp: JimpConstructors &
+  IntersectedPluginConsts & {
+    prototype: Jimp;
+    encoders: IntersectedPluginEncoders;
+    decoders: IntersectedPluginDecoders;
+  };
 
 export = Jimp;

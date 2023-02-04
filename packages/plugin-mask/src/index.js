@@ -1,4 +1,4 @@
-import { isNodePattern, throwError } from '@jimp/utils';
+import { isNodePattern, throwError } from "@jimp/utils";
 
 /**
  * Masks a source image on to this image using average pixel colour. A completely black pixel on the mask will turn a pixel in the image completely transparent.
@@ -11,11 +11,11 @@ import { isNodePattern, throwError } from '@jimp/utils';
 export default () => ({
   mask(src, x = 0, y = 0, cb) {
     if (!(src instanceof this.constructor)) {
-      return throwError.call(this, 'The source must be a Jimp image', cb);
+      return throwError.call(this, "The source must be a Jimp image", cb);
     }
 
-    if (typeof x !== 'number' || typeof y !== 'number') {
-      return throwError.call(this, 'x and y must be numbers', cb);
+    if (typeof x !== "number" || typeof y !== "number") {
+      return throwError.call(this, "x and y must be numbers", cb);
     }
 
     // round input
@@ -26,27 +26,29 @@ export default () => ({
     const h = this.bitmap.height;
     const baseImage = this;
 
-    src.scanQuiet(0, 0, src.bitmap.width, src.bitmap.height, function(
-      sx,
-      sy,
-      idx
-    ) {
-      const destX = x + sx;
-      const destY = y + sy;
+    src.scanQuiet(
+      0,
+      0,
+      src.bitmap.width,
+      src.bitmap.height,
+      function (sx, sy, idx) {
+        const destX = x + sx;
+        const destY = y + sy;
 
-      if (destX >= 0 && destY >= 0 && destX < w && destY < h) {
-        const dstIdx = baseImage.getPixelIndex(destX, destY);
-        const { data } = this.bitmap;
-        const avg = (data[idx + 0] + data[idx + 1] + data[idx + 2]) / 3;
+        if (destX >= 0 && destY >= 0 && destX < w && destY < h) {
+          const dstIdx = baseImage.getPixelIndex(destX, destY);
+          const { data } = this.bitmap;
+          const avg = (data[idx + 0] + data[idx + 1] + data[idx + 2]) / 3;
 
-        baseImage.bitmap.data[dstIdx + 3] *= avg / 255;
+          baseImage.bitmap.data[dstIdx + 3] *= avg / 255;
+        }
       }
-    });
+    );
 
     if (isNodePattern(cb)) {
       cb.call(this, null, this);
     }
 
     return this;
-  }
+  },
 });

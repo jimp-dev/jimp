@@ -1,7 +1,7 @@
 const mimeTypes = {};
 
-const findType = extension =>
-  Object.entries(mimeTypes).find(type => type[1].includes(extension)) || [];
+const findType = (extension) =>
+  Object.entries(mimeTypes).find((type) => type[1].includes(extension)) || [];
 
 export const addType = (mime, extensions) => {
   mimeTypes[mime] = extensions;
@@ -12,9 +12,9 @@ export const addType = (mime, extensions) => {
  * @param {string} path path to find extension for
  * @returns {string} mime found mime type
  */
-export const getType = path => {
-  const pathParts = path.split('/').slice(-1);
-  const extension = pathParts[pathParts.length - 1].split('.').pop();
+export const getType = (path) => {
+  const pathParts = path.split("/").slice(-1);
+  const extension = pathParts[pathParts.length - 1].split(".").pop();
   const type = findType(extension);
 
   return type[0];
@@ -25,4 +25,4 @@ export const getType = path => {
  * @param {string} type mime type to look up
  * @returns {string} extension file extension
  */
-export const getExtension = type => (mimeTypes[type.toLowerCase()] || [])[0];
+export const getExtension = (type) => (mimeTypes[type.toLowerCase()] || [])[0];
