@@ -41,13 +41,18 @@ if (
 } else {
   module.exports = function ({ ...options }, cb) {
     const p = require("phin");
+    const allOptions = { compression: true, ...options };
 
-    p({ compression: true, ...options }, (err, res) => {
-      if (err === null) {
-        cb(null, res, res.body);
-      } else {
-        cb(err);
-      }
-    });
+    try {
+      p(allOptions, (err, res) => {
+        if (err) {
+          cb(err);
+        } else {
+          cb(null, res, res.body);
+        }
+      });
+    } catch (error) {
+      cb(error);
+    }
   };
 }
