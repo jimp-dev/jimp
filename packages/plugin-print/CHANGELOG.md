@@ -1,3 +1,16 @@
+# v0.17.1 (Sat Feb 04 2023)
+
+#### 🐛 Bug Fix
+
+- use a consistent text layouting algorithm [#1133](https://github.com/jimp-dev/jimp/pull/1133) ([@iliazeus](https://github.com/iliazeus) [@hipstersmoothie](https://github.com/hipstersmoothie))
+
+#### Authors: 2
+
+- Andrew Lisowski ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- Ilia Pozdnyakov ([@iliazeus](https://github.com/iliazeus))
+
+---
+
 # v0.16.3 (Sat Feb 04 2023)
 
 #### 🐛 Bug Fix
