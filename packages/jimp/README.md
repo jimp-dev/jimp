@@ -77,21 +77,6 @@ If you're using a web bundles (webpack, rollup, parcel) you can benefit from usi
 import Jimp from "jimp/es";
 ```
 
-### WebPack
-
-If you're using webpack you can set `process.browser` to true and your build of jimp will exclude certain parts, making it load faster.
-
-```js
-{
-  plugins: [
-    new webpack.DefinePlugin({
-      'process.browser': 'true'
-    }),
-    ...
-  ],
-}
-```
-
 ## Basic usage
 
 The static `Jimp.read` method takes the path to a file, URL, dimensions, a Jimp instance or a buffer and returns a Promise:

@@ -36,8 +36,6 @@ export default () => ({
       png.data = data.bitmap.data;
 
       return PNG.sync.write(png, {
-        width: data.bitmap.width,
-        height: data.bitmap.height,
         deflateLevel: data._deflateLevel,
         deflateStrategy: data._deflateStrategy,
         filterType: data._filterType,

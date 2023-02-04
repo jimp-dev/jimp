@@ -1,4 +1,4 @@
-// TypeScript Version: 3.1
+// Minimum TypeScript Version: 3.2
 // See the `jimp` package index.d.ts for why the version is not 2.8
 import {
   FunctionRet,

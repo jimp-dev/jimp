@@ -5,13 +5,7 @@
   "main": "dist/index.js",
   "module": "es/index.js",
   "types": "types/index.d.ts",
-  "typesVersions": {
-    ">=3.1.0-0": {
-      "*": [
-        "types/ts3.1/index.d.ts"
-      ]
-    }
-  },
+  "browser": "browser/lib/jimp.js",
   "tonicExampleFilename": "example.js",
   "files": [
     "browser",
@@ -26,7 +20,6 @@
     "test": "cross-env BABEL_ENV=test mocha --require @babel/register",
     "test:watch": "npm run test -- --reporter min --watch",
     "test:coverage": "nyc npm run test",
-    "browser-build": "node tools/browser-build.js test",
     "build": "npm run build:browser && npm run build:node:production && npm run build:module",
     "build:watch": "npm run build:node:debug -- -- --watch --verbose",
     "build:debug": "npm run build:browser:debug && npm run build:node:debug",
@@ -34,8 +27,8 @@
     "build:node": "babel src -d dist --source-maps --config-file ../../babel.config.js",
     "build:node:debug": "cross-env BABEL_ENV=development npm run build:node",
     "build:node:production": "cross-env BABEL_ENV=production npm run build:node",
-    "build:browser": "cross-env BABEL_ENV=production node tools/browser-build.js prepublish",
-    "build:browser:debug": "cross-env BABEL_ENV=development ENV=browser node tools/browser-build.js prepublish"
+    "build:browser": "cross-env NODE_ENV=production webpack",
+    "build:browser:debug": "cross-env NODE_ENV=development ENV=browser webpack"
   },
   "keywords": [
     "image",
@@ -70,27 +63,11 @@
     "babel-plugin-add-module-exports": "^1.0.2",
     "babel-plugin-istanbul": "^5.2.0",
     "babel-plugin-source-map-support": "^2.1.1",
-    "babelify": "^10.0.0",
-    "browserify": "^16.5.0",
-    "cross-env": "^6.0.0",
-    "dtslint": "^0.9.8",
-    "envify": "^4.1.0",
-    "eslint": "^6.4.0",
     "express": "^4.17.1",
-    "husky": "^3.0.5",
-    "karma": "^4.3.0",
-    "karma-browserify": "^6.1.0",
-    "karma-chrome-launcher": "^3.1.0",
-    "karma-firefox-launcher": "^1.2.0",
-    "lerna": "^3.16.4",
-    "lerna-changelog": "^0.8.2",
-    "lint-staged": "^9.2.5",
-    "mocha": "^6.2.0",
-    "nyc": "^14.1.1",
+    "path-browserify": "^1.0.1",
     "source-map-support": "^0.5.13",
-    "tfilter": "^1.0.1",
-    "uglify-js": "^3.6.0",
-    "watchify": "^3.11.1"
+    "webpack": "^5.75.0",
+    "webpack-cli": "^5.0.1"
   },
   "nyc": {
     "sourceMap": false,
