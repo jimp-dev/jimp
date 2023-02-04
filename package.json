@@ -23,7 +23,8 @@
     "build:watch": "lerna run build:watch --parallel",
     "build:readme-toc": "npx doctoc ./README.md",
     "tsTest:custom": "dtslint packages/custom/types --expectOnly",
-    "tsTest:main": "dtslint packages/jimp/types --expectOnly"
+    "tsTest:main": "dtslint packages/jimp/types --expectOnly",
+    "postinstall": "patch-package"
   },
   "devDependencies": {
     "@babel/cli": "^7.7.0",
@@ -61,6 +62,7 @@
     "lint-staged": "^9.2.5",
     "mocha": "^6.2.0",
     "nyc": "^14.1.1",
+    "patch-package": "^6.5.1",
     "prettier": "^2.8.3",
     "should": "^13.2.3",
     "source-map-support": "^0.5.13",
