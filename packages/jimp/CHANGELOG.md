@@ -1,3 +1,24 @@
+# v0.16.3 (Sat Feb 04 2023)
+
+#### 🐛 Bug Fix
+
+- Fix edgeHandling types [#1080](https://github.com/jimp-dev/jimp/pull/1080) ([@domdomegg](https://github.com/domdomegg))
+- Readme: Fix measureText sample code [#1102](https://github.com/jimp-dev/jimp/pull/1102) ([@dkong](https://github.com/dkong) [@hipstersmoothie](https://github.com/hipstersmoothie))
+
+#### ⚠️ Pushed to `master`
+
+- try this ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- update linting ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- upgrade prettier ([@hipstersmoothie](https://github.com/hipstersmoothie))
+
+#### Authors: 3
+
+- Adam Jones ([@domdomegg](https://github.com/domdomegg))
+- Andrew Lisowski ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- Dara Kong ([@dkong](https://github.com/dkong))
+
+---
+
 # v0.15.0 (Fri Aug 07 2020)
 
 #### 🚀 Enhancement

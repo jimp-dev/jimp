@@ -1,3 +1,63 @@
+# v0.16.3 (Sat Feb 04 2023)
+
+#### 🐛 Bug Fix
+
+- Bump qs from 6.5.2 to 6.5.3 [#1130](https://github.com/jimp-dev/jimp/pull/1130) ([@dependabot[bot]](https://github.com/dependabot[bot]))
+- Fixed typo in the bug report template [#1109](https://github.com/jimp-dev/jimp/pull/1109) ([@danielholmes](https://github.com/danielholmes))
+- `@jimp/plugin-crop`
+  - fixed plugin-crop full width slices math [#1073](https://github.com/jimp-dev/jimp/pull/1073) ([@endreszabo](https://github.com/endreszabo))
+- `@jimp/core`, `jimp`, `@jimp/plugin-color`
+  - Fix edgeHandling types [#1080](https://github.com/jimp-dev/jimp/pull/1080) ([@domdomegg](https://github.com/domdomegg))
+- `jimp`
+  - Readme: Fix measureText sample code [#1102](https://github.com/jimp-dev/jimp/pull/1102) ([@dkong](https://github.com/dkong) [@hipstersmoothie](https://github.com/hipstersmoothie))
+- `@jimp/plugin-print`
+  - Update README.md [#1120](https://github.com/jimp-dev/jimp/pull/1120) ([@mfuatnuroglu](https://github.com/mfuatnuroglu))
+- `@jimp/core`
+  - upgrade file-type [#1108](https://github.com/jimp-dev/jimp/pull/1108) ([@krudos](https://github.com/krudos))
+
+#### ⚠️ Pushed to `master`
+
+- set at org ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- set user directly ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- try this ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- update key ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- fix patch ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- fixing release ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- test auto fix ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- fix repo ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- testing ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- fix token ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- actually fix release ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- fix checkout? ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- `@jimp/core`, `jimp`, `@jimp/plugin-print`
+  - try this ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- `@jimp/cli`, `@jimp/core`, `jimp`, `@jimp/plugin-blit`, `@jimp/plugin-color`, `@jimp/test-utils`, `@jimp/png`
+  - update linting ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- `@jimp/cli`, `@jimp/core`, `@jimp/custom`, `jimp`, `@jimp/plugin-blit`, `@jimp/plugin-blur`, `@jimp/plugin-circle`, `@jimp/plugin-color`, `@jimp/plugin-contain`, `@jimp/plugin-cover`, `@jimp/plugin-crop`, `@jimp/plugin-displace`, `@jimp/plugin-dither`, `@jimp/plugin-fisheye`, `@jimp/plugin-flip`, `@jimp/plugin-gaussian`, `@jimp/plugin-invert`, `@jimp/plugin-mask`, `@jimp/plugin-normalize`, `@jimp/plugin-print`, `@jimp/plugin-resize`, `@jimp/plugin-rotate`, `@jimp/plugin-scale`, `@jimp/plugin-shadow`, `@jimp/plugin-threshold`, `@jimp/plugins`, `@jimp/test-utils`, `@jimp/bmp`, `@jimp/gif`, `@jimp/jpeg`, `@jimp/png`, `@jimp/tiff`, `@jimp/types`, `@jimp/utils`
+  - upgrade prettier ([@hipstersmoothie](https://github.com/hipstersmoothie))
+
+#### 🏠 Internal
+
+- only build node 16 [#1127](https://github.com/jimp-dev/jimp/pull/1127) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+
+#### 📝 Documentation
+
+- it's -> its ;) [#992](https://github.com/jimp-dev/jimp/pull/992) ([@stuarth](https://github.com/stuarth))
+
+#### Authors: 9
+
+- [@dependabot[bot]](https://github.com/dependabot[bot])
+- [@krudos](https://github.com/krudos)
+- [@mfuatnuroglu](https://github.com/mfuatnuroglu)
+- Adam Jones ([@domdomegg](https://github.com/domdomegg))
+- Andrew Lisowski ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- Daniel Holmes ([@danielholmes](https://github.com/danielholmes))
+- Dara Kong ([@dkong](https://github.com/dkong))
+- Endre Szabo ([@endreszabo](https://github.com/endreszabo))
+- Stuart Hinson ([@stuarth](https://github.com/stuarth))
+
+---
+
 # v0.16.2 (Thu Sep 15 2022)
 
 #### 🐛 Bug Fix

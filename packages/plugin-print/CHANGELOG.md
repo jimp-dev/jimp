@@ -1,3 +1,21 @@
+# v0.16.3 (Sat Feb 04 2023)
+
+#### 🐛 Bug Fix
+
+- Update README.md [#1120](https://github.com/jimp-dev/jimp/pull/1120) ([@mfuatnuroglu](https://github.com/mfuatnuroglu))
+
+#### ⚠️ Pushed to `master`
+
+- try this ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- upgrade prettier ([@hipstersmoothie](https://github.com/hipstersmoothie))
+
+#### Authors: 2
+
+- [@mfuatnuroglu](https://github.com/mfuatnuroglu)
+- Andrew Lisowski ([@hipstersmoothie](https://github.com/hipstersmoothie))
+
+---
+
 # v0.11.0 (Fri May 15 2020)
 
 #### 🚀 Enhancement

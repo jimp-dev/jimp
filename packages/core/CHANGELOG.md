@@ -1,3 +1,24 @@
+# v0.16.3 (Sat Feb 04 2023)
+
+#### 🐛 Bug Fix
+
+- Fix edgeHandling types [#1080](https://github.com/jimp-dev/jimp/pull/1080) ([@domdomegg](https://github.com/domdomegg))
+- upgrade file-type [#1108](https://github.com/jimp-dev/jimp/pull/1108) ([@krudos](https://github.com/krudos))
+
+#### ⚠️ Pushed to `master`
+
+- try this ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- update linting ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- upgrade prettier ([@hipstersmoothie](https://github.com/hipstersmoothie))
+
+#### Authors: 3
+
+- [@krudos](https://github.com/krudos)
+- Adam Jones ([@domdomegg](https://github.com/domdomegg))
+- Andrew Lisowski ([@hipstersmoothie](https://github.com/hipstersmoothie))
+
+---
+
 # v0.14.0 (Mon Jun 29 2020)
 
 #### 🚀 Enhancement

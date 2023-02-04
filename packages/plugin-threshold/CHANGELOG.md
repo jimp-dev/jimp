@@ -1,3 +1,15 @@
+# v0.16.3 (Sat Feb 04 2023)
+
+#### ⚠️ Pushed to `master`
+
+- upgrade prettier ([@hipstersmoothie](https://github.com/hipstersmoothie))
+
+#### Authors: 1
+
+- Andrew Lisowski ([@hipstersmoothie](https://github.com/hipstersmoothie))
+
+---
+
 # v0.11.0 (Fri May 15 2020)
 
 #### 🚀 Enhancement

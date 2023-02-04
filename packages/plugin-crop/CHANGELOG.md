@@ -1,3 +1,20 @@
+# v0.16.3 (Sat Feb 04 2023)
+
+#### 🐛 Bug Fix
+
+- fixed plugin-crop full width slices math [#1073](https://github.com/jimp-dev/jimp/pull/1073) ([@endreszabo](https://github.com/endreszabo))
+
+#### ⚠️ Pushed to `master`
+
+- upgrade prettier ([@hipstersmoothie](https://github.com/hipstersmoothie))
+
+#### Authors: 2
+
+- Andrew Lisowski ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- Endre Szabo ([@endreszabo](https://github.com/endreszabo))
+
+---
+
 # v0.16.0 (Sat Aug 08 2020)
 
 #### 🚀 Enhancement
