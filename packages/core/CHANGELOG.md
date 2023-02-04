@@ -1,3 +1,16 @@
+# v0.17.4 (Sat Feb 04 2023)
+
+#### 🐛 Bug Fix
+
+- fix commonjs require [#1020](https://github.com/jimp-dev/jimp/pull/1020) ([@fratzinger](https://github.com/fratzinger) [@hipstersmoothie](https://github.com/hipstersmoothie))
+
+#### Authors: 2
+
+- [@fratzinger](https://github.com/fratzinger)
+- Andrew Lisowski ([@hipstersmoothie](https://github.com/hipstersmoothie))
+
+---
+
 # v0.17.3 (Sat Feb 04 2023)
 
 #### 🐛 Bug Fix
