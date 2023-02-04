@@ -155,16 +155,13 @@ export default () => ({
       this.bitmap.height,
       function (x, y, idx) {
         if (val < 0.0) {
-          this.bitmap.data[idx] = this.bitmap.data[idx] * (1 + val);
-          this.bitmap.data[idx + 1] = this.bitmap.data[idx + 1] * (1 + val);
-          this.bitmap.data[idx + 2] = this.bitmap.data[idx + 2] * (1 + val);
+          this.bitmap.data[idx] *= 1 + val;
+          this.bitmap.data[idx + 1] *= 1 + val;
+          this.bitmap.data[idx + 2] *= 1 + val;
         } else {
-          this.bitmap.data[idx] =
-            this.bitmap.data[idx] + (255 - this.bitmap.data[idx]) * val;
-          this.bitmap.data[idx + 1] =
-            this.bitmap.data[idx + 1] + (255 - this.bitmap.data[idx + 1]) * val;
-          this.bitmap.data[idx + 2] =
-            this.bitmap.data[idx + 2] + (255 - this.bitmap.data[idx + 2]) * val;
+          this.bitmap.data[idx] += (255 - this.bitmap.data[idx]) * val;
+          this.bitmap.data[idx + 1] += (255 - this.bitmap.data[idx + 1]) * val;
+          this.bitmap.data[idx + 2] += (255 - this.bitmap.data[idx + 2]) * val;
         }
       }
     );

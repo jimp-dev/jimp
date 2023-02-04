@@ -78,7 +78,7 @@ Jimp.prototype.getJGD = function () {
     try {
       resolve(this.getJGDSync());
     } catch (error) {
-      return reject(error);
+      reject(error);
     }
   });
 };

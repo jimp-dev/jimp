@@ -371,9 +371,9 @@ class Jimp extends EventEmitter {
       );
 
       if (extraConstructor) {
-        new Promise((resolve, reject) =>
-          extraConstructor.run.call(this, resolve, reject, ...args)
-        )
+        new Promise((resolve, reject) => {
+          extraConstructor.run.call(this, resolve, reject, ...args);
+        })
           .then(() => finish(null, this))
           .catch(finish);
       } else {
@@ -870,6 +870,7 @@ Jimp.appendConstructorOption = function (name, test, run) {
  */
 Jimp.read = function (...args) {
   return new Promise((resolve, reject) => {
+    // eslint-disable-next-line no-new
     new Jimp(...args, (err, image) => {
       if (err) reject(err);
       else resolve(image);

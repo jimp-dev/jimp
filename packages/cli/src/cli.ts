@@ -41,6 +41,7 @@ function load(type: string, toLoad: string[], verbose: boolean) {
       return result;
     } catch (error) {
       log(`Couldn't load ${type} [${entry}]. Make sure it's installed.`, true);
+      return undefined;
     }
   });
 }
@@ -72,7 +73,9 @@ function getArgs(args: string[], variations: string[]) {
 
 export default function setUpCli(args?: string[], log = logResult) {
   // can't call argv before done setting up
-  const verbose = !!args.find((arg) => arg === "-v" || arg === "--verbose");
+  const verbose = Boolean(
+    args.find((arg) => arg === "-v" || arg === "--verbose")
+  );
   const plugins = getArgs(args, ["--plugins", "-p"]);
   const types = getArgs(args, ["--types", "-t"]);
 
@@ -245,7 +248,7 @@ export default function setUpCli(args?: string[], log = logResult) {
       },
     });
 
-  Object.keys(Jimp).map((x) => {
+  Object.keys(Jimp).forEach((x) => {
     if (omitFunctions.indexOf(x) > -1) {
       return;
     }

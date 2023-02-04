@@ -90,6 +90,7 @@ export async function manipulateImage({
 
   await processImage(image, font, actions, output, verbose);
 }
+
 export async function createImage({
   width,
   height,

@@ -27,7 +27,7 @@ export default () => ({
   hasAlpha: { [MIME_TYPE]: true },
   decoders: { [MIME_TYPE]: PNG.sync.read },
   encoders: {
-    [MIME_TYPE]: (data) => {
+    [MIME_TYPE](data) {
       const png = new PNG({
         width: data.bitmap.width,
         height: data.bitmap.height,

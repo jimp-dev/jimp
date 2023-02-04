@@ -43,19 +43,17 @@ function bundle(files, config, callback) {
     return f[0] === "/" ? f : fromRoot(f); // ensure path.
   });
   console.error("Browserify " + files.join(", ") + "...");
-  config = Object.assign(
-    {
-      standalone: "jimp",
-      ignoreMissing: true,
-      fullPaths: false,
-      debug:
-        process.env.BABEL_ENV === "development" ||
-        process.env.BABEL_ENV === "test",
-      paths: [root],
-      basedir: root,
-    },
-    config
-  );
+  config = {
+    standalone: "jimp",
+    ignoreMissing: true,
+    fullPaths: false,
+    debug:
+      process.env.BABEL_ENV === "development" ||
+      process.env.BABEL_ENV === "test",
+    paths: [root],
+    basedir: root,
+    ...config,
+  };
   debug("browserify config:", config);
   const bundler = browserify(files, config).exclude(
     fromRoot("browser/lib/jimp.js")

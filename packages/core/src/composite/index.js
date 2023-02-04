@@ -44,6 +44,7 @@ export default function composite(src, x, y, options = {}, cb) {
     opacityDest = 1.0;
   }
 
+  // eslint-disable-next-line import/namespace
   const blendmode = compositeModes[mode];
 
   // round input

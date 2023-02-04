@@ -12,7 +12,7 @@
     "registry": "https://registry.npmjs.org/"
   },
   "scripts": {
-    "lint": "xo",
+    "lint": "eslint --ext .js,.ts,.tsx '**/*.{js,ts}'",
     "test": "cross-env BABEL_ENV=test mocha --require @babel/register './packages/**/test/**/*.test.js' --require ts-node/register ./packages/**/test/*.test.ts",
     "test:watch": "npm run test -- --reporter min --watch",
     "test:browser": "cross-env BABEL_ENV=test ENV=browser CHROME_BIN=\"$(which chrome || which chromium)\" karma start --single-run",
@@ -35,6 +35,8 @@
     "@babel/preset-env": "^7.7.1",
     "@babel/register": "^7.7.0",
     "@babel/runtime": "^7.7.2",
+    "@typescript-eslint/eslint-plugin": "^5.50.0",
+    "@typescript-eslint/parser": "^5.50.0",
     "auto": "^10.37.6",
     "babel-eslint": "^10.0.3",
     "babel-plugin-add-module-exports": "^1.0.2",
@@ -43,7 +45,10 @@
     "babel-plugin-transform-inline-environment-variables": "^0.4.3",
     "cross-env": "^6.0.0",
     "dtslint": "^0.9.8",
-    "eslint": "^6.4.0",
+    "eslint": "^8.27.0",
+    "eslint-config-prettier": "^8.6.0",
+    "eslint-config-xo": "^0.43.1",
+    "eslint-plugin-import": "^2.27.5",
     "express": "^4.17.1",
     "husky": "^3.0.5",
     "karma": "^4.3.0",
@@ -60,8 +65,7 @@
     "prettier": "^2.8.3",
     "should": "^13.2.3",
     "source-map-support": "^0.5.13",
-    "watchify": "^3.11.1",
-    "xo": "^0.24.0"
+    "watchify": "^3.11.1"
   },
   "auto": {
     "plugins": [
@@ -78,57 +82,6 @@
     "*.{js,css,md}": [
       "prettier --write",
       "git add"
-    ]
-  },
-  "xo": {
-    "parser": "babel-eslint",
-    "env": [
-      "browser",
-      "node",
-      "jest"
-    ],
-    "ignores": [
-      "omggif.js",
-      "**/*.ts",
-      "**/*.d.ts",
-      "*.ts"
-    ],
-    "rules": {
-      "capitalized-comments": 0,
-      "unicorn/number-literal-case": 0,
-      "no-control-regex": 1,
-      "prefer-rest-params": 1,
-      "no-new": 0,
-      "no-console": [
-        2,
-        {
-          "allow": [
-            "warn",
-            "error"
-          ]
-        }
-      ],
-      "max-params": [
-        1,
-        6
-      ],
-      "import/no-extraneous-dependencies": [
-        1
-      ],
-      "unicorn/prefer-exponentiation-operator": 0
-    },
-    "overrides": [
-      {
-        "files": "**/test/**/*.js",
-        "esnext": false,
-        "globals": [
-          "before"
-        ],
-        "rules": {
-          "import/no-extraneous-dependencies": 0,
-          "max-nested-callbacks": 0
-        }
-      }
     ]
   }
 }

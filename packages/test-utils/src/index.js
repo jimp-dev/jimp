@@ -2,7 +2,6 @@ import should from "should"; // Ensure should to load in browser through browser
 
 export const Jimp = require("./jgd-wrapper");
 
-// eslint-disable-next-line no-use-extend-native/no-use-extend-native
 const shouldAssertion = {}.should.be.constructor.prototype;
 
 export function hasOwnProp(obj, key) {

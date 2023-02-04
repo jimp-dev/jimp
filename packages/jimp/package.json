@@ -96,10 +96,8 @@
     "source-map-support": "^0.5.13",
     "tfilter": "^1.0.1",
     "uglify-js": "^3.6.0",
-    "watchify": "^3.11.1",
-    "xo": "^0.24.0"
+    "watchify": "^3.11.1"
   },
-  "xo": false,
   "nyc": {
     "sourceMap": false,
     "instrument": false,

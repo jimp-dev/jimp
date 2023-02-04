@@ -33,16 +33,16 @@ const httpHandler = (req, res) => {
   }
 };
 
-describe("redirect", function () {
+describe("redirect", () => {
   if (typeof window !== "undefined" && typeof window.document !== "undefined") {
     xit("Not testing redirects in browser");
   } else {
     const httpServer = http.createServer(httpHandler);
-    before(function () {
+    before(() => {
       httpServer.listen(5136);
     });
 
-    it("follows 301 redirect", function (done) {
+    it("follows 301 redirect", (done) => {
       jimp
         .read("http://localhost:5136/redirect.png")
         .then(() => {

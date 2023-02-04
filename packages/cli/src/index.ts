@@ -4,7 +4,7 @@ import setUpCli from "./cli";
 import { manipulateImage, createImage } from "./process-image";
 
 export async function runCLI(args = process.argv) {
-  const argv = setUpCli(args.slice(2)).argv;
+  const { argv } = setUpCli(args.slice(2));
 
   if (argv._.includes("read")) {
     await manipulateImage(argv);

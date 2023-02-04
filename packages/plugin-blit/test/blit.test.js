@@ -168,7 +168,7 @@ describe("Blit over image", function () {
   });
 
   async function createCat(catNum, len) {
-    let imgHeight = 60;
+    const imgHeight = 60;
 
     const butt = await Jimp.read(testDir + "/images/cat_butt.png");
     const head = await Jimp.read(testDir + "/images/cat_head.png");
