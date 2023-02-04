@@ -1,6 +1,6 @@
 {
   "name": "@jimp/cli",
-  "version": "0.17.3",
+  "version": "0.17.4",
   "description": "jimp on the cli",
   "bin": {
     "jimp": "dist/index.js"
@@ -19,7 +19,7 @@
   "dependencies": {
     "@jimp/custom": "link:../custom",
     "chalk": "^2.4.1",
-    "jimp": "^0.17.3",
+    "jimp": "^0.17.4",
     "log-symbols": "^2.2.0",
     "yargs": "^12.0.2"
   },
