@@ -227,7 +227,7 @@ export function getBuffer(mime, cb) {
     const buffer = this.constructor.encoders[mime](this);
     cb.call(this, null, buffer);
   } else {
-    cb.call(this, "Unsupported MIME type: " + mime);
+    return throwError.call(this, "Unsupported MIME type: " + mime, cb);
   }
 
   return this;
