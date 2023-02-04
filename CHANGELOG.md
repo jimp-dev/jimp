@@ -1,3 +1,16 @@
+# v0.17.9 (Sat Feb 04 2023)
+
+#### 🐛 Bug Fix
+
+- `@jimp/core`
+  - Throw error instead of resolving to string [#1138](https://github.com/jimp-dev/jimp/pull/1138) ([@nopeless](https://github.com/nopeless))
+
+#### Authors: 1
+
+- nopeless ([@nopeless](https://github.com/nopeless))
+
+---
+
 # v0.17.8 (Sat Feb 04 2023)
 
 #### 🐛 Bug Fix
