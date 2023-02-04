@@ -25,7 +25,7 @@ Example usage:
 </script>
 ```
 
-See the [main documentation](https://github.com/oliver-moran/jimp) for the full API documenatinon.
+See the [main documentation](https://github.com/jimp-dev/jimp) for the full API documenatinon.
 
 ## WebWorkers
 

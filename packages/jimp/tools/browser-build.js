@@ -24,7 +24,7 @@ const licence =
   "Jimp v" +
   process.env.npm_package_version +
   "\n" +
-  "https://github.com/oliver-moran/jimp\n" +
+  "https://github.com/jimp-dev/jimp\n" +
   "Ported for the Web by Phil Seaton\n" +
   fs.readFileSync(fromRoot("../../LICENSE")) +
   "*/";

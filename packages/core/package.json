@@ -12,13 +12,7 @@
     "fonts",
     "types"
   ],
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/oliver-moran/jimp.git"
-  },
-  "bugs": {
-    "url": "https://github.com/oliver-moran/jimp/issues"
-  },
+  "repository": "jimp-dev/jimp",
   "scripts": {
     "test": "cross-env BABEL_ENV=test mocha --require @babel/register test/**/*.js",
     "test:watch": "npm run test -- --reporter min --watch",
