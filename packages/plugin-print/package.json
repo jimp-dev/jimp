@@ -4,6 +4,7 @@
   "description": "print an image.",
   "main": "dist/index.js",
   "module": "es/index.js",
+  "repository": "jimp-dev/jimp",
   "types": "index.d.ts",
   "scripts": {
     "test": "cross-env BABEL_ENV=test mocha --require @babel/register",

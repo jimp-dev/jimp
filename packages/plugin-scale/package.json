@@ -4,6 +4,7 @@
   "description": "scale an image.",
   "main": "dist/index.js",
   "module": "es/index.js",
+  "repository": "jimp-dev/jimp",
   "types": "index.d.ts",
   "scripts": {
     "build": "npm run build:node:production && npm run build:module",

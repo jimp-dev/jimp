@@ -3,6 +3,7 @@
   "version": "0.17.7",
   "description": "Test utils for jimp extensions.",
   "main": "dist/index.js",
+  "repository": "jimp-dev/jimp",
   "module": "es/index.js",
   "scripts": {
     "test": "cross-env BABEL_ENV=test mocha --require @babel/register",

@@ -2,6 +2,7 @@
   "name": "@jimp/cli",
   "version": "0.17.7",
   "description": "jimp on the cli",
+  "repository": "jimp-dev/jimp",
   "bin": {
     "jimp": "dist/index.js"
   },
