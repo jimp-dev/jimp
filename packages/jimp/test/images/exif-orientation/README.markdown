@@ -1,18 +1,15 @@
-EXIF Orientation-flag example images
-====================================
+# EXIF Orientation-flag example images
 
 Example images using each of the EXIF orientation flags (1-to-8), in both landscape and portrait orientations.
 
 [See here](http://www.daveperrett.com/articles/2012/07/28/exif-orientation-handling-is-a-ghetto/) for more information.
 
-Change history
------------
+## Change history
 
-* **Version 1.0.1 (2013-03-10)** : Add MIT license and some contact details.
-* **Version 1.0.0 (2012-07-28)** : 1.0 release.
+- **Version 1.0.1 (2013-03-10)** : Add MIT license and some contact details.
+- **Version 1.0.0 (2012-07-28)** : 1.0 release.
 
-Contributing
-------------
+## Contributing
 
 Once you've made your commits:
 
@@ -22,14 +19,11 @@ Once you've made your commits:
 4. Create a [Pull Request](http://help.github.com/pull-requests/) from your branch
 5. That's it!
 
-Author
-------
+## Author
 
 Dave Perrett :: hello@daveperrett.com :: [@daveperrett](http://twitter.com/daveperrett)
 
-
-Copyright
----------
+## Copyright
 
 These images are licensed under the [MIT License](http://opensource.org/licenses/MIT).
 

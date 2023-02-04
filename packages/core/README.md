@@ -18,7 +18,7 @@ Add constant or static methods to the Jimp constructor.
 
 ```js
 addConstants({
-  MIME_SPECIAL: 'image/special'
+  MIME_SPECIAL: "image/special",
 });
 ```
 
@@ -48,5 +48,5 @@ await image.writeAsync('test.png');
 Add a image mime type to Jimp constructor. First argument is a mime type and the second is an array of file extension for that type.
 
 ```js
-addType('image/special', ['spec', 'special']);
+addType("image/special", ["spec", "special"]);
 ```

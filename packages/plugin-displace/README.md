@@ -14,10 +14,10 @@ Displaces the image based on the provided displacement map
 - @param {function(Error, Jimp)} cb (optional) a callback for when complete
 
 ```js
-import jimp from 'jimp';
+import jimp from "jimp";
 
 async function main() {
-  const image = await jimp.read('test/image.png');
+  const image = await jimp.read("test/image.png");
 
   // Make me better!
   image.displace(map, 10);

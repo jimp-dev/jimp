@@ -1,4 +1,4 @@
-import { isNodePattern, throwError } from '@jimp/utils';
+import { isNodePattern, throwError } from "@jimp/utils";
 
 /**
  * Flip the image horizontally
@@ -8,26 +8,28 @@ import { isNodePattern, throwError } from '@jimp/utils';
  * @returns {Jimp} this for chaining of methods
  */
 function flipFn(horizontal, vertical, cb) {
-  if (typeof horizontal !== 'boolean' || typeof vertical !== 'boolean')
+  if (typeof horizontal !== "boolean" || typeof vertical !== "boolean")
     return throwError.call(
       this,
-      'horizontal and vertical must be Booleans',
+      "horizontal and vertical must be Booleans",
       cb
     );
 
   const bitmap = Buffer.alloc(this.bitmap.data.length);
-  this.scanQuiet(0, 0, this.bitmap.width, this.bitmap.height, function(
-    x,
-    y,
-    idx
-  ) {
-    const _x = horizontal ? this.bitmap.width - 1 - x : x;
-    const _y = vertical ? this.bitmap.height - 1 - y : y;
-    const _idx = (this.bitmap.width * _y + _x) << 2;
-    const data = this.bitmap.data.readUInt32BE(idx);
+  this.scanQuiet(
+    0,
+    0,
+    this.bitmap.width,
+    this.bitmap.height,
+    function (x, y, idx) {
+      const _x = horizontal ? this.bitmap.width - 1 - x : x;
+      const _y = vertical ? this.bitmap.height - 1 - y : y;
+      const _idx = (this.bitmap.width * _y + _x) << 2;
+      const data = this.bitmap.data.readUInt32BE(idx);
 
-    bitmap.writeUInt32BE(data, _idx);
-  });
+      bitmap.writeUInt32BE(data, _idx);
+    }
+  );
 
   this.bitmap.data = Buffer.from(bitmap);
 
@@ -40,5 +42,5 @@ function flipFn(horizontal, vertical, cb) {
 
 export default () => ({
   flip: flipFn,
-  mirror: flipFn
+  mirror: flipFn,
 });

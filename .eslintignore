@@ -1,0 +1,4 @@
+**/es/**
+**/dist/**
+**/jimp/browser/**
+.eslintrc.js

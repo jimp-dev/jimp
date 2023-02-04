@@ -1,4 +1,4 @@
-import { isNodePattern, throwError } from '@jimp/utils';
+import { isNodePattern, throwError } from "@jimp/utils";
 
 /**
  * Scale the image to the given width and height keeping the aspect ratio. Some parts of the image may be letter boxed.
@@ -11,24 +11,24 @@ import { isNodePattern, throwError } from '@jimp/utils';
  */
 export default () => ({
   contain(w, h, alignBits, mode, cb) {
-    if (typeof w !== 'number' || typeof h !== 'number') {
-      return throwError.call(this, 'w and h must be numbers', cb);
+    if (typeof w !== "number" || typeof h !== "number") {
+      return throwError.call(this, "w and h must be numbers", cb);
     }
 
     // permit any sort of optional parameters combination
-    if (typeof alignBits === 'string') {
-      if (typeof mode === 'function' && typeof cb === 'undefined') cb = mode;
+    if (typeof alignBits === "string") {
+      if (typeof mode === "function" && typeof cb === "undefined") cb = mode;
       mode = alignBits;
       alignBits = null;
     }
 
-    if (typeof alignBits === 'function') {
-      if (typeof cb === 'undefined') cb = alignBits;
+    if (typeof alignBits === "function") {
+      if (typeof cb === "undefined") cb = alignBits;
       mode = null;
       alignBits = null;
     }
 
-    if (typeof mode === 'function' && typeof cb === 'undefined') {
+    if (typeof mode === "function" && typeof cb === "undefined") {
       cb = mode;
       mode = null;
     }
@@ -49,7 +49,7 @@ export default () => ({
     ) {
       return throwError.call(
         this,
-        'only use one flag per alignment direction',
+        "only use one flag per alignment direction",
         cb
       );
     }
@@ -64,13 +64,15 @@ export default () => ({
     const c = this.cloneQuiet().scale(f, mode);
 
     this.resize(w, h, mode);
-    this.scanQuiet(0, 0, this.bitmap.width, this.bitmap.height, function(
-      x,
-      y,
-      idx
-    ) {
-      this.bitmap.data.writeUInt32BE(this._background, idx);
-    });
+    this.scanQuiet(
+      0,
+      0,
+      this.bitmap.width,
+      this.bitmap.height,
+      function (x, y, idx) {
+        this.bitmap.data.writeUInt32BE(this._background, idx);
+      }
+    );
     this.blit(
       c,
       ((this.bitmap.width - c.bitmap.width) / 2) * alignH,
@@ -82,5 +84,5 @@ export default () => ({
     }
 
     return this;
-  }
+  },
 });

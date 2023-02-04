@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 
-import Jimp from 'jimp';
-import { log, greenCheck } from './log';
-import { loadFont } from './load-font';
+import Jimp from "jimp";
+import { log, greenCheck } from "./log";
+import { loadFont } from "./load-font";
 
 export interface ICliOptions {
   img?: string;
@@ -21,10 +21,10 @@ async function runAction(
   loadedFont,
   [action, ...args]: [string, ...any[]]
 ) {
-  const argsString = args.length ? ` with args: [ ${args.join(', ')} ]` : '';
+  const argsString = args.length ? ` with args: [ ${args.join(", ")} ]` : "";
   log(`️🖍️  Applying ${action}${argsString}`, verbose);
 
-  const parsedArgs = args.map(arg => {
+  const parsedArgs = args.map((arg) => {
     try {
       return JSON.parse(arg);
     } catch (error) {
@@ -32,11 +32,11 @@ async function runAction(
     }
   });
 
-  if (action === 'print') {
+  if (action === "print") {
     parsedArgs.unshift(loadedFont);
   }
 
-  if (action === 'composite' || action === 'blit' || action === 'mask') {
+  if (action === "composite" || action === "blit" || action === "mask") {
     parsedArgs[0] = await Jimp.read(parsedArgs[0]);
   }
 
@@ -51,15 +51,17 @@ async function runActions(
   if (actions) {
     if (Array.isArray(actions[0])) {
       await Promise.all(
-        (actions as [string, ...any[]][]).map(action =>
+        (actions as [string, ...any[]][]).map((action) =>
           runAction(image, verbose, loadedFont, action)
         )
       );
     } else {
-      await runAction(image, verbose, loadedFont, actions as [
-        string,
-        ...any[]
-      ]);
+      await runAction(
+        image,
+        verbose,
+        loadedFont,
+        actions as [string, ...any[]]
+      );
     }
   }
 }
@@ -80,7 +82,7 @@ export async function manipulateImage({
   output,
   actions,
   verbose,
-  loadFont: font
+  loadFont: font,
 }: ICliOptions) {
   log(` 📷  Loading source image: ${img} ...`, verbose);
 
@@ -88,6 +90,7 @@ export async function manipulateImage({
 
   await processImage(image, font, actions, output, verbose);
 }
+
 export async function createImage({
   width,
   height,
@@ -95,9 +98,9 @@ export async function createImage({
   output,
   actions,
   verbose,
-  loadFont: font
+  loadFont: font,
 }: ICliOptions) {
-  const backgroundString = background ? ` with background ${background}` : '';
+  const backgroundString = background ? ` with background ${background}` : "";
   log(` 📷  Creating image: [${width} ${height}]${backgroundString}`, verbose);
 
   let image;

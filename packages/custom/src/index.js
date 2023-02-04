@@ -2,8 +2,8 @@ import Jimp, {
   addType,
   addJimpMethods,
   addConstants,
-  jimpEvChange
-} from '@jimp/core';
+  jimpEvChange,
+} from "@jimp/core";
 
 export default function configure(configuration, jimpInstance = Jimp) {
   const jimpConfig = {
@@ -11,14 +11,14 @@ export default function configure(configuration, jimpInstance = Jimp) {
     encoders: {},
     decoders: {},
     class: {},
-    constants: {}
+    constants: {},
   };
 
   function addToConfig(newConfig) {
     Object.entries(newConfig).forEach(([key, value]) => {
       jimpConfig[key] = {
         ...jimpConfig[key],
-        ...value
+        ...value,
       };
     });
   }
@@ -29,7 +29,7 @@ export default function configure(configuration, jimpInstance = Jimp) {
     if (Array.isArray(type.mime)) {
       addType(...type.mime);
     } else {
-      Object.entries(type.mime).forEach(mimeType => addType(...mimeType));
+      Object.entries(type.mime).forEach((mimeType) => addType(...mimeType));
     }
 
     delete type.mime;
@@ -51,15 +51,15 @@ export default function configure(configuration, jimpInstance = Jimp) {
 
     jimpInstance.decoders = {
       ...jimpInstance.decoders,
-      ...jimpConfig.decoders
+      ...jimpConfig.decoders,
     };
     jimpInstance.encoders = {
       ...jimpInstance.encoders,
-      ...jimpConfig.encoders
+      ...jimpConfig.encoders,
     };
     jimpInstance.hasAlpha = {
       ...jimpInstance.hasAlpha,
-      ...jimpConfig.hasAlpha
+      ...jimpConfig.hasAlpha,
     };
   }
 

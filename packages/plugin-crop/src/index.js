@@ -1,6 +1,6 @@
 /* eslint-disable no-labels */
 
-import { throwError, isNodePattern } from '@jimp/utils';
+import { throwError, isNodePattern } from "@jimp/utils";
 
 export default function pluginCrop(event) {
   /**
@@ -12,11 +12,11 @@ export default function pluginCrop(event) {
    * @param {function(Error, Jimp)} cb (optional) a callback for when complete
    * @returns {Jimp} this for chaining of methods
    */
-  event('crop', function(x, y, w, h, cb) {
-    if (typeof x !== 'number' || typeof y !== 'number')
-      return throwError.call(this, 'x and y must be numbers', cb);
-    if (typeof w !== 'number' || typeof h !== 'number')
-      return throwError.call(this, 'w and h must be numbers', cb);
+  event("crop", function (x, y, w, h, cb) {
+    if (typeof x !== "number" || typeof y !== "number")
+      return throwError.call(this, "x and y must be numbers", cb);
+    if (typeof w !== "number" || typeof h !== "number")
+      return throwError.call(this, "w and h must be numbers", cb);
 
     // round input
     x = Math.round(x);
@@ -27,14 +27,14 @@ export default function pluginCrop(event) {
     if (x === 0 && w === this.bitmap.width) {
       // shortcut
       const start = (w * y + x) << 2;
-      const end = (start + h * w) << 2;
+      const end = start + ((h * w) << 2);
 
       this.bitmap.data = this.bitmap.data.slice(start, end);
     } else {
       const bitmap = Buffer.allocUnsafe(w * h * 4);
       let offset = 0;
 
-      this.scanQuiet(x, y, w, h, function(x, y, idx) {
+      this.scanQuiet(x, y, w, h, function (x, y, idx) {
         const data = this.bitmap.data.readUInt32BE(idx, true);
         bitmap.writeUInt32BE(data, offset, true);
         offset += 4;
@@ -78,47 +78,47 @@ export default function pluginCrop(event) {
           north: false,
           south: false,
           east: false,
-          west: false
+          west: false,
         };
 
         // parse arguments
         for (let a = 0, len = args.length; a < len; a++) {
-          if (typeof args[a] === 'number') {
+          if (typeof args[a] === "number") {
             // tolerance value passed
             tolerance = args[a];
           }
 
-          if (typeof args[a] === 'boolean') {
+          if (typeof args[a] === "boolean") {
             // cropOnlyFrames value passed
             cropOnlyFrames = args[a];
           }
 
-          if (typeof args[a] === 'function') {
+          if (typeof args[a] === "function") {
             // callback value passed
             cb = args[a];
           }
 
-          if (typeof args[a] === 'object') {
+          if (typeof args[a] === "object") {
             // config object passed
             const config = args[a];
 
-            if (typeof config.tolerance !== 'undefined') {
+            if (typeof config.tolerance !== "undefined") {
               ({ tolerance } = config);
             }
 
-            if (typeof config.cropOnlyFrames !== 'undefined') {
+            if (typeof config.cropOnlyFrames !== "undefined") {
               ({ cropOnlyFrames } = config);
             }
 
-            if (typeof config.cropSymmetric !== 'undefined') {
+            if (typeof config.cropSymmetric !== "undefined") {
               ({ cropSymmetric } = config);
             }
 
-            if (typeof config.leaveBorder !== 'undefined') {
+            if (typeof config.leaveBorder !== "undefined") {
               ({ leaveBorder } = config);
             }
 
-            if (typeof config.ignoreSides !== 'undefined') {
+            if (typeof config.ignoreSides !== "undefined") {
               ({ ignoreSides } = config);
             }
           }
@@ -287,7 +287,7 @@ export default function pluginCrop(event) {
         }
 
         return this;
-      }
-    }
+      },
+    },
   };
 }

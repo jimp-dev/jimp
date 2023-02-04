@@ -5,19 +5,19 @@
   <p>Rotate an image.</p>
 </div>
 
-Rotates the image clockwise by a number of degrees. By default the width and height of the image will be resized appropriately.
+Rotates the image counter-clockwise by a number of degrees. By default the width and height of the image will be resized appropriately.
 
 ## Usage
 
-- @param {number} deg the number of degrees to rotate the image by
+- @param {number} deg the number of degrees to rotate the image by, counter-clockwise
 - @param {string|boolean} mode (optional) resize mode or a boolean, if false then the width and height of the image will not be changed
 - @param {function(Error, Jimp)} cb (optional) a callback for when complete
 
 ```js
-import jimp from 'jimp';
+import jimp from "jimp";
 
 async function main() {
-  const image = await jimp.read('test/image.png');
+  const image = await jimp.read("test/image.png");
 
   image.rotate(90);
 }
