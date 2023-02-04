@@ -1,3 +1,16 @@
+# v0.17.5 (Sat Feb 04 2023)
+
+#### 🐛 Bug Fix
+
+- Fix dos attack vulnerable [#1136](https://github.com/jimp-dev/jimp/pull/1136) ([@sjoerd108](https://github.com/sjoerd108) [@hipstersmoothie](https://github.com/hipstersmoothie))
+
+#### Authors: 2
+
+- Andrew Lisowski ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- Sjoerd ([@sjoerd108](https://github.com/sjoerd108))
+
+---
+
 # v0.17.4 (Sat Feb 04 2023)
 
 #### 🐛 Bug Fix
