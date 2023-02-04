@@ -1,3 +1,17 @@
+# v0.17.3 (Sat Feb 04 2023)
+
+#### 🐛 Bug Fix
+
+- `@jimp/core`, `@jimp/plugin-color`
+  - Fix EDGE_WRAP overwriting X with Y when Y < 0 [#1135](https://github.com/jimp-dev/jimp/pull/1135) ([@sjoerd108](https://github.com/sjoerd108) [@hipstersmoothie](https://github.com/hipstersmoothie))
+
+#### Authors: 2
+
+- Andrew Lisowski ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- Sjoerd ([@sjoerd108](https://github.com/sjoerd108))
+
+---
+
 # v0.17.2 (Sat Feb 04 2023)
 
 #### 🐛 Bug Fix
