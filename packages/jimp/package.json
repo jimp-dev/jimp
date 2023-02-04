@@ -5,6 +5,7 @@
   "main": "dist/index.js",
   "module": "es/index.js",
   "types": "types/index.d.ts",
+  "browser": "browser/lib/jimp.js",
   "typesVersions": {
     ">=3.1.0-0": {
       "*": [
