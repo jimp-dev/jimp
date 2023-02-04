@@ -3,17 +3,35 @@
     src="https://s3.amazonaws.com/pix.iemoji.com/images/emoji/apple/ios-11/256/crayon.png">
   <h1>Jimp</h1>
   <p>JavaScript Image Manipulation Program</p>
+  <p>An image processing library for Node written entirely in JavaScript, with zero native dependencies.</p>
 </div>
 
-An image processing library for Node written entirely in JavaScript, with zero native dependencies.
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
-Installation: `npm install --save jimp`
+**Table of Contents** _generated with [DocToc](https://github.com/thlorenz/doctoc)_
 
-API documentation can be found in the main [jimp package](./packages/jimp)
+- [Installation](#installation)
+- [Tools](#tools)
+- [Supported Image Types](#supported-image-types)
+- [Image Manipulation Methods (Default Plugins)](#image-manipulation-methods-default-plugins)
+- [Extra Plugins](#extra-plugins)
+- [Custom Jimp](#custom-jimp)
+- [Contributing](#contributing)
+- [License](#license)
+- [Project Using Jimp](#project-using-jimp)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
 > ## Notice of potentially breaking change
 >
 > As of v0.10.4, core-js is no longer included with jimp or its extensions. If you rely on core-js, install it with either `yarn add core-js` or `npm i core-js`
+
+## Installation
+
+Installation: `npm install --save jimp`
+
+API documentation can be found in the main [jimp package](./packages/jimp)
 
 ## Tools
 
@@ -36,7 +54,7 @@ API documentation can be found in the main [jimp package](./packages/jimp)
 - [cover](./packages/plugin-cover) - Scale the image so the given width and height keeping the aspect ratio.
 - [displace](./packages/plugin-displace) - Displaces the image based on a displacement map
 - [dither](./packages/plugin-dither) - Apply a dither effect to an image.
-- [flip](./packages/plugin-flip) - Flip an image along it's x or y axis.
+- [flip](./packages/plugin-flip) - Flip an image along its x or y axis.
 - [gaussian](./packages/plugin-gaussian) - Hardcore blur.
 - [invert](./packages/plugin-invert) - Invert an images colors
 - [mask](./packages/plugin-mask) - Mask one image with another.

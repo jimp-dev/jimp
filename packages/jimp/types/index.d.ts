@@ -1,6 +1,5 @@
 // TypeScript Version: 2.8
 
-
 declare const DepreciatedJimp: DepreciatedJimp;
 
 export = DepreciatedJimp;
@@ -10,32 +9,32 @@ export = DepreciatedJimp;
  */
 interface DepreciatedJimp {
   // Constructors
-  new(path: string, cb?: ImageCallback): this;
-  new(urlOptions: URLOptions, cb?: ImageCallback): this;
-  new(image: DepreciatedJimp, cb?: ImageCallback): this;
-  new(data: Buffer | Bitmap, cb?: ImageCallback): this;
-  new(w: number, h: number, cb?: ImageCallback): this;
-  new(
+  new (path: string, cb?: ImageCallback): this;
+  new (urlOptions: URLOptions, cb?: ImageCallback): this;
+  new (image: DepreciatedJimp, cb?: ImageCallback): this;
+  new (data: Buffer | Bitmap, cb?: ImageCallback): this;
+  new (w: number, h: number, cb?: ImageCallback): this;
+  new (
     w: number,
     h: number,
     background?: number | string,
     cb?: ImageCallback
   ): this;
   // For custom constructors when using Jimp.appendConstructorOption
-  new(...args: any[]): this;
+  new (...args: any[]): this;
   prototype: this;
 
   // Constants
   AUTO: -1;
 
   // supported mime types
-  MIME_PNG: 'image/png';
-  MIME_TIFF: 'image/tiff';
-  MIME_JPEG: 'image/jpeg';
-  MIME_JGD: 'image/jgd';
-  MIME_BMP: 'image/bmp';
-  MIME_X_MS_BMP: 'image/x-ms-bmp';
-  MIME_GIF: 'image/gif';
+  MIME_PNG: "image/png";
+  MIME_TIFF: "image/tiff";
+  MIME_JPEG: "image/jpeg";
+  MIME_JGD: "image/jgd";
+  MIME_BMP: "image/bmp";
+  MIME_X_MS_BMP: "image/x-ms-bmp";
+  MIME_GIF: "image/gif";
   // PNG filter types
   PNG_FILTER_AUTO: -1;
   PNG_FILTER_NONE: 0;
@@ -45,11 +44,11 @@ interface DepreciatedJimp {
   PNG_FILTER_PATH: 4;
 
   // resize methods
-  RESIZE_NEAREST_NEIGHBOR: 'nearestNeighbor';
-  RESIZE_BILINEAR: 'bilinearInterpolation';
-  RESIZE_BICUBIC: 'bicubicInterpolation';
-  RESIZE_HERMITE: 'hermiteInterpolation';
-  RESIZE_BEZIER: 'bezierInterpolation';
+  RESIZE_NEAREST_NEIGHBOR: "nearestNeighbor";
+  RESIZE_BILINEAR: "bilinearInterpolation";
+  RESIZE_BICUBIC: "bicubicInterpolation";
+  RESIZE_HERMITE: "hermiteInterpolation";
+  RESIZE_BEZIER: "bezierInterpolation";
 
   // blend modes
   BLEND_SOURCE_OVER: string;
@@ -147,7 +146,7 @@ interface DepreciatedJimp {
   getPixelIndex(
     x: number,
     y: number,
-    edgeHandling: string,
+    edgeHandling: number,
     cb?: GenericCallback<number, any, this>
   ): number;
   getPixelColor(
@@ -187,7 +186,12 @@ interface DepreciatedJimp {
     y: number,
     w: number,
     h: number
-  ): IterableIterator<{ x: number; y: number; idx: number; image: DepreciatedJimp }>;
+  ): IterableIterator<{
+    x: number;
+    y: number;
+    idx: number;
+    image: DepreciatedJimp;
+  }>;
   crop(x: number, y: number, w: number, h: number, cb?: ImageCallback): this;
   cropQuiet(
     x: number,
@@ -209,7 +213,7 @@ interface DepreciatedJimp {
   convolution(kernel: number[][], cb?: ImageCallback): this;
   convolution<T>(
     kernel: number[][],
-    edgeHandling: string,
+    edgeHandling: number,
     cb?: ImageCallback
   ): this;
   opaque(cb?: ImageCallback): this;
@@ -364,7 +368,8 @@ interface DepreciatedJimp {
     h: number,
     background?: number | string,
     cb?: ImageCallback
-  ): Promise<this>;  create(path: string): Promise<this>;
+  ): Promise<this>;
+  create(path: string): Promise<this>;
   create(image: this): Promise<this>;
   create(data: Buffer): Promise<this>;
   create(w: number, h: number, background?: number | string): Promise<this>;
@@ -442,14 +447,14 @@ type ImageCallback<U = any> = (
 ) => U;
 
 type ColorActionName =
-  | 'mix'
-  | 'tint'
-  | 'shade'
-  | 'xor'
-  | 'red'
-  | 'green'
-  | 'blue'
-  | 'hue';
+  | "mix"
+  | "tint"
+  | "shade"
+  | "xor"
+  | "red"
+  | "green"
+  | "blue"
+  | "hue";
 
 type ColorAction = {
   apply: ColorActionName;
@@ -462,41 +467,43 @@ type BlendMode = {
   opacityDest: number;
 };
 
-type ChangeName = 'background' | 'scan' | 'crop';
+type ChangeName = "background" | "scan" | "crop";
 
 type ListenableName =
-  | 'any'
-  | 'initialized'
-  | 'before-change'
-  | 'changed'
-  | 'before-clone'
-  | 'cloned'
+  | "any"
+  | "initialized"
+  | "before-change"
+  | "changed"
+  | "before-clone"
+  | "cloned"
   | ChangeName;
 
-type ListenerData<T extends ListenableName> = T extends 'any'
+type ListenerData<T extends ListenableName> = T extends "any"
   ? any
   : T extends ChangeName
-    ? {
-      eventName: 'before-change' | 'changed';
+  ? {
+      eventName: "before-change" | "changed";
       methodName: T;
       [key: string]: any;
     }
-    : {
+  : {
       eventName: T;
-      methodName: T extends 'initialized'
-        ? 'constructor'
-        : T extends 'before-change' | 'changed'
-          ? ChangeName
-          : T extends 'before-clone' | 'cloned' ? 'clone' : any;
+      methodName: T extends "initialized"
+        ? "constructor"
+        : T extends "before-change" | "changed"
+        ? ChangeName
+        : T extends "before-clone" | "cloned"
+        ? "clone"
+        : any;
     };
 
 type PrintableText =
   | any
   | {
-  text: string;
-  alignmentX: number;
-  alignmentY: number;
-};
+      text: string;
+      alignmentX: number;
+      alignmentY: number;
+    };
 
 type URLOptions = {
   url: string;

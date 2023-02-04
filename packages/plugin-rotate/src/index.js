@@ -1,4 +1,4 @@
-import { throwError, isNodePattern } from '@jimp/utils';
+import { throwError, isNodePattern } from "@jimp/utils";
 
 /**
  * Rotates an image clockwise by an arbitrary number of degrees. NB: 'this' must be a Jimp object.
@@ -15,7 +15,7 @@ function advancedRotate(deg, mode) {
   let w = this.bitmap.width;
   let h = this.bitmap.height;
 
-  if (mode === true || typeof mode === 'string') {
+  if (mode === true || typeof mode === "string") {
     // resize the image to it maximum dimension and blit the existing image
     // onto the center so that when it is rotated the image is kept in bounds
 
@@ -41,13 +41,15 @@ function advancedRotate(deg, mode) {
     }
 
     const c = this.cloneQuiet();
-    this.scanQuiet(0, 0, this.bitmap.width, this.bitmap.height, function(
-      x,
-      y,
-      idx
-    ) {
-      this.bitmap.data.writeUInt32BE(this._background, idx);
-    });
+    this.scanQuiet(
+      0,
+      0,
+      this.bitmap.width,
+      this.bitmap.height,
+      function (x, y, idx) {
+        this.bitmap.data.writeUInt32BE(this._background, idx);
+      }
+    );
 
     const max = Math.max(w, h, this.bitmap.width, this.bitmap.height);
     this.resize(max, max, mode);
@@ -64,10 +66,10 @@ function advancedRotate(deg, mode) {
   const dstBuffer = Buffer.alloc(this.bitmap.data.length);
 
   function createTranslationFunction(deltaX, deltaY) {
-    return function(x, y) {
+    return function (x, y) {
       return {
         x: x + deltaX,
-        y: y + deltaY
+        y: y + deltaY,
       };
     };
   }
@@ -100,7 +102,7 @@ function advancedRotate(deg, mode) {
 
   this.bitmap.data = dstBuffer;
 
-  if (mode === true || typeof mode === 'string') {
+  if (mode === true || typeof mode === "string") {
     // now crop the image to the final size
     const x = bW / 2 - w / 2;
     const y = bH / 2 - h / 2;
@@ -118,25 +120,25 @@ export default () => ({
    */
   rotate(deg, mode, cb) {
     // enable overloading
-    if (typeof mode === 'undefined' || mode === null) {
+    if (typeof mode === "undefined" || mode === null) {
       // e.g. image.resize(120);
       // e.g. image.resize(120, null, cb);
       // e.g. image.resize(120, undefined, cb);
       mode = true;
     }
 
-    if (typeof mode === 'function' && typeof cb === 'undefined') {
+    if (typeof mode === "function" && typeof cb === "undefined") {
       // e.g. image.resize(120, cb);
       cb = mode;
       mode = true;
     }
 
-    if (typeof deg !== 'number') {
-      return throwError.call(this, 'deg must be a number', cb);
+    if (typeof deg !== "number") {
+      return throwError.call(this, "deg must be a number", cb);
     }
 
-    if (typeof mode !== 'boolean' && typeof mode !== 'string') {
-      return throwError.call(this, 'mode must be a boolean or a string', cb);
+    if (typeof mode !== "boolean" && typeof mode !== "string") {
+      return throwError.call(this, "mode must be a boolean or a string", cb);
     }
 
     advancedRotate.call(this, deg, mode, cb);
@@ -146,5 +148,5 @@ export default () => ({
     }
 
     return this;
-  }
+  },
 });

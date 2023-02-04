@@ -9,7 +9,6 @@ Jimp supports basic typography using BMFont format (.fnt) even ones in different
 
 Online tools are also available to convert TTF fonts to BMFont format. They can be used to create color font or sprite packs.
 
-
 :star: [ttf2fnt](https://ttf2fnt.com/)
 
 :star: [Littera](http://kvazars.com/littera/)
@@ -41,7 +40,7 @@ Loads a bitmap font from a file
 - @returns {Promise} a promise
 
 ```js
-import Jimp from 'jimp';
+import Jimp from "jimp";
 
 async function main() {
   const font = await Jimp.loadFont(Jimp.FONT_SANS_32_BLACK);
@@ -59,16 +58,17 @@ Draws a text on a image on a given boundary
 - @param {number} y the y position to start drawing the text
 - @param {string} text the text to draw (string or object with `text`, `alignmentX`, and/or `alignmentY`)
 - @param {number} maxWidth (optional) the boundary width to draw in
-- @param {number} maxHeight (optional) the boundary height to draw in - @param {function(Error, Jimp)} cb (optional) a function to call when the text is written
+- @param {number} maxHeight (optional) the boundary height to draw in
+- @param {function(Error, Jimp)} cb (optional) a function to call when the text is written
 
 ```js
-import Jimp from 'jimp';
+import Jimp from "jimp";
 
 async function main() {
   const font = await Jimp.loadFont(Jimp.FONT_SANS_32_BLACK);
   const image = await Jimp.read(1000, 1000, 0x0000ffff);
 
-  image.print(font, 10, 10, 'Hello World!');
+  image.print(font, 10, 10, "Hello World!");
 }
 
 main();
@@ -108,16 +108,16 @@ image.print(
   x,
   y,
   {
-    text: 'Hello world!',
+    text: "Hello world!",
     alignmentX: Jimp.HORIZONTAL_ALIGN_CENTER,
-    alignmentY: Jimp.VERTICAL_ALIGN_MIDDLE
+    alignmentY: Jimp.VERTICAL_ALIGN_MIDDLE,
   },
   maxWidth,
   maxHeight
 );
 ```
-__Note__: although `maxWidth` and `maxHeight` parameters are optional to `print()`, they are needed to correctly align the text using the requested alignment mode.
 
+**Note**: although `maxWidth` and `maxHeight` parameters are optional to `print()`, they are needed to correctly align the text using the requested alignment mode.
 
 #### Staggering Text
 
@@ -130,10 +130,10 @@ image.print(
   font,
   10,
   10,
-  'Hello world that wraps!',
+  "Hello world that wraps!",
   50,
   (err, image, { x, y }) => {
-    image.print(font, x, y + 20, 'More text on another line', 50);
+    image.print(font, x, y + 20, "More text on another line", 50);
   }
 );
 ```
@@ -143,13 +143,13 @@ image.print(
 Measure how wide a piece of text will be.
 
 ```js
-import Jimp from 'jimp';
+import Jimp from "jimp";
 
 async function main() {
   const font = await Jimp.loadFont(Jimp.FONT_SANS_32_BLACK);
   const image = await Jimp.read(1000, 1000, 0x0000ffff);
 
-  Jimp.measureText(font, 'Hello World!');
+  Jimp.measureText(font, "Hello World!");
 }
 
 main();
@@ -160,13 +160,13 @@ main();
 Measure how tall a piece of text will be.
 
 ```js
-import Jimp from 'jimp';
+import Jimp from "jimp";
 
 async function main() {
   const font = await Jimp.loadFont(Jimp.FONT_SANS_32_BLACK);
   const image = await Jimp.read(1000, 1000, 0x0000ffff);
 
-  Jimp.measureTextHeight(font, 'Hello World!', 100);
+  Jimp.measureTextHeight(font, "Hello World!", 100);
 }
 
 main();

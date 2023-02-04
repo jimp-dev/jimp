@@ -16,13 +16,13 @@ export function measureText(font, text) {
 }
 
 export function splitLines(font, text, maxWidth) {
-  const words = text.split(' ');
+  const words = text.split(" ");
   const lines = [];
   let currentLine = [];
   let longestLine = 0;
 
-  words.forEach(word => {
-    const line = [...currentLine, word].join(' ');
+  words.forEach((word) => {
+    const line = [...currentLine, word].join(" ");
     const length = measureText(font, line);
 
     if (length <= maxWidth) {
@@ -41,7 +41,7 @@ export function splitLines(font, text, maxWidth) {
 
   return {
     lines,
-    longestLine
+    longestLine,
   };
 }
 
