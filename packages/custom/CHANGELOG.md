@@ -1,3 +1,27 @@
+# v0.18.0 (Sun Feb 05 2023)
+
+### Release Notes
+
+#### switch from browserify to webpack ([#1140](https://github.com/jimp-dev/jimp/pull/1140))
+
+This PR can be considered a breaking change as it remove the `jimp.min.js` file. 
+
+Instead there is now only the `jimp.js` file and we ship source maps for it.
+
+We also configured the `browser` field so jimp will be automatically bundled better
+
+---
+
+#### 💥 Breaking Change
+
+- switch from browserify to webpack [#1140](https://github.com/jimp-dev/jimp/pull/1140) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+
+#### Authors: 1
+
+- Andrew Lisowski ([@hipstersmoothie](https://github.com/hipstersmoothie))
+
+---
+
 # v0.16.3 (Sat Feb 04 2023)
 
 #### ⚠️ Pushed to `master`
