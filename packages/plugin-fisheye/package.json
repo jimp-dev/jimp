@@ -1,6 +1,6 @@
 {
   "name": "@jimp/plugin-fisheye",
-  "version": "0.17.8",
+  "version": "0.19.0",
   "description": "Apply a fisheye effect to an image.",
   "main": "dist/index.js",
   "module": "es/index.js",

@@ -1,6 +1,6 @@
 {
   "name": "@jimp/utils",
-  "version": "0.17.8",
+  "version": "0.19.0",
   "description": "Utils for jimp extensions.",
   "main": "dist/index.js",
   "module": "es/index.js",

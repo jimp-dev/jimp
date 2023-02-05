@@ -1,6 +1,6 @@
 {
   "name": "@jimp/plugin-scale",
-  "version": "0.17.8",
+  "version": "0.19.0",
   "description": "scale an image.",
   "main": "dist/index.js",
   "module": "es/index.js",
