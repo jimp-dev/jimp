@@ -1,6 +1,10 @@
 name: build
 
-on: [push]
+on:
+  push:
+    branches: [master]
+  pull_request:
+    types: [opened, synchronize, reopened]
 
 # Enabled permissions on GITHUB_TOKEN
 permissions:
