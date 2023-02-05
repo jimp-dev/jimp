@@ -1,3 +1,15 @@
+# v0.21.2 (Sun Feb 05 2023)
+
+#### 🐛 Bug Fix
+
+- Change some exports to move towards more ESM compatibility [#1154](https://github.com/jimp-dev/jimp/pull/1154) ([@danielholmes](https://github.com/danielholmes))
+
+#### Authors: 1
+
+- Daniel Holmes ([@danielholmes](https://github.com/danielholmes))
+
+---
+
 # v0.21.1 (Sun Feb 05 2023)
 
 #### 🚀 Enhancement
@@ -16,7 +28,7 @@
 
 #### Babel Refactor ([#1149](https://github.com/jimp-dev/jimp/pull/1149))
 
-Marking this as a "breaking release" because it might change what deps need to be installed. 
+Marking this as a "breaking release" because it might change what deps need to be installed.
 
 All modules should be exported as valid cjs and esm
 
@@ -56,7 +68,7 @@ Thank you, nopeless ([@nopeless](https://github.com/nopeless)), for all your wor
 
 #### switch from browserify to webpack ([#1140](https://github.com/jimp-dev/jimp/pull/1140))
 
-This PR can be considered a breaking change as it remove the `jimp.min.js` file. 
+This PR can be considered a breaking change as it remove the `jimp.min.js` file.
 
 Instead there is now only the `jimp.js` file and we ship source maps for it.
 
