@@ -12,6 +12,8 @@ permissions:
   statuses: write
   # Needed to create PR statuses/checks
   checks: write
+  # To post comments on PRs
+  issues: write
 
 jobs:
   # Run install in one step so deps can be cached for other steps
