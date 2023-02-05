@@ -1,3 +1,15 @@
+# v0.21.2 (Sun Feb 05 2023)
+
+#### 🐛 Bug Fix
+
+- Change some exports to move towards more ESM compatibility [#1154](https://github.com/jimp-dev/jimp/pull/1154) ([@danielholmes](https://github.com/danielholmes))
+
+#### Authors: 1
+
+- Daniel Holmes ([@danielholmes](https://github.com/danielholmes))
+
+---
+
 # v0.21.1 (Sun Feb 05 2023)
 
 #### 🚀 Enhancement

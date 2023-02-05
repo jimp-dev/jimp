@@ -1,3 +1,29 @@
+# v0.21.2 (Sun Feb 05 2023)
+
+:tada: This release contains work from a new contributor! :tada:
+
+Thank you, Daniel Holmes ([@danielholmes](https://github.com/danielholmes)), for all your work!
+
+#### 🚀 Enhancement
+
+- run workflow for PRs [#1156](https://github.com/jimp-dev/jimp/pull/1156) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+
+#### 🐛 Bug Fix
+
+- `@jimp/core`, `@jimp/plugin-resize`
+  - Change some exports to move towards more ESM compatibility [#1154](https://github.com/jimp-dev/jimp/pull/1154) ([@danielholmes](https://github.com/danielholmes))
+
+#### 🏠 Internal
+
+- Workflow fix [#1159](https://github.com/jimp-dev/jimp/pull/1159) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+
+#### Authors: 2
+
+- Andrew Lisowski ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- Daniel Holmes ([@danielholmes](https://github.com/danielholmes))
+
+---
+
 # v0.21.1 (Sun Feb 05 2023)
 
 #### 🚀 Enhancement
