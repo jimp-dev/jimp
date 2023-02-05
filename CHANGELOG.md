@@ -1,3 +1,15 @@
+# v0.21.2 (Sun Feb 05 2023)
+
+#### 🚀 Enhancement
+
+- run workflow for PRs [#1156](https://github.com/jimp-dev/jimp/pull/1156) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+
+#### Authors: 1
+
+- Andrew Lisowski ([@hipstersmoothie](https://github.com/hipstersmoothie))
+
+---
+
 # v0.21.1 (Sun Feb 05 2023)
 
 #### 🚀 Enhancement
