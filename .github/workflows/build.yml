@@ -75,6 +75,8 @@ jobs:
     needs: build
     steps:
       - uses: actions/checkout@v3
+      - uses: 8BitJonny/gh-get-current-pr@2.2.0
+        id: PR
       - uses: ./.github/actions/install-deps
       - uses: ./.github/actions/build-cache
       - name: Prepare repository
@@ -82,6 +84,7 @@ jobs:
       - name: Create Release
         run: yarn auto shipit
         env:
-          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PROTECTED_BRANCH_REVIEWER_TOKEN: ${{ secrets.GH_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          PR: ${{ steps.PR.outputs.number }}
