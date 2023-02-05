@@ -1,3 +1,41 @@
+# v0.18.0 (Sun Feb 05 2023)
+
+:tada: This release contains work from a new contributor! :tada:
+
+Thank you, nopeless ([@nopeless](https://github.com/nopeless)), for all your work!
+
+### Release Notes
+
+#### switch from browserify to webpack ([#1140](https://github.com/jimp-dev/jimp/pull/1140))
+
+This PR can be considered a breaking change as it remove the `jimp.min.js` file. 
+
+Instead there is now only the `jimp.js` file and we ship source maps for it.
+
+We also configured the `browser` field so jimp will be automatically bundled better
+
+---
+
+#### 💥 Breaking Change
+
+- `@jimp/core`, `@jimp/custom`, `jimp`, `@jimp/test-utils`, `@jimp/png`
+  - switch from browserify to webpack [#1140](https://github.com/jimp-dev/jimp/pull/1140) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+
+#### 🚀 Enhancement
+
+- add more auto plugins [#1141](https://github.com/jimp-dev/jimp/pull/1141) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- `@jimp/tiff`
+  - Update utif [#1143](https://github.com/jimp-dev/jimp/pull/1143) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- `@jimp/core`
+  - Throw error instead of resolving to string [#1138](https://github.com/jimp-dev/jimp/pull/1138) ([@nopeless](https://github.com/nopeless))
+
+#### Authors: 2
+
+- Andrew Lisowski ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- nopeless ([@nopeless](https://github.com/nopeless))
+
+---
+
 # v0.17.8 (Sat Feb 04 2023)
 
 #### 🐛 Bug Fix
