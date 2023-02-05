@@ -7,6 +7,7 @@ export default {
   mode: isProd ? "production" : "development",
   devtool: isProd ? "source-map" : "eval-cheap-module-source-map",
   entry: "./src/index.js",
+  target: "web",
   resolve: {
     alias: {
       pngjs: "pngjs/browser",

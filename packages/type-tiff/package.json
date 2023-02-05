@@ -21,7 +21,6 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "@babel/runtime": "^7.7.2",
     "utif2": "^4.0.1"
   },
   "peerDependencies": {

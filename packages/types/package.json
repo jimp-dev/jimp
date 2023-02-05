@@ -18,7 +18,6 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "@babel/runtime": "^7.7.2",
     "@jimp/bmp": "link:../type-bmp",
     "@jimp/gif": "link:../type-gif",
     "@jimp/jpeg": "link:../type-jpeg",
