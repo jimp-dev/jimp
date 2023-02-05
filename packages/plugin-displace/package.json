@@ -1,6 +1,6 @@
 {
   "name": "@jimp/plugin-displace",
-  "version": "0.21.1",
+  "version": "0.21.2",
   "description": "displace an image.",
   "main": "dist/index.js",
   "module": "es/index.js",
