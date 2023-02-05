@@ -43,7 +43,7 @@ Thank you, Daniel Holmes ([@danielholmes](https://github.com/danielholmes)), for
 
 #### Babel Refactor ([#1149](https://github.com/jimp-dev/jimp/pull/1149))
 
-Marking this as a "breaking release" because it might change what deps need to be installed. 
+Marking this as a "breaking release" because it might change what deps need to be installed.
 
 All modules should be exported as valid cjs and esm
 
@@ -97,7 +97,7 @@ Thank you, nopeless ([@nopeless](https://github.com/nopeless)), for all your wor
 
 #### switch from browserify to webpack ([#1140](https://github.com/jimp-dev/jimp/pull/1140))
 
-This PR can be considered a breaking change as it remove the `jimp.min.js` file. 
+This PR can be considered a breaking change as it remove the `jimp.min.js` file.
 
 Instead there is now only the `jimp.js` file and we ship source maps for it.
 
