@@ -2,13 +2,13 @@
 # yarn lockfile v1
 
 
-"@auto-it/all-contributors@^10.38.0":
-  version "10.38.0"
-  resolved "https://registry.npmjs.org/@auto-it/all-contributors/-/all-contributors-10.38.0.tgz#25474a8aaa74b5466d413cd9d1312c3cabdafe71"
-  integrity sha512-YceB/JFjg89Vweb51YESsPBkQLCGhpgMAlZr42DCB38hWmRB0VT5OmHHbPyYwh9hK4b4Ep7A6pDOzehYmwDsjA==
+"@auto-it/all-contributors@^10.38.4":
+  version "10.38.4"
+  resolved "https://registry.npmjs.org/@auto-it/all-contributors/-/all-contributors-10.38.4.tgz#69d4db549b9089f2e64c57e862fb36ae4e84b4a9"
+  integrity sha512-rDTjn3Zps7J4vzFfncQmiew/+sTvb84aIP27a+in/23J6gmkdTlGdn4qlfxm6m24BevcNMD72DfttcsINJioFQ==
   dependencies:
-    "@auto-it/bot-list" "10.38.0"
-    "@auto-it/core" "10.38.0"
+    "@auto-it/bot-list" "10.38.4"
+    "@auto-it/core" "10.38.4"
     "@octokit/rest" "^18.12.0"
     all-contributors-cli "6.19.0"
     anymatch "^3.1.1"
@@ -20,17 +20,17 @@
     io-ts "^2.1.2"
     tslib "2.1.0"
 
-"@auto-it/bot-list@10.38.0":
-  version "10.38.0"
-  resolved "https://registry.npmjs.org/@auto-it/bot-list/-/bot-list-10.38.0.tgz#b8d818dc23f15cda9ff18ed9a089e4549c1cf864"
-  integrity sha512-zW+cTCp/GPE98wC62wxLc7eTLPE7m1qvok0lkSWkeJgmNnalY2olgB3UFXyySVmpLwlqku7ftyinkZryU5HN+g==
+"@auto-it/bot-list@10.38.4":
+  version "10.38.4"
+  resolved "https://registry.npmjs.org/@auto-it/bot-list/-/bot-list-10.38.4.tgz#e287a6263f6419880c35d2f56f869ca74834d514"
+  integrity sha512-b+eBuavqtfD0qir+iMFASSoUZ62dukCr80azFeeor2vD7+iXnC+hXyXge+7+paK+BHu0TcUyQnC42pnpupm2Wg==
 
-"@auto-it/core@10.38.0":
-  version "10.38.0"
-  resolved "https://registry.npmjs.org/@auto-it/core/-/core-10.38.0.tgz#818d522dff72f8b4e9ff95adbfb8c9f1fb753196"
-  integrity sha512-sEAJex1ww2Qrel+Ea1XOvD+jyRcbpsp7XXDu48uuVHhQKdSm8A6YnYHJRBn1V01tkY4lPsWakWvzDPaK57JJRA==
+"@auto-it/core@10.38.4":
+  version "10.38.4"
+  resolved "https://registry.npmjs.org/@auto-it/core/-/core-10.38.4.tgz#a5ddfa7984875c3e7a30918d0e748ebc9808b3b3"
+  integrity sha512-S26TDSZOGAe0EULTMs3Dg3GjS1tHvWQO9UdEbmQGv3C6zHi+01oLEZrGfeYtGHHBMmDo3Iin16IjNGLPerXW1w==
   dependencies:
-    "@auto-it/bot-list" "10.38.0"
+    "@auto-it/bot-list" "10.38.4"
     "@endemolshinegroup/cosmiconfig-typescript-loader" "^3.0.2"
     "@octokit/core" "^3.5.1"
     "@octokit/plugin-enterprise-compatibility" "1.3.0"
@@ -71,36 +71,36 @@
     typescript-memoize "^1.0.0-alpha.3"
     url-join "^4.0.0"
 
-"@auto-it/first-time-contributor@^10.38.0":
-  version "10.38.0"
-  resolved "https://registry.npmjs.org/@auto-it/first-time-contributor/-/first-time-contributor-10.38.0.tgz#3e06a6f969b0ccba087ff3e1357363c4a64d5661"
-  integrity sha512-HrUe6yb8XpWxaLZ4lmqw7JQsIYOyDAGY38Ks8Rfnop+9IvOG9eWTKNyFkmnKwVPKYeD7FkPslLMDdOO7tIDbnw==
+"@auto-it/first-time-contributor@^10.38.4":
+  version "10.38.4"
+  resolved "https://registry.npmjs.org/@auto-it/first-time-contributor/-/first-time-contributor-10.38.4.tgz#49211057f7964e7755f35bab7f414ce79f567fa4"
+  integrity sha512-/lJ1G9rbT9rShu9nZTiRMEqn+zgrBOnqlYPmRDqiOCIR/NwgFEilaQnL1kADCNB1LllwHTwQIoT8QJBZf6mn4A==
   dependencies:
-    "@auto-it/bot-list" "10.38.0"
-    "@auto-it/core" "10.38.0"
+    "@auto-it/bot-list" "10.38.4"
+    "@auto-it/core" "10.38.4"
     array.prototype.flatmap "^1.2.2"
     endent "^2.1.0"
     tslib "2.1.0"
     url-join "^4.0.0"
 
-"@auto-it/magic-zero@^10.38.0":
-  version "10.38.0"
-  resolved "https://registry.npmjs.org/@auto-it/magic-zero/-/magic-zero-10.38.0.tgz#4ae92ea252bf6c33b8de7b1008a597d823059282"
-  integrity sha512-Tp38po8CkrGkWPuk03WSXndZWZZkay4faipiS20k7t0veQ7gDTnaEe7hyQ2Qsu3sPIVV0nyOIDW4Jr+kEYo75A==
+"@auto-it/magic-zero@^10.38.4":
+  version "10.38.4"
+  resolved "https://registry.npmjs.org/@auto-it/magic-zero/-/magic-zero-10.38.4.tgz#1de1e8c6a9c67e780fdbd67f9a40f21db3e02835"
+  integrity sha512-1ZHQU5TfWBiXiJiOgd7alcyMlv3r0YTFOr5EV++tfvkk6po88uRMt0XaSqg1UZwnasBEhTVoCTr0uE5LyuqB5Q==
   dependencies:
-    "@auto-it/core" "10.38.0"
+    "@auto-it/core" "10.38.4"
     fp-ts "^2.5.3"
     io-ts "^2.1.2"
     semver "^7.0.0"
     tslib "2.1.0"
 
-"@auto-it/npm@10.38.0":
-  version "10.38.0"
-  resolved "https://registry.npmjs.org/@auto-it/npm/-/npm-10.38.0.tgz#650057606eb5423d309d7f86373b6e2bcaa38100"
-  integrity sha512-fPrC5A2/+rt64znxNcgvE8G/uG7cvIl2ABDvMpQ0nuLRJPi2aFwosAMrzzx11/wmg8gqhgR3C8N9+OApkzcMRg==
+"@auto-it/npm@10.38.4":
+  version "10.38.4"
+  resolved "https://registry.npmjs.org/@auto-it/npm/-/npm-10.38.4.tgz#6a7df521128041b07712b7fb8c6cc72abe7d5106"
+  integrity sha512-k/p2ZtvrZjarl31OEozrXN02vTok2FYVlBEvXlvMN3mGbSjNWeT9EQJerxmw/h2oczacCqIg6yrscFc153twIA==
   dependencies:
-    "@auto-it/core" "10.38.0"
-    "@auto-it/package-json-utils" "10.38.0"
+    "@auto-it/core" "10.38.4"
+    "@auto-it/package-json-utils" "10.38.4"
     await-to-js "^3.0.0"
     endent "^2.1.0"
     env-ci "^5.0.1"
@@ -114,43 +114,43 @@
     url-join "^4.0.0"
     user-home "^2.0.0"
 
-"@auto-it/package-json-utils@10.38.0":
-  version "10.38.0"
-  resolved "https://registry.npmjs.org/@auto-it/package-json-utils/-/package-json-utils-10.38.0.tgz#34005649c0fee0ac01a108a44a59ccd83ad46d55"
-  integrity sha512-kE+hvTUFjayq/VjkRM62YOyheExBODGYqopYTKjdCUGbk/OSJnROA+PMoKyWZWL0fs0mb2DYPujHEDFsdpxCUA==
+"@auto-it/package-json-utils@10.38.4":
+  version "10.38.4"
+  resolved "https://registry.npmjs.org/@auto-it/package-json-utils/-/package-json-utils-10.38.4.tgz#14a256316cec27e7d6fe4e6b054ee0bad249f33d"
+  integrity sha512-2EcslXCsTi/nVXSXeoBUvsTid/MOUwWOFqRNCF8w2lj07as2m4PWP+xH26vfBDmjL3/+egic2bIbj96srBXe8g==
   dependencies:
     parse-author "^2.0.0"
     parse-github-url "1.0.2"
 
-"@auto-it/protected-branch@^10.38.0":
-  version "10.38.0"
-  resolved "https://registry.npmjs.org/@auto-it/protected-branch/-/protected-branch-10.38.0.tgz#4aaf4e35a013b2a23e9e4089991249e29f98c7bf"
-  integrity sha512-l0lmzU8xtXUUzJGVxb9l0pNpG5hPmUJxBhGeIAgXvztGZUqvqhwPuUdazUw9RZpv7zeo/CCkoX9ECWW4hOtc8A==
+"@auto-it/protected-branch@^10.38.4":
+  version "10.38.4"
+  resolved "https://registry.npmjs.org/@auto-it/protected-branch/-/protected-branch-10.38.4.tgz#41ed0faf3867384df68370037668b66be52b7142"
+  integrity sha512-2zB5BZFuzlfSKLrw2nvoFRbxeRURk9BsJtAX6g5krGHG7yFckIUxGidHZvFVcoxHUiO4kxaGrRgQn6qHVMfpvA==
   dependencies:
-    "@auto-it/core" "10.38.0"
+    "@auto-it/core" "10.38.4"
     "@octokit/rest" "^18.12.0"
     fp-ts "^2.5.3"
     io-ts "^2.1.2"
     tslib "1.10.0"
 
-"@auto-it/released@10.38.0":
-  version "10.38.0"
-  resolved "https://registry.npmjs.org/@auto-it/released/-/released-10.38.0.tgz#e1156bcd57f7875f32a7a9e2249c4b786fdf8411"
-  integrity sha512-UYC8YZsj/+oB+ALruCqMyTp+YCFuTpq/hUZhfsPsRqLRs6RSlCZJK/EmJmVGqHYcRlWuvgFgvxztl5obpIzbXg==
+"@auto-it/released@10.38.4":
+  version "10.38.4"
+  resolved "https://registry.npmjs.org/@auto-it/released/-/released-10.38.4.tgz#43e9ba47fcfc09db0536367ac2a8f03ad4e85f4b"
+  integrity sha512-Xqt1WHtqUr4lGUKJp/X5+n7E98LjSpsoXaZv6djgjhafxHn40KbrxEV2LZ8bJeRFAfKY10yaWVrOdrmEF9VzkQ==
   dependencies:
-    "@auto-it/bot-list" "10.38.0"
-    "@auto-it/core" "10.38.0"
+    "@auto-it/bot-list" "10.38.4"
+    "@auto-it/core" "10.38.4"
     deepmerge "^4.0.0"
     fp-ts "^2.5.3"
     io-ts "^2.1.2"
     tslib "2.1.0"
 
-"@auto-it/version-file@10.38.0":
-  version "10.38.0"
-  resolved "https://registry.npmjs.org/@auto-it/version-file/-/version-file-10.38.0.tgz#f161b1ca8afe74d373a2365c297d5a39252e93ba"
-  integrity sha512-ngjE0GAt15xmZMHRfJC+wzet7mfnN6bcyrIS2OQ3qvHsGxCjs0TeK5wvr0knjcwisEjmSOp5ewdMswJQDxy+Og==
+"@auto-it/version-file@10.38.4":
+  version "10.38.4"
+  resolved "https://registry.npmjs.org/@auto-it/version-file/-/version-file-10.38.4.tgz#f8b698687fdf231f3554170ff23a2e43357494b7"
+  integrity sha512-qlphQBN4lZIVIwfH2TYSP19xjdAkNyTa7LaLKspFAe2JSNfoK8prrhk0wLt2G2WF5nWc5WslNWvcV6UY9ql5BQ==
   dependencies:
-    "@auto-it/core" "10.38.0"
+    "@auto-it/core" "10.38.4"
     fp-ts "^2.5.3"
     io-ts "^2.1.2"
     semver "^7.0.0"
@@ -3248,15 +3248,15 @@ author-regex@^1.0.0:
   resolved "https://registry.yarnpkg.com/author-regex/-/author-regex-1.0.0.tgz#d08885be6b9bbf9439fe087c76287245f0a81450"
   integrity sha1-0IiFvmubv5Q5/gh8dihyRfCoFFA=
 
-auto@^10.38.0:
-  version "10.38.0"
-  resolved "https://registry.npmjs.org/auto/-/auto-10.38.0.tgz#5e0a04a987276391913abc16b20bef955f5f7435"
-  integrity sha512-CDBqjlpMcm6EAT4c+ELVD9CnQNTZ5EZ9WSmtH1aG5lNeXAacMVuoW8b6fRdEFjcIn+Epi6xn0m6z7RAxmucojg==
+auto@^10.38.4:
+  version "10.38.4"
+  resolved "https://registry.npmjs.org/auto/-/auto-10.38.4.tgz#5d04a399221aa1705fb9f49dd77f6ab913887af0"
+  integrity sha512-0ptKMY2kCB/pXJuusbpchWMfAv29Q1ioX+oPtn32Lv+qWHTMdD4BGE+VEdVdBusEvQrCm81Tjma9xjm+f3uRAQ==
   dependencies:
-    "@auto-it/core" "10.38.0"
-    "@auto-it/npm" "10.38.0"
-    "@auto-it/released" "10.38.0"
-    "@auto-it/version-file" "10.38.0"
+    "@auto-it/core" "10.38.4"
+    "@auto-it/npm" "10.38.4"
+    "@auto-it/released" "10.38.4"
+    "@auto-it/version-file" "10.38.4"
     await-to-js "^3.0.0"
     chalk "^4.0.0"
     command-line-application "^0.10.1"

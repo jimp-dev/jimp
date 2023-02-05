@@ -27,10 +27,10 @@
     "postinstall": "patch-package"
   },
   "devDependencies": {
-    "@auto-it/all-contributors": "^10.38.0",
-    "@auto-it/first-time-contributor": "^10.38.0",
-    "@auto-it/magic-zero": "^10.38.0",
-    "@auto-it/protected-branch": "^10.38.0",
+    "@auto-it/all-contributors": "^10.38.4",
+    "@auto-it/first-time-contributor": "^10.38.4",
+    "@auto-it/magic-zero": "^10.38.4",
+    "@auto-it/protected-branch": "^10.38.4",
     "@babel/cli": "^7.7.0",
     "@babel/core": "^7.7.2",
     "@babel/plugin-proposal-class-properties": "^7.7.0",
@@ -42,7 +42,7 @@
     "@typescript-eslint/eslint-plugin": "^5.50.0",
     "@typescript-eslint/parser": "^5.50.0",
     "all-contributors-cli": "^6.24.0",
-    "auto": "^10.38.0",
+    "auto": "^10.38.4",
     "babel-eslint": "^10.0.3",
     "babel-plugin-add-module-exports": "^1.0.2",
     "babel-plugin-istanbul": "^5.2.0",
@@ -70,15 +70,6 @@
     "prettier": "^2.8.3",
     "should": "^13.2.3",
     "source-map-support": "^0.5.13"
-  },
-  "auto": {
-    "plugins": [
-      "npm",
-      "released",
-      "first-time-contributor",
-      "all-contributors",
-      "magic-zero"
-    ]
   },
   "husky": {
     "hooks": {
