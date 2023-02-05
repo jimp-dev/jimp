@@ -1,4 +1,4 @@
-import UTIF from "utif";
+import utif from "utif2";
 
 const MIME_TYPE = "image/tiff";
 
@@ -11,10 +11,14 @@ export default () => ({
 
   decoders: {
     [MIME_TYPE]: (data) => {
-      const ifds = UTIF.decode(data);
+      const ifds = utif.decode(data);
       const page = ifds[0];
-      UTIF.decodeImages(data, ifds);
-      const rgba = UTIF.toRGBA8(page);
+
+      ifds.forEach((ifd) => {
+        utif.decodeImage(data, ifd);
+      });
+
+      const rgba = utif.toRGBA8(page);
 
       return {
         data: Buffer.from(rgba),
@@ -26,7 +30,7 @@ export default () => ({
 
   encoders: {
     [MIME_TYPE]: (image) => {
-      const tiff = UTIF.encodeImage(
+      const tiff = utif.encodeImage(
         image.bitmap.data,
         image.bitmap.width,
         image.bitmap.height
