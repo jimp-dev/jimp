@@ -1,3 +1,16 @@
+# v0.21.1 (Sun Feb 05 2023)
+
+#### 🚀 Enhancement
+
+- `@jimp/core`
+  - remove export hack [#1153](https://github.com/jimp-dev/jimp/pull/1153) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+
+#### Authors: 1
+
+- Andrew Lisowski ([@hipstersmoothie](https://github.com/hipstersmoothie))
+
+---
+
 # v0.21.0 (Sun Feb 05 2023)
 
 ### Release Notes
