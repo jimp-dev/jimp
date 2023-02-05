@@ -1,6 +1,6 @@
 {
   "name": "@jimp/plugin-print",
-  "version": "0.20.2",
+  "version": "0.21.0",
   "description": "print an image.",
   "main": "dist/index.js",
   "module": "es/index.js",
