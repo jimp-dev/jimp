@@ -1,6 +1,6 @@
 {
   "name": "@jimp/plugins",
-  "version": "0.17.8",
+  "version": "0.20.0",
   "description": "Default Jimp plugin.",
   "main": "dist/index.js",
   "module": "es/index.js",
