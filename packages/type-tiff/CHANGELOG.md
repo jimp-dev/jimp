@@ -1,3 +1,15 @@
+# v0.18.0 (Sun Feb 05 2023)
+
+#### 🚀 Enhancement
+
+- Update utif [#1143](https://github.com/jimp-dev/jimp/pull/1143) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+
+#### Authors: 1
+
+- Andrew Lisowski ([@hipstersmoothie](https://github.com/hipstersmoothie))
+
+---
+
 # v0.16.3 (Sat Feb 04 2023)
 
 #### ⚠️ Pushed to `master`
