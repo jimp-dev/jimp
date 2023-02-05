@@ -179,4 +179,4 @@ function applyDCT(f, size) {
   return F;
 }
 
-module.exports = ImagePHash;
+export default ImagePHash;
