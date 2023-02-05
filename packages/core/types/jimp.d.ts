@@ -167,6 +167,7 @@ export interface Jimp {
   writeAsync(path: string): Promise<this>;
   rgba(bool: boolean, cb?: ImageCallback<this>): this;
   getBase64(mime: string | JimpConstructors["AUTO"], cb: GenericCallback<string, any, this>): this;
+  pHash: () => string;
   getBase64Async(mime: string | JimpConstructors["AUTO"]): Promise<string>;
   hash(cb?: GenericCallback<string, any, this>): string;
   hash(
