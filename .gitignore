@@ -49,3 +49,4 @@ dist/
 # ESM Version
 es/
 jimp.js.*
+repro-playground.js

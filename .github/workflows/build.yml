@@ -72,4 +72,5 @@ jobs:
         run: yarn auto shipit
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
+          PROTECTED_BRANCH_REVIEWER_TOKEN: ${{ secrets.GH_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
