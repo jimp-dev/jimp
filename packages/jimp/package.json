@@ -45,27 +45,15 @@
   "author": "Oliver Moran <oliver.moran@gmail.com>",
   "license": "MIT",
   "dependencies": {
-    "@babel/runtime": "^7.7.2",
     "@jimp/custom": "link:../custom",
     "@jimp/plugins": "link:../plugins",
     "@jimp/types": "link:../types",
     "regenerator-runtime": "^0.13.3"
   },
   "devDependencies": {
-    "@babel/cli": "^7.7.0",
-    "@babel/core": "^7.7.2",
-    "@babel/plugin-proposal-class-properties": "^7.7.0",
-    "@babel/plugin-syntax-object-rest-spread": "^7.2.0",
-    "@babel/preset-env": "^7.7.1",
-    "@babel/register": "^7.7.0",
     "@jimp/test-utils": "link:../test-utils",
-    "babel-eslint": "^10.0.3",
-    "babel-plugin-add-module-exports": "^1.0.2",
-    "babel-plugin-istanbul": "^5.2.0",
-    "babel-plugin-source-map-support": "^2.1.1",
     "express": "^4.17.1",
     "path-browserify": "^1.0.1",
-    "source-map-support": "^0.5.13",
     "webpack": "^5.75.0",
     "webpack-cli": "^5.0.1"
   },

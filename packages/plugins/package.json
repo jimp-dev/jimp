@@ -18,7 +18,6 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "@babel/runtime": "^7.7.2",
     "@jimp/plugin-blit": "link:../plugin-blit",
     "@jimp/plugin-blur": "link:../plugin-blur",
     "@jimp/plugin-circle": "link:../plugin-circle",

@@ -21,7 +21,6 @@
     "access": "public"
   },
   "dependencies": {
-    "@babel/runtime": "^7.7.2",
     "regenerator-runtime": "^0.13.3"
   }
 }
