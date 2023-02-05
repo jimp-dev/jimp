@@ -18,6 +18,7 @@ module.exports = (api) => {
         "transform-inline-environment-variables",
         { include: ["BABEL_ENV", "ENV"] },
       ],
+      ["@babel/plugin-transform-modules-commonjs", { loose: true }],
     ].filter(Boolean),
 
     env: {
