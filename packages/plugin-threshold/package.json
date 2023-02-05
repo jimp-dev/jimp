@@ -7,7 +7,7 @@
   "repository": "jimp-dev/jimp",
   "types": "index.d.ts",
   "scripts": {
-    "test": "cross-env BABEL_ENV=test mocha --require @babel/register",
+    "test": "cross-env BABEL_ENV=test mocha --require @babel/register --recursive test  --extension js",
     "test:watch": "npm run test -- --reporter min --watch",
     "test:coverage": "nyc npm run test",
     "build": "npm run build:node:production && npm run build:module",
