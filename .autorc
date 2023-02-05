@@ -1,0 +1,9 @@
+{
+  "plugins": [
+    "magic-zero",
+    "npm",
+    "released",
+    "first-time-contributor",
+    "all-contributors"
+  ]
+}
