@@ -1,3 +1,27 @@
+# v0.21.0 (Sun Feb 05 2023)
+
+### Release Notes
+
+#### Babel Refactor ([#1149](https://github.com/jimp-dev/jimp/pull/1149))
+
+Marking this as a "breaking release" because it might change what deps need to be installed. 
+
+All modules should be exported as valid cjs and esm
+
+![CleanShot 2023-02-04 at 18 19 27](https://user-images.githubusercontent.com/1192452/216798157-664cc430-7846-432d-84cf-26e8d8ba9e10.png)
+
+---
+
+#### 💥 Breaking Change
+
+- Babel Refactor [#1149](https://github.com/jimp-dev/jimp/pull/1149) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+
+#### Authors: 1
+
+- Andrew Lisowski ([@hipstersmoothie](https://github.com/hipstersmoothie))
+
+---
+
 # v0.20.2 (Sun Feb 05 2023)
 
 #### 🚀 Enhancement
