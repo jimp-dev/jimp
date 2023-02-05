@@ -1,3 +1,15 @@
+# v0.20.2 (Sun Feb 05 2023)
+
+#### 🚀 Enhancement
+
+- add phash to types [#1144](https://github.com/jimp-dev/jimp/pull/1144) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+
+#### Authors: 1
+
+- Andrew Lisowski ([@hipstersmoothie](https://github.com/hipstersmoothie))
+
+---
+
 # v0.18.0 (Sun Feb 05 2023)
 
 :tada: This release contains work from a new contributor! :tada:

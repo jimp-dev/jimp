@@ -1,3 +1,16 @@
+# v0.20.2 (Sun Feb 05 2023)
+
+#### 🚀 Enhancement
+
+- `@jimp/core`
+  - add phash to types [#1144](https://github.com/jimp-dev/jimp/pull/1144) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+
+#### Authors: 1
+
+- Andrew Lisowski ([@hipstersmoothie](https://github.com/hipstersmoothie))
+
+---
+
 # v0.20.1 (Sun Feb 05 2023)
 
 #### ⚠️ Pushed to `master`
