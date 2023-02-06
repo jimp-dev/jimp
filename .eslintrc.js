@@ -41,6 +41,7 @@ module.exports = {
         it: true,
         describe: true,
         before: true,
+        after: true,
         test: true,
       },
       rules: {

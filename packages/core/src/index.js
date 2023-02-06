@@ -58,29 +58,20 @@ function bufferFromArrayBuffer(arrayBuffer) {
 }
 
 function loadFromURL(options, cb) {
-  request(options, (err, response, data) => {
+  request(options, (err, data) => {
     if (err) {
       return cb(err);
-    }
-
-    if ("headers" in response && "location" in response.headers) {
-      options.url = response.headers.location;
-      return loadFromURL(options, cb);
     }
 
     if (typeof data === "object" && Buffer.isBuffer(data)) {
       return cb(null, data);
     }
 
-    const msg =
-      "Could not load Buffer from <" +
-      options.url +
-      "> " +
-      "(HTTP: " +
-      response.statusCode +
-      ")";
+    if (typeof data === "object" && isArrayBuffer(data)) {
+      return cb(null, bufferFromArrayBuffer(data));
+    }
 
-    return new Error(msg);
+    return new Error(`Could not load Buffer from <${options.url}>`);
   });
 }
 
