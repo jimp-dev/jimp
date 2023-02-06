@@ -94,8 +94,6 @@ Jimp is licensed under the MIT license. Open Sans is licensed under the Apache l
 
 :star: [nimp](https://nimp.app/) - Node based image manipulator. Procedurally create and edit images.
 
-:star: [favicons](https://www.npmjs.com/package/favicons) - A Node.js module for generating favicons and their associated files.
-
 :star: [node-vibrant](https://www.npmjs.com/package/node-vibrant) - Extract prominent colors from an image.
 
 :star: [lqip](https://www.npmjs.com/package/lqip) - Low Quality Image Placeholders (LQIP) Module for Node
