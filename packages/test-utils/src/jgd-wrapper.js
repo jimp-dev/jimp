@@ -39,7 +39,11 @@ function configureJimp() {
 }
 
 /**
- * The ultimate hack
+ * Hack
+ * In order to resolve the Jimp class we either resolve Jimp or default.
+ * Since this code base will be rewritten in the future
+ * I put a temporary hack to always resolve Jimp no matter
+ * how it is exported 
  */
 function chaos(J) {
   if (J.__esModule) {
