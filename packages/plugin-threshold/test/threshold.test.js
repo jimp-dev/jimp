@@ -3,6 +3,7 @@ import configure from "@jimp/custom";
 import jpeg from "@jimp/jpeg";
 import color from "@jimp/plugin-color";
 import resize from "@jimp/plugin-resize";
+import expect from "@storybook/expect";
 
 import threshold from "../src";
 
@@ -22,9 +23,8 @@ describe("Threshold", function () {
       getTestDir(__dirname) + "/images/hands.jpg"
     );
 
-    testImage
-      .threshold({ max: 200, replace: 255 })
-      .hash()
-      .should.be.equal(expectedImage.hash());
+    expect(testImage.threshold({ max: 200, replace: 255 }).hash()).toBe(
+      expectedImage.hash()
+    );
   });
 });

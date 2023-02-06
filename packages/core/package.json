@@ -39,9 +39,6 @@
     "pixelmatch": "^4.0.2",
     "tinycolor2": "^1.4.1"
   },
-  "devDependencies": {
-    "should": "^13.2.3"
-  },
   "publishConfig": {
     "access": "public"
   }

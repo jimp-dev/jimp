@@ -5,6 +5,7 @@ import scale from "@jimp/plugin-scale";
 import resize from "@jimp/plugin-resize";
 
 import cover from "../src";
+import { expectToBeJGD } from "@jimp/test-utils/src";
 
 const jimp = configure({ plugins: [resize, scale, crop, cover] }, Jimp);
 
@@ -114,16 +115,8 @@ describe("All align combinations for cover", () => {
     let a = align.split(" ");
     a = Jimp["HORIZONTAL_ALIGN_" + a[0]] | Jimp["VERTICAL_ALIGN_" + a[1]];
     it("cover aligned to " + align, () => {
-      vertical
-        .clone()
-        .cover(4, 4, a)
-        .getJGDSync()
-        .should.be.sameJGD(jgdCoverV, "Vertical image");
-      horizontal
-        .clone()
-        .cover(4, 4, a)
-        .getJGDSync()
-        .should.be.sameJGD(jgdCoverH, "Horizontal image");
+      expectToBeJGD(vertical.clone().cover(4, 4, a).getJGDSync(), jgdCoverV);
+      expectToBeJGD(horizontal.clone().cover(4, 4, a).getJGDSync(), jgdCoverH);
     });
   }
 

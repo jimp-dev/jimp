@@ -1,5 +1,6 @@
 import { Jimp, getTestDir } from "@jimp/test-utils";
 import configure from "@jimp/custom";
+import expect from "@storybook/expect";
 
 import jpeg from "../src";
 
@@ -11,17 +12,17 @@ describe("JPEG", () => {
   it("load JPG", async () => {
     const image = await jimp.read(imagesDir + "/cops.jpg");
 
-    image.getPixelColor(10, 10).should.be.equal(0x3f4a02ff);
-    image.getPixelColor(220, 190).should.be.equal(0x5d94b6ff);
-    image.getPixelColor(350, 130).should.be.equal(0xdf7944ff);
+    expect(image.getPixelColor(10, 10)).toBe(0x3f4a02ff);
+    expect(image.getPixelColor(220, 190)).toBe(0x5d94b6ff);
+    expect(image.getPixelColor(350, 130)).toBe(0xdf7944ff);
   });
 
   it("load JPG with fill bytes", async () => {
     const image = await jimp.read(imagesDir + "/fillbytes.jpg");
 
-    image.getPixelColor(10, 10).should.be.equal(0xaeb8c3ff);
-    image.getPixelColor(220, 190).should.be.equal(0x262b21ff);
-    image.getPixelColor(350, 130).should.be.equal(0x4e5d30ff);
+    expect(image.getPixelColor(10, 10)).toBe(0xaeb8c3ff);
+    expect(image.getPixelColor(220, 190)).toBe(0x262b21ff);
+    expect(image.getPixelColor(350, 130)).toBe(0x4e5d30ff);
   });
 
   it("export JPG", async () => {
@@ -36,6 +37,6 @@ describe("JPEG", () => {
     image.quality(50);
     const buffer = await image.getBufferAsync("image/jpeg");
 
-    buffer.toString().should.match(/^.{3,9}JFIF\u0000/);
+    expect(buffer.toString()).toMatch(/^.{3,9}JFIF\u0000/);
   });
 });

@@ -1,7 +1,6 @@
-/* eslint-disable no-control-regex */
-
 import { Jimp, getTestDir } from "@jimp/test-utils";
 import configure from "@jimp/custom";
+import expect from "@storybook/expect";
 
 import bmp from "../src";
 
@@ -13,9 +12,9 @@ describe("BMP", () => {
   it("load BMP", async () => {
     const image = await jimp.read(imagesDir + "/windows95.bmp");
 
-    image.getPixelColor(10, 10).should.be.equal(0xeff7f7ff);
-    image.getPixelColor(150, 80).should.be.equal(0x73add6ff);
-    image.getPixelColor(190, 200).should.be.equal(0xf7c300ff);
+    expect(image.getPixelColor(10, 10)).toBe(0xeff7f7ff);
+    expect(image.getPixelColor(150, 80)).toBe(0x73add6ff);
+    expect(image.getPixelColor(190, 200)).toBe(0xf7c300ff);
   });
 
   it("export BMP", async () => {
@@ -29,7 +28,7 @@ describe("BMP", () => {
     });
     const buffer = await image.getBufferAsync("image/bmp");
 
-    buffer.toString().should.match(/^BMZ\u0000/);
+    expect(buffer.toString()).toMatch(/^BMZ\u0000/);
   });
 
   it("uses correct colors for BMP", async function () {
@@ -42,6 +41,6 @@ describe("BMP", () => {
       getTestDir(__dirname) + "/images/windows95.bmp"
     );
 
-    image.bitmap.data.should.be.deepEqual(expectedImg.bitmap.data);
+    expect(image.bitmap.data).toEqual(expectedImg.bitmap.data);
   });
 });

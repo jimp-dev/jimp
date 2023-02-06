@@ -1,4 +1,5 @@
 import { Jimp, getTestDir } from "@jimp/test-utils";
+import expect from "@storybook/expect";
 
 import configure from "@jimp/custom";
 
@@ -10,9 +11,9 @@ describe("EXIF orientation", () => {
       const regularImg = await imageWithOrientation(1);
       const orientedImg = await imageWithOrientation(orientation);
 
-      orientedImg.getWidth().should.be.equal(regularImg.getWidth());
-      orientedImg.getHeight().should.be.equal(regularImg.getHeight());
-      Jimp.distance(regularImg, orientedImg).should.lessThan(0.07);
+      expect(orientedImg.getWidth()).toBe(regularImg.getWidth());
+      expect(orientedImg.getHeight()).toBe(regularImg.getHeight());
+      expect(Jimp.distance(regularImg, orientedImg)).toBeLessThan(0.07);
     });
   }
 });

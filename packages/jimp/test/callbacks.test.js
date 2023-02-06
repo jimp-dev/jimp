@@ -1,7 +1,9 @@
 import { Jimp, mkJGD, hasOwnProp } from "@jimp/test-utils";
+import expect from "@storybook/expect";
 
 import configure from "@jimp/custom";
 import plugins from "@jimp/plugins";
+import { expectToBeJGD } from "@jimp/test-utils/src";
 
 const jimp = configure({ plugins: [plugins] }, Jimp);
 
@@ -213,7 +215,7 @@ describe("Callbacks", () => {
 
       function save(err, image) {
         if (err) return done(err);
-        image.getJGDSync().should.be.sameJGD(result);
+        expectToBeJGD(image.getJGDSync(), result);
         done();
       }
 
