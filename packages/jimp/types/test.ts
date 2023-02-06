@@ -1,12 +1,17 @@
-import * as Jimp from 'jimp';
+import * as Jimp from "jimp";
 
-const jimpInst: Jimp = new Jimp('test');
+const jimpInst: Jimp = new Jimp("test");
 
 // Main Jimp export should already have all of these already applied
-jimpInst.read('Test');
+// $ExpectError
+jimpInst.read("Test");
 jimpInst.displace(jimpInst, 2);
 jimpInst.resize(40, 40);
-// $ExpectType 0
+jimpInst.displace(jimpInst, 2);
+jimpInst.shadow((err, val, coords) => {});
+jimpInst.fishEye({ r: 12 });
+jimpInst.circle({ radius: 12, x: 12, y: 12 });
+// $ExpectError
 jimpInst.PNG_FILTER_NONE;
 
 // $ExpectError
@@ -16,10 +21,8 @@ jimpInst.test;
 jimpInst.func();
 
 // Main Jimp export should already have all of these already applied
-Jimp.read('Test');
-Jimp.displace(Jimp, 2);
-Jimp.shadow((err, val, coords) => {});
-Jimp.resize(40, 40);
+Jimp.read("Test");
+
 // $ExpectType 0
 Jimp.PNG_FILTER_NONE;
 
@@ -29,56 +32,57 @@ Jimp.test;
 // $ExpectError
 Jimp.func();
 
-test('can clone properly', async () => {
-  const baseImage = await Jimp.read('filename');
+test("can clone properly", async () => {
+  const baseImage = await Jimp.read("filename");
   const cloneBaseImage = baseImage.clone();
 
-  // $ExpectType -1
-  cloneBaseImage.PNG_FILTER_AUTO;
+  // $ExpectType number
+  cloneBaseImage._deflateLevel;
 
-  test('can handle `this` returns on the core type properly', () => {
-    // $ExpectType -1
-    cloneBaseImage.diff(jimpInst, jimpInst).image.PNG_FILTER_AUTO
+  test("can handle `this` returns on the core type properly", () => {
+    // $ExpectType number
+    cloneBaseImage.posterize(3)._quality;
   });
 
-  test('can handle `this` returns properly', () => {
+  test("can handle `this` returns properly", () => {
     cloneBaseImage
       .resize(1, 1)
       .crop(0, 0, 0, 0)
       .mask(cloneBaseImage, 2, 2)
-      .print('a' as any, 2, 2, 'a' as any)
+      .print("a" as any, 2, 2, "a" as any)
       .resize(1, 1)
       .quality(1)
-      .deflateLevel(2)
-      .PNG_FILTER_AUTO;
+      .deflateLevel(2)._filterType;
   });
 
-  test('can handle imageCallbacks `this` properly', () => {
+  test("can handle imageCallbacks `this` properly", () => {
     cloneBaseImage.rgba(false, (_, jimpCBIn) => {
-      jimpCBIn.read('Test');
+      // $ExpectError
+      jimpCBIn.read("Test");
       jimpCBIn.displace(jimpInst, 2);
       jimpCBIn.resize(40, 40);
-      // $ExpectType 0
-      jimpCBIn.PNG_FILTER_NONE;
+      // $ExpectType number
+      jimpCBIn._filterType;
 
       // $ExpectError
       jimpCBIn.test;
 
       // $ExpectError
       jimpCBIn.func();
-    })
-  })
+    });
+  });
 });
 
-test('Can handle callback with constructor', () => {
+test("Can handle callback with constructor", () => {
   const myBmpBuffer: Buffer = {} as any;
 
   Jimp.read(myBmpBuffer, (err, cbJimpInst) => {
-    cbJimpInst.read('Test');
+    // $ExpectError
+    cbJimpInst.read("Test");
     cbJimpInst.displace(jimpInst, 2);
     cbJimpInst.resize(40, 40);
-    // $ExpectType 0
-    cbJimpInst.PNG_FILTER_NONE;
+    // $ExpectType number
+    cbJimpInst._filterType;
 
     // $ExpectError
     cbJimpInst.test;
@@ -86,17 +90,4 @@ test('Can handle callback with constructor', () => {
     // $ExpectError
     cbJimpInst.func();
   });
-})
-
-test('Can handle appendConstructorOption', () => {
-  Jimp.appendConstructorOption(
-    'Name of Option',
-    args => args.hasSomeCustomThing,
-    function(resolve, reject, args) {
-      // $ExpectError
-      this.bitmap = 3;
-      Jimp.resize(2, 2);
-      resolve();
-    }
-  );
 });

@@ -1,43 +1,51 @@
-import { Jimp, mkJGD } from '@jimp/test-utils';
+import { Jimp, mkJGD } from "@jimp/test-utils";
+import { expectToBeJGD } from "@jimp/test-utils/src";
 
-describe('Scan (pixel matrix modification)', () => {
-  const barsJGD = mkJGD('▴▴▸▸▾▾◆◆', '▴▴▸▸▾▾◆◆', '▵▵▹▹▿▿◇◇');
+describe("Scan (pixel matrix modification)", () => {
+  const barsJGD = mkJGD("▴▴▸▸▾▾◆◆", "▴▴▸▸▾▾◆◆", "▵▵▹▹▿▿◇◇");
 
-  it('draw bars with scan', async () => {
+  it("draw bars with scan", async () => {
     const image = await Jimp.create(8, 3);
 
-    image
-      .scan(0, 0, image.bitmap.width, image.bitmap.height, function(x, y, idx) {
-        const color = [
-          [0xff, 0x00, 0x00],
-          [0x00, 0xff, 0x00],
-          [0x00, 0x00, 0xff],
-          [0xff, 0xff, 0x00]
-        ][Math.floor(x / (this.bitmap.width / 4))];
+    const modifiedImage = image
+      .scan(
+        0,
+        0,
+        image.bitmap.width,
+        image.bitmap.height,
+        function (x, y, idx) {
+          const color = [
+            [0xff, 0x00, 0x00],
+            [0x00, 0xff, 0x00],
+            [0x00, 0x00, 0xff],
+            [0xff, 0xff, 0x00],
+          ][Math.floor(x / (this.bitmap.width / 4))];
 
-        this.bitmap.data[idx] = color[0];
-        this.bitmap.data[idx + 1] = color[1];
-        this.bitmap.data[idx + 2] = color[2];
-        this.bitmap.data[idx + 3] = y === 2 ? 0x7f : 0xff;
-      })
-      .getJGDSync()
-      .should.be.sameJGD(barsJGD, 'Color bars');
+          this.bitmap.data[idx] = color[0];
+          this.bitmap.data[idx + 1] = color[1];
+          this.bitmap.data[idx + 2] = color[2];
+          this.bitmap.data[idx + 3] = y === 2 ? 0x7f : 0xff;
+        }
+      )
+      .getJGDSync();
+
+    expectToBeJGD(modifiedImage, barsJGD);
   });
 
-  it('draw bars with iterate scan', async () => {
-    const image = await Jimp.create(8, 3);
+  it("draw bars with iterate scan", async () => {
+    const j = await Jimp.create(8, 3);
 
-    for (const { x, y, idx, image } of image.scanIterator(
+    for (const { x, y, idx, image } of j.scanIterator(
       0,
       0,
-      image.bitmap.width,
-      image.bitmap.height
+      j.bitmap.width,
+      j.bitmap.height
     )) {
       const color = [
         [0xff, 0x00, 0x00],
         [0x00, 0xff, 0x00],
         [0x00, 0x00, 0xff],
-        [0xff, 0xff, 0x00]
+        [0xff, 0xff, 0x00],
       ][Math.floor(x / (image.bitmap.width / 4))];
 
       image.bitmap.data[idx] = color[0];
@@ -46,10 +54,10 @@ describe('Scan (pixel matrix modification)', () => {
       image.bitmap.data[idx + 3] = y === 2 ? 0x7f : 0xff;
     }
 
-    image.getJGDSync().should.be.sameJGD(barsJGD, 'Color bars');
+    expectToBeJGD(j.getJGDSync(), barsJGD);
   });
 
-  it('draw bars with (get|set)PixelColor', async () => {
+  it("draw bars with (get|set)PixelColor", async () => {
     const image = await Jimp.read(barsJGD);
 
     for (let x = 0; x < image.bitmap.width; x++) {
@@ -61,22 +69,15 @@ describe('Scan (pixel matrix modification)', () => {
       }
     }
 
-    image
-      .getJGDSync()
-      .should.be.sameJGD(
-        mkJGD('▾▾▴▴▸▸▰▰', '▾▾▴▴▸▸▰▰', '▿▿▵▵▹▹▱▱'),
-        'Replaced color bars'
-      );
+    expectToBeJGD(
+      image.getJGDSync(),
+      mkJGD("▾▾▴▴▸▸▰▰", "▾▾▴▴▸▸▰▰", "▿▿▵▵▹▹▱▱")
+    );
   });
 
-  it('create a image with plain color', async () => {
+  it("create a image with plain color", async () => {
     const image = await Jimp.create(6, 3, 0xff0000ff);
 
-    image
-      .getJGDSync()
-      .should.be.sameJGD(
-        mkJGD('▴▴▴▴▴▴', '▴▴▴▴▴▴', '▴▴▴▴▴▴'),
-        'A pure red image'
-      );
+    expectToBeJGD(image.getJGDSync(), mkJGD("▴▴▴▴▴▴", "▴▴▴▴▴▴", "▴▴▴▴▴▴"));
   });
 });

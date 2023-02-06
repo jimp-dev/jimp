@@ -1,17 +1,11 @@
 {
   "name": "jimp",
-  "version": "0.16.1",
+  "version": "0.22.1",
   "description": "An image processing library written entirely in JavaScript (i.e. zero external or native dependencies)",
   "main": "dist/index.js",
   "module": "es/index.js",
   "types": "types/index.d.ts",
-  "typesVersions": {
-    ">=3.1.0-0": {
-      "*": [
-        "types/ts3.1/index.d.ts"
-      ]
-    }
-  },
+  "browser": "browser/lib/jimp.js",
   "tonicExampleFilename": "example.js",
   "files": [
     "browser",
@@ -21,18 +15,11 @@
     "fonts",
     "types"
   ],
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/oliver-moran/jimp.git"
-  },
-  "bugs": {
-    "url": "https://github.com/oliver-moran/jimp/issues"
-  },
+  "repository": "jimp-dev/jimp",
   "scripts": {
-    "test": "cross-env BABEL_ENV=test mocha --require @babel/register",
+    "test": "cross-env BABEL_ENV=test mocha --require @babel/register --recursive test --extension js",
     "test:watch": "npm run test -- --reporter min --watch",
     "test:coverage": "nyc npm run test",
-    "browser-build": "node tools/browser-build.js test",
     "build": "npm run build:browser && npm run build:node:production && npm run build:module",
     "build:watch": "npm run build:node:debug -- -- --watch --verbose",
     "build:debug": "npm run build:browser:debug && npm run build:node:debug",
@@ -40,8 +27,8 @@
     "build:node": "babel src -d dist --source-maps --config-file ../../babel.config.js",
     "build:node:debug": "cross-env BABEL_ENV=development npm run build:node",
     "build:node:production": "cross-env BABEL_ENV=production npm run build:node",
-    "build:browser": "cross-env BABEL_ENV=production node tools/browser-build.js prepublish",
-    "build:browser:debug": "cross-env BABEL_ENV=development ENV=browser node tools/browser-build.js prepublish"
+    "build:browser": "cross-env NODE_ENV=production webpack",
+    "build:browser:debug": "cross-env NODE_ENV=development ENV=browser webpack"
   },
   "keywords": [
     "image",
@@ -58,50 +45,18 @@
   "author": "Oliver Moran <oliver.moran@gmail.com>",
   "license": "MIT",
   "dependencies": {
-    "@babel/runtime": "^7.7.2",
     "@jimp/custom": "link:../custom",
     "@jimp/plugins": "link:../plugins",
     "@jimp/types": "link:../types",
     "regenerator-runtime": "^0.13.3"
   },
   "devDependencies": {
-    "@babel/cli": "^7.7.0",
-    "@babel/core": "^7.7.2",
-    "@babel/plugin-proposal-class-properties": "^7.7.0",
-    "@babel/plugin-syntax-object-rest-spread": "^7.2.0",
-    "@babel/preset-env": "^7.7.1",
-    "@babel/register": "^7.7.0",
     "@jimp/test-utils": "link:../test-utils",
-    "babel-eslint": "^10.0.3",
-    "babel-plugin-add-module-exports": "^1.0.2",
-    "babel-plugin-istanbul": "^5.2.0",
-    "babel-plugin-source-map-support": "^2.1.1",
-    "babelify": "^10.0.0",
-    "browserify": "^16.5.0",
-    "cross-env": "^6.0.0",
-    "dtslint": "^0.9.8",
-    "envify": "^4.1.0",
-    "eslint": "^6.4.0",
-    "eslint-plugin-prettier": "^3.1.1",
     "express": "^4.17.1",
-    "husky": "^3.0.5",
-    "karma": "^4.3.0",
-    "karma-browserify": "^6.1.0",
-    "karma-chrome-launcher": "^3.1.0",
-    "karma-firefox-launcher": "^1.2.0",
-    "lerna": "^3.16.4",
-    "lerna-changelog": "^0.8.2",
-    "lint-staged": "^9.2.5",
-    "mocha": "^6.2.0",
-    "nyc": "^14.1.1",
-    "prettier": "^1.18.2",
-    "source-map-support": "^0.5.13",
-    "tfilter": "^1.0.1",
-    "uglify-js": "^3.6.0",
-    "watchify": "^3.11.1",
-    "xo": "^0.24.0"
+    "path-browserify": "^1.0.1",
+    "webpack": "^5.75.0",
+    "webpack-cli": "^5.0.1"
   },
-  "xo": false,
   "nyc": {
     "sourceMap": false,
     "instrument": false,

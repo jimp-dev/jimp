@@ -15,12 +15,12 @@ Apply multiple color modification rules
 - @param {function(Error, Jimp)} cb (optional) a callback for when complete
 
 ```js
-import jimp from 'jimp';
+import jimp from "jimp";
 
 async function main() {
-  const image = await jimp.read('test/image.png');
+  const image = await jimp.read("test/image.png");
 
-  image.color([{ apply: 'red', params: [100] }]);
+  image.color([{ apply: "red", params: [100] }]);
 }
 
 main();
@@ -30,9 +30,9 @@ Jimp supports advanced colour manipulation using a single method as follows:
 
 ```js
 image.color([
-  { apply: 'hue', params: [-90] },
-  { apply: 'lighten', params: [50] },
-  { apply: 'xor', params: ['#06D'] }
+  { apply: "hue", params: [-90] },
+  { apply: "lighten", params: [50] },
+  { apply: "xor", params: ["#06D"] },
 ]);
 ```
 
@@ -64,10 +64,10 @@ Adjusts the brightness of the image
 - @param {function(Error, Jimp)} cb (optional) a callback for when complete
 
 ```js
-import jimp from 'jimp';
+import jimp from "jimp";
 
 async function main() {
-  const image = await jimp.read('test/image.png');
+  const image = await jimp.read("test/image.png");
 
   image.brightness(20);
 }
@@ -83,10 +83,10 @@ Adjusts the contrast of the image
 - @param {function(Error, Jimp)} cb (optional) a callback for when complete
 
 ```js
-import jimp from 'jimp';
+import jimp from "jimp";
 
 async function main() {
-  const image = await jimp.read('test/image.png');
+  const image = await jimp.read("test/image.png");
 
   image.contrast(70);
 }
@@ -102,10 +102,10 @@ Apply a posterize effect
 - @param {function(Error, Jimp)} cb (optional) a callback for when complete
 
 ```js
-import jimp from 'jimp';
+import jimp from "jimp";
 
 async function main() {
-  const image = await jimp.read('test/image.png');
+  const image = await jimp.read("test/image.png");
 
   image.posterize(5);
 }
@@ -121,10 +121,10 @@ Multiplies the opacity of each pixel by a factor between 0 and 1
 - @param {function(Error, Jimp)} cb (optional) a callback for when complete
 
 ```js
-import jimp from 'jimp';
+import jimp from "jimp";
 
 async function main() {
-  const image = await jimp.read('test/image.png');
+  const image = await jimp.read("test/image.png");
 
   image.opacity(80);
 }
@@ -139,10 +139,10 @@ Applies a sepia tone to the image
 - @param {function(Error, Jimp)} cb (optional) a callback for when complete
 
 ```js
-import jimp from 'jimp';
+import jimp from "jimp";
 
 async function main() {
-  const image = await jimp.read('test/image.png');
+  const image = await jimp.read("test/image.png");
 
   image.sepia();
 }
@@ -158,10 +158,10 @@ Fades each pixel by a factor between 0 and 1
 - @param {function(Error, Jimp)} cb (optional) a callback for when complete
 
 ```js
-import jimp from 'jimp';
+import jimp from "jimp";
 
 async function main() {
-  const image = await jimp.read('test/image.png');
+  const image = await jimp.read("test/image.png");
 
   image.fade(0.7);
 }
@@ -174,17 +174,23 @@ main();
 Sum neighbor pixels weighted by the kernel matrix. You can find a nice explanation with examples at [GIMP's Convolution Matrix plugin](https://docs.gimp.org/2.6/en/plug-in-convmatrix.html)
 
 - @param {array} kernel a matrix to weight the neighbors sum
-- @param {string} edgeHandling (optional) define how to sum pixels from outside the border
+- @param {number} edgeHandling (optional) define how to sum pixels from outside the border
 - @param {function(Error, Jimp)} cb (optional) a callback for when complete
 
 ```js
-import jimp from 'jimp';
+import jimp from "jimp";
 
 async function main() {
-  const image = await jimp.read('test/image.png');
+  const image = await jimp.read("test/image.png");
 
-  // make me better
-  image.convolution(weights);
+  image.convolution(
+    [
+      [-1, -1, -1],
+      [-1, 8, -1],
+      [-1, -1, -1],
+    ],
+    jimp.EDGE_EXTEND
+  );
 }
 
 main();
@@ -197,10 +203,10 @@ Set the alpha channel on every pixel to fully opaque
 - @param {function(Error, Jimp)} cb (optional) a callback for when complete
 
 ```js
-import jimp from 'jimp';
+import jimp from "jimp";
 
 async function main() {
-  const image = await jimp.read('test/image.png');
+  const image = await jimp.read("test/image.png");
 
   image.opaque();
 }
@@ -220,10 +226,10 @@ Pixelates the image or a region
 - @param {function(Error, Jimp)} cb (optional) a callback for when complete
 
 ```js
-import jimp from 'jimp';
+import jimp from "jimp";
 
 async function main() {
-  const image = await jimp.read('test/image.png');
+  const image = await jimp.read("test/image.png");
 
   image.pixelate(10);
 }
@@ -243,10 +249,10 @@ Applies a convolution kernel to the image or a region
 - @param {function(Error, Jimp)} cb (optional) a callback for when complete
 
 ```js
-import jimp from 'jimp';
+import jimp from "jimp";
 
 async function main() {
-  const image = await jimp.read('test/image.png');
+  const image = await jimp.read("test/image.png");
 
   // make me better
   image.pixelate(kernal);

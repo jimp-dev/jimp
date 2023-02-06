@@ -1,33 +1,34 @@
-import fs from 'fs';
-import Path from 'path';
-import EventEmitter from 'events';
+import fs from "fs";
+import Path from "path";
+import EventEmitter from "events";
 
-import { isNodePattern, throwError, scan, scanIterator } from '@jimp/utils';
-import anyBase from 'any-base';
-import mkdirp from 'mkdirp';
-import pixelMatch from 'pixelmatch';
-import tinyColor from 'tinycolor2';
+import { isNodePattern, throwError, scan, scanIterator } from "@jimp/utils";
+import anyBase from "any-base";
+import mkdirp from "mkdirp";
+import pixelMatch from "pixelmatch";
+import tinyColor from "tinycolor2";
 
-import ImagePHash from './modules/phash';
-import request from './request';
+import ImagePHash from "./modules/phash";
+import request from "./request";
 
-import composite from './composite';
-import promisify from './utils/promisify';
-import * as MIME from './utils/mime';
-import { parseBitmap, getBuffer, getBufferAsync } from './utils/image-bitmap';
-import * as constants from './constants';
+import composite from "./composite";
+import promisify from "./utils/promisify";
+import * as MIME from "./utils/mime";
+import { parseBitmap, getBuffer, getBufferAsync } from "./utils/image-bitmap";
+import * as constants from "./constants";
 
 const alphabet =
-  '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ$_';
+  "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ$_";
 
 // an array storing the maximum string length of hashes at various bases
 // 0 and 1 do not exist as possible hash lengths
 const maxHashLength = [NaN, NaN];
 
 for (let i = 2; i < 65; i++) {
-  const maxHash = anyBase(anyBase.BIN, alphabet.slice(0, i))(
-    new Array(64 + 1).join('1')
-  );
+  const maxHash = anyBase(
+    anyBase.BIN,
+    alphabet.slice(0, i)
+  )(new Array(64 + 1).join("1"));
   maxHashLength.push(maxHash.length);
 }
 
@@ -38,10 +39,8 @@ function noop() {}
 
 function isArrayBuffer(test) {
   return (
-    Object.prototype.toString
-      .call(test)
-      .toLowerCase()
-      .indexOf('arraybuffer') > -1
+    Object.prototype.toString.call(test).toLowerCase().indexOf("arraybuffer") >
+    -1
   );
 }
 
@@ -59,36 +58,27 @@ function bufferFromArrayBuffer(arrayBuffer) {
 }
 
 function loadFromURL(options, cb) {
-  request(options, (err, response, data) => {
+  request(options, (err, data) => {
     if (err) {
       return cb(err);
     }
 
-    if ('headers' in response && 'location' in response.headers) {
-      options.url = response.headers.location;
-      return loadFromURL(options, cb);
-    }
-
-    if (typeof data === 'object' && Buffer.isBuffer(data)) {
+    if (typeof data === "object" && Buffer.isBuffer(data)) {
       return cb(null, data);
     }
 
-    const msg =
-      'Could not load Buffer from <' +
-      options.url +
-      '> ' +
-      '(HTTP: ' +
-      response.statusCode +
-      ')';
+    if (typeof data === "object" && isArrayBuffer(data)) {
+      return cb(null, bufferFromArrayBuffer(data));
+    }
 
-    return new Error(msg);
+    return new Error(`Could not load Buffer from <${options.url}>`);
   });
 }
 
 function loadBufferFromPath(src, cb) {
   if (
     fs &&
-    typeof fs.readFile === 'function' &&
+    typeof fs.readFile === "function" &&
     !src.match(/^(http|ftp)s?:\/\/./)
   ) {
     fs.readFile(src, cb);
@@ -100,12 +90,12 @@ function loadBufferFromPath(src, cb) {
 function isRawRGBAData(obj) {
   return (
     obj &&
-    typeof obj === 'object' &&
-    typeof obj.width === 'number' &&
-    typeof obj.height === 'number' &&
+    typeof obj === "object" &&
+    typeof obj.width === "number" &&
+    typeof obj.height === "number" &&
     (Buffer.isBuffer(obj.data) ||
       obj.data instanceof Uint8Array ||
-      (typeof Uint8ClampedArray === 'function' &&
+      (typeof Uint8ClampedArray === "function" &&
         obj.data instanceof Uint8ClampedArray)) &&
     (obj.data.length === obj.width * obj.height * 4 ||
       obj.data.length === obj.width * obj.height * 3)
@@ -114,7 +104,7 @@ function isRawRGBAData(obj) {
 
 function makeRGBABufferFromRGB(buffer) {
   if (buffer.length % 3 !== 0) {
-    throw new Error('Buffer length is incorrect');
+    throw new Error("Buffer length is incorrect");
   }
 
   const rgbaBuffer = Buffer.allocUnsafe((buffer.length / 3) * 4);
@@ -136,7 +126,7 @@ function makeRGBABufferFromRGB(buffer) {
 const emptyBitmap = {
   data: null,
   width: null,
-  height: null
+  height: null,
 };
 
 /**
@@ -210,14 +200,14 @@ class Jimp extends EventEmitter {
     function finish(...args) {
       const [err] = args;
       const evData = err || {};
-      evData.methodName = 'constructor';
+      evData.methodName = "constructor";
 
       setTimeout(() => {
         // run on next tick.
         if (err && cb === noop) {
-          jimpInstance.emitError('constructor', err);
+          jimpInstance.emitError("constructor", err);
         } else if (!err) {
-          jimpInstance.emitMulti('constructor', 'initialized');
+          jimpInstance.emitMulti("constructor", "initialized");
         }
 
         cb.call(jimpInstance, ...args);
@@ -225,7 +215,7 @@ class Jimp extends EventEmitter {
     }
 
     if (
-      (typeof args[0] === 'number' && typeof args[1] === 'number') ||
+      (typeof args[0] === "number" && typeof args[1] === "number") ||
       (parseInt(args[0], 10) && parseInt(args[1], 10))
     ) {
       // create a new image
@@ -234,29 +224,29 @@ class Jimp extends EventEmitter {
       cb = args[2];
 
       // with a hex color
-      if (typeof args[2] === 'number') {
+      if (typeof args[2] === "number") {
         this._background = args[2];
         cb = args[3];
       }
 
       // with a css color
-      if (typeof args[2] === 'string') {
+      if (typeof args[2] === "string") {
         this._background = Jimp.cssColorToHex(args[2]);
         cb = args[3];
       }
 
-      if (typeof cb === 'undefined') {
+      if (typeof cb === "undefined") {
         cb = noop;
       }
 
-      if (typeof cb !== 'function') {
-        return throwError.call(this, 'cb must be a function', finish);
+      if (typeof cb !== "function") {
+        return throwError.call(this, "cb must be a function", finish);
       }
 
       this.bitmap = {
         data: Buffer.alloc(w * h * 4),
         width: w,
-        height: h
+        height: h,
       };
 
       for (let i = 0; i < this.bitmap.data.length; i += 4) {
@@ -264,11 +254,11 @@ class Jimp extends EventEmitter {
       }
 
       finish(null, this);
-    } else if (typeof args[0] === 'object' && args[0].url) {
+    } else if (typeof args[0] === "object" && args[0].url) {
       cb = args[1] || noop;
 
-      if (typeof cb !== 'function') {
-        return throwError.call(this, 'cb must be a function', finish);
+      if (typeof cb !== "function") {
+        return throwError.call(this, "cb must be a function", finish);
       }
 
       loadFromURL(args[0], (err, data) => {
@@ -283,18 +273,18 @@ class Jimp extends EventEmitter {
       const [original] = args;
       cb = args[1];
 
-      if (typeof cb === 'undefined') {
+      if (typeof cb === "undefined") {
         cb = noop;
       }
 
-      if (typeof cb !== 'function') {
-        return throwError.call(this, 'cb must be a function', finish);
+      if (typeof cb !== "function") {
+        return throwError.call(this, "cb must be a function", finish);
       }
 
       this.bitmap = {
         data: Buffer.from(original.bitmap.data),
         width: original.bitmap.width,
-        height: original.bitmap.height
+        height: original.bitmap.height,
       };
 
       this._quality = original._quality;
@@ -319,21 +309,21 @@ class Jimp extends EventEmitter {
       this.bitmap = {
         data: buffer,
         width: imageData.width,
-        height: imageData.height
+        height: imageData.height,
       };
 
       finish(null, this);
-    } else if (typeof args[0] === 'string') {
+    } else if (typeof args[0] === "string") {
       // read from a path
       const path = args[0];
       cb = args[1];
 
-      if (typeof cb === 'undefined') {
+      if (typeof cb === "undefined") {
         cb = noop;
       }
 
-      if (typeof cb !== 'function') {
-        return throwError.call(this, 'cb must be a function', finish);
+      if (typeof cb !== "function") {
+        return throwError.call(this, "cb must be a function", finish);
       }
 
       loadBufferFromPath(path, (err, data) => {
@@ -343,13 +333,13 @@ class Jimp extends EventEmitter {
 
         this.parseBitmap(data, path, finish);
       });
-    } else if (typeof args[0] === 'object' && Buffer.isBuffer(args[0])) {
+    } else if (typeof args[0] === "object" && Buffer.isBuffer(args[0])) {
       // read from a buffer
       const data = args[0];
       cb = args[1];
 
-      if (typeof cb !== 'function') {
-        return throwError.call(this, 'cb must be a function', finish);
+      if (typeof cb !== "function") {
+        return throwError.call(this, "cb must be a function", finish);
       }
 
       this.parseBitmap(data, null, finish);
@@ -358,30 +348,30 @@ class Jimp extends EventEmitter {
       // Extra constructors must be added by `Jimp.appendConstructorOption()`
       cb = args[args.length - 1];
 
-      if (typeof cb !== 'function') {
+      if (typeof cb !== "function") {
         // TODO: try to solve the args after cb problem.
         cb = args[args.length - 2];
 
-        if (typeof cb !== 'function') {
+        if (typeof cb !== "function") {
           cb = noop;
         }
       }
 
-      const extraConstructor = Jimp.__extraConstructors.find(c =>
+      const extraConstructor = Jimp.__extraConstructors.find((c) =>
         c.test(...args)
       );
 
       if (extraConstructor) {
-        new Promise((resolve, reject) =>
-          extraConstructor.run.call(this, resolve, reject, ...args)
-        )
+        new Promise((resolve, reject) => {
+          extraConstructor.run.call(this, resolve, reject, ...args);
+        })
           .then(() => finish(null, this))
           .catch(finish);
       } else {
         return throwError.call(
           this,
-          'No matching constructor overloading was found. ' +
-            'Please see the docs for how to call the Jimp constructor.',
+          "No matching constructor overloading was found. " +
+            "Please see the docs for how to call the Jimp constructor.",
           finish
         );
       }
@@ -407,10 +397,10 @@ class Jimp extends EventEmitter {
    * @returns {Jimp} this for chaining of methods
    */
   rgba(bool, cb) {
-    if (typeof bool !== 'boolean') {
+    if (typeof bool !== "boolean") {
       return throwError.call(
         this,
-        'bool must be a boolean, true for RGBA or false for RGB',
+        "bool must be a boolean, true for RGBA or false for RGB",
         cb
       );
     }
@@ -432,7 +422,7 @@ class Jimp extends EventEmitter {
    */
   emitMulti(methodName, eventName, data = {}) {
     data = Object.assign(data, { methodName, eventName });
-    this.emit('any', data);
+    this.emit("any", data);
 
     if (methodName) {
       this.emit(methodName, data);
@@ -442,7 +432,7 @@ class Jimp extends EventEmitter {
   }
 
   emitError(methodName, err) {
-    this.emitMulti(methodName, 'error', err);
+    this.emitMulti(methodName, "error", err);
   }
 
   /**
@@ -467,11 +457,11 @@ class Jimp extends EventEmitter {
    */
   inspect() {
     return (
-      '<Jimp ' +
+      "<Jimp " +
       (this.bitmap === emptyBitmap
-        ? 'pending...'
-        : this.bitmap.width + 'x' + this.bitmap.height) +
-      '>'
+        ? "pending..."
+        : this.bitmap.width + "x" + this.bitmap.height) +
+      ">"
     );
   }
 
@@ -480,7 +470,7 @@ class Jimp extends EventEmitter {
    * @returns {string} pretty printed
    */
   toString() {
-    return '[object Jimp]';
+    return "[object Jimp]";
   }
 
   /**
@@ -512,20 +502,20 @@ class Jimp extends EventEmitter {
   write(path, cb) {
     if (!fs || !fs.createWriteStream) {
       throw new Error(
-        'Cant access the filesystem. You can use the getBase64 method.'
+        "Cant access the filesystem. You can use the getBase64 method."
       );
     }
 
-    if (typeof path !== 'string') {
-      return throwError.call(this, 'path must be a string', cb);
+    if (typeof path !== "string") {
+      return throwError.call(this, "path must be a string", cb);
     }
 
-    if (typeof cb === 'undefined') {
+    if (typeof cb === "undefined") {
       cb = noop;
     }
 
-    if (typeof cb !== 'function') {
-      return throwError.call(this, 'cb must be a function', cb);
+    if (typeof cb !== "function") {
+      return throwError.call(this, "cb must be a function", cb);
     }
 
     const mime = MIME.getType(path) || this.getMIME();
@@ -543,14 +533,14 @@ class Jimp extends EventEmitter {
       const stream = fs.createWriteStream(path);
 
       stream
-        .on('open', () => {
+        .on("open", () => {
           stream.write(buffer);
           stream.end();
         })
-        .on('error', err => {
+        .on("error", (err) => {
           return throwError.call(this, err, cb);
         });
-      stream.on('finish', () => {
+      stream.on("finish", () => {
         cb.call(this, null, this);
       });
     });
@@ -558,7 +548,7 @@ class Jimp extends EventEmitter {
     return this;
   }
 
-  writeAsync = path => promisify(this.write, this, path);
+  writeAsync = (path) => promisify(this.write, this, path);
 
   /**
    * Converts the image to a base 64 string
@@ -572,27 +562,27 @@ class Jimp extends EventEmitter {
       mime = this.getMIME();
     }
 
-    if (typeof mime !== 'string') {
-      return throwError.call(this, 'mime must be a string', cb);
+    if (typeof mime !== "string") {
+      return throwError.call(this, "mime must be a string", cb);
     }
 
-    if (typeof cb !== 'function') {
-      return throwError.call(this, 'cb must be a function', cb);
+    if (typeof cb !== "function") {
+      return throwError.call(this, "cb must be a function", cb);
     }
 
-    this.getBuffer(mime, function(err, data) {
+    this.getBuffer(mime, function (err, data) {
       if (err) {
         return throwError.call(this, err, cb);
       }
 
-      const src = 'data:' + mime + ';base64,' + data.toString('base64');
+      const src = "data:" + mime + ";base64," + data.toString("base64");
       cb.call(this, null, src);
     });
 
     return this;
   }
 
-  getBase64Async = mime => promisify(this.getBase64, this, mime);
+  getBase64Async = (mime) => promisify(this.getBase64, this, mime);
 
   /**
    * Generates a perceptual hash of the image <https://en.wikipedia.org/wiki/Perceptual_hashing>. And pads the string. Can configure base.
@@ -603,19 +593,19 @@ class Jimp extends EventEmitter {
   hash(base, cb) {
     base = base || 64;
 
-    if (typeof base === 'function') {
+    if (typeof base === "function") {
       cb = base;
       base = 64;
     }
 
-    if (typeof base !== 'number') {
-      return throwError.call(this, 'base must be a number', cb);
+    if (typeof base !== "number") {
+      return throwError.call(this, "base must be a number", cb);
     }
 
     if (base < 2 || base > 64) {
       return throwError.call(
         this,
-        'base must be a number between 2 and 64',
+        "base must be a number between 2 and 64",
         cb
       );
     }
@@ -624,7 +614,7 @@ class Jimp extends EventEmitter {
     hash = anyBase(anyBase.BIN, alphabet.slice(0, base))(hash);
 
     while (hash.length < maxHashLength[base]) {
-      hash = '0' + hash; // pad out with leading zeros
+      hash = "0" + hash; // pad out with leading zeros
     }
 
     if (isNodePattern(cb)) {
@@ -669,7 +659,7 @@ class Jimp extends EventEmitter {
    * Returns the offset of a pixel in the bitmap buffer
    * @param {number} x the x coordinate
    * @param {number} y the y coordinate
-   * @param {string} edgeHandling (optional) define how to sum pixels from outside the border
+   * @param {number} edgeHandling (optional) define how to sum pixels from outside the border
    * @param {number} cb (optional) a callback for when complete
    * @returns {number} the index of the pixel or -1 if not found
    */
@@ -677,7 +667,7 @@ class Jimp extends EventEmitter {
     let xi;
     let yi;
 
-    if (typeof edgeHandling === 'function' && typeof cb === 'undefined') {
+    if (typeof edgeHandling === "function" && typeof cb === "undefined") {
       cb = edgeHandling;
       edgeHandling = null;
     }
@@ -686,8 +676,8 @@ class Jimp extends EventEmitter {
       edgeHandling = Jimp.EDGE_EXTEND;
     }
 
-    if (typeof x !== 'number' || typeof y !== 'number') {
-      return throwError.call(this, 'x and y must be numbers', cb);
+    if (typeof x !== "number" || typeof y !== "number") {
+      return throwError.call(this, "x and y must be numbers", cb);
     }
 
     // round input
@@ -713,7 +703,7 @@ class Jimp extends EventEmitter {
       }
 
       if (y < 0) {
-        xi = this.bitmap.height + y;
+        yi = this.bitmap.height + y;
       }
 
       if (y >= this.bitmap.height) {
@@ -747,8 +737,8 @@ class Jimp extends EventEmitter {
    * @returns {number} the color of the pixel
    */
   getPixelColor(x, y, cb) {
-    if (typeof x !== 'number' || typeof y !== 'number')
-      return throwError.call(this, 'x and y must be numbers', cb);
+    if (typeof x !== "number" || typeof y !== "number")
+      return throwError.call(this, "x and y must be numbers", cb);
 
     // round input
     x = Math.round(x);
@@ -776,11 +766,11 @@ class Jimp extends EventEmitter {
    */
   setPixelColor(hex, x, y, cb) {
     if (
-      typeof hex !== 'number' ||
-      typeof x !== 'number' ||
-      typeof y !== 'number'
+      typeof hex !== "number" ||
+      typeof x !== "number" ||
+      typeof y !== "number"
     )
-      return throwError.call(this, 'hex, x and y must be numbers', cb);
+      return throwError.call(this, "hex, x and y must be numbers", cb);
 
     // round input
     x = Math.round(x);
@@ -826,12 +816,12 @@ class Jimp extends EventEmitter {
    * @returns {IterableIterator<{x: number, y: number, idx: number, image: Jimp}>}
    */
   scanIterator(x, y, w, h) {
-    if (typeof x !== 'number' || typeof y !== 'number') {
-      return throwError.call(this, 'x and y must be numbers');
+    if (typeof x !== "number" || typeof y !== "number") {
+      return throwError.call(this, "x and y must be numbers");
     }
 
-    if (typeof w !== 'number' || typeof h !== 'number') {
-      return throwError.call(this, 'w and h must be numbers');
+    if (typeof w !== "number" || typeof h !== "number") {
+      return throwError.call(this, "w and h must be numbers");
     }
 
     return scanIterator(this, x, y, w, h);
@@ -861,7 +851,7 @@ Jimp.__extraConstructors = [];
  * @param {function} test a function that returns true when it accepts the arguments passed to the main constructor.
  * @param {function} run where the magic happens.
  */
-Jimp.appendConstructorOption = function(name, test, run) {
+Jimp.appendConstructorOption = function (name, test, run) {
   Jimp.__extraConstructors.push({ name, test, run });
 };
 
@@ -869,8 +859,9 @@ Jimp.appendConstructorOption = function(name, test, run) {
  * Read an image from a file or a Buffer. Takes the same args as the constructor
  * @returns {Promise} a promise
  */
-Jimp.read = function(...args) {
+Jimp.read = function (...args) {
   return new Promise((resolve, reject) => {
+    // eslint-disable-next-line no-new
     new Jimp(...args, (err, image) => {
       if (err) reject(err);
       else resolve(image);
@@ -889,30 +880,30 @@ Jimp.create = Jimp.read;
  * @param {function(Error, Jimp)} cb (optional) A callback for when complete
  * @returns {number} an single integer colour value
  */
-Jimp.rgbaToInt = function(r, g, b, a, cb) {
+Jimp.rgbaToInt = function (r, g, b, a, cb) {
   if (
-    typeof r !== 'number' ||
-    typeof g !== 'number' ||
-    typeof b !== 'number' ||
-    typeof a !== 'number'
+    typeof r !== "number" ||
+    typeof g !== "number" ||
+    typeof b !== "number" ||
+    typeof a !== "number"
   ) {
-    return throwError.call(this, 'r, g, b and a must be numbers', cb);
+    return throwError.call(this, "r, g, b and a must be numbers", cb);
   }
 
   if (r < 0 || r > 255) {
-    return throwError.call(this, 'r must be between 0 and 255', cb);
+    return throwError.call(this, "r must be between 0 and 255", cb);
   }
 
   if (g < 0 || g > 255) {
-    throwError.call(this, 'g must be between 0 and 255', cb);
+    throwError.call(this, "g must be between 0 and 255", cb);
   }
 
   if (b < 0 || b > 255) {
-    return throwError.call(this, 'b must be between 0 and 255', cb);
+    return throwError.call(this, "b must be between 0 and 255", cb);
   }
 
   if (a < 0 || a > 255) {
-    return throwError.call(this, 'a must be between 0 and 255', cb);
+    return throwError.call(this, "a must be between 0 and 255", cb);
   }
 
   r = Math.round(r);
@@ -939,9 +930,9 @@ Jimp.rgbaToInt = function(r, g, b, a, cb) {
  * @param {function(Error, Jimp)} cb (optional) A callback for when complete
  * @returns {object} an object with the properties r, g, b and a representing RGBA values
  */
-Jimp.intToRGBA = function(i, cb) {
-  if (typeof i !== 'number') {
-    return throwError.call(this, 'i must be a number', cb);
+Jimp.intToRGBA = function (i, cb) {
+  if (typeof i !== "number") {
+    return throwError.call(this, "i must be a number", cb);
   }
 
   const rgba = {};
@@ -972,10 +963,10 @@ Jimp.intToRGBA = function(i, cb) {
  * @param {string} cssColor a number
  * @returns {number} a hex number representing a color
  */
-Jimp.cssColorToHex = function(cssColor) {
+Jimp.cssColorToHex = function (cssColor) {
   cssColor = cssColor || 0; // 0, null, undefined, NaN
 
-  if (typeof cssColor === 'number') return Number(cssColor);
+  if (typeof cssColor === "number") return Number(cssColor);
 
   return parseInt(tinyColor(cssColor).toHex8(), 16);
 };
@@ -985,7 +976,7 @@ Jimp.cssColorToHex = function(cssColor) {
  * @param {number} n a number
  * @returns {number} the number limited to between 0 or 255
  */
-Jimp.limit255 = function(n) {
+Jimp.limit255 = function (n) {
   n = Math.max(n, 0);
   n = Math.min(n, 255);
 
@@ -999,9 +990,9 @@ Jimp.limit255 = function(n) {
  * @param {number} threshold (optional) a number, 0 to 1, the smaller the value the more sensitive the comparison (default: 0.1)
  * @returns {object} an object { percent: percent similar, diff: a Jimp image highlighting differences }
  */
-Jimp.diff = function(img1, img2, threshold = 0.1) {
+Jimp.diff = function (img1, img2, threshold = 0.1) {
   if (!(img1 instanceof Jimp) || !(img2 instanceof Jimp))
-    return throwError.call(this, 'img1 and img2 must be an Jimp images');
+    return throwError.call(this, "img1 and img2 must be an Jimp images");
 
   const bmp1 = img1.bitmap;
   const bmp2 = img2.bitmap;
@@ -1016,8 +1007,8 @@ Jimp.diff = function(img1, img2, threshold = 0.1) {
     }
   }
 
-  if (typeof threshold !== 'number' || threshold < 0 || threshold > 1) {
-    return throwError.call(this, 'threshold must be a number between 0 and 1');
+  if (typeof threshold !== "number" || threshold < 0 || threshold > 1) {
+    return throwError.call(this, "threshold must be a number between 0 and 1");
   }
 
   const diff = new Jimp(bmp1.width, bmp1.height, 0xffffffff);
@@ -1033,7 +1024,7 @@ Jimp.diff = function(img1, img2, threshold = 0.1) {
 
   return {
     percent: numDiffPixels / (diff.bitmap.width * diff.bitmap.height),
-    image: diff
+    image: diff,
   };
 };
 
@@ -1043,7 +1034,7 @@ Jimp.diff = function(img1, img2, threshold = 0.1) {
  * @param {Jimp} img2 a Jimp image to compare
  * @returns {number} a number ranging from 0 to 1, 0 means they are believed to be identical
  */
-Jimp.distance = function(img1, img2) {
+Jimp.distance = function (img1, img2) {
   const phash = new ImagePHash();
   const hash1 = phash.getHash(img1);
   const hash2 = phash.getHash(img2);
@@ -1057,7 +1048,7 @@ Jimp.distance = function(img1, img2) {
  * @param {hash} hash2 a pHash
  * @returns {number} a number ranging from 0 to 1, 0 means they are believed to be identical
  */
-Jimp.compareHashes = function(hash1, hash2) {
+Jimp.compareHashes = function (hash1, hash2) {
   const phash = new ImagePHash();
 
   return phash.distance(hash1, hash2);
@@ -1072,8 +1063,8 @@ Jimp.compareHashes = function(hash1, hash2) {
  * Where `a` is optional and `val` is an integer between 0 and 255.
  * @returns {number} float between 0 and 1.
  */
-Jimp.colorDiff = function(rgba1, rgba2) {
-  const pow = n => Math.pow(n, 2);
+Jimp.colorDiff = function (rgba1, rgba2) {
+  const pow = (n) => Math.pow(n, 2);
   const { max } = Math;
   const maxVal = 255 * 255 * 3;
 
@@ -1108,23 +1099,23 @@ Jimp.colorDiff = function(rgba1, rgba2) {
  * `methodName` as one attribute.
  */
 export function jimpEvMethod(methodName, evName, method) {
-  const evNameBefore = 'before-' + evName;
-  const evNameAfter = evName.replace(/e$/, '') + 'ed';
+  const evNameBefore = "before-" + evName;
+  const evNameAfter = evName.replace(/e$/, "") + "ed";
 
-  Jimp.prototype[methodName] = function(...args) {
+  Jimp.prototype[methodName] = function (...args) {
     let wrappedCb;
     const cb = args[method.length - 1];
     const jimpInstance = this;
 
-    if (typeof cb === 'function') {
-      wrappedCb = function(...args) {
+    if (typeof cb === "function") {
+      wrappedCb = function (...args) {
         const [err, data] = args;
 
         if (err) {
           jimpInstance.emitError(methodName, err);
         } else {
           jimpInstance.emitMulti(methodName, evNameAfter, {
-            [methodName]: data
+            [methodName]: data,
           });
         }
 
@@ -1145,7 +1136,7 @@ export function jimpEvMethod(methodName, evName, method) {
 
       if (!wrappedCb) {
         this.emitMulti(methodName, evNameAfter, {
-          [methodName]: result
+          [methodName]: result,
         });
       }
     } catch (error) {
@@ -1156,7 +1147,7 @@ export function jimpEvMethod(methodName, evName, method) {
     return result;
   };
 
-  Jimp.prototype[methodName + 'Quiet'] = method;
+  Jimp.prototype[methodName + "Quiet"] = method;
 }
 
 /**
@@ -1164,7 +1155,7 @@ export function jimpEvMethod(methodName, evName, method) {
  * @param {function(Error, Jimp)} cb (optional) A callback for when complete
  * @returns the new image
  */
-jimpEvMethod('clone', 'clone', function(cb) {
+jimpEvMethod("clone", "clone", function (cb) {
   const clone = new Jimp(this);
 
   if (isNodePattern(cb)) {
@@ -1180,7 +1171,7 @@ jimpEvMethod('clone', 'clone', function(cb) {
  * @param {function} method to watch changes for
  */
 export function jimpEvChange(methodName, method) {
-  jimpEvMethod(methodName, 'change', method);
+  jimpEvMethod(methodName, "change", method);
 }
 
 /**
@@ -1189,9 +1180,9 @@ export function jimpEvChange(methodName, method) {
  * @param {function(Error, Jimp)} cb (optional) a callback for when complete
  * @returns {Jimp} this for chaining of methods
  */
-jimpEvChange('background', function(hex, cb) {
-  if (typeof hex !== 'number') {
-    return throwError.call(this, 'hex must be a hexadecimal rgba value', cb);
+jimpEvChange("background", function (hex, cb) {
+  if (typeof hex !== "number") {
+    return throwError.call(this, "hex must be a hexadecimal rgba value", cb);
   }
 
   this._background = hex;
@@ -1214,17 +1205,17 @@ jimpEvChange('background', function(hex, cb) {
  * @param {function(Error, Jimp)} cb (optional) a callback for when complete
  * @returns {Jimp} this for chaining of methods
  */
-jimpEvChange('scan', function(x, y, w, h, f, cb) {
-  if (typeof x !== 'number' || typeof y !== 'number') {
-    return throwError.call(this, 'x and y must be numbers', cb);
+jimpEvChange("scan", function (x, y, w, h, f, cb) {
+  if (typeof x !== "number" || typeof y !== "number") {
+    return throwError.call(this, "x and y must be numbers", cb);
   }
 
-  if (typeof w !== 'number' || typeof h !== 'number') {
-    return throwError.call(this, 'w and h must be numbers', cb);
+  if (typeof w !== "number" || typeof h !== "number") {
+    return throwError.call(this, "w and h must be numbers", cb);
   }
 
-  if (typeof f !== 'function') {
-    return throwError.call(this, 'f must be a function', cb);
+  if (typeof f !== "function") {
+    return throwError.call(this, "f must be a function", cb);
   }
 
   const result = scan(this, x, y, w, h, f);
@@ -1236,16 +1227,16 @@ jimpEvChange('scan', function(x, y, w, h, f, cb) {
   return result;
 });
 
-if (process.env.ENVIRONMENT === 'BROWSER') {
+if (process.env.ENVIRONMENT === "BROWSER") {
   // For use in a web browser or web worker
   /* global self */
   let gl;
 
-  if (typeof window !== 'undefined' && typeof window === 'object') {
+  if (typeof window !== "undefined" && typeof window === "object") {
     gl = window;
   }
 
-  if (typeof self !== 'undefined' && typeof self === 'object') {
+  if (typeof self !== "undefined" && typeof self === "object") {
     gl = self;
   }
 
@@ -1253,6 +1244,6 @@ if (process.env.ENVIRONMENT === 'BROWSER') {
   gl.Buffer = Buffer;
 }
 
-export { addType } from './utils/mime';
+export { addType } from "./utils/mime";
 
 export default Jimp;

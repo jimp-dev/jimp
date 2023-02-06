@@ -26,31 +26,31 @@ Supported types:
 Example usage (Promise will never resolve if callback is passed):
 
 ```js
-var Jimp = require('jimp');
+var Jimp = require("jimp");
 
 // open a file called "lenna.png"
-Jimp.read('lenna.png', (err, lenna) => {
+Jimp.read("lenna.png", (err, lenna) => {
   if (err) throw err;
   lenna
     .resize(256, 256) // resize
     .quality(60) // set JPEG quality
     .greyscale() // set greyscale
-    .write('lena-small-bw.jpg'); // save
+    .write("lena-small-bw.jpg"); // save
 });
 ```
 
 Using promises:
 
 ```js
-Jimp.read('lenna.png')
-  .then(lenna => {
+Jimp.read("lenna.png")
+  .then((lenna) => {
     return lenna
       .resize(256, 256) // resize
       .quality(60) // set JPEG quality
       .greyscale() // set greyscale
-      .write('lena-small-bw.jpg'); // save
+      .write("lena-small-bw.jpg"); // save
   })
-  .catch(err => {
+  .catch((err) => {
     console.error(err);
   });
 ```
@@ -60,7 +60,7 @@ Jimp.read('lenna.png')
 If you're using this library with TypeScript the method of importing slightly differs from JavaScript. Instead of using require, you must import it with ES6 default import scheme
 
 ```ts
-import Jimp from 'jimp';
+import Jimp from "jimp";
 ```
 
 This requires setting the `allowSyntheticDefaultImports` compiler option to `true` in your `tsconfig`
@@ -74,22 +74,7 @@ This requires setting the `allowSyntheticDefaultImports` compiler option to `tru
 If you're using a web bundles (webpack, rollup, parcel) you can benefit from using the `module` build of jimp. Using the module build will allow your bundler to understand your code better and exclude things you aren't using.
 
 ```js
-import Jimp from 'jimp/es';
-```
-
-### WebPack
-
-If you're using webpack you can set `process.browser` to true and your build of jimp will exclude certain parts, making it load faster.
-
-```js
-{
-  plugins: [
-    new webpack.DefinePlugin({
-      'process.browser': 'true'
-    }),
-    ...
-  ],
-}
+import Jimp from "jimp/es";
 ```
 
 ## Basic usage
@@ -97,35 +82,35 @@ If you're using webpack you can set `process.browser` to true and your build of 
 The static `Jimp.read` method takes the path to a file, URL, dimensions, a Jimp instance or a buffer and returns a Promise:
 
 ```js
-Jimp.read('./path/to/image.jpg')
-  .then(image => {
+Jimp.read("./path/to/image.jpg")
+  .then((image) => {
     // Do stuff with the image.
   })
-  .catch(err => {
+  .catch((err) => {
     // Handle an exception.
   });
 
-Jimp.read('http://www.example.com/path/to/lenna.jpg')
-  .then(image => {
+Jimp.read("http://www.example.com/path/to/lenna.jpg")
+  .then((image) => {
     // Do stuff with the image.
   })
-  .catch(err => {
+  .catch((err) => {
     // Handle an exception.
   });
 
 Jimp.read(jimpInstance)
-  .then(image => {
+  .then((image) => {
     // Do stuff with the image.
   })
-  .catch(err => {
+  .catch((err) => {
     // Handle an exception.
   });
 
 Jimp.read(buffer)
-  .then(image => {
+  .then((image) => {
     // Do stuff with the image.
   })
-  .catch(err => {
+  .catch((err) => {
     // Handle an exception.
   });
 ```
@@ -162,9 +147,9 @@ To define a custom constructor provide a name for it, a function to call to dete
 
 ```js
 Jimp.appendConstructorOption(
-  'Name of Option',
-  args => arg.hasSomeCustomThing,
-  function(resolve, reject, args) {
+  "Name of Option",
+  (args) => arg.hasSomeCustomThing,
+  function (resolve, reject, args) {
     this.bitmap = customParser(args);
     resolve();
   }
@@ -176,25 +161,25 @@ If you don't want to handle parsing the bitmap. For example if you want to do so
 Parse bitmap takes the raw image data in a Buffer, a path (optional), and a node style callback.
 
 ```js
-Jimp.appendConstructorOption('Custom Url', options => options.url, function(
-  resolve,
-  reject,
-  options
-) {
-  phin(options, (err, res) => {
-    if (err) {
-      return reject(err);
-    }
-
-    this.parseBitmap(res.body, options.url, err => {
+Jimp.appendConstructorOption(
+  "Custom Url",
+  (options) => options.url,
+  function (resolve, reject, options) {
+    phin(options, (err, res) => {
       if (err) {
         return reject(err);
       }
 
-      resolve();
+      this.parseBitmap(res.body, options.url, (err) => {
+        if (err) {
+          return reject(err);
+        }
+
+        resolve();
+      });
     });
-  });
-});
+  }
+);
 ```
 
 ### Methods
@@ -226,7 +211,7 @@ image.convolute( kernel );        // applies a convolution kernel matrix to the 
 /* Flip and rotate */
 image.flip( horz, vert );         // flip the image horizontally or vertically
 image.mirror( horz, vert );       // an alias for flip
-image.rotate( deg[, mode] );      // rotate the image clockwise by a number of degrees. Optionally, a resize mode can be passed. If `false` is passed as the second parameter, the image width and height will not be resized.
+image.rotate( deg[, mode] );      // rotate the image counter-clockwise by a number of degrees. Optionally, a resize mode can be passed. If `false` is passed as the second parameter, the image width and height will not be resized.
 
 /* Colour */
 image.brightness( val );          // adjust the brighness by a value -1 to +1
@@ -358,7 +343,7 @@ Jimp.BLEND_EXCLUSION;
 image.composite(srcImage, 100, 0, {
   mode: Jimp.BLEND_MULTIPLY,
   opacitySource: 0.5,
-  opacityDest: 0.9
+  opacityDest: 0.9,
 });
 ```
 
@@ -367,7 +352,7 @@ image.composite(srcImage, 100, 0, {
 Jimp supports basic typography using BMFont format (.fnt) even ones in different languages! Just find a bitmap font that is suitable [bitmap fonts](https://en.wikipedia.org/wiki/Bitmap_fonts):
 
 ```js
-Jimp.loadFont(pathOrURL).then(font => {
+Jimp.loadFont(pathOrURL).then((font) => {
   // load font from .fnt file
   image.print(font, x, y, message); // print a message on an image. message can be a any type
   image.print(font, x, y, message, maxWidth); // print a message on an image with text wrapped at maxWidth
@@ -377,15 +362,15 @@ Jimp.loadFont(pathOrURL).then(font => {
 Alignment modes are supported by replacing the `str` argument with an object containing `text`, `alignmentX` and `alignmentY`. `alignmentX` defaults to `Jimp.HORIZONTAL_ALIGN_LEFT` and `alignmentY` defaults to `Jimp.VERTICAL_ALIGN_TOP`.
 
 ```js
-Jimp.loadFont(pathOrURL).then(font => {
+Jimp.loadFont(pathOrURL).then((font) => {
   image.print(
     font,
     x,
     y,
     {
-      text: 'Hello world!',
+      text: "Hello world!",
       alignmentX: Jimp.HORIZONTAL_ALIGN_CENTER,
-      alignmentY: Jimp.VERTICAL_ALIGN_MIDDLE
+      alignmentY: Jimp.VERTICAL_ALIGN_MIDDLE,
     },
     maxWidth,
     maxHeight
@@ -419,8 +404,8 @@ Jimp.FONT_SANS_128_WHITE; // Open Sans, 128px, white
 These can be used as follows:
 
 ```js
-Jimp.loadFont(Jimp.FONT_SANS_32_BLACK).then(font => {
-  image.print(font, 10, 10, 'Hello world!');
+Jimp.loadFont(Jimp.FONT_SANS_32_BLACK).then((font) => {
+  image.print(font, 10, 10, "Hello world!");
 });
 ```
 
@@ -429,8 +414,12 @@ Jimp.loadFont(Jimp.FONT_SANS_32_BLACK).then(font => {
 If you need to do calculations on where to place your text jimp provides two methods that measure how wide and how tall a piece of text will be. You can use these methods to lay out multiple pieces of text in relation to each other
 
 ```js
-Jimp.measureText(Jimp.FONT_SANS_32_BLACK, 'Some string'); // width of text
-Jimp.measureTextHeight(Jimp.FONT_SANS_32_BLACK, 'Some string', 100); // height of text
+Jimp.measureText(await Jimp.loadFont(Jimp.FONT_SANS_32_BLACK), "Some string"); // width of text
+Jimp.measureTextHeight(
+  await Jimp.loadFont(Jimp.FONT_SANS_32_BLACK),
+  "Some string",
+  100
+); // height of text
 ```
 
 #### Staggering Text
@@ -438,15 +427,15 @@ Jimp.measureTextHeight(Jimp.FONT_SANS_32_BLACK, 'Some string', 100); // height o
 If you need to stagger text position along the x or y-axis the print method also returns the final coordinates as an argument to the callback.
 
 ```js
-Jimp.loadFont(Jimp.FONT_SANS_32_BLACK).then(font => {
+Jimp.loadFont(Jimp.FONT_SANS_32_BLACK).then((font) => {
   image.print(
     font,
     10,
     10,
-    'Hello world that wraps!',
+    "Hello world that wraps!",
     50,
     (err, image, { x, y }) => {
-      image.print(font, x, y + 20, 'More text on another line', 50);
+      image.print(font, x, y + 20, "More text on another line", 50);
     }
   );
 });
@@ -472,9 +461,9 @@ image.writeAsync(path); // Returns Promise
 The original extension for an image (or "png") can accessed as using `image.getExtension()`. The following will save an image using its original format:
 
 ```js
-var file = 'new_name.' + image.getExtension();
+var file = "new_name." + image.getExtension();
 //or
-var file = 'new_name'; // with no extension
+var file = "new_name"; // with no extension
 image.write(file);
 ```
 
@@ -542,9 +531,9 @@ Jimp supports advanced colour manipulation using a single method as follows:
 
 ```js
 image.color([
-  { apply: 'hue', params: [-90] },
-  { apply: 'lighten', params: [50] },
-  { apply: 'xor', params: ['#06D'] }
+  { apply: "hue", params: [-90] },
+  { apply: "lighten", params: [50] },
+  { apply: "xor", params: ["#06D"] },
 ]);
 ```
 
@@ -575,7 +564,11 @@ Sum neighbor pixels weighted by the kernel matrix. You can find a nice explanati
 Implement emboss effect:
 
 ```js
-image.convolute([[-2, -1, 0], [-1, 1, 1], [0, 1, 2]]);
+image.convolute([
+  [-2, -1, 0],
+  [-1, 1, 1],
+  [0, 1, 2],
+]);
 ```
 
 ### Low-level manipulation
@@ -599,7 +592,7 @@ image.scan(x, y, w, h, f); // scan a given region of the bitmap and call the fun
 Example usage:
 
 ```js
-image.scan(0, 0, image.bitmap.width, image.bitmap.height, function(x, y, idx) {
+image.scan(0, 0, image.bitmap.width, image.bitmap.height, function (x, y, idx) {
   // x, y is the position of this pixel on the image
   // idx is the position start position of this rgba tuple in the bitmap Buffer
   // this is the image
@@ -617,7 +610,7 @@ image.scan(0, 0, image.bitmap.width, image.bitmap.height, function(x, y, idx) {
 If you need to do something with the image at the end of the scan:
 
 ```js
-image.scan(0, 0, image.bitmap.width, image.bitmap.height, function(x, y, idx) {
+image.scan(0, 0, image.bitmap.width, image.bitmap.height, function (x, y, idx) {
   // do your stuff..
 
   if (x == image.bitmap.width - 1 && y == image.bitmap.height - 1) {
@@ -693,7 +686,7 @@ new Jimp(256, 256, 0xff0000ff, (err, image) => {
 Or you can use a css color format:
 
 ```js
-new Jimp(256, 256, '#FF00FF', (err, image) => {
+new Jimp(256, 256, "#FF00FF", (err, image) => {
   // this image is 256 x 256, every pixel is set to #FF00FF
 });
 ```
@@ -766,21 +759,18 @@ Jimp.compareHashes(hash1, hash2); // same result as above
 Most instance methods can be chained together, for example as follows:
 
 ```js
-Jimp.read('lenna.png').then(image => {
-  image
-    .greyscale()
-    .scale(0.5)
-    .write('lena-half-bw.png');
+Jimp.read("lenna.png").then((image) => {
+  image.greyscale().scale(0.5).write("lena-half-bw.png");
 });
 ```
 
 Alternatively, methods can be passed Node-style callbacks:
 
 ```js
-Jimp.read('lenna.png').then(image => {
+Jimp.read("lenna.png").then((image) => {
   image.greyscale((err, image) => {
     image.scale(0.5, (err, image) => {
-      image.write('lena-half-bw.png');
+      image.write("lena-half-bw.png");
     });
   });
 });

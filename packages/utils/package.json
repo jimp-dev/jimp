@@ -1,10 +1,11 @@
 {
   "name": "@jimp/utils",
-  "version": "0.16.1",
+  "version": "0.22.1",
   "description": "Utils for jimp extensions.",
   "main": "dist/index.js",
   "module": "es/index.js",
   "types": "index.d.ts",
+  "repository": "jimp-dev/jimp",
   "scripts": {
     "build": "npm run build:node:production && npm run build:module",
     "build:watch": "npm run build:node:debug -- -- --watch --verbose",
@@ -20,7 +21,6 @@
     "access": "public"
   },
   "dependencies": {
-    "@babel/runtime": "^7.7.2",
     "regenerator-runtime": "^0.13.3"
   }
 }

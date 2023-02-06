@@ -37,7 +37,7 @@ function ImagePHash(size, smallerSize) {
 ImagePHash.prototype.size = 32;
 ImagePHash.prototype.smallerSize = 8;
 
-ImagePHash.prototype.distance = function(s1, s2) {
+ImagePHash.prototype.distance = function (s1, s2) {
   let counter = 0;
 
   for (let k = 0; k < s1.length; k++) {
@@ -50,7 +50,7 @@ ImagePHash.prototype.distance = function(s1, s2) {
 };
 
 // Returns a 'binary string' (like. 001010111011100010) which is easy to do a hamming distance on.
-ImagePHash.prototype.getHash = function(img) {
+ImagePHash.prototype.getHash = function (img) {
   /* 1. Reduce size.
    * Like Average Hash, pHash starts with a small image.
    * However, the image is larger than 8x8; 32x32 is a good size.
@@ -112,11 +112,11 @@ ImagePHash.prototype.getHash = function(img) {
    * remains the same; this can survive gamma and color histogram
    * adjustments without a problem.
    */
-  let hash = '';
+  let hash = "";
 
   for (let x = 0; x < this.smallerSize; x++) {
     for (let y = 0; y < this.smallerSize; y++) {
-      hash += dctVals[x][y] > avg ? '1' : '0';
+      hash += dctVals[x][y] > avg ? "1" : "0";
     }
   }
 
@@ -179,4 +179,4 @@ function applyDCT(f, size) {
   return F;
 }
 
-module.exports = ImagePHash;
+export default ImagePHash;

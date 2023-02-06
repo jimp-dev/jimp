@@ -1,0 +1,94 @@
+name: build
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+# Enabled permissions on GITHUB_TOKEN
+permissions:
+  # To be able to push to the repo
+  contents: write
+  # To update the pr description with canary info
+  pull-requests: write
+  # For pr-check to create a status
+  statuses: write
+  # Needed to create PR statuses/checks
+  checks: write
+  # To post comments on PRs
+  issues: write
+
+jobs:
+  # Run install in one step so deps can be cached for other steps
+  install:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ./.github/actions/install-deps
+
+  build:
+    runs-on: ubuntu-latest
+    needs: install
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ./.github/actions/install-deps
+      - uses: ./.github/actions/build-cache
+      - run: yarn build
+
+  lint:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ./.github/actions/install-deps
+      - uses: ./.github/actions/build-cache
+      - run: yarn lint
+
+  test-types:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ./.github/actions/install-deps
+      - uses: ./.github/actions/build-cache
+      - run: yarn tsTest:custom && yarn tsTest:main
+
+  test:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ./.github/actions/install-deps
+      - uses: ./.github/actions/build-cache
+      - run: yarn test
+
+  test-browser:
+    runs-on: ubuntu-latest
+    needs: build
+    if: ${{ false }} # disable for now
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ./.github/actions/install-deps
+      - uses: ./.github/actions/build-cache
+      - run: yarn test:browser --ci
+
+  release:
+    runs-on: ubuntu-latest
+    if: "!contains(github.event.head_commit.message, 'ci skip') && !contains(github.event.head_commit.message, 'skip ci')"
+    needs: build
+    steps:
+      - uses: actions/checkout@v3
+      - uses: 8BitJonny/gh-get-current-pr@2.2.0
+        id: PR
+      - uses: ./.github/actions/install-deps
+      - uses: ./.github/actions/build-cache
+      - name: Prepare repository
+        run: git fetch --unshallow --tags
+      - name: Create Release
+        run: yarn auto shipit
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PROTECTED_BRANCH_REVIEWER_TOKEN: ${{ secrets.GH_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          PR: ${{ steps.PR.outputs.number }}

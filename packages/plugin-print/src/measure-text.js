@@ -15,22 +15,38 @@ export function measureText(font, text) {
   return x;
 }
 
-export function measureTextHeight(font, text, maxWidth) {
-  const words = text.split(' ');
-  let line = '';
-  let textTotalHeight = font.common.lineHeight;
+export function splitLines(font, text, maxWidth) {
+  const words = text.split(" ");
+  const lines = [];
+  let currentLine = [];
+  let longestLine = 0;
 
-  for (let n = 0; n < words.length; n++) {
-    const testLine = line + words[n] + ' ';
-    const testWidth = measureText(font, testLine);
+  words.forEach((word) => {
+    const line = [...currentLine, word].join(" ");
+    const length = measureText(font, line);
 
-    if (testWidth > maxWidth && n > 0) {
-      textTotalHeight += font.common.lineHeight;
-      line = words[n] + ' ';
+    if (length <= maxWidth) {
+      if (length > longestLine) {
+        longestLine = length;
+      }
+
+      currentLine.push(word);
     } else {
-      line = testLine;
+      lines.push(currentLine);
+      currentLine = [word];
     }
-  }
+  });
 
-  return textTotalHeight;
+  lines.push(currentLine);
+
+  return {
+    lines,
+    longestLine,
+  };
+}
+
+export function measureTextHeight(font, text, maxWidth) {
+  const { lines } = splitLines(font, text, maxWidth);
+
+  return lines.length * font.common.lineHeight;
 }

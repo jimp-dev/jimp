@@ -1,7 +1,7 @@
-import { ImageCallback } from '@jimp/core';
+import { ImageCallback } from "@jimp/core";
 
 interface Normalize {
-  normalize(cb ?: ImageCallback<this>): this;
+  normalize(cb?: ImageCallback<this>): this;
 }
 
-export default function(): Normalize;
+export default function (): Normalize;

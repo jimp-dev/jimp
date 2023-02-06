@@ -1,12 +1,13 @@
 {
   "name": "@jimp/png",
-  "version": "0.16.1",
+  "version": "0.22.1",
   "description": "Default Jimp png encoder/decoder.",
   "main": "dist/index.js",
   "module": "es/index.js",
+  "repository": "jimp-dev/jimp",
   "types": "index.d.ts",
   "scripts": {
-    "test": "cross-env BABEL_ENV=test mocha --require @babel/register",
+    "test": "cross-env BABEL_ENV=test mocha --require @babel/register --recursive test  --extension js",
     "test:watch": "npm run test -- --reporter min --watch",
     "test:coverage": "nyc npm run test",
     "build": "npm run build:node:production && npm run build:module",
@@ -20,16 +21,16 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "@babel/runtime": "^7.7.2",
     "@jimp/utils": "link:../utils",
-    "pngjs": "^3.3.3"
+    "pngjs": "^6.0.0"
   },
   "peerDependencies": {
     "@jimp/custom": ">=0.3.5"
   },
   "devDependencies": {
     "@jimp/custom": "link:../custom",
-    "@jimp/test-utils": "link:../test-utils"
+    "@jimp/test-utils": "link:../test-utils",
+    "@types/pngjs": "^6.0.1"
   },
   "publishConfig": {
     "access": "public"

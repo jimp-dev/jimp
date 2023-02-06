@@ -1,10 +1,11 @@
 {
   "name": "@jimp/core",
-  "version": "0.16.1",
+  "version": "0.22.1",
   "description": "Jimp core",
   "main": "dist/index.js",
   "module": "es/index.js",
   "types": "types/index.d.ts",
+  "sideEffects": false,
   "files": [
     "dist",
     "es",
@@ -12,15 +13,9 @@
     "fonts",
     "types"
   ],
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/oliver-moran/jimp.git"
-  },
-  "bugs": {
-    "url": "https://github.com/oliver-moran/jimp/issues"
-  },
+  "repository": "jimp-dev/jimp",
   "scripts": {
-    "test": "cross-env BABEL_ENV=test mocha --require @babel/register test/**/*.js",
+    "test": "cross-env BABEL_ENV=test mocha --require @babel/register --recursive test --extension js",
     "test:watch": "npm run test -- --reporter min --watch",
     "test:coverage": "nyc npm run test",
     "build": "npm run build:node:production && npm run build:module",
@@ -34,22 +29,16 @@
   "author": "Oliver Moran <oliver.moran@gmail.com>",
   "license": "MIT",
   "dependencies": {
-    "@babel/runtime": "^7.7.2",
     "@jimp/utils": "link:../utils",
     "any-base": "^1.1.0",
     "buffer": "^5.2.0",
     "exif-parser": "^0.1.12",
-    "file-type": "^9.0.0",
-    "load-bmfont": "^1.3.1",
-    "mkdirp": "^0.5.1",
-    "phin": "^2.9.1",
+    "file-type": "^16.5.4",
+    "isomorphic-fetch": "^3.0.0",
+    "mkdirp": "^2.1.3",
     "pixelmatch": "^4.0.2",
     "tinycolor2": "^1.4.1"
   },
-  "devDependencies": {
-    "should": "^13.2.3"
-  },
-  "xo": false,
   "publishConfig": {
     "access": "public"
   }

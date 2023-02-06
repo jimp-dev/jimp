@@ -1,9 +1,10 @@
 {
   "name": "@jimp/plugins",
-  "version": "0.16.1",
+  "version": "0.22.1",
   "description": "Default Jimp plugin.",
   "main": "dist/index.js",
   "module": "es/index.js",
+  "repository": "jimp-dev/jimp",
   "types": "index.d.ts",
   "scripts": {
     "build": "npm run build:node:production && npm run build:module",
@@ -17,7 +18,6 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "@babel/runtime": "^7.7.2",
     "@jimp/plugin-blit": "link:../plugin-blit",
     "@jimp/plugin-blur": "link:../plugin-blur",
     "@jimp/plugin-circle": "link:../plugin-circle",

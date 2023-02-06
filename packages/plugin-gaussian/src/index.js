@@ -1,4 +1,4 @@
-import { isNodePattern, throwError } from '@jimp/utils';
+import { isNodePattern, throwError } from "@jimp/utils";
 
 /**
  * Applies a true Gaussian blur to the image (warning: this is VERY slow)
@@ -9,12 +9,12 @@ import { isNodePattern, throwError } from '@jimp/utils';
 export default () => ({
   gaussian(r, cb) {
     // http://blog.ivank.net/fastest-gaussian-blur.html
-    if (typeof r !== 'number') {
-      return throwError.call(this, 'r must be a number', cb);
+    if (typeof r !== "number") {
+      return throwError.call(this, "r must be a number", cb);
     }
 
     if (r < 1) {
-      return throwError.call(this, 'r must be greater than 0', cb);
+      return throwError.call(this, "r must be greater than 0", cb);
     }
 
     const rs = Math.ceil(r * 2.57); // significant radius
@@ -27,7 +27,7 @@ export default () => ({
     for (let y = 0; y < range; y++) {
       weights[y] = [];
       for (let x = 0; x < range; x++) {
-        const dsq = (x - rs) ** 2 + (y - rs) ** 2 ;
+        const dsq = (x - rs) ** 2 + (y - rs) ** 2;
         weights[y][x] = Math.exp(-dsq / rr2) / rr2pi;
       }
     }
@@ -42,8 +42,14 @@ export default () => ({
 
         for (let iy = 0; iy < range; iy++) {
           for (let ix = 0; ix < range; ix++) {
-            const x1 = Math.min(this.bitmap.width - 1, Math.max(0, ix + x - rs ));
-            const y1 = Math.min(this.bitmap.height - 1, Math.max(0, iy + y - rs));
+            const x1 = Math.min(
+              this.bitmap.width - 1,
+              Math.max(0, ix + x - rs)
+            );
+            const y1 = Math.min(
+              this.bitmap.height - 1,
+              Math.max(0, iy + y - rs)
+            );
             const weight = weights[iy][ix];
             const idx = (y1 * this.bitmap.width + x1) << 2;
 
@@ -69,5 +75,5 @@ export default () => ({
     }
 
     return this;
-  }
+  },
 });

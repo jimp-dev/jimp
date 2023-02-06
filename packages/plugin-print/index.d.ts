@@ -1,4 +1,4 @@
-import { GenericCallback, ImageCallback } from '@jimp/core';
+import { GenericCallback, ImageCallback } from "@jimp/core";
 
 export interface FontChar {
   id: number;
@@ -57,10 +57,10 @@ export interface Font {
 type PrintableText =
   | any
   | {
-  text: string;
-  alignmentX: number;
-  alignmentY: number;
-};
+      text: string;
+      alignmentX: number;
+      alignmentY: number;
+    };
 
 interface PrintClass {
   // Text methods
@@ -93,7 +93,11 @@ interface PrintClass {
 interface Print {
   constants: {
     measureText(font: Font, text: PrintableText): number;
-    measureTextHeight(font: Font, text: PrintableText, maxWidth: number): number;
+    measureTextHeight(
+      font: Font,
+      text: PrintableText,
+      maxWidth: number
+    ): number;
 
     // Font locations
     FONT_SANS_8_BLACK: string;
@@ -111,11 +115,11 @@ interface Print {
     FONT_SANS_64_WHITE: string;
     FONT_SANS_128_WHITE: string;
 
-    loadFont(file: string): Promise<Font>;
     loadFont(file: string, cb: GenericCallback<Font, any, any>): Promise<never>;
+    loadFont(file: string): Promise<Font>;
   }
 
-  class: PrintClass
+  class: PrintClass;
 }
 
-export default function(): Print;
+export default function (): Print;

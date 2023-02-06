@@ -1,21 +1,21 @@
-import JPEG from 'jpeg-js';
-import { throwError, isNodePattern } from '@jimp/utils';
+import JPEG from "jpeg-js";
+import { throwError, isNodePattern } from "@jimp/utils";
 
-const MIME_TYPE = 'image/jpeg';
+const MIME_TYPE = "image/jpeg";
 
 export default () => ({
-  mime: { [MIME_TYPE]: ['jpeg', 'jpg', 'jpe'] },
+  mime: { [MIME_TYPE]: ["jpeg", "jpg", "jpe"] },
 
   constants: {
-    MIME_JPEG: MIME_TYPE
+    MIME_JPEG: MIME_TYPE,
   },
 
   decoders: {
-    [MIME_TYPE]: JPEG.decode
+    [MIME_TYPE]: JPEG.decode,
   },
 
   encoders: {
-    [MIME_TYPE]: image => JPEG.encode(image.bitmap, image._quality).data
+    [MIME_TYPE]: (image) => JPEG.encode(image.bitmap, image._quality).data,
   },
 
   class: {
@@ -28,12 +28,12 @@ export default () => ({
      * @returns {Jimp} this for chaining of methods
      */
     quality(n, cb) {
-      if (typeof n !== 'number') {
-        return throwError.call(this, 'n must be a number', cb);
+      if (typeof n !== "number") {
+        return throwError.call(this, "n must be a number", cb);
       }
 
       if (n < 0 || n > 100) {
-        return throwError.call(this, 'n must be a number 0 - 100', cb);
+        return throwError.call(this, "n must be a number 0 - 100", cb);
       }
 
       this._quality = Math.round(n);
@@ -43,6 +43,6 @@ export default () => ({
       }
 
       return this;
-    }
-  }
+    },
+  },
 });

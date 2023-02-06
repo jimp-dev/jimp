@@ -1,17 +1,17 @@
-import GIF from 'omggif';
-import { GifUtil, GifFrame, BitmapImage, GifCodec } from 'gifwrap';
+import GIF from "omggif";
+import { GifUtil, GifFrame, BitmapImage, GifCodec } from "gifwrap";
 
-const MIME_TYPE = 'image/gif';
+const MIME_TYPE = "image/gif";
 
 export default () => ({
-  mime: { [MIME_TYPE]: ['gif'] },
+  mime: { [MIME_TYPE]: ["gif"] },
 
   constants: {
-    MIME_GIF: MIME_TYPE
+    MIME_GIF: MIME_TYPE,
   },
 
   decoders: {
-    [MIME_TYPE]: data => {
+    [MIME_TYPE]: (data) => {
       const gifObj = new GIF.GifReader(data);
       const gifData = Buffer.alloc(gifObj.width * gifObj.height * 4);
 
@@ -20,20 +20,20 @@ export default () => ({
       return {
         data: gifData,
         width: gifObj.width,
-        height: gifObj.height
+        height: gifObj.height,
       };
-    }
+    },
   },
 
   encoders: {
-    [MIME_TYPE]: data => {
+    [MIME_TYPE]: (data) => {
       const bitmap = new BitmapImage(data.bitmap);
       GifUtil.quantizeDekker(bitmap, 256);
       const newFrame = new GifFrame(bitmap);
       const gifCodec = new GifCodec();
-      return gifCodec.encodeGif([newFrame], {}).then(newGif => {
+      return gifCodec.encodeGif([newFrame], {}).then((newGif) => {
         return newGif.buffer;
       });
-    }
-  }
+    },
+  },
 });

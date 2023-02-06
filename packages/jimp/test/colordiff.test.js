@@ -1,57 +1,60 @@
-import { Jimp } from '@jimp/test-utils';
+import { Jimp } from "@jimp/test-utils";
+import expect from "@storybook/expect";
 
 // Convert [0..1] float to a percent value with only one decimal.
-const pct = n => ((n * 1000) << 0) / 10;
+const pct = (n) => ((n * 1000) << 0) / 10;
 
-describe('compute color difference', () => {
-  it('totally opaque (no alpha defined)', () => {
-    Jimp.colorDiff(
-      { r: 255, g: 0, b: 0 },
-      { r: 255, g: 0, b: 0 }
-    ).should.be.equal(0, 'both red');
+describe("compute color difference", () => {
+  it("totally opaque (no alpha defined)", () => {
+    expect(
+      Jimp.colorDiff({ r: 255, g: 0, b: 0 }, { r: 255, g: 0, b: 0 })
+    ).toEqual(0);
 
-    pct(
-      Jimp.colorDiff({ r: 255, g: 0, b: 0 }, { r: 0, g: 0, b: 0 })
-    ).should.be.equal(33.3, 'red x black');
+    expect(
+      pct(Jimp.colorDiff({ r: 255, g: 0, b: 0 }, { r: 0, g: 0, b: 0 }))
+    ).toEqual(33.3);
 
-    pct(
-      Jimp.colorDiff({ r: 255, g: 0, b: 0 }, { r: 0, g: 255, b: 0 })
-    ).should.be.equal(66.6, 'red x green');
+    expect(
+      pct(Jimp.colorDiff({ r: 255, g: 0, b: 0 }, { r: 0, g: 255, b: 0 }))
+    ).toEqual(66.6);
 
-    Jimp.colorDiff(
-      { r: 255, g: 0, b: 0 },
-      { r: 0, g: 255, b: 255 }
-    ).should.be.equal(1, 'red x cyan');
+    expect(
+      Jimp.colorDiff({ r: 255, g: 0, b: 0 }, { r: 0, g: 255, b: 255 })
+    ).toEqual(1);
 
-    Jimp.colorDiff(
-      { r: 0, g: 0, b: 0 },
-      { r: 255, g: 255, b: 255 }
-    ).should.be.equal(1, 'black x white');
+    expect(
+      Jimp.colorDiff({ r: 0, g: 0, b: 0 }, { r: 255, g: 255, b: 255 })
+    ).toEqual(1);
   });
 
-  it('totally transparent', () => {
-    Jimp.colorDiff(
-      { r: 255, g: 0, b: 0, a: 0 },
-      { r: 255, g: 0, b: 0, a: 0 }
-    ).should.be.equal(0, 'both transparent red');
+  it("totally transparent", () => {
+    expect(
+      Jimp.colorDiff({ r: 255, g: 0, b: 0, a: 0 }, { r: 255, g: 0, b: 0, a: 0 })
+    ).toEqual(0);
 
-    Jimp.colorDiff(
-      { r: 0, g: 0, b: 0, a: 0 },
-      { r: 255, g: 255, b: 255, a: 0 }
-    ).should.be.equal(1, 'transparent black x transparent white');
-  });
-
-  it('different alpha', () => {
-    pct(
+    expect(
       Jimp.colorDiff(
-        { r: 255, g: 0, b: 0, a: 100 },
-        { r: 255, g: 0, b: 0, a: 150 }
+        { r: 0, g: 0, b: 0, a: 0 },
+        { r: 255, g: 255, b: 255, a: 0 }
       )
-    ).should.be.equal(3.8, 'both red');
+    ).toEqual(1);
+  });
 
-    Jimp.colorDiff(
-      { r: 0, g: 0, b: 0, a: 0 },
-      { r: 255, g: 255, b: 255, a: 255 }
-    ).should.be.equal(1, 'transparent black x transparent white');
+  it("different alpha", () => {
+    expect(
+      pct(
+        Jimp.colorDiff(
+          { r: 255, g: 0, b: 0, a: 100 },
+          { r: 255, g: 0, b: 0, a: 150 }
+        )
+      )
+    ).toEqual(3.8);
+
+    expect(
+      Jimp.colorDiff(
+        { r: 0, g: 0, b: 0, a: 0 },
+        { r: 255, g: 255, b: 255, a: 255 }
+      )
+    ).toEqual(1);
   });
 });

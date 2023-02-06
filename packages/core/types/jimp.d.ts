@@ -7,8 +7,8 @@ import {
   GenericCallback,
   BlendMode,
   RGBA,
-  RGB
-} from './etc';
+  RGB,
+} from "./etc";
 
 interface DiffReturn<This> {
   percent: number;
@@ -51,20 +51,27 @@ export interface JimpConstructors {
   EDGE_CROP: 3;
 
   // Constructors
-  new(path: string, cb?: ImageCallback<this['prototype']>): this['prototype'];
-  new(urlOptions: URLOptions, cb?: ImageCallback<this['prototype']>): this['prototype'];
-  new(image: Jimp, cb?: ImageCallback<this['prototype']>): this['prototype'];
-  new(data: Buffer, cb?: ImageCallback<this['prototype']>): this['prototype'];
-  new(data: Bitmap, cb?: ImageCallback<this['prototype']>): this['prototype'];
-  new(w: number, h: number, cb?: ImageCallback<this['prototype']>): this['prototype'];
-  new(
+  new (path: string, cb?: ImageCallback<this["prototype"]>): this["prototype"];
+  new (
+    urlOptions: URLOptions,
+    cb?: ImageCallback<this["prototype"]>
+  ): this["prototype"];
+  new (image: Jimp, cb?: ImageCallback<this["prototype"]>): this["prototype"];
+  new (data: Buffer, cb?: ImageCallback<this["prototype"]>): this["prototype"];
+  new (data: Bitmap, cb?: ImageCallback<this["prototype"]>): this["prototype"];
+  new (
+    w: number,
+    h: number,
+    cb?: ImageCallback<this["prototype"]>
+  ): this["prototype"];
+  new (
     w: number,
     h: number,
     background?: number | string,
-    cb?: ImageCallback<this['prototype']>
-  ): this['prototype'];
+    cb?: ImageCallback<this["prototype"]>
+  ): this["prototype"];
   // For custom constructors when using Jimp.appendConstructorOption
-  new(...args: any[]): this['prototype'];
+  new (...args: any[]): this["prototype"];
 
   // Functions
   /**
@@ -72,7 +79,10 @@ export interface JimpConstructors {
    * it's not possible RN:
    * https://github.com/microsoft/TypeScript/issues/26113
    */
-  appendConstructorOption<Args extends any[], J extends Jimp = this['prototype']>(
+  appendConstructorOption<
+    Args extends any[],
+    J extends Jimp = this["prototype"]
+  >(
     name: string,
     test: (...args: any[]) => boolean,
     run: (
@@ -82,30 +92,47 @@ export interface JimpConstructors {
       ...args: any[]
     ) => any
   ): void;
-  read(path: string, cb?: ImageCallback<this['prototype']>): Promise<this['prototype']>;
-  read(image: Jimp, cb?: ImageCallback<this['prototype']>): Promise<this['prototype']>;
-  read(data: Buffer, cb?: ImageCallback<this['prototype']>): Promise<this['prototype']>;
+  read(
+    path: string,
+    cb?: ImageCallback<this["prototype"]>
+  ): Promise<this["prototype"]>;
+  read(
+    image: Jimp,
+    cb?: ImageCallback<this["prototype"]>
+  ): Promise<this["prototype"]>;
+  read(
+    data: Buffer,
+    cb?: ImageCallback<this["prototype"]>
+  ): Promise<this["prototype"]>;
   read(
     w: number,
     h: number,
     background?: number | string,
-    cb?: ImageCallback<this['prototype']>
-  ): Promise<this['prototype']>;
-  create(path: string): Promise<this['prototype']>;
-  create(image: Jimp): Promise<this['prototype']>;
-  create(data: Buffer): Promise<this['prototype']>;
-  create(w: number, h: number, background?: number | string): Promise<this['prototype']>;
+    cb?: ImageCallback<this["prototype"]>
+  ): Promise<this["prototype"]>;
+  create(path: string): Promise<this["prototype"]>;
+  create(image: Jimp): Promise<this["prototype"]>;
+  create(data: Buffer): Promise<this["prototype"]>;
+  create(
+    w: number,
+    h: number,
+    background?: number | string
+  ): Promise<this["prototype"]>;
   rgbaToInt(
     r: number,
     g: number,
     b: number,
     a: number,
-    cb?: GenericCallback<number, any, this['prototype']>
+    cb?: GenericCallback<number, any, this["prototype"]>
   ): number;
   intToRGBA(i: number, cb?: GenericCallback<RGBA>): RGBA;
   cssColorToHex(cssColor: string): number;
   limit255(n: number): number;
-  diff(img1: Jimp, img2: Jimp, threshold?: number): DiffReturn<this['prototype']>;
+  diff(
+    img1: Jimp,
+    img2: Jimp,
+    threshold?: number
+  ): DiffReturn<this["prototype"]>;
   distance(img1: Jimp, img2: Jimp): number;
   compareHashes(hash1: string, hash2: string): number;
   colorDiff(rgba1: RGB, rgba2: RGB): number;
@@ -139,8 +166,9 @@ export interface Jimp {
   write(path: string, cb?: ImageCallback<this>): this;
   writeAsync(path: string): Promise<this>;
   rgba(bool: boolean, cb?: ImageCallback<this>): this;
-  getBase64(mime: string, cb: GenericCallback<string, any, this>): this;
-  getBase64Async(mime: string): Promise<string>;
+  getBase64(mime: string | JimpConstructors["AUTO"], cb: GenericCallback<string, any, this>): this;
+  pHash: () => string;
+  getBase64Async(mime: string | JimpConstructors["AUTO"]): Promise<string>;
   hash(cb?: GenericCallback<string, any, this>): string;
   hash(
     base: number | null | undefined,
@@ -156,7 +184,7 @@ export interface Jimp {
   getPixelIndex(
     x: number,
     y: number,
-    edgeHandling: string,
+    edgeHandling: number,
     cb?: GenericCallback<number, any, this>
   ): number;
   getPixelColor(
