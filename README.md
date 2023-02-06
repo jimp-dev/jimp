@@ -302,6 +302,7 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
     <td align="center"><a href="https://github.com/xinbenlv"><img src="https://avatars.githubusercontent.com/u/640325?v=4?s=100" width="100px;" alt=""/><br /><sub><b>xinbenlv</b></sub></a><br /><a href="https://github.com/jimp-dev/jimp/commits?author=xinbenlv" title="Code">💻</a></td>
     <td align="center"><a href="https://github.com/xinnix"><img src="https://avatars.githubusercontent.com/u/487185?v=4?s=100" width="100px;" alt=""/><br /><sub><b>xinnix</b></sub></a><br /><a href="https://github.com/jimp-dev/jimp/commits?author=xinnix" title="Code">💻</a></td>
     <td align="center"><a href="https://pkjy.github.io/"><img src="https://avatars.githubusercontent.com/u/14119424?v=4?s=100" width="100px;" alt=""/><br /><sub><b>彭君怡</b></sub></a><br /><a href="https://github.com/jimp-dev/jimp/commits?author=pkjy" title="Code">💻</a></td>
+    <td align="center"><a href="http://andy128k.blogspot.com/"><img src="https://avatars.githubusercontent.com/u/16103?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Andrey Kutejko</b></sub></a><br /><a href="https://github.com/jimp-dev/jimp/commits?author=andy128k" title="Documentation">📖</a></td>
   </tr>
 </table>
 

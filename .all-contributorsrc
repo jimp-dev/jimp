@@ -1246,6 +1246,15 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "andy128k",
+      "name": "Andrey Kutejko",
+      "avatar_url": "https://avatars.githubusercontent.com/u/16103?v=4",
+      "profile": "http://andy128k.blogspot.com/",
+      "contributions": [
+        "doc"
+      ]
     }
   ],
   "contributorsPerLine": 7,
