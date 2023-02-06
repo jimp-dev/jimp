@@ -192,7 +192,7 @@ function compositeBitmapOverBackground(Jimp, image) {
 
 /**
  * Converts the image to a buffer
- * @param {string} mime the mime type of the image buffer to be created
+ * @param {(string|number)} mime the mime type of the image buffer to be created
  * @param {function(Error, Jimp)} cb a Node-style function to call with the buffer as the second argument
  * @returns {Jimp} this for chaining of methods
  */
