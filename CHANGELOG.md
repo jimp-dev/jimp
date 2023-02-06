@@ -4,7 +4,7 @@
 
 #### Switch to fetch for url requests ([#1165](https://github.com/jimp-dev/jimp/pull/1165))
 
-The underlying library for fetching images has been changed. 
+The underlying library for fetching images has been changed.
 
 `loadFromURL` can take a set of options. When in the node environment all those options are passed to phin. Any options used to pass to `phin` that are not supported by the `fetch` API will stop working.
 
@@ -110,7 +110,7 @@ All modules should be exported as valid cjs and esm
 
 # v0.20.1 (Sun Feb 05 2023)
 
-#### ⚠️ Pushed to `master`
+#### ⚠️ Pushed to `main`
 
 - add ability to comment on issues ([@hipstersmoothie](https://github.com/hipstersmoothie))
 
@@ -151,7 +151,7 @@ We also configured the `browser` field so jimp will be automatically bundled bet
 - `@jimp/core`
   - Throw error instead of resolving to string [#1138](https://github.com/jimp-dev/jimp/pull/1138) ([@nopeless](https://github.com/nopeless))
 
-#### ⚠️ Pushed to `master`
+#### ⚠️ Pushed to `main`
 
 - update tokens ([@hipstersmoothie](https://github.com/hipstersmoothie))
 - add permission ([@hipstersmoothie](https://github.com/hipstersmoothie))
@@ -307,7 +307,7 @@ This release changes the minimum node version from 8 to 16
 - `@jimp/core`
   - upgrade file-type [#1108](https://github.com/jimp-dev/jimp/pull/1108) ([@krudos](https://github.com/krudos))
 
-#### ⚠️ Pushed to `master`
+#### ⚠️ Pushed to `main`
 
 - set at org ([@hipstersmoothie](https://github.com/hipstersmoothie))
 - set user directly ([@hipstersmoothie](https://github.com/hipstersmoothie))
@@ -471,7 +471,7 @@ This also drops support for node 6.14.
 
 - Remove compiling polyfills into published code [#891](https://github.com/oliver-moran/jimp/pull/891) ([@danez](https://github.com/danez) [@hipstersmoothie](https://github.com/hipstersmoothie))
 
-#### ⚠️ Pushed to `master`
+#### ⚠️ Pushed to `main`
 
 - Fix package.json ([@hipstersmoothie](https://github.com/hipstersmoothie))
 - Add readme description ([@hipstersmoothie](https://github.com/hipstersmoothie))

@@ -51,7 +51,7 @@ All modules should be exported as valid cjs and esm
 
 # v0.16.3 (Sat Feb 04 2023)
 
-#### ⚠️ Pushed to `master`
+#### ⚠️ Pushed to `main`
 
 - upgrade prettier ([@hipstersmoothie](https://github.com/hipstersmoothie))
 

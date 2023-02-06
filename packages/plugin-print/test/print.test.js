@@ -70,7 +70,7 @@ describe("Write text over image", function () {
 
   it("Jimp loads font from URL", async () => {
     const font = await Jimp.loadFont(
-      "https://raw.githubusercontent.com/jimp-dev/jimp/master/packages/plugin-print/fonts/open-sans/open-sans-16-black/open-sans-16-black.fnt"
+      "https://raw.githubusercontent.com/jimp-dev/jimp/main/packages/plugin-print/fonts/open-sans/open-sans-16-black/open-sans-16-black.fnt"
     );
     const expected =
       getTestDir(__dirname) + "/images/SANS_16_BLACK-positioned.png";

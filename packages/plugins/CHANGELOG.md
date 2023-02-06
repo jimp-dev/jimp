@@ -4,7 +4,7 @@
 
 #### Babel Refactor ([#1149](https://github.com/jimp-dev/jimp/pull/1149))
 
-Marking this as a "breaking release" because it might change what deps need to be installed. 
+Marking this as a "breaking release" because it might change what deps need to be installed.
 
 All modules should be exported as valid cjs and esm
 
@@ -24,7 +24,7 @@ All modules should be exported as valid cjs and esm
 
 # v0.16.3 (Sat Feb 04 2023)
 
-#### ⚠️ Pushed to `master`
+#### ⚠️ Pushed to `main`
 
 - upgrade prettier ([@hipstersmoothie](https://github.com/hipstersmoothie))
 
