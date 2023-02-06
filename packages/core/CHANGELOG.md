@@ -4,7 +4,7 @@
 
 #### Switch to fetch for url requests ([#1165](https://github.com/jimp-dev/jimp/pull/1165))
 
-The underlying library for fetching images has been changed. 
+The underlying library for fetching images has been changed.
 
 `loadFromURL` can take a set of options. When in the node environment all those options are passed to phin. Any options used to pass to `phin` that are not supported by the `fetch` API will stop working.
 
@@ -190,7 +190,7 @@ We also configured the `browser` field so jimp will be automatically bundled bet
 - Fix edgeHandling types [#1080](https://github.com/jimp-dev/jimp/pull/1080) ([@domdomegg](https://github.com/domdomegg))
 - upgrade file-type [#1108](https://github.com/jimp-dev/jimp/pull/1108) ([@krudos](https://github.com/krudos))
 
-#### ⚠️ Pushed to `master`
+#### ⚠️ Pushed to `main`
 
 - try this ([@hipstersmoothie](https://github.com/hipstersmoothie))
 - update linting ([@hipstersmoothie](https://github.com/hipstersmoothie))

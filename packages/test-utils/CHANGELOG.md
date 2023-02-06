@@ -18,7 +18,7 @@
 
 #### Babel Refactor ([#1149](https://github.com/jimp-dev/jimp/pull/1149))
 
-Marking this as a "breaking release" because it might change what deps need to be installed. 
+Marking this as a "breaking release" because it might change what deps need to be installed.
 
 All modules should be exported as valid cjs and esm
 
@@ -42,7 +42,7 @@ All modules should be exported as valid cjs and esm
 
 #### switch from browserify to webpack ([#1140](https://github.com/jimp-dev/jimp/pull/1140))
 
-This PR can be considered a breaking change as it remove the `jimp.min.js` file. 
+This PR can be considered a breaking change as it remove the `jimp.min.js` file.
 
 Instead there is now only the `jimp.js` file and we ship source maps for it.
 
@@ -62,7 +62,7 @@ We also configured the `browser` field so jimp will be automatically bundled bet
 
 # v0.16.3 (Sat Feb 04 2023)
 
-#### ⚠️ Pushed to `master`
+#### ⚠️ Pushed to `main`
 
 - update linting ([@hipstersmoothie](https://github.com/hipstersmoothie))
 - upgrade prettier ([@hipstersmoothie](https://github.com/hipstersmoothie))

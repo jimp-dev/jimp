@@ -18,7 +18,7 @@
 
 #### Babel Refactor ([#1149](https://github.com/jimp-dev/jimp/pull/1149))
 
-Marking this as a "breaking release" because it might change what deps need to be installed. 
+Marking this as a "breaking release" because it might change what deps need to be installed.
 
 All modules should be exported as valid cjs and esm
 
@@ -68,7 +68,7 @@ All modules should be exported as valid cjs and esm
 
 - Fix edgeHandling types [#1080](https://github.com/jimp-dev/jimp/pull/1080) ([@domdomegg](https://github.com/domdomegg))
 
-#### ⚠️ Pushed to `master`
+#### ⚠️ Pushed to `main`
 
 - update linting ([@hipstersmoothie](https://github.com/hipstersmoothie))
 - upgrade prettier ([@hipstersmoothie](https://github.com/hipstersmoothie))
