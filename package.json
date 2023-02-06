@@ -17,8 +17,8 @@
     "test:watch": "npm run test -- --reporter min --watch",
     "test:browser": "cross-env BABEL_ENV=test ENV=browser CHROME_BIN=\"$(which chrome || which chromium)\" karma start --single-run",
     "test:browser:watch": "npm run -s test:browser start -- --auto-watch",
-    "clean": "lerna clean --yes && rm -rf node_modules && npm run clean:build",
-    "clean:build": "rm -rf packages/**/es packages/**/dist",
+    "clean": "lerna clean --yes && rimraf node_modules && npm run clean:build",
+    "clean:build": "rimraf packages/**/es packages/**/dist",
     "build": "npm run clean:build && lerna run build --stream",
     "build:watch": "lerna run build:watch --parallel",
     "build:readme-toc": "npx doctoc ./README.md",
@@ -65,6 +65,7 @@
     "nyc": "^14.1.1",
     "patch-package": "^6.5.1",
     "prettier": "^2.8.3",
+    "rimraf": "^4.1.2",
     "source-map-support": "^0.5.21",
     "typescript": "^4.9.5"
   },
