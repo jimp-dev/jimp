@@ -1,4 +1,5 @@
 import { Jimp as jimp, getTestDir } from "@jimp/test-utils";
+import expect from "@storybook/expect";
 
 const fs = require("fs");
 const http = require("http");
@@ -33,26 +34,33 @@ const httpHandler = (req, res) => {
   }
 };
 
-describe("redirect", () => {
+describe("request", () => {
+  const httpServer = http.createServer(httpHandler);
+  before(() => {
+    httpServer.listen(5136);
+  });
+
+  after(() => {
+    httpServer.close();
+  });
+
   if (typeof window !== "undefined" && typeof window.document !== "undefined") {
-    xit("Not testing redirects in browser");
+    xit("Not testing requests in browser");
   } else {
-    const httpServer = http.createServer(httpHandler);
-    before(() => {
-      httpServer.listen(5136);
+    it("loads standard response", async () => {
+      await jimp.read("http://localhost:5136/corrected.png");
     });
 
-    it("follows 301 redirect", (done) => {
-      jimp
-        .read("http://localhost:5136/redirect.png")
-        .then(() => {
-          httpServer.close();
-          done();
-        })
-        .catch((error) => {
-          httpServer.close();
-          done(error);
-        });
+    it("follows 301 redirect", async () => {
+      await jimp.read("http://localhost:5136/redirect.png");
+    });
+
+    it("reports 404 correctly", () => {
+      return expect(
+        jimp.read("http://localhost:5136/not-found.png")
+      ).rejects.toThrow(
+        "HTTP Status 404 for url http://localhost:5136/not-found.png"
+      );
     });
   }
 });
