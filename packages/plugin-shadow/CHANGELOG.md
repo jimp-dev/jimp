@@ -1,3 +1,17 @@
+# v0.22.0 (Mon Feb 06 2023)
+
+#### 🏠 Internal
+
+- switch from should to expect [#1163](https://github.com/jimp-dev/jimp/pull/1163) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- Change test matching strategy to include all test files [#1161](https://github.com/jimp-dev/jimp/pull/1161) ([@danielholmes](https://github.com/danielholmes))
+
+#### Authors: 2
+
+- Andrew Lisowski ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- Daniel Holmes ([@danielholmes](https://github.com/danielholmes))
+
+---
+
 # v0.21.0 (Sun Feb 05 2023)
 
 ### Release Notes
