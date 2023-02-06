@@ -545,4 +545,4 @@ Resize.prototype.generateUint8Buffer = function (bufferLength) {
   }
 };
 
-module.exports = Resize;
+export default Resize;

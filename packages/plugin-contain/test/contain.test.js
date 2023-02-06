@@ -5,6 +5,7 @@ import resize from "@jimp/plugin-resize";
 import scale from "@jimp/plugin-scale";
 
 import contain from "../src";
+import { expectToBeJGD } from "@jimp/test-utils/src";
 
 const jimp = configure({ plugins: [scale, resize, blit, contain] }, Jimp);
 
@@ -114,16 +115,14 @@ describe("All align combinations for contain", () => {
     let a = align.split(" ");
     a = Jimp["HORIZONTAL_ALIGN_" + a[0]] | Jimp["VERTICAL_ALIGN_" + a[1]];
     it("contain aligned to " + align, () => {
-      vertical
-        .clone()
-        .contain(6, 6, a)
-        .getJGDSync()
-        .should.be.sameJGD(jgdContainV, "Vertical image");
-      horizontal
-        .clone()
-        .contain(6, 6, a)
-        .getJGDSync()
-        .should.be.sameJGD(jgdContainH, "Horizontal image");
+      expectToBeJGD(
+        vertical.clone().contain(6, 6, a).getJGDSync(),
+        jgdContainV
+      );
+      expectToBeJGD(
+        horizontal.clone().contain(6, 6, a).getJGDSync(),
+        jgdContainH
+      );
     });
   }
 

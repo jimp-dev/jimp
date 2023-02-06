@@ -1,13 +1,13 @@
 {
   "name": "@jimp/plugin-flip",
-  "version": "0.21.1",
+  "version": "0.21.3",
   "description": "flip an image.",
   "main": "dist/index.js",
   "module": "es/index.js",
   "repository": "jimp-dev/jimp",
   "types": "index.d.ts",
   "scripts": {
-    "build": "npm run build:node:production && npm run build:module",
+    "build": "npm run build:node:production && npm run build:module --recursive test",
     "build:watch": "npm run build:node:debug -- -- --watch --verbose",
     "build:debug": "npm run build:node:debug",
     "build:module": "cross-env BABEL_ENV=module babel src -d es --source-maps --config-file ../../babel.config.js",

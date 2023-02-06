@@ -1,12 +1,12 @@
 {
   "name": "@jimp/test-utils",
-  "version": "0.21.1",
+  "version": "0.21.3",
   "description": "Test utils for jimp extensions.",
   "main": "dist/index.js",
   "repository": "jimp-dev/jimp",
   "module": "es/index.js",
   "scripts": {
-    "test": "cross-env BABEL_ENV=test mocha --require @babel/register",
+    "test": "cross-env BABEL_ENV=test mocha --require @babel/register --recursive test  --extension js",
     "test:watch": "npm run test -- --reporter min --watch",
     "test:coverage": "nyc npm run test",
     "build": "npm run build:node:production && npm run build:module",
@@ -26,7 +26,6 @@
     "pngjs": "^6.0.0"
   },
   "devDependencies": {
-    "@jimp/custom": "link:../custom",
-    "should": "^13.2.3"
+    "@jimp/custom": "link:../custom"
   }
 }

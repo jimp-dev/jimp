@@ -1,8 +1,10 @@
 import { Jimp, mkJGD, getTestDir } from "@jimp/test-utils";
 import configure from "@jimp/custom";
 import types from "@jimp/types";
+import expect from "@storybook/expect";
 
 import color from "../src";
+import { expectToBeJGD } from "@jimp/test-utils/src";
 
 const jimp = configure({ types: [types], plugins: [color] }, Jimp);
 
@@ -56,116 +58,95 @@ describe("Convolution", function () {
   ];
 
   it("3x3 sharp matrix on EDGE_EXTEND", (done) => {
-    imgMid
-      .clone()
-      .convolution(sharpM)
-      .getJGDSync()
-      .should.be.sameJGD(
-        mkJGD(
-          "22222222",
-          "28EEE822",
-          "2EFFF802",
-          "2EF88002",
-          "2EF88002",
-          "28800002",
-          "22000002",
-          "22222222"
-        ),
-        "Mid light block"
-      );
-    imgTopLeft
-      .clone()
-      .convolution(sharpM)
-      .getJGDSync()
-      .should.be.sameJGD(
-        mkJGD(
-          "80022222",
-          "00022222",
-          "00022222",
-          "22222222",
-          "22222222",
-          "22222222",
-          "22222222",
-          "22222222"
-        ),
-        "Top left light block"
-      );
+    expectToBeJGD(
+      imgMid.clone().convolution(sharpM).getJGDSync(),
+      mkJGD(
+        "22222222",
+        "28EEE822",
+        "2EFFF802",
+        "2EF88002",
+        "2EF88002",
+        "28800002",
+        "22000002",
+        "22222222"
+      )
+    );
+
+    expectToBeJGD(
+      imgTopLeft.clone().convolution(sharpM).getJGDSync(),
+      mkJGD(
+        "80022222",
+        "00022222",
+        "00022222",
+        "22222222",
+        "22222222",
+        "22222222",
+        "22222222",
+        "22222222"
+      )
+    );
     done();
   });
 
   it("3x3 sharp matrix on EDGE_WRAP", (done) => {
-    imgMid
-      .clone()
-      .convolution(sharpM, jimp.EDGE_WRAP)
-      .getJGDSync()
-      .should.be.sameJGD(
-        mkJGD(
-          "22222222",
-          "28EEE822",
-          "2EFFF802",
-          "2EF88002",
-          "2EF88002",
-          "28800002",
-          "22000002",
-          "22222222"
-        ),
-        "Mid light block"
-      );
-    imgTopLeft
-      .clone()
-      .convolution(sharpM, jimp.EDGE_WRAP)
-      .getJGDSync()
-      .should.be.sameJGD(
-        mkJGD(
-          "F802222E",
-          "80022228",
-          "00022222",
-          "22222222",
-          "22222222",
-          "22222222",
-          "22222222",
-          "E8222228"
-        ),
-        "Top left light block"
-      );
+    expectToBeJGD(
+      imgMid.clone().convolution(sharpM, jimp.EDGE_WRAP).getJGDSync(),
+      mkJGD(
+        "22222222",
+        "28EEE822",
+        "2EFFF802",
+        "2EF88002",
+        "2EF88002",
+        "28800002",
+        "22000002",
+        "22222222"
+      )
+    );
+
+    expectToBeJGD(
+      imgTopLeft.clone().convolution(sharpM, jimp.EDGE_WRAP).getJGDSync(),
+      mkJGD(
+        "F802222E",
+        "80022228",
+        "00022222",
+        "22222222",
+        "22222222",
+        "22222222",
+        "22222222",
+        "E8222228"
+      )
+    );
     done();
   });
 
   it("3x3 sharp matrix on EDGE_CROP", (done) => {
-    imgMid
-      .clone()
-      .convolution(sharpM, jimp.EDGE_CROP)
-      .getJGDSync()
-      .should.be.sameJGD(
-        mkJGD(
-          "86666662",
-          "68EEE820",
-          "6EFFF800",
-          "6EF88000",
-          "6EF88000",
-          "68800000",
-          "62000000",
-          "20000000"
-        ),
-        "Mid light block"
-      );
-    imgTopLeft
-      .clone()
-      .convolution(sharpM, jimp.EDGE_CROP)
-      .getJGDSync()
-      .should.be.sameJGD(
-        mkJGD(
-          "FC066662",
-          "C0022220",
-          "00022220",
-          "62222220",
-          "62222220",
-          "62222220",
-          "62222220",
-          "20000000"
-        ),
-        "Top left light block"
-      );
+    expectToBeJGD(
+      imgMid.clone().convolution(sharpM, jimp.EDGE_CROP).getJGDSync(),
+      mkJGD(
+        "86666662",
+        "68EEE820",
+        "6EFFF800",
+        "6EF88000",
+        "6EF88000",
+        "68800000",
+        "62000000",
+        "20000000"
+      )
+    );
+
+    expectToBeJGD(
+      imgTopLeft.clone().convolution(sharpM, jimp.EDGE_CROP).getJGDSync(),
+      mkJGD(
+        "FC066662",
+        "C0022220",
+        "00022220",
+        "62222220",
+        "62222220",
+        "62222220",
+        "62222220",
+        "20000000"
+      )
+    );
     done();
   });
 
@@ -175,14 +156,14 @@ describe("Convolution", function () {
     );
     const image = await jimp.read(getTestDir(__dirname) + "/images/qr.jpg");
 
-    image
-      .convolution([
+    expect(
+      image.convolution([
         [0, 0, 0, 0, 0],
         [0, 1, 1, 1, 0],
         [0, 1, 0, 1, 0],
         [0, 1, 1, 1, 0],
         [0, 0, 0, 0, 0],
-      ])
-      .bitmap.data.should.be.deepEqual(expectedImg.bitmap.data);
+      ]).bitmap.data
+    ).toEqual(expectedImg.bitmap.data);
   });
 });

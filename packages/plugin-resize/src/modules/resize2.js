@@ -20,7 +20,7 @@
  * THE SOFTWARE.
  */
 
-module.exports = {
+const operations = {
   nearestNeighbor(src, dst) {
     const wSrc = src.width;
     const hSrc = src.height;
@@ -291,3 +291,5 @@ module.exports = {
     return this._interpolate2D(src, dst, options, interpolateBezier);
   },
 };
+
+export default operations;

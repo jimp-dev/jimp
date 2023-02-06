@@ -1,6 +1,6 @@
 {
   "name": "@jimp/core",
-  "version": "0.21.1",
+  "version": "0.21.3",
   "description": "Jimp core",
   "main": "dist/index.js",
   "module": "es/index.js",
@@ -15,7 +15,7 @@
   ],
   "repository": "jimp-dev/jimp",
   "scripts": {
-    "test": "cross-env BABEL_ENV=test mocha --require @babel/register test/**/*.js",
+    "test": "cross-env BABEL_ENV=test mocha --require @babel/register --recursive test --extension js",
     "test:watch": "npm run test -- --reporter min --watch",
     "test:coverage": "nyc npm run test",
     "build": "npm run build:node:production && npm run build:module",
@@ -38,9 +38,6 @@
     "phin": "^2.9.1",
     "pixelmatch": "^4.0.2",
     "tinycolor2": "^1.4.1"
-  },
-  "devDependencies": {
-    "should": "^13.2.3"
   },
   "publishConfig": {
     "access": "public"

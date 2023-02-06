@@ -1,5 +1,5 @@
 import fs from "fs";
-import should from "should";
+import expect from "@storybook/expect";
 
 import { Jimp, getTestDir } from "@jimp/test-utils";
 
@@ -35,7 +35,7 @@ describe("composite", () => {
 
     fs.unlinkSync(testPath);
 
-    should.deepEqual(one, two);
+    expect(one).toEqual(two);
   });
 
   it("should handle edges correctly", async () => {
@@ -64,6 +64,6 @@ describe("composite", () => {
 
     fs.unlinkSync(testPath);
 
-    should.deepEqual(one, two);
+    expect(one).toEqual(two);
   });
 });

@@ -2,6 +2,7 @@ import { Jimp, mkJGD } from "@jimp/test-utils";
 import configure from "@jimp/custom";
 
 import fisheye from "../src";
+import { expectToBeJGD } from "@jimp/test-utils/src";
 
 const jimp = configure({ plugins: [fisheye] }, Jimp);
 
@@ -36,7 +37,7 @@ describe("Fisheye", () => {
       )
     );
 
-    imgNormal.fisheye().getJGDSync().should.be.sameJGD(imgBulged.getJGDSync());
+    expectToBeJGD(imgNormal.fisheye().getJGDSync(), imgBulged.getJGDSync());
   });
 
   it("should create fisheye lens to image with radius", async () => {
@@ -69,9 +70,9 @@ describe("Fisheye", () => {
       )
     );
 
-    imgNormal
-      .fisheye({ r: 1.8 })
-      .getJGDSync()
-      .should.be.sameJGD(imgBulged.getJGDSync());
+    expectToBeJGD(
+      imgNormal.fisheye({ r: 1.8 }).getJGDSync(),
+      imgBulged.getJGDSync()
+    );
   });
 });

@@ -1,5 +1,6 @@
 import { Jimp, mkJGD, getTestDir } from "@jimp/test-utils";
 import configure from "@jimp/custom";
+import expect from "@storybook/expect";
 
 import circle from "../src";
 
@@ -25,7 +26,7 @@ describe("Circle", () => {
       )
     );
 
-    imgSrc.circle().bitmap.data.should.be.deepEqual(expectedImg.bitmap.data);
+    expect(imgSrc.circle().bitmap.data).toEqual(expectedImg.bitmap.data);
   });
 
   it("makes a circle using provided radius", async () => {
@@ -47,9 +48,9 @@ describe("Circle", () => {
       )
     );
 
-    imgSrc
-      .circle({ radius: 3 })
-      .bitmap.data.should.be.deepEqual(expectedImg.bitmap.data);
+    expect(imgSrc.circle({ radius: 3 }).bitmap.data).toEqual(
+      expectedImg.bitmap.data
+    );
   });
 
   it("should ", async () => {
@@ -71,8 +72,8 @@ describe("Circle", () => {
       )
     );
 
-    imgSrc
-      .circle({ radius: 5, x: 5, y: 5 })
-      .bitmap.data.should.be.deepEqual(expectedImg.bitmap.data);
+    expect(imgSrc.circle({ radius: 5, x: 5, y: 5 }).bitmap.data).toEqual(
+      expectedImg.bitmap.data
+    );
   });
 });

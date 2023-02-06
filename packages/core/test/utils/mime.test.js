@@ -1,4 +1,4 @@
-import should from "should/as-function";
+import expect from "@storybook/expect";
 import { getType, getExtension, addType } from "../../src/utils/mime";
 
 describe("Mime", () => {
@@ -12,30 +12,30 @@ describe("Mime", () => {
 
   describe("getType", () => {
     it("should return undefined if not found", () => {
-      should(getType("/path/to.the/file.boop")).be.exactly(undefined);
+      expect(getType("/path/to.the/file.boop")).toBe(undefined);
     });
 
     it("should return the correct mime", () => {
-      should(getType("/path/to.the/file.png")).be.exactly("image/png");
-      should(getType("/path/to.the/file.gif")).be.exactly("image/gif");
-      should(getType("/path/to.the/file.jpg")).be.exactly("image/jpeg");
-      should(getType("/path/to.the/file.jpeg")).be.exactly("image/jpeg");
-      should(getType("/path/to.the/file.bmp")).be.exactly("image/bmp");
-      should(getType("/path/to.the/file.tiff")).be.exactly("image/tiff");
+      expect(getType("/path/to.the/file.png")).toBe("image/png");
+      expect(getType("/path/to.the/file.gif")).toBe("image/gif");
+      expect(getType("/path/to.the/file.jpg")).toBe("image/jpeg");
+      expect(getType("/path/to.the/file.jpeg")).toBe("image/jpeg");
+      expect(getType("/path/to.the/file.bmp")).toBe("image/bmp");
+      expect(getType("/path/to.the/file.tiff")).toBe("image/tiff");
     });
   });
 
   describe("getExtension", () => {
     it("should return undefined if not found", () => {
-      should(getExtension("unknown/mime")).be.exactly(undefined);
+      expect(getExtension("unknown/mime")).toBe(undefined);
     });
 
     it("should return the correct extension", () => {
-      should(getExtension("image/png")).be.exactly("png");
-      should(getExtension("image/gif")).be.exactly("gif");
-      should(getExtension("image/jpeg")).be.exactly("jpeg");
-      should(getExtension("image/bmp")).be.exactly("bmp");
-      should(getExtension("image/tiff")).be.exactly("tiff");
+      expect(getExtension("image/png")).toBe("png");
+      expect(getExtension("image/gif")).toBe("gif");
+      expect(getExtension("image/jpeg")).toBe("jpeg");
+      expect(getExtension("image/bmp")).toBe("bmp");
+      expect(getExtension("image/tiff")).toBe("tiff");
     });
   });
 });

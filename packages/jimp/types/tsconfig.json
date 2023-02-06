@@ -6,6 +6,7 @@
     "noImplicitThis": true,
     "strictNullChecks": true,
     "strictFunctionTypes": true,
+    "skipLibCheck": true,
     "noEmit": true,
 
     // If the library is an external module (uses `export`), this allows your test file to import "mylib" instead of "./index".

@@ -1,4 +1,5 @@
 import { Jimp, mkJGD } from "@jimp/test-utils";
+import expect from "@storybook/expect";
 
 describe("Compare image difference", () => {
   let imgs = [
@@ -19,8 +20,9 @@ describe("Compare image difference", () => {
 
   it("images 0 and 1", () => {
     const diff = Jimp.diff(imgs[0], imgs[1]);
-    diff.percent.should.be.equal(0.75);
-    diff.image.getJGDSync().should.be.sameJGD({
+
+    expect(diff.percent).toBe(0.75);
+    expect(diff.image.getJGDSync()).toEqual({
       width: 4,
       height: 4,
       data: [
@@ -33,8 +35,9 @@ describe("Compare image difference", () => {
 
   it("images 0 and 2", () => {
     const diff = Jimp.diff(imgs[0], imgs[2]);
-    diff.percent.should.be.equal(0);
-    diff.image.getJGDSync().should.be.sameJGD({
+
+    expect(diff.percent).toBe(0);
+    expect(diff.image.getJGDSync()).toEqual({
       width: 4,
       height: 4,
       data: [
@@ -47,8 +50,8 @@ describe("Compare image difference", () => {
 
   it("images 0 and 3", () => {
     const diff = Jimp.diff(imgs[0], imgs[3]);
-    diff.percent.should.be.equal(0);
-    diff.image.getJGDSync().should.be.sameJGD({
+    expect(diff.percent).toBe(0);
+    expect(diff.image.getJGDSync()).toEqual({
       width: 4,
       height: 4,
       data: [
@@ -60,12 +63,12 @@ describe("Compare image difference", () => {
   });
 
   it("allows to set a different threshold", () => {
-    Jimp.diff(imgs[0], imgs[3], 0.1).percent.should.be.equal(0);
-    Jimp.diff(imgs[0], imgs[3], 0).percent.should.be.equal(0.25);
+    expect(Jimp.diff(imgs[0], imgs[3], 0.1).percent).toBe(0);
+    expect(Jimp.diff(imgs[0], imgs[3], 0).percent).toBe(0.25);
   });
 
   it("throws an error if threshold is invalid", () => {
-    (() => Jimp.diff(imgs[0], imgs[3], "invalid")).should.throw(
+    expect(() => Jimp.diff(imgs[0], imgs[3], -1)).toThrow(
       "threshold must be a number between 0 and 1"
     );
   });

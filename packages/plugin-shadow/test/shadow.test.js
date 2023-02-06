@@ -2,6 +2,7 @@ import { Jimp, mkJGD, getTestDir } from "@jimp/test-utils";
 import configure from "@jimp/custom";
 import resize from "@jimp/plugin-resize";
 import blur from "@jimp/plugin-blur";
+import expect from "@storybook/expect";
 
 import shadow from "../src";
 
@@ -24,8 +25,8 @@ describe("Shadow", () => {
       )
     );
 
-    testImage
-      .shadow({ x: -1, y: 1, blur: 1 })
-      .bitmap.data.should.be.deepEqual(expectedImg.bitmap.data);
+    expect(testImage.shadow({ x: -1, y: 1, blur: 1 }).bitmap.data).toEqual(
+      expectedImg.bitmap.data
+    );
   });
 });

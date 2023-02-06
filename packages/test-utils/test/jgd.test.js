@@ -1,4 +1,5 @@
 import { Jimp, donutJGD } from "../src";
+import expect from "@storybook/expect";
 
 const donut = donutJGD(
   // RRGGBBAA
@@ -20,20 +21,20 @@ describe("JGD - JS Graphic Description", () => {
     const image = await Jimp.read(donut);
     const buffer = await image.getBufferAsync("image/png");
 
-    buffer.toString("base64").should.be.equal(donutPngBase64);
+    expect(buffer.toString("base64")).toBe(donutPngBase64);
   });
 
   it("Jimp exports JGD sync", async () => {
     const image = await Jimp.read(donutPngBuffer);
 
-    image.getJGDSync().should.be.deepEqual(donut);
+    expect(image.getJGDSync()).toEqual(donut);
   });
 
   it("Jimp exports JGD async", async () => {
     const image = await Jimp.read(donutPngBuffer);
     const jgd = await image.getJGD();
 
-    jgd.data.length.should.be.equal(donut.data.length);
-    jgd.should.be.deepEqual(donut);
+    expect(jgd.data.length).toBe(donut.data.length);
+    expect(jgd).toEqual(donut);
   });
 });
