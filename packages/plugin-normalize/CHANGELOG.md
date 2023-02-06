@@ -1,3 +1,15 @@
+# v0.22.1 (Mon Feb 06 2023)
+
+#### 🏠 Internal
+
+- rename master to main [#1169](https://github.com/jimp-dev/jimp/pull/1169) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+
+#### Authors: 1
+
+- Andrew Lisowski ([@hipstersmoothie](https://github.com/hipstersmoothie))
+
+---
+
 # v0.22.0 (Mon Feb 06 2023)
 
 #### 🏠 Internal
