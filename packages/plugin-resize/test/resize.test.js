@@ -2,6 +2,7 @@ import { Jimp, mkJGD, hashForEach } from "@jimp/test-utils";
 import configure from "@jimp/custom";
 
 import resize from "../src";
+import { expectToBeJGD } from "@jimp/test-utils/src";
 
 const jimp = configure({ plugins: [resize] }, Jimp);
 
@@ -287,11 +288,10 @@ describe("Resize images", () => {
           .split("x")
           .map((n) => parseInt(n, 10));
         it("to " + expectedTitle, () => {
-          test.src
-            .clone()
-            .resize(size[0], size[1], mode)
-            .getJGDSync()
-            .should.be.sameJGD(expectedJgd);
+          expectToBeJGD(
+            test.src.clone().resize(size[0], size[1], mode).getJGDSync(),
+            expectedJgd
+          );
         });
       });
     });

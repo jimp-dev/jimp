@@ -3,6 +3,7 @@
 import { Jimp, getTestDir, hasOwnProp } from "@jimp/test-utils";
 import configure from "@jimp/custom";
 import blit from "@jimp/plugin-blit";
+import expect from "@storybook/expect";
 
 import print from "../src";
 
@@ -48,9 +49,10 @@ describe("Write text over image", function () {
           const expectedImg = await Jimp.read(expected);
           const image = await Jimp.create(conf.w, conf.h, conf.bg);
 
-          image
-            .print(font, 0, 0, "This is only a test.", image.bitmap.width)
-            .bitmap.data.should.be.deepEqual(expectedImg.bitmap.data);
+          expect(
+            image.print(font, 0, 0, "This is only a test.", image.bitmap.width)
+              .bitmap.data
+          ).toEqual(expectedImg.bitmap.data);
         });
       })(fontName, fontDefs[fontName]);
 
@@ -61,9 +63,9 @@ describe("Write text over image", function () {
     const expectedImg = await Jimp.read(expected);
     const image = await Jimp.create("300", "100", 0xff8800ff);
 
-    image
-      .print(font, 150, 50, "This is only a test.", 100)
-      .bitmap.data.should.be.deepEqual(expectedImg.bitmap.data);
+    expect(
+      image.print(font, 150, 50, "This is only a test.", 100).bitmap.data
+    ).toEqual(expectedImg.bitmap.data);
   });
 
   it("Jimp loads font from URL", async () => {
@@ -75,9 +77,9 @@ describe("Write text over image", function () {
     const expectedImg = await Jimp.read(expected);
     const image = await Jimp.create("300", "100", 0xff8800ff);
 
-    image
-      .print(font, 150, 50, "This is only a test.", 100)
-      .bitmap.data.should.be.deepEqual(expectedImg.bitmap.data);
+    expect(
+      image.print(font, 150, 50, "This is only a test.", 100).bitmap.data
+    ).toEqual(expectedImg.bitmap.data);
   });
 
   it("Jimp renders ? for unknown characters", async () => {
@@ -87,9 +89,9 @@ describe("Write text over image", function () {
     const expectedImg = await Jimp.read(expected);
     const image = await Jimp.read("300", "100", 0xff8800ff);
 
-    image
-      .print(font, 0, 0, "ツ ツ ツ", 100)
-      .bitmap.data.should.be.deepEqual(expectedImg.bitmap.data);
+    expect(image.print(font, 0, 0, "ツ ツ ツ", 100).bitmap.data).toEqual(
+      expectedImg.bitmap.data
+    );
   });
 
   it("Jimp can print numbers too", async () => {
@@ -99,9 +101,9 @@ describe("Write text over image", function () {
     const expectedImg = await Jimp.read(expected);
     const image = await Jimp.read("300", "100", 0xff8800ff);
 
-    image
-      .print(font, 0, 0, 12345678, 100)
-      .bitmap.data.should.be.deepEqual(expectedImg.bitmap.data);
+    expect(image.print(font, 0, 0, 12345678, 100).bitmap.data).toEqual(
+      expectedImg.bitmap.data
+    );
   });
 
   it("left-align text by default", async () => {
@@ -114,7 +116,7 @@ describe("Write text over image", function () {
       maxWidth: 100,
     });
 
-    expectedImage.bitmap.data.should.be.deepEqual(textImage.bitmap.data);
+    expect(textImage.bitmap.data).toEqual(expectedImage.bitmap.data);
   });
 
   it("left-align text by default when passing object", async () => {
@@ -127,7 +129,7 @@ describe("Write text over image", function () {
       maxWidth: 100,
     });
 
-    expectedImage.bitmap.data.should.be.deepEqual(textImage.bitmap.data);
+    expect(textImage.bitmap.data).toEqual(expectedImage.bitmap.data);
   });
 
   it("left-align text when passing object with alignmentX", async () => {
@@ -143,7 +145,7 @@ describe("Write text over image", function () {
       maxWidth: 100,
     });
 
-    expectedImage.bitmap.data.should.be.deepEqual(textImage.bitmap.data);
+    expect(textImage.bitmap.data).toEqual(expectedImage.bitmap.data);
   });
 
   it("center-align text when passing object with alignmentX", async () => {
@@ -159,7 +161,7 @@ describe("Write text over image", function () {
       maxWidth: 100,
     });
 
-    expectedImage.bitmap.data.should.be.deepEqual(textImage.bitmap.data);
+    expect(textImage.bitmap.data).toEqual(expectedImage.bitmap.data);
   });
 
   it("right-align text when passing object with alignmentX", async () => {
@@ -175,7 +177,7 @@ describe("Write text over image", function () {
       maxWidth: 100,
     });
 
-    expectedImage.bitmap.data.should.be.deepEqual(textImage.bitmap.data);
+    expect(textImage.bitmap.data).toEqual(expectedImage.bitmap.data);
   });
 
   it("middle-align text when passing object with alignmentY", async () => {
@@ -193,7 +195,7 @@ describe("Write text over image", function () {
       maxHeight: 240,
     });
 
-    expectedImage.bitmap.data.should.be.deepEqual(textImage.bitmap.data);
+    expect(textImage.bitmap.data).toEqual(expectedImage.bitmap.data);
   });
 
   it("middle-align text when passing object with alignmentY can offset y", async () => {
@@ -213,7 +215,7 @@ describe("Write text over image", function () {
       maxHeight: 240,
     });
 
-    expectedImage.bitmap.data.should.be.deepEqual(textImage.bitmap.data);
+    expect(textImage.bitmap.data).toEqual(expectedImage.bitmap.data);
   });
 
   it("bottom-align text when passing object with alignmentY", async () => {
@@ -231,7 +233,7 @@ describe("Write text over image", function () {
       maxHeight: 240,
     });
 
-    expectedImage.bitmap.data.should.be.deepEqual(textImage.bitmap.data);
+    expect(textImage.bitmap.data).toEqual(expectedImage.bitmap.data);
   });
 
   it("bottom-align text when passing object with alignmentY offset y", async () => {
@@ -251,7 +253,7 @@ describe("Write text over image", function () {
       maxHeight: 100,
     });
 
-    expectedImage.bitmap.data.should.be.deepEqual(textImage.bitmap.data);
+    expect(textImage.bitmap.data).toEqual(expectedImage.bitmap.data);
   });
 
   it("exposes print y position in cb", async () => {
@@ -279,7 +281,7 @@ describe("Write text over image", function () {
       }
     );
 
-    expectedImage.bitmap.data.should.be.deepEqual(image.bitmap.data);
+    expect(image.bitmap.data).toEqual(expectedImage.bitmap.data);
   });
 
   it("measureText is consistent with measureTextWidth", async () => {
@@ -290,6 +292,6 @@ describe("Write text over image", function () {
     const height = jimp.measureTextHeight(font, text, width);
     const lineHeight = jimp.measureTextHeight(font, text, Infinity);
 
-    height.should.be.deepEqual(lineHeight);
+    expect(height).toEqual(lineHeight);
   });
 });

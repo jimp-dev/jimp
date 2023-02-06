@@ -1,5 +1,6 @@
 import { Jimp, getTestDir } from "@jimp/test-utils";
 import configure from "@jimp/custom";
+import expect from "@storybook/expect";
 
 import png from "../src";
 
@@ -11,9 +12,9 @@ describe("PNG", () => {
   it("load PNG", async () => {
     const image = await jimp.read(imagesDir + "/dice.png");
 
-    image.getPixelColor(10, 10).should.be.equal(0x00000000);
-    image.getPixelColor(160, 80).should.be.equal(0x1c1cd4ff);
-    image.getPixelColor(400, 250).should.be.equal(0x7e0c0cda);
+    expect(image.getPixelColor(10, 10)).toBe(0x00000000);
+    expect(image.getPixelColor(160, 80)).toBe(0x1c1cd4ff);
+    expect(image.getPixelColor(400, 250)).toBe(0x7e0c0cda);
   });
 
   it("export PNG", async () => {
@@ -27,7 +28,7 @@ describe("PNG", () => {
     });
     const buffer = await jgd.getBufferAsync("image/png");
 
-    buffer.toString().should.match(/^.PNG\r\n/);
+    expect(buffer.toString()).toMatch(/^.PNG\r\n/);
   });
 
   it("should use png options", async () => {
@@ -55,6 +56,6 @@ describe("PNG", () => {
       .colorType(0)
       .getBufferAsync(Jimp.MIME_PNG);
 
-    image.should.be.deepEqual(expectedBuffer);
+    expect(image).toEqual(expectedBuffer);
   });
 });

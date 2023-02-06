@@ -1,8 +1,10 @@
 import { Jimp, mkJGD, getTestDir } from "@jimp/test-utils";
 import jpeg from "@jimp/jpeg";
 import configure from "@jimp/custom";
+import expect from "@storybook/expect";
 
 import blit from "../src";
+import { expectToBeJGD } from "@jimp/test-utils/src";
 
 const jimp = configure({ types: [jpeg], plugins: [blit] }, Jimp);
 const testDir = getTestDir(__dirname);
@@ -44,117 +46,99 @@ describe("Blit over image", function () {
   });
 
   it("blit on top, with no crop", () => {
-    targetImg
-      .clone()
-      .blit(srcImg, 0, 0)
-      .getJGDSync()
-      .should.be.sameJGD(
-        mkJGD(
-          "□□□□□□▸▸",
-          "□▥▥▥▥□▸▸",
-          "□▥■■▥□▸▸",
-          "□▥■■▥□▸▸",
-          "□▥▥▥▥□◆◆",
-          "□□□□□□◆◆",
-          "▾▾▾▾◆◆◆◆",
-          "▾▾▾▾◆◆◆◆"
-        )
-      );
+    expectToBeJGD(
+      targetImg.clone().blit(srcImg, 0, 0).getJGDSync(),
+      mkJGD(
+        "□□□□□□▸▸",
+        "□▥▥▥▥□▸▸",
+        "□▥■■▥□▸▸",
+        "□▥■■▥□▸▸",
+        "□▥▥▥▥□◆◆",
+        "□□□□□□◆◆",
+        "▾▾▾▾◆◆◆◆",
+        "▾▾▾▾◆◆◆◆"
+      )
+    );
   });
 
   it("blit on middle, with no crop", () => {
-    targetImg
-      .clone()
-      .blit(srcImg, 1, 1)
-      .getJGDSync()
-      .should.be.sameJGD(
-        mkJGD(
-          "▴▴▴▴▸▸▸▸",
-          "▴□□□□□□▸",
-          "▴□▥▥▥▥□▸",
-          "▴□▥■■▥□▸",
-          "▾□▥■■▥□◆",
-          "▾□▥▥▥▥□◆",
-          "▾□□□□□□◆",
-          "▾▾▾▾◆◆◆◆"
-        )
-      );
+    expectToBeJGD(
+      targetImg.clone().blit(srcImg, 1, 1).getJGDSync(),
+      mkJGD(
+        "▴▴▴▴▸▸▸▸",
+        "▴□□□□□□▸",
+        "▴□▥▥▥▥□▸",
+        "▴□▥■■▥□▸",
+        "▾□▥■■▥□◆",
+        "▾□▥▥▥▥□◆",
+        "▾□□□□□□◆",
+        "▾▾▾▾◆◆◆◆"
+      )
+    );
   });
 
   it("blit on middle, with x,y crop", () => {
-    targetImg
-      .clone()
-      .blit(srcImg, 2, 2, 1, 1, 5, 5)
-      .getJGDSync()
-      .should.be.sameJGD(
-        mkJGD(
-          "▴▴▴▴▸▸▸▸",
-          "▴▴▴▴▸▸▸▸",
-          "▴▴▥▥▥▥□▸",
-          "▴▴▥■■▥□▸",
-          "▾▾▥■■▥□◆",
-          "▾▾▥▥▥▥□◆",
-          "▾▾□□□□□◆",
-          "▾▾▾▾◆◆◆◆"
-        )
-      );
+    expectToBeJGD(
+      targetImg.clone().blit(srcImg, 2, 2, 1, 1, 5, 5).getJGDSync(),
+      mkJGD(
+        "▴▴▴▴▸▸▸▸",
+        "▴▴▴▴▸▸▸▸",
+        "▴▴▥▥▥▥□▸",
+        "▴▴▥■■▥□▸",
+        "▾▾▥■■▥□◆",
+        "▾▾▥▥▥▥□◆",
+        "▾▾□□□□□◆",
+        "▾▾▾▾◆◆◆◆"
+      )
+    );
   });
 
   it("blit on middle, with x,y,w,h crop", () => {
-    targetImg
-      .clone()
-      .blit(srcImg, 2, 2, 1, 1, 4, 4)
-      .getJGDSync()
-      .should.be.sameJGD(
-        mkJGD(
-          "▴▴▴▴▸▸▸▸",
-          "▴▴▴▴▸▸▸▸",
-          "▴▴▥▥▥▥▸▸",
-          "▴▴▥■■▥▸▸",
-          "▾▾▥■■▥◆◆",
-          "▾▾▥▥▥▥◆◆",
-          "▾▾▾▾◆◆◆◆",
-          "▾▾▾▾◆◆◆◆"
-        )
-      );
+    expectToBeJGD(
+      targetImg.clone().blit(srcImg, 2, 2, 1, 1, 4, 4).getJGDSync(),
+      mkJGD(
+        "▴▴▴▴▸▸▸▸",
+        "▴▴▴▴▸▸▸▸",
+        "▴▴▥▥▥▥▸▸",
+        "▴▴▥■■▥▸▸",
+        "▾▾▥■■▥◆◆",
+        "▾▾▥▥▥▥◆◆",
+        "▾▾▾▾◆◆◆◆",
+        "▾▾▾▾◆◆◆◆"
+      )
+    );
   });
 
   it("blit partially out, on top-left", () => {
-    targetImg
-      .clone()
-      .blit(srcImg, -1, -1)
-      .getJGDSync()
-      .should.be.sameJGD(
-        mkJGD(
-          "▥▥▥▥□▸▸▸",
-          "▥■■▥□▸▸▸",
-          "▥■■▥□▸▸▸",
-          "▥▥▥▥□▸▸▸",
-          "□□□□□◆◆◆",
-          "▾▾▾▾◆◆◆◆",
-          "▾▾▾▾◆◆◆◆",
-          "▾▾▾▾◆◆◆◆"
-        )
-      );
+    expectToBeJGD(
+      targetImg.clone().blit(srcImg, -1, -1).getJGDSync(),
+      mkJGD(
+        "▥▥▥▥□▸▸▸",
+        "▥■■▥□▸▸▸",
+        "▥■■▥□▸▸▸",
+        "▥▥▥▥□▸▸▸",
+        "□□□□□◆◆◆",
+        "▾▾▾▾◆◆◆◆",
+        "▾▾▾▾◆◆◆◆",
+        "▾▾▾▾◆◆◆◆"
+      )
+    );
   });
 
   it("blit partially out, on bottom-right", () => {
-    targetImg
-      .clone()
-      .blit(srcImg, 3, 3)
-      .getJGDSync()
-      .should.be.sameJGD(
-        mkJGD(
-          "▴▴▴▴▸▸▸▸",
-          "▴▴▴▴▸▸▸▸",
-          "▴▴▴▴▸▸▸▸",
-          "▴▴▴□□□□□",
-          "▾▾▾□▥▥▥▥",
-          "▾▾▾□▥■■▥",
-          "▾▾▾□▥■■▥",
-          "▾▾▾□▥▥▥▥"
-        )
-      );
+    expectToBeJGD(
+      targetImg.clone().blit(srcImg, 3, 3).getJGDSync(),
+      mkJGD(
+        "▴▴▴▴▸▸▸▸",
+        "▴▴▴▴▸▸▸▸",
+        "▴▴▴▴▸▸▸▸",
+        "▴▴▴□□□□□",
+        "▾▾▾□▥▥▥▥",
+        "▾▾▾□▥■■▥",
+        "▾▾▾□▥■■▥",
+        "▾▾▾□▥▥▥▥"
+      )
+    );
   });
 
   it("blit alpha", async () => {
@@ -162,9 +146,7 @@ describe("Blit over image", function () {
     const dice = await Jimp.read(testDir + "/images/dice.png");
     const image = await Jimp.read(testDir + "/images/cops.jpg");
 
-    image
-      .blit(dice, 0, 0)
-      .bitmap.data.should.be.deepEqual(expectedImg.bitmap.data);
+    expect(image.blit(dice, 0, 0).bitmap.data).toEqual(expectedImg.bitmap.data);
   });
 
   async function createCat(catNum, len) {
@@ -218,18 +200,19 @@ describe("Blit over image", function () {
       testDir + "/images/cat-results/small-cat.png"
     );
     const small = await createCat(0.3, 1);
-    small.bitmap.data.should.be.deepEqual(expectedSmall.bitmap.data);
+
+    expect(small.bitmap.data).toEqual(expectedSmall.bitmap.data);
 
     const expectedMedium = await Jimp.read(
       testDir + "/images/cat-results/medium-cat.png"
     );
     const medium = await createCat(0.6, 7);
-    medium.bitmap.data.should.be.deepEqual(expectedMedium.bitmap.data);
+    expect(medium.bitmap.data).toEqual(expectedMedium.bitmap.data);
 
     const expectedLarge = await Jimp.read(
       testDir + "/images/cat-results/large-cat.png"
     );
     const large = await createCat(0.9, 20);
-    large.bitmap.data.should.be.deepEqual(expectedLarge.bitmap.data);
+    expect(large.bitmap.data).toEqual(expectedLarge.bitmap.data);
   });
 });

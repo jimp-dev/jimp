@@ -1,8 +1,7 @@
-import should from "should";
+import expect from "@storybook/expect";
+import equal from "fast-deep-equal";
 
 export const Jimp = require("./jgd-wrapper");
-
-const shouldAssertion = {}.should.be.constructor.prototype;
 
 export function hasOwnProp(obj, key) {
   return Object.prototype.hasOwnProperty.call(obj, key);
@@ -75,25 +74,57 @@ export function jgdReadableMatrix(img) {
   return rMatrix.join("\n");
 }
 
-shouldAssertion.sameJGD = function (targetJGD, message) {
-  message = message ? " " + message : "";
-  const testJGD = this.obj;
-  should.exist(testJGD.width, "Width was not defined." + message);
-  should.exist(testJGD.height, "Height was not defined." + message);
-  testJGD.width.should.be.equal(
-    targetJGD.width,
-    "Width is not the expected." + message
-  );
-  testJGD.height.should.be.equal(
-    targetJGD.height,
-    "Height is not the expected." + message
-  );
-  const matrixMsg = message || "The pixel matrix is not the expected.";
-  jgdReadableMatrix(testJGD).should.be.equal(
-    jgdReadableMatrix(targetJGD),
-    matrixMsg
-  );
-};
+function determineJGDError(testJGD, targetJGD) {
+  if (typeof testJGD.width === "undefined") {
+    return {
+      pass: false,
+      message: `Expected testJGD.width to be defined`,
+    };
+  }
+
+  if (typeof testJGD.height === "undefined") {
+    return {
+      pass: false,
+      message: `Expected testJGD.height to be defined`,
+    };
+  }
+
+  if (testJGD.width !== targetJGD.width) {
+    return {
+      pass: false,
+      message: `Expected testJGD.width to be ${targetJGD.width} but got ${testJGD.width}`,
+    };
+  }
+
+  if (testJGD.height !== targetJGD.height) {
+    console.log(typeof testJGD.height, typeof targetJGD.height);
+    return {
+      pass: false,
+      message: `Expected testJGD.height to be ${targetJGD.height} but got ${testJGD.height}`,
+    };
+  }
+
+  if (!equal(jgdReadableMatrix(testJGD), jgdReadableMatrix(targetJGD))) {
+    return {
+      pass: false,
+      message: "Expected testJGD to be equal to targetJGD",
+    };
+  }
+
+  return {
+    pass: true,
+  };
+}
+
+export function expectToBeJGD(testJGD, targetJGD) {
+  const error = determineJGDError(testJGD, targetJGD);
+
+  if (error.pass) {
+    return;
+  }
+
+  throw new Error(error.message);
+}
 
 export function donutJGD(_, i, X) {
   /* eslint comma-spacing: off */
