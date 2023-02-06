@@ -1402,7 +1402,7 @@
     exif-parser "^0.1.12"
     file-type "^16.5.4"
     isomorphic-fetch "^3.0.0"
-    mkdirp "^0.5.1"
+    mkdirp "^2.1.3"
     pixelmatch "^4.0.2"
     tinycolor2 "^1.4.1"
 
@@ -4959,6 +4959,11 @@ emoji-regex@^8.0.0:
   version "8.0.0"
   resolved "https://registry.npmjs.org/emoji-regex/-/emoji-regex-8.0.0.tgz#e818fd69ce5ccfcb404594f842963bf53164cc37"
   integrity sha512-MSjYzcWNOA0ewAHpz0MxpYFvwg6yjy1NG3xteoqz644VCo/RPgnr1/GGt+ic3iJTzQ8Eu3TdM14SawnVUmGE6A==
+
+empty-module@^0.0.2:
+  version "0.0.2"
+  resolved "https://registry.npmjs.org/empty-module/-/empty-module-0.0.2.tgz#13b4dd8d4afeddd35e50c18dcd788c51087f1545"
+  integrity sha512-NFzPF5kG18UwYoRaXIylf8mpFEGOePZmKnbv3WUsEFxPe0w8NXPovJfm8t+tYoKwYmyRdQ2bZUizl/EiElJ7+g==
 
 encodeurl@~1.0.2:
   version "1.0.2"

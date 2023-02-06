@@ -11,6 +11,7 @@ export default {
   resolve: {
     alias: {
       pngjs: "pngjs/browser",
+      mkdirp: "empty-module",
     },
     fallback: {
       path: require.resolve("path-browserify"),
