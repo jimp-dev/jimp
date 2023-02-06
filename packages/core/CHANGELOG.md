@@ -1,3 +1,19 @@
+# v0.22.2 (Mon Feb 06 2023)
+
+:tada: This release contains work from a new contributor! :tada:
+
+Thank you, Ollie Chick ([@olliechick](https://github.com/olliechick)), for all your work!
+
+#### 🚀 Enhancement
+
+- Change type of mime from string to string|number to fix #990 [#1182](https://github.com/jimp-dev/jimp/pull/1182) ([@olliechick](https://github.com/olliechick))
+
+#### Authors: 1
+
+- Ollie Chick ([@olliechick](https://github.com/olliechick))
+
+---
+
 # v0.22.1 (Mon Feb 06 2023)
 
 #### 🚀 Enhancement

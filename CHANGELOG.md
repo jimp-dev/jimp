@@ -1,3 +1,29 @@
+# v0.22.2 (Mon Feb 06 2023)
+
+:tada: This release contains work from new contributors! :tada:
+
+Thanks for all your work!
+
+:heart: Ollie Chick ([@olliechick](https://github.com/olliechick))
+
+:heart: Andrey Kutejko ([@andy128k](https://github.com/andy128k))
+
+#### 🚀 Enhancement
+
+- `@jimp/core`
+  - Change type of mime from string to string|number to fix #990 [#1182](https://github.com/jimp-dev/jimp/pull/1182) ([@olliechick](https://github.com/olliechick))
+
+#### 📝 Documentation
+
+- Remove mentioning of `favicons` [#1176](https://github.com/jimp-dev/jimp/pull/1176) ([@andy128k](https://github.com/andy128k))
+
+#### Authors: 2
+
+- Andrey Kutejko ([@andy128k](https://github.com/andy128k))
+- Ollie Chick ([@olliechick](https://github.com/olliechick))
+
+---
+
 # v0.22.1 (Mon Feb 06 2023)
 
 #### 🚀 Enhancement
