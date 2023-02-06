@@ -13,7 +13,8 @@ export function hashForEach(hash, func) {
 }
 
 export function getTestDir(dir) {
-  const testRE = /\/[^/]+\.test\.js($|\?.*)/;
+  // Legacy webpack support. I do not know the exact purpose of this file
+  const testRE = /\/[^/]+\.test\.(?:\d+\.)?js($|\?.*)/;
   if (
     typeof document !== "undefined" &&
     document &&

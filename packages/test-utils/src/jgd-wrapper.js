@@ -38,8 +38,28 @@ function configureJimp() {
   });
 }
 
-const Jimp =
-  typeof window !== "undefined" && window.Jimp ? window.Jimp : configureJimp();
+/**
+ * The ultimate hack
+ */
+function chaos(J) {
+  if (J.__esModule) {
+    return chaos(J.default || J.Jimp);
+  }
+
+  if (J.Jimp) {
+    return chaos(J.Jimp);
+  }
+
+  if (J.default) {
+    return chaos(J.default);
+  }
+
+  return J;
+}
+
+const Jimp = chaos(
+  typeof window !== "undefined" && window.Jimp ? window.Jimp : configureJimp()
+);
 
 /**
  * Jimp constructor (from a JGD object)
