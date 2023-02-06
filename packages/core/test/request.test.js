@@ -35,18 +35,18 @@ const httpHandler = (req, res) => {
 };
 
 describe("request", () => {
-  const httpServer = http.createServer(httpHandler);
-  before(() => {
-    httpServer.listen(5136);
-  });
-
-  after(() => {
-    httpServer.close();
-  });
-
   if (typeof window !== "undefined" && typeof window.document !== "undefined") {
     xit("Not testing requests in browser");
   } else {
+    const httpServer = http.createServer(httpHandler);
+    before(() => {
+      httpServer.listen(5136);
+    });
+
+    after(() => {
+      httpServer.close();
+    });
+
     it("loads standard response", async () => {
       await jimp.read("http://localhost:5136/corrected.png");
     });
