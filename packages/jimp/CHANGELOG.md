@@ -1,3 +1,15 @@
+# v0.22.3 (Mon Feb 06 2023)
+
+#### 🚀 Enhancement
+
+- Fix browser build [#1184](https://github.com/jimp-dev/jimp/pull/1184) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+
+#### Authors: 1
+
+- Andrew Lisowski ([@hipstersmoothie](https://github.com/hipstersmoothie))
+
+---
+
 # v0.22.1 (Mon Feb 06 2023)
 
 #### 🏠 Internal
