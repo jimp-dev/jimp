@@ -1,6 +1,6 @@
 {
   "name": "@jimp/gif",
-  "version": "0.22.3",
+  "version": "0.22.4",
   "description": "Default Jimp gif encoder/decoder.",
   "main": "dist/index.js",
   "module": "es/index.js",
