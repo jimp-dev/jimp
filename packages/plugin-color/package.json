@@ -22,7 +22,7 @@
   "license": "MIT",
   "dependencies": {
     "@jimp/utils": "link:../utils",
-    "tinycolor2": "^1.4.1"
+    "tinycolor2": "^1.6.0"
   },
   "devDependencies": {
     "@jimp/custom": "link:../custom",
