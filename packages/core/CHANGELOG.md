@@ -1,3 +1,15 @@
+# v0.22.4 (Tue Feb 07 2023)
+
+#### 🚀 Enhancement
+
+- update tinycolor2 [#1187](https://github.com/jimp-dev/jimp/pull/1187) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+
+#### Authors: 1
+
+- Andrew Lisowski ([@hipstersmoothie](https://github.com/hipstersmoothie))
+
+---
+
 # v0.22.2 (Mon Feb 06 2023)
 
 :tada: This release contains work from a new contributor! :tada:
