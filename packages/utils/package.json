@@ -24,6 +24,7 @@
     "regenerator-runtime": "^0.13.3"
   },
   "devDependencies": {
-    "@jimp/config": "workspace:*"
+    "@jimp/config": "workspace:*",
+    "@jimp/core": "workspace:*"
   }
 }

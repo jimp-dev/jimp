@@ -30,6 +30,7 @@
   },
   "devDependencies": {
     "@jimp/config": "workspace:*",
+    "@jimp/core": "workspace:*",
     "@jimp/custom": "workspace:*",
     "@jimp/plugin-blur": "workspace:*",
     "@jimp/plugin-resize": "workspace:*",

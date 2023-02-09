@@ -29,6 +29,7 @@
   },
   "devDependencies": {
     "@jimp/config": "workspace:*",
+    "@jimp/core": "workspace:*",
     "@jimp/custom": "workspace:*",
     "@jimp/test-utils": "workspace:*",
     "@types/pngjs": "^6.0.1"

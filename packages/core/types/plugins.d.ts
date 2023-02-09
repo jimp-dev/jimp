@@ -2,7 +2,7 @@
  * These files pertain to the typings of plugins or types
  *
  * They're not meant as utils to decode types, but rather
- * the type definitons themsleves for plugins and types of various kinds
+ * the type definitions themselves for plugins and types of various kinds
  */
 import { Image, EncoderFn, DecoderFn } from "./etc";
 

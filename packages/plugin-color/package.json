@@ -26,6 +26,7 @@
   },
   "devDependencies": {
     "@jimp/config": "workspace:*",
+    "@jimp/core": "workspace:*",
     "@jimp/custom": "workspace:*",
     "@jimp/test-utils": "workspace:*",
     "@jimp/types": "workspace:*"

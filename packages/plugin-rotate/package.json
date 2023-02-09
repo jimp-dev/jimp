@@ -31,6 +31,7 @@
   },
   "devDependencies": {
     "@jimp/config": "workspace:*",
+    "@jimp/core": "workspace:*",
     "@jimp/custom": "workspace:*",
     "@jimp/plugin-blit": "workspace:*",
     "@jimp/plugin-crop": "workspace:*",

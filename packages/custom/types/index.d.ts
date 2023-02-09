@@ -2,7 +2,6 @@
 // See the `jimp` package index.d.ts for why the version is not 2.8
 import {
   FunctionRet,
-  Jimp,
   JimpPlugin,
   JimpType,
   GetIntersectionFromPlugins,

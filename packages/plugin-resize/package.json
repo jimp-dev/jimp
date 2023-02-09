@@ -24,6 +24,7 @@
     "@jimp/utils": "workspace:*"
   },
   "peerDependencies": {
+    "@jimp/core": "workspace:*",
     "@jimp/custom": ">=0.3.5"
   },
   "devDependencies": {

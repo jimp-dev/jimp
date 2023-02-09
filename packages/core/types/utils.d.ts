@@ -127,6 +127,6 @@ export type GetIntersectionFromPluginsStatics<
 
 /**
  * While this was added to TS 3.5, in order to support down to TS 2.8, we need
- * to export this and use it in sub-packges that utilize it
+ * to export this and use it in sub-packages that utilize it
  */
 export type Omit<T, K> = Pick<T, Exclude<keyof T, K>>;

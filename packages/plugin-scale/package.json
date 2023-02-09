@@ -25,7 +25,8 @@
     "@jimp/plugin-resize": ">=0.3.5"
   },
   "devDependencies": {
-    "@jimp/config": "workspace:*"
+    "@jimp/config": "workspace:*",
+    "@jimp/core": "workspace:*"
   },
   "publishConfig": {
     "access": "public"
