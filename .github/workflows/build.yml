@@ -52,7 +52,7 @@ jobs:
       - uses: actions/checkout@v3
       - uses: ./.github/actions/install-deps
       - uses: ./.github/actions/build-cache
-      - run: yarn tsTest:custom && yarn tsTest:main
+      - run: yarn test:ts
 
   test:
     runs-on: ubuntu-latest
