@@ -42,6 +42,15 @@ node_modules
 
 package-lock.json
 
+# Yarn Berry
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions
+
 # Browser Version
 **/browser/lib/*.js
 # ES5 Version
