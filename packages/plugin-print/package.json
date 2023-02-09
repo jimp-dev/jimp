@@ -21,7 +21,7 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "@jimp/utils": "link:../utils",
+    "@jimp/utils": "workspace:*",
     "load-bmfont": "^1.4.1"
   },
   "peerDependencies": {
@@ -29,9 +29,9 @@
     "@jimp/plugin-blit": ">=0.3.5"
   },
   "devDependencies": {
-    "@jimp/custom": "link:../custom",
-    "@jimp/plugin-blit": "link:../plugin-blit",
-    "@jimp/test-utils": "link:../test-utils"
+    "@jimp/custom": "workspace:*",
+    "@jimp/plugin-blit": "workspace:*",
+    "@jimp/test-utils": "workspace:*"
   },
   "publishConfig": {
     "access": "public"

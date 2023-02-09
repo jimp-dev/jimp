@@ -18,11 +18,11 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "@jimp/bmp": "link:../type-bmp",
-    "@jimp/gif": "link:../type-gif",
-    "@jimp/jpeg": "link:../type-jpeg",
-    "@jimp/png": "link:../type-png",
-    "@jimp/tiff": "link:../type-tiff",
+    "@jimp/bmp": "workspace:*",
+    "@jimp/gif": "workspace:*",
+    "@jimp/jpeg": "workspace:*",
+    "@jimp/png": "workspace:*",
+    "@jimp/tiff": "workspace:*",
     "timm": "^1.6.1"
   },
   "peerDependencies": {

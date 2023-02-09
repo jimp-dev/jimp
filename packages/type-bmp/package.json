@@ -21,15 +21,15 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "@jimp/utils": "link:../utils",
+    "@jimp/utils": "workspace:*",
     "bmp-js": "^0.1.0"
   },
   "peerDependencies": {
     "@jimp/custom": ">=0.3.5"
   },
   "devDependencies": {
-    "@jimp/custom": "link:../custom",
-    "@jimp/test-utils": "link:../test-utils"
+    "@jimp/custom": "workspace:*",
+    "@jimp/test-utils": "workspace:*"
   },
   "publishConfig": {
     "access": "public"

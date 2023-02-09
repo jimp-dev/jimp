@@ -29,7 +29,7 @@
   "author": "Oliver Moran <oliver.moran@gmail.com>",
   "license": "MIT",
   "dependencies": {
-    "@jimp/utils": "link:../utils",
+    "@jimp/utils": "workspace:*",
     "any-base": "^1.1.0",
     "buffer": "^5.2.0",
     "exif-parser": "^0.1.12",

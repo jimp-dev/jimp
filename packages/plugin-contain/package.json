@@ -21,7 +21,7 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "@jimp/utils": "link:../utils"
+    "@jimp/utils": "workspace:*"
   },
   "peerDependencies": {
     "@jimp/custom": ">=0.3.5",
@@ -30,11 +30,11 @@
     "@jimp/plugin-scale": ">=0.3.5"
   },
   "devDependencies": {
-    "@jimp/custom": "link:../custom",
-    "@jimp/plugin-blit": "link:../plugin-blit",
-    "@jimp/plugin-resize": "link:../plugin-resize",
-    "@jimp/plugin-scale": "link:../plugin-scale",
-    "@jimp/test-utils": "link:../test-utils"
+    "@jimp/custom": "workspace:*",
+    "@jimp/plugin-blit": "workspace:*",
+    "@jimp/plugin-resize": "workspace:*",
+    "@jimp/plugin-scale": "workspace:*",
+    "@jimp/test-utils": "workspace:*"
   },
   "publishConfig": {
     "access": "public"

@@ -27,8 +27,8 @@
     "@jimp/custom": ">=0.3.5"
   },
   "devDependencies": {
-    "@jimp/custom": "link:../custom",
-    "@jimp/test-utils": "link:../test-utils"
+    "@jimp/custom": "workspace:*",
+    "@jimp/test-utils": "workspace:*"
   },
   "publishConfig": {
     "access": "public"

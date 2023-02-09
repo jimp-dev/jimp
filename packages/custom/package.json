@@ -18,7 +18,7 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "@jimp/core": "link:../core"
+    "@jimp/core": "workspace:*"
   },
   "publishConfig": {
     "access": "public"

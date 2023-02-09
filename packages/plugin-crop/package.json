@@ -21,11 +21,11 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "@jimp/utils": "link:../utils"
+    "@jimp/utils": "workspace:*"
   },
   "devDependencies": {
-    "@jimp/custom": "link:../custom",
-    "@jimp/test-utils": "link:../test-utils"
+    "@jimp/custom": "workspace:*",
+    "@jimp/test-utils": "workspace:*"
   },
   "peerDependencies": {
     "@jimp/custom": ">=0.3.5"

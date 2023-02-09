@@ -21,13 +21,13 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "@jimp/utils": "link:../utils",
+    "@jimp/utils": "workspace:*",
     "tinycolor2": "^1.6.0"
   },
   "devDependencies": {
-    "@jimp/custom": "link:../custom",
-    "@jimp/test-utils": "link:../test-utils",
-    "@jimp/types": "link:../types"
+    "@jimp/custom": "workspace:*",
+    "@jimp/test-utils": "workspace:*",
+    "@jimp/types": "workspace:*"
   },
   "peerDependencies": {
     "@jimp/custom": ">=0.3.5"
