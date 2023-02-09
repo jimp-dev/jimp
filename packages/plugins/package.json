@@ -44,6 +44,9 @@
   "peerDependencies": {
     "@jimp/custom": ">=0.3.5"
   },
+  "devDependencies": {
+    "@jimp/config": "workspace:*"
+  },
   "publishConfig": {
     "access": "public"
   }
