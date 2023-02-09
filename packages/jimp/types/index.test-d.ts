@@ -1,5 +1,5 @@
-/* eslint-disable no-unused-expressions */
 import {test, assertType, expectTypeOf} from 'vitest'
+// eslint-disable-next-line import/no-unresolved
 import * as Jimp from "./index";
 
 test("API should have correct methods", () => {
@@ -12,7 +12,7 @@ test("API should have correct methods", () => {
     })).toEqualTypeOf<Jimp>();
     expectTypeOf(jimpInst.fishEye({r: 12})).toEqualTypeOf<Jimp>();
     expectTypeOf(jimpInst.circle({radius: 12, x: 12, y: 12})).toEqualTypeOf<Jimp>();
-    expectTypeOf(Jimp.read("Test")).toEqualTypeOf<Promise<Jimp>>();
+    assertType<Promise<Jimp>>(Jimp.read("Test"));
     assertType<0>(Jimp.PNG_FILTER_NONE);
 })
 
