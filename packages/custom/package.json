@@ -13,12 +13,24 @@
     "build:module": "cross-env BABEL_ENV=module babel src -d es --source-maps --config-file ../../babel.config.js",
     "build:node": "babel src -d dist --source-maps --config-file ../../babel.config.js",
     "build:node:debug": "cross-env BABEL_ENV=development npm run build:node",
-    "build:node:production": "cross-env BABEL_ENV=production npm run build:node"
+    "build:node:production": "cross-env BABEL_ENV=production npm run build:node",
+    "test:ts": "vitest typecheck"
   },
   "author": "",
   "license": "MIT",
   "dependencies": {
     "@jimp/core": "workspace:*"
+  },
+  "devDependencies": {
+    "@jimp/gif": "workspace:*",
+    "@jimp/plugin-displace": "workspace:*",
+    "@jimp/plugin-resize": "workspace:*",
+    "@jimp/plugin-scale": "workspace:*",
+    "@jimp/plugins": "workspace:*",
+    "@jimp/png": "workspace:*",
+    "@jimp/types": "workspace:*",
+    "typescript": "^4.9.5",
+    "vitest": "0.28.4"
   },
   "publishConfig": {
     "access": "public"

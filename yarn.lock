@@ -1941,6 +1941,15 @@ __metadata:
   resolution: "@jimp/custom@workspace:packages/custom"
   dependencies:
     "@jimp/core": "workspace:*"
+    "@jimp/gif": "workspace:*"
+    "@jimp/plugin-displace": "workspace:*"
+    "@jimp/plugin-resize": "workspace:*"
+    "@jimp/plugin-scale": "workspace:*"
+    "@jimp/plugins": "workspace:*"
+    "@jimp/png": "workspace:*"
+    "@jimp/types": "workspace:*"
+    typescript: ^4.9.5
+    vitest: 0.28.4
   languageName: unknown
   linkType: soft
 
