@@ -16,6 +16,8 @@ runs:
         path: |
           node_modules
           packages/*/node_modules
+          .yarn/cache
+          .yarn/install-state.gz
         key: node-modules-v2-${{ runner.os }}-${{ steps.node-version.outputs.version }}-${{ hashFiles('yarn.lock', 'patches/*.patch') }}
         restore-keys: |
           node-modules-v2-${{ runner.os }}-${{ steps.node-version.outputs.version }}-
