@@ -28,6 +28,7 @@
     "@jimp/custom": ">=0.3.5"
   },
   "devDependencies": {
+    "@jimp/config": "workspace:*",
     "@jimp/custom": "workspace:*",
     "@jimp/test-utils": "workspace:*"
   },

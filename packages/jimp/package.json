@@ -52,6 +52,7 @@
     "regenerator-runtime": "^0.13.3"
   },
   "devDependencies": {
+    "@jimp/config": "workspace:*",
     "@jimp/test-utils": "workspace:*",
     "empty-module": "^0.0.2",
     "express": "^4.17.1",

@@ -22,6 +22,7 @@
     "@jimp/core": "workspace:*"
   },
   "devDependencies": {
+    "@jimp/config": "workspace:*",
     "@jimp/gif": "workspace:*",
     "@jimp/plugin-displace": "workspace:*",
     "@jimp/plugin-resize": "workspace:*",

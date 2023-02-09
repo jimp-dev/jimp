@@ -39,6 +39,9 @@
     "pixelmatch": "^4.0.2",
     "tinycolor2": "^1.6.0"
   },
+  "devDependencies": {
+    "@jimp/config": "workspace:*"
+  },
   "publishConfig": {
     "access": "public"
   }

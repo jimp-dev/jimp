@@ -1911,6 +1911,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@jimp/bmp@workspace:packages/type-bmp"
   dependencies:
+    "@jimp/config": "workspace:*"
     "@jimp/custom": "workspace:*"
     "@jimp/test-utils": "workspace:*"
     "@jimp/utils": "workspace:*"
@@ -1920,10 +1921,17 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@jimp/config@workspace:*, @jimp/config@workspace:packages/config":
+  version: 0.0.0-use.local
+  resolution: "@jimp/config@workspace:packages/config"
+  languageName: unknown
+  linkType: soft
+
 "@jimp/core@workspace:*, @jimp/core@workspace:packages/core":
   version: 0.0.0-use.local
   resolution: "@jimp/core@workspace:packages/core"
   dependencies:
+    "@jimp/config": "workspace:*"
     "@jimp/utils": "workspace:*"
     any-base: ^1.1.0
     buffer: ^5.2.0
@@ -1940,6 +1948,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@jimp/custom@workspace:packages/custom"
   dependencies:
+    "@jimp/config": "workspace:*"
     "@jimp/core": "workspace:*"
     "@jimp/gif": "workspace:*"
     "@jimp/plugin-displace": "workspace:*"
@@ -1957,6 +1966,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@jimp/gif@workspace:packages/type-gif"
   dependencies:
+    "@jimp/config": "workspace:*"
     "@jimp/custom": "workspace:*"
     "@jimp/test-utils": "workspace:*"
     "@jimp/utils": "workspace:*"
@@ -1971,6 +1981,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@jimp/jpeg@workspace:packages/type-jpeg"
   dependencies:
+    "@jimp/config": "workspace:*"
     "@jimp/custom": "workspace:*"
     "@jimp/test-utils": "workspace:*"
     "@jimp/utils": "workspace:*"
@@ -2031,6 +2042,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@jimp/plugin-blit@workspace:packages/plugin-blit"
   dependencies:
+    "@jimp/config": "workspace:*"
     "@jimp/custom": "workspace:*"
     "@jimp/jpeg": "workspace:*"
     "@jimp/test-utils": "workspace:*"
@@ -2044,6 +2056,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@jimp/plugin-blur@workspace:packages/plugin-blur"
   dependencies:
+    "@jimp/config": "workspace:*"
     "@jimp/utils": "workspace:*"
   peerDependencies:
     "@jimp/custom": ">=0.3.5"
@@ -2054,6 +2067,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@jimp/plugin-circle@workspace:packages/plugin-circle"
   dependencies:
+    "@jimp/config": "workspace:*"
     "@jimp/custom": "workspace:*"
     "@jimp/test-utils": "workspace:*"
     "@jimp/utils": "workspace:*"
@@ -2066,6 +2080,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@jimp/plugin-color@workspace:packages/plugin-color"
   dependencies:
+    "@jimp/config": "workspace:*"
     "@jimp/custom": "workspace:*"
     "@jimp/test-utils": "workspace:*"
     "@jimp/types": "workspace:*"
@@ -2080,6 +2095,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@jimp/plugin-contain@workspace:packages/plugin-contain"
   dependencies:
+    "@jimp/config": "workspace:*"
     "@jimp/custom": "workspace:*"
     "@jimp/plugin-blit": "workspace:*"
     "@jimp/plugin-resize": "workspace:*"
@@ -2098,6 +2114,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@jimp/plugin-cover@workspace:packages/plugin-cover"
   dependencies:
+    "@jimp/config": "workspace:*"
     "@jimp/custom": "workspace:*"
     "@jimp/plugin-crop": "workspace:*"
     "@jimp/plugin-resize": "workspace:*"
@@ -2116,6 +2133,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@jimp/plugin-crop@workspace:packages/plugin-crop"
   dependencies:
+    "@jimp/config": "workspace:*"
     "@jimp/custom": "workspace:*"
     "@jimp/test-utils": "workspace:*"
     "@jimp/utils": "workspace:*"
@@ -2128,6 +2146,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@jimp/plugin-displace@workspace:packages/plugin-displace"
   dependencies:
+    "@jimp/config": "workspace:*"
     "@jimp/utils": "workspace:*"
   peerDependencies:
     "@jimp/custom": ">=0.3.5"
@@ -2138,6 +2157,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@jimp/plugin-dither@workspace:packages/plugin-dither"
   dependencies:
+    "@jimp/config": "workspace:*"
     "@jimp/utils": "workspace:*"
   peerDependencies:
     "@jimp/custom": ">=0.3.5"
@@ -2148,6 +2168,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@jimp/plugin-fisheye@workspace:packages/plugin-fisheye"
   dependencies:
+    "@jimp/config": "workspace:*"
     "@jimp/custom": "workspace:*"
     "@jimp/test-utils": "workspace:*"
     "@jimp/utils": "workspace:*"
@@ -2160,6 +2181,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@jimp/plugin-flip@workspace:packages/plugin-flip"
   dependencies:
+    "@jimp/config": "workspace:*"
     "@jimp/utils": "workspace:*"
   peerDependencies:
     "@jimp/custom": ">=0.3.5"
@@ -2171,6 +2193,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@jimp/plugin-gaussian@workspace:packages/plugin-gaussian"
   dependencies:
+    "@jimp/config": "workspace:*"
     "@jimp/utils": "workspace:*"
   peerDependencies:
     "@jimp/custom": ">=0.3.5"
@@ -2181,6 +2204,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@jimp/plugin-invert@workspace:packages/plugin-invert"
   dependencies:
+    "@jimp/config": "workspace:*"
     "@jimp/utils": "workspace:*"
   peerDependencies:
     "@jimp/custom": ">=0.3.5"
@@ -2191,6 +2215,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@jimp/plugin-mask@workspace:packages/plugin-mask"
   dependencies:
+    "@jimp/config": "workspace:*"
     "@jimp/custom": "workspace:*"
     "@jimp/test-utils": "workspace:*"
     "@jimp/utils": "workspace:*"
@@ -2203,6 +2228,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@jimp/plugin-normalize@workspace:packages/plugin-normalize"
   dependencies:
+    "@jimp/config": "workspace:*"
     "@jimp/custom": "workspace:*"
     "@jimp/test-utils": "workspace:*"
     "@jimp/utils": "workspace:*"
@@ -2215,6 +2241,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@jimp/plugin-print@workspace:packages/plugin-print"
   dependencies:
+    "@jimp/config": "workspace:*"
     "@jimp/custom": "workspace:*"
     "@jimp/plugin-blit": "workspace:*"
     "@jimp/test-utils": "workspace:*"
@@ -2230,6 +2257,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@jimp/plugin-resize@workspace:packages/plugin-resize"
   dependencies:
+    "@jimp/config": "workspace:*"
     "@jimp/custom": "workspace:*"
     "@jimp/test-utils": "workspace:*"
     "@jimp/utils": "workspace:*"
@@ -2242,6 +2270,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@jimp/plugin-rotate@workspace:packages/plugin-rotate"
   dependencies:
+    "@jimp/config": "workspace:*"
     "@jimp/custom": "workspace:*"
     "@jimp/plugin-blit": "workspace:*"
     "@jimp/plugin-crop": "workspace:*"
@@ -2260,6 +2289,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@jimp/plugin-scale@workspace:packages/plugin-scale"
   dependencies:
+    "@jimp/config": "workspace:*"
     "@jimp/utils": "workspace:*"
   peerDependencies:
     "@jimp/custom": ">=0.3.5"
@@ -2271,6 +2301,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@jimp/plugin-shadow@workspace:packages/plugin-shadow"
   dependencies:
+    "@jimp/config": "workspace:*"
     "@jimp/custom": "workspace:*"
     "@jimp/plugin-blur": "workspace:*"
     "@jimp/plugin-resize": "workspace:*"
@@ -2287,6 +2318,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@jimp/plugin-threshold@workspace:packages/plugin-threshold"
   dependencies:
+    "@jimp/config": "workspace:*"
     "@jimp/custom": "workspace:*"
     "@jimp/jpeg": "workspace:*"
     "@jimp/plugin-color": "workspace:*"
@@ -2304,6 +2336,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@jimp/plugins@workspace:packages/plugins"
   dependencies:
+    "@jimp/config": "workspace:*"
     "@jimp/plugin-blit": "workspace:*"
     "@jimp/plugin-blur": "workspace:*"
     "@jimp/plugin-circle": "workspace:*"
@@ -2335,6 +2368,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@jimp/png@workspace:packages/type-png"
   dependencies:
+    "@jimp/config": "workspace:*"
     "@jimp/custom": "workspace:*"
     "@jimp/test-utils": "workspace:*"
     "@jimp/utils": "workspace:*"
@@ -2349,6 +2383,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@jimp/test-utils@workspace:packages/test-utils"
   dependencies:
+    "@jimp/config": "workspace:*"
     "@jimp/custom": "workspace:*"
     pngjs: ^6.0.0
   languageName: unknown
@@ -2358,6 +2393,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@jimp/tiff@workspace:packages/type-tiff"
   dependencies:
+    "@jimp/config": "workspace:*"
     "@jimp/custom": "workspace:*"
     "@jimp/test-utils": "workspace:*"
     utif2: ^4.0.1
@@ -2371,6 +2407,7 @@ __metadata:
   resolution: "@jimp/types@workspace:packages/types"
   dependencies:
     "@jimp/bmp": "workspace:*"
+    "@jimp/config": "workspace:*"
     "@jimp/gif": "workspace:*"
     "@jimp/jpeg": "workspace:*"
     "@jimp/png": "workspace:*"
@@ -2386,6 +2423,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@jimp/utils@workspace:packages/utils"
   dependencies:
+    "@jimp/config": "workspace:*"
     regenerator-runtime: ^0.13.3
   languageName: unknown
   linkType: soft
@@ -9993,6 +10031,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "jimp@workspace:packages/jimp"
   dependencies:
+    "@jimp/config": "workspace:*"
     "@jimp/custom": "workspace:*"
     "@jimp/plugins": "workspace:*"
     "@jimp/test-utils": "workspace:*"

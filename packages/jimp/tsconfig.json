@@ -1,13 +1,3 @@
 {
-  "compilerOptions": {
-    "module": "commonjs",
-    "lib": ["es6"],
-    "noImplicitAny": true,
-    "noImplicitThis": true,
-    "strictNullChecks": true,
-    "strictFunctionTypes": true,
-    "skipLibCheck": true,
-    "noEmit": true
-  },
-  "include": ["types/**/*.ts"]
+  "extends": "@jimp/config/tsconfig.json"
 }

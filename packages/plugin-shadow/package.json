@@ -29,6 +29,7 @@
     "@jimp/plugin-resize": ">=0.3.5"
   },
   "devDependencies": {
+    "@jimp/config": "workspace:*",
     "@jimp/custom": "workspace:*",
     "@jimp/plugin-blur": "workspace:*",
     "@jimp/plugin-resize": "workspace:*",

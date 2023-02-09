@@ -30,6 +30,7 @@
     "@jimp/plugin-scale": ">=0.3.5"
   },
   "devDependencies": {
+    "@jimp/config": "workspace:*",
     "@jimp/custom": "workspace:*",
     "@jimp/plugin-blit": "workspace:*",
     "@jimp/plugin-resize": "workspace:*",

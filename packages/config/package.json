@@ -1,0 +1,12 @@
+{
+  "name": "@jimp/config",
+  "private": true,
+  "version": "0.0.0-development",
+  "description": "Internal configs for Jimp's codebase",
+  "repository": "jimp-dev/jimp",
+  "author": "",
+  "license": "MIT",
+  "publishConfig": {
+    "access": "restricted"
+  }
+}

@@ -26,6 +26,7 @@
     "pngjs": "^6.0.0"
   },
   "devDependencies": {
+    "@jimp/config": "workspace:*",
     "@jimp/custom": "workspace:*"
   }
 }

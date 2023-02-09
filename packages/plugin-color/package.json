@@ -25,6 +25,7 @@
     "tinycolor2": "^1.6.0"
   },
   "devDependencies": {
+    "@jimp/config": "workspace:*",
     "@jimp/custom": "workspace:*",
     "@jimp/test-utils": "workspace:*",
     "@jimp/types": "workspace:*"

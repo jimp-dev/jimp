@@ -18,6 +18,7 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
+    "@jimp/config": "workspace:*",
     "@jimp/utils": "workspace:*"
   },
   "peerDependencies": {

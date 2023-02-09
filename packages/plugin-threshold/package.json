@@ -29,6 +29,7 @@
     "@jimp/plugin-resize": ">=0.8.0"
   },
   "devDependencies": {
+    "@jimp/config": "workspace:*",
     "@jimp/custom": "workspace:*",
     "@jimp/jpeg": "workspace:*",
     "@jimp/plugin-color": "workspace:*",
