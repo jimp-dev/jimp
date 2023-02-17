@@ -48,8 +48,8 @@ export default () => ({
       }
 
       // round inputs
-      w = Math.round(w);
-      h = Math.round(h);
+      w = Math.round(w) || 1;
+      h = Math.round(h) || 1;
 
       if (typeof Resize2[mode] === "function") {
         const dst = {
