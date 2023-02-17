@@ -27,6 +27,10 @@
 >
 > As of v0.10.4, core-js is no longer included with jimp or its extensions. If you rely on core-js, install it with either `yarn add core-js` or `npm i core-js`
 
+> ## Read before installing
+>
+> Please be aware of [Jimp allocates 200 MB memory on reading a 3.3 MB jpg](https://github.com/jimp-dev/jimp/issues/153) before using.
+
 ## Installation
 
 Installation: `npm install --save jimp`
