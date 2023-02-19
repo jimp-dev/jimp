@@ -29,7 +29,7 @@
 
 > ## Read before installing
 >
-> Please be aware of [Jimp allocates 200 MB memory on reading a 3.3 MB jpg](https://github.com/jimp-dev/jimp/issues/153) before using.
+> Please be aware that Jimp is built on JavaScript implementations of image formats so in some cases that might [allocate a lot of memory](https://github.com/jimp-dev/jimp/issues/153) before using.
 
 ## Installation
 
