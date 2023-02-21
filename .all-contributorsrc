@@ -1255,6 +1255,15 @@
       "contributions": [
         "doc"
       ]
+    },
+    {
+      "login": "ihorbond",
+      "name": "Ihor Bodnarchuk",
+      "avatar_url": "https://avatars.githubusercontent.com/u/15573624?v=4",
+      "profile": "https://github.com/ihorbond",
+      "contributions": [
+        "doc"
+      ]
     }
   ],
   "contributorsPerLine": 7,
