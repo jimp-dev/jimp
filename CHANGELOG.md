@@ -1,3 +1,30 @@
+# v0.22.5 (Tue Feb 21 2023)
+
+:tada: This release contains work from new contributors! :tada:
+
+Thanks for all your work!
+
+:heart: Charly Poirier ([@charlypoirier](https://github.com/charlypoirier))
+
+:heart: Ihor Bodnarchuk ([@ihorbond](https://github.com/ihorbond))
+
+#### 🐛 Bug Fix
+
+- `@jimp/plugin-resize`
+  - Fix resizing issue with Jimp.AUTO [#1202](https://github.com/jimp-dev/jimp/pull/1202) ([@charlypoirier](https://github.com/charlypoirier))
+
+#### 📝 Documentation
+
+- Update README.md [#1203](https://github.com/jimp-dev/jimp/pull/1203) ([@ihorbond](https://github.com/ihorbond) [@hipstersmoothie](https://github.com/hipstersmoothie))
+
+#### Authors: 3
+
+- Andrew Lisowski ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- Charly Poirier ([@charlypoirier](https://github.com/charlypoirier))
+- Ihor Bodnarchuk ([@ihorbond](https://github.com/ihorbond))
+
+---
+
 # v0.22.4 (Tue Feb 07 2023)
 
 #### 🚀 Enhancement

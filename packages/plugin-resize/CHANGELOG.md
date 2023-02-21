@@ -1,3 +1,19 @@
+# v0.22.5 (Tue Feb 21 2023)
+
+:tada: This release contains work from a new contributor! :tada:
+
+Thank you, Charly Poirier ([@charlypoirier](https://github.com/charlypoirier)), for all your work!
+
+#### 🐛 Bug Fix
+
+- Fix resizing issue with Jimp.AUTO [#1202](https://github.com/jimp-dev/jimp/pull/1202) ([@charlypoirier](https://github.com/charlypoirier))
+
+#### Authors: 1
+
+- Charly Poirier ([@charlypoirier](https://github.com/charlypoirier))
+
+---
+
 # v0.22.1 (Mon Feb 06 2023)
 
 #### 🏠 Internal
