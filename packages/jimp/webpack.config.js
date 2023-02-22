@@ -15,6 +15,7 @@ module.exports = {
     },
     fallback: {
       path: require.resolve("path-browserify"),
+      events: require.resolve("events/"),
       fs: false,
     },
   },
