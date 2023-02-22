@@ -11,7 +11,7 @@ module.exports = {
   resolve: {
     alias: {
       pngjs: "pngjs/browser",
-      mkdirp: "empty-module",
+      mkdirp: require.resolve("./src/empty-module.js"),
     },
     fallback: {
       path: require.resolve("path-browserify"),
