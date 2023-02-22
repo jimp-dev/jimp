@@ -2049,6 +2049,7 @@ __metadata:
     nyc: ^14.1.1
     patch-package: ^6.5.1
     prettier: ^2.8.3
+    process: ^0.11.10
     rimraf: ^4.1.2
     source-map-support: ^0.5.21
     typescript: ^4.9.5
@@ -6953,13 +6954,6 @@ dts-critic@latest:
   languageName: node
   linkType: hard
 
-"empty-module@npm:^0.0.2":
-  version: 0.0.2
-  resolution: "empty-module@npm:0.0.2"
-  checksum: 6d986ed6dbe5856a8f8f769e2700beae0a3f43b3be0e159618a620ad24717f25706a60a0416a6f18a3a29b0e570aa1a8cc90dea1e3d2b7791f4bbdb0458b4c19
-  languageName: node
-  linkType: hard
-
 "encodeurl@npm:~1.0.2":
   version: 1.0.2
   resolution: "encodeurl@npm:1.0.2"
@@ -10048,7 +10042,6 @@ dts-critic@latest:
     "@jimp/plugins": "workspace:*"
     "@jimp/test-utils": "workspace:*"
     "@jimp/types": "workspace:*"
-    empty-module: ^0.0.2
     express: ^4.17.1
     path-browserify: ^1.0.1
     regenerator-runtime: ^0.13.3
@@ -12825,6 +12818,13 @@ dts-critic@latest:
   version: 2.0.1
   resolution: "process-nextick-args@npm:2.0.1"
   checksum: 1d38588e520dab7cea67cbbe2efdd86a10cc7a074c09657635e34f035277b59fbb57d09d8638346bf7090f8e8ebc070c96fa5fd183b777fff4f5edff5e9466cf
+  languageName: node
+  linkType: hard
+
+"process@npm:^0.11.10":
+  version: 0.11.10
+  resolution: "process@npm:0.11.10"
+  checksum: bfcce49814f7d172a6e6a14d5fa3ac92cc3d0c3b9feb1279774708a719e19acd673995226351a082a9ae99978254e320ccda4240ddc474ba31a76c79491ca7c3
   languageName: node
   linkType: hard
 
