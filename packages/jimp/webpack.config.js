@@ -1,9 +1,9 @@
-import webpack from "webpack";
-import path from "path";
+const webpack = require("webpack");
+const path = require("path");
 
 const isProd = process.env.NODE_ENV === "production";
 
-export default {
+module.exports = {
   mode: isProd ? "production" : "development",
   devtool: isProd ? "source-map" : "eval-cheap-module-source-map",
   entry: "./src/index.js",
@@ -35,4 +35,4 @@ export default {
     path: path.join(__dirname, "browser/lib"),
     filename: "jimp.js",
   },
-} as webpack.Configuration;
+};
