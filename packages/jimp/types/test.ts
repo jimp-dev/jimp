@@ -1,4 +1,5 @@
 import * as Jimp from "jimp";
+import { ColorActionName } from "@jimp/plugin-color";
 
 const jimpInst: Jimp = new Jimp("test");
 
@@ -11,6 +12,7 @@ jimpInst.displace(jimpInst, 2);
 jimpInst.shadow((err, val, coords) => {});
 jimpInst.fishEye({ r: 12 });
 jimpInst.circle({ radius: 12, x: 12, y: 12 });
+jimpInst.color([{ apply: ColorActionName.SATURATE, params: [90] }]);
 // $ExpectError
 jimpInst.PNG_FILTER_NONE;
 

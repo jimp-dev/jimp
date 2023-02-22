@@ -1,16 +1,22 @@
 import { ImageCallback } from "@jimp/core";
 
-type ColorActionName =
-  | "mix"
-  | "tint"
-  | "shade"
-  | "xor"
-  | "red"
-  | "green"
-  | "blue"
-  | "hue"
-  | "lighten"
-  | "darken";
+export enum ColorActionName {
+  LIGHTEN = "lighten",
+  BRIGHTEN = "brighten",
+  DARKEN = "darken",
+  DESATURATE = "desaturate",
+  SATURATE = "saturate",
+  GREYSCALE = "greyscale",
+  SPIN = "spin",
+  HUE = "hue",
+  MIX = "mix",
+  TINT = "tint",
+  SHADE = "shade",
+  XOR = "xor",
+  RED = "red",
+  GREEN = "green",
+  BLUE = "blue",
+}
 
 type ColorAction = {
   apply: ColorActionName;
