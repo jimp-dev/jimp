@@ -144,7 +144,7 @@ export const ColorActionName = Object.freeze({
   RED: "red",
   GREEN: "green",
   BLUE: "blue",
-})
+});
 
 export default () => ({
   /**
