@@ -1,3 +1,20 @@
+# v0.22.6 (Fri Feb 24 2023)
+
+:tada: This release contains work from a new contributor! :tada:
+
+Thank you, Daniell ([@daniellwdb](https://github.com/daniellwdb)), for all your work!
+
+#### 🐛 Bug Fix
+
+- `jimp`, `@jimp/plugin-color`
+  - Export ColorActionName enum [#1205](https://github.com/jimp-dev/jimp/pull/1205) ([@daniellwdb](https://github.com/daniellwdb))
+
+#### Authors: 1
+
+- Daniell ([@daniellwdb](https://github.com/daniellwdb))
+
+---
+
 # v0.22.5 (Tue Feb 21 2023)
 
 :tada: This release contains work from new contributors! :tada:
