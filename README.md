@@ -308,6 +308,7 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
     <td align="center"><a href="https://pkjy.github.io/"><img src="https://avatars.githubusercontent.com/u/14119424?v=4?s=100" width="100px;" alt=""/><br /><sub><b>彭君怡</b></sub></a><br /><a href="https://github.com/jimp-dev/jimp/commits?author=pkjy" title="Code">💻</a></td>
     <td align="center"><a href="http://andy128k.blogspot.com/"><img src="https://avatars.githubusercontent.com/u/16103?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Andrey Kutejko</b></sub></a><br /><a href="https://github.com/jimp-dev/jimp/commits?author=andy128k" title="Documentation">📖</a></td>
     <td align="center"><a href="https://github.com/ihorbond"><img src="https://avatars.githubusercontent.com/u/15573624?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Ihor Bodnarchuk</b></sub></a><br /><a href="https://github.com/jimp-dev/jimp/commits?author=ihorbond" title="Documentation">📖</a></td>
+    <td align="center"><a href="https://daniell.dev/"><img src="https://avatars.githubusercontent.com/u/44723767?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Daniell</b></sub></a><br /><a href="https://github.com/jimp-dev/jimp/commits?author=daniellwdb" title="Code">💻</a></td>
   </tr>
 </table>
 

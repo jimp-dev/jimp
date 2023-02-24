@@ -1264,6 +1264,15 @@
       "contributions": [
         "doc"
       ]
+    },
+    {
+      "login": "daniellwdb",
+      "name": "Daniell",
+      "avatar_url": "https://avatars.githubusercontent.com/u/44723767?v=4",
+      "profile": "https://daniell.dev/",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "contributorsPerLine": 7,
