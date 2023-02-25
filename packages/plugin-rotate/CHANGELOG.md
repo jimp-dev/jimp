@@ -1,3 +1,27 @@
+# v0.22.7 (Sat Feb 25 2023)
+
+:tada: This release contains work from a new contributor! :tada:
+
+Thank you, MD KHAIRUL ISLAM ([@black-turtle](https://github.com/black-turtle)), for all your work!
+
+### Release Notes
+
+#### use matrix rotate, if rotate angle is multiple of 90 degrees ([#1209](https://github.com/jimp-dev/jimp/pull/1209))
+
+Fixes a bug where rotating by 90 degrees introduced extra pixels
+
+---
+
+#### 🐛 Bug Fix
+
+- use matrix rotate, if rotate angle is multiple of 90 degrees [#1209](https://github.com/jimp-dev/jimp/pull/1209) ([@black-turtle](https://github.com/black-turtle))
+
+#### Authors: 1
+
+- MD KHAIRUL ISLAM ([@black-turtle](https://github.com/black-turtle))
+
+---
+
 # v0.22.1 (Mon Feb 06 2023)
 
 #### 🏠 Internal
