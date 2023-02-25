@@ -310,6 +310,9 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
     <td align="center"><a href="https://github.com/ihorbond"><img src="https://avatars.githubusercontent.com/u/15573624?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Ihor Bodnarchuk</b></sub></a><br /><a href="https://github.com/jimp-dev/jimp/commits?author=ihorbond" title="Documentation">📖</a></td>
     <td align="center"><a href="https://daniell.dev/"><img src="https://avatars.githubusercontent.com/u/44723767?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Daniell</b></sub></a><br /><a href="https://github.com/jimp-dev/jimp/commits?author=daniellwdb" title="Code">💻</a></td>
   </tr>
+  <tr>
+    <td align="center"><a href="https://github.com/black-turtle"><img src="https://avatars.githubusercontent.com/u/61377556?v=4?s=100" width="100px;" alt=""/><br /><sub><b>MD KHAIRUL ISLAM</b></sub></a><br /><a href="https://github.com/jimp-dev/jimp/commits?author=black-turtle" title="Tests">⚠️</a> <a href="https://github.com/jimp-dev/jimp/commits?author=black-turtle" title="Code">💻</a></td>
+  </tr>
 </table>
 
 <!-- markdownlint-restore -->
