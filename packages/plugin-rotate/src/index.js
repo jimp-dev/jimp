@@ -1,4 +1,94 @@
-import { throwError, isNodePattern } from "@jimp/utils";
+import { isNodePattern, throwError } from "@jimp/utils";
+
+/**
+ * Rotates an image counter-clockwise by multiple of 90 degrees. NB: 'this' must be a Jimp object.
+ *
+ * This function is based on matrix rotation. Check this to get an initial idea how it works: https://stackoverflow.com/a/8664879/10561909
+ *
+ * @param {number} deg the number of degrees to rotate the image by, it should be a multiple of 90
+ */
+function matrixRotate(deg) {
+  if (Math.abs(deg) % 90 !== 0) {
+    throw new Error("Unsupported matrix rotation degree");
+  }
+
+  deg %= 360;
+  if (Math.abs(deg) === 0) {
+    // no rotation for 0, 360, -360, 720, -720, ...
+    return;
+  }
+
+  const w = this.bitmap.width;
+  const h = this.bitmap.height;
+
+  // decide which rotation angle to use
+  let angle;
+  switch (deg) {
+    // 90 degree & -270 degree are same
+    case 90:
+    case -270:
+      angle = 90;
+      break;
+
+    case 180:
+    case -180:
+      angle = 180;
+      break;
+
+    case 270:
+    case -90:
+      angle = -90;
+      break;
+
+    default:
+      throw new Error("Unsupported matrix rotation degree");
+  }
+  // After this switch block, angle will be 90, 180 or -90
+
+  // calculate the new width and height
+  const nW = angle === 180 ? w : h;
+  const nH = angle === 180 ? h : w;
+
+  const dstBuffer = Buffer.alloc(this.bitmap.data.length);
+
+  // function to translate the x, y coordinate to the index of the pixel in the buffer
+  function createIdxTranslationFunction(w, h) {
+    return function (x, y) {
+      return (y * w + x) << 2;
+    };
+  }
+
+  const srcIdxFunction = createIdxTranslationFunction(w, h);
+  const dstIdxFunction = createIdxTranslationFunction(nW, nH);
+
+  for (let x = 0; x < w; x++) {
+    for (let y = 0; y < h; y++) {
+      const srcIdx = srcIdxFunction(x, y);
+      const pixelRGBA = this.bitmap.data.readUInt32BE(srcIdx);
+
+      let dstIdx;
+      switch (angle) {
+        case 90:
+          dstIdx = dstIdxFunction(y, w - x - 1);
+          break;
+        case -90:
+          dstIdx = dstIdxFunction(h - y - 1, x);
+          break;
+        case 180:
+          dstIdx = dstIdxFunction(w - x - 1, h - y - 1);
+          break;
+        default:
+          throw new Error("Unsupported matrix rotation angle");
+      }
+
+      dstBuffer.writeUInt32BE(pixelRGBA, dstIdx);
+    }
+  }
+
+  this.bitmap.data = dstBuffer;
+  this.bitmap.width = nW;
+  this.bitmap.height = nH;
+}
 
 /**
  * Rotates an image counter-clockwise by an arbitrary number of degrees. NB: 'this' must be a Jimp object.
@@ -141,7 +231,12 @@ export default () => ({
       return throwError.call(this, "mode must be a boolean or a string", cb);
     }
 
-    advancedRotate.call(this, deg, mode, cb);
+    if (Math.abs(deg % 90) === 0) {
+      // apply matrixRotate if the angle is a multiple of 90 degrees (eg: 180 or -90)
+      matrixRotate.call(this, deg);
+    } else {
+      advancedRotate.call(this, deg, mode, cb);
+    }
 
     if (isNodePattern(cb)) {
       cb.call(this, null, this);
