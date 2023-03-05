@@ -445,7 +445,7 @@ Online tools are also available to convert TTF fonts to BMFont format. They can 
 
 :star: [Littera](http://kvazars.com/littera/)
 
-:star: [Hiero](https://github.com/libgdx/libgdx/wiki/Hiero)
+:star: [Hiero](https://libgdx.com/wiki/tools/hiero)
 
 ## Writing to files and buffers
 
