@@ -55,7 +55,7 @@ API documentation can be found in the main [jimp package](./packages/jimp)
 - [blur](./packages/plugin-blur) - Quickly blur an image.
 - [color](./packages/plugin-color) - Various color manipulation methods.
 - [contain](./packages/plugin-contain) - Contain an image within a height and width.
-- [cover](./packages/plugin-cover) - Scale the image so the given width and height keeping the aspect ratio.
+- [cover](./packages/plugin-cover) - Scale the image to the given width and height keeping the aspect ratio.
 - [displace](./packages/plugin-displace) - Displaces the image based on a displacement map
 - [dither](./packages/plugin-dither) - Apply a dither effect to an image.
 - [flip](./packages/plugin-flip) - Flip an image along its x or y axis.
