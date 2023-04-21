@@ -35,6 +35,8 @@
 
 Installation: `npm install --save jimp`
 
+## Documentation
+
 API documentation can be found in the main [jimp package](./packages/jimp)
 
 ## Tools
