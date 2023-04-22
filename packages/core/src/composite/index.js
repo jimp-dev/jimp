@@ -68,6 +68,12 @@ export default function composite(src, x, y, options = {}, cb) {
         y + sy,
         constants.EDGE_CROP
       );
+
+      if (dstIdx === -1) {
+        // Skip target pixels outside of dst
+        return;
+      }
+
       const blended = blendmode(
         {
           r: this.bitmap.data[idx + 0] / 255,
