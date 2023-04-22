@@ -160,22 +160,22 @@ export default function pluginCrop(event) {
           }
         }
 
-        // east side (scan columns from east to west)
+        // west side (scan columns from west to east)
         colorTarget = this.getPixelColor(w, 0);
-        if (!ignoreSides.east) {
-          east: for (let x = 0; x < w - minPixelsPerSide; x++) {
+        if (!ignoreSides.west) {
+          west: for (let x = 0; x < w - minPixelsPerSide; x++) {
             for (let y = 0 + northPixelsToCrop; y < h; y++) {
               const colorXY = this.getPixelColor(x, y);
               const rgba2 = this.constructor.intToRGBA(colorXY);
 
               if (this.constructor.colorDiff(rgba1, rgba2) > tolerance) {
                 // this pixel is too distant from the first one: abort this side scan
-                break east;
+                break west;
               }
             }
 
             // this column contains all pixels with the same color: increment this side pixels to crop
-            eastPixelsToCrop++;
+            westPixelsToCrop++;
           }
         }
 
@@ -203,12 +203,12 @@ export default function pluginCrop(event) {
           }
         }
 
-        // west side (scan columns from west to east)
+        // east side (scan columns from east to west)
         colorTarget = this.getPixelColor(w, h);
-        if (!ignoreSides.west) {
-          west: for (
+        if (!ignoreSides.east) {
+          east: for (
             let x = w - 1;
-            x >= 0 + eastPixelsToCrop + minPixelsPerSide;
+            x >= 0 + westPixelsToCrop + minPixelsPerSide;
             x--
           ) {
             for (let y = h - 1; y >= 0 + northPixelsToCrop; y--) {
@@ -217,12 +217,12 @@ export default function pluginCrop(event) {
 
               if (this.constructor.colorDiff(rgba1, rgba2) > tolerance) {
                 // this pixel is too distant from the first one: abort this side scan
-                break west;
+                break east;
               }
             }
 
             // this column contains all pixels with the same color: increment this side pixels to crop
-            westPixelsToCrop++;
+            eastPixelsToCrop++;
           }
         }
 
@@ -275,7 +275,7 @@ export default function pluginCrop(event) {
         if (doCrop) {
           // do the real crop
           this.crop(
-            eastPixelsToCrop,
+            westPixelsToCrop,
             northPixelsToCrop,
             widthOfRemainingPixels,
             heightOfRemainingPixels
