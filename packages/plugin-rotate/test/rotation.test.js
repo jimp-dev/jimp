@@ -567,3 +567,44 @@ describe("Rotate a non-square image", () => {
     );
   });
 });
+
+describe("Rotate a non-square image without resizing", () => {
+  let imgSrc = null;
+  before((done) => {
+    jimp
+      .read(mkJGD("□□□□□□□□", "▹▹▹▹▹▹▹▹", "▿▿▿▿▿▿▿▿", "□□□□□□□□"))
+      .then((imgJimp) => {
+        imgSrc = imgJimp;
+        done();
+      })
+      .catch(done);
+  });
+
+  it("90 degrees", () => {
+    expectToBeJGD(
+      imgSrc.clone().rotate(90, false).getJGDSync(),
+      mkJGD(" □▹▿□   ", " □▹▿□   ", " □▹▿□   ", " □▹▿□   ")
+    );
+  });
+
+  it("180 degrees", () => {
+    expectToBeJGD(
+      imgSrc.clone().rotate(180, false).getJGDSync(),
+      mkJGD("□□□□□□□□", "▿▿▿▿▿▿▿▿", "▹▹▹▹▹▹▹▹", "□□□□□□□□")
+    );
+  });
+
+  it("270 degrees", () => {
+    expectToBeJGD(
+      imgSrc.clone().rotate(270, false).getJGDSync(),
+      mkJGD("  □▿▹□  ", "  □▿▹□  ", "  □▿▹□  ", "  □▿▹□  ")
+    );
+  });
+
+  it("45 degrees", () => {
+    expectToBeJGD(
+      imgSrc.clone().rotate(45, false).getJGDSync(),
+      mkJGD(" □▹▹▿□□ ", "□▹▹▿□□  ", "▹▹▿□□   ", "▹▿□□    ")
+    );
+  });
+});
