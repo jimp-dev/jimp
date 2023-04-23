@@ -109,7 +109,7 @@ function determineJGDError(testJGD, targetJGD) {
       pass: false,
       message: `Expected testJGD:\n${jgdToStr(
         testJGD
-      )}\n to be equal to targetJGD:\n${jgdToStr(testJGD)}`,
+      )}\n to be equal to targetJGD:\n${jgdToStr(targetJGD)}`,
     };
   }
 
