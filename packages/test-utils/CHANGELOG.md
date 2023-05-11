@@ -1,3 +1,19 @@
+# v0.22.8 (Thu May 11 2023)
+
+:tada: This release contains work from a new contributor! :tada:
+
+Thank you, Sjoerd ([@sjoerd108](https://github.com/sjoerd108)), for all your work!
+
+#### 🐛 Bug Fix
+
+- Fix autocrop mixing up east and west [#1227](https://github.com/jimp-dev/jimp/pull/1227) ([@sjoerd108](https://github.com/sjoerd108))
+
+#### Authors: 1
+
+- Sjoerd ([@sjoerd108](https://github.com/sjoerd108))
+
+---
+
 # v0.22.1 (Mon Feb 06 2023)
 
 #### 🏠 Internal

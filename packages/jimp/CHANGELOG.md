@@ -1,3 +1,28 @@
+# v0.22.8 (Thu May 11 2023)
+
+:tada: This release contains work from new contributors! :tada:
+
+Thanks for all your work!
+
+:heart: Sjoerd ([@sjoerd108](https://github.com/sjoerd108))
+
+:heart: null[@JunkMeal](https://github.com/JunkMeal)
+
+#### 🚀 Enhancement
+
+- Composite: don't write to null pixels [#1226](https://github.com/jimp-dev/jimp/pull/1226) ([@sjoerd108](https://github.com/sjoerd108))
+
+#### 📝 Documentation
+
+- Changing the Hiero url [#1213](https://github.com/jimp-dev/jimp/pull/1213) ([@JunkMeal](https://github.com/JunkMeal))
+
+#### Authors: 2
+
+- [@JunkMeal](https://github.com/JunkMeal)
+- Sjoerd ([@sjoerd108](https://github.com/sjoerd108))
+
+---
+
 # v0.22.6 (Fri Feb 24 2023)
 
 :tada: This release contains work from a new contributor! :tada:

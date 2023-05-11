@@ -1,3 +1,15 @@
+# v0.22.8 (Thu May 11 2023)
+
+#### 🚀 Enhancement
+
+- Fix: convolute not defaulting to 0, 0 as starting point [#1228](https://github.com/jimp-dev/jimp/pull/1228) ([@sjoerd108](https://github.com/sjoerd108))
+
+#### Authors: 1
+
+- Sjoerd ([@sjoerd108](https://github.com/sjoerd108))
+
+---
+
 # v0.22.6 (Fri Feb 24 2023)
 
 :tada: This release contains work from a new contributor! :tada:

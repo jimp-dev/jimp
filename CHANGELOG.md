@@ -1,3 +1,43 @@
+# v0.22.8 (Thu May 11 2023)
+
+:tada: This release contains work from new contributors! :tada:
+
+Thanks for all your work!
+
+:heart: Sjoerd ([@sjoerd108](https://github.com/sjoerd108))
+
+:heart: null[@php4fan](https://github.com/php4fan)
+
+:heart: null[@JunkMeal](https://github.com/JunkMeal)
+
+#### 🚀 Enhancement
+
+- `@jimp/core`, `jimp`
+  - Composite: don't write to null pixels [#1226](https://github.com/jimp-dev/jimp/pull/1226) ([@sjoerd108](https://github.com/sjoerd108))
+- `@jimp/plugin-color`
+  - Fix: convolute not defaulting to 0, 0 as starting point [#1228](https://github.com/jimp-dev/jimp/pull/1228) ([@sjoerd108](https://github.com/sjoerd108))
+- `@jimp/plugin-rotate`
+  - Fix: rotate resize param on multiples of 90 [#1229](https://github.com/jimp-dev/jimp/pull/1229) ([@sjoerd108](https://github.com/sjoerd108))
+
+#### 🐛 Bug Fix
+
+- `@jimp/plugin-crop`, `@jimp/test-utils`
+  - Fix autocrop mixing up east and west [#1227](https://github.com/jimp-dev/jimp/pull/1227) ([@sjoerd108](https://github.com/sjoerd108))
+
+#### 📝 Documentation
+
+- Fixed typo in README [#1215](https://github.com/jimp-dev/jimp/pull/1215) ([@php4fan](https://github.com/php4fan))
+- `jimp`
+  - Changing the Hiero url [#1213](https://github.com/jimp-dev/jimp/pull/1213) ([@JunkMeal](https://github.com/JunkMeal))
+
+#### Authors: 3
+
+- [@JunkMeal](https://github.com/JunkMeal)
+- [@php4fan](https://github.com/php4fan)
+- Sjoerd ([@sjoerd108](https://github.com/sjoerd108))
+
+---
+
 # v0.22.7 (Sat Feb 25 2023)
 
 :tada: This release contains work from a new contributor! :tada:

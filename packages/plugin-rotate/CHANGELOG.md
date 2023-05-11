@@ -1,3 +1,15 @@
+# v0.22.8 (Thu May 11 2023)
+
+#### 🚀 Enhancement
+
+- Fix: rotate resize param on multiples of 90 [#1229](https://github.com/jimp-dev/jimp/pull/1229) ([@sjoerd108](https://github.com/sjoerd108))
+
+#### Authors: 1
+
+- Sjoerd ([@sjoerd108](https://github.com/sjoerd108))
+
+---
+
 # v0.22.7 (Sat Feb 25 2023)
 
 :tada: This release contains work from a new contributor! :tada:

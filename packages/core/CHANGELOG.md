@@ -1,3 +1,15 @@
+# v0.22.8 (Thu May 11 2023)
+
+#### 🚀 Enhancement
+
+- Composite: don't write to null pixels [#1226](https://github.com/jimp-dev/jimp/pull/1226) ([@sjoerd108](https://github.com/sjoerd108))
+
+#### Authors: 1
+
+- Sjoerd ([@sjoerd108](https://github.com/sjoerd108))
+
+---
+
 # v0.22.4 (Tue Feb 07 2023)
 
 #### 🚀 Enhancement
