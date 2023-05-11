@@ -375,11 +375,11 @@ describe("Autocrop", () => {
         })
         .getJGDSync(),
       mkJGD(
-        "  ◆◆    ",
-        " ◆▦▦◆   ",
-        "◆▦▦▦▦◆  ",
-        " ◆▦▦◆   ",
-        "  ◆◆    ",
+        "    ◆◆  ",
+        "   ◆▦▦◆ ",
+        "  ◆▦▦▦▦◆",
+        "   ◆▦▦◆ ",
+        "    ◆◆  ",
         "        "
       )
     );
@@ -402,7 +402,7 @@ describe("Autocrop", () => {
       imgSrc
         .autocrop({ cropOnlyFrames: false, ignoreSides: { east: true } })
         .getJGDSync(),
-      mkJGD("    ◆◆  ", "   ◆▦▦◆ ", "  ◆▦▦▦▦◆", "   ◆▦▦◆ ", "    ◆◆  ")
+      mkJGD("  ◆◆    ", " ◆▦▦◆   ", "◆▦▦▦▦◆  ", " ◆▦▦◆   ", "  ◆◆    ")
     );
   });
 });

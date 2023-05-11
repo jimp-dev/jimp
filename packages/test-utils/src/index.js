@@ -107,7 +107,9 @@ function determineJGDError(testJGD, targetJGD) {
   if (!equal(jgdReadableMatrix(testJGD), jgdReadableMatrix(targetJGD))) {
     return {
       pass: false,
-      message: "Expected testJGD to be equal to targetJGD",
+      message: `Expected testJGD:\n${jgdToStr(
+        testJGD
+      )}\n to be equal to targetJGD:\n${jgdToStr(targetJGD)}`,
     };
   }
 
