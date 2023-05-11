@@ -231,8 +231,12 @@ export default () => ({
       return throwError.call(this, "mode must be a boolean or a string", cb);
     }
 
-    if (Math.abs(deg % 90) === 0) {
-      // apply matrixRotate if the angle is a multiple of 90 degrees (eg: 180 or -90)
+    // use matrixRotate if the angle is a multiple of 90 degrees (eg: 180 or -90) and resize is allowed or not needed.
+    const matrixRotateAllowed =
+      deg % 90 === 0 &&
+      (mode || this.bitmap.width === this.bitmap.height || deg % 180 === 0);
+
+    if (matrixRotateAllowed) {
       matrixRotate.call(this, deg);
     } else {
       advancedRotate.call(this, deg, mode, cb);
