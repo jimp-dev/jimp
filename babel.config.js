@@ -13,7 +13,12 @@ module.exports = (api) => {
     ],
 
     plugins: [
-      process.env.BABEL_ENV !== "module" && "add-module-exports",
+      process.env.BABEL_ENV !== "module" && [
+        "add-module-exports",
+        {
+          addDefaultProperty: true,
+        },
+      ],
       [
         "transform-inline-environment-variables",
         { include: ["BABEL_ENV", "ENV"] },
