@@ -583,7 +583,7 @@ export default () => ({
    * @param {number} w (optional) the width of the region to apply convolution to
    * @param {number} h (optional) the height of the region to apply convolution to
    * @param {function(Error, Jimp)} cb (optional) a callback for when complete
-   * @returns {Jimp }this for chaining of methods
+   * @returns {Jimp} this for chaining of methods
    */
   convolute(kernel, x, y, w, h, cb) {
     if (!Array.isArray(kernel))
@@ -613,10 +613,8 @@ export default () => ({
       }
     }
 
-    const ksize = (kernel.length - 1) / 2;
-
-    x = isDef(x) ? x : ksize;
-    y = isDef(y) ? y : ksize;
+    x = isDef(x) ? x : 0;
+    y = isDef(y) ? y : 0;
     w = isDef(w) ? w : this.bitmap.width - x;
     h = isDef(h) ? h : this.bitmap.height - y;
 

@@ -57,6 +57,12 @@ describe("Convolution", function () {
     [0, 1, 1],
   ];
 
+  const blurM = [
+    [1 / 9, 1 / 9, 1 / 9],
+    [1 / 9, 1 / 9, 1 / 9],
+    [1 / 9, 1 / 9, 1 / 9],
+  ];
+
   it("3x3 sharp matrix on EDGE_EXTEND", (done) => {
     expectToBeJGD(
       imgMid.clone().convolution(sharpM).getJGDSync(),
@@ -148,6 +154,16 @@ describe("Convolution", function () {
       )
     );
     done();
+  });
+
+  it("3x3 box blur matrix using convolute", async () => {
+    const expectedImg = await jimp.read(
+      getTestDir(__dirname) + "/images/tiles-blurred.png"
+    );
+
+    const image = await jimp.read(getTestDir(__dirname) + "/images/tiles.jpg");
+
+    expect(image.convolute(blurM).bitmap.data).toEqual(expectedImg.bitmap.data);
   });
 
   it("new pixel value is greater than 255", async () => {
