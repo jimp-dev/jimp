@@ -1,7 +1,11 @@
 import Path from "path";
+import Url from 'url';
 import bMFont from "load-bmfont";
 import { isNodePattern, throwError } from "@jimp/utils";
 import { measureText, measureTextHeight, splitLines } from "./measure-text";
+
+const __filename = url.fileURLToPath(import.meta.url);
+const __dirname = Path.dirname(__filename);
 
 function xOffsetBasedOnAlignment(constants, font, line, maxWidth, alignment) {
   if (alignment === constants.HORIZONTAL_ALIGN_LEFT) {
