@@ -4,7 +4,6 @@ import EventEmitter from "events";
 
 import { isNodePattern, throwError, scan, scanIterator } from "@jimp/utils";
 import anyBase from "any-base";
-import mkdirp from "mkdirp";
 import pixelMatch from "pixelmatch";
 import tinyColor from "tinycolor2";
 
@@ -522,7 +521,7 @@ class Jimp extends EventEmitter {
     const pathObj = Path.parse(path);
 
     if (pathObj.dir) {
-      mkdirp.sync(pathObj.dir);
+      fs.mkdirSync(pathObj.dir, { recursive: true });
     }
 
     this.getBuffer(mime, (err, buffer) => {
