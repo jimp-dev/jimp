@@ -35,6 +35,7 @@
     "exif-parser": "^0.1.12",
     "file-type": "^16.5.4",
     "isomorphic-fetch": "^3.0.0",
+    "modify-exif": "^0.0.1",
     "pixelmatch": "^4.0.2",
     "tinycolor2": "^1.6.0"
   },
