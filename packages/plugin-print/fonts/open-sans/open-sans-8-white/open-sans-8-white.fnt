@@ -4,7 +4,8 @@
   <pages>
     <page id="0" file="open-sans-8-white.png"/>
   </pages>
-  <chars count="188">
+  <chars count="190">
+    <char id="32" x="0" y="0" width="0" height="0" xoffset="0" yoffset="1" xadvance="2" page="0" chnl="15"/>
     <char id="33" x="2" y="3" width="1" height="6" xoffset="1" yoffset="1" xadvance="2" page="0" chnl="15"/>
     <char id="34" x="5" y="3" width="2" height="2" xoffset="0" yoffset="1" xadvance="3" page="0" chnl="15"/>
     <char id="35" x="9" y="3" width="5" height="6" xoffset="0" yoffset="1" xadvance="4" page="0" chnl="15"/>
@@ -193,7 +194,7 @@
     <char id="253" x="1130" y="3" width="4" height="8" xoffset="0" yoffset="1" xadvance="4" page="0" chnl="15"/>
     <char id="254" x="1136" y="3" width="4" height="8" xoffset="1" yoffset="1" xadvance="4" page="0" chnl="15"/>
     <char id="255" x="1142" y="3" width="4" height="8" xoffset="0" yoffset="1" xadvance="4" page="0" chnl="15"/>
-    <char id="32" x="0" y="0" width="0" height="0" xoffset="0" yoffset="1" xadvance="2" page="0" chnl="15"/>
+	<char id="8364" x="1148" y="3" width="5" height="6" xoffset="0" yoffset="1" xadvance="5" page="0" chnl="15"/>
   </chars>
   <kernings count="97">
     <kerning first="32" second="65" amount="0"/>
