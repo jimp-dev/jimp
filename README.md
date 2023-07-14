@@ -9,10 +9,7 @@
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
-**Table of Contents** _generated with [DocToc](https://github.com/thlorenz/doctoc)_
-
 - [Installation](#installation)
-- [Tools](#tools)
 - [Supported Image Types](#supported-image-types)
 - [Image Manipulation Methods (Default Plugins)](#image-manipulation-methods-default-plugins)
 - [Extra Plugins](#extra-plugins)
@@ -20,6 +17,7 @@
 - [Contributing](#contributing)
 - [License](#license)
 - [Project Using Jimp](#project-using-jimp)
+- [Contributors ✨](#contributors-)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -36,10 +34,6 @@
 Installation: `npm install --save jimp`
 
 API documentation can be found in the main [jimp package](./packages/jimp)
-
-## Tools
-
-:hammer: [cli](./packages/cli) - Jimp as a CLI program. Can load and run all plugins
 
 ## Supported Image Types
 
