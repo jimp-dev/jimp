@@ -307,6 +307,7 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
   <tr>
     <td align="center"><a href="https://github.com/black-turtle"><img src="https://avatars.githubusercontent.com/u/61377556?v=4?s=100" width="100px;" alt=""/><br /><sub><b>MD KHAIRUL ISLAM</b></sub></a><br /><a href="https://github.com/jimp-dev/jimp/commits?author=black-turtle" title="Tests">⚠️</a> <a href="https://github.com/jimp-dev/jimp/commits?author=black-turtle" title="Code">💻</a></td>
     <td align="center"><a href="https://github.com/JunkMeal"><img src="https://avatars.githubusercontent.com/u/65283415?v=4?s=100" width="100px;" alt=""/><br /><sub><b>JunkMeal</b></sub></a><br /><a href="https://github.com/jimp-dev/jimp/commits?author=JunkMeal" title="Documentation">📖</a></td>
+    <td align="center"><a href="https://github.com/Marsup"><img src="https://avatars.githubusercontent.com/u/796194?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Nicolas Morel</b></sub></a><br /><a href="https://github.com/jimp-dev/jimp/commits?author=Marsup" title="Code">💻</a></td>
   </tr>
 </table>
 
