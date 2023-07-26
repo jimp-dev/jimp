@@ -1,3 +1,19 @@
+# v0.22.9 (Wed Jul 26 2023)
+
+:tada: This release contains work from a new contributor! :tada:
+
+Thank you, Artur ([@Artur-](https://github.com/Artur-)), for all your work!
+
+#### 🐛 Bug Fix
+
+- fix: Remove dependency on mkdirp [#1248](https://github.com/jimp-dev/jimp/pull/1248) ([@Artur-](https://github.com/Artur-))
+
+#### Authors: 1
+
+- Artur ([@Artur-](https://github.com/Artur-))
+
+---
+
 # v0.22.8 (Thu May 11 2023)
 
 #### 🚀 Enhancement

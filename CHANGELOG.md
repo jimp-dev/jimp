@@ -1,3 +1,46 @@
+# v0.22.9 (Wed Jul 26 2023)
+
+:tada: This release contains work from new contributors! :tada:
+
+Thanks for all your work!
+
+:heart: Artur ([@Artur-](https://github.com/Artur-))
+
+:heart: Tim O. (macer) ([@gitmacer](https://github.com/gitmacer))
+
+:heart: aab ([@aabccd021](https://github.com/aabccd021))
+
+:heart: Zsolt Medgyesi ([@zmedgyes](https://github.com/zmedgyes))
+
+:heart: Nicolas Morel ([@Marsup](https://github.com/Marsup))
+
+#### 🚀 Enhancement
+
+- Support commonjs default export [#1225](https://github.com/jimp-dev/jimp/pull/1225) ([@zmedgyes](https://github.com/zmedgyes))
+- `jimp`, `@jimp/plugin-print`
+  - Add € to extended Fonts [#1249](https://github.com/jimp-dev/jimp/pull/1249) ([@gitmacer](https://github.com/gitmacer))
+- `@jimp/gif`
+  - chore: upgrade gifwrap [#1222](https://github.com/jimp-dev/jimp/pull/1222) ([@Marsup](https://github.com/Marsup))
+
+#### 🐛 Bug Fix
+
+- `@jimp/core`
+  - fix: Remove dependency on mkdirp [#1248](https://github.com/jimp-dev/jimp/pull/1248) ([@Artur-](https://github.com/Artur-))
+
+#### 📝 Documentation
+
+- delete cli link from readme [#1250](https://github.com/jimp-dev/jimp/pull/1250) ([@aabccd021](https://github.com/aabccd021))
+
+#### Authors: 5
+
+- aab ([@aabccd021](https://github.com/aabccd021))
+- Artur ([@Artur-](https://github.com/Artur-))
+- Nicolas Morel ([@Marsup](https://github.com/Marsup))
+- Tim O. (macer) ([@gitmacer](https://github.com/gitmacer))
+- Zsolt Medgyesi ([@zmedgyes](https://github.com/zmedgyes))
+
+---
+
 # v0.22.8 (Thu May 11 2023)
 
 :tada: This release contains work from new contributors! :tada:

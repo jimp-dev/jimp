@@ -1,3 +1,19 @@
+# v0.22.9 (Wed Jul 26 2023)
+
+:tada: This release contains work from a new contributor! :tada:
+
+Thank you, Tim O. (macer) ([@gitmacer](https://github.com/gitmacer)), for all your work!
+
+#### 🚀 Enhancement
+
+- Add € to extended Fonts [#1249](https://github.com/jimp-dev/jimp/pull/1249) ([@gitmacer](https://github.com/gitmacer))
+
+#### Authors: 1
+
+- Tim O. (macer) ([@gitmacer](https://github.com/gitmacer))
+
+---
+
 # v0.22.8 (Thu May 11 2023)
 
 :tada: This release contains work from new contributors! :tada:

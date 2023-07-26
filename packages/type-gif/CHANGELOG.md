@@ -1,3 +1,19 @@
+# v0.22.9 (Wed Jul 26 2023)
+
+:tada: This release contains work from a new contributor! :tada:
+
+Thank you, Nicolas Morel ([@Marsup](https://github.com/Marsup)), for all your work!
+
+#### 🚀 Enhancement
+
+- chore: upgrade gifwrap [#1222](https://github.com/jimp-dev/jimp/pull/1222) ([@Marsup](https://github.com/Marsup))
+
+#### Authors: 1
+
+- Nicolas Morel ([@Marsup](https://github.com/Marsup))
+
+---
+
 # v0.22.1 (Mon Feb 06 2023)
 
 #### 🏠 Internal
