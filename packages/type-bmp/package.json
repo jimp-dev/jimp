@@ -1,6 +1,6 @@
 {
   "name": "@jimp/bmp",
-  "version": "0.22.9",
+  "version": "0.22.10",
   "description": "Default Jimp bmp encoder/decoder.",
   "main": "dist/index.js",
   "module": "es/index.js",
