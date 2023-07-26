@@ -15,8 +15,16 @@ describe("EXIF orientation", () => {
       orientedImg.write(
         getTestDir(__dirname) + `/Landscape-output-${orientation}-PR.jpg`
       );
-      expect(orientedImg.getWidth()).toBe(regularImg.getWidth());
-      expect(orientedImg.getHeight()).toBe(regularImg.getHeight());
+
+      if (orientation > 4) {
+        // 5, 6, 7, 8 dimmensions are swapped
+        expect(orientedImg.getWidth()).toBe(regularImg.getHeight());
+        expect(orientedImg.getHeight()).toBe(regularImg.getWidth());
+      } else {
+        expect(orientedImg.getWidth()).toBe(regularImg.getWidth());
+        expect(orientedImg.getHeight()).toBe(regularImg.getHeight());
+      }
+
       expect(Jimp.distance(regularImg, orientedImg)).toBeLessThan(0.07);
 
       expect(getExifOrientation(orientedImg)).toBe(
@@ -27,14 +35,22 @@ describe("EXIF orientation", () => {
 
   for (let orientation = 1; orientation <= 8; orientation++) {
     it(`is fixed when EXIF orientation is ${orientation}`, async () => {
-      const regularImg = await imageWithOrientation(1);
-      const orientedImg = await imageWithOrientation(orientation);
+      const regularImg = await imageWithOrientation2(1);
+      const orientedImg = await imageWithOrientation2(orientation);
 
       orientedImg.write(
         getTestDir(__dirname) + `/Portrait-output-${orientation}-PR.jpg`
       );
-      expect(orientedImg.getWidth()).toBe(regularImg.getWidth());
-      expect(orientedImg.getHeight()).toBe(regularImg.getHeight());
+
+      if (orientation > 4) {
+        // 5, 6, 7, 8 dimmensions are swapped
+        expect(orientedImg.getWidth()).toBe(regularImg.getHeight());
+        expect(orientedImg.getHeight()).toBe(regularImg.getWidth());
+      } else {
+        expect(orientedImg.getWidth()).toBe(regularImg.getWidth());
+        expect(orientedImg.getHeight()).toBe(regularImg.getHeight());
+      }
+
       expect(Jimp.distance(regularImg, orientedImg)).toBeLessThan(0.07);
 
       expect(getExifOrientation(orientedImg)).toBe(

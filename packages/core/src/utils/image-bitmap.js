@@ -3,6 +3,7 @@ import FileType from "file-type";
 import { throwError } from "@jimp/utils";
 import EXIFParser from "exif-parser";
 // modify-exif
+import modifyEXIF from "modify-exif";
 
 import * as constants from "../constants";
 import * as MIME from "./mime";
@@ -10,6 +11,8 @@ import promisify from "./promisify";
 
 const EXIF_TAGS = {
   ORIENTATION: 0x0112, // decimal: 274
+  IMAGE_WIDTH: 0x0100, // decimal: 256
+  IMAGE_HEIGHT: 0x0101, // decimal: 257
 };
 
 async function getMIMEFromBuffer(buffer, path) {
@@ -132,15 +135,18 @@ function transformBitmap(img, width, height, transformation) {
     }
   }
 
+  img.bitmap.data = modifyEXIF(data, (_data) => {
+    console.log(_data);
+    _data["0th"][274] = 1;
+    _data["0th"][256] = width;
+    _data["0th"][257] = height;
+    return _data;
+  });
+
   img.bitmap.width = width;
   img.bitmap.height = height;
 
-  // img.bitmap.data = modifyEXIF(data, (_data) => {
-  //   _data["0th"][274] = 1;
-  //   return _data;
-  // });
-
-  img.bitmap.data = data;
+  // img.bitmap.data = data;
 
   img._exif = EXIFParser.create(data).parse();
 }
