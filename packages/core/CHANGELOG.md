@@ -1,3 +1,20 @@
+# v0.22.10 (Wed Jul 26 2023)
+
+:tada: This release contains work from a new contributor! :tada:
+
+Thank you, Zach Stevenson ([@stevezac-osu](https://github.com/stevezac-osu)), for all your work!
+
+#### 🚀 Enhancement
+
+- Encoder for GIF provides a Promise to getBuffer when a string, Buffer, or Uint8Array is expected [#1239](https://github.com/jimp-dev/jimp/pull/1239) ([@stevezac-osu](https://github.com/stevezac-osu) [@hipstersmoothie](https://github.com/hipstersmoothie))
+
+#### Authors: 2
+
+- Andrew Lisowski ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- Zach Stevenson ([@stevezac-osu](https://github.com/stevezac-osu))
+
+---
+
 # v0.22.9 (Wed Jul 26 2023)
 
 :tada: This release contains work from a new contributor! :tada:
