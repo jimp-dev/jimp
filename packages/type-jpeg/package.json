@@ -1,6 +1,6 @@
 {
   "name": "@jimp/jpeg",
-  "version": "0.22.8",
+  "version": "0.22.9",
   "description": "Default Jimp jpeg encoder/decoder.",
   "main": "dist/index.js",
   "module": "es/index.js",
