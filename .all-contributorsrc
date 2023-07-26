@@ -1301,6 +1301,15 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "stevezac-osu",
+      "name": "Zach Stevenson",
+      "avatar_url": "https://avatars.githubusercontent.com/u/71655313?v=4",
+      "profile": "https://github.com/stevezac-osu",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "contributorsPerLine": 7,
