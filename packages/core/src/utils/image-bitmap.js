@@ -225,12 +225,12 @@ export function getBuffer(mime, cb) {
 
   if (this.constructor.encoders[mime]) {
     const buffer = this.constructor.encoders[mime](this);
-    //Typically, buffers return a string or map.  However, the gif library "gifwrap" seemingly returns promises.
-    if(buffer instanceof Promise){
-      //trigger the callback when the promise has been resolved
+    // Typically, buffers return a string or map.  However, the gif library "gifwrap" seemingly returns promises.
+    if (buffer instanceof Promise) {
+      // trigger the callback when the promise has been resolved
       buffer.then((buff) => {
         cb.call(this, null, buff);
-      })
+      });
     } else {
       cb.call(this, null, buffer);
     }
