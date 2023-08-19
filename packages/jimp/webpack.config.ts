@@ -34,5 +34,10 @@ export default {
   output: {
     path: path.join(__dirname, "browser/lib"),
     filename: "jimp.js",
+    library: {
+      name: "Jimp",
+      type: "umd",
+      export: "default",
+    }
   },
 } as webpack.Configuration;
