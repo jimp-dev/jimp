@@ -321,7 +321,12 @@ export default () => ({
    * @param {function(Error, Jimp)} cb (optional) a callback for when complete
    * @returns {Jimp }this for chaining of methods
    */
-  sepia(cb) {
+  sepia(f, cb) {
+    if (typeof f !== "number")
+      return throwError.call(this, "f must be a number", cb);
+    if (f < 0 || f > 1)
+      return throwError.call(this, "f must be a number from 0 to 1", cb);
+
     this.scanQuiet(
       0,
       0,
@@ -332,9 +337,9 @@ export default () => ({
         let green = this.bitmap.data[idx + 1];
         let blue = this.bitmap.data[idx + 2];
 
-        red = red * 0.393 + green * 0.769 + blue * 0.189;
-        green = red * 0.349 + green * 0.686 + blue * 0.168;
-        blue = red * 0.272 + green * 0.534 + blue * 0.131;
+        red = red * (1 - 0.607 * f) + green * 0.769 * f + blue * 0.189 * f;
+        green = red * 0.349 * f + green * (1 - 0.314 * f) + blue * 0.168 * f;
+        blue = red * 0.272 * f + green * 0.534 * f + blue * (1 - 0.869 * f);
 
         this.bitmap.data[idx] = red < 255 ? red : 255;
         this.bitmap.data[idx + 1] = green < 255 ? green : 255;

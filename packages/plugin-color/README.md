@@ -134,7 +134,7 @@ main();
 
 ## sepia
 
-Applies a sepia tone to the image
+Applies a sepia tone to the image with given intensity, a factor between 0 and 1
 
 - @param {function(Error, Jimp)} cb (optional) a callback for when complete
 
@@ -144,7 +144,7 @@ import jimp from "jimp";
 async function main() {
   const image = await jimp.read("test/image.png");
 
-  image.sepia();
+  image.sepia(1);
 }
 
 main();
