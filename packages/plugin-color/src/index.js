@@ -321,7 +321,7 @@ export default () => ({
    * @param {function(Error, Jimp)} cb (optional) a callback for when complete
    * @returns {Jimp }this for chaining of methods
    */
-  sepia(f, cb) {
+  sepia(f = 1, cb) {
     if (typeof f !== "number")
       return throwError.call(this, "f must be a number", cb);
     if (f < 0 || f > 1)

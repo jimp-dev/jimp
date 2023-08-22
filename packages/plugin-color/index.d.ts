@@ -30,7 +30,7 @@ interface Color {
   greyscale(cb?: ImageCallback<this>): this;
   grayscale(cb?: ImageCallback<this>): this;
   opacity(f: number, cb?: ImageCallback<this>): this;
-  sepia(f: number, cb?: ImageCallback<this>): this;
+  sepia(f?: number, cb?: ImageCallback<this>): this;
   fade(f: number, cb?: ImageCallback<this>): this;
   convolution(kernel: number[][], cb?: ImageCallback<this>): this;
   convolution<T>(
