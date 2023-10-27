@@ -905,16 +905,13 @@ Jimp.rgbaToInt = function (r, g, b, a, cb) {
     return throwError.call(this, "a must be between 0 and 255", cb);
   }
 
-  r = Math.round(r);
-  b = Math.round(b);
-  g = Math.round(g);
-  a = Math.round(a);
-
-  const i =
-    r * Math.pow(256, 3) +
-    g * Math.pow(256, 2) +
-    b * Math.pow(256, 1) +
-    a * Math.pow(256, 0);
+  let i = (r & 0xff);
+  i <<= 8;
+  i |= (g & 0xff)
+  i <<= 8;
+  i |= (b & 0xff)
+  i <<= 8;
+  i |= (a & 0xff);
 
   if (isNodePattern(cb)) {
     cb.call(this, null, i);
