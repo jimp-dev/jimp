@@ -739,10 +739,6 @@ class Jimp extends EventEmitter {
     if (typeof x !== "number" || typeof y !== "number")
       return throwError.call(this, "x and y must be numbers", cb);
 
-    // round input
-    x = Math.round(x);
-    y = Math.round(y);
-
     const idx = this.getPixelIndex(x, y);
     const hex = this.bitmap.data.readUInt32BE(idx);
 
@@ -770,10 +766,6 @@ class Jimp extends EventEmitter {
       typeof y !== "number"
     )
       return throwError.call(this, "hex, x and y must be numbers", cb);
-
-    // round input
-    x = Math.round(x);
-    y = Math.round(y);
 
     const idx = this.getPixelIndex(x, y);
     this.bitmap.data.writeUInt32BE(hex, idx);
