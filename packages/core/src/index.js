@@ -901,6 +901,8 @@ Jimp.rgbaToInt = function (r, g, b, a, cb) {
   i <<= 8;
   i |= (b & 0xff)
   i <<= 8;
+  // Ensure sign is correct
+  i >>>= 0;
   i |= (a & 0xff);
 
   if (isNodePattern(cb)) {
