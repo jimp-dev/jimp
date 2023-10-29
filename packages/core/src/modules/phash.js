@@ -130,11 +130,11 @@ ImagePHash.prototype.getHash = function (img) {
  */
 function intToRGBA(i) {
   const a = i & 0xff;
-  i >>= 8;
+  i >>>= 8;
   const b = i & 0xff;
-  i >>= 8;
+  i >>>= 8;
   const g = i & 0xff;
-  i >>= 8;
+  i >>>= 8;
   const r = i & 0xff;
 
   return {r, g, b, a};
