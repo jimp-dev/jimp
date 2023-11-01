@@ -21,14 +21,12 @@ export function splitLines(font, text, maxWidth) {
   const lines = [];
   let currentLine = [];
   let longestLine = 0;
+
   words.forEach((word) => {
     const line = [...currentLine, word].join(" ");
     const length = measureText(font, line);
 
-    const withinMaxWidth = length <= maxWidth;
-    const containsNewline = word.includes("\n");
-
-    if (withinMaxWidth && !containsNewline) {
+    if (length <= maxWidth && !word.includes("\n")) {
       if (length > longestLine) {
         longestLine = length;
       }
