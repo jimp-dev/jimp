@@ -16,29 +16,29 @@ export function measureText(font, text) {
 }
 
 export function splitLines(font, text, maxWidth) {
-  const words = text.split(" ");
+  const words = text.replace(/[\r\n]+/g, " \n").split(" ");
+
   const lines = [];
   let currentLine = [];
   let longestLine = 0;
-
   words.forEach((word) => {
     const line = [...currentLine, word].join(" ");
     const length = measureText(font, line);
 
-    if (length <= maxWidth) {
+    const withinMaxWidth = length <= maxWidth;
+    const containsNewline = word.includes("\n");
+
+    if (withinMaxWidth && !containsNewline) {
       if (length > longestLine) {
         longestLine = length;
       }
-
       currentLine.push(word);
     } else {
       lines.push(currentLine);
-      currentLine = [word];
+      currentLine = [word.replace("\n", "")];
     }
   });
-
   lines.push(currentLine);
-
   return {
     lines,
     longestLine,
