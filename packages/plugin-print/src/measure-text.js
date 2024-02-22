@@ -30,6 +30,7 @@ export function splitLines(font, text, maxWidth) {
       if (length > longestLine) {
         longestLine = length;
       }
+
       currentLine.push(word);
     } else {
       lines.push(currentLine);

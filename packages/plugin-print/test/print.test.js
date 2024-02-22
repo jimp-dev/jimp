@@ -302,6 +302,7 @@ describe("Write text over image", function () {
 
     const textImage = await createTextImage(100, 240, Jimp.FONT_SANS_16_BLACK, {
       text: "This \nis only \na \ntest.",
+
       maxWidth: 300,
     });
 
