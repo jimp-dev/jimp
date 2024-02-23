@@ -1,3 +1,20 @@
+# v0.22.12 (Fri Feb 23 2024)
+
+:tada: This release contains work from a new contributor! :tada:
+
+Thank you, Dathan ([@DLiblik](https://github.com/DLiblik)), for all your work!
+
+#### 🐛 Bug Fix
+
+- Improve color operations performance [#1263](https://github.com/jimp-dev/jimp/pull/1263) ([@DLiblik](https://github.com/DLiblik) [@hipstersmoothie](https://github.com/hipstersmoothie))
+
+#### Authors: 2
+
+- Andrew Lisowski ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- Dathan ([@DLiblik](https://github.com/DLiblik))
+
+---
+
 # v0.22.10 (Wed Jul 26 2023)
 
 :tada: This release contains work from a new contributor! :tada:
