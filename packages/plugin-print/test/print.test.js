@@ -294,4 +294,18 @@ describe("Write text over image", function () {
 
     expect(height).toEqual(lineHeight);
   });
+
+  it("text with newlines, default alignment", async () => {
+    const expectedImage = await Jimp.read(
+      getTestDir(__dirname) + "/images/with-newlines.png"
+    );
+
+    const textImage = await createTextImage(100, 240, Jimp.FONT_SANS_16_BLACK, {
+      text: "This \nis only \na \ntest.",
+
+      maxWidth: 300,
+    });
+
+    expect(textImage.bitmap.data).toEqual(expectedImage.bitmap.data);
+  });
 });
