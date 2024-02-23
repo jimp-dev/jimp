@@ -1319,6 +1319,15 @@
       "contributions": [
         "doc"
       ]
+    },
+    {
+      "login": "DLiblik",
+      "name": "Dathan",
+      "avatar_url": "https://avatars.githubusercontent.com/u/4047997?v=4",
+      "profile": "https://ca.linkedin.com/in/dathanliblik",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "contributorsPerLine": 7,
