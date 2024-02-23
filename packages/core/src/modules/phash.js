@@ -125,24 +125,19 @@ ImagePHash.prototype.getHash = function (img) {
 
 // DCT function stolen from http://stackoverflow.com/questions/4240490/problems-with-dct-and-idct-algorithm-in-java
 
+/**
+ Convert a 32-bit integer color value to an RGBA object.
+ */
 function intToRGBA(i) {
-  const rgba = {};
+  const a = i & 0xff;
+  i >>>= 8;
+  const b = i & 0xff;
+  i >>>= 8;
+  const g = i & 0xff;
+  i >>>= 8;
+  const r = i & 0xff;
 
-  rgba.r = Math.floor(i / Math.pow(256, 3));
-  rgba.g = Math.floor((i - rgba.r * Math.pow(256, 3)) / Math.pow(256, 2));
-  rgba.b = Math.floor(
-    (i - rgba.r * Math.pow(256, 3) - rgba.g * Math.pow(256, 2)) /
-      Math.pow(256, 1)
-  );
-  rgba.a = Math.floor(
-    (i -
-      rgba.r * Math.pow(256, 3) -
-      rgba.g * Math.pow(256, 2) -
-      rgba.b * Math.pow(256, 1)) /
-      Math.pow(256, 0)
-  );
-
-  return rgba;
+  return {r, g, b, a};
 }
 
 const c = [];
