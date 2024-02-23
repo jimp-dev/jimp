@@ -3,7 +3,7 @@
     src="https://s3.amazonaws.com/pix.iemoji.com/images/emoji/apple/ios-11/256/crayon.png">
   <h1>Jimp</h1>
   <p>JavaScript Image Manipulation Program</p>
-  <p>An image processing library for Node written entirely in JavaScript, with zero native dependencies.</p>
+  <p>An image processing library for Node written entirely in JavaScript, with zero native dependencies</p>
 </div>
 
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
