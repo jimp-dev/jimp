@@ -77,7 +77,7 @@ describe("Callbacks", () => {
       },
     },
     sepia: {
-      args: [],
+      args: [1],
       result: {
         width: 3,
         height: 3,
