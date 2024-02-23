@@ -1,3 +1,32 @@
+# v0.22.11 (Fri Feb 23 2024)
+
+:tada: This release contains work from new contributors! :tada:
+
+Thanks for all your work!
+
+:heart: Rob Juurlink ([@kozmoz](https://github.com/kozmoz))
+
+:heart: null[@AnotherPillow](https://github.com/AnotherPillow)
+
+#### 🚀 Enhancement
+
+- `@jimp/plugin-print`
+  - Add \n support for image.print #865 [#1265](https://github.com/jimp-dev/jimp/pull/1265) (juurr00@juurlink.org [@kozmoz](https://github.com/kozmoz) [@hipstersmoothie](https://github.com/hipstersmoothie))
+
+#### 📝 Documentation
+
+- `jimp`
+  - Fix it's/its, see description. [#1267](https://github.com/jimp-dev/jimp/pull/1267) ([@AnotherPillow](https://github.com/AnotherPillow))
+
+#### Authors: 4
+
+- [@AnotherPillow](https://github.com/AnotherPillow)
+- Andrew Lisowski ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- juurr00 (juurr00@juurlink.org)
+- Rob Juurlink ([@kozmoz](https://github.com/kozmoz))
+
+---
+
 # v0.22.10 (Wed Jul 26 2023)
 
 :tada: This release contains work from a new contributor! :tada:

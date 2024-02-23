@@ -1,3 +1,21 @@
+# v0.22.11 (Fri Feb 23 2024)
+
+:tada: This release contains work from a new contributor! :tada:
+
+Thank you, Rob Juurlink ([@kozmoz](https://github.com/kozmoz)), for all your work!
+
+#### 🚀 Enhancement
+
+- Add \n support for image.print #865 [#1265](https://github.com/jimp-dev/jimp/pull/1265) (juurr00@juurlink.org [@kozmoz](https://github.com/kozmoz) [@hipstersmoothie](https://github.com/hipstersmoothie))
+
+#### Authors: 3
+
+- Andrew Lisowski ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- juurr00 (juurr00@juurlink.org)
+- Rob Juurlink ([@kozmoz](https://github.com/kozmoz))
+
+---
+
 # v0.22.9 (Wed Jul 26 2023)
 
 :tada: This release contains work from a new contributor! :tada:
