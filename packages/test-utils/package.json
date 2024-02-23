@@ -1,6 +1,6 @@
 {
   "name": "@jimp/test-utils",
-  "version": "0.22.10",
+  "version": "0.22.11",
   "description": "Test utils for jimp extensions.",
   "main": "dist/index.js",
   "repository": "jimp-dev/jimp",

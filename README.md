@@ -3,7 +3,7 @@
     src="https://s3.amazonaws.com/pix.iemoji.com/images/emoji/apple/ios-11/256/crayon.png">
   <h1>Jimp</h1>
   <p>JavaScript Image Manipulation Program</p>
-  <p>An image processing library for Node written entirely in JavaScript, with zero native dependencies.</p>
+  <p>An image processing library for Node written entirely in JavaScript, with zero native dependencies</p>
 </div>
 
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
@@ -309,6 +309,7 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
     <td align="center"><a href="https://github.com/JunkMeal"><img src="https://avatars.githubusercontent.com/u/65283415?v=4?s=100" width="100px;" alt=""/><br /><sub><b>JunkMeal</b></sub></a><br /><a href="https://github.com/jimp-dev/jimp/commits?author=JunkMeal" title="Documentation">📖</a></td>
     <td align="center"><a href="https://github.com/Marsup"><img src="https://avatars.githubusercontent.com/u/796194?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Nicolas Morel</b></sub></a><br /><a href="https://github.com/jimp-dev/jimp/commits?author=Marsup" title="Code">💻</a></td>
     <td align="center"><a href="https://github.com/stevezac-osu"><img src="https://avatars.githubusercontent.com/u/71655313?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Zach Stevenson</b></sub></a><br /><a href="https://github.com/jimp-dev/jimp/commits?author=stevezac-osu" title="Code">💻</a></td>
+    <td align="center"><a href="https://github.com/AnotherPillow"><img src="https://avatars.githubusercontent.com/u/85362273?v=4?s=100" width="100px;" alt=""/><br /><sub><b>AnotherPillow</b></sub></a><br /><a href="https://github.com/jimp-dev/jimp/commits?author=AnotherPillow" title="Documentation">📖</a></td>
   </tr>
 </table>
 

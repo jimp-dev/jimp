@@ -1310,6 +1310,15 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "AnotherPillow",
+      "name": "AnotherPillow",
+      "avatar_url": "https://avatars.githubusercontent.com/u/85362273?v=4",
+      "profile": "https://github.com/AnotherPillow",
+      "contributions": [
+        "doc"
+      ]
     }
   ],
   "contributorsPerLine": 7,

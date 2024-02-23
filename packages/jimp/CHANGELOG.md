@@ -1,3 +1,19 @@
+# v0.22.11 (Fri Feb 23 2024)
+
+:tada: This release contains work from a new contributor! :tada:
+
+Thank you, null[@AnotherPillow](https://github.com/AnotherPillow), for all your work!
+
+#### 📝 Documentation
+
+- Fix it's/its, see description. [#1267](https://github.com/jimp-dev/jimp/pull/1267) ([@AnotherPillow](https://github.com/AnotherPillow))
+
+#### Authors: 1
+
+- [@AnotherPillow](https://github.com/AnotherPillow)
+
+---
+
 # v0.22.9 (Wed Jul 26 2023)
 
 :tada: This release contains work from a new contributor! :tada:

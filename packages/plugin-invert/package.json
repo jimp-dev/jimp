@@ -1,6 +1,6 @@
 {
   "name": "@jimp/plugin-invert",
-  "version": "0.22.10",
+  "version": "0.22.11",
   "description": "invert an image.",
   "main": "dist/index.js",
   "module": "es/index.js",

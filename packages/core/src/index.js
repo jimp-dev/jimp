@@ -739,10 +739,6 @@ class Jimp extends EventEmitter {
     if (typeof x !== "number" || typeof y !== "number")
       return throwError.call(this, "x and y must be numbers", cb);
 
-    // round input
-    x = Math.round(x);
-    y = Math.round(y);
-
     const idx = this.getPixelIndex(x, y);
     const hex = this.bitmap.data.readUInt32BE(idx);
 
@@ -771,10 +767,6 @@ class Jimp extends EventEmitter {
     )
       return throwError.call(this, "hex, x and y must be numbers", cb);
 
-    // round input
-    x = Math.round(x);
-    y = Math.round(y);
-
     const idx = this.getPixelIndex(x, y);
     this.bitmap.data.writeUInt32BE(hex, idx);
 
@@ -792,14 +784,12 @@ class Jimp extends EventEmitter {
    * @return {boolean} hasAlpha whether the image contains opaque pixels
    */
   hasAlpha() {
-    for (let yIndex = 0; yIndex < this.bitmap.height; yIndex++) {
-      for (let xIndex = 0; xIndex < this.bitmap.width; xIndex++) {
-        const idx = (this.bitmap.width * yIndex + xIndex) << 2;
-        const alpha = this.bitmap.data[idx + 3];
+    const { width, height, data } = this.bitmap;
+    const byteLen = (width * height) << 2;
 
-        if (alpha !== 0xff) {
-          return true;
-        }
+    for (let idx = 3; idx < byteLen; idx += 4) {
+      if (data[idx] !== 0xff) {
+        return true;
       }
     }
 
@@ -905,16 +895,16 @@ Jimp.rgbaToInt = function (r, g, b, a, cb) {
     return throwError.call(this, "a must be between 0 and 255", cb);
   }
 
-  r = Math.round(r);
-  b = Math.round(b);
-  g = Math.round(g);
-  a = Math.round(a);
+  let i = r & 0xff;
+  i <<= 8;
+  i |= g & 0xff;
+  i <<= 8;
+  i |= b & 0xff;
+  i <<= 8;
+  i |= a & 0xff;
 
-  const i =
-    r * Math.pow(256, 3) +
-    g * Math.pow(256, 2) +
-    b * Math.pow(256, 1) +
-    a * Math.pow(256, 0);
+  // Ensure sign is correct
+  i >>>= 0;
 
   if (isNodePattern(cb)) {
     cb.call(this, null, i);
