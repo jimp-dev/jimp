@@ -1343,13 +1343,13 @@
     chalk "^4.0.0"
 
 "@jimp/bmp@link:packages/type-bmp":
-  version "0.22.10"
+  version "0.22.12"
   dependencies:
     "@jimp/utils" "link:packages/utils"
     bmp-js "^0.1.0"
 
 "@jimp/core@link:packages/core":
-  version "0.22.10"
+  version "0.22.12"
   dependencies:
     "@jimp/utils" "link:packages/utils"
     any-base "^1.1.0"
@@ -1357,136 +1357,137 @@
     exif-parser "^0.1.12"
     file-type "^16.5.4"
     isomorphic-fetch "^3.0.0"
+    modify-exif "^0.0.1"
     pixelmatch "^4.0.2"
     tinycolor2 "^1.6.0"
 
 "@jimp/custom@link:packages/custom":
-  version "0.22.10"
+  version "0.22.12"
   dependencies:
     "@jimp/core" "link:packages/core"
 
 "@jimp/gif@link:packages/type-gif":
-  version "0.22.10"
+  version "0.22.12"
   dependencies:
     "@jimp/utils" "link:packages/utils"
     gifwrap "^0.10.1"
     omggif "^1.0.9"
 
 "@jimp/jpeg@link:packages/type-jpeg":
-  version "0.22.10"
+  version "0.22.12"
   dependencies:
     "@jimp/utils" "link:packages/utils"
     jpeg-js "^0.4.4"
 
 "@jimp/plugin-blit@link:packages/plugin-blit":
-  version "0.22.10"
+  version "0.22.12"
   dependencies:
     "@jimp/utils" "link:packages/utils"
 
 "@jimp/plugin-blur@link:packages/plugin-blur":
-  version "0.22.10"
+  version "0.22.12"
   dependencies:
     "@jimp/utils" "link:packages/utils"
 
 "@jimp/plugin-circle@link:packages/plugin-circle":
-  version "0.22.10"
+  version "0.22.12"
   dependencies:
     "@jimp/utils" "link:packages/utils"
 
 "@jimp/plugin-color@link:packages/plugin-color":
-  version "0.22.10"
+  version "0.22.12"
   dependencies:
     "@jimp/utils" "link:packages/utils"
     tinycolor2 "^1.6.0"
 
 "@jimp/plugin-contain@link:packages/plugin-contain":
-  version "0.22.10"
+  version "0.22.12"
   dependencies:
     "@jimp/utils" "link:packages/utils"
 
 "@jimp/plugin-cover@link:packages/plugin-cover":
-  version "0.22.10"
+  version "0.22.12"
   dependencies:
     "@jimp/utils" "link:packages/utils"
 
 "@jimp/plugin-crop@link:packages/plugin-crop":
-  version "0.22.10"
+  version "0.22.12"
   dependencies:
     "@jimp/utils" "link:packages/utils"
 
 "@jimp/plugin-displace@link:packages/plugin-displace":
-  version "0.22.10"
+  version "0.22.12"
   dependencies:
     "@jimp/utils" "link:packages/utils"
 
 "@jimp/plugin-dither@link:packages/plugin-dither":
-  version "0.22.10"
+  version "0.22.12"
   dependencies:
     "@jimp/utils" "link:packages/utils"
 
 "@jimp/plugin-fisheye@link:packages/plugin-fisheye":
-  version "0.22.10"
+  version "0.22.12"
   dependencies:
     "@jimp/utils" "link:packages/utils"
 
 "@jimp/plugin-flip@link:packages/plugin-flip":
-  version "0.22.10"
+  version "0.22.12"
   dependencies:
     "@jimp/utils" "link:packages/utils"
 
 "@jimp/plugin-gaussian@link:packages/plugin-gaussian":
-  version "0.22.10"
+  version "0.22.12"
   dependencies:
     "@jimp/utils" "link:packages/utils"
 
 "@jimp/plugin-invert@link:packages/plugin-invert":
-  version "0.22.10"
+  version "0.22.12"
   dependencies:
     "@jimp/utils" "link:packages/utils"
 
 "@jimp/plugin-mask@link:packages/plugin-mask":
-  version "0.22.10"
+  version "0.22.12"
   dependencies:
     "@jimp/utils" "link:packages/utils"
 
 "@jimp/plugin-normalize@link:packages/plugin-normalize":
-  version "0.22.10"
+  version "0.22.12"
   dependencies:
     "@jimp/utils" "link:packages/utils"
 
 "@jimp/plugin-print@link:packages/plugin-print":
-  version "0.22.10"
+  version "0.22.12"
   dependencies:
     "@jimp/utils" "link:packages/utils"
     load-bmfont "^1.4.1"
 
 "@jimp/plugin-resize@link:packages/plugin-resize":
-  version "0.22.10"
+  version "0.22.12"
   dependencies:
     "@jimp/utils" "link:packages/utils"
 
 "@jimp/plugin-rotate@link:packages/plugin-rotate":
-  version "0.22.10"
+  version "0.22.12"
   dependencies:
     "@jimp/utils" "link:packages/utils"
 
 "@jimp/plugin-scale@link:packages/plugin-scale":
-  version "0.22.10"
+  version "0.22.12"
   dependencies:
     "@jimp/utils" "link:packages/utils"
 
 "@jimp/plugin-shadow@link:packages/plugin-shadow":
-  version "0.22.10"
+  version "0.22.12"
   dependencies:
     "@jimp/utils" "link:packages/utils"
 
 "@jimp/plugin-threshold@link:packages/plugin-threshold":
-  version "0.22.10"
+  version "0.22.12"
   dependencies:
     "@jimp/utils" "link:packages/utils"
 
 "@jimp/plugins@link:packages/plugins":
-  version "0.22.10"
+  version "0.22.12"
   dependencies:
     "@jimp/plugin-blit" "link:packages/plugin-blit"
     "@jimp/plugin-blur" "link:packages/plugin-blur"
@@ -1512,23 +1513,23 @@
     timm "^1.6.1"
 
 "@jimp/png@link:packages/type-png":
-  version "0.22.10"
+  version "0.22.12"
   dependencies:
     "@jimp/utils" "link:packages/utils"
     pngjs "^6.0.0"
 
 "@jimp/test-utils@link:packages/test-utils":
-  version "0.22.10"
+  version "0.22.12"
   dependencies:
     pngjs "^6.0.0"
 
 "@jimp/tiff@link:packages/type-tiff":
-  version "0.22.10"
+  version "0.22.12"
   dependencies:
     utif2 "^4.0.1"
 
 "@jimp/types@link:packages/types":
-  version "0.22.10"
+  version "0.22.12"
   dependencies:
     "@jimp/bmp" "link:packages/type-bmp"
     "@jimp/gif" "link:packages/type-gif"
@@ -1538,7 +1539,7 @@
     timm "^1.6.1"
 
 "@jimp/utils@link:packages/utils":
-  version "0.22.10"
+  version "0.22.12"
   dependencies:
     regenerator-runtime "^0.13.3"
 
@@ -4124,6 +4125,13 @@ cross-spawn@^7.0.2, cross-spawn@^7.0.3:
     shebang-command "^2.0.0"
     which "^2.0.1"
 
+current-exif-date@^0.0.0:
+  version "0.0.0"
+  resolved "https://registry.yarnpkg.com/current-exif-date/-/current-exif-date-0.0.0.tgz#13060eec20a24de3607c00cdd743f75a7cab60de"
+  integrity sha512-MdCRt6rxQzOssEeHjgfZFpmDydW6zyUAkUuP0gyGr2YZo25WZDM9SMG7gnFEX5zWQ9WNV9hi/V0hrMhDXazTvQ==
+  dependencies:
+    exif-date "^1.2.0"
+
 custom-event@~1.0.0:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/custom-event/-/custom-event-1.0.1.tgz#5d02a46850adf1b4a317946a3928fccb5bfd0425"
@@ -5009,6 +5017,11 @@ execa@^5.0.0:
     onetime "^5.1.2"
     signal-exit "^3.0.3"
     strip-final-newline "^2.0.0"
+
+exif-date@^1.2.0:
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/exif-date/-/exif-date-1.2.0.tgz#cb5ac1c32f26b4f0e7a7f574ed1efca05b8f3d72"
+  integrity sha512-gZCcYhgQ/6PD9iAYYQURXJ1zL0BZgiJ60xLxYwe2ont+VPJIWnsjPK2ochLN59kMR77KdiFb+SnmAEocngHC+w==
 
 exif-parser@^0.1.12:
   version "0.1.12"
@@ -6527,6 +6540,11 @@ is-interactive@^1.0.0:
   resolved "https://registry.npmjs.org/is-interactive/-/is-interactive-1.0.0.tgz#cea6e6ae5c870a7b0a0004070b7b587e0252912e"
   integrity sha512-2HvIEKRoqS62guEC+qBjpvRubdX910WCMuJTZ+I9yvqKU2/12eSL549HMwtabb4oupdj2sMP50k+XJfB/8JE6w==
 
+is-jpg@^1.0.1:
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/is-jpg/-/is-jpg-1.0.1.tgz#296d57fdd99ce010434a7283e346ab9a1035e975"
+  integrity sha512-X5PVpLMBH/OaeTN8quzbcLTlwXCb/6n3tcfYTtEDzp0ZwAlgAOtIAIBHN4mS5OcscMgO8etZ5Ol1mNrXSqwBVQ==
+
 is-lambda@^1.0.1:
   version "1.0.1"
   resolved "https://registry.npmjs.org/is-lambda/-/is-lambda-1.0.1.tgz#3d9877899e6a53efc0160504cde15f82e6f061d5"
@@ -7993,6 +8011,17 @@ mocha@^6.2.0:
     yargs-parser "13.0.0"
     yargs-unparser "1.5.0"
 
+modify-exif@^0.0.1:
+  version "0.0.1"
+  resolved "https://registry.yarnpkg.com/modify-exif/-/modify-exif-0.0.1.tgz#654b862bdaf2e433d845ff1eb24a7b607bec4151"
+  integrity sha512-JwiSc/bi2UzGlnx5cD6NFvaWktAw9+pGBWPYax32MAyMHvYLnzYYU8zIdKvLoBHg7eOy+kQE2awybipC7phVDQ==
+  dependencies:
+    current-exif-date "^0.0.0"
+    is-jpg "^1.0.1"
+    is-plain-obj "^1.1.0"
+    piexifjs "^1.0.4"
+    safe-buffer "^5.1.2"
+
 modify-values@^1.0.1:
   version "1.0.1"
   resolved "https://registry.npmjs.org/modify-values/-/modify-values-1.0.1.tgz#b3939fa605546474e3e3e3c63d64bd43b4ee6022"
@@ -9015,6 +9044,11 @@ picomatch@^2.2.1, picomatch@^2.2.3, picomatch@^2.3.1:
   version "2.3.1"
   resolved "https://registry.npmjs.org/picomatch/-/picomatch-2.3.1.tgz#3ba3833733646d9d3e4995946c1365a67fb07a42"
   integrity sha512-JU3teHTNjmE2VCGFzuY8EXzCDVwEqB2a8fsIvwaStHhAWJEeVd1o1QD80CU6+ZdEXXSLbSsuLwJjkCBWqRQUVA==
+
+piexifjs@^1.0.4:
+  version "1.0.6"
+  resolved "https://registry.yarnpkg.com/piexifjs/-/piexifjs-1.0.6.tgz#883811d73f447218d0d06e9ed7866d04533e59e0"
+  integrity sha512-0wVyH0cKohzBQ5Gi2V1BuxYpxWfxF3cSqfFXfPIpl5tl9XLS5z4ogqhUCD20AbHi0h9aJkqXNJnkVev6gwh2ag==
 
 pify@5.0.0, pify@^5.0.0:
   version "5.0.0"

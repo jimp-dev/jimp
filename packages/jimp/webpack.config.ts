@@ -1,5 +1,5 @@
-import webpack from "webpack";
 import path from "path";
+import webpack from "webpack";
 
 const isProd = process.env.NODE_ENV === "production";
 
@@ -16,6 +16,7 @@ export default {
     fallback: {
       path: require.resolve("path-browserify"),
       fs: false,
+      util: false,
     },
   },
   plugins: [

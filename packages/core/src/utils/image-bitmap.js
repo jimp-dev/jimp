@@ -1,11 +1,19 @@
 import FileType from "file-type";
 
-import EXIFParser from "exif-parser";
 import { throwError } from "@jimp/utils";
+import EXIFParser from "exif-parser";
+// modify-exif
+import modifyEXIF from "modify-exif";
 
 import * as constants from "../constants";
 import * as MIME from "./mime";
 import promisify from "./promisify";
+
+const EXIF_TAGS = {
+  ORIENTATION: 0x0112, // decimal: 274
+  IMAGE_WIDTH: 0x0100, // decimal: 256
+  IMAGE_HEIGHT: 0x0101, // decimal: 257
+};
 
 async function getMIMEFromBuffer(buffer, path) {
   const fileTypeFromBuffer = await FileType.fromBuffer(buffer);
@@ -31,7 +39,7 @@ async function getMIMEFromBuffer(buffer, path) {
  * @returns {number} a number 1-8 representing EXIF orientation,
  *          in particular 1 if orientation tag is missing
  */
-function getExifOrientation(img) {
+export function getExifOrientation(img) {
   return (img._exif && img._exif.tags && img._exif.tags.Orientation) || 1;
 }
 
@@ -127,9 +135,20 @@ function transformBitmap(img, width, height, transformation) {
     }
   }
 
-  img.bitmap.data = data;
+  img.bitmap.data = modifyEXIF(data, (_data) => {
+    console.log(_data);
+    _data["0th"][274] = 1;
+    _data["0th"][256] = width;
+    _data["0th"][257] = height;
+    return _data;
+  });
+
   img.bitmap.width = width;
   img.bitmap.height = height;
+
+  // img.bitmap.data = data;
+
+  img._exif = EXIFParser.create(data).parse();
 }
 
 /*
