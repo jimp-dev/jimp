@@ -86,6 +86,9 @@ importers:
       '@jimp/js-png':
         specifier: workspace:*
         version: link:../../plugins/js-png
+      '@jimp/plugin-crop':
+        specifier: workspace:*
+        version: link:../../plugins/plugin-crop
     devDependencies:
       '@jimp/config-eslint':
         specifier: workspace:*
@@ -127,6 +130,31 @@ importers:
         specifier: ^1.4.0
         version: 1.4.0(@types/node@20.11.28)
 
+  packages/utils:
+    dependencies:
+      '@jimp/types':
+        specifier: workspace:*
+        version: link:../types
+    devDependencies:
+      '@jimp/config-eslint':
+        specifier: workspace:*
+        version: link:../config-eslint
+      '@jimp/config-typescript':
+        specifier: workspace:*
+        version: link:../config-typescript
+      eslint:
+        specifier: ^8.57.0
+        version: 8.57.0
+      tshy:
+        specifier: ^1.12.0
+        version: 1.12.0
+      typescript:
+        specifier: ^5.4.2
+        version: 5.4.2
+      vitest:
+        specifier: ^1.4.0
+        version: 1.4.0(@types/node@20.11.28)
+
   plugins/js-png:
     dependencies:
       '@jimp/core':
@@ -138,6 +166,55 @@ importers:
       pngjs:
         specifier: ^7.0.0
         version: 7.0.0
+    devDependencies:
+      '@jimp/config-eslint':
+        specifier: workspace:*
+        version: link:../../packages/config-eslint
+      '@jimp/config-typescript':
+        specifier: workspace:*
+        version: link:../../packages/config-typescript
+      eslint:
+        specifier: ^8.57.0
+        version: 8.57.0
+      tshy:
+        specifier: ^1.12.0
+        version: 1.12.0
+      typescript:
+        specifier: ^5.4.2
+        version: 5.4.2
+      vitest:
+        specifier: ^1.4.0
+        version: 1.4.0(@types/node@20.11.28)
+
+  plugins/plugin-crop:
+    dependencies:
+      '@jimp/types':
+        specifier: workspace:*
+        version: link:../../packages/types
+      '@jimp/utils':
+        specifier: workspace:*
+        version: link:../../packages/utils
+    devDependencies:
+      '@jimp/config-eslint':
+        specifier: workspace:*
+        version: link:../../packages/config-eslint
+      '@jimp/config-typescript':
+        specifier: workspace:*
+        version: link:../../packages/config-typescript
+      eslint:
+        specifier: ^8.57.0
+        version: 8.57.0
+      tshy:
+        specifier: ^1.12.0
+        version: 1.12.0
+      typescript:
+        specifier: ^5.4.2
+        version: 5.4.2
+      vitest:
+        specifier: ^1.4.0
+        version: 1.4.0(@types/node@20.11.28)
+
+  plugins/plugin-rotate:
     devDependencies:
       '@jimp/config-eslint':
         specifier: workspace:*

@@ -1,4 +1,4 @@
-import { Bitmap, Format } from "@jimp/types";
+import { Bitmap, Format, JimpClass, Edge } from "@jimp/types";
 import { fromBuffer } from "file-type";
 
 const emptyBitmap: Bitmap = {
@@ -59,19 +59,20 @@ type JimpInstanceMethod<M, T> =
     ? (...args: Args) => JimpInstanceMethods<M>
     : never;
 
-type JimpInstanceMethods<T> = {
+export type JimpInstanceMethods<T> = {
   [K in keyof T]: JimpInstanceMethod<T, T[K]>;
 };
 
-type JimpOutputMethod<Instance, Output> = (mime: Instance) => Promise<Output>;
-
 type JimpSupportedFormats<U> = U extends Format<infer M>[] ? M : never;
+
+export * from "./utils/constants.js";
 
 export class Jimp<
   SupportedMimeTypes extends string = string,
   Formats extends Format<SupportedMimeTypes>[] = Format<SupportedMimeTypes>[],
   MethodMap extends Record<string, JimpMethod> = Record<string, JimpMethod>,
-> {
+> implements JimpClass
+{
   static plugins: JimpPlugin[] = [];
   static formatPlugins: JimpFormat[] = [];
   static formats: Format[] = [];
@@ -137,6 +138,26 @@ export class Jimp<
         this.formats.push(format as any);
       }
     }
+
+    for (let i = 0; i < classConstructor.plugins.length; ++i) {
+      const plugin = classConstructor.plugins[i];
+
+      if (plugin) {
+        const methods = plugin(this, options);
+
+        if (methods) {
+          for (const key in methods) {
+            (this as any)[key] = (...args: any[]) => {
+              const result = methods[key](this, ...args);
+
+              if (result) {
+                this.bitmap = result.bitmap;
+              }
+            };
+          }
+        }
+      }
+    }
   }
 
   /**
@@ -174,12 +195,103 @@ export class Jimp<
   }
 
   /**
-   * Returns the original MIME of the image (default: "image/png")
-   * @returns {string} the MIME
+   * Returns the offset of a pixel in the bitmap buffer
+   * @param x the x coordinate
+   * @param y the y coordinate
+   * @param edgeHandling (optional) define how to sum pixels from outside the border
+   * @returns the index of the pixel or -1 if not found
    */
-  // getMIME() {
-  //   const mime = this._originalMime || Jimp.MIME_PNG;
+  getPixelIndex(x: number, y: number, edgeHandling?: Edge) {
+    let xi;
+    let yi;
 
-  //   return mime;
-  // }
+    if (!edgeHandling) {
+      edgeHandling = Edge.EXTEND;
+    }
+
+    if (typeof x !== "number" || typeof y !== "number") {
+      throw new Error("x and y must be numbers");
+    }
+
+    // round input
+    x = Math.round(x);
+    y = Math.round(y);
+    xi = x;
+    yi = y;
+
+    if (edgeHandling === Edge.EXTEND) {
+      if (x < 0) xi = 0;
+      if (x >= this.bitmap.width) xi = this.bitmap.width - 1;
+      if (y < 0) yi = 0;
+      if (y >= this.bitmap.height) yi = this.bitmap.height - 1;
+    }
+
+    if (edgeHandling === Edge.WRAP) {
+      if (x < 0) {
+        xi = this.bitmap.width + x;
+      }
+
+      if (x >= this.bitmap.width) {
+        xi = x % this.bitmap.width;
+      }
+
+      if (y < 0) {
+        yi = this.bitmap.height + y;
+      }
+
+      if (y >= this.bitmap.height) {
+        yi = y % this.bitmap.height;
+      }
+    }
+
+    let i = (this.bitmap.width * yi + xi) << 2;
+
+    // if out of bounds index is -1
+    if (xi < 0 || xi >= this.bitmap.width) {
+      i = -1;
+    }
+
+    if (yi < 0 || yi >= this.bitmap.height) {
+      i = -1;
+    }
+
+    return i;
+  }
+
+  /**
+   * Returns the hex color value of a pixel
+   * @param x the x coordinate
+   * @param y the y coordinate
+   * @returns the color of the pixel
+   */
+  getPixelColor(x: number, y: number) {
+    if (typeof x !== "number" || typeof y !== "number") {
+      throw new Error("x and y must be numbers");
+    }
+
+    const idx = this.getPixelIndex(x, y);
+    return this.bitmap.data.readUInt32BE(idx);
+  }
+
+  /**
+   * Returns the hex colour value of a pixel
+   * @param hex color to set
+   * @param x the x coordinate
+   * @param y the y coordinate
+   * @returns the index of the pixel or -1 if not found
+   */
+  setPixelColor(hex: number, x: number, y: number) {
+    if (
+      typeof hex !== "number" ||
+      typeof x !== "number" ||
+      typeof y !== "number"
+    ) {
+      throw new Error("hex, x and y must be numbers");
+    }
+
+    const idx = this.getPixelIndex(x, y);
+    this.bitmap.data.writeUInt32BE(hex, idx);
+
+    return this;
+  }
 }

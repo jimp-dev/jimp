@@ -19,8 +19,6 @@ export default function png(jimp: Jimp, options: JimpOptions) {
         height: bitmap.height,
       });
 
-      console.log(bitmap);
-
       png.data = bitmap.data;
 
       return PNG.sync.write(png, {
@@ -39,8 +37,6 @@ export default function png(jimp: Jimp, options: JimpOptions) {
     },
     decode: async (data) => {
       const result = PNG.sync.read(data);
-
-      console.log(result);
 
       return {
         data: result.data,

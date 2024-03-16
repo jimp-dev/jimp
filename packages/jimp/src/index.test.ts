@@ -1,12 +1,12 @@
-import { expect, test } from "vitest";
+// import { expect, test } from "vitest";
 import { promises as fs } from "fs";
 import path from "path";
 
 import { Jimp } from "./index.js";
 
-test("adds 1 + 2 to equal 3", () => {
-  expect(1 + 2).toBe(3);
-});
+// test("adds 1 + 2 to equal 3", () => {
+//   expect(1 + 2).toBe(3);
+// });
 
 async function run() {
   const image = new Jimp();
@@ -16,10 +16,13 @@ async function run() {
 
   await image.fromBuffer(imageBuffer);
 
+  image.crop(100, 100, 150, 100);
+
   const outputBuffer = await image.toBuffer("image/png");
   const outPath = path.join(__dirname, "./out.png");
 
   await fs.writeFile(outPath, outputBuffer);
+  console.log(outPath);
 }
 
 run();
