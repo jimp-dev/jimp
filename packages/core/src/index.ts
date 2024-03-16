@@ -49,10 +49,10 @@ export type JimpFormatArray<T> =
 
 export type JimpFormatMime<T> = T extends Format<infer M> ? M : never;
 
-export type JimpMethod<Args extends any[] = any[]> = (
-  img: Jimp,
-  ...args: Args
-) => Jimp;
+export type JimpMethod<
+  Args extends any[] = any[],
+  J extends JimpClass = JimpClass,
+> = (img: J, ...args: Args) => J;
 
 type JimpInstanceMethod<M, T> =
   T extends JimpMethod<infer Args>

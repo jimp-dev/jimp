@@ -1,15 +1,6 @@
 {
-  "name": "jimp",
+  "name": "@jimp/plugin-blit",
   "version": "1.0.0",
-  "description": "An image processing library written entirely in JavaScript.",
-  "files": [
-    "browser",
-    "dist",
-    "es",
-    "index.d.ts",
-    "fonts",
-    "types"
-  ],
   "repository": "jimp-dev/jimp",
   "scripts": {
     "lint": "eslint .",
@@ -17,25 +8,11 @@
     "build": "tshy",
     "dev": "tshy --watch"
   },
-  "keywords": [
-    "image",
-    "image processing",
-    "image manipulation",
-    "png",
-    "jpg",
-    "jpeg",
-    "bmp",
-    "resize",
-    "scale",
-    "crop"
-  ],
   "author": "Andrew Lisowski <lisowski54@gmail.com>",
   "license": "MIT",
   "dependencies": {
-    "@jimp/plugin-blit": "workspace:*",
-    "@jimp/plugin-crop": "workspace:*",
-    "@jimp/js-png": "workspace:*",
-    "@jimp/core": "workspace:*"
+    "@jimp/utils": "workspace:*",
+    "@jimp/types": "workspace:*"
   },
   "devDependencies": {
     "@jimp/config-eslint": "workspace:*",

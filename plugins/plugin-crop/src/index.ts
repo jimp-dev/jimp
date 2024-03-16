@@ -34,7 +34,7 @@ export function crop<I extends JimpClass>(
     const bitmap = Buffer.allocUnsafe(w * h * 4);
     let offset = 0;
 
-    scan(image, x, y, w, h, function (i, x, y, idx) {
+    scan(image, x, y, w, h, function (x, y, idx) {
       const data = image.bitmap.data.readUInt32BE(idx);
       bitmap.writeUInt32BE(data, offset);
       offset += 4;

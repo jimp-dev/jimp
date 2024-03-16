@@ -6,7 +6,7 @@ export function scan<I extends JimpClass>(
   y: number,
   w: number,
   h: number,
-  cb: (image: I, x: number, y: number, idx: number) => any,
+  cb: (x: number, y: number, idx: number) => any,
 ) {
   // round input
   x = Math.round(x);
@@ -17,7 +17,7 @@ export function scan<I extends JimpClass>(
   for (let _y = y; _y < y + h; _y++) {
     for (let _x = x; _x < x + w; _x++) {
       const idx = (image.bitmap.width * _y + _x) << 2;
-      cb(image, _x, _y, idx);
+      cb(_x, _y, idx);
     }
   }
 
@@ -107,4 +107,14 @@ export function colorDiff(rgba1: RGBAColor, rgba2: RGBAColor) {
       max(sq(rgba1.b - rgba2.b), sq(rgba1.b - rgba2.b - rgba1.a + rgba2.a))) /
     maxVal
   );
+}
+
+/**
+ * Limits a number to between 0 or 255
+ */
+export function limit255(n: number) {
+  n = Math.max(n, 0);
+  n = Math.min(n, 255);
+
+  return n;
 }

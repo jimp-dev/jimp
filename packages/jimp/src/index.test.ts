@@ -9,14 +9,32 @@ import { Jimp } from "./index.js";
 // });
 
 async function run() {
-  const image = new Jimp();
   const imageBuffer = await fs.readFile(
     path.join(__dirname, "../../../../images/GIgFDCFbAAA0zlg.png"),
   );
 
+  const image = new Jimp();
   await image.fromBuffer(imageBuffer);
 
+  const image2 = new Jimp();
+  await image2.fromBuffer(imageBuffer);
+
+  // works
+  image.blit({
+    src: image2,
+    x: 100,
+    y: 100,
+  });
+
+  // works
   image.crop(100, 100, 150, 100);
+
+  // doesn't work
+  image.crop(100, 100, 150, 100).blit({
+    src: image2,
+    x: 100,
+    y: 100,
+  });
 
   const outputBuffer = await image.toBuffer("image/png");
   const outPath = path.join(__dirname, "./out.png");
