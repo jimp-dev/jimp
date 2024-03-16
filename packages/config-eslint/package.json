@@ -1,0 +1,14 @@
+{
+  "name": "@jimp/config-eslint",
+  "version": "0.0.0",
+  "license": "MIT",
+
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^7.2.0",
+    "@typescript-eslint/parser": "^7.2.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-config-turbo": "^1.12.5",
+    "eslint-plugin-only-warn": "^1.1.0",
+    "typescript": "^5.4.2"
+  }
+}
