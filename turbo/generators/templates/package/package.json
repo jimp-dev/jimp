@@ -5,7 +5,8 @@
   "scripts": {
     "lint": "eslint .",
     "test": "vitest",
-    "build": "tshy"
+    "build": "tshy",
+    "dev": "tshy --watch"
   },
   "author": "Andrew Lisowski <lisowski54@gmail.com>",
   "license": "MIT",
