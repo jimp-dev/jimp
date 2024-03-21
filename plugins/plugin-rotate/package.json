@@ -6,7 +6,8 @@
     "lint": "eslint .",
     "test": "vitest",
     "build": "tshy",
-    "dev": "tshy --watch"
+    "dev": "tshy --watch",
+    "clean": "rm -rf node_modules .tshy .tshy-build dist"
   },
   "author": "Andrew Lisowski <lisowski54@gmail.com>",
   "license": "MIT",

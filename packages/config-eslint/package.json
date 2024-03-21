@@ -2,7 +2,9 @@
   "name": "@jimp/config-eslint",
   "version": "0.0.0",
   "license": "MIT",
-
+  "scripts": {
+    "clean": "rm -rf node_modules"
+  },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^7.2.0",
     "@typescript-eslint/parser": "^7.2.0",
