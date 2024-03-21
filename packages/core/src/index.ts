@@ -57,11 +57,13 @@ export type JimpMethod<
 type JimpInstanceMethod<M, T> =
   T extends JimpMethod<infer Args>
     ? (...args: Args) => JimpInstanceMethods<M>
-    : never;
+    : T;
 
 export type JimpInstanceMethods<T> = {
   [K in keyof T]: JimpInstanceMethod<T, T[K]>;
 };
+
+type Instance<T> = T extends Constructor<infer U> ? U : never;
 
 type JimpSupportedFormats<U> = U extends Format<infer M>[] ? M : never;
 
@@ -97,9 +99,8 @@ export class Jimp<
         newPlugins.filter((plugin) => !currentPlugins.includes(plugin)),
       );
     };
-    type Methods = JimpInstanceMethods<ReturnTypeOf<T>>;
-
-    return NewJimp as typeof this & Constructor<Methods>;
+    type Methods = JimpInstanceMethods<ReturnTypeOf<T> & Instance<S>>;
+    return NewJimp as S & Constructor<Methods>;
   }
 
   /**
