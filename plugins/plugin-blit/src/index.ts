@@ -1,6 +1,23 @@
 import { JimpClass } from "@jimp/types";
 import { limit255, scan } from "@jimp/utils";
 
+export interface BlitOptions<I extends JimpClass> {
+  /** This image to blit on to the current image */
+  src: I;
+  /** the x position to blit the image */
+  x: number;
+  /** the y position to blit the image */
+  y: number;
+  /** the x position from which to crop the source image */
+  srcX?: number;
+  /** the y position from which to crop the source image */
+  srcY?: number;
+  /** the width to which to crop the source image */
+  srcW?: number;
+  /** the height to which to crop the source image */
+  srcH?: number;
+}
+
 /**
  * Blits a source image on to this image
  */
@@ -14,22 +31,7 @@ function blit<I extends JimpClass>(
     srcY = 0,
     srcW = src.bitmap.width,
     srcH = src.bitmap.height,
-  }: {
-    /** This image to blit on to the current image */
-    src: I;
-    /** the x position to blit the image */
-    x: number;
-    /** the y position to blit the image */
-    y: number;
-    /** the x position from which to crop the source image */
-    srcX?: number;
-    /** the y position from which to crop the source image */
-    srcY?: number;
-    /** the width to which to crop the source image */
-    srcW?: number;
-    /** the height to which to crop the source image */
-    srcH?: number;
-  },
+  }: BlitOptions<I>,
 ) {
   if (!("bitmap" in src)) {
     throw new Error("The source must be a Jimp image");

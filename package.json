@@ -3,6 +3,9 @@
   "description": "The jimp monorepo.",
   "repository": "jimp-dev/jimp",
   "author": "Andrew Lisowski <lisowski54@gmail.com>",
+  "engines": {
+    "node": ">=18"
+  },
   "scripts": {
     "build": "turbo run build",
     "dev": "turbo run dev",

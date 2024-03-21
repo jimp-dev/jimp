@@ -76,9 +76,18 @@ export class Jimp<
 > implements JimpClass
 {
   static plugins: JimpPlugin[] = [];
+  /**
+   * Plugins that add image formats
+   */
   static formatPlugins: JimpFormat[] = [];
+  /**
+   * Formats that can be used with Jimp
+   */
   static formats: Format[] = [];
 
+  /**
+   * The bitmap data of the image
+   */
   bitmap: Bitmap = emptyBitmap;
   methods: MethodMap = {} as MethodMap;
   formats: Format<SupportedMimeTypes>[] = [];

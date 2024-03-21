@@ -65,6 +65,9 @@ importers:
       '@jimp/config-typescript':
         specifier: workspace:*
         version: link:../config-typescript
+      '@types/file-type':
+        specifier: ^10.9.1
+        version: 10.9.1
       eslint:
         specifier: ^8.57.0
         version: 8.57.0
@@ -1025,7 +1028,6 @@ packages:
 
   /@tokenizer/token@0.3.0:
     resolution: {integrity: sha512-OvjF+z51L3ov0OyAU0duzsYuvO01PH7x4t6DJx+guahgTnBHkhJdG7soQeTSFLWN3efnHyibZ4Z8l2EuWwJN3A==}
-    dev: false
 
   /@tootallnate/quickjs-emscripten@0.23.0:
     resolution: {integrity: sha512-C5Mc6rdnsaJDjO3UpGW/CQTHtCKaYlScZTly4JIu97Jxo/odCiH0ITnDXSJPTOrEKk/ycSZ0AOgTmkDtkOsvIA==}
@@ -1098,6 +1100,13 @@ packages:
 
   /@types/estree@1.0.5:
     resolution: {integrity: sha512-/kYRxGDLWzHOB7q+wtSUQlFrtcdUccpfy+X+9iMBpHK8QLLhx2wIPYuS5DYtR9Wa/YlZAbIovy7qVdB1Aq6Lyw==}
+    dev: true
+
+  /@types/file-type@10.9.1:
+    resolution: {integrity: sha512-oq0fy8Jqj19HofanFsZ56o5anMDUQtFO9B3wfLqM9o42RyCe1WT+wRbSvRbL2l8ARZXNaJturHk0b442+0yi+g==}
+    deprecated: This is a stub types definition. file-type provides its own type definitions, so you do not need this installed.
+    dependencies:
+      file-type: 16.5.4
     dev: true
 
   /@types/glob@7.2.0:
@@ -2271,7 +2280,6 @@ packages:
       readable-web-to-node-stream: 3.0.2
       strtok3: 6.3.0
       token-types: 4.2.1
-    dev: false
 
   /fill-range@7.0.1:
     resolution: {integrity: sha512-qOo9F+dMUmC2Lcb4BbVvnKJxTPjCm+RRpe4gDuGrzkL7mEVl/djYSu2OdQ2Pa302N4oqkSg9ir6jaLWJ2USVpQ==}
@@ -3426,7 +3434,6 @@ packages:
   /peek-readable@4.1.0:
     resolution: {integrity: sha512-ZI3LnwUv5nOGbQzD9c2iDG6toheuXSZP5esSHBjopsXH4dg19soufvpUGA3uohi5anFtGb2lhAVdHzH6R/Evvg==}
     engines: {node: '>=8'}
-    dev: false
 
   /picocolors@1.0.0:
     resolution: {integrity: sha512-1fygroTLlHu66zi26VoTDv8yRgm0Fccecssto+MhsZ0D/DGW2sm8E8AjW7NU5VVTRt5GxbeZ5qBuJr+HyLYkjQ==}
@@ -3560,7 +3567,6 @@ packages:
     engines: {node: '>=8'}
     dependencies:
       readable-stream: 3.6.2
-    dev: false
 
   /readdirp@3.6.0:
     resolution: {integrity: sha512-hOS089on8RduqdbhvQ5Z37A0ESjsqz6qnRcffsMU3495FuTdqSm+7bhJ29JvIOsBDEEnan5DPu9t3To9VRlMzA==}
@@ -3919,7 +3925,6 @@ packages:
     dependencies:
       '@tokenizer/token': 0.3.0
       peek-readable: 4.1.0
-    dev: false
 
   /supports-color@5.5.0:
     resolution: {integrity: sha512-QjVjwdXIt408MIiAqCX4oUKsgU2EqAGzs2Ppkm4aQYbjm+ZEWEcW4SfFNTr4uMNZma0ey4f5lgLrkB0aX0QMow==}
@@ -4049,7 +4054,6 @@ packages:
     dependencies:
       '@tokenizer/token': 0.3.0
       ieee754: 1.2.1
-    dev: false
 
   /tr46@0.0.3:
     resolution: {integrity: sha512-N3WMsuqV66lT30CrXNbEjx4GEwlow3v6rr4mCcv6prnfwhS01rkgyFdjPNBYd9br7LpXV1+Emh01fHnq2Gdgrw==}
