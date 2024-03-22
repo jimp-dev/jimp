@@ -26,6 +26,9 @@
     "vitest": "^1.4.0"
   },
   "tshy": {
+    "exclude": [
+      "**/*.test.ts"
+    ],
     "exports": {
       "./package.json": "./package.json",
       ".": "./src/index.ts"
