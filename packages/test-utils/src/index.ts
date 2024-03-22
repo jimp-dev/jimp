@@ -98,14 +98,17 @@ export function makeTestImage(...args: string[]) {
 const sup = "⁰¹²³⁴⁵⁶⁷⁸⁹ᵃᵇᶜᵈᵉᶠ";
 
 export function testImageReadableMatrix(img: Bitmap) {
+  const len = img.data.length / 4;
+
   const rMatrix = [];
   let line = [];
-  const len = img.data.length;
 
   for (let i = 0; i < len; i++) {
-    let pix = img.data[i]!.toString(16).toUpperCase();
-
-    while (pix.length < 8) pix = "0" + pix;
+    const pix = img.data
+      .readUint32BE(i * 4)
+      .toString(16)
+      .toUpperCase()
+      .padStart(8, "0");
 
     line.push(
       pix.replace(/(..)(..)(..)(.)(.)/, (sel, r, g, b, a1, a2) => {
@@ -209,11 +212,8 @@ export function expectToBeTestImage(
 
 expect.addSnapshotSerializer({
   serialize(val) {
-    if ("bitmap" in val) {
-      return testImgToStr(val.bitmap);
-    }
-    // `printer` is a function that serializes a value using existing plugins.
-    return testImgToStr(val);
+    const bitmap = "bitmap" in val ? val.bitmap : val;
+    return `Visualization:\n\n${testImgToStr(bitmap)}\n\nData:\n\n${testImageReadableMatrix(bitmap)}`;
   },
   test(val) {
     if ("bitmap" in val) {
