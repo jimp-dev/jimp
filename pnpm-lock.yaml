@@ -278,6 +278,9 @@ importers:
 
   plugins/plugin-crop:
     dependencies:
+      '@jimp/core':
+        specifier: workspace:*
+        version: link:../../packages/core
       '@jimp/types':
         specifier: workspace:*
         version: link:../../packages/types
@@ -291,6 +294,9 @@ importers:
       '@jimp/config-typescript':
         specifier: workspace:*
         version: link:../../packages/config-typescript
+      '@jimp/test-utils':
+        specifier: workspace:*
+        version: link:../../packages/test-utils
       eslint:
         specifier: ^8.57.0
         version: 8.57.0

@@ -14,14 +14,20 @@ export interface JimpOptions {
 }
 
 /** Converts a jimp plugin function to a Jimp class method */
-type JimpInstanceMethod<M, T> =
-  T extends JimpMethod<infer Args>
-    ? (...args: Args) => JimpInstanceMethods<M>
-    : T;
+type JimpInstanceMethod<ClassInstance, MethodMap, Method> =
+  Method extends JimpMethod<infer Args>
+    ? (
+        ...args: Args
+      ) => JimpInstanceMethods<ClassInstance, MethodMap> & ClassInstance
+    : never;
 
 /** Converts a Record of jimp plugin functions to a Record of Jimp class methods */
-export type JimpInstanceMethods<T> = {
-  [K in keyof T]: JimpInstanceMethod<T, T[K]>;
+export type JimpInstanceMethods<ClassInstance, MethodMap> = {
+  [Key in keyof MethodMap]: JimpInstanceMethod<
+    ClassInstance,
+    MethodMap,
+    MethodMap[Key]
+  >;
 };
 
 type JimpMethod<Args extends any[] = any[], J extends JimpClass = JimpClass> = (
@@ -47,13 +53,14 @@ type JimpFormat<
 export function createJimp<
   Methods extends JimpPlugin[],
   Formats extends JimpFormat[],
->({ plugins, formats: formatsArg }: { plugins: Methods; formats: Formats }) {
+>({ plugins, formats: formatsArg }: { plugins: Methods; formats?: Formats }) {
   type ExtraMethodMap = JimpInstanceMethods<
+    InstanceType<typeof CustomJimp>,
     UnionToIntersection<ReturnType<Methods[number]>>
   >;
   type SupportedMimeTypes = ReturnType<Formats[number]>["mime"];
 
-  const formats = formatsArg.map((format) => format());
+  const formats = (formatsArg || []).map((format) => format());
 
   const CustomJimp = class Jimp implements JimpClass {
     /**
@@ -119,7 +126,12 @@ export function createJimp<
      * @returns
      */
     static fromBitmap(bitmap: Bitmap) {
-      return new CustomJimp({ bitmap });
+      return new CustomJimp({
+        bitmap: {
+          ...bitmap,
+          data: Buffer.from(bitmap.data),
+        },
+      }) as InstanceType<typeof CustomJimp> & ExtraMethodMap;
     }
 
     async toBuffer(mime: SupportedMimeTypes) {

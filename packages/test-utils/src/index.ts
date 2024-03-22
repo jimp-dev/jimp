@@ -87,7 +87,7 @@ export function makeTestImage(...args: string[]) {
       if (typeof color === "undefined") {
         throwUndefinedChar(char);
       } else {
-        testImage.data.writeUint32BE(color, 4 * (y * w + x));
+        testImage.data.writeUInt32BE(color, 4 * (y * w + x));
       }
     }
   }
@@ -123,9 +123,7 @@ export function testImageReadableMatrix(img: Bitmap) {
 }
 
 /** Helps to debug image data */
-export function testImgToStr(
-  testImage: Bitmap | { height: number; width: number; data: number[] },
-) {
+export function testImgToStr(testImage: Bitmap) {
   const colors2: Record<number, string | number> = {};
 
   hashForEach(colors, (k, c) => {
@@ -138,10 +136,13 @@ export function testImgToStr(
   for (let y = 0; y < testImage.height; y++) {
     lines[y] = "";
     for (let x = 0; x < w; x++) {
-      const k = colors2[testImage.data[y * w + x]!] || "?";
+      const cell = testImage.data.readUInt32BE(4 * (y * w + x))!;
+      const k = colors2[cell] || "?";
       lines[y] += k;
     }
   }
+
+  console.log(testImage);
 
   return lines.join("\n");
 }
@@ -210,10 +211,17 @@ export function expectToBeTestImage(
 
 expect.addSnapshotSerializer({
   serialize(val) {
+    if ("bitmap" in val) {
+      return testImgToStr(val.bitmap);
+    }
     // `printer` is a function that serializes a value using existing plugins.
     return testImgToStr(val);
   },
   test(val) {
+    if ("bitmap" in val) {
+      return true;
+    }
+
     return val && val.width && val.height && val.data;
   },
 });

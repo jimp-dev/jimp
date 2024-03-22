@@ -1,0 +1,164 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Autocrop > ignore sides east 1`] = `
+  ◆◆    
+ ◆▦▦◆   
+◆▦▦▦▦◆  
+ ◆▦▦◆   
+  ◆◆    
+`;
+
+exports[`Autocrop > ignore sides north 1`] = `
+      
+  ◆◆  
+ ◆▦▦◆ 
+◆▦▦▦▦◆
+ ◆▦▦◆ 
+  ◆◆  
+`;
+
+exports[`Autocrop > ignore sides south and west 1`] = `
+    ◆◆  
+   ◆▦▦◆ 
+  ◆▦▦▦▦◆
+   ◆▦▦◆ 
+    ◆◆  
+        
+`;
+
+exports[`Autocrop > image border with small variation 1`] = `
+323232323232
+232323232323
+32   ◆◆   32
+23  ◆▦▦◆  23
+32 ◆▦▦▦▦◆ 32
+23  ◆▦▦◆  23
+32   ◆◆   32
+232323232323
+323232323232
+`;
+
+exports[`Autocrop > image border with small variation 2`] = `
+323232323232
+232323232323
+32   ◆◆   32
+23  ◆▦▦◆  23
+32 ◆▦▦▦▦◆ 32
+23  ◆▦▦◆  23
+32   ◆◆   32
+232323232323
+323232323232
+`;
+
+exports[`Autocrop > image border with small variation configured by options 1`] = `
+323232323232
+232323232323
+32   ◆◆   32
+23  ◆▦▦◆  23
+32 ◆▦▦▦▦◆ 32
+23  ◆▦▦◆  23
+32   ◆◆   32
+232323232323
+323232323232
+`;
+
+exports[`Autocrop > image border with small variation configured by options 2`] = `
+   ◆◆   
+  ◆▦▦◆  
+ ◆▦▦▦▦◆ 
+  ◆▦▦◆  
+   ◆◆   
+`;
+
+exports[`Autocrop > image not cropped given an out of bounds "leaveBorder" value  1`] = `
+323232323232
+232323232323
+32   ◆◆   32
+23  ◆▦▦◆  23
+32 ◆▦▦▦▦◆ 32
+23  ◆▦▦◆  23
+32   ◆◆   32
+232323232323
+323232323232
+`;
+
+exports[`Autocrop > image with one color border 1`] = `
+   ◆◆   
+  ◆▦▦◆  
+ ◆▦▦▦▦◆ 
+  ◆▦▦◆  
+   ◆◆   
+`;
+
+exports[`Autocrop > image with opaque surround color 1`] = `
+▥▥◆◆▥▥
+▥◆▦▦◆▥
+◆▦▦▦▦◆
+▥◆▦▦◆▥
+▥▥◆◆▥▥
+`;
+
+exports[`Autocrop > image with symmetric border configured by options 1`] = `
+   ◆◆   ▥▥
+  ◆▦▦◆  ▥▥
+ ◆▦▦▦▦◆ ▥▥
+  ◆▦▦◆  ▥▥
+   ◆◆   ▥▥
+▥▥▥▥▥▥▥▥▥▥
+`;
+
+exports[`Autocrop > image with top and bottom frame and leaveBorder 1`] = `
+▥▥▥▥▥▥▥▥
+▥▥▥▥▥▥▥▥
+   ◆◆   
+  ◆▦▦◆  
+ ◆▦▦▦▦◆ 
+  ◆▦▦◆  
+   ◆◆   
+▥▥▥▥▥▥▥▥
+▥▥▥▥▥▥▥▥
+`;
+
+exports[`Autocrop > image with transparent surround color 1`] = `
+  ◆◆  
+ ◆▦▦◆ 
+◆▦▦▦▦◆
+ ◆▦▦◆ 
+  ◆◆  
+`;
+
+exports[`Autocrop > image without frame 1`] = `
+   ◆◆   
+  ◆▦▦◆  
+ ◆▦▦▦▦◆ 
+  ◆▦▦◆  
+   ◆◆   
+`;
+
+exports[`Autocrop > image without frame and with some border left 1`] = `
+3232323232
+2   ◆◆   3
+3  ◆▦▦◆  2
+2 ◆▦▦▦▦◆ 3
+3  ◆▦▦◆  2
+2   ◆◆   3
+3232323232
+`;
+
+exports[`Autocrop > image without frame and with symmetric border configured by options 1`] = `
+   ◆◆   ▥▥
+  ◆▦▦◆  ▥▥
+ ◆▦▦▦▦◆ ▥▥
+  ◆▦▦◆  ▥▥
+   ◆◆   ▥▥
+▥▥▥▥▥▥▥▥▥▥
+▥▥▥▥▥▥▥▥▥▥
+`;
+
+exports[`Autocrop > image without frame configured by options 1`] = `
+   ◆◆   
+  ◆▦▦◆  
+ ◆▦▦▦▦◆ 
+  ◆▦▦◆  
+   ◆◆   
+`;

@@ -12,10 +12,12 @@
   "author": "Andrew Lisowski <lisowski54@gmail.com>",
   "license": "MIT",
   "dependencies": {
+    "@jimp/core": "workspace:*",
     "@jimp/types": "workspace:*",
     "@jimp/utils": "workspace:*"
   },
   "devDependencies": {
+    "@jimp/test-utils": "workspace:*",
     "@jimp/config-eslint": "workspace:*",
     "@jimp/config-typescript": "workspace:*",
     "eslint": "^8.57.0",

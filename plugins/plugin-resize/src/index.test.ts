@@ -88,7 +88,7 @@ describe("Resize images", () => {
           const mode = (ResizeStrategy as any)[modeType];
 
           expect(
-            image.src.clone().resize(size.width, size.height, mode).bitmap,
+            image.src.clone().resize(size.width, size.height, mode),
           ).toMatchSnapshot();
         });
       });

@@ -49,26 +49,46 @@ export function crop<I extends JimpClass>(
   return image;
 }
 
+export interface AutocropOptions {
+  /** percent of color difference tolerance (default value) */
+  tolerance?: number;
+  /** flag to force cropping only if the image has a real "frame" i.e. all 4 sides have some border (default value) */
+  cropOnlyFrames?: boolean;
+  /**
+   * force cropping top be symmetric
+   */
+  cropSymmetric?: boolean;
+  /** Amount of pixels in border to leave */
+  leaveBorder?: number;
+  ignoreSides?: {
+    north?: boolean;
+    south?: boolean;
+    east?: boolean;
+    west?: boolean;
+  };
+}
+
 export function autocrop<I extends JimpClass>(
   image: I,
-  // percent of color difference tolerance (default value)
-  tolerance = 0.0002,
-  // flag to force cropping only if the image has a real "frame"
-  // i.e. all 4 sides have some border (default value)
-  cropOnlyFrames = true,
+  {
+    tolerance = 0.0002,
+    cropOnlyFrames = true,
+    cropSymmetric = false,
+    leaveBorder = 0,
+    ignoreSides: ignoreSidesArg,
+  }: AutocropOptions = {},
 ) {
   const w = image.bitmap.width;
   const h = image.bitmap.height;
   const minPixelsPerSide = 1; // to avoid cropping completely the image, resulting in an invalid 0 sized image
 
-  let leaveBorder = 0; // Amount of pixels in border to leave
-  let cropSymmetric = false; // flag to force cropping top be symmetric.
   // i.e. north and south / east and west are cropped by the same value
   let ignoreSides = {
     north: false,
     south: false,
     east: false,
     west: false,
+    ...ignoreSidesArg,
   };
 
   /**
