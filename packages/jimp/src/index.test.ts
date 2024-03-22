@@ -21,7 +21,7 @@ async function run() {
   );
   await image2.fromBuffer(image2Buffer);
 
-  image.blit({ src: image2, x: 100, y: 100 });
+  image.blit({ src: image2, x: 100, y: 100 }).autocrop(0, 0);
 
   const outputBuffer = await image.toBuffer("image/png");
   const outPath = path.join(__dirname, "./out.png");

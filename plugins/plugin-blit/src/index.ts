@@ -18,9 +18,6 @@ export interface BlitOptions<I extends JimpClass> {
   srcH?: number;
 }
 
-/**
- * Blits a source image on to this image
- */
 function blit<I extends JimpClass>(
   image: I,
   {
@@ -94,6 +91,9 @@ function blit<I extends JimpClass>(
 
 export default function blitPlugin() {
   return {
+    /**
+     * Places a source image on to this image
+     */
     blit,
   };
 }

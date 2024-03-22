@@ -12,8 +12,6 @@
     "lint": "turbo run lint",
     "clean": "turbo run clean && rm -rf node_modules .turbo",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
-    "changeset": "changeset",
-    "version-packages": "changeset version",
     "release": "turbo run build --filter=docs^... && changeset publish",
     "generate-package": "turbo gen package",
     "generate-plugin": "turbo gen plugin"

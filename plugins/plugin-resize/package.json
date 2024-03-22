@@ -1,16 +1,19 @@
 {
-  "name": "@jimp/plugin-rotate",
+  "name": "@jimp/plugin-resize",
   "version": "1.0.0",
   "repository": "jimp-dev/jimp",
   "scripts": {
     "lint": "eslint .",
     "test": "vitest",
     "build": "tshy",
-    "dev": "tshy --watch",
-    "clean": "rm -rf node_modules .tshy .tshy-build dist"
+    "dev": "tshy --watch"
   },
   "author": "Andrew Lisowski <lisowski54@gmail.com>",
   "license": "MIT",
+  "dependencies": {
+    "@jimp/core": "workspace:*",
+    "@jimp/types": "workspace:*"
+  },
   "devDependencies": {
     "@jimp/config-eslint": "workspace:*",
     "@jimp/config-typescript": "workspace:*",
