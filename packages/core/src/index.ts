@@ -9,7 +9,9 @@ const emptyBitmap: Bitmap = {
 
 export * from "./utils/constants.js";
 
-export interface JimpOptions {}
+export interface JimpOptions {
+  bitmap?: Bitmap;
+}
 
 /** Converts a jimp plugin function to a Jimp class method */
 type JimpInstanceMethod<M, T> =
@@ -37,21 +39,23 @@ type UnionToIntersection<U> = (U extends any ? (k: U) => void : never) extends (
 
 type Constructor<T> = new (...args: any[]) => T;
 
-type JimpFormat<M extends string = string, T extends Format<M> = Format<M>> = (
-  octokit: any,
-  options: JimpOptions,
-) => T;
+type JimpFormat<
+  M extends string = string,
+  T extends Format<M> = Format<M>,
+> = () => T;
 
 export function createJimp<
   Methods extends JimpPlugin[],
   Formats extends JimpFormat[],
->({ plugins, formats }: { plugins: Methods; formats: Formats }) {
+>({ plugins, formats: formatsArg }: { plugins: Methods; formats: Formats }) {
   type ExtraMethodMap = JimpInstanceMethods<
     UnionToIntersection<ReturnType<Methods[number]>>
   >;
   type SupportedMimeTypes = ReturnType<Formats[number]>["mime"];
 
-  const customJimp = class Jimp implements JimpClass {
+  const formats = formatsArg.map((format) => format());
+
+  const CustomJimp = class Jimp implements JimpClass {
     /**
      * The bitmap data of the image
      */
@@ -62,9 +66,8 @@ export function createJimp<
 
     constructor(options: JimpOptions = {}) {
       // Add the formats
-      for (const format of formats) {
-        this.formats.push(format(this, options));
-      }
+      this.formats = formats;
+      this.bitmap = options.bitmap || emptyBitmap;
 
       // Add the plugins
       for (const plugin of plugins) {
@@ -92,20 +95,31 @@ export function createJimp<
      * @param {function(Error, Jimp)} finish (optional) a callback for when complete
      * @memberof Jimp
      */
-    async fromBuffer(data: Buffer) {
+    static async fromBuffer(data: Buffer) {
       const mime = await fromBuffer(data);
 
       if (!mime || !mime.mime) {
         throw new Error("Could not find MIME for Buffer");
       }
 
-      const format = this.formats.find((format) => format.mime === mime.mime);
+      const format = formats.find((format) => format.mime === mime.mime);
 
       if (!format || !format.decode) {
         throw new Error(`Mime type ${mime.mime} does not support decoding`);
       }
 
-      this.bitmap = await format.decode(data);
+      return new CustomJimp({
+        bitmap: await format.decode(data),
+      });
+    }
+
+    /**
+     * Create a Jimp instance from a bitmap
+     * @param bitmap
+     * @returns
+     */
+    static fromBitmap(bitmap: Bitmap) {
+      return new CustomJimp({ bitmap });
     }
 
     async toBuffer(mime: SupportedMimeTypes) {
@@ -116,6 +130,15 @@ export function createJimp<
       }
 
       return format.encode(this.bitmap);
+    }
+
+    clone() {
+      return new CustomJimp({
+        bitmap: {
+          ...this.bitmap,
+          data: Buffer.from(this.bitmap.data),
+        },
+      });
     }
 
     /**
@@ -220,5 +243,5 @@ export function createJimp<
     }
   };
 
-  return customJimp as typeof customJimp & Constructor<ExtraMethodMap>;
+  return CustomJimp as typeof CustomJimp & Constructor<ExtraMethodMap>;
 }
