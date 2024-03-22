@@ -4,7 +4,7 @@
   "repository": "jimp-dev/jimp",
   "scripts": {
     "lint": "eslint .",
-    "test": "vitest",
+    "test-off": "vitest --watch=false",
     "build": "tshy",
     "dev": "tshy --watch",
     "clean": "rm -rf node_modules .tshy .tshy-build dist"

@@ -142,8 +142,6 @@ export function testImgToStr(testImage: Bitmap) {
     }
   }
 
-  console.log(testImage);
-
   return lines.join("\n");
 }
 
