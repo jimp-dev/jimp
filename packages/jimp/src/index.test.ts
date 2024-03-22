@@ -9,21 +9,19 @@ import { Jimp } from "./index.js";
 // });
 
 async function run() {
+  const image = new Jimp();
   const imageBuffer = await fs.readFile(
     path.join(__dirname, "../../../../images/GIgFDCFbAAA0zlg.png"),
   );
-
-  const image = new Jimp();
   await image.fromBuffer(imageBuffer);
 
   const image2 = new Jimp();
-  await image2.fromBuffer(imageBuffer);
+  const image2Buffer = await fs.readFile(
+    path.join(__dirname, "../../../../images/discord.png"),
+  );
+  await image2.fromBuffer(image2Buffer);
 
-  image
-    // First crop
-    .crop(100, 100, 150, 100)
-    // then put the other image on top
-    .blit({ src: image2, x: 100, y: 100 });
+  image.blit({ src: image2, x: 100, y: 100 });
 
   const outputBuffer = await image.toBuffer("image/png");
   const outPath = path.join(__dirname, "./out.png");
