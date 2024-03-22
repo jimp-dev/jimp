@@ -19,22 +19,11 @@ async function run() {
   const image2 = new Jimp();
   await image2.fromBuffer(imageBuffer);
 
-  // works
-  image.blit({
-    src: image2,
-    x: 100,
-    y: 100,
-  });
-
-  // works
-  image.crop(100, 100, 150, 100);
-
-  // doesn't work
-  image.crop(100, 100, 150, 100).blit({
-    src: image2,
-    x: 100,
-    y: 100,
-  });
+  image
+    // First crop
+    .crop(100, 100, 150, 100)
+    // then put the other image on top
+    .blit({ src: image2, x: 100, y: 100 });
 
   const outputBuffer = await image.toBuffer("image/png");
   const outPath = path.join(__dirname, "./out.png");

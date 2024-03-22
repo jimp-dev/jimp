@@ -1,6 +1,5 @@
 import { PNG } from "pngjs";
 import { Format } from "@jimp/types";
-import { Jimp, JimpOptions } from "@jimp/core";
 
 interface PNGOptions {
   deflateLevel?: number;
@@ -10,7 +9,7 @@ interface PNGOptions {
   inputHasAlpha?: boolean;
 }
 
-export default function png(jimp: Jimp, options: JimpOptions) {
+export default function png() {
   return {
     mime: "image/png",
     encode: async (bitmap) => {
