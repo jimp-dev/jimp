@@ -48,6 +48,6 @@
     "@jimp/core": "workspace:*",
     "@jimp/types": "workspace:*",
     "@jimp/utils": "workspace:*",
-    "bmp-ts": "^1.0.7"
+    "bmp-ts": "^1.0.8"
   }
 }

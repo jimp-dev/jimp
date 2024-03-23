@@ -207,8 +207,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/utils
       bmp-ts:
-        specifier: ^1.0.7
-        version: 1.0.7
+        specifier: ^1.0.8
+        version: 1.0.8
     devDependencies:
       '@jimp/config-eslint':
         specifier: workspace:*
@@ -1773,8 +1773,8 @@ packages:
       readable-stream: 3.6.2
     dev: true
 
-  /bmp-ts@1.0.7:
-    resolution: {integrity: sha512-g+HD2xRgz4XYE/q3qrDNw96+n/PCdfQs05HmEse0Sk9Z9QAqdoaPar+BhTtbd419aZh8duk6BWDpZm/amsNYgg==}
+  /bmp-ts@1.0.8:
+    resolution: {integrity: sha512-IT+4NZJeKzzIvro1nd/4Ekzgo7pJ1LF46OZoE+FyyOfW1pBlM1rbqRyYIsdbI01YNZInDF02T7p/OjPK598mFg==}
     dev: false
 
   /bottleneck@2.19.5:

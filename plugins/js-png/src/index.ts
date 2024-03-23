@@ -1,14 +1,11 @@
-import { PNG } from "pngjs";
+import { PNG, PNGOptions as PNGJSOptions } from "pngjs";
 import { Format } from "@jimp/types";
 import { PNGFilterType, PNGColorType } from "./constants.js";
 
-export interface PNGOptions {
-  deflateLevel?: number;
-  deflateStrategy?: number;
+export type PNGOptions = Omit<PNGJSOptions, "filterType" | "colorType"> & {
   filterType?: PNGFilterType;
   colorType?: PNGColorType;
-  inputHasAlpha?: boolean;
-}
+};
 
 export * from "./constants.js";
 
@@ -23,6 +20,7 @@ export default function png() {
         filterType = PNGFilterType.AUTO,
         colorType,
         inputHasAlpha = true,
+        ...options
       }: PNGOptions = {},
     ) => {
       const png = new PNG({
@@ -33,6 +31,7 @@ export default function png() {
       png.data = bitmap.data;
 
       return PNG.sync.write(png, {
+        ...options,
         deflateLevel,
         deflateStrategy,
         filterType,

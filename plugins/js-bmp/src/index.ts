@@ -3,7 +3,21 @@ import * as BMP from "bmp-ts";
 import { scan } from "@jimp/utils";
 import { Bitmap, Format } from "@jimp/types";
 
-function encode(image: Bitmap) {
+type BMPImage = Parameters<typeof BMP.encode>[0];
+type EncodeOptions = Partial<
+  Pick<
+    BMPImage,
+    | "palette"
+    | "colors"
+    | "importantColors"
+    | "hr"
+    | "vr"
+    | "reserved1"
+    | "reserved2"
+  >
+>;
+
+function encode(image: Bitmap, options: EncodeOptions = {}) {
   scan(
     { bitmap: image },
     0,
@@ -23,7 +37,7 @@ function encode(image: Bitmap) {
     },
   );
 
-  return BMP.encode(image).data;
+  return BMP.encode({ ...image, ...options }).data;
 }
 
 function decode(data: Buffer) {
