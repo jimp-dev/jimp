@@ -1,6 +1,6 @@
-import { RGBAColor, JimpClass } from "@jimp/types";
+import { RGBAColor, JimpClass, Bitmap } from "@jimp/types";
 
-export function scan<I extends JimpClass>(
+export function scan<I extends { bitmap: Bitmap }>(
   image: I,
   x: number,
   y: number,

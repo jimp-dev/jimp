@@ -195,6 +195,43 @@ importers:
         specifier: ^1.4.0
         version: 1.4.0(@types/node@20.11.28)
 
+  plugins/js-bmp:
+    dependencies:
+      '@jimp/core':
+        specifier: workspace:*
+        version: link:../../packages/core
+      '@jimp/types':
+        specifier: workspace:*
+        version: link:../../packages/types
+      '@jimp/utils':
+        specifier: workspace:*
+        version: link:../../packages/utils
+      bmp-ts:
+        specifier: ^1.0.7
+        version: 1.0.7
+    devDependencies:
+      '@jimp/config-eslint':
+        specifier: workspace:*
+        version: link:../../packages/config-eslint
+      '@jimp/config-typescript':
+        specifier: workspace:*
+        version: link:../../packages/config-typescript
+      '@jimp/js-png':
+        specifier: workspace:*
+        version: link:../js-png
+      eslint:
+        specifier: ^8.57.0
+        version: 8.57.0
+      tshy:
+        specifier: ^1.12.0
+        version: 1.12.0
+      typescript:
+        specifier: ^5.4.2
+        version: 5.4.2
+      vitest:
+        specifier: ^1.4.0
+        version: 1.4.0(@types/node@20.11.28)
+
   plugins/js-jpeg:
     dependencies:
       '@jimp/core':
@@ -1735,6 +1772,10 @@ packages:
       inherits: 2.0.4
       readable-stream: 3.6.2
     dev: true
+
+  /bmp-ts@1.0.7:
+    resolution: {integrity: sha512-g+HD2xRgz4XYE/q3qrDNw96+n/PCdfQs05HmEse0Sk9Z9QAqdoaPar+BhTtbd419aZh8duk6BWDpZm/amsNYgg==}
+    dev: false
 
   /bottleneck@2.19.5:
     resolution: {integrity: sha512-VHiNCbI1lKdl44tGrhNfU3lup0Tj/ZBMJB5/2ZbNXRCPuRCO7ed2mgcK4r17y+KB2EfuYuRaVlwNbAeaWGSpbw==}
