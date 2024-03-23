@@ -6,3 +6,10 @@ export enum PNGFilterType {
   AVERAGE = 3,
   PATH = 4,
 }
+
+export enum PNGColorType {
+  GRAYSCALE = 0,
+  COLOR = 2,
+  GRAYSCALE_ALPHA = 4,
+  COLOR_ALPHA = 4,
+}

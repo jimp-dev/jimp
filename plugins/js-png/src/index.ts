@@ -1,14 +1,16 @@
-import { ColorType, PNG } from "pngjs";
+import { PNG } from "pngjs";
 import { Format } from "@jimp/types";
-import { PNGFilterType } from "./constants.js";
+import { PNGFilterType, PNGColorType } from "./constants.js";
 
 export interface PNGOptions {
   deflateLevel?: number;
   deflateStrategy?: number;
   filterType?: PNGFilterType;
-  colorType?: ColorType;
+  colorType?: PNGColorType;
   inputHasAlpha?: boolean;
 }
+
+export * from "./constants.js";
 
 export default function png() {
   return {
@@ -35,7 +37,11 @@ export default function png() {
         deflateStrategy,
         filterType,
         colorType:
-          typeof colorType === "number" ? colorType : inputHasAlpha ? 6 : 2,
+          typeof colorType !== "undefined"
+            ? colorType
+            : inputHasAlpha
+              ? PNGColorType.COLOR_ALPHA
+              : PNGColorType.COLOR,
         inputHasAlpha,
       });
     },
