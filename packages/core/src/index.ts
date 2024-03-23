@@ -9,6 +9,12 @@ const emptyBitmap: Bitmap = {
 
 export * from "./utils/constants.js";
 
+interface RawImageData {
+  width: number;
+  height: number;
+  data: Buffer | Uint8Array | Uint8ClampedArray | number[];
+}
+
 export interface JimpOptions {
   bitmap?: Bitmap;
 }
@@ -47,19 +53,36 @@ type Constructor<T> = new (...args: any[]) => T;
 
 type JimpFormat<
   M extends string = string,
-  T extends Format<M> = Format<M>,
+  O extends Record<string, any> | undefined = undefined,
+  T extends Format<M, O> = Format<M, O>,
 > = () => T;
+
+type CreateMimeTypeToExportOptions<T extends Format<string, any>> =
+  T extends Format<infer M, infer O> ? Record<M, O> : never;
+
+type GetOptionsForMimeType<Mime extends string, MimeTypeMap> =
+  MimeTypeMap extends Record<Mime, infer O> ? O : never;
 
 export function createJimp<
   Methods extends JimpPlugin[],
   Formats extends JimpFormat[],
->({ plugins, formats: formatsArg }: { plugins: Methods; formats?: Formats }) {
+>({
+  plugins: pluginsArg,
+  formats: formatsArg,
+}: {
+  plugins?: Methods;
+  formats?: Formats;
+}) {
   type ExtraMethodMap = JimpInstanceMethods<
     InstanceType<typeof CustomJimp>,
     UnionToIntersection<ReturnType<Methods[number]>>
   >;
   type SupportedMimeTypes = ReturnType<Formats[number]>["mime"];
+  type MimeTypeToExportOptions = CreateMimeTypeToExportOptions<
+    ReturnType<Formats[number]>
+  >;
 
+  const plugins = pluginsArg || [];
   const formats = (formatsArg || []).map((format) => format());
 
   const CustomJimp = class Jimp implements JimpClass {
@@ -125,23 +148,51 @@ export function createJimp<
      * @param bitmap
      * @returns
      */
-    static fromBitmap(bitmap: Bitmap) {
+    static fromBitmap(bitmap: RawImageData) {
+      let data: Buffer | undefined;
+
+      if (bitmap.data instanceof Buffer) {
+        data = Buffer.from(bitmap.data);
+      }
+
+      if (
+        bitmap.data instanceof Uint8Array ||
+        bitmap.data instanceof Uint8ClampedArray
+      ) {
+        data = Buffer.from(bitmap.data.buffer);
+      }
+
+      if (Array.isArray(bitmap.data)) {
+        data = Buffer.concat(
+          bitmap.data.map((hex) =>
+            Buffer.from(hex.toString(16).padStart(8, "0"), "hex"),
+          ),
+        );
+      }
+
+      if (!data) {
+        throw new Error("data must be a Buffer");
+      }
+
       return new CustomJimp({
-        bitmap: {
-          ...bitmap,
-          data: Buffer.from(bitmap.data),
-        },
+        bitmap: { ...bitmap, data },
       }) as InstanceType<typeof CustomJimp> & ExtraMethodMap;
     }
 
-    async toBuffer(mime: SupportedMimeTypes) {
+    async toBuffer<
+      ProvidedMimeType extends SupportedMimeTypes,
+      Options extends GetOptionsForMimeType<
+        ProvidedMimeType,
+        MimeTypeToExportOptions
+      >,
+    >(mime: ProvidedMimeType, options?: Options) {
       const format = this.formats.find((format) => format.mime === mime);
 
       if (!format || !format.encode) {
         throw new Error(`Unsupported MIME type: ${mime}`);
       }
 
-      return format.encode(this.bitmap);
+      return format.encode(this.bitmap, options);
     }
 
     clone() {

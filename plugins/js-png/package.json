@@ -4,7 +4,7 @@
   "repository": "jimp-dev/jimp",
   "scripts": {
     "lint": "eslint .",
-    "test": "vitest --watch=false",
+    "test": "vitest",
     "build": "tshy",
     "dev": "tshy --watch",
     "clean": "rm -rf node_modules .tshy .tshy-build dist"
@@ -17,6 +17,7 @@
     "pngjs": "^7.0.0"
   },
   "devDependencies": {
+    "@jimp/test-utils": "workspace:*",
     "@jimp/config-eslint": "workspace:*",
     "@jimp/config-typescript": "workspace:*",
     "@types/pngjs": "^6.0.4",

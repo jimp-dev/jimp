@@ -1,6 +1,15 @@
 import { expect } from "vitest";
 import { Bitmap } from "@jimp/types";
 import equal from "fast-deep-equal";
+import { toMatchImageSnapshot } from "jest-image-snapshot";
+
+declare module "vitest" {
+  interface Assertion<T> {
+    toMatchImageSnapshot: () => T;
+  }
+}
+
+expect.extend({ toMatchImageSnapshot });
 
 export function hashForEach<Hash extends Record<string, any>>(
   hash: Hash,

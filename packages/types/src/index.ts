@@ -10,9 +10,12 @@ export interface Bitmap {
   height: number;
 }
 
-export interface Format<T extends string = string> {
-  mime: T;
-  encode: (image: Bitmap) => Promise<Buffer>;
+export interface Format<
+  Mime extends string = string,
+  ExportOptions extends Record<string, any> | undefined = undefined,
+> {
+  mime: Mime;
+  encode: (image: Bitmap, options?: ExportOptions) => Promise<Buffer>;
   decode: (data: Buffer) => Promise<Bitmap>;
 }
 
