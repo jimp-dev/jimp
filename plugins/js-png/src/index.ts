@@ -15,7 +15,7 @@ export * from "./constants.js";
 export default function png() {
   return {
     mime: "image/png",
-    encode: async (
+    encode: (
       bitmap,
       {
         deflateLevel = 9,
@@ -45,7 +45,7 @@ export default function png() {
         inputHasAlpha,
       });
     },
-    decode: async (data) => {
+    decode: (data) => {
       const result = PNG.sync.read(data);
 
       return {

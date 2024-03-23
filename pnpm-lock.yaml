@@ -195,6 +195,37 @@ importers:
         specifier: ^1.4.0
         version: 1.4.0(@types/node@20.11.28)
 
+  plugins/js-jpeg:
+    dependencies:
+      '@jimp/core':
+        specifier: workspace:*
+        version: link:../../packages/core
+      '@jimp/types':
+        specifier: workspace:*
+        version: link:../../packages/types
+      jpeg-js:
+        specifier: ^0.4.4
+        version: 0.4.4
+    devDependencies:
+      '@jimp/config-eslint':
+        specifier: workspace:*
+        version: link:../../packages/config-eslint
+      '@jimp/config-typescript':
+        specifier: workspace:*
+        version: link:../../packages/config-typescript
+      eslint:
+        specifier: ^8.57.0
+        version: 8.57.0
+      tshy:
+        specifier: ^1.12.0
+        version: 1.12.0
+      typescript:
+        specifier: ^5.4.2
+        version: 5.4.2
+      vitest:
+        specifier: ^1.4.0
+        version: 1.4.0(@types/node@20.11.28)
+
   plugins/js-png:
     dependencies:
       '@jimp/core':
@@ -3066,6 +3097,10 @@ packages:
       graceful-fs: 4.2.11
       picomatch: 2.3.1
     dev: true
+
+  /jpeg-js@0.4.4:
+    resolution: {integrity: sha512-WZzeDOEtTOBK4Mdsar0IqEU5sMr3vSV2RqkAIzUEV2BHnUfKGyswWFPFwK5EeDo93K3FohSHbLAjj0s1Wzd+dg==}
+    dev: false
 
   /js-tokens@4.0.0:
     resolution: {integrity: sha512-RdJUflcE3cUzKiMqQgsCu06FPu9UdIJO0beYbPhHN4k6apgJtifcoCtT9bcxOpYBtpD2kCM6Sbzg4CausW/PKQ==}

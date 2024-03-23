@@ -15,8 +15,8 @@ export interface Format<
   ExportOptions extends Record<string, any> | undefined = undefined,
 > {
   mime: Mime;
-  encode: (image: Bitmap, options?: ExportOptions) => Promise<Buffer>;
-  decode: (data: Buffer) => Promise<Bitmap>;
+  encode: (image: Bitmap, options?: ExportOptions) => Promise<Buffer> | Buffer;
+  decode: (data: Buffer) => Promise<Bitmap> | Bitmap;
 }
 
 export interface RGBAColor {
