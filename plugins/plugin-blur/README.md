@@ -9,6 +9,8 @@ A fast blur algorithm that produces similar effect to a Gaussian blur - but MUCH
 
 ## Usage
 
+### `blur`
+
 - @param {number} r the pixel radius of the blur
 - @param {function(Error, Jimp)} cb (optional) a callback for when complete
 
@@ -19,6 +21,25 @@ async function main() {
   const image = await jimp.read("test/image.png");
 
   image.blur(5);
+}
+
+main();
+```
+
+Applies a true Gaussian blur to the image (warning: this is VERY slow)
+
+### `gaussian`
+
+- @param {number} r the pixel radius of the blur
+- @param {function(Error, Jimp)} cb (optional) a callback for when complete
+
+```js
+import jimp from "jimp";
+
+async function main() {
+  const image = await jimp.read("test/image.png");
+
+  image.gaussian(15);
 }
 
 main();

@@ -172,6 +172,70 @@ export function blur<I extends JimpClass>(image: I, r: number) {
   return image;
 }
 
+// http://blog.ivank.net/fastest-gaussian-blur.html
+function gaussian<I extends JimpClass>(image: I, r: number) {
+  if (typeof r !== "number") {
+    throw new Error("r must be a number");
+  }
+
+  if (r < 1) {
+    throw new Error("r must be greater than 0");
+  }
+
+  const rs = Math.ceil(r * 2.57); // significant radius
+  const range = rs * 2 + 1;
+  const rr2 = r * r * 2;
+  const rr2pi = rr2 * Math.PI;
+
+  const weights = [];
+
+  for (let y = 0; y < range; y++) {
+    const weightsRow = [];
+    for (let x = 0; x < range; x++) {
+      const dsq = (x - rs) ** 2 + (y - rs) ** 2;
+      weightsRow[x] = Math.exp(-dsq / rr2) / rr2pi;
+    }
+    weights.push(weightsRow);
+  }
+
+  for (let y = 0; y < image.bitmap.height; y++) {
+    for (let x = 0; x < image.bitmap.width; x++) {
+      let red = 0;
+      let green = 0;
+      let blue = 0;
+      let alpha = 0;
+      let wsum = 0;
+
+      for (let iy = 0; iy < range; iy++) {
+        for (let ix = 0; ix < range; ix++) {
+          const x1 = Math.min(image.bitmap.width - 1, Math.max(0, ix + x - rs));
+          const y1 = Math.min(
+            image.bitmap.height - 1,
+            Math.max(0, iy + y - rs),
+          );
+          const weight = weights[iy]![ix]!;
+          const idx = (y1 * image.bitmap.width + x1) << 2;
+
+          red += image.bitmap.data[idx]! * weight;
+          green += image.bitmap.data[idx + 1]! * weight;
+          blue += image.bitmap.data[idx + 2]! * weight;
+          alpha += image.bitmap.data[idx + 3]! * weight;
+          wsum += weight;
+        }
+
+        const idx = (y * image.bitmap.width + x) << 2;
+
+        image.bitmap.data[idx] = Math.round(red / wsum);
+        image.bitmap.data[idx + 1] = Math.round(green / wsum);
+        image.bitmap.data[idx + 2] = Math.round(blue / wsum);
+        image.bitmap.data[idx + 3] = Math.round(alpha / wsum);
+      }
+    }
+  }
+
+  return image;
+}
+
 export default function blurPlugin() {
   return {
     /**
@@ -179,5 +243,10 @@ export default function blurPlugin() {
      * @param r the pixel radius of the blur
      */
     blur,
+    /**
+     * Applies a true Gaussian blur to the image (warning: this is VERY slow)
+     * @param r the pixel radius of the blur
+     */
+    gaussian,
   };
 }
