@@ -5,4 +5,4 @@
   <p>Default Jimp gif decoder.</p>
 </div>
 
-NOTE: Encoder currently unavailable.
+NOTE: Only supports single frame
