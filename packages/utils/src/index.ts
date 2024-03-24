@@ -1,7 +1,8 @@
 import { RGBAColor, JimpClass, Bitmap } from "@jimp/types";
+import tinyColor from "tinycolor2";
 
-export function clone<I extends JimpClass>(image: I) {
-  return new (image.constructor as any)(image);
+export function clone<I extends JimpClass>(image: I): I {
+  return new (image.constructor as any)(image.bitmap);
 }
 
 export function scan<I extends { bitmap: Bitmap }>(
@@ -121,4 +122,17 @@ export function limit255(n: number) {
   n = Math.min(n, 255);
 
   return n;
+}
+
+/**
+ * Converts a css color (Hex, 8-digit (RGBA) Hex, RGB, RGBA, HSL, HSLA, HSV, HSVA, Named) to a hex number
+ * @param cssColor a number
+ * @returns a hex number representing a color
+ */
+export function cssColorToHex(cssColor: string | number) {
+  if (typeof cssColor === "number") {
+    return cssColor;
+  }
+
+  return parseInt(tinyColor(cssColor).toHex8(), 16);
 }

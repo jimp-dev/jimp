@@ -1,5 +1,8 @@
 import { Bitmap, Format, JimpClass, Edge } from "@jimp/types";
+import { cssColorToHex, scan } from "@jimp/utils";
 import { fromBuffer } from "file-type";
+import { composite } from "./utils/composite.js";
+import { BlendMode } from "./index.js";
 
 const emptyBitmap: Bitmap = {
   data: Buffer.alloc(0),
@@ -7,6 +10,7 @@ const emptyBitmap: Bitmap = {
   height: 0,
 };
 
+export { composite } from "./utils/composite.js";
 export * from "./utils/constants.js";
 
 export interface RawImageData {
@@ -15,9 +19,13 @@ export interface RawImageData {
   data: Buffer | Uint8Array | Uint8ClampedArray | number[];
 }
 
-export interface JimpOptions {
-  bitmap?: Bitmap;
-}
+export type JimpConstructorInit =
+  | Bitmap
+  | {
+      height: number;
+      width: number;
+      color: number | string;
+    };
 
 /** Converts a jimp plugin function to a Jimp class method */
 type JimpInstanceMethod<ClassInstance, MethodMap, Method> =
@@ -104,10 +112,26 @@ export function createJimp<
     /** Formats that can be used with Jimp */
     formats: Format<any>[] = [];
 
-    constructor(options: JimpOptions = {}) {
+    constructor(options: JimpConstructorInit = emptyBitmap) {
       // Add the formats
       this.formats = formats;
-      this.bitmap = options.bitmap || emptyBitmap;
+
+      if ("data" in options) {
+        this.bitmap = options;
+      } else if ("color" in options) {
+        this.bitmap = {
+          data: Buffer.alloc(options.width * options.height * 4),
+          width: options.width,
+          height: options.height,
+        };
+
+        const color =
+          typeof options.color === "string"
+            ? cssColorToHex(options.color)
+            : options.color;
+
+        this.bitmap.data.writeUInt32BE(color, 0);
+      }
 
       // Add the plugins
       for (const plugin of plugins) {
@@ -151,9 +175,10 @@ export function createJimp<
         throw new Error(`Mime type ${mime.mime} does not support decoding`);
       }
 
-      return new CustomJimp({
-        bitmap: await format.decode(data),
-      }) as InstanceType<typeof CustomJimp> & ExtraMethodMap;
+      return new CustomJimp(await format.decode(data)) as InstanceType<
+        typeof CustomJimp
+      > &
+        ExtraMethodMap;
     }
 
     /**
@@ -187,9 +212,10 @@ export function createJimp<
         throw new Error("data must be a Buffer");
       }
 
-      return new CustomJimp({
-        bitmap: { ...bitmap, data },
-      }) as InstanceType<typeof CustomJimp> & ExtraMethodMap;
+      return new CustomJimp({ ...bitmap, data }) as InstanceType<
+        typeof CustomJimp
+      > &
+        ExtraMethodMap;
     }
 
     async toBuffer<
@@ -210,10 +236,8 @@ export function createJimp<
 
     clone<S extends typeof CustomJimp>(this: S) {
       return new CustomJimp({
-        bitmap: {
-          ...(this as any).bitmap,
-          data: Buffer.from((this as any).bitmap.data),
-        },
+        ...(this as any).bitmap,
+        data: Buffer.from((this as any).bitmap.data),
       }) as unknown as S;
     }
 
@@ -315,6 +339,48 @@ export function createJimp<
       this.bitmap.data.writeUInt32BE(hex, idx);
 
       return this;
+    }
+
+    /**
+     * Composites a source image over to this image respecting alpha channels
+     * @param {Jimp} src the source Jimp instance
+     * @param {number} x the x position to blit the image
+     * @param {number} y the y position to blit the image
+     * @param {object} options determine what mode to use
+     */
+    composite<I extends typeof this>(
+      src: I,
+      x: number,
+      y: number,
+      options: {
+        mode?: BlendMode;
+        opacitySource?: number;
+        opacityDest?: number;
+      } = {}
+    ) {
+      return composite(this, src, x, y, options);
+    }
+
+    scan(
+      x: number,
+      y: number,
+      w: number,
+      h: number,
+      f: (this: this, x: number, y: number, idx: number) => any
+    ) {
+      if (typeof x !== "number" || typeof y !== "number") {
+        throw new Error("x and y must be numbers");
+      }
+
+      if (typeof w !== "number" || typeof h !== "number") {
+        throw new Error("w and h must be numbers");
+      }
+
+      if (typeof f !== "function") {
+        throw new Error("f must be a function");
+      }
+
+      return scan(this, x, y, w, h, f);
     }
   };
 

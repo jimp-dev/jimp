@@ -10,15 +10,16 @@ export const VERTICAL_ALIGN_TOP = 8;
 export const VERTICAL_ALIGN_MIDDLE = 16;
 export const VERTICAL_ALIGN_BOTTOM = 32;
 
-// blend modes
-export const BLEND_SOURCE_OVER = "srcOver";
-export const BLEND_DESTINATION_OVER = "dstOver";
-export const BLEND_MULTIPLY = "multiply";
-export const BLEND_ADD = "add";
-export const BLEND_SCREEN = "screen";
-export const BLEND_OVERLAY = "overlay";
-export const BLEND_DARKEN = "darken";
-export const BLEND_LIGHTEN = "lighten";
-export const BLEND_HARDLIGHT = "hardLight";
-export const BLEND_DIFFERENCE = "difference";
-export const BLEND_EXCLUSION = "exclusion";
+export enum BlendMode {
+  SRC_OVER = "srcOver",
+  DST_OVER = "dstOver",
+  MULTIPLY = "multiply",
+  ADD = "add",
+  SCREEN = "screen",
+  OVERLAY = "overlay",
+  DARKEN = "darken",
+  LIGHTEN = "lighten",
+  HARD_LIGHT = "hardLight",
+  DIFFERENCE = "difference",
+  EXCLUSION = "exclusion",
+}

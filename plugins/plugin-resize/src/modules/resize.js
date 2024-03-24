@@ -41,6 +41,7 @@ Resize.prototype.initialize = function () {
   ) {
     this.configurePasses();
   } else {
+    console.log(this);
     throw new Error("Invalid settings specified for the resizer.");
   }
 };

@@ -1,29 +1,31 @@
 {
-  "name": "@jimp/core",
+  "name": "@jimp/plugin-shadow",
   "version": "1.0.0",
   "repository": "jimp-dev/jimp",
   "scripts": {
     "lint": "eslint .",
-    "test-off": "vitest --watch=false",
+    "test": "vitest",
     "build": "tshy",
-    "dev": "tshy --watch",
-    "clean": "rm -rf node_modules .tshy .tshy-build dist"
+    "dev": "tshy --watch"
   },
   "author": "Andrew Lisowski <lisowski54@gmail.com>",
   "license": "MIT",
-  "dependencies": {
-    "@jimp/types": "workspace:*",
-    "@jimp/utils": "workspace:*",
-    "file-type": "^16.0.0"
-  },
   "devDependencies": {
+    "@jimp/test-utils": "workspace:*",
     "@jimp/config-eslint": "workspace:*",
     "@jimp/config-typescript": "workspace:*",
-    "@types/file-type": "^10.9.1",
     "eslint": "^8.57.0",
     "tshy": "^1.12.0",
     "typescript": "^5.4.2",
     "vitest": "^1.4.0"
+  },
+  "dependencies": {
+    "@jimp/plugin-blur": "workspace:*",
+    "@jimp/plugin-color": "workspace:*",
+    "@jimp/plugin-resize": "workspace:*",
+    "@jimp/core": "workspace:*",
+    "@jimp/types": "workspace:*",
+    "@jimp/utils": "workspace:*"
   },
   "tshy": {
     "exclude": [
