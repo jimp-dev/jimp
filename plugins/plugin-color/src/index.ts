@@ -128,7 +128,7 @@ interface GrayscaleAction {
   params?: [number];
 }
 
-type ColorAction =
+export type ColorAction =
   | HueAction
   | SpinAction
   | LightenAction

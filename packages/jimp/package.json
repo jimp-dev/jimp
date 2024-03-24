@@ -35,8 +35,11 @@
   "dependencies": {
     "@jimp/plugin-blit": "workspace:*",
     "@jimp/plugin-blur": "workspace:*",
+    "@jimp/plugin-color": "workspace:*",
     "@jimp/plugin-crop": "workspace:*",
+    "@jimp/plugin-hash": "workspace:*",
     "@jimp/plugin-resize": "workspace:*",
+    "@jimp/plugin-threshold": "workspace:*",
     "@jimp/js-bmp": "workspace:*",
     "@jimp/js-gif": "workspace:*",
     "@jimp/js-jpeg": "workspace:*",

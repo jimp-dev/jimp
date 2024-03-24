@@ -1,5 +1,5 @@
 {
-  "name": "@jimp/plugin-threshold",
+  "name": "@jimp/plugin-hash",
   "version": "1.0.0",
   "repository": "jimp-dev/jimp",
   "scripts": {
@@ -11,21 +11,21 @@
   "author": "Andrew Lisowski <lisowski54@gmail.com>",
   "license": "MIT",
   "devDependencies": {
-    "@jimp/test-utils": "workspace:*",
-    "@jimp/js-jpeg": "workspace:*",
     "@jimp/config-eslint": "workspace:*",
     "@jimp/config-typescript": "workspace:*",
     "eslint": "^8.57.0",
+    "any-base": "^1.1.0",
     "tshy": "^1.12.0",
     "typescript": "^5.4.2",
     "vitest": "^1.4.0"
   },
   "dependencies": {
-    "@jimp/core": "workspace:*",
     "@jimp/plugin-color": "workspace:*",
-    "@jimp/plugin-hash": "workspace:*",
+    "@jimp/plugin-resize": "workspace:*",
+    "@jimp/core": "workspace:*",
+    "@jimp/types": "workspace:*",
     "@jimp/utils": "workspace:*",
-    "@jimp/types": "workspace:*"
+    "@types/any-base": "^1.1.3"
   },
   "tshy": {
     "exclude": [

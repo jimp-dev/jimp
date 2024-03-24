@@ -21,11 +21,13 @@ export interface JimpOptions {
 
 /** Converts a jimp plugin function to a Jimp class method */
 type JimpInstanceMethod<ClassInstance, MethodMap, Method> =
-  Method extends JimpMethod<infer Args>
+  Method extends JimpChainableMethod<infer Args>
     ? (
         ...args: Args
       ) => JimpInstanceMethods<ClassInstance, MethodMap> & ClassInstance
-    : never;
+    : Method extends JimpMethod<infer Args, infer Return>
+      ? (...args: Args) => Return
+      : never;
 
 /** Converts a Record of jimp plugin functions to a Record of Jimp class methods */
 export type JimpInstanceMethods<ClassInstance, MethodMap> = {
@@ -36,12 +38,20 @@ export type JimpInstanceMethods<ClassInstance, MethodMap> = {
   >;
 };
 
-type JimpMethod<Args extends any[] = any[], J extends JimpClass = JimpClass> = (
-  img: J,
-  ...args: Args
-) => J;
+type JimpChainableMethod<
+  Args extends any[] = any[],
+  J extends JimpClass = JimpClass,
+> = (img: J, ...args: Args) => J;
 
-type JimpPlugin = () => { [key: string]: JimpMethod } | void;
+type JimpMethod<
+  Args extends any[] = any[],
+  ReturnType = any,
+  J extends JimpClass = JimpClass,
+> = (img: J, ...args: Args) => ReturnType;
+
+type JimpPlugin = () => {
+  [key: string]: JimpChainableMethod | JimpMethod;
+} | void;
 
 type UnionToIntersection<U> = (U extends any ? (k: U) => void : never) extends (
   k: infer I
@@ -107,10 +117,13 @@ export function createJimp<
           for (const key in methods) {
             (this as any)[key] = (...args: any[]) => {
               const result = methods[key]?.(this, ...args);
-              if (result) {
+
+              if (typeof result === "object" && "bitmap" in result) {
                 this.bitmap = result.bitmap;
+                return this;
               }
-              return this;
+
+              return result;
             };
           }
         }

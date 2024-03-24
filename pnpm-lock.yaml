@@ -17,6 +17,9 @@ importers:
       '@turbo/gen':
         specifier: ^1.12.5
         version: 1.12.5(@types/node@20.11.28)(typescript@5.4.2)
+      any-base:
+        specifier: ^1.1.0
+        version: 1.1.0
       auto:
         specifier: ^11.1.1
         version: 11.1.1(@types/node@20.11.28)(typescript@5.4.2)
@@ -107,12 +110,21 @@ importers:
       '@jimp/plugin-blur':
         specifier: workspace:*
         version: link:../../plugins/plugin-blur
+      '@jimp/plugin-color':
+        specifier: workspace:*
+        version: link:../../plugins/plugin-color
       '@jimp/plugin-crop':
         specifier: workspace:*
         version: link:../../plugins/plugin-crop
+      '@jimp/plugin-hash':
+        specifier: workspace:*
+        version: link:../../plugins/plugin-hash
       '@jimp/plugin-resize':
         specifier: workspace:*
         version: link:../../plugins/plugin-resize
+      '@jimp/plugin-threshold':
+        specifier: workspace:*
+        version: link:../../plugins/plugin-threshold
     devDependencies:
       '@jimp/config-eslint':
         specifier: workspace:*
@@ -519,6 +531,49 @@ importers:
         specifier: ^1.4.0
         version: 1.4.0(@types/node@20.11.28)
 
+  plugins/plugin-hash:
+    dependencies:
+      '@jimp/core':
+        specifier: workspace:*
+        version: link:../../packages/core
+      '@jimp/plugin-color':
+        specifier: workspace:*
+        version: link:../plugin-color
+      '@jimp/plugin-resize':
+        specifier: workspace:*
+        version: link:../plugin-resize
+      '@jimp/types':
+        specifier: workspace:*
+        version: link:../../packages/types
+      '@jimp/utils':
+        specifier: workspace:*
+        version: link:../../packages/utils
+      '@types/any-base':
+        specifier: ^1.1.3
+        version: 1.1.3
+    devDependencies:
+      '@jimp/config-eslint':
+        specifier: workspace:*
+        version: link:../../packages/config-eslint
+      '@jimp/config-typescript':
+        specifier: workspace:*
+        version: link:../../packages/config-typescript
+      any-base:
+        specifier: ^1.1.0
+        version: 1.1.0
+      eslint:
+        specifier: ^8.57.0
+        version: 8.57.0
+      tshy:
+        specifier: ^1.12.0
+        version: 1.12.0
+      typescript:
+        specifier: ^5.4.2
+        version: 5.4.2
+      vitest:
+        specifier: ^1.4.0
+        version: 1.4.0(@types/node@20.11.28)
+
   plugins/plugin-resize:
     dependencies:
       '@jimp/core':
@@ -552,6 +607,15 @@ importers:
 
   plugins/plugin-threshold:
     dependencies:
+      '@jimp/core':
+        specifier: workspace:*
+        version: link:../../packages/core
+      '@jimp/plugin-color':
+        specifier: workspace:*
+        version: link:../plugin-color
+      '@jimp/plugin-hash':
+        specifier: workspace:*
+        version: link:../plugin-hash
       '@jimp/types':
         specifier: workspace:*
         version: link:../../packages/types
@@ -565,6 +629,12 @@ importers:
       '@jimp/config-typescript':
         specifier: workspace:*
         version: link:../../packages/config-typescript
+      '@jimp/js-jpeg':
+        specifier: workspace:*
+        version: link:../js-jpeg
+      '@jimp/test-utils':
+        specifier: workspace:*
+        version: link:../../packages/test-utils
       eslint:
         specifier: ^8.57.0
         version: 8.57.0
@@ -1418,6 +1488,10 @@ packages:
       update-check: 1.5.4
     dev: true
 
+  /@types/any-base@1.1.3:
+    resolution: {integrity: sha512-B7RTBD7jVYxm754XDdw6UozY3ZyyBv4iF4QQSjCzeLV4avDy8JBwCuI5SN4mz27ENI6K1NtKZwQ7zcqgH2h2Mw==}
+    dev: false
+
   /@types/command-line-args@5.2.3:
     resolution: {integrity: sha512-uv0aG6R0Y8WHZLTamZwtfsDLVRnOa+n+n5rEvFWL5Na5gZ8V2Teab/duDPFzIIIhs9qizDpcavCusCLJZu62Kw==}
     dev: true
@@ -1820,6 +1894,10 @@ packages:
   /ansi-styles@6.2.1:
     resolution: {integrity: sha512-bN798gFfQX+viw3R7yrGWRqnrN2oRkEkUjjl4JNn4E8GxxbjtG3FbrEIIY3l8/hrwUwIeCZvi4QuOTP4MErVug==}
     engines: {node: '>=12'}
+    dev: true
+
+  /any-base@1.1.0:
+    resolution: {integrity: sha512-uMgjozySS8adZZYePpaWs8cxB9/kdzmpX6SgJZ+wbz1K5eYk5QMYDVJaZKhxyIHUdnnJkfR7SVgStgH7LkGUyg==}
     dev: true
 
   /anymatch@3.1.3:

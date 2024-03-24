@@ -21,6 +21,7 @@
     "@jimp/config-eslint": "workspace:*",
     "@jimp/config-typescript": "workspace:*",
     "@turbo/gen": "^1.12.5",
+    "any-base": "^1.1.0",
     "auto": "^11.1.1",
     "prettier": "^3.2.5",
     "turbo": "^1.13.0"

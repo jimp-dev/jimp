@@ -31,6 +31,7 @@ for (let i = 2; i < 65; i++) {
   maxHashLength.push(maxHash.length);
 }
 
+console.log(maxHashLength);
 // no operation
 function noop() {}
 
