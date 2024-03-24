@@ -86,15 +86,33 @@ importers:
       '@jimp/core':
         specifier: workspace:*
         version: link:../core
+      '@jimp/js-bmp':
+        specifier: workspace:*
+        version: link:../../plugins/js-bmp
+      '@jimp/js-gif':
+        specifier: workspace:*
+        version: link:../../plugins/js-gif
+      '@jimp/js-jpeg':
+        specifier: workspace:*
+        version: link:../../plugins/js-jpeg
       '@jimp/js-png':
         specifier: workspace:*
         version: link:../../plugins/js-png
+      '@jimp/js-tiff':
+        specifier: workspace:*
+        version: link:../../plugins/js-tiff
       '@jimp/plugin-blit':
         specifier: workspace:*
         version: link:../../plugins/plugin-blit
+      '@jimp/plugin-blur':
+        specifier: workspace:*
+        version: link:../../plugins/plugin-blur
       '@jimp/plugin-crop':
         specifier: workspace:*
         version: link:../../plugins/plugin-crop
+      '@jimp/plugin-resize':
+        specifier: workspace:*
+        version: link:../../plugins/plugin-resize
     devDependencies:
       '@jimp/config-eslint':
         specifier: workspace:*
@@ -207,8 +225,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/utils
       bmp-ts:
-        specifier: ^1.0.8
-        version: 1.0.8
+        specifier: ^1.0.9
+        version: 1.0.9
     devDependencies:
       '@jimp/config-eslint':
         specifier: workspace:*
@@ -1849,8 +1867,8 @@ packages:
       readable-stream: 3.6.2
     dev: true
 
-  /bmp-ts@1.0.8:
-    resolution: {integrity: sha512-IT+4NZJeKzzIvro1nd/4Ekzgo7pJ1LF46OZoE+FyyOfW1pBlM1rbqRyYIsdbI01YNZInDF02T7p/OjPK598mFg==}
+  /bmp-ts@1.0.9:
+    resolution: {integrity: sha512-cTEHk2jLrPyi+12M3dhpEbnnPOsaZuq7C45ylbbQIiWgDFZq4UVYPEY5mlqjvsj/6gJv9qX5sa+ebDzLXT28Vw==}
     dev: false
 
   /bottleneck@2.19.5:

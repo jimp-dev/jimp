@@ -28,6 +28,5 @@
   "packageManager": "pnpm@8.9.0",
   "publishConfig": {
     "registry": "https://registry.npmjs.org/"
-  },
-  "prettier": {}
+  }
 }
