@@ -208,13 +208,13 @@ export function createJimp<
       return format.encode(this.bitmap, options);
     }
 
-    clone() {
+    clone<S extends typeof CustomJimp>(this: S) {
       return new CustomJimp({
         bitmap: {
-          ...this.bitmap,
-          data: Buffer.from(this.bitmap.data),
+          ...(this as any).bitmap,
+          data: Buffer.from((this as any).bitmap.data),
         },
-      });
+      }) as unknown as S;
     }
 
     /**
