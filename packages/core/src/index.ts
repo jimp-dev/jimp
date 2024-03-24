@@ -9,7 +9,7 @@ const emptyBitmap: Bitmap = {
 
 export * from "./utils/constants.js";
 
-interface RawImageData {
+export interface RawImageData {
   width: number;
   height: number;
   data: Buffer | Uint8Array | Uint8ClampedArray | number[];
