@@ -13,7 +13,7 @@ expect.extend({ toMatchImageSnapshot });
 
 export function hashForEach<Hash extends Record<string, any>>(
   hash: Hash,
-  func: (key: keyof Hash, value: Hash[keyof Hash]) => void,
+  func: (key: keyof Hash, value: Hash[keyof Hash]) => void
 ) {
   for (const key in hash)
     if (hash.hasOwnProperty(key)) {
@@ -33,7 +33,7 @@ function throwUndefinedChar(char: string) {
       char +
       '" do not defines a color. ' +
       "This are the valid chars: " +
-      cList.join(" "),
+      cList.join(" ")
   );
 }
 
@@ -123,7 +123,7 @@ export function testImageReadableMatrix(img: Bitmap) {
       pix.replace(/(..)(..)(..)(.)(.)/, (sel, r, g, b, a1, a2) => {
         const a = sup[parseInt(a1, 16)]! + sup[parseInt(a2, 16)]!;
         return r + "-" + g + "-" + b + a;
-      }),
+      })
     );
     if (i > 0 && (i + 1) % img.width === 0) {
       rMatrix.push(line.join(" "));
@@ -137,19 +137,39 @@ export function testImageReadableMatrix(img: Bitmap) {
 /** Helps to debug image data */
 export function testImgToStr(testImage: Bitmap) {
   const colors2: Record<number, string | number> = {};
+  const w = testImage.width;
 
   hashForEach(colors, (k, c) => {
     colors2[c] = k;
   });
 
+  let unknownColors = new Set<number>();
+
+  for (let y = 0; y < testImage.height; y++) {
+    for (let x = 0; x < w; x++) {
+      const cell = testImage.data.readUInt32BE(4 * (y * w + x));
+
+      if (!colors2[cell]) {
+        unknownColors.add(cell);
+      }
+    }
+  }
+
+  const unknownColorMap: Record<number, string | number> = {};
+  const possibleColors = Object.keys(colors);
+
+  unknownColors.forEach((c, i) => {
+    const color = possibleColors[i % possibleColors.length]!;
+    unknownColorMap[c] = color;
+  });
+
   const lines = [];
-  const w = testImage.width;
 
   for (let y = 0; y < testImage.height; y++) {
     lines[y] = "";
     for (let x = 0; x < w; x++) {
       const cell = testImage.data.readUInt32BE(4 * (y * w + x))!;
-      const k = colors2[cell] || "?";
+      const k = colors2[cell] || unknownColorMap[cell] || "?";
       lines[y] += k;
     }
   }
@@ -190,13 +210,13 @@ function determineBitmapError(testImage: Bitmap, targetTestImage: Bitmap) {
   if (
     !equal(
       testImageReadableMatrix(testImage),
-      testImageReadableMatrix(targetTestImage),
+      testImageReadableMatrix(targetTestImage)
     )
   ) {
     return {
       pass: false,
       message: `Expected testImage:\n${testImgToStr(
-        testImage,
+        testImage
       )}\n to be equal to targetTestImage:\n${testImgToStr(targetTestImage)}`,
     };
   }
@@ -208,7 +228,7 @@ function determineBitmapError(testImage: Bitmap, targetTestImage: Bitmap) {
 
 export function expectToBeTestImage(
   testImage: Bitmap,
-  targetTestImage: Bitmap,
+  targetTestImage: Bitmap
 ) {
   const error = determineBitmapError(testImage, targetTestImage);
 
@@ -219,8 +239,28 @@ export function expectToBeTestImage(
   throw new Error(error.message);
 }
 
+export function makeDonutTestImage(_: number, i: number, X: number) {
+  return {
+    width: 10,
+    height: 10,
+    // prettier-ignore
+    data: [
+      _,_,_,_,_,_,_,_,_,_,
+      _,_,_,i,X,X,i,_,_,_,
+      _,_,X,X,X,X,X,X,_,_,
+      _,i,X,X,i,i,X,X,i,_,
+      _,X,X,i,_,_,i,X,X,_,
+      _,X,X,i,_,_,i,X,X,_,
+      _,i,X,X,i,i,X,X,i,_,
+      _,_,X,X,X,X,X,X,_,_,
+      _,_,_,i,X,X,i,_,_,_,
+      _,_,_,_,_,_,_,_,_,_,
+    ],
+  };
+}
+
 expect.addSnapshotSerializer({
-  serialize(val) {
+  serialize(val, ...args) {
     const bitmap = "bitmap" in val ? val.bitmap : val;
     return `Visualization:\n\n${testImgToStr(bitmap)}\n\nData:\n\n${testImageReadableMatrix(bitmap)}`;
   },

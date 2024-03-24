@@ -1,11 +1,9 @@
 <div align="center">
   <img width="200" height="200"
     src="https://s3.amazonaws.com/pix.iemoji.com/images/emoji/apple/ios-11/256/crayon.png">
-  <h1>@jimp/plugin-color</h1>
-  <p>Jimp color methods.</p>
+  <h1>@jimp/utils</h1>
+  <p>Utils for jimp extensions.</p>
 </div>
-
-Bitmap manipulation to adjust the color in an image.
 
 ## color
 
@@ -189,7 +187,7 @@ async function main() {
       [-1, 8, -1],
       [-1, -1, -1],
     ],
-    jimp.EDGE_EXTEND,
+    jimp.EDGE_EXTEND
   );
 }
 
@@ -256,6 +254,38 @@ async function main() {
 
   // make me better
   image.pixelate(kernal);
+}
+
+main();
+```
+
+## normalize
+
+- @param {function(Error, Jimp)} cb (optional) a callback for when complete
+
+```js
+import jimp from "jimp";
+
+async function main() {
+  const image = await jimp.read("test/image.png");
+
+  image.normalize();
+}
+
+main();
+```
+
+## invert
+
+- @param {function(Error, Jimp)} cb (optional) a callback for when complete
+
+```js
+import jimp from "jimp";
+
+async function main() {
+  const image = await jimp.read("test/image.png");
+
+  image.invert();
 }
 
 main();

@@ -439,6 +439,52 @@ importers:
         specifier: ^1.4.0
         version: 1.4.0(@types/node@20.11.28)
 
+  plugins/plugin-color:
+    dependencies:
+      '@jimp/core':
+        specifier: workspace:*
+        version: link:../../packages/core
+      '@jimp/types':
+        specifier: workspace:*
+        version: link:../../packages/types
+      '@jimp/utils':
+        specifier: workspace:*
+        version: link:../../packages/utils
+      tinycolor2:
+        specifier: ^1.6.0
+        version: 1.6.0
+    devDependencies:
+      '@jimp/config-eslint':
+        specifier: workspace:*
+        version: link:../../packages/config-eslint
+      '@jimp/config-typescript':
+        specifier: workspace:*
+        version: link:../../packages/config-typescript
+      '@jimp/js-jpeg':
+        specifier: workspace:*
+        version: link:../js-jpeg
+      '@jimp/js-png':
+        specifier: workspace:*
+        version: link:../js-png
+      '@jimp/test-utils':
+        specifier: workspace:*
+        version: link:../../packages/test-utils
+      '@types/tinycolor2':
+        specifier: ^1.4.6
+        version: 1.4.6
+      eslint:
+        specifier: ^8.57.0
+        version: 8.57.0
+      tshy:
+        specifier: ^1.12.0
+        version: 1.12.0
+      typescript:
+        specifier: ^5.4.2
+        version: 5.4.2
+      vitest:
+        specifier: ^1.4.0
+        version: 1.4.0(@types/node@20.11.28)
+
   plugins/plugin-crop:
     dependencies:
       '@jimp/core':
@@ -491,6 +537,34 @@ importers:
       '@jimp/test-utils':
         specifier: workspace:*
         version: link:../../packages/test-utils
+      eslint:
+        specifier: ^8.57.0
+        version: 8.57.0
+      tshy:
+        specifier: ^1.12.0
+        version: 1.12.0
+      typescript:
+        specifier: ^5.4.2
+        version: 5.4.2
+      vitest:
+        specifier: ^1.4.0
+        version: 1.4.0(@types/node@20.11.28)
+
+  plugins/plugin-threshold:
+    dependencies:
+      '@jimp/types':
+        specifier: workspace:*
+        version: link:../../packages/types
+      '@jimp/utils':
+        specifier: workspace:*
+        version: link:../../packages/utils
+    devDependencies:
+      '@jimp/config-eslint':
+        specifier: workspace:*
+        version: link:../../packages/config-eslint
+      '@jimp/config-typescript':
+        specifier: workspace:*
+        version: link:../../packages/config-typescript
       eslint:
         specifier: ^8.57.0
         version: 8.57.0
@@ -4474,7 +4548,6 @@ packages:
 
   /tinycolor2@1.6.0:
     resolution: {integrity: sha512-XPaBkWQJdsf3pLKJV9p4qN/S+fm2Oj8AIPo1BTUhg5oxkvm9+SVEGFdhyOz7tTdUTfvxMiAs4sp6/eZO2Ew+pw==}
-    dev: true
 
   /tinygradient@1.1.5:
     resolution: {integrity: sha512-8nIfc2vgQ4TeLnk2lFj4tRLvvJwEfQuabdsmvDdQPT0xlk9TaNtpGd6nNRxXoK6vQhN6RSzj+Cnp5tTQmpxmbw==}

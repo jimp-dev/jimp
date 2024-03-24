@@ -11,5 +11,5 @@ export enum PNGColorType {
   GRAYSCALE = 0,
   COLOR = 2,
   GRAYSCALE_ALPHA = 4,
-  COLOR_ALPHA = 4,
+  COLOR_ALPHA = 6,
 }

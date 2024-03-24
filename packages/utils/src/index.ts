@@ -1,12 +1,16 @@
 import { RGBAColor, JimpClass, Bitmap } from "@jimp/types";
 
+export function clone<I extends JimpClass>(image: I) {
+  return new (image.constructor as any)(image);
+}
+
 export function scan<I extends { bitmap: Bitmap }>(
   image: I,
   x: number,
   y: number,
   w: number,
   h: number,
-  cb: (x: number, y: number, idx: number) => any,
+  cb: (x: number, y: number, idx: number) => any
 ) {
   // round input
   x = Math.round(x);
@@ -29,7 +33,7 @@ export function* scanIterator<I extends JimpClass>(
   x: number,
   y: number,
   w: number,
-  h: number,
+  h: number
 ) {
   // round input
   x = Math.round(x);
@@ -66,14 +70,14 @@ export function intToRGBA(i: number) {
   rgba.g = Math.floor((i - rgba.r * Math.pow(256, 3)) / Math.pow(256, 2));
   rgba.b = Math.floor(
     (i - rgba.r * Math.pow(256, 3) - rgba.g * Math.pow(256, 2)) /
-      Math.pow(256, 1),
+      Math.pow(256, 1)
   );
   rgba.a = Math.floor(
     (i -
       rgba.r * Math.pow(256, 3) -
       rgba.g * Math.pow(256, 2) -
       rgba.b * Math.pow(256, 1)) /
-      Math.pow(256, 0),
+      Math.pow(256, 0)
   );
 
   return rgba;

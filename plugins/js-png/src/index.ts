@@ -22,7 +22,7 @@ export default function png() {
         colorType,
         inputHasAlpha = true,
         ...options
-      }: PNGOptions = {},
+      }: PNGOptions = {}
     ) => {
       const png = new PNG({
         width: bitmap.width,
@@ -30,6 +30,19 @@ export default function png() {
       });
 
       png.data = bitmap.data;
+      console.log({
+        ...options,
+        deflateLevel,
+        deflateStrategy,
+        filterType,
+        colorType:
+          typeof colorType !== "undefined"
+            ? colorType
+            : inputHasAlpha
+              ? PNGColorType.COLOR_ALPHA
+              : PNGColorType.COLOR,
+        inputHasAlpha,
+      });
 
       return PNG.sync.write(png, {
         ...options,

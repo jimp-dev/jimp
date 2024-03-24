@@ -44,7 +44,7 @@ type JimpMethod<Args extends any[] = any[], J extends JimpClass = JimpClass> = (
 type JimpPlugin = () => { [key: string]: JimpMethod } | void;
 
 type UnionToIntersection<U> = (U extends any ? (k: U) => void : never) extends (
-  k: infer I,
+  k: infer I
 ) => void
   ? I
   : never;
@@ -140,7 +140,7 @@ export function createJimp<
 
       return new CustomJimp({
         bitmap: await format.decode(data),
-      });
+      }) as InstanceType<typeof CustomJimp> & ExtraMethodMap;
     }
 
     /**
@@ -165,8 +165,8 @@ export function createJimp<
       if (Array.isArray(bitmap.data)) {
         data = Buffer.concat(
           bitmap.data.map((hex) =>
-            Buffer.from(hex.toString(16).padStart(8, "0"), "hex"),
-          ),
+            Buffer.from(hex.toString(16).padStart(8, "0"), "hex")
+          )
         );
       }
 
@@ -288,7 +288,6 @@ export function createJimp<
      * @param hex color to set
      * @param x the x coordinate
      * @param y the y coordinate
-     * @returns the index of the pixel or -1 if not found
      */
     setPixelColor(hex: number, x: number, y: number) {
       if (

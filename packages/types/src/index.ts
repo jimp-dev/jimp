@@ -19,6 +19,12 @@ export interface Format<
   decode: (data: Buffer) => Promise<Bitmap> | Bitmap;
 }
 
+export interface RGBColor {
+  r: number;
+  g: number;
+  b: number;
+}
+
 export interface RGBAColor {
   r: number;
   g: number;
