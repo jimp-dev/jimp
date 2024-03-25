@@ -153,9 +153,6 @@ importers:
       '@jimp/types':
         specifier: workspace:*
         version: link:../types
-      fast-deep-equal:
-        specifier: ^3.1.3
-        version: 3.1.3
       jest-image-snapshot:
         specifier: ^6.4.0
         version: 6.4.0
@@ -2966,6 +2963,7 @@ packages:
 
   /fast-deep-equal@3.1.3:
     resolution: {integrity: sha512-f3qQ9oQy9j2AhBe/H9VC91wLmKBCCU/gDOnKNAYG5hswO7BLKj09Hc5HYNz9cGI++xlpDCIgDaitVs03ATR84Q==}
+    dev: true
 
   /fast-glob@3.3.2:
     resolution: {integrity: sha512-oX2ruAFQwf/Orj8m737Y5adxDQO0LAB7/S5MnxCdTNDd4p6BsyIVsv9JQsATbTSq8KHRpLwIHbVlUNatxd+1Ow==}

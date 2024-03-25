@@ -1,6 +1,5 @@
 import { expect } from "vitest";
 import { Bitmap } from "@jimp/types";
-import equal from "fast-deep-equal";
 import { toMatchImageSnapshot } from "jest-image-snapshot";
 
 declare module "vitest" {
@@ -177,68 +176,6 @@ export function testImgToStr(testImage: Bitmap) {
   return lines.join("\n");
 }
 
-function determineBitmapError(testImage: Bitmap, targetTestImage: Bitmap) {
-  if (typeof testImage.width === "undefined") {
-    return {
-      pass: false,
-      message: `Expected testImage.width to be defined`,
-    };
-  }
-
-  if (typeof testImage.height === "undefined") {
-    return {
-      pass: false,
-      message: `Expected testImage.height to be defined`,
-    };
-  }
-
-  if (testImage.width !== targetTestImage.width) {
-    return {
-      pass: false,
-      message: `Expected testImage.width to be ${targetTestImage.width} but got ${testImage.width}`,
-    };
-  }
-
-  if (testImage.height !== targetTestImage.height) {
-    console.log(typeof testImage.height, typeof targetTestImage.height);
-    return {
-      pass: false,
-      message: `Expected testImage.height to be ${targetTestImage.height} but got ${testImage.height}`,
-    };
-  }
-
-  if (
-    !equal(
-      testImageReadableMatrix(testImage),
-      testImageReadableMatrix(targetTestImage)
-    )
-  ) {
-    return {
-      pass: false,
-      message: `Expected testImage:\n${testImgToStr(
-        testImage
-      )}\n to be equal to targetTestImage:\n${testImgToStr(targetTestImage)}`,
-    };
-  }
-
-  return {
-    pass: true,
-  };
-}
-
-export function expectToBeTestImage(
-  testImage: Bitmap,
-  targetTestImage: Bitmap
-) {
-  const error = determineBitmapError(testImage, targetTestImage);
-
-  if (error.pass) {
-    return;
-  }
-
-  throw new Error(error.message);
-}
-
 export function makeDonutTestImage(_: number, i: number, X: number) {
   return {
     width: 10,
@@ -260,7 +197,7 @@ export function makeDonutTestImage(_: number, i: number, X: number) {
 }
 
 expect.addSnapshotSerializer({
-  serialize(val, ...args) {
+  serialize(val) {
     const bitmap = "bitmap" in val ? val.bitmap : val;
     return `Visualization:\n\n${testImgToStr(bitmap)}\n\nData:\n\n${testImageReadableMatrix(bitmap)}`;
   },
