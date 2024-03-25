@@ -47,5 +47,17 @@ export default function hashPlugin() {
 
       return anyBase(anyBase.BIN, subAlphabet)(pHash).padStart(maxLength, "0");
     },
+
+    /**
+     * Calculates the hamming distance of the current image and a hash based on their perceptual hash
+     * @param compareHash hash to compare to
+     * @returns  a number ranging from 0 to 1, 0 means they are believed to be identical
+     */
+    distanceFromHash<I extends JimpClass>(image: I, compareHash: string) {
+      const pHash = new ImagePHash();
+      const currentHash = pHash.getHash(image);
+
+      return pHash.distance(currentHash, compareHash);
+    },
   };
 }

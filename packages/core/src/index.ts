@@ -109,6 +109,9 @@ export function createJimp<
      */
     bitmap: Bitmap = emptyBitmap;
 
+    /**  Default color to use for new pixels */
+    background = 0x00000000;
+
     /** Formats that can be used with Jimp */
     formats: Format<any>[] = [];
 
@@ -125,12 +128,14 @@ export function createJimp<
           height: options.height,
         };
 
-        const color =
+        this.background =
           typeof options.color === "string"
             ? cssColorToHex(options.color)
             : options.color;
 
-        this.bitmap.data.writeUInt32BE(color, 0);
+        for (let i = 0; i < this.bitmap.data.length; i += 4) {
+          this.bitmap.data.writeUInt32BE(this.background, 0);
+        }
       }
 
       // Add the plugins
@@ -231,7 +236,35 @@ export function createJimp<
         throw new Error(`Unsupported MIME type: ${mime}`);
       }
 
-      return format.encode(this.bitmap, options);
+      let outputImage: Jimp;
+
+      if (format.hasAlpha) {
+        outputImage = this;
+      } else {
+        outputImage = new CustomJimp({
+          width: this.bitmap.width,
+          height: this.bitmap.height,
+          color: this.background,
+        });
+
+        composite(outputImage, this);
+      }
+
+      return format.encode(outputImage.bitmap, options);
+    }
+
+    /**
+     * Converts the image to a base 64 string
+     */
+    async getBase64<
+      ProvidedMimeType extends SupportedMimeTypes,
+      Options extends GetOptionsForMimeType<
+        ProvidedMimeType,
+        MimeTypeToExportOptions
+      >,
+    >(mime: ProvidedMimeType, options?: Options) {
+      const data = await this.toBuffer(mime, options);
+      return "data:" + mime + ";base64," + data.toString("base64");
     }
 
     clone<S extends typeof CustomJimp>(this: S) {
@@ -342,16 +375,32 @@ export function createJimp<
     }
 
     /**
+     * Determine if the image contains opaque pixels.
+     */
+    hasAlpha() {
+      const { width, height, data } = this.bitmap;
+      const byteLen = (width * height) << 2;
+
+      for (let idx = 3; idx < byteLen; idx += 4) {
+        if (data[idx] !== 0xff) {
+          return true;
+        }
+      }
+
+      return false;
+    }
+
+    /**
      * Composites a source image over to this image respecting alpha channels
-     * @param {Jimp} src the source Jimp instance
-     * @param {number} x the x position to blit the image
-     * @param {number} y the y position to blit the image
-     * @param {object} options determine what mode to use
+     * @param src the source Jimp instance
+     * @param x the x position to blit the image
+     * @param y the y position to blit the image
+     * @param options determine what mode to use
      */
     composite<I extends typeof this>(
       src: I,
-      x: number,
-      y: number,
+      x = 0,
+      y = 0,
       options: {
         mode?: BlendMode;
         opacitySource?: number;

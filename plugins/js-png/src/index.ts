@@ -13,6 +13,7 @@ export * from "./constants.js";
 export default function png() {
   return {
     mime: "image/png",
+    hasAlpha: true,
     encode: (
       bitmap,
       {

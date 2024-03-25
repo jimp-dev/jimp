@@ -2,7 +2,13 @@ import { RGBAColor, JimpClass, Bitmap } from "@jimp/types";
 import tinyColor from "tinycolor2";
 
 export function clone<I extends JimpClass>(image: I): I {
-  return new (image.constructor as any)(image.bitmap);
+  const newBitmap = {
+    width: image.bitmap.width,
+    height: image.bitmap.height,
+    data: Buffer.from(image.bitmap.data),
+  };
+
+  return new (image.constructor as any)(newBitmap);
 }
 
 export function scan<I extends { bitmap: Bitmap }>(

@@ -18,7 +18,7 @@ export interface BlitOptions<I extends JimpClass> {
   srcH?: number;
 }
 
-function blit<I extends JimpClass>(
+export function blit<I extends JimpClass>(
   image: I,
   {
     src,
@@ -28,7 +28,7 @@ function blit<I extends JimpClass>(
     srcY = 0,
     srcW = src.bitmap.width,
     srcH = src.bitmap.height,
-  }: BlitOptions<I>,
+  }: BlitOptions<I>
 ) {
   if (!("bitmap" in src)) {
     throw new Error("The source must be a Jimp image");

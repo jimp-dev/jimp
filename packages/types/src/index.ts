@@ -15,6 +15,7 @@ export interface Format<
   ExportOptions extends Record<string, any> | undefined = undefined,
 > {
   mime: Mime;
+  hasAlpha?: boolean;
   encode: (image: Bitmap, options?: ExportOptions) => Promise<Buffer> | Buffer;
   decode: (data: Buffer) => Promise<Bitmap> | Bitmap;
 }
@@ -33,9 +34,17 @@ export interface RGBAColor {
 }
 
 export interface JimpClass {
+  background: number;
   bitmap: Bitmap;
 
   getPixelIndex: (x: number, y: number, edgeHandling?: Edge) => number;
   getPixelColor: (x: number, y: number) => number;
   setPixelColor: (hex: number, x: number, y: number) => JimpClass;
+  scan: (
+    x: number,
+    y: number,
+    w: number,
+    h: number,
+    f: (this: this, x: number, y: number, idx: number) => any
+  ) => JimpClass;
 }

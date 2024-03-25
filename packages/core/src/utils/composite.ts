@@ -7,8 +7,8 @@ import { limit255, scan } from "@jimp/utils";
 export function composite<I extends JimpClass>(
   baseImage: I,
   src: I,
-  x: number,
-  y: number,
+  x = 0,
+  y = 0,
   options: {
     mode?: BlendMode;
     opacitySource?: number;
