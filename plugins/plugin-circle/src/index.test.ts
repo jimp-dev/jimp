@@ -1,18 +1,16 @@
-import { Jimp, mkJGD, getTestDir } from "@jimp/test-utils";
-import configure from "@jimp/custom";
-import expect from "@storybook/expect";
+import { expect, test, describe } from "vitest";
 
-import circle from "../src";
+import { makeTestImage } from "@jimp/test-utils";
+import { createJimp } from "@jimp/core";
 
-const jimp = configure({ plugins: [circle] }, Jimp);
+import circle from "./index.js";
+
+const Jimp = createJimp({ plugins: [circle] });
 
 describe("Circle", () => {
-  it("makes a circle based on image height and width", async () => {
-    const expectedImg = await Jimp.read(
-      getTestDir(__dirname) + "/images/circled.png"
-    );
-    const imgSrc = await jimp.read(
-      mkJGD(
+  test("makes a circle based on image height and width", () => {
+    const imgSrc = Jimp.fromBitmap(
+      makeTestImage(
         "▦▦▦▦▦▦▦▦▦▦▦▦▦▦▦▦▦▦▦▦",
         "▦▦▦▦▦▦▦▦▦▦▦▦▦▦▦▦▦▦▦▦",
         "▦▦▦▦▦▦▦▦▦▦▦▦▦▦▦▦▦▦▦▦",
@@ -26,15 +24,12 @@ describe("Circle", () => {
       )
     );
 
-    expect(imgSrc.circle().bitmap.data).toEqual(expectedImg.bitmap.data);
+    expect(imgSrc.circle()).toMatchSnapshot();
   });
 
-  it("makes a circle using provided radius", async () => {
-    const expectedImg = await Jimp.read(
-      getTestDir(__dirname) + "/images/radius-3-circle.png"
-    );
-    const imgSrc = await jimp.read(
-      mkJGD(
+  test("makes a circle using provided radius", () => {
+    const imgSrc = Jimp.fromBitmap(
+      makeTestImage(
         "▦▦▦▦▦▦▦▦▦▦▦▦▦▦▦▦▦▦▦▦",
         "▦▦▦▦▦▦▦▦▦▦▦▦▦▦▦▦▦▦▦▦",
         "▦▦▦▦▦▦▦▦▦▦▦▦▦▦▦▦▦▦▦▦",
@@ -48,17 +43,12 @@ describe("Circle", () => {
       )
     );
 
-    expect(imgSrc.circle({ radius: 3 }).bitmap.data).toEqual(
-      expectedImg.bitmap.data
-    );
+    expect(imgSrc.circle({ radius: 3 })).toMatchSnapshot();
   });
 
-  it("should ", async () => {
-    const expectedImg = await Jimp.read(
-      getTestDir(__dirname) + "/images/x-y-circle.png"
-    );
-    const imgSrc = await jimp.read(
-      mkJGD(
+  test("should ", () => {
+    const imgSrc = Jimp.fromBitmap(
+      makeTestImage(
         "▦▦▦▦▦▦▦▦▦▦▦▦▦▦▦▦▦▦▦▦",
         "▦▦▦▦▦▦▦▦▦▦▦▦▦▦▦▦▦▦▦▦",
         "▦▦▦▦▦▦▦▦▦▦▦▦▦▦▦▦▦▦▦▦",
@@ -72,8 +62,6 @@ describe("Circle", () => {
       )
     );
 
-    expect(imgSrc.circle({ radius: 5, x: 5, y: 5 }).bitmap.data).toEqual(
-      expectedImg.bitmap.data
-    );
+    expect(imgSrc.circle({ radius: 5, x: 5, y: 5 })).toMatchSnapshot();
   });
 });
