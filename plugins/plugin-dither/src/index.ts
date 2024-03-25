@@ -24,6 +24,8 @@ export function dither<I extends JimpClass>(image: I) {
   return image;
 }
 
-export default () => ({
-  dither,
-});
+export default function ditherPlugin() {
+  return {
+    dither,
+  };
+}

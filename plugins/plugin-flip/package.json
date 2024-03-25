@@ -1,0 +1,51 @@
+{
+  "name": "@jimp/plugin-flip",
+  "version": "1.0.0",
+  "repository": "jimp-dev/jimp",
+  "scripts": {
+    "lint": "eslint .",
+    "test": "vitest",
+    "build": "tshy",
+    "dev": "tshy --watch"
+  },
+  "author": "Andrew Lisowski <lisowski54@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "@jimp/types": "workspace:*"
+  },
+  "devDependencies": {
+    "@jimp/core": "workspace:*",
+    "@jimp/test-utils": "workspace:*",
+    "@jimp/config-eslint": "workspace:*",
+    "@jimp/config-typescript": "workspace:*",
+    "eslint": "^8.57.0",
+    "tshy": "^1.12.0",
+    "typescript": "^5.4.2",
+    "vitest": "^1.4.0"
+  },
+  "tshy": {
+    "exclude": [
+      "**/*.test.ts"
+    ],
+    "exports": {
+      "./package.json": "./package.json",
+      ".": "./src/index.ts"
+    }
+  },
+  "exports": {
+    "./package.json": "./package.json",
+    ".": {
+      "import": {
+        "types": "./dist/esm/index.d.ts",
+        "default": "./dist/esm/index.js"
+      },
+      "require": {
+        "types": "./dist/commonjs/index.d.ts",
+        "default": "./dist/commonjs/index.js"
+      }
+    }
+  },
+  "main": "./dist/commonjs/index.js",
+  "types": "./dist/commonjs/index.d.ts",
+  "type": "module"
+}
