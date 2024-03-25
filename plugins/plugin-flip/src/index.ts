@@ -16,7 +16,7 @@ function flipFn<I extends JimpClass>(
 
   const bitmap = Buffer.alloc(image.bitmap.data.length);
 
-  image.scan(0, 0, image.bitmap.width, image.bitmap.height, (x, y, idx) => {
+  image.scan((x, y, idx) => {
     const _x = horizontal ? image.bitmap.width - 1 - x : x;
     const _y = vertical ? image.bitmap.height - 1 - y : y;
     const _idx = (image.bitmap.width * _y + _x) << 2;

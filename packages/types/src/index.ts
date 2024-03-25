@@ -40,11 +40,20 @@ export interface JimpClass {
   getPixelIndex: (x: number, y: number, edgeHandling?: Edge) => number;
   getPixelColor: (x: number, y: number) => number;
   setPixelColor: (hex: number, x: number, y: number) => JimpClass;
-  scan: (
+
+  scan(f: (x: number, y: number, idx: number) => any): JimpClass;
+  scan(
     x: number,
     y: number,
     w: number,
     h: number,
-    f: (this: this, x: number, y: number, idx: number) => any
-  ) => JimpClass;
+    cb: (x: number, y: number, idx: number) => any
+  ): JimpClass;
+  scan(
+    x: number | ((x: number, y: number, idx: number) => any),
+    y?: number,
+    w?: number,
+    h?: number,
+    f?: (x: number, y: number, idx: number) => any
+  ): JimpClass;
 }

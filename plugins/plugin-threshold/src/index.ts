@@ -1,5 +1,5 @@
 import { JimpClass } from "@jimp/types";
-import { scan, limit255 } from "@jimp/utils";
+import { limit255 } from "@jimp/utils";
 import { greyscale } from "@jimp/plugin-color";
 
 interface ThresholdOptions {
@@ -34,7 +34,7 @@ export function threshold<I extends JimpClass>(
     greyscale(image);
   }
 
-  scan(image, 0, 0, image.bitmap.width, image.bitmap.height, (_, __, idx) => {
+  image.scan((_, __, idx) => {
     const grey =
       image.bitmap.data[idx]! < max ? image.bitmap.data[idx]! : replace;
 

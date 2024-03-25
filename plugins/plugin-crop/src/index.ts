@@ -8,7 +8,7 @@ export function crop<I extends JimpClass>(
   x: number,
   y: number,
   w: number,
-  h: number,
+  h: number
 ) {
   if (typeof x !== "number" || typeof y !== "number") {
     throw new Error("x and y must be numbers");
@@ -34,7 +34,7 @@ export function crop<I extends JimpClass>(
     const bitmap = Buffer.allocUnsafe(w * h * 4);
     let offset = 0;
 
-    scan(image, x, y, w, h, function (x, y, idx) {
+    scan(image, x, y, w, h, function (_, __, idx) {
       const data = image.bitmap.data.readUInt32BE(idx);
       bitmap.writeUInt32BE(data, offset);
       offset += 4;
@@ -76,7 +76,7 @@ export function autocrop<I extends JimpClass>(
     cropSymmetric = false,
     leaveBorder = 0,
     ignoreSides: ignoreSidesArg,
-  }: AutocropOptions = {},
+  }: AutocropOptions = {}
 ) {
   const w = image.bitmap.width;
   const h = image.bitmap.height;
@@ -240,7 +240,7 @@ export function autocrop<I extends JimpClass>(
       westPixelsToCrop,
       northPixelsToCrop,
       widthOfRemainingPixels,
-      heightOfRemainingPixels,
+      heightOfRemainingPixels
     );
   }
 

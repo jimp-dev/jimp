@@ -150,7 +150,7 @@ function advancedRotate<I extends JimpClass>(
 
     const c = clone(image);
 
-    image.scan(0, 0, image.bitmap.width, image.bitmap.height, (_, __, idx) => {
+    image.scan((_, __, idx) => {
       image.bitmap.data.writeUInt32BE(image.background, idx);
     });
 

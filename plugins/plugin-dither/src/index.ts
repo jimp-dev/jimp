@@ -6,7 +6,7 @@ import { JimpClass } from "@jimp/types";
 export function dither<I extends JimpClass>(image: I) {
   const rgb565Matrix = [1, 9, 3, 11, 13, 5, 15, 7, 4, 12, 2, 10, 16, 8, 14, 6];
 
-  image.scan(0, 0, image.bitmap.width, image.bitmap.height, (x, y, idx) => {
+  image.scan((x, y, idx) => {
     const thresholdId = ((y & 3) << 2) + (x % 4);
     const dither = rgb565Matrix[thresholdId]!;
 

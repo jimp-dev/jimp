@@ -25,7 +25,7 @@ function applyKernel(
 }
 
 export function greyscale<I extends JimpClass>(image: I) {
-  scan(image, 0, 0, image.bitmap.width, image.bitmap.height, (_, __, idx) => {
+  image.scan((_, __, idx) => {
     // const grey = parseInt(
     //   0.2126 * image.bitmap.data[idx]! +
     //     0.7152 * image.bitmap.data[idx + 1]! +
@@ -158,7 +158,7 @@ function colorFn<I extends JimpClass>(image: I, actions: ColorAction[]) {
     return action;
   });
 
-  scan(image, 0, 0, image.bitmap.width, image.bitmap.height, (x, y, idx) => {
+  image.scan((_, __, idx) => {
     let clr: RGBColor = {
       r: image.bitmap.data[idx]!,
       g: image.bitmap.data[idx + 1]!,
@@ -239,7 +239,7 @@ export function brightness<I extends JimpClass>(image: I, val: number) {
     throw new Error("val must be a number between -1 and +1");
   }
 
-  scan(image, 0, 0, image.bitmap.width, image.bitmap.height, (_, __, idx) => {
+  image.scan((_, __, idx) => {
     if (val < 0.0) {
       image.bitmap.data[idx] *= 1 + val;
       image.bitmap.data[idx + 1] *= 1 + val;
@@ -270,7 +270,7 @@ export function contrast<I extends JimpClass>(image: I, val: number) {
     return value < 0 ? 0 : value > 255 ? 255 : value;
   }
 
-  scan(image, 0, 0, image.bitmap.width, image.bitmap.height, (_, __, idx) => {
+  image.scan((_, __, idx) => {
     image.bitmap.data[idx] = adjust(image.bitmap.data[idx]!);
     image.bitmap.data[idx + 1] = adjust(image.bitmap.data[idx + 1]!);
     image.bitmap.data[idx + 2] = adjust(image.bitmap.data[idx + 2]!);
@@ -289,7 +289,7 @@ export function posterize<I extends JimpClass>(image: I, n: number) {
     n = 2;
   }
 
-  scan(image, 0, 0, image.bitmap.width, image.bitmap.height, (_, __, idx) => {
+  image.scan((_, __, idx) => {
     const r = image.bitmap.data[idx]!;
     const g = image.bitmap.data[idx + 1]!;
     const b = image.bitmap.data[idx + 2]!;
@@ -313,7 +313,7 @@ export function opacity<I extends JimpClass>(image: I, f: number) {
     throw new Error("f must be a number from 0 to 1");
   }
 
-  scan(image, 0, 0, image.bitmap.width, image.bitmap.height, (_, __, idx) => {
+  image.scan((_, __, idx) => {
     const v = image.bitmap.data[idx + 3]! * f;
     image.bitmap.data[idx + 3] = v;
   });
@@ -322,7 +322,7 @@ export function opacity<I extends JimpClass>(image: I, f: number) {
 }
 
 export function sepia<I extends JimpClass>(image: I) {
-  scan(image, 0, 0, image.bitmap.width, image.bitmap.height, (_, __, idx) => {
+  image.scan((_, __, idx) => {
     let red = image.bitmap.data[idx]!;
     let green = image.bitmap.data[idx + 1]!;
     let blue = image.bitmap.data[idx + 2]!;
@@ -384,7 +384,7 @@ export function convolution<I extends JimpClass>(
   let yi;
   let idxi;
 
-  scan(image, 0, 0, image.bitmap.width, image.bitmap.height, (x, y, idx) => {
+  image.scan((x, y, idx) => {
     bSum = 0;
     gSum = 0;
     rSum = 0;
@@ -482,7 +482,7 @@ export function pixelate<I extends JimpClass>(
 }
 
 export function opaque<I extends JimpClass>(image: I) {
-  scan(image, 0, 0, image.bitmap.width, image.bitmap.height, (_, __, idx) => {
+  image.scan((_, __, idx) => {
     image.bitmap.data[idx + 3] = 255;
   });
 
@@ -511,7 +511,7 @@ export function convolute<I extends JimpClass>(
 }
 
 export function invert<I extends JimpClass>(image: I) {
-  scan(image, 0, 0, image.bitmap.width, image.bitmap.height, (_, __, idx) => {
+  image.scan((_, __, idx) => {
     image.bitmap.data[idx] = 255 - image.bitmap.data[idx]!;
     image.bitmap.data[idx + 1] = 255 - image.bitmap.data[idx + 1]!;
     image.bitmap.data[idx + 2] = 255 - image.bitmap.data[idx + 2]!;
@@ -531,7 +531,7 @@ function histogram<I extends JimpClass>(image: I) {
     b: new Array<number>(256).fill(0),
   };
 
-  scan(image, 0, 0, image.bitmap.width, image.bitmap.height, (_, __, index) => {
+  image.scan((_, __, index) => {
     histogram.r[image.bitmap.data[index + 0]!]++;
     histogram.g[image.bitmap.data[index + 1]!]++;
     histogram.b[image.bitmap.data[index + 2]!]++;
@@ -572,7 +572,7 @@ export function normalize<I extends JimpClass>(image: I) {
   };
 
   // apply value transformations
-  scan(image, 0, 0, image.bitmap.width, image.bitmap.height, (_, __, idx) => {
+  image.scan((_, __, idx) => {
     const r = image.bitmap.data[idx + 0]!;
     const g = image.bitmap.data[idx + 1]!;
     const b = image.bitmap.data[idx + 2]!;

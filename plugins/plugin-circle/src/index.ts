@@ -19,7 +19,7 @@ export function circle<I extends JimpClass>(
     y: typeof options.y === "number" ? options.y : image.bitmap.height / 2,
   };
 
-  image.scan(0, 0, image.bitmap.width, image.bitmap.height, (x, y, idx) => {
+  image.scan((x, y, idx) => {
     const curR = Math.sqrt(
       Math.pow(x - center.x, 2) + Math.pow(y - center.y, 2)
     );

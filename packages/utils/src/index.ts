@@ -11,6 +11,10 @@ export function clone<I extends JimpClass>(image: I): I {
   return new (image.constructor as any)(newBitmap);
 }
 
+export function scan<I extends JimpClass>(
+  image: I,
+  f: (this: I, x: number, y: number, idx: number) => any
+): I;
 export function scan<I extends { bitmap: Bitmap }>(
   image: I,
   x: number,
@@ -18,7 +22,39 @@ export function scan<I extends { bitmap: Bitmap }>(
   w: number,
   h: number,
   cb: (x: number, y: number, idx: number) => any
-) {
+): I;
+export function scan<I extends { bitmap: Bitmap }>(
+  image: I,
+  xArg: number | ((x: number, y: number, idx: number) => any),
+  yArg?: number,
+  wArg?: number,
+  hArg?: number,
+  cbArg?: (x: number, y: number, idx: number) => any
+): I {
+  let x: number;
+  let y: number;
+  let w: number;
+  let h: number;
+  let cb: (x: number, y: number, idx: number) => any;
+
+  if (typeof xArg === "function") {
+    cb = xArg;
+    x = 0;
+    y = 0;
+    w = image.bitmap.width;
+    h = image.bitmap.height;
+  } else {
+    x = xArg;
+    if (typeof yArg !== "number") throw new Error("y must be a number");
+    y = yArg;
+    if (typeof wArg !== "number") throw new Error("w must be a number");
+    w = wArg;
+    if (typeof hArg !== "number") throw new Error("h must be a number");
+    h = hArg;
+    if (typeof cbArg !== "function") throw new Error("cb must be a function");
+    cb = cbArg;
+  }
+
   // round input
   x = Math.round(x);
   y = Math.round(y);

@@ -49,20 +49,13 @@ export function composite<I extends JimpClass>(
   y = Math.round(y);
 
   if (opacityDest !== 1.0) {
-    scan(
-      baseImage,
-      0,
-      0,
-      baseImage.bitmap.width,
-      baseImage.bitmap.height,
-      (_, __, idx) => {
-        const v = baseImage.bitmap.data[idx + 3]! * opacityDest;
-        baseImage.bitmap.data[idx + 3] = v;
-      }
-    );
+    baseImage.scan((_, __, idx) => {
+      const v = baseImage.bitmap.data[idx + 3]! * opacityDest;
+      baseImage.bitmap.data[idx + 3] = v;
+    });
   }
 
-  scan(src, 0, 0, src.bitmap.width, src.bitmap.height, (sx, sy, idx) => {
+  src.scan((sx, sy, idx) => {
     const dstIdx = baseImage.getPixelIndex(x + sx, y + sy, Edge.CROP);
 
     if (dstIdx === -1) {

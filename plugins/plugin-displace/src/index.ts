@@ -12,7 +12,7 @@ function displace<I extends JimpClass>(image: I, map: I, offset: number) {
 
   const source = clone(image);
 
-  image.scan(0, 0, image.bitmap.width, image.bitmap.height, (x, y, idx) => {
+  image.scan((x, y, idx) => {
     let displacement = (map.bitmap.data[idx]! / 256) * offset;
     displacement = Math.round(displacement);
 

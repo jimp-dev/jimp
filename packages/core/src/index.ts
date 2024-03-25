@@ -410,26 +410,22 @@ export function createJimp<
       return composite(this, src, x, y, options);
     }
 
+    scan(f: (x: number, y: number, idx: number) => any): this;
     scan(
       x: number,
       y: number,
       w: number,
       h: number,
-      f: (this: this, x: number, y: number, idx: number) => any
-    ) {
-      if (typeof x !== "number" || typeof y !== "number") {
-        throw new Error("x and y must be numbers");
-      }
-
-      if (typeof w !== "number" || typeof h !== "number") {
-        throw new Error("w and h must be numbers");
-      }
-
-      if (typeof f !== "function") {
-        throw new Error("f must be a function");
-      }
-
-      return scan(this, x, y, w, h, f);
+      cb: (x: number, y: number, idx: number) => any
+    ): this;
+    scan(
+      x: number | ((x: number, y: number, idx: number) => any),
+      y?: number,
+      w?: number,
+      h?: number,
+      f?: (x: number, y: number, idx: number) => any
+    ): this {
+      return scan(this, x as any, y as any, w as any, h as any, f as any);
     }
   };
 
