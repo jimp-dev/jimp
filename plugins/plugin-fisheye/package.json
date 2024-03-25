@@ -1,5 +1,5 @@
 {
-  "name": "@jimp/plugin-rotate",
+  "name": "@jimp/plugin-fisheye",
   "version": "1.0.0",
   "repository": "jimp-dev/jimp",
   "scripts": {
@@ -11,17 +11,14 @@
   "author": "Andrew Lisowski <lisowski54@gmail.com>",
   "license": "MIT",
   "dependencies": {
-    "@jimp/plugin-crop": "workspace:*",
-    "@jimp/plugin-resize": "workspace:*",
     "@jimp/utils": "workspace:*",
-    "@jimp/core": "workspace:*",
     "@jimp/types": "workspace:*"
   },
   "devDependencies": {
-    "@jimp/test-utils": "workspace:*",
     "@jimp/core": "workspace:*",
     "@jimp/config-eslint": "workspace:*",
     "@jimp/config-typescript": "workspace:*",
+    "@jimp/test-utils": "workspace:*",
     "eslint": "^8.57.0",
     "tshy": "^1.12.0",
     "typescript": "^5.4.2",
