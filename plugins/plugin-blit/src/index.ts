@@ -5,9 +5,9 @@ export interface BlitOptions<I extends JimpClass> {
   /** This image to blit on to the current image */
   src: I;
   /** the x position to blit the image */
-  x: number;
+  x?: number;
   /** the y position to blit the image */
-  y: number;
+  y?: number;
   /** the x position from which to crop the source image */
   srcX?: number;
   /** the y position from which to crop the source image */

@@ -16,6 +16,10 @@
     "@jimp/types": "workspace:*"
   },
   "devDependencies": {
+    "@jimp/js-jpeg": "workspace:*",
+    "@jimp/js-png": "workspace:*",
+    "@jimp/core": "workspace:*",
+    "@jimp/test-utils": "workspace:*",
     "@jimp/config-eslint": "workspace:*",
     "@jimp/config-typescript": "workspace:*",
     "eslint": "^8.57.0",
