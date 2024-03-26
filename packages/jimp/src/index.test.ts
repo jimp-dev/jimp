@@ -4,25 +4,18 @@ import path from "path";
 
 import { Jimp } from "./index.js";
 
-// test("adds 1 + 2 to equal 3", () => {
-//   expect(1 + 2).toBe(3);
-// });
-
 async function run() {
-  const image = new Jimp();
   const imageBuffer = await fs.readFile(
     path.join(__dirname, "../../../../images/GIgFDCFbAAA0zlg.png")
   );
+  const image = await Jimp.fromBuffer(imageBuffer);
 
-  await image.fromBuffer(imageBuffer);
-
-  const image2 = new Jimp();
   const image2Buffer = await fs.readFile(
     path.join(__dirname, "../../../../images/discord.png")
   );
-  await image2.fromBuffer(image2Buffer);
+  const image2 = await Jimp.fromBuffer(image2Buffer);
 
-  image.blit({ src: image2, x: 100, y: 100 }).autocrop(0, 0);
+  image.blit({ src: image2, x: 100, y: 100 }).autocrop();
 
   const outputBuffer = await image.getBuffer("image/png");
   const outPath = path.join(__dirname, "./out.png");

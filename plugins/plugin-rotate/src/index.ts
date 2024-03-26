@@ -232,10 +232,12 @@ export function rotate<I extends JimpClass>(
   return image;
 }
 
-export default () => ({
-  /**
-   * Rotates the image counter-clockwise by a number of degrees. By default the width and height of the image will be resized appropriately.
-   * @param { deg the number of degrees to rotate the image by
-   */
-  rotate,
-});
+export default function rotatePlugin() {
+  return {
+    /**
+     * Rotates the image counter-clockwise by a number of degrees. By default the width and height of the image will be resized appropriately.
+     * @param deg the number of degrees to rotate the image by
+     */
+    rotate,
+  };
+}
