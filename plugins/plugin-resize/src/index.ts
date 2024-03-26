@@ -17,7 +17,7 @@ export function resize<I extends JimpClass>(
   image: I,
   w: number,
   h: number,
-  mode?: ResizeStrategy,
+  mode?: ResizeStrategy
 ) {
   if (typeof w !== "number" || typeof h !== "number") {
     throw new Error("w and h must be numbers");
@@ -63,7 +63,7 @@ export function resize<I extends JimpClass>(
         image.bitmap.data = Buffer.from(buffer);
         image.bitmap.width = w;
         image.bitmap.height = h;
-      },
+      }
     );
 
     resize.resize(image.bitmap.data);
@@ -80,7 +80,7 @@ export function resize<I extends JimpClass>(
 export function scale<I extends JimpClass>(
   image: I,
   f: number,
-  mode?: ResizeStrategy,
+  mode?: ResizeStrategy
 ) {
   if (typeof f !== "number") {
     throw new Error("f must be a number");
@@ -107,7 +107,7 @@ export function scaleToFit<I extends JimpClass>(
   image: I,
   w: number,
   h: number,
-  mode?: ResizeStrategy,
+  mode?: ResizeStrategy
 ) {
   if (typeof w !== "number" || typeof h !== "number") {
     throw new Error("w and h must be numbers");

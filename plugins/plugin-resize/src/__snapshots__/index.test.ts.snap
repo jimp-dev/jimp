@@ -3,11 +3,11 @@
 exports[`Resize images > max contrast 8x8 > to BEZIER 2x5 1`] = `
 Visualization:
 
-■?
-■?
-■?
-□?
-□?
+■▩
+■▩
+■▩
+□D
+□D
 
 Data:
 
@@ -21,9 +21,9 @@ FF-FF-FFᶠᶠ 20-20-20ᶠᶠ
 exports[`Resize images > max contrast 8x8 > to BEZIER 4x4 1`] = `
 Visualization:
 
-■■?□
-■■?□
-???▩
+■■D□
+■■D□
+DD3▩
 □□▩■
 
 Data:
@@ -37,11 +37,11 @@ FF-FF-FFᶠᶠ FF-FF-FFᶠᶠ 40-40-40ᶠᶠ 00-00-00ᶠᶠ
 exports[`Resize images > max contrast 8x8 > to BICUBIC 2x5 1`] = `
 Visualization:
 
-■?
-■?
-■?
-□?
-□?
+■▩
+■▩
+■▩
+□D
+□D
 
 Data:
 
@@ -105,11 +105,11 @@ FF-FF-FFᶠᶠ FF-FF-FFᶠᶠ 00-00-00ᶠᶠ 00-00-00ᶠᶠ
 exports[`Resize images > max contrast 8x8 > to HERMITE 2x5 1`] = `
 Visualization:
 
-■?
-■?
-■?
-□?
-□?
+■▩
+■▩
+■▩
+□D
+□D
 
 Data:
 
@@ -123,9 +123,9 @@ FF-FF-FFᶠᶠ 20-20-20ᶠᶠ
 exports[`Resize images > max contrast 8x8 > to HERMITE 4x4 1`] = `
 Visualization:
 
-■■?□
-■■?□
-???▩
+■■D□
+■■D□
+DD3▩
 □□▩■
 
 Data:
@@ -207,12 +207,12 @@ FF-FF-FFᶠᶠ FF-FF-FFᶠᶠ 00-00-00ᶠᶠ 00-00-00ᶠᶠ
 exports[`Resize images > max contrast 12x12 with dots > to BEZIER 6x6 1`] = `
 Visualization:
 
-■■■?□□
-■4???□
-■■■?□□
-????▩▩
-□??▩?■
-□??▩?■
+■■■D□□
+■4◇D◇□
+■■■D□□
+DDD3▩▩
+□▴◇▩3■
+□D▩▩▴■
 
 Data:
 
@@ -228,11 +228,11 @@ exports[`Resize images > max contrast 12x12 with dots > to BICUBIC 6x6 1`] = `
 Visualization:
 
 ■■■▥□□
-■??▥?□
+■3D▥3□
 ■■■▥□□
 ▥▥▥!▩▩
-□E?▩?■
-□??▩?■
+□ED▩◇■
+□3▴▩▩■
 
 Data:
 
@@ -267,12 +267,12 @@ FF-FF-FFᶠᶠ FF-FF-FFᶠᶠ FF-FF-FFᶠᶠ 00-00-00ᶠᶠ 00-00-00ᶠᶠ 00-00
 exports[`Resize images > max contrast 12x12 with dots > to HERMITE 6x6 1`] = `
 Visualization:
 
-■■■?□□
-■▩???□
-■■■?□□
-????▩▩
-□??▩1■
-□??▩?■
+■■■D□□
+■▩▴D3□
+■■■D□□
+DDD3▩▩
+□▩▴▩1■
+□▩▴▩D■
 
 Data:
 
@@ -327,12 +327,12 @@ FF-FF-FFᶠᶠ FF-FF-FFᶠᶠ FF-FF-FFᶠᶠ 00-00-00ᶠᶠ 00-00-00ᶠᶠ 00-00
 exports[`Resize images > mutch contrast 4x4 > to BEZIER 6x6 1`] = `
 Visualization:
 
-▩?▩▦▥?
-???▦??
-▩?▩▦▥?
+▩D▩▦▥▩
+D▩D▦▩D
+▩D▩▦▥▩
 ▦▦▦▦▦▦
-▥?▥▦▩?
-???▦??
+▥▩▥▦▩D
+▩D▩▦D▩
 
 Data:
 
@@ -347,12 +347,12 @@ CB-CB-CBᶠᶠ D9-D9-D9ᶠᶠ CB-CB-CBᶠᶠ 80-80-80ᶠᶠ 34-34-34ᶠᶠ 26-26
 exports[`Resize images > mutch contrast 4x4 > to BICUBIC 6x6 1`] = `
 Visualization:
 
-▩?▩?▥?
-??????
-▩?▩?▥?
-??????
-▥?▥?▩?
-??????
+▩▩▩D▥3
+▩▩▩D3▴
+▩▩▩D▥3
+DDDDDD
+▥3▥D▩▩
+3▴3D▩▩
 
 Data:
 
@@ -367,12 +367,12 @@ CE-CE-CEᶠᶠ E1-E1-E1ᶠᶠ CE-CE-CEᶠᶠ 7F-7F-7Fᶠᶠ 30-30-30ᶠᶠ 1C-1C
 exports[`Resize images > mutch contrast 4x4 > to BILINEAR 6x6 1`] = `
 Visualization:
 
-▩▩?▥▥▥
-▩▩?▥▥▥
-??????
-▥▥?▩▩▩
-▥▥?▩▩▩
-▥▥?▩▩▩
+▩▩3▥▥▥
+▩▩3▥▥▥
+33▴◇◇◇
+▥▥◇▩▩▩
+▥▥◇▩▩▩
+▥▥◇▩▩▩
 
 Data:
 
@@ -387,12 +387,12 @@ BF-BF-BFᶠᶠ BF-BF-BFᶠᶠ 95-95-95ᶠᶠ 40-40-40ᶠᶠ 40-40-40ᶠᶠ 40-40
 exports[`Resize images > mutch contrast 4x4 > to HERMITE 6x6 1`] = `
 Visualization:
 
-▩?▩▦▥?
-???▦??
-▩?▩▦▥?
+▩3▩▦▥◇
+3D3▦◇▩
+▩3▩▦▥◇
 ▦▦▦▦▦▦
-▥?▥▦▩?
-???▦??
+▥◇▥▦▩3
+◇▩◇▦3D
 
 Data:
 
@@ -427,12 +427,12 @@ BF-BF-BFᶠᶠ BF-BF-BFᶠᶠ BF-BF-BFᶠᶠ 40-40-40ᶠᶠ 40-40-40ᶠᶠ 40-40
 exports[`Resize images > mutch contrast 4x4 > to default 6x6 1`] = `
 Visualization:
 
-▩▩▩?▥▥
-▩▩▩?▥▥
-▩▩▩?▥▥
-??????
-▥▥▥?▩▩
-▥▥▥?▩▩
+▩▩▩◇▥▥
+▩▩▩◇▥▥
+▩▩▩◇▥▥
+◇◇◇▴33
+▥▥▥3▩▩
+▥▥▥3▩▩
 
 Data:
 

@@ -5,8 +5,7 @@
   "scripts": {
     "lint": "eslint .",
     "test": "vitest",
-    "build": "tshy",
-    "postbuild": "mkdir dist/esm/modules/ && cp src/modules/* dist/esm/modules/ && mkdir dist/commonjs/modules/ && cp src/modules/* dist/commonjs/modules/",
+    "build": "tshy && mkdir dist/esm/modules/ && cp src/modules/* dist/esm/modules/ && mkdir dist/commonjs/modules/ && cp src/modules/* dist/commonjs/modules/",
     "dev": "tshy --watch"
   },
   "author": "Andrew Lisowski <lisowski54@gmail.com>",
