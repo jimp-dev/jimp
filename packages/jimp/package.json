@@ -44,6 +44,7 @@
     "@jimp/plugin-displace": "workspace:*",
     "@jimp/plugin-dither": "workspace:*",
     "@jimp/plugin-fisheye": "workspace:*",
+    "@jimp/plugin-flip": "workspace:*",
     "@jimp/plugin-hash": "workspace:*",
     "@jimp/plugin-mask": "workspace:*",
     "@jimp/plugin-print": "workspace:*",

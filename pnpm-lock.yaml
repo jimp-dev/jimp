@@ -189,6 +189,9 @@ importers:
       '@jimp/plugin-fisheye':
         specifier: workspace:*
         version: link:../../plugins/plugin-fisheye
+      '@jimp/plugin-flip':
+        specifier: workspace:*
+        version: link:../../plugins/plugin-flip
       '@jimp/plugin-hash':
         specifier: workspace:*
         version: link:../../plugins/plugin-hash

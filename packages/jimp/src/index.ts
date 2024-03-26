@@ -16,6 +16,7 @@ import crop from "@jimp/plugin-crop";
 import displace from "@jimp/plugin-displace";
 import dither from "@jimp/plugin-dither";
 import fisheye from "@jimp/plugin-fisheye";
+import flip from "@jimp/plugin-flip";
 import hash from "@jimp/plugin-hash";
 import mask from "@jimp/plugin-mask";
 import print from "@jimp/plugin-print";
@@ -45,6 +46,7 @@ export const Jimp = createJimp({
     displace,
     dither,
     fisheye,
+    flip,
     hash,
     mask,
     print,
