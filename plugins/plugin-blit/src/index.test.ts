@@ -4,7 +4,7 @@ import jpeg from "@jimp/js-jpeg";
 import png from "@jimp/js-png";
 import { promises as fs } from "fs";
 
-import { makeTestImage } from "@jimp/test-utils";
+import { getTestImagePath, makeTestImage } from "@jimp/test-utils";
 
 import blit from "./index.js";
 
@@ -74,10 +74,10 @@ describe("Blit over image", function () {
 
   test("blit alpha", async () => {
     const dice = await Jimp.fromBuffer(
-      await fs.readFile(__dirname + "/images/dice.png")
+      await fs.readFile(getTestImagePath("dice.png"))
     );
     const image = await Jimp.fromBuffer(
-      await fs.readFile(__dirname + "/images/cops.jpg")
+      await fs.readFile(getTestImagePath("cops.jpg"))
     );
     const output = await image.blit({ src: dice }).getBuffer("image/png");
 

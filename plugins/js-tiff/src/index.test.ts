@@ -2,16 +2,15 @@ import { expect, test, describe } from "vitest";
 
 import { createJimp } from "@jimp/core";
 import { promises as fs } from "fs";
+import { getTestImagePath } from "@jimp/test-utils";
 
 import tiff from "./index.js";
 
 const jimp = createJimp({ formats: [tiff] });
 
 describe("TIFF", () => {
-  const imagesDir = __dirname + "/images";
-
   test("load TIFF", async () => {
-    const imageBuffer = await fs.readFile(imagesDir + "/rgb.tiff");
+    const imageBuffer = await fs.readFile(getTestImagePath("rgb.tiff"));
     const image = await jimp.fromBuffer(imageBuffer);
 
     expect(image.getPixelColor(10, 10)).toBe(0xa4988bff);

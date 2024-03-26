@@ -1,6 +1,7 @@
 import { expect } from "vitest";
 import { Bitmap } from "@jimp/types";
 import { toMatchImageSnapshot } from "jest-image-snapshot";
+import path from "path";
 
 declare module "vitest" {
   interface Assertion<T> {
@@ -209,3 +210,17 @@ expect.addSnapshotSerializer({
     return val && val.width && val.height && val.data;
   },
 });
+
+export function getTestImagePath(
+  name:
+    | "cops.jpg"
+    | "dice.png"
+    | "flower.gif"
+    | "animated.gif"
+    | "mask.png"
+    | "panoramic.jpg"
+    | "rgb.tiff"
+    | "windows95.bmp"
+) {
+  return path.join(__dirname, "../images", name);
+}

@@ -4,14 +4,13 @@ import { promises as fs } from "fs";
 import { createJimp } from "@jimp/core";
 
 import png from "./index.js";
+import { getTestImagePath } from "@jimp/test-utils";
 
 const jimp = createJimp({ formats: [png] });
 
 describe("PNG", () => {
-  const imagesDir = __dirname + "/test-images";
-
   test("load PNG", async () => {
-    const imageBuffer = await fs.readFile(imagesDir + "/dice.png");
+    const imageBuffer = await fs.readFile(getTestImagePath("dice.png"));
     const image = await jimp.fromBuffer(imageBuffer);
 
     expect(image.getPixelColor(10, 10)).toBe(0x00000000);

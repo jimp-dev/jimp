@@ -362,6 +362,9 @@ importers:
       '@jimp/config-typescript':
         specifier: workspace:*
         version: link:../../packages/config-typescript
+      '@jimp/test-utils':
+        specifier: workspace:*
+        version: link:../../packages/test-utils
       '@types/omggif':
         specifier: ^1.0.5
         version: 1.0.5
@@ -396,6 +399,9 @@ importers:
       '@jimp/config-typescript':
         specifier: workspace:*
         version: link:../../packages/config-typescript
+      '@jimp/test-utils':
+        specifier: workspace:*
+        version: link:../../packages/test-utils
       eslint:
         specifier: ^8.57.0
         version: 8.57.0
@@ -464,6 +470,9 @@ importers:
       '@jimp/config-typescript':
         specifier: workspace:*
         version: link:../../packages/config-typescript
+      '@jimp/test-utils':
+        specifier: workspace:*
+        version: link:../../packages/test-utils
       eslint:
         specifier: ^8.57.0
         version: 8.57.0
