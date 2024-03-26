@@ -44,17 +44,3 @@ describe("FileType", () => {
     expect(image.getMIME()).toBe(clone.getMIME());
   });
 });
-
-describe("hasAlpha", () => {
-  it("image with no alpha", async () => {
-    const image = await Jimp.read(imagesDir + "/cops.jpg");
-
-    expect(image.hasAlpha()).toBe(false);
-  });
-
-  it("image with alpha", async () => {
-    const image = await Jimp.read(imagesDir + "/dice.png");
-
-    expect(image.hasAlpha()).toBe(true);
-  });
-});
