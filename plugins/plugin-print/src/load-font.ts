@@ -6,6 +6,10 @@ import png from "@jimp/js-png";
 
 const CharacterJimp = createJimp({ formats: [png] });
 
+/**
+ * Loads a Bitmap Font from a file.
+ * The results is a collection of Jimp images that can be used to print text.
+ */
 export async function loadFont(file: string) {
   const isLocalFile = existsSync(file);
   const font = await loadBitmapFont(

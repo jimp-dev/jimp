@@ -62,17 +62,13 @@ export type JimpInstanceMethods<ClassInstance, MethodMap> = {
   >;
 };
 
-/**
- * A Jimp instance method that can be chained.
- */
+/** A Jimp instance method that can be chained. */
 type JimpChainableMethod<
   Args extends any[] = any[],
   J extends JimpClass = JimpClass,
 > = (img: J, ...args: Args) => J;
 
-/**
- * A Jimp instance method that returns anything.
- */
+/** A Jimp instance method that returns anything. */
 type JimpMethod<
   Args extends any[] = any[],
   ReturnType = any,
@@ -103,6 +99,9 @@ type CreateMimeTypeToExportOptions<T extends Format<string, any>> =
 type GetOptionsForMimeType<Mime extends string, MimeTypeMap> =
   MimeTypeMap extends Record<Mime, infer O> ? O : never;
 
+/**
+ * Create a Jimp class that support the given image formats and methods
+ */
 export function createJimp<
   Methods extends JimpPlugin[],
   Formats extends JimpFormat[],
@@ -110,7 +109,9 @@ export function createJimp<
   plugins: pluginsArg,
   formats: formatsArg,
 }: {
+  /** Plugins that add methods to the created Jimp class */
   plugins?: Methods;
+  /** Image formats the Jimp class should support */
   formats?: Formats;
 }) {
   type ExtraMethodMap = JimpInstanceMethods<

@@ -13,6 +13,7 @@ async function run() {
   const imageBuffer = await fs.readFile(
     path.join(__dirname, "../../../../images/GIgFDCFbAAA0zlg.png")
   );
+
   await image.fromBuffer(imageBuffer);
 
   const image2 = new Jimp();

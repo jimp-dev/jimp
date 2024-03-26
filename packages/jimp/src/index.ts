@@ -25,6 +25,13 @@ import threshold from "@jimp/plugin-threshold";
 
 import { createJimp } from "@jimp/core";
 
+/**
+ * A Jimp class enables you to:
+ *
+ * - Read an image into a "bit map" (a collection of pixels)
+ * - Modify the bit map through methods that change the pixels
+ * - Write the bit map back to an image buffer
+ */
 export const Jimp = createJimp({
   formats: [bmp, msBmp, gif, jpeg, png, tiff],
   plugins: [

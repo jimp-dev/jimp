@@ -3,9 +3,13 @@ import { Format } from "@jimp/types";
 import { PNGFilterType, PNGColorType } from "./constants.js";
 
 export type { PNGOptions as PNGJSOptions } from "pngjs";
-export type PNGOptions = Omit<PNGJSOptions, "filterType" | "colorType"> & {
+export type PNGOptions = Omit<
+  PNGJSOptions,
+  "filterType" | "colorType" | "inputColorType"
+> & {
   filterType?: PNGFilterType;
   colorType?: PNGColorType;
+  inputColorType?: PNGColorType;
 };
 
 export * from "./constants.js";
