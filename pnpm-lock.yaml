@@ -868,6 +868,18 @@ importers:
       '@jimp/core':
         specifier: workspace:*
         version: link:../../packages/core
+      '@jimp/js-bmp':
+        specifier: workspace:*
+        version: link:../js-bmp
+      '@jimp/js-jpeg':
+        specifier: workspace:*
+        version: link:../js-jpeg
+      '@jimp/js-png':
+        specifier: workspace:*
+        version: link:../js-png
+      '@jimp/js-tiff':
+        specifier: workspace:*
+        version: link:../js-tiff
       '@jimp/plugin-color':
         specifier: workspace:*
         version: link:../plugin-color
@@ -890,6 +902,9 @@ importers:
       '@jimp/config-typescript':
         specifier: workspace:*
         version: link:../../packages/config-typescript
+      '@jimp/test-utils':
+        specifier: workspace:*
+        version: link:../../packages/test-utils
       any-base:
         specifier: ^1.1.0
         version: 1.1.0

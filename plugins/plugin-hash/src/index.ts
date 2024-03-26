@@ -59,18 +59,29 @@ export default function hashPlugin() {
 
       return pHash.distance(currentHash, compareHash);
     },
-
-    /**
-     * Calculates the hamming distance of two images based on their perceptual hash
-     * @param img1 a Jimp image to compare
-     * @param img2 a Jimp image to compare
-     */
-    distance<I extends JimpClass>(img1: I, img2: I) {
-      const phash = new ImagePHash();
-      const hash1 = phash.getHash(img1);
-      const hash2 = phash.getHash(img2);
-
-      return phash.distance(hash1, hash2);
-    },
   };
+}
+
+/**
+ * Calculates the hamming distance of two images based on their perceptual hash
+ * @param img1 a Jimp image to compare
+ * @param img2 a Jimp image to compare
+ */
+export function distance<I extends JimpClass>(img1: I, img2: I) {
+  const phash = new ImagePHash();
+  const hash1 = phash.getHash(img1);
+  const hash2 = phash.getHash(img2);
+
+  return phash.distance(hash1, hash2);
+}
+
+/**
+ * Calculates the hamming distance of two images based on their perceptual hash
+ * @param hash1 a pHash
+ * @param hash2 a pHash
+ * @returns a number ranging from 0 to 1, 0 means they are believed to be identical
+ */
+export function compareHashes(hash1: string, hash2: string) {
+  const phash = new ImagePHash();
+  return phash.distance(hash1, hash2);
 }

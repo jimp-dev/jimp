@@ -222,5 +222,5 @@ export function getTestImagePath(
     | "rgb.tiff"
     | "windows95.bmp"
 ) {
-  return path.join(__dirname, "../images", name);
+  return path.join(__dirname, "../../images", name);
 }

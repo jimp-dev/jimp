@@ -13,6 +13,7 @@
   "devDependencies": {
     "@jimp/config-eslint": "workspace:*",
     "@jimp/config-typescript": "workspace:*",
+    "@jimp/test-utils": "workspace:*",
     "eslint": "^8.57.0",
     "any-base": "^1.1.0",
     "tshy": "^1.12.0",
@@ -20,6 +21,10 @@
     "vitest": "^1.4.0"
   },
   "dependencies": {
+    "@jimp/js-bmp": "workspace:*",
+    "@jimp/js-png": "workspace:*",
+    "@jimp/js-jpeg": "workspace:*",
+    "@jimp/js-tiff": "workspace:*",
     "@jimp/plugin-color": "workspace:*",
     "@jimp/plugin-resize": "workspace:*",
     "@jimp/core": "workspace:*",

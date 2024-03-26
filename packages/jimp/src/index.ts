@@ -54,6 +54,7 @@ export const Jimp = createJimp({
   ],
 });
 
+export { distance, compareHashes } from "@jimp/plugin-hash";
 export { PNGColorType, PNGFilterType } from "@jimp/js-png";
 export { AUTO, HorizontalAlign, VerticalAlign, BlendMode } from "@jimp/core";
 export { loadFont } from "@jimp/plugin-print/load-font";
