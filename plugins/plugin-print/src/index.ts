@@ -178,13 +178,8 @@ function print<I extends JimpClass>(
   return image;
 }
 
-function testMethod() {}
-
-testMethod.isStatic = true;
-
 export default function printPlugin() {
   return {
-    testMethod,
     /**
      * Draws a text on a image on a given boundary
      * @param font a bitmap font loaded from `Jimp.loadFont` command
@@ -198,3 +193,5 @@ export default function printPlugin() {
     print,
   };
 }
+
+export * from "./types.js";

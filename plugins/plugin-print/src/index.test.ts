@@ -37,8 +37,6 @@ async function createTextImage(
   const loadedFont = await loadFont(font);
   const image = new Jimp({ width, height, color: 0xffffffff });
 
-  image.testMethod();
-
   return image
     .print(loadedFont, x, y, text, maxWidth, maxHeight)
     .getBuffer("image/png");

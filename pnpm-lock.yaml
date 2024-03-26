@@ -132,6 +132,9 @@ importers:
       '@jimp/core':
         specifier: workspace:*
         version: link:../core
+      '@jimp/diff':
+        specifier: workspace:*
+        version: link:../diff
       '@jimp/js-bmp':
         specifier: workspace:*
         version: link:../../plugins/js-bmp
@@ -153,21 +156,51 @@ importers:
       '@jimp/plugin-blur':
         specifier: workspace:*
         version: link:../../plugins/plugin-blur
+      '@jimp/plugin-circle':
+        specifier: workspace:*
+        version: link:../../plugins/plugin-circle
       '@jimp/plugin-color':
         specifier: workspace:*
         version: link:../../plugins/plugin-color
+      '@jimp/plugin-contain':
+        specifier: workspace:*
+        version: link:../../plugins/plugin-contain
+      '@jimp/plugin-cover':
+        specifier: workspace:*
+        version: link:../../plugins/plugin-cover
       '@jimp/plugin-crop':
         specifier: workspace:*
         version: link:../../plugins/plugin-crop
+      '@jimp/plugin-displace':
+        specifier: workspace:*
+        version: link:../../plugins/plugin-displace
+      '@jimp/plugin-dither':
+        specifier: workspace:*
+        version: link:../../plugins/plugin-dither
+      '@jimp/plugin-fisheye':
+        specifier: workspace:*
+        version: link:../../plugins/plugin-fisheye
       '@jimp/plugin-hash':
         specifier: workspace:*
         version: link:../../plugins/plugin-hash
+      '@jimp/plugin-mask':
+        specifier: workspace:*
+        version: link:../../plugins/plugin-mask
+      '@jimp/plugin-print':
+        specifier: workspace:*
+        version: link:../../plugins/plugin-print
       '@jimp/plugin-resize':
         specifier: workspace:*
         version: link:../../plugins/plugin-resize
+      '@jimp/plugin-rotate':
+        specifier: workspace:*
+        version: link:../../plugins/plugin-rotate
       '@jimp/plugin-threshold':
         specifier: workspace:*
         version: link:../../plugins/plugin-threshold
+      '@jimp/utils':
+        specifier: workspace:*
+        version: link:../utils
     devDependencies:
       '@jimp/config-eslint':
         specifier: workspace:*
