@@ -24,12 +24,14 @@ export function mask<I extends JimpClass>(image: I, src: I, x = 0, y = 0) {
   return image;
 }
 
-export default () => ({
-  /**
-   * Masks a source image on to this image using average pixel colour. A completely black pixel on the mask will turn a pixel in the image completely transparent.
-   * @param src the source Jimp instance
-   * @param x the horizontal position to blit the image
-   * @param y the vertical position to blit the image
-   */
-  mask,
-});
+export default function maskPlugin() {
+  return {
+    /**
+     * Masks a source image on to this image using average pixel colour. A completely black pixel on the mask will turn a pixel in the image completely transparent.
+     * @param src the source Jimp instance
+     * @param x the horizontal position to blit the image
+     * @param y the vertical position to blit the image
+     */
+    mask,
+  };
+}

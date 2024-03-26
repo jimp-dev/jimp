@@ -2,13 +2,18 @@
 export const AUTO = -1;
 
 // Align modes for cover, contain, bit masks
-export const HORIZONTAL_ALIGN_LEFT = 1;
-export const HORIZONTAL_ALIGN_CENTER = 2;
-export const HORIZONTAL_ALIGN_RIGHT = 4;
 
-export const VERTICAL_ALIGN_TOP = 8;
-export const VERTICAL_ALIGN_MIDDLE = 16;
-export const VERTICAL_ALIGN_BOTTOM = 32;
+export enum HorizontalAlign {
+  LEFT = 1,
+  CENTER = 2,
+  RIGHT = 4,
+}
+
+export enum VerticalAlign {
+  TOP = 8,
+  MIDDLE = 16,
+  BOTTOM = 32,
+}
 
 export enum BlendMode {
   SRC_OVER = "srcOver",
