@@ -4,7 +4,7 @@
   "repository": "jimp-dev/jimp",
   "scripts": {
     "lint": "eslint .",
-    "test-off": "vitest --watch=false",
+    "test-off": "vitest",
     "build": "tshy",
     "dev": "tshy --watch",
     "clean": "rm -rf node_modules .tshy .tshy-build dist"
@@ -20,6 +20,7 @@
   "devDependencies": {
     "@jimp/config-eslint": "workspace:*",
     "@jimp/config-typescript": "workspace:*",
+    "@jimp/test-utils": "workspace:*",
     "@types/file-type": "^10.9.1",
     "eslint": "^8.57.0",
     "tshy": "^1.12.0",

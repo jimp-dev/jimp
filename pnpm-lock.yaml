@@ -74,6 +74,9 @@ importers:
       '@jimp/config-typescript':
         specifier: workspace:*
         version: link:../config-typescript
+      '@jimp/test-utils':
+        specifier: workspace:*
+        version: link:../test-utils
       '@types/file-type':
         specifier: ^10.9.1
         version: 10.9.1
@@ -214,6 +217,9 @@ importers:
       '@jimp/config-typescript':
         specifier: workspace:*
         version: link:../config-typescript
+      '@jimp/test-utils':
+        specifier: workspace:*
+        version: link:../test-utils
       eslint:
         specifier: ^8.57.0
         version: 8.57.0
