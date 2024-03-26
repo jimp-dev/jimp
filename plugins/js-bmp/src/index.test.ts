@@ -28,7 +28,7 @@ describe("BMP", () => {
         0xff00ffff, 0x8000ffff, 0x0000ffff,
       ],
     });
-    const buffer = await image.toBuffer("image/bmp");
+    const buffer = await image.getBuffer("image/bmp");
 
     await fs.writeFile(imagesDir + "/test.bmp", buffer);
 

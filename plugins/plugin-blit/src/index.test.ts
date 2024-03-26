@@ -79,7 +79,7 @@ describe("Blit over image", function () {
     const image = await Jimp.fromBuffer(
       await fs.readFile(__dirname + "/images/cops.jpg")
     );
-    const output = await image.blit({ src: dice }).toBuffer("image/png");
+    const output = await image.blit({ src: dice }).getBuffer("image/png");
 
     expect(output).toMatchImageSnapshot();
   });
@@ -147,12 +147,12 @@ describe("Blit over image", function () {
 
   test("uses src params correctly", async () => {
     const small = await createCat(0.3, 1);
-    expect(await small.toBuffer("image/png")).toMatchImageSnapshot();
+    expect(await small.getBuffer("image/png")).toMatchImageSnapshot();
 
     const medium = await createCat(0.6, 7);
-    expect(await medium.toBuffer("image/png")).toMatchImageSnapshot();
+    expect(await medium.getBuffer("image/png")).toMatchImageSnapshot();
 
     const large = await createCat(0.9, 20);
-    expect(await large.toBuffer("image/png")).toMatchImageSnapshot();
+    expect(await large.getBuffer("image/png")).toMatchImageSnapshot();
   });
 });

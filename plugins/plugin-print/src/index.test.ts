@@ -41,7 +41,7 @@ async function createTextImage(
 
   return image
     .print(loadedFont, x, y, text, maxWidth, maxHeight)
-    .toBuffer("image/png");
+    .getBuffer("image/png");
 }
 
 describe("Write text over image", function () {
@@ -65,7 +65,7 @@ describe("Write text over image", function () {
       const image = new Jimp({ width: conf.w, height: conf.h, color: conf.bg });
       const output = await image
         .print(font, 0, 0, "This is only a test.", image.bitmap.width)
-        .toBuffer("image/png");
+        .getBuffer("image/png");
 
       expect(output).toMatchImageSnapshot();
     });
@@ -76,7 +76,7 @@ describe("Write text over image", function () {
     const image = new Jimp({ width: 300, height: 100, color: 0xff8800ff });
     const output = await image
       .print(font, 150, 50, "This is only a test.", 100)
-      .toBuffer("image/png");
+      .getBuffer("image/png");
 
     expect(output).toMatchImageSnapshot();
   });
@@ -88,7 +88,7 @@ describe("Write text over image", function () {
     const image = new Jimp({ width: 300, height: 100, color: 0xff8800ff });
     const output = await image
       .print(font, 150, 50, "This is only a test.", 100)
-      .toBuffer("image/png");
+      .getBuffer("image/png");
 
     expect(output).toMatchImageSnapshot();
   });
@@ -98,7 +98,7 @@ describe("Write text over image", function () {
     const image = new Jimp({ width: 300, height: 100, color: 0xff8800ff });
     const output = await image
       .print(font, 0, 0, "ツ ツ ツ", 100)
-      .toBuffer("image/png");
+      .getBuffer("image/png");
 
     expect(output).toMatchImageSnapshot();
   });
@@ -108,7 +108,7 @@ describe("Write text over image", function () {
     const image = new Jimp({ width: 300, height: 100, color: 0xff8800ff });
     const output = await image
       .print(font, 0, 0, 12345678, 100)
-      .toBuffer("image/png");
+      .getBuffer("image/png");
 
     expect(output).toMatchImageSnapshot();
   });
@@ -243,7 +243,7 @@ describe("Write text over image", function () {
       }
     );
 
-    const output = await image.toBuffer("image/png");
+    const output = await image.getBuffer("image/png");
     expect(output).toMatchImageSnapshot();
   });
 

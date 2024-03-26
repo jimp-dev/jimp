@@ -66,7 +66,7 @@
 
 //   // image.scale(2).rotate(90).flip(true, false);
 
-//   const outputBuffer = await image.toBuffer("image/jpg");
+//   const outputBuffer = await image.getBuffer("image/jpg");
 
 //   await fs.writeFile("./out.png", outputBuffer);
 // }

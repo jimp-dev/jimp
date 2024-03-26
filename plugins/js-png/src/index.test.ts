@@ -28,7 +28,7 @@ describe("PNG", () => {
         0xff00ffff, 0x8000ffff, 0x0000ffff,
       ],
     });
-    const buffer = await testImage.toBuffer("image/png");
+    const buffer = await testImage.getBuffer("image/png");
 
     expect(buffer.toString()).toMatch(/^.PNG\r\n/);
   });
@@ -47,7 +47,7 @@ describe("PNG", () => {
       ],
     });
 
-    const image = await testImage.toBuffer("image/png", {
+    const image = await testImage.getBuffer("image/png", {
       deflateStrategy: 0,
       colorType: 0,
     });

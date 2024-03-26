@@ -127,6 +127,53 @@ export function intToRGBA(i: number) {
 }
 
 /**
+ * A static helper method that converts RGBA values to a single integer value
+ * @param r the red value (0-255)
+ * @param g the green value (0-255)
+ * @param b the blue value (0-255)
+ * @param a the alpha value (0-255)
+ */
+export function rgbaToInt(r: number, g: number, b: number, a: number) {
+  if (
+    typeof r !== "number" ||
+    typeof g !== "number" ||
+    typeof b !== "number" ||
+    typeof a !== "number"
+  ) {
+    throw new Error("r, g, b and a must be numbers");
+  }
+
+  if (r < 0 || r > 255) {
+    throw new Error("r must be between 0 and 255");
+  }
+
+  if (g < 0 || g > 255) {
+    throw new Error("g must be between 0 and 255");
+  }
+
+  if (b < 0 || b > 255) {
+    throw new Error("b must be between 0 and 255");
+  }
+
+  if (a < 0 || a > 255) {
+    throw new Error("a must be between 0 and 255");
+  }
+
+  let i = r & 0xff;
+  i <<= 8;
+  i |= g & 0xff;
+  i <<= 8;
+  i |= b & 0xff;
+  i <<= 8;
+  i |= a & 0xff;
+
+  // Ensure sign is correct
+  i >>>= 0;
+
+  return i;
+}
+
+/**
  * Compute color difference
  * 0 means no difference, 1 means maximum difference.
  * @param rgba1:    first color to compare.
@@ -177,4 +224,53 @@ export function cssColorToHex(cssColor: string | number) {
   }
 
   return parseInt(tinyColor(cssColor).toHex8(), 16);
+}
+
+/**
+ * Diffs two images and returns
+ * @param img1 a Jimp image to compare
+ * @param img2 a Jimp image to compare
+ * @param threshold a number, 0 to 1, the smaller the value the more sensitive the comparison (default: 0.1)
+ */
+export function diff<I extends JimpClass>(
+  img1: JimpClass,
+  img2: JimpClass,
+  threshold = 0.1
+) {
+  const bmp1 = img1.bitmap;
+  const bmp2 = img2.bitmap;
+
+  if (bmp1.width !== bmp2.width || bmp1.height !== bmp2.height) {
+    if (bmp1.width * bmp1.height > bmp2.width * bmp2.height) {
+      // img1 is bigger
+      img1 = img1.cloneQuiet().resize(bmp2.width, bmp2.height);
+    } else {
+      // img2 is bigger (or they are the same in area)
+      img2 = img2.cloneQuiet().resize(bmp1.width, bmp1.height);
+    }
+  }
+
+  if (typeof threshold !== "number" || threshold < 0 || threshold > 1) {
+    throw new Error("threshold must be a number between 0 and 1");
+  }
+
+  const diff = new (img1 as any).constructor({
+    width: bmp1.width,
+    height: bmp1.height,
+    color: 0xffffffff,
+  });
+
+  const numDiffPixels = pixelMatch(
+    bmp1.data,
+    bmp2.data,
+    diff.bitmap.data,
+    diff.bitmap.width,
+    diff.bitmap.height,
+    { threshold }
+  );
+
+  return {
+    percent: numDiffPixels / (diff.bitmap.width * diff.bitmap.height),
+    image: diff,
+  };
 }

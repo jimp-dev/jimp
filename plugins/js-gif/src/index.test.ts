@@ -25,7 +25,7 @@ describe("GIF", () => {
   test("export GIF", async () => {
     const imageBuffer = await fs.readFile(imagesDir + "/flower.gif");
     const jgd = await jimp.fromBuffer(imageBuffer);
-    const buffer = await jgd.toBuffer("image/gif");
+    const buffer = await jgd.getBuffer("image/gif");
     expect(buffer.toString()).toMatch(/^GIF/);
   });
 });

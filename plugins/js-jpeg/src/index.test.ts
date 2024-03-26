@@ -38,7 +38,7 @@ describe("JPEG", () => {
       ],
     });
 
-    const buffer = await image.toBuffer("image/jpeg", {
+    const buffer = await image.getBuffer("image/jpeg", {
       quality: 50,
     });
 

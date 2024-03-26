@@ -1,5 +1,5 @@
 import { Bitmap, Format, JimpClass, Edge } from "@jimp/types";
-import { cssColorToHex, scan } from "@jimp/utils";
+import { cssColorToHex, scan, scanIterator } from "@jimp/utils";
 import { fromBuffer } from "file-type";
 import { to } from "await-to-js";
 
@@ -271,7 +271,29 @@ export function createJimp<
       return this.fromBuffer(buffer);
     }
 
-    async toBuffer<
+    /**
+     * Nicely format Jimp object when sent to the console e.g. console.log(image)
+     * @returns pretty printed
+     */
+    inspect() {
+      return (
+        "<Jimp " +
+        (this.bitmap === emptyBitmap
+          ? "pending..."
+          : this.bitmap.width + "x" + this.bitmap.height) +
+        ">"
+      );
+    }
+
+    /**
+     * Nicely format Jimp object when converted to a string
+     * @returns pretty printed
+     */
+    toString() {
+      return "[object Jimp]";
+    }
+
+    async getBuffer<
       ProvidedMimeType extends SupportedMimeTypes,
       Options extends GetOptionsForMimeType<
         ProvidedMimeType,
@@ -311,7 +333,7 @@ export function createJimp<
         MimeTypeToExportOptions
       >,
     >(mime: ProvidedMimeType, options?: Options) {
-      const data = await this.toBuffer(mime, options);
+      const data = await this.getBuffer(mime, options);
       return "data:" + mime + ";base64," + data.toString("base64");
     }
 
@@ -474,6 +496,25 @@ export function createJimp<
       f?: (x: number, y: number, idx: number) => any
     ): this {
       return scan(this, x as any, y as any, w as any, h as any, f as any);
+    }
+
+    /**
+     * Iterate scan through a region of the bitmap
+     * @param x the x coordinate to begin the scan at
+     * @param y the y coordinate to begin the scan at
+     * @param w the width of the scan region
+     * @param h the height of the scan region
+     */
+    scanIterator(x: number, y: number, w: number, h: number) {
+      if (typeof x !== "number" || typeof y !== "number") {
+        throw new Error("x and y must be numbers");
+      }
+
+      if (typeof w !== "number" || typeof h !== "number") {
+        throw new Error("w and h must be numbers");
+      }
+
+      return scanIterator(this, x, y, w, h);
     }
   };
 

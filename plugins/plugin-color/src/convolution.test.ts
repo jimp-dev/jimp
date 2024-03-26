@@ -68,7 +68,7 @@ describe("Convolution", function () {
   test("3x3 box blur matrix using convolute", async () => {
     const imageBuffer = await fs.readFile(__dirname + "/images/tiles.jpg");
     const image = await jimp.fromBuffer(imageBuffer);
-    const output = await image.convolute(blurM).toBuffer("image/png");
+    const output = await image.convolute(blurM).getBuffer("image/png");
 
     expect(output).toMatchImageSnapshot();
   });
@@ -87,7 +87,7 @@ describe("Convolution", function () {
 
     const output = await image
       .convolution(convolutionMatrix)
-      .toBuffer("image/png");
+      .getBuffer("image/png");
 
     expect(output).toMatchImageSnapshot();
   });

@@ -28,7 +28,7 @@ describe("TIFF", () => {
         0xff00ffff, 0x8000ffff, 0x0000ffff,
       ],
     });
-    const buffer = await image.toBuffer("image/tiff");
+    const buffer = await image.getBuffer("image/tiff");
 
     expect(buffer.toString()).toMatch(/^MM\u0000*\u0000/);
   });
