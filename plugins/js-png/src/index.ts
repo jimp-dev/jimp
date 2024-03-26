@@ -31,19 +31,6 @@ export default function png() {
       });
 
       png.data = bitmap.data;
-      console.log({
-        ...options,
-        deflateLevel,
-        deflateStrategy,
-        filterType,
-        colorType:
-          typeof colorType !== "undefined"
-            ? colorType
-            : inputHasAlpha
-              ? PNGColorType.COLOR_ALPHA
-              : PNGColorType.COLOR,
-        inputHasAlpha,
-      });
 
       return PNG.sync.write(png, {
         ...options,

@@ -34,7 +34,6 @@ export function shadow<I extends JimpClass>(
   const orig = clone(image);
   let shadow = clone(image);
   // enlarge it. This creates a "shadow".
-  console.log(shadow);
   shadow = resize(
     shadow,
     image.bitmap.width * size,

@@ -20,7 +20,6 @@ describe("Threshold", () => {
     const imageBuffer = await fs.readFile(__dirname + "/images/hands.jpg");
     const testImage = await jimp.fromBuffer(imageBuffer);
     const output = testImage.threshold({ max: 200, replace: 255 }).hash();
-    console.log(output);
 
     expect(output).toStrictEqual(expectedImage.hash());
   });

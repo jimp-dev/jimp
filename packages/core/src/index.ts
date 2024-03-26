@@ -1,6 +1,8 @@
 import { Bitmap, Format, JimpClass, Edge } from "@jimp/types";
 import { cssColorToHex, scan } from "@jimp/utils";
 import { fromBuffer } from "file-type";
+import { to } from "await-to-js";
+
 import { composite } from "./utils/composite.js";
 import { BlendMode } from "./index.js";
 
@@ -9,6 +11,20 @@ const emptyBitmap: Bitmap = {
   width: 0,
   height: 0,
 };
+
+/**
+ * Prepare a Buffer object from the arrayBuffer.
+ */
+function bufferFromArrayBuffer(arrayBuffer: ArrayBuffer) {
+  const buffer = Buffer.alloc(arrayBuffer.byteLength);
+  const view = new Uint8Array(arrayBuffer);
+
+  for (let i = 0; i < buffer.length; ++i) {
+    buffer[i] = view[i]!;
+  }
+
+  return buffer;
+}
 
 export { composite } from "./utils/composite.js";
 export * from "./utils/constants.js";
@@ -24,7 +40,7 @@ export type JimpConstructorInit =
   | {
       height: number;
       width: number;
-      color: number | string;
+      color?: number | string;
     };
 
 /** Converts a jimp plugin function to a Jimp class method */
@@ -46,11 +62,17 @@ export type JimpInstanceMethods<ClassInstance, MethodMap> = {
   >;
 };
 
+/**
+ * A Jimp instance method that can be chained.
+ */
 type JimpChainableMethod<
   Args extends any[] = any[],
   J extends JimpClass = JimpClass,
 > = (img: J, ...args: Args) => J;
 
+/**
+ * A Jimp instance method that returns anything.
+ */
 type JimpMethod<
   Args extends any[] = any[],
   ReturnType = any,
@@ -121,20 +143,22 @@ export function createJimp<
 
       if ("data" in options) {
         this.bitmap = options;
-      } else if ("color" in options) {
+      } else {
         this.bitmap = {
           data: Buffer.alloc(options.width * options.height * 4),
           width: options.width,
           height: options.height,
         };
 
-        this.background =
-          typeof options.color === "string"
-            ? cssColorToHex(options.color)
-            : options.color;
+        if (options.color) {
+          this.background =
+            typeof options.color === "string"
+              ? cssColorToHex(options.color)
+              : options.color;
 
-        for (let i = 0; i < this.bitmap.data.length; i += 4) {
-          this.bitmap.data.writeUInt32BE(this.background, 0);
+          for (let i = 0; i < this.bitmap.data.length; i += 4) {
+            this.bitmap.data.writeUInt32BE(this.background, i);
+          }
         }
       }
 
@@ -221,6 +245,30 @@ export function createJimp<
         typeof CustomJimp
       > &
         ExtraMethodMap;
+    }
+
+    /**
+     * Create a Jimp instance from a URL
+     */
+    static async fromUrl(url: string) {
+      const [fetchErr, response] = await to(fetch(url));
+
+      if (fetchErr) {
+        throw new Error(`Could not load Buffer from ${url}`);
+      }
+
+      if (!response.ok) {
+        throw new Error(`HTTP Status ${response.status} for url ${url}`);
+      }
+
+      const [arrayBufferErr, data] = await to(response.arrayBuffer());
+
+      if (arrayBufferErr) {
+        throw new Error(`Could not load Buffer from ${url}`);
+      }
+
+      const buffer = bufferFromArrayBuffer(data);
+      return this.fromBuffer(buffer);
     }
 
     async toBuffer<

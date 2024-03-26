@@ -1,25 +1,32 @@
-export function measureText(font, text) {
+import { BmFont } from "./types.js";
+
+export function measureText(font: BmFont, text: string) {
   let x = 0;
 
   for (let i = 0; i < text.length; i++) {
-    if (font.chars[text[i]]) {
+    const char = text[i]!;
+    const fontChar = font.chars[char];
+
+    if (fontChar) {
+      const fontKerning = font.kernings[char];
+      const nextChar = text[i + 1];
       const kerning =
-        font.kernings[text[i]] && font.kernings[text[i]][text[i + 1]]
-          ? font.kernings[text[i]][text[i + 1]]
+        fontKerning && nextChar && fontKerning[nextChar]
+          ? fontKerning[nextChar] || 0
           : 0;
 
-      x += (font.chars[text[i]].xadvance || 0) + kerning;
+      x += (fontChar.xadvance || 0) + kerning;
     }
   }
 
   return x;
 }
 
-export function splitLines(font, text, maxWidth) {
+export function splitLines(font: BmFont, text: string, maxWidth: number) {
   const words = text.replace(/[\r\n]+/g, " \n").split(" ");
 
-  const lines = [];
-  let currentLine = [];
+  const lines: string[][] = [];
+  let currentLine: string[] = [];
   let longestLine = 0;
 
   words.forEach((word) => {
@@ -37,14 +44,20 @@ export function splitLines(font, text, maxWidth) {
       currentLine = [word.replace("\n", "")];
     }
   });
+
   lines.push(currentLine);
+
   return {
     lines,
     longestLine,
   };
 }
 
-export function measureTextHeight(font, text, maxWidth) {
+export function measureTextHeight(
+  font: BmFont,
+  text: string,
+  maxWidth: number
+) {
   const { lines } = splitLines(font, text, maxWidth);
 
   return lines.length * font.common.lineHeight;

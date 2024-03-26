@@ -7,6 +7,7 @@
     "esModuleInterop": true,
     "incremental": false,
     "isolatedModules": true,
+    "sourceMap": true,
     "lib": ["es2022", "DOM", "DOM.Iterable"],
     "module": "NodeNext",
     "moduleDetection": "force",
