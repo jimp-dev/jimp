@@ -17,8 +17,10 @@
     "pixelmatch": "^5.3.0"
   },
   "devDependencies": {
+    "@jimp/core": "workspace:*",
     "@jimp/config-eslint": "workspace:*",
     "@jimp/config-typescript": "workspace:*",
+    "@jimp/test-utils": "workspace:*",
     "@types/pixelmatch": "^5.2.6",
     "eslint": "^8.57.0",
     "tshy": "^1.12.0",

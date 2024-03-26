@@ -113,7 +113,7 @@ export function createJimp<
   plugins?: Methods;
   /** Image formats the Jimp class should support */
   formats?: Formats;
-}) {
+} = {}) {
   type ExtraMethodMap = JimpInstanceMethods<
     InstanceType<typeof CustomJimp>,
     UnionToIntersection<ReturnType<Methods[number]>>

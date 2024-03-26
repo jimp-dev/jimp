@@ -111,6 +111,12 @@ importers:
       '@jimp/config-typescript':
         specifier: workspace:*
         version: link:../config-typescript
+      '@jimp/core':
+        specifier: workspace:*
+        version: link:../core
+      '@jimp/test-utils':
+        specifier: workspace:*
+        version: link:../test-utils
       '@types/pixelmatch':
         specifier: ^5.2.6
         version: 5.2.6
