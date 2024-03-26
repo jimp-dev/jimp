@@ -1,4 +1,4 @@
-import { RGBAColor, JimpClass, Bitmap } from "@jimp/types";
+import { RGBAColor, JimpClass, Bitmap, RGBColor } from "@jimp/types";
 import tinyColor from "tinycolor2";
 
 export function clone<I extends JimpClass>(image: I): I {
@@ -182,23 +182,20 @@ export function rgbaToInt(r: number, g: number, b: number, a: number) {
  * Where `a` is optional and `val` is an integer between 0 and 255.
  * @returns float between 0 and 1.
  */
-export function colorDiff(rgba1: RGBAColor, rgba2: RGBAColor) {
+export function colorDiff(
+  rgba1: RGBAColor | RGBColor,
+  rgba2: RGBAColor | RGBColor
+) {
   const sq = (n: number) => Math.pow(n, 2);
   const { max } = Math;
   const maxVal = 255 * 255 * 3;
-
-  if (rgba1.a !== 0 && !rgba1.a) {
-    rgba1.a = 255;
-  }
-
-  if (rgba2.a !== 0 && !rgba2.a) {
-    rgba2.a = 255;
-  }
+  const rgba1A = "a" in rgba1 ? rgba1.a : 255;
+  const rgba2A = "a" in rgba2 ? rgba2.a : 255;
 
   return (
-    (max(sq(rgba1.r - rgba2.r), sq(rgba1.r - rgba2.r - rgba1.a + rgba2.a)) +
-      max(sq(rgba1.g - rgba2.g), sq(rgba1.g - rgba2.g - rgba1.a + rgba2.a)) +
-      max(sq(rgba1.b - rgba2.b), sq(rgba1.b - rgba2.b - rgba1.a + rgba2.a))) /
+    (max(sq(rgba1.r - rgba2.r), sq(rgba1.r - rgba2.r - rgba1A + rgba2A)) +
+      max(sq(rgba1.g - rgba2.g), sq(rgba1.g - rgba2.g - rgba1A + rgba2A)) +
+      max(sq(rgba1.b - rgba2.b), sq(rgba1.b - rgba2.b - rgba1A + rgba2A))) /
     maxVal
   );
 }

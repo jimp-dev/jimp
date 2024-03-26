@@ -5,7 +5,6 @@ import { getTestImagePath } from "@jimp/test-utils";
 
 import { Jimp, BlendMode } from "./index.js";
 
-// TODO: Figure out why we need to write to file to get equal buffers
 describe("composite", () => {
   test("can apply more than one color transformation", async () => {
     const mask = new Jimp({ height: 100, width: 100, color: 0x0000ff });

@@ -1,0 +1,57 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`scan > create a image with plain color 1`] = `
+Visualization:
+
+▴▴▴▴▴▴▴▴
+▴▴▴▴▴▴▴▴
+▴▴▴▴▴▴▴▴
+
+Data:
+
+FF-00-00ᶠᶠ FF-00-00ᶠᶠ FF-00-00ᶠᶠ FF-00-00ᶠᶠ FF-00-00ᶠᶠ FF-00-00ᶠᶠ FF-00-00ᶠᶠ FF-00-00ᶠᶠ
+FF-00-00ᶠᶠ FF-00-00ᶠᶠ FF-00-00ᶠᶠ FF-00-00ᶠᶠ FF-00-00ᶠᶠ FF-00-00ᶠᶠ FF-00-00ᶠᶠ FF-00-00ᶠᶠ
+FF-00-00ᶠᶠ FF-00-00ᶠᶠ FF-00-00ᶠᶠ FF-00-00ᶠᶠ FF-00-00ᶠᶠ FF-00-00ᶠᶠ FF-00-00ᶠᶠ FF-00-00ᶠᶠ
+`;
+
+exports[`scan > draw bars with (get|set)PixelColor 1`] = `
+Visualization:
+
+▾▾▴▴▸▸▰▰
+▾▾▴▴▸▸▰▰
+▿▿▵▵▹▹▱▱
+
+Data:
+
+00-00-FFᶠᶠ 00-00-FFᶠᶠ FF-00-00ᶠᶠ FF-00-00ᶠᶠ 00-FF-00ᶠᶠ 00-FF-00ᶠᶠ FF-00-FFᶠᶠ FF-00-FFᶠᶠ
+00-00-FFᶠᶠ 00-00-FFᶠᶠ FF-00-00ᶠᶠ FF-00-00ᶠᶠ 00-FF-00ᶠᶠ 00-FF-00ᶠᶠ FF-00-FFᶠᶠ FF-00-FFᶠᶠ
+00-00-FF⁷ᶠ 00-00-FF⁷ᶠ FF-00-00⁷ᶠ FF-00-00⁷ᶠ 00-FF-00⁷ᶠ 00-FF-00⁷ᶠ FF-00-FF⁷ᶠ FF-00-FF⁷ᶠ
+`;
+
+exports[`scan > draw bars with iterate scan 1`] = `
+Visualization:
+
+▴▴▸▸▾▾◆◆
+▴▴▸▸▾▾◆◆
+▵▵▹▹▿▿◇◇
+
+Data:
+
+FF-00-00ᶠᶠ FF-00-00ᶠᶠ 00-FF-00ᶠᶠ 00-FF-00ᶠᶠ 00-00-FFᶠᶠ 00-00-FFᶠᶠ FF-FF-00ᶠᶠ FF-FF-00ᶠᶠ
+FF-00-00ᶠᶠ FF-00-00ᶠᶠ 00-FF-00ᶠᶠ 00-FF-00ᶠᶠ 00-00-FFᶠᶠ 00-00-FFᶠᶠ FF-FF-00ᶠᶠ FF-FF-00ᶠᶠ
+FF-00-00⁷ᶠ FF-00-00⁷ᶠ 00-FF-00⁷ᶠ 00-FF-00⁷ᶠ 00-00-FF⁷ᶠ 00-00-FF⁷ᶠ FF-FF-00⁷ᶠ FF-FF-00⁷ᶠ
+`;
+
+exports[`scan > draw bars with scan 1`] = `
+Visualization:
+
+▴▴▸▸▾▾◆◆
+▴▴▸▸▾▾◆◆
+▵▵▹▹▿▿◇◇
+
+Data:
+
+FF-00-00ᶠᶠ FF-00-00ᶠᶠ 00-FF-00ᶠᶠ 00-FF-00ᶠᶠ 00-00-FFᶠᶠ 00-00-FFᶠᶠ FF-FF-00ᶠᶠ FF-FF-00ᶠᶠ
+FF-00-00ᶠᶠ FF-00-00ᶠᶠ 00-FF-00ᶠᶠ 00-FF-00ᶠᶠ 00-00-FFᶠᶠ 00-00-FFᶠᶠ FF-FF-00ᶠᶠ FF-FF-00ᶠᶠ
+FF-00-00⁷ᶠ FF-00-00⁷ᶠ 00-FF-00⁷ᶠ 00-FF-00⁷ᶠ 00-00-FF⁷ᶠ 00-00-FF⁷ᶠ FF-FF-00⁷ᶠ FF-FF-00⁷ᶠ
+`;
