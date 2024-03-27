@@ -5,6 +5,7 @@ import { to } from "await-to-js";
 
 import { composite } from "./utils/composite.js";
 import { BlendMode } from "./index.js";
+import { attemptExifRotate } from "./utils/image-bitmap.js";
 
 const emptyBitmap: Bitmap = {
   data: Buffer.alloc(0),
@@ -26,6 +27,7 @@ function bufferFromArrayBuffer(arrayBuffer: ArrayBuffer) {
   return buffer;
 }
 
+export { getExifOrientation } from "./utils/image-bitmap.js";
 export { composite } from "./utils/composite.js";
 export * from "./utils/constants.js";
 
@@ -187,10 +189,7 @@ export function createJimp<
     /**
      * Parse a bitmap with the loaded image types.
      *
-     * @param {Buffer} data raw image data
-     * @param {string} path optional path to file
-     * @param {function(Error, Jimp)} finish (optional) a callback for when complete
-     * @memberof Jimp
+     * @param data raw image data
      */
     static async fromBuffer(data: Buffer) {
       const mime = await fromBuffer(data);
@@ -205,16 +204,18 @@ export function createJimp<
         throw new Error(`Mime type ${mime.mime} does not support decoding`);
       }
 
-      return new CustomJimp(await format.decode(data)) as InstanceType<
+      const image = new CustomJimp(await format.decode(data)) as InstanceType<
         typeof CustomJimp
       > &
         ExtraMethodMap;
+
+      attemptExifRotate(image, data);
+
+      return image;
     }
 
     /**
      * Create a Jimp instance from a bitmap
-     * @param bitmap
-     * @returns
      */
     static fromBitmap(bitmap: RawImageData) {
       let data: Buffer | undefined;
