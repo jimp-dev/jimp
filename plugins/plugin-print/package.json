@@ -24,9 +24,6 @@
     "exclude": [
       "**/*.test.ts"
     ],
-    "esmDialects": [
-      "browser"
-    ],
     "exports": {
       "./package.json": "./package.json",
       ".": "./src/index.ts",
@@ -37,10 +34,6 @@
   "exports": {
     "./package.json": "./package.json",
     ".": {
-      "browser": {
-        "types": "./dist/browser/index.d.ts",
-        "default": "./dist/browser/index.js"
-      },
       "import": {
         "types": "./dist/esm/index.d.ts",
         "default": "./dist/esm/index.js"
@@ -51,10 +44,6 @@
       }
     },
     "./load-font": {
-      "browser": {
-        "types": "./dist/browser/load-font.d.ts",
-        "default": "./dist/browser/load-font.js"
-      },
       "import": {
         "types": "./dist/esm/load-font.d.ts",
         "default": "./dist/esm/load-font.js"
@@ -65,10 +54,6 @@
       }
     },
     "./fonts": {
-      "browser": {
-        "types": "./dist/browser/fonts.d.ts",
-        "default": "./dist/browser/fonts.js"
-      },
       "import": {
         "types": "./dist/esm/fonts.d.ts",
         "default": "./dist/esm/fonts.js"
