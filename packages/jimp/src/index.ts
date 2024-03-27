@@ -27,11 +27,34 @@ import threshold from "@jimp/plugin-threshold";
 import { createJimp } from "@jimp/core";
 
 /**
- * A Jimp class enables you to:
+ * @class
+ * A `Jimp` class enables you to:
  *
  * - Read an image into a "bit map" (a collection of pixels)
  * - Modify the bit map through methods that change the pixels
  * - Write the bit map back to an image buffer
+ *
+ * @example
+ *
+ * #### Node
+ *
+ * You can use jimp in Node.js.
+ * For example you can read an image from a file and resize it and
+ * then write it back to a file.
+ *
+ * ```ts
+ * import { Jimp } from "@jimp/jimp";
+ * import { promises as fs } from "fs";
+ *
+ * const buffer = await fs.readFile("test/image.png");
+ * const image = await Jimp.fromBuffer(buffer);
+ *
+ * image.resize(256, 100, Jimp.AUTO);
+ * image.greyscale();
+ *
+ * const output = await image.getBuffer("test/image.png");
+ * await fs.writeFile("test/output.png", output);
+ * ```
  */
 export const Jimp = createJimp({
   formats: [bmp, msBmp, gif, jpeg, png, tiff],

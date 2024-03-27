@@ -64,8 +64,18 @@ export default function hashPlugin() {
 
 /**
  * Calculates the hamming distance of two images based on their perceptual hash
- * @param img1 a Jimp image to compare
- * @param img2 a Jimp image to compare
+ * @param img1 A Jimp image to compare
+ * @param img2 A Jimp image to compare
+ * @returns A number ranging from 0 to 1, 0 means they are believed to be identical
+ * @example
+ * ```ts
+ * import { Jimp, distance } from "jimp";
+ *
+ * const image1 = await Jimp.read("test/image.png");
+ * const image2 = await Jimp.read("test/image.png");
+ *
+ * distance(image1, image2); // 0.5
+ * ```
  */
 export function distance<I extends JimpClass>(img1: I, img2: I) {
   const phash = new ImagePHash();
@@ -77,9 +87,18 @@ export function distance<I extends JimpClass>(img1: I, img2: I) {
 
 /**
  * Calculates the hamming distance of two images based on their perceptual hash
- * @param hash1 a pHash
- * @param hash2 a pHash
- * @returns a number ranging from 0 to 1, 0 means they are believed to be identical
+ * @param hash1 A pHash
+ * @param hash2 A pHash
+ * @returns A number ranging from 0 to 1, 0 means they are believed to be identical
+ * @example
+ * ```ts
+ * import { Jimp, compareHashes } from "jimp";
+ *
+ * const image1 = await Jimp.read("test/image.png");
+ * const image2 = await Jimp.read("test/image.png");
+ *
+ * compareHashes(image1.pHash(), image2.pHash()); // 0.5
+ * ```
  */
 export function compareHashes(hash1: string, hash2: string) {
   const phash = new ImagePHash();

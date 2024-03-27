@@ -94,8 +94,14 @@ export function* scanIterator<I extends JimpClass>(
 
 /**
  * A helper method that converts RGBA values to a single integer value
- * @param i a single integer value representing an RGBA colour (e.g. 0xFF0000FF for red)
- * @returns an object with the properties r, g, b and a representing RGBA values
+ * @param i A single integer value representing an RGBA colour (e.g. 0xFF0000FF for red)
+ * @returns An object with the properties r, g, b and a representing RGBA values
+ * @example
+ * ```ts
+ * import { intToRGBA } from "@jimp/utils";
+ *
+ * intToRGBA(0xFF0000FF); // { r: 255, g: 0, b: 0, a:255 }
+ * ```
  */
 export function intToRGBA(i: number) {
   if (typeof i !== "number") {
@@ -132,6 +138,12 @@ export function intToRGBA(i: number) {
  * @param g the green value (0-255)
  * @param b the blue value (0-255)
  * @param a the alpha value (0-255)
+ * @example
+ * ```ts
+ * import { rgbaToInt } from "@jimp/utils";
+ *
+ * rgbaToInt(255, 0, 0, 255); // 0xFF0000FF
+ * ```
  */
 export function rgbaToInt(r: number, g: number, b: number, a: number) {
   if (
@@ -176,11 +188,25 @@ export function rgbaToInt(r: number, g: number, b: number, a: number) {
 /**
  * Compute color difference
  * 0 means no difference, 1 means maximum difference.
- * @param rgba1:    first color to compare.
- * @param rgba2:    second color to compare.
- * Both parameters must be an color object {r:val, g:val, b:val, a:val}
+ * Both parameters must be an color object `{ r:val, g:val, b:val, a:val }`
  * Where `a` is optional and `val` is an integer between 0 and 255.
+ * @param rgba1 first color to compare.
+ * @param rgba2 second color to compare.
  * @returns float between 0 and 1.
+ * @example
+ * ```ts
+ * import { colorDiff } from "@jimp/utils";
+ *
+ * colorDiff(
+ *  { r: 255, g: 0, b: 0, a: 0 },
+ *  { r: 0, g: 255, b: 0, a: 0 },
+ * ); // 0.5
+ *
+ * colorDiff(
+ *  { r: 0, g: 0, b: 0, },
+ *  { r: 255, g: 255, b: 255, }
+ * ); // 0.7
+ * ```
  */
 export function colorDiff(
   rgba1: RGBAColor | RGBColor,
@@ -202,6 +228,13 @@ export function colorDiff(
 
 /**
  * Limits a number to between 0 or 255
+ * @example
+ * ```ts
+ * import { limit255 } from "@jimp/utils";
+ *
+ * limit255(256); // 255
+ * limit255(-1); // 0
+ * ```
  */
 export function limit255(n: number) {
   n = Math.max(n, 0);
@@ -212,8 +245,13 @@ export function limit255(n: number) {
 
 /**
  * Converts a css color (Hex, 8-digit (RGBA) Hex, RGB, RGBA, HSL, HSLA, HSV, HSVA, Named) to a hex number
- * @param cssColor a number
- * @returns a hex number representing a color
+ * @returns A hex number representing a color
+ * @example
+ * ```ts
+ * import { cssColorToHex } from "@jimp/utils";
+ *
+ * cssColorToHex("rgba(255, 0, 0, 0.5)"); // "ff000080"
+ * ```
  */
 export function cssColorToHex(cssColor: string | number) {
   if (typeof cssColor === "number") {
