@@ -34,7 +34,7 @@ export default function hashPlugin() {
 
     /**
      * Generates a perceptual hash of the image <https://en.wikipedia.org/wiki/Perceptual_hashing>. And pads the string. Can configure base.
-     * @param base  a number between 2 and 64 representing the base for the hash (e.g. 2 is binary, 10 is decimal, 16 is hex, 64 is base 64). Defaults to 64.
+     * @param base A number between 2 and 64 representing the base for the hash (e.g. 2 is binary, 10 is decimal, 16 is hex, 64 is base 64). Defaults to 64.
      */
     hash<I extends JimpClass>(image: I, base = 64) {
       if (base < 2 || base > 64) {

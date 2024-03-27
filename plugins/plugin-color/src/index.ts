@@ -53,77 +53,77 @@ function mix(clr: RGBColor, clr2: RGBColor, p = 50) {
   };
 }
 
-interface HueAction {
+export interface HueAction {
   apply: "hue";
   params: [number];
 }
 
-interface SpinAction {
+export interface SpinAction {
   apply: "spin";
   params: [number];
 }
 
-interface LightenAction {
+export interface LightenAction {
   apply: "lighten";
   params?: [number];
 }
 
-interface MixAction {
+export interface MixAction {
   apply: "mix";
   params: [RGBColor, number] | [RGBColor];
 }
 
-interface TintAction {
+export interface TintAction {
   apply: "tint";
   params?: [number];
 }
 
-interface ShadeAction {
+export interface ShadeAction {
   apply: "shade";
   params?: [number];
 }
 
-interface XorAction {
+export interface XorAction {
   apply: "xor";
   params: [RGBColor];
 }
 
-interface RedAction {
+export interface RedAction {
   apply: "red";
   params: [number];
 }
 
-interface GreenAction {
+export interface GreenAction {
   apply: "green";
   params: [number];
 }
 
-interface BlueAction {
+export interface BlueAction {
   apply: "blue";
   params: [number];
 }
 
-interface BrightenAction {
+export interface BrightenAction {
   apply: "brighten";
   params?: [number];
 }
 
-interface DarkenAction {
+export interface DarkenAction {
   apply: "darken";
   params?: [number];
 }
 
-interface DesaturateAction {
+export interface DesaturateAction {
   apply: "desaturate";
   params?: [number];
 }
 
-interface SaturateAction {
+export interface SaturateAction {
   apply: "saturate";
   params?: [number];
 }
 
-interface GrayscaleAction {
+export interface GrayscaleAction {
   apply: "greyscale";
   params?: [number];
 }

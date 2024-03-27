@@ -2,7 +2,7 @@ import { JimpClass } from "@jimp/types";
 import { limit255 } from "@jimp/utils";
 import { greyscale } from "@jimp/plugin-color";
 
-interface ThresholdOptions {
+export interface ThresholdOptions {
   /** A number auto limited between 0 - 255 */
   max: number;
   /** A number auto limited between 0 - 255 (default 255)  */

@@ -26,7 +26,9 @@ export default defineConfig({
             "../../packages/jimp/src/fonts.ts",
           ],
           tsconfig: "../../packages/jimp/tsconfig.json",
-          typeDoc: {},
+          typeDoc: {
+            groupOrder: ["Classes", "Functions", "Enumerations", "Variables"],
+          },
         }),
       ],
     }),

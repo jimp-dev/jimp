@@ -1,3 +1,7 @@
+/**
+ * @module jimp
+ */
+
 // import { Jimp } from "@jimp/core";
 
 import bmp, { msBmp } from "@jimp/js-bmp";
@@ -78,7 +82,26 @@ export const Jimp = createJimp({
   ],
 });
 
+export type {
+  ColorAction,
+  HueAction,
+  MixAction,
+  RedAction,
+  XorAction,
+  BlueAction,
+  SpinAction,
+  TintAction,
+  GreenAction,
+  ShadeAction,
+  DarkenAction,
+  LightenAction,
+  BrightenAction,
+  SaturateAction,
+  GrayscaleAction,
+  DesaturateAction,
+} from "@jimp/plugin-color";
 export { AutoSize, ResizeStrategy } from "@jimp/plugin-resize";
+export type { ThresholdOptions } from "@jimp/plugin-threshold";
 export { distance, compareHashes } from "@jimp/plugin-hash";
 export { PNGColorType, PNGFilterType } from "@jimp/js-png";
 export { HorizontalAlign, VerticalAlign, BlendMode } from "@jimp/core";

@@ -252,6 +252,12 @@ export function createJimp<
 
     /**
      * Create a Jimp instance from a URL or a file path
+     * @example
+     * ```ts
+     * import { Jimp } from "@jimp";
+     *
+     * const image = await Jimp.read("test/image.png");
+     * ```
      */
     static async read(url: string) {
       if (existsSync(url)) {
@@ -525,5 +531,14 @@ export function createJimp<
     }
   };
 
-  return CustomJimp as typeof CustomJimp & Constructor<ExtraMethodMap>;
+  type Prettify<T> = {
+    [K in keyof T]: T[K];
+  } & {};
+
+  return CustomJimp as Class<Prettify<ExtraMethodMap>> & typeof CustomJimp;
 }
+
+export type Class<T, Arguments extends unknown[] = any[]> = {
+  prototype: Pick<T, keyof T>;
+  new (...arguments_: Arguments): T;
+};

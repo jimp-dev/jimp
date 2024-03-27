@@ -7,5 +7,5 @@ title: "jimp"
 
 ## Modules
 
-- [fonts](fonts/README.md)
-- [index](index/README.md)
+- [jimp](jimp/README.md)
+- [jimp/fonts](jimp/fonts/README.md)
