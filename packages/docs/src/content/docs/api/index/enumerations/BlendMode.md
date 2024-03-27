@@ -18,7 +18,7 @@ In digital terms, adding color increases the brightness.
 
 #### Source
 
-packages/core/dist/esm/utils/constants.d.ts:35
+packages/core/dist/esm/utils/constants.d.ts:34
 
 ***
 
@@ -31,7 +31,7 @@ The opacity of the output image is computed in the same way as for srcOver.
 
 #### Source
 
-packages/core/dist/esm/utils/constants.d.ts:57
+packages/core/dist/esm/utils/constants.d.ts:56
 
 ***
 
@@ -46,7 +46,7 @@ The effect is similar to exclusion but harsher.
 
 #### Source
 
-packages/core/dist/esm/utils/constants.d.ts:77
+packages/core/dist/esm/utils/constants.d.ts:76
 
 ***
 
@@ -58,7 +58,7 @@ Composite the source image under the destination image.
 
 #### Source
 
-packages/core/dist/esm/utils/constants.d.ts:22
+packages/core/dist/esm/utils/constants.d.ts:21
 
 ***
 
@@ -73,7 +73,7 @@ The effect is similar to difference but softer.
 
 #### Source
 
-packages/core/dist/esm/utils/constants.d.ts:84
+packages/core/dist/esm/utils/constants.d.ts:83
 
 ***
 
@@ -89,7 +89,7 @@ The effect of the Hard light mode depends on the density of the superimposed col
 
 #### Source
 
-packages/core/dist/esm/utils/constants.d.ts:70
+packages/core/dist/esm/utils/constants.d.ts:69
 
 ***
 
@@ -102,7 +102,7 @@ The opacity of the output image is computed in the same way as for srcOver.
 
 #### Source
 
-packages/core/dist/esm/utils/constants.d.ts:62
+packages/core/dist/esm/utils/constants.d.ts:61
 
 ***
 
@@ -118,7 +118,7 @@ This mode is useful for coloring shadows.
 
 #### Source
 
-packages/core/dist/esm/utils/constants.d.ts:30
+packages/core/dist/esm/utils/constants.d.ts:29
 
 ***
 
@@ -135,7 +135,7 @@ With this mode, the bright areas will look brighter and the dark areas will look
 
 #### Source
 
-packages/core/dist/esm/utils/constants.d.ts:52
+packages/core/dist/esm/utils/constants.d.ts:51
 
 ***
 
@@ -151,7 +151,7 @@ This has similar effect to two projectors displaying their images on the same sc
 
 #### Source
 
-packages/core/dist/esm/utils/constants.d.ts:43
+packages/core/dist/esm/utils/constants.d.ts:42
 
 ***
 
@@ -164,4 +164,4 @@ This is the default value. It represents the most intuitive case, where shapes a
 
 #### Source
 
-packages/core/dist/esm/utils/constants.d.ts:20
+packages/core/dist/esm/utils/constants.d.ts:19

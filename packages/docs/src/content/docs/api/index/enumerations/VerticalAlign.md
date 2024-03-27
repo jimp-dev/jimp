@@ -13,7 +13,7 @@ title: "VerticalAlign"
 
 #### Source
 
-packages/core/dist/esm/utils/constants.d.ts:10
+packages/core/dist/esm/utils/constants.d.ts:9
 
 ***
 
@@ -23,7 +23,7 @@ packages/core/dist/esm/utils/constants.d.ts:10
 
 #### Source
 
-packages/core/dist/esm/utils/constants.d.ts:9
+packages/core/dist/esm/utils/constants.d.ts:8
 
 ***
 
@@ -33,4 +33,4 @@ packages/core/dist/esm/utils/constants.d.ts:9
 
 #### Source
 
-packages/core/dist/esm/utils/constants.d.ts:8
+packages/core/dist/esm/utils/constants.d.ts:7

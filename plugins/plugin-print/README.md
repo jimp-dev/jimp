@@ -37,7 +37,7 @@ addJimpMethods({
 
 const image = await Jimp.read(...);
 
-image.resize(10, Jimp.AUTO),
+image.resize(10, AutoSize),
   .cropCrazy();
 
 await image.writeAsync('test.png');

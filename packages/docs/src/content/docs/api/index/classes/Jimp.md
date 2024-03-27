@@ -20,13 +20,12 @@ For example you can read an image from a file and resize it and
 then write it back to a file.
 
 ```ts
-import { Jimp } from "@jimp/jimp";
+import { Jimp, AutoSize } from "jimp";
 import { promises as fs } from "fs";
 
-const buffer = await fs.readFile("test/image.png");
-const image = await Jimp.fromBuffer(buffer);
+const image = await Jimp.read("test/image.png");
 
-image.resize(256, 100, Jimp.AUTO);
+image.resize(256, 100);
 image.greyscale();
 
 const output = await image.getBuffer("test/image.png");
@@ -219,7 +218,7 @@ Scale the image to the given width and height keeping the aspect ratio. Some par
 
 #### Parameters
 
-• ...**args**: [`number`, `number`, `number`, `ResizeStrategy`]
+• ...**args**: [`number`, `number`, `number`, [`ResizeStrategy`](../enumerations/ResizeStrategy.md)]
 
 #### Returns
 
@@ -299,7 +298,7 @@ Scale the image so the given width and height keeping the aspect ratio. Some par
 
 #### Parameters
 
-• ...**args**: [`number`, `number`, `number`, `ResizeStrategy`]
+• ...**args**: [`number`, `number`, `number`, [`ResizeStrategy`](../enumerations/ResizeStrategy.md)]
 
 #### Returns
 
@@ -681,7 +680,7 @@ plugins/plugin-print/dist/esm/index.d.ts:24
 
 #### Parameters
 
-• ...**args**: [`number`, `number`, `ResizeStrategy`]
+• ...**args**: [`number`, `number`, [`ResizeStrategy`](../enumerations/ResizeStrategy.md)]
 
 #### Returns
 
@@ -701,7 +700,7 @@ Rotates the image counter-clockwise by a number of degrees. By default the width
 
 #### Parameters
 
-• ...**args**: [`number`, `boolean` \| `ResizeStrategy`]
+• ...**args**: [`number`, `boolean` \| [`ResizeStrategy`](../enumerations/ResizeStrategy.md)]
 
 #### Returns
 
@@ -719,7 +718,7 @@ plugins/plugin-rotate/dist/esm/index.d.ts:9
 
 #### Parameters
 
-• ...**args**: [`number`, `ResizeStrategy`]
+• ...**args**: [`number`, [`ResizeStrategy`](../enumerations/ResizeStrategy.md)]
 
 #### Returns
 
@@ -737,7 +736,7 @@ plugins/plugin-resize/dist/esm/index.d.ts:26
 
 #### Parameters
 
-• ...**args**: [`number`, `number`, `ResizeStrategy`]
+• ...**args**: [`number`, `number`, [`ResizeStrategy`](../enumerations/ResizeStrategy.md)]
 
 #### Returns
 

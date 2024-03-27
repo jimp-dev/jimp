@@ -43,13 +43,12 @@ import { createJimp } from "@jimp/core";
  * then write it back to a file.
  *
  * ```ts
- * import { Jimp } from "@jimp/jimp";
+ * import { Jimp, AutoSize } from "jimp";
  * import { promises as fs } from "fs";
  *
- * const buffer = await fs.readFile("test/image.png");
- * const image = await Jimp.fromBuffer(buffer);
+ * const image = await Jimp.read("test/image.png");
  *
- * image.resize(256, 100, Jimp.AUTO);
+ * image.resize(256, 100);
  * image.greyscale();
  *
  * const output = await image.getBuffer("test/image.png");
@@ -79,9 +78,10 @@ export const Jimp = createJimp({
   ],
 });
 
+export { AutoSize, ResizeStrategy } from "@jimp/plugin-resize";
 export { distance, compareHashes } from "@jimp/plugin-hash";
 export { PNGColorType, PNGFilterType } from "@jimp/js-png";
-export { AUTO, HorizontalAlign, VerticalAlign, BlendMode } from "@jimp/core";
+export { HorizontalAlign, VerticalAlign, BlendMode } from "@jimp/core";
 export { loadFont } from "@jimp/plugin-print/load-font";
 export { diff } from "@jimp/diff";
 export {

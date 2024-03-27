@@ -1,14 +1,11 @@
-// used to auto resizing etc.
-export const AUTO = -1;
-
-// Align modes for cover, contain, bit masks
-
+/* Horizontal align modes for cover, contain, bit masks */
 export enum HorizontalAlign {
   LEFT = 1,
   CENTER = 2,
   RIGHT = 4,
 }
 
+/* Vertical align modes for cover, contain, bit masks */
 export enum VerticalAlign {
   TOP = 8,
   MIDDLE = 16,

@@ -1,6 +1,5 @@
 import { JimpClass } from "@jimp/types";
-import { AUTO } from "@jimp/core";
-import { ResizeStrategy } from "./constants.js";
+import { ResizeStrategy, AutoSize } from "./constants.js";
 
 import Resize from "./modules/resize.js";
 import Resize2 from "./modules/resize2.js";
@@ -9,8 +8,8 @@ export * from "./constants.js";
 
 /**
  * Resizes the image to a set width and height using a 2-pass bilinear algorithm
- * @param w the width to resize the image to (or Jimp.AUTO)
- * @param h the height to resize the image to (or Jimp.AUTO)
+ * @param w the width to resize the image to (or AutoSize)
+ * @param h the height to resize the image to (or AutoSize)
  * @param mode a scaling method (e.g. Jimp.RESIZE_BEZIER)
  */
 export function resize<I extends JimpClass>(
@@ -23,15 +22,15 @@ export function resize<I extends JimpClass>(
     throw new Error("w and h must be numbers");
   }
 
-  if (w === AUTO && h === AUTO) {
+  if (w === AutoSize && h === AutoSize) {
     throw new Error("w and h cannot both be set to auto");
   }
 
-  if (w === AUTO) {
+  if (w === AutoSize) {
     w = image.bitmap.width * (h / image.bitmap.height);
   }
 
-  if (h === AUTO) {
+  if (h === AutoSize) {
     h = image.bitmap.height * (w / image.bitmap.width);
   }
 
