@@ -21,7 +21,7 @@ If you know how to code, we welcome you to send fixes and new features, but in o
 - Code your changes (if you want to implement many features do each one in a separated branch);
 - Write tests to ensure your feature works as expected and protect its behavior on future changes;
 - Test it! Ensure you don't crash Jimp in Node.js or Browser environments;
-  - Full test with `yarn test` will also produce a coverage report.
+  - Full test with `pnpm run test` will also produce a coverage report.
   - For more option, see the "[Testing](#testing)" topic bellow.
 - Push to your forked repo;
 - Make your pull request.
@@ -29,43 +29,32 @@ If you know how to code, we welcome you to send fixes and new features, but in o
 ### Developing
 
 ```sh
-yarn # install and link all packages in monorepo
+pnpm i # install and link all packages in monorepo
 
-yarn build
-# or
-yarn build:watch # build ES5 version in watch mode. Good to run while testing or developing.
+# Build all the packages
+pnpm run build
 ```
 
 ### Testing
 
-The test framework runs at Node.js and browsers environments. Just run `yarn test` to test in node and browser environments.
-You can use the coverage report to help with missed tests, but you must be aware: it only shows if a line of code was evaluated while testing, not if all relevant test cases was done to protect the feature behavior.
-
-While developing you may want to test only on node.js:
+We use vitest to test the code.
 
 ```sh
-yarn test
+# Run all tests
+pnpm run test
+
+# Run a package's tests
+cd packages/core
+pnpm run test
 ```
 
-...or only specific tests based on describe text:
+### Docs
 
 ```sh
-yarn test --grep 'my test description'
+# Build the docs
+cd packages/docs
+pnpm run start
 ```
-
-...or run each time a file changes:
-
-```sh
-yarn test:watch
-```
-
-...or test only in a specific browser:
-
-```sh
-yarn run test:browser -- --browsers Firefox
-```
-
-For more options and project management tools see: `yarn run`
 
 ## Collaborators are Welcome
 
