@@ -10,8 +10,7 @@ const jimp = createJimp({ formats: [png] });
 
 describe("PNG", () => {
   test("load PNG", async () => {
-    const imageBuffer = await fs.readFile(getTestImagePath("dice.png"));
-    const image = await jimp.fromBuffer(imageBuffer);
+    const image = await jimp.read(getTestImagePath("dice.png"));
 
     expect(image.getPixelColor(10, 10)).toBe(0x00000000);
     expect(image.getPixelColor(160, 80)).toBe(0x1c1cd4ff);

@@ -139,11 +139,9 @@ function exifRotate<I extends JimpClass>(img: I) {
 
   const transformation = getExifOrientationTransformation(img);
   const swapDimensions = getExifOrientation(img) > 4;
-  console.log({ swapDimensions });
 
   const newWidth = swapDimensions ? img.bitmap.height : img.bitmap.width;
   const newHeight = swapDimensions ? img.bitmap.width : img.bitmap.height;
-  console.log({ swapDimensions, newWidth, newHeight, bitmap: img.bitmap });
 
   if (transformation) {
     transformBitmap(img, newWidth, newHeight, transformation);
@@ -159,10 +157,8 @@ export async function attemptExifRotate<I extends JimpClass>(
     (image as unknown as { _exif: ExifData })._exif =
       EXIFParser.create(buffer).parse();
 
-    console.log("exif");
     exifRotate(image); // EXIF data
   } catch (error) {
     /* meh */
-    console.log("no exif", error);
   }
 }

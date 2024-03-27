@@ -1,7 +1,5 @@
 import { expect, test, describe } from "vitest";
-
 import { createJimp } from "@jimp/core";
-import { promises as fs } from "fs";
 import { getTestImagePath } from "@jimp/test-utils";
 
 import jpeg from "./index.js";
@@ -12,8 +10,7 @@ describe("JPEG", () => {
   const imagesDir = __dirname + "/images";
 
   test("load JPG", async () => {
-    const imageBuffer = await fs.readFile(getTestImagePath("cops.jpg"));
-    const image = await jimp.fromBuffer(imageBuffer);
+    const image = await jimp.read(getTestImagePath("cops.jpg"));
 
     expect(image.getPixelColor(10, 10)).toBe(0x3f4a02ff);
     expect(image.getPixelColor(220, 190)).toBe(0x5d94b6ff);
@@ -21,8 +18,7 @@ describe("JPEG", () => {
   });
 
   test("load JPG with fill bytes", async () => {
-    const imageBuffer = await fs.readFile(imagesDir + "/fillbytes.jpg");
-    const image = await jimp.fromBuffer(imageBuffer);
+    const image = await jimp.read(imagesDir + "/fillbytes.jpg");
 
     expect(image.getPixelColor(10, 10)).toBe(0xaeb8c3ff);
     expect(image.getPixelColor(220, 190)).toBe(0x262b21ff);

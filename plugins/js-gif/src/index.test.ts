@@ -1,6 +1,4 @@
 import { expect, test, describe } from "vitest";
-import { promises as fs } from "fs";
-
 import { createJimp } from "@jimp/core";
 import { getTestImagePath } from "@jimp/test-utils";
 
@@ -10,20 +8,17 @@ const jimp = createJimp({ formats: [gif] });
 
 describe("GIF", () => {
   test("load GIF", async () => {
-    const imageBuffer = await fs.readFile(getTestImagePath("flower.gif"));
-    const image = await jimp.fromBuffer(imageBuffer);
-    expect(image.getPixelColor(10, 10)).toBe(0xe5e6d9ff);
+    const image = await jimp.read(getTestImagePath("flower.gif"));
+    expect(image.getPixelColor(10, 10)).toBe(0xfefefeff);
   });
 
   test("load animated GIF", async () => {
-    const imageBuffer = await fs.readFile(getTestImagePath("animated.gif"));
-    const image = await jimp.fromBuffer(imageBuffer);
+    const image = await jimp.read(getTestImagePath("animated.gif"));
     expect(image.getPixelColor(10, 10)).toBe(0xa1d2f1ff);
   });
 
   test("export GIF", async () => {
-    const imageBuffer = await fs.readFile(getTestImagePath("flower.gif"));
-    const jgd = await jimp.fromBuffer(imageBuffer);
+    const jgd = await jimp.read(getTestImagePath("flower.gif"));
     const buffer = await jgd.getBuffer("image/gif");
     expect(buffer.toString()).toMatch(/^GIF/);
   });

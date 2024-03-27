@@ -37,7 +37,7 @@ export async function loadFont(file: string) {
           const pageBuffer = await fs.readFile(filepath);
           return CharacterJimp.fromBuffer(pageBuffer);
         } else {
-          return CharacterJimp.fromUrl(filepath);
+          return CharacterJimp.read(filepath);
         }
       })
     ),

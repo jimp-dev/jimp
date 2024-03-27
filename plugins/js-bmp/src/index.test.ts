@@ -11,8 +11,7 @@ describe("BMP", () => {
   const imagesDir = __dirname + "/images";
 
   test("load BMP", async () => {
-    const imageBuffer = await fs.readFile(imagesDir + "/windows95.bmp");
-    const image = await jimp.fromBuffer(imageBuffer);
+    const image = await jimp.read(imagesDir + "/windows95.bmp");
 
     expect(image.getPixelColor(10, 10)).toBe(0xeff7f7ff);
     expect(image.getPixelColor(150, 80)).toBe(0x73add6ff);
@@ -36,11 +35,8 @@ describe("BMP", () => {
   });
 
   test("uses correct colors for BMP", async function () {
-    const pngBuffer = await fs.readFile(imagesDir + "/windows95.png");
-    const expectedImg = await jimp.fromBuffer(pngBuffer);
-
-    const bmpBuffer = await fs.readFile(imagesDir + "/windows95.bmp");
-    const image = await jimp.fromBuffer(bmpBuffer);
+    const expectedImg = await jimp.read(imagesDir + "/windows95.png");
+    const image = await jimp.read(imagesDir + "/windows95.bmp");
 
     expect(image.bitmap.data).toEqual(expectedImg.bitmap.data);
   });

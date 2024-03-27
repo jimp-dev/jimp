@@ -2,8 +2,6 @@ import { expect, test, describe } from "vitest";
 import { createJimp } from "@jimp/core";
 import jpeg from "@jimp/js-jpeg";
 import png from "@jimp/js-png";
-import { promises as fs } from "fs";
-
 import { getTestImagePath, makeTestImage } from "@jimp/test-utils";
 
 import blit from "./index.js";
@@ -73,12 +71,8 @@ describe("Blit over image", function () {
   });
 
   test("blit alpha", async () => {
-    const dice = await Jimp.fromBuffer(
-      await fs.readFile(getTestImagePath("dice.png"))
-    );
-    const image = await Jimp.fromBuffer(
-      await fs.readFile(getTestImagePath("cops.jpg"))
-    );
+    const dice = await Jimp.read(getTestImagePath("dice.png"));
+    const image = await Jimp.read(getTestImagePath("cops.jpg"));
     const output = await image.blit({ src: dice }).getBuffer("image/png");
 
     expect(output).toMatchImageSnapshot();
@@ -87,15 +81,9 @@ describe("Blit over image", function () {
   async function createCat(catNum: number, len: number) {
     const imgHeight = 60;
 
-    const butt = await Jimp.fromBuffer(
-      await fs.readFile(__dirname + "/images/cat_butt.png")
-    );
-    const head = await Jimp.fromBuffer(
-      await fs.readFile(__dirname + "/images/cat_head.png")
-    );
-    const fuzz = await Jimp.fromBuffer(
-      await fs.readFile(__dirname + "/images/cat_fuzz.png")
-    );
+    const butt = await Jimp.read(__dirname + "/images/cat_butt.png");
+    const head = await Jimp.read(__dirname + "/images/cat_head.png");
+    const fuzz = await Jimp.read(__dirname + "/images/cat_fuzz.png");
 
     let longCat = len;
     longCat = longCat > 20 ? 20 : longCat;

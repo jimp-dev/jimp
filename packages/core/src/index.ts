@@ -2,6 +2,7 @@ import { Bitmap, Format, JimpClass, Edge } from "@jimp/types";
 import { cssColorToHex, scan, scanIterator } from "@jimp/utils";
 import { fromBuffer } from "file-type";
 import { to } from "await-to-js";
+import { existsSync, readFile } from "@jimp/read-file";
 
 import { composite } from "./utils/composite.js";
 import { BlendMode } from "./index.js";
@@ -250,13 +251,17 @@ export function createJimp<
     }
 
     /**
-     * Create a Jimp instance from a URL
+     * Create a Jimp instance from a URL or a file path
      */
-    static async fromUrl(url: string) {
+    static async read(url: string) {
+      if (existsSync(url)) {
+        return Jimp.fromBuffer(await readFile(url));
+      }
+
       const [fetchErr, response] = await to(fetch(url));
 
       if (fetchErr) {
-        throw new Error(`Could not load Buffer from ${url}`);
+        throw new Error(`Could not load Buffer from URL: ${url}`);
       }
 
       if (!response.ok) {

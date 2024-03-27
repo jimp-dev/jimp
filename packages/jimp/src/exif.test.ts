@@ -2,19 +2,18 @@ import { expect, test, describe } from "vitest";
 import "@jimp/test-utils";
 
 import { getExifOrientation } from "@jimp/core";
-import fs from "fs";
 import { Jimp, distance } from "./index.js";
 
 function imageWithOrientation(orientation: number) {
   const imageName = `Landscape_${orientation}.jpg`;
   const path = __dirname + "/images/exif-orientation/" + imageName;
-  return Jimp.fromBuffer(fs.readFileSync(path));
+  return Jimp.read(path);
 }
 
 function imageWithOrientation2(orientation: number) {
   const imageName = `Portrait_${orientation}.jpg`;
   const path = __dirname + "/images/exif-orientation/" + imageName;
-  return Jimp.fromBuffer(fs.readFileSync(path));
+  return Jimp.read(path);
 }
 
 describe("EXIF orientation", () => {

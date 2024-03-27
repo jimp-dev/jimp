@@ -8,10 +8,6 @@ export async function loadFont(url: string) {
 
   return {
     ...font,
-    pages: await Promise.all(
-      font.pages.map(async (page) => {
-        return CharacterJimp.fromUrl(page);
-      })
-    ),
+    pages: await Promise.all(font.pages.map(CharacterJimp.read)),
   };
 }

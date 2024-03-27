@@ -1,13 +1,11 @@
 import { expect, test, describe } from "vitest";
-
 import { makeTestImage } from "@jimp/test-utils";
 import png from "@jimp/js-png";
 import jpeg from "@jimp/js-jpeg";
 import { Edge } from "@jimp/types";
-import { promises as fs } from "fs";
+import { createJimp } from "@jimp/core";
 
 import color from "./index.js";
-import { createJimp } from "@jimp/core";
 
 const jimp = createJimp({ formats: [png, jpeg], plugins: [color] });
 
@@ -66,16 +64,14 @@ describe("Convolution", function () {
   });
 
   test("3x3 box blur matrix using convolute", async () => {
-    const imageBuffer = await fs.readFile(__dirname + "/images/tiles.jpg");
-    const image = await jimp.fromBuffer(imageBuffer);
+    const image = await jimp.read(__dirname + "/images/tiles.jpg");
     const output = await image.convolute(blurM).getBuffer("image/png");
 
     expect(output).toMatchImageSnapshot();
   });
 
   test("new pixel value is greater than 255", async () => {
-    const imageBuffer = await fs.readFile(__dirname + "/images/qr.jpg");
-    const image = await jimp.fromBuffer(imageBuffer);
+    const image = await jimp.read(__dirname + "/images/qr.jpg");
 
     const convolutionMatrix = [
       [0, 0, 0, 0, 0],
