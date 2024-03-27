@@ -531,14 +531,5 @@ export function createJimp<
     }
   };
 
-  type Prettify<T> = {
-    [K in keyof T]: T[K];
-  } & {};
-
-  return CustomJimp as Class<Prettify<ExtraMethodMap>> & typeof CustomJimp;
+  return CustomJimp as Constructor<ExtraMethodMap> & typeof CustomJimp;
 }
-
-export type Class<T, Arguments extends unknown[] = any[]> = {
-  prototype: Pick<T, keyof T>;
-  new (...arguments_: Arguments): T;
-};
