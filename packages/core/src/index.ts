@@ -38,13 +38,19 @@ export interface RawImageData {
   data: Buffer | Uint8Array | Uint8ClampedArray | number[];
 }
 
-export type JimpConstructorInit =
-  | Bitmap
-  | {
-      height: number;
-      width: number;
-      color?: number | string;
-    };
+/**
+ * Instead of loading an image into an instance you can initialize a new Jimp instance with a empty bitmap.
+ */
+export interface JimpSimpleConstructorOptions {
+  height: number;
+  width: number;
+  /**
+   * Initialize the image with a color for each pixel
+   */
+  color?: number | string;
+}
+
+export type JimpConstructorOptions = Bitmap | JimpSimpleConstructorOptions;
 
 /** Converts a jimp plugin function to a Jimp class method */
 type JimpInstanceMethod<ClassInstance, MethodMap, Method> =
@@ -141,7 +147,7 @@ export function createJimp<
     /** Formats that can be used with Jimp */
     formats: Format<any>[] = [];
 
-    constructor(options: JimpConstructorInit = emptyBitmap) {
+    constructor(options: JimpConstructorOptions = emptyBitmap) {
       // Add the formats
       this.formats = formats;
 
@@ -190,10 +196,17 @@ export function createJimp<
     /**
      * Parse a bitmap with the loaded image types.
      *
-     * @param data raw image data
+     * @param buffer Raw image data
+     * @example
+     * ```ts
+     * import { Jimp } from "jimp";
+     *
+     * const buffer = await fs.readFile("test/image.png");
+     * const image = await Jimp.fromBuffer(buffer);
+     * ```
      */
-    static async fromBuffer(data: Buffer) {
-      const mime = await fromBuffer(data);
+    static async fromBuffer(buffer: Buffer) {
+      const mime = await fromBuffer(buffer);
 
       if (!mime || !mime.mime) {
         throw new Error("Could not find MIME for Buffer");
@@ -205,18 +218,35 @@ export function createJimp<
         throw new Error(`Mime type ${mime.mime} does not support decoding`);
       }
 
-      const image = new CustomJimp(await format.decode(data)) as InstanceType<
+      const image = new CustomJimp(await format.decode(buffer)) as InstanceType<
         typeof CustomJimp
       > &
         ExtraMethodMap;
 
-      attemptExifRotate(image, data);
+      attemptExifRotate(image, buffer);
 
       return image;
     }
 
     /**
-     * Create a Jimp instance from a bitmap
+     * Create a Jimp instance from a bitmap.
+     * The difference between this and just using the constructor is that this will
+     * convert raw image data into the bitmap format that Jimp uses.
+     *
+     * @example
+     * ```ts
+     * import { Jimp } from "jimp";
+     *
+     * const image = Jimp.fromBitmap({
+     *   data: Buffer.from([
+     *     0xffffffff, 0xffffffff, 0xffffffff,
+     *     0xffffffff, 0xffffffff, 0xffffffff,
+     *     0xffffffff, 0xffffffff, 0xffffffff,
+     *   ]),
+     *   width: 3,
+     *   height: 3,
+     * });
+     * ```
      */
     static fromBitmap(bitmap: RawImageData) {
       let data: Buffer | undefined;
@@ -254,9 +284,13 @@ export function createJimp<
      * Create a Jimp instance from a URL or a file path
      * @example
      * ```ts
-     * import { Jimp } from "@jimp";
+     * import { Jimp } from "jimp";
      *
+     * // Read from a file path
      * const image = await Jimp.read("test/image.png");
+     *
+     * // Read from a URL
+     * const image = await Jimp.read("https://upload.wikimedia.org/wikipedia/commons/0/01/Bot-Test.jpg");
      * ```
      */
     static async read(url: string) {
@@ -286,7 +320,7 @@ export function createJimp<
 
     /**
      * Nicely format Jimp object when sent to the console e.g. console.log(image)
-     * @returns pretty printed
+     * @returns Pretty printed jimp object
      */
     inspect() {
       return (
@@ -306,6 +340,23 @@ export function createJimp<
       return "[object Jimp]";
     }
 
+    /**
+     * Converts the Jimp instance to an image buffer
+     * @param mime The mime type to export to
+     * @param options The options to use when exporting
+     * @example
+     * ```ts
+     * import { Jimp } from "jimp";
+     * import { promises as fs } from "fs";
+     *
+     * const image = new Jimp({ width: 3, height: 3, color: 0xffffffff });
+     *
+     * const buffer = await image.getBuffer("image/jpeg", {
+     *   quality: 50,
+     * });
+     * await fs.writeFile("test/output.jpeg", buffer);
+     * ```
+     */
     async getBuffer<
       ProvidedMimeType extends SupportedMimeTypes,
       Options extends GetOptionsForMimeType<
@@ -338,6 +389,23 @@ export function createJimp<
 
     /**
      * Converts the image to a base 64 string
+     *
+     * @param mime The mime type to export to
+     * @param options The options to use when exporting
+     * @example
+     * ```ts
+     * import { Jimp } from "jimp";
+     *
+     * const image = Jimp.fromBuffer(Buffer.from([
+     *   0xff, 0x00, 0x00, 0x00, 0xff, 0x00, 0x00, 0x00,
+     *   0xff, 0x00, 0x00, 0x00, 0xff, 0x00, 0x00, 0x00,
+     *   0xff, 0x00, 0x00, 0x00, 0xff, 0x00, 0x00, 0x00,
+     * ]));
+     *
+     * const base64 = image.getBase64("image/jpeg", {
+     *   quality: 50,
+     * });
+     * ```
      */
     async getBase64<
       ProvidedMimeType extends SupportedMimeTypes,
@@ -350,6 +418,19 @@ export function createJimp<
       return "data:" + mime + ";base64," + data.toString("base64");
     }
 
+    /**
+     * Clone the image into a new Jimp instance.
+     * @param this
+     * @returns A new Jimp instance
+     * @example
+     * ```ts
+     * import { Jimp } from "jimp";
+     *
+     * const image = new Jimp({ width: 3, height: 3, color: 0xffffffff });
+     *
+     * const clone = image.clone();
+     * ```
+     */
     clone<S extends typeof CustomJimp>(this: S) {
       return new CustomJimp({
         ...(this as any).bitmap,
@@ -363,6 +444,14 @@ export function createJimp<
      * @param y the y coordinate
      * @param edgeHandling (optional) define how to sum pixels from outside the border
      * @returns the index of the pixel or -1 if not found
+     * @example
+     * ```ts
+     * import { Jimp } from "jimp";
+     *
+     * const image = new Jimp({ width: 3, height: 3, color: 0xffffffff });
+     *
+     * image.getPixelIndex(1, 1); // 2
+     * ```
      */
     getPixelIndex(x: number, y: number, edgeHandling?: Edge) {
       let xi;
@@ -426,6 +515,14 @@ export function createJimp<
      * @param x the x coordinate
      * @param y the y coordinate
      * @returns the color of the pixel
+     * @example
+     * ```ts
+     * import { Jimp } from "jimp";
+     *
+     * const image = new Jimp({ width: 3, height: 3, color: 0xffffffff });
+     *
+     * image.getPixelColor(1, 1); // 0xffffffff
+     * ```
      */
     getPixelColor(x: number, y: number) {
       if (typeof x !== "number" || typeof y !== "number") {
@@ -437,10 +534,20 @@ export function createJimp<
     }
 
     /**
-     * Returns the hex colour value of a pixel
+     * Sets the hex colour value of a pixel
+     *
      * @param hex color to set
      * @param x the x coordinate
      * @param y the y coordinate
+     *
+     * @example
+     * ```ts
+     * import { Jimp } from "jimp";
+     *
+     * const image = new Jimp({ width: 3, height: 3, color: 0xffffffff });
+     *
+     * image.setPixelColor(0xff0000ff, 0, 0);
+     * ```
      */
     setPixelColor(hex: number, x: number, y: number) {
       if (
@@ -459,6 +566,17 @@ export function createJimp<
 
     /**
      * Determine if the image contains opaque pixels.
+     *
+     * @example
+     * ```
+     * import { Jimp } from "jimp";
+     *
+     * const image = new Jimp({ width: 3, height: 3, color: 0xffffffaa });
+     * const image2 = new Jimp({ width: 3, height: 3, color: 0xff0000ff });
+     *
+     * image.hasAlpha(); // false
+     * image2.hasAlpha(); // true
+     * ```
      */
     hasAlpha() {
       const { width, height, data } = this.bitmap;
@@ -479,6 +597,15 @@ export function createJimp<
      * @param x the x position to blit the image
      * @param y the y position to blit the image
      * @param options determine what mode to use
+     * @example
+     * ```ts
+     * import { Jimp } from "jimp";
+     *
+     * const image = new Jimp({ width: 10, height: 10, color: 0xffffffff });
+     * const image2 = new Jimp({ width: 3, height: 3, color: 0xff0000ff });
+     *
+     * image.composite(image2, 3, 3);
+     * ```
      */
     composite<I extends typeof this>(
       src: I,
@@ -493,6 +620,25 @@ export function createJimp<
       return composite(this, src, x, y, options);
     }
 
+    /**
+     * Scan through the image and call the callback for each pixel
+     *
+     * @example
+     * ```ts
+     * import { Jimp } from "jimp";
+     *
+     * const image = new Jimp({ width: 3, height: 3, color: 0xffffffff });
+     *
+     * image.scan((x, y, idx) => {
+     *   // do something with the pixel
+     * });
+     *
+     * // Or scan through just a region
+     * image.scan(0, 0, 2, 2, (x, y, idx) => {
+     *   // do something with the pixel
+     * });
+     * ```
+     */
     scan(f: (x: number, y: number, idx: number) => any): this;
     scan(
       x: number,
@@ -517,8 +663,18 @@ export function createJimp<
      * @param y the y coordinate to begin the scan at
      * @param w the width of the scan region
      * @param h the height of the scan region
+     * @example
+     * ```ts
+     * import { Jimp } from "jimp";
+     *
+     * const image = new Jimp({ width: 3, height: 3, color: 0xffffffff });
+     *
+     * for (const { x, y, idx, image } of j.scanIterator()) {
+     *   // do something with the pixel
+     * }
+     * ```
      */
-    scanIterator(x: number, y: number, w: number, h: number) {
+    scanIterator(x = 0, y = 0, w = this.bitmap.width, h = this.bitmap.height) {
       if (typeof x !== "number" || typeof y !== "number") {
         throw new Error("x and y must be numbers");
       }

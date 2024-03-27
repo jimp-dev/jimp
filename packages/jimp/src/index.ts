@@ -40,6 +40,20 @@ import { createJimp } from "@jimp/core";
  *
  * @example
  *
+ * #### Basic
+ *
+ * You can use the Jimp class to make empty images.
+ * This is useful for when you want to create an image that composed of other images on top of a background.
+ *
+ * ```ts
+ * import { Jimp } from "jimp";
+ *
+ * const image = new Jimp({ width: 256, height: 256, color: 0xffffffff });
+ * const image2 = new Jimp({ width: 100, height: 100, color: 0xff0000ff });
+ *
+ * image.composite(image2, 50, 50);
+ * ```
+ *
  * #### Node
  *
  * You can use jimp in Node.js.
@@ -57,6 +71,32 @@ import { createJimp } from "@jimp/core";
  *
  * const output = await image.getBuffer("test/image.png");
  * await fs.writeFile("test/output.png", output);
+ * ```
+ *
+ * #### Browser
+ *
+ * You can use jimp in the browser by reading files from URLs
+ *
+ * ```ts
+ * import { Jimp } from "jimp";
+ *
+ * const image = await Jimp.read("https://upload.wikimedia.org/wikipedia/commons/0/01/Bot-Test.jpg");
+ *
+ * image.resize(256, 100);
+ * image.greyscale();
+ *
+ * const output = await image.getBuffer("test/image.png");
+ *
+ * const canvas = document.createElement("canvas");
+ *
+ * canvas.width = image.bitmap.width;
+ * canvas.height = image.bitmap.height;
+ *
+ * const ctx = canvas.getContext("2d");
+ * ctx.putImageData(image.bitmap, 0, 0);
+ *
+ * document.body.appendChild(canvas);
+ *
  * ```
  */
 export const Jimp = createJimp({
@@ -105,6 +145,12 @@ export type { ThresholdOptions } from "@jimp/plugin-threshold";
 export { distance, compareHashes } from "@jimp/plugin-hash";
 export { PNGColorType, PNGFilterType } from "@jimp/js-png";
 export { HorizontalAlign, VerticalAlign, BlendMode } from "@jimp/core";
+export type {
+  RawImageData,
+  JimpConstructorOptions,
+  JimpSimpleConstructorOptions,
+} from "@jimp/core";
+export type { Bitmap } from "@jimp/types";
 export { loadFont } from "@jimp/plugin-print/load-font";
 export { diff } from "@jimp/diff";
 export {

@@ -246,6 +246,9 @@ importers:
       '@jimp/plugin-threshold':
         specifier: workspace:*
         version: link:../../plugins/plugin-threshold
+      '@jimp/types':
+        specifier: workspace:*
+        version: link:../types
       '@jimp/utils':
         specifier: workspace:*
         version: link:../utils

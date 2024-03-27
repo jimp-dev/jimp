@@ -13,6 +13,20 @@ A `Jimp` class enables you to:
 
 ## Example
 
+#### Basic
+
+You can use the Jimp class to make empty images.
+This is useful for when you want to create an image that composed of other images on top of a background.
+
+```ts
+import { Jimp } from "jimp";
+
+const image = new Jimp({ width: 256, height: 256, color: 0xffffffff });
+const image2 = new Jimp({ width: 100, height: 100, color: 0xff0000ff });
+
+image.composite(image2, 50, 50);
+```
+
 #### Node
 
 You can use jimp in Node.js.
@@ -32,6 +46,32 @@ const output = await image.getBuffer("test/image.png");
 await fs.writeFile("test/output.png", output);
 ```
 
+#### Browser
+
+You can use jimp in the browser by reading files from URLs
+
+```ts
+import { Jimp } from "jimp";
+
+const image = await Jimp.read("https://upload.wikimedia.org/wikipedia/commons/0/01/Bot-Test.jpg");
+
+image.resize(256, 100);
+image.greyscale();
+
+const output = await image.getBuffer("test/image.png");
+
+const canvas = document.createElement("canvas");
+
+canvas.width = image.bitmap.width;
+canvas.height = image.bitmap.height;
+
+const ctx = canvas.getContext("2d");
+ctx.putImageData(image.bitmap, 0, 0);
+
+document.body.appendChild(canvas);
+
+```
+
 ## Constructors
 
 ### new Jimp(undefined)
@@ -44,13 +84,15 @@ await fs.writeFile("test/output.png", output);
 
 #### Source
 
-packages/core/dist/esm/index.d.ts:243
+packages/core/dist/esm/index.d.ts:320
 
 ## Methods
 
 ### clone()
 
 > **clone**\<`S`\>(`this`): `S`
+
+Clone the image into a new Jimp instance.
 
 #### Type parameters
 
@@ -64,9 +106,21 @@ packages/core/dist/esm/index.d.ts:243
 
 `S`
 
+A new Jimp instance
+
+#### Example
+
+```ts
+import { Jimp } from "jimp";
+
+const image = new Jimp({ width: 3, height: 3, color: 0xffffffff });
+
+const clone = image.clone();
+```
+
 #### Source
 
-packages/core/dist/esm/index.d.ts:267
+packages/core/dist/esm/index.d.ts:391
 
 ***
 
@@ -108,9 +162,20 @@ determine what mode to use
 
 `any`
 
+#### Example
+
+```ts
+import { Jimp } from "jimp";
+
+const image = new Jimp({ width: 10, height: 10, color: 0xffffffff });
+const image2 = new Jimp({ width: 3, height: 3, color: 0xff0000ff });
+
+image.composite(image2, 3, 3);
+```
+
 #### Source
 
-packages/core/dist/esm/index.d.ts:301
+packages/core/dist/esm/index.d.ts:471
 
 ***
 
@@ -148,21 +213,43 @@ Converts the image to a base 64 string
 
 • **mime**: `ProvidedMimeType_1`
 
+The mime type to export to
+
 • **options?**: `Options_1`
+
+The options to use when exporting
 
 #### Returns
 
 `Promise`\<`string`\>
 
+#### Example
+
+```ts
+import { Jimp } from "jimp";
+
+const image = Jimp.fromBuffer(Buffer.from([
+  0xff, 0x00, 0x00, 0x00, 0xff, 0x00, 0x00, 0x00,
+  0xff, 0x00, 0x00, 0x00, 0xff, 0x00, 0x00, 0x00,
+  0xff, 0x00, 0x00, 0x00, 0xff, 0x00, 0x00, 0x00,
+]));
+
+const base64 = image.getBase64("image/jpeg", {
+  quality: 50,
+});
+```
+
 #### Source
 
-packages/core/dist/esm/index.d.ts:266
+packages/core/dist/esm/index.d.ts:377
 
 ***
 
 ### getBuffer()
 
 > **getBuffer**\<`ProvidedMimeType`, `Options`\>(`mime`, `options`?): `Promise`\<`Buffer`\>
+
+Converts the Jimp instance to an image buffer
 
 #### Type parameters
 
@@ -174,15 +261,33 @@ packages/core/dist/esm/index.d.ts:266
 
 • **mime**: `ProvidedMimeType`
 
+The mime type to export to
+
 • **options?**: `Options`
+
+The options to use when exporting
 
 #### Returns
 
 `Promise`\<`Buffer`\>
 
+#### Example
+
+```ts
+import { Jimp } from "jimp";
+import { promises as fs } from "fs";
+
+const image = new Jimp({ width: 3, height: 3, color: 0xffffffff });
+
+const buffer = await image.getBuffer("image/jpeg", {
+  quality: 50,
+});
+await fs.writeFile("test/output.jpeg", buffer);
+```
+
 #### Source
 
-packages/core/dist/esm/index.d.ts:262
+packages/core/dist/esm/index.d.ts:356
 
 ***
 
@@ -208,9 +313,19 @@ the y coordinate
 
 the color of the pixel
 
+#### Example
+
+```ts
+import { Jimp } from "jimp";
+
+const image = new Jimp({ width: 3, height: 3, color: 0xffffffff });
+
+image.getPixelColor(1, 1); // 0xffffffff
+```
+
 #### Source
 
-packages/core/dist/esm/index.d.ts:282
+packages/core/dist/esm/index.d.ts:422
 
 ***
 
@@ -240,9 +355,19 @@ the y coordinate
 
 the index of the pixel or -1 if not found
 
+#### Example
+
+```ts
+import { Jimp } from "jimp";
+
+const image = new Jimp({ width: 3, height: 3, color: 0xffffffff });
+
+image.getPixelIndex(1, 1); // 2
+```
+
 #### Source
 
-packages/core/dist/esm/index.d.ts:275
+packages/core/dist/esm/index.d.ts:407
 
 ***
 
@@ -256,9 +381,21 @@ Determine if the image contains opaque pixels.
 
 `boolean`
 
+#### Example
+
+```
+import { Jimp } from "jimp";
+
+const image = new Jimp({ width: 3, height: 3, color: 0xffffffaa });
+const image2 = new Jimp({ width: 3, height: 3, color: 0xff0000ff });
+
+image.hasAlpha(); // false
+image2.hasAlpha(); // true
+```
+
 #### Source
 
-packages/core/dist/esm/index.d.ts:293
+packages/core/dist/esm/index.d.ts:454
 
 ***
 
@@ -290,11 +427,11 @@ Nicely format Jimp object when sent to the console e.g. console.log(image)
 
 `string`
 
-pretty printed
+Pretty printed jimp object
 
 #### Source
 
-packages/core/dist/esm/index.d.ts:256
+packages/core/dist/esm/index.d.ts:333
 
 ***
 
@@ -322,6 +459,8 @@ plugins/plugin-hash/dist/esm/index.d.ts:7
 
 > **scan**(`f`): `this`
 
+Scan through the image and call the callback for each pixel
+
 ##### Parameters
 
 • **f**
@@ -330,13 +469,32 @@ plugins/plugin-hash/dist/esm/index.d.ts:7
 
 `this`
 
+##### Example
+
+```ts
+import { Jimp } from "jimp";
+
+const image = new Jimp({ width: 3, height: 3, color: 0xffffffff });
+
+image.scan((x, y, idx) => {
+  // do something with the pixel
+});
+
+// Or scan through just a region
+image.scan(0, 0, 2, 2, (x, y, idx) => {
+  // do something with the pixel
+});
+```
+
 ##### Source
 
-packages/core/dist/esm/index.d.ts:306
+packages/core/dist/esm/index.d.ts:495
 
 #### scan(x, y, w, h, cb)
 
 > **scan**(`x`, `y`, `w`, `h`, `cb`): `this`
+
+Scan through the image and call the callback for each pixel
 
 ##### Parameters
 
@@ -354,33 +512,50 @@ packages/core/dist/esm/index.d.ts:306
 
 `this`
 
+##### Example
+
+```ts
+import { Jimp } from "jimp";
+
+const image = new Jimp({ width: 3, height: 3, color: 0xffffffff });
+
+image.scan((x, y, idx) => {
+  // do something with the pixel
+});
+
+// Or scan through just a region
+image.scan(0, 0, 2, 2, (x, y, idx) => {
+  // do something with the pixel
+});
+```
+
 ##### Source
 
-packages/core/dist/esm/index.d.ts:307
+packages/core/dist/esm/index.d.ts:515
 
 ***
 
 ### scanIterator()
 
-> **scanIterator**(`x`, `y`, `w`, `h`): `Generator`\<`Object`, `void`, `unknown`\>
+> **scanIterator**(`x`?, `y`?, `w`?, `h`?): `Generator`\<`Object`, `void`, `unknown`\>
 
 Iterate scan through a region of the bitmap
 
 #### Parameters
 
-• **x**: `number`
+• **x?**: `number`
 
 the x coordinate to begin the scan at
 
-• **y**: `number`
+• **y?**: `number`
 
 the y coordinate to begin the scan at
 
-• **w**: `number`
+• **w?**: `number`
 
 the width of the scan region
 
-• **h**: `number`
+• **h?**: `number`
 
 the height of the scan region
 
@@ -405,9 +580,21 @@ the height of the scan region
 > > **y**: `number`
 >
 
+#### Example
+
+```ts
+import { Jimp } from "jimp";
+
+const image = new Jimp({ width: 3, height: 3, color: 0xffffffff });
+
+for (const { x, y, idx, image } of j.scanIterator()) {
+  // do something with the pixel
+}
+```
+
 #### Source
 
-packages/core/dist/esm/index.d.ts:315
+packages/core/dist/esm/index.d.ts:533
 
 ***
 
@@ -415,7 +602,7 @@ packages/core/dist/esm/index.d.ts:315
 
 > **setPixelColor**(`hex`, `x`, `y`): `any`
 
-Returns the hex colour value of a pixel
+Sets the hex colour value of a pixel
 
 #### Parameters
 
@@ -435,9 +622,19 @@ the y coordinate
 
 `any`
 
+#### Example
+
+```ts
+import { Jimp } from "jimp";
+
+const image = new Jimp({ width: 3, height: 3, color: 0xffffffff });
+
+image.setPixelColor(0xff0000ff, 0, 0);
+```
+
 #### Source
 
-packages/core/dist/esm/index.d.ts:289
+packages/core/dist/esm/index.d.ts:439
 
 ***
 
@@ -455,7 +652,7 @@ pretty printed
 
 #### Source
 
-packages/core/dist/esm/index.d.ts:261
+packages/core/dist/esm/index.d.ts:338
 
 ***
 
@@ -463,41 +660,68 @@ packages/core/dist/esm/index.d.ts:261
 
 > **`static`** **fromBitmap**(`bitmap`): `Object` & `JimpInstanceMethods`\<`Object`, `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object`\>
 
-Create a Jimp instance from a bitmap
+Create a Jimp instance from a bitmap.
+The difference between this and just using the constructor is that this will
+convert raw image data into the bitmap format that Jimp uses.
 
 #### Parameters
 
-• **bitmap**: `RawImageData`
+• **bitmap**: [`RawImageData`](../interfaces/RawImageData.md)
 
 #### Returns
 
 `Object` & `JimpInstanceMethods`\<`Object`, `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object`\>
 
+#### Example
+
+```ts
+import { Jimp } from "jimp";
+
+const image = Jimp.fromBitmap({
+  data: Buffer.from([
+    0xffffffff, 0xffffffff, 0xffffffff,
+    0xffffffff, 0xffffffff, 0xffffffff,
+    0xffffffff, 0xffffffff, 0xffffffff,
+  ]),
+  width: 3,
+  height: 3,
+});
+```
+
 #### Source
 
-packages/core/dist/esm/index.d.ts:487
+packages/core/dist/esm/index.d.ts:1011
 
 ***
 
 ### fromBuffer()
 
-> **`static`** **fromBuffer**(`data`): `Promise`\<`Object` & `JimpInstanceMethods`\<`Object`, `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object`\>\>
+> **`static`** **fromBuffer**(`buffer`): `Promise`\<`Object` & `JimpInstanceMethods`\<`Object`, `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object`\>\>
 
 Parse a bitmap with the loaded image types.
 
 #### Parameters
 
-• **data**: `Buffer`
+• **buffer**: `Buffer`
 
-raw image data
+Raw image data
 
 #### Returns
 
 `Promise`\<`Object` & `JimpInstanceMethods`\<`Object`, `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object`\>\>
 
+#### Example
+
+```ts
+import { Jimp } from "jimp";
+
+const buffer = await fs.readFile("test/image.png");
+const image = await Jimp.fromBuffer(buffer);
+```
+
 #### Source
 
-packages/core/dist/esm/index.d.ts:327
+packages/core/dist/esm/index.d.ts:552
 
 ***
 
@@ -518,14 +742,18 @@ Create a Jimp instance from a URL or a file path
 #### Example
 
 ```ts
-import { Jimp } from "@jimp";
+import { Jimp } from "jimp";
 
+// Read from a file path
 const image = await Jimp.read("test/image.png");
+
+// Read from a URL
+const image = await Jimp.read("https://upload.wikimedia.org/wikipedia/commons/0/01/Bot-Test.jpg");
 ```
 
 #### Source
 
-packages/core/dist/esm/index.d.ts:653
+packages/core/dist/esm/index.d.ts:1463
 
 ## Properties
 
@@ -557,19 +785,19 @@ Default color to use for new pixels
 
 #### Source
 
-packages/core/dist/esm/index.d.ts:249
+packages/core/dist/esm/index.d.ts:326
 
 ***
 
 ### bitmap
 
-> **bitmap**: `Bitmap`
+> **bitmap**: [`Bitmap`](../interfaces/Bitmap.md)
 
 The bitmap data of the image
 
 #### Source
 
-packages/core/dist/esm/index.d.ts:247
+packages/core/dist/esm/index.d.ts:324
 
 ***
 
@@ -915,7 +1143,7 @@ Formats that can be used with Jimp
 
 #### Source
 
-packages/core/dist/esm/index.d.ts:251
+packages/core/dist/esm/index.d.ts:328
 
 ***
 

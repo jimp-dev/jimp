@@ -57,6 +57,7 @@
     "@jimp/js-png": "workspace:*",
     "@jimp/js-tiff": "workspace:*",
     "@jimp/core": "workspace:*",
+    "@jimp/types": "workspace:*",
     "@jimp/utils": "workspace:*"
   },
   "devDependencies": {
