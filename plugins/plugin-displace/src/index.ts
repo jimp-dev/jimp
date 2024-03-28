@@ -6,6 +6,15 @@ export const methods = {
    * Displaces the image based on the provided displacement map
    * @param map the source Jimp instance
    * @param offset the maximum displacement value
+   * @example
+   * ```ts
+   * import { Jimp } from "jimp";
+   *
+   * const image = await Jimp.read("test/image.png");
+   * const map = await Jimp.read("test/map.png");
+   *
+   * image.displace(map, 10);
+   * ```
    */
   displace<I extends JimpClass>(image: I, map: I, offset: number) {
     if (typeof map !== "object" || !map.bitmap) {

@@ -1,14 +1,27 @@
 import { JimpClass } from "@jimp/types";
 
 export interface CircleOptions {
+  /** the x position to draw the image */
   x?: number;
+  /** the y position to draw the image */
   y?: number;
+  /** the radius of the circle */
   radius?: number;
 }
 
 export const methods = {
   /**
    * Creates a circle out of an image.
+   * @example
+   * ```ts
+   * import { Jimp } from "jimp";
+   *
+   * const image = await Jimp.read("test/image.png");
+   *
+   * image.circle();
+   * // or
+   * image.circle({ radius: 50, x: 25, y: 25 });
+   * ```
    */
   circle<I extends JimpClass>(image: I, options: CircleOptions = {}) {
     const radius =

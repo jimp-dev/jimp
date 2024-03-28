@@ -125,7 +125,7 @@ const image = Jimp.fromBitmap({
 
 #### Source
 
-packages/core/dist/esm/index.d.ts:743
+packages/core/dist/esm/index.d.ts:767
 
 ***
 
@@ -156,7 +156,7 @@ const image = await Jimp.fromBuffer(buffer);
 
 #### Source
 
-packages/core/dist/esm/index.d.ts:1194
+packages/core/dist/esm/index.d.ts:1234
 
 ***
 
@@ -188,7 +188,7 @@ const image = await Jimp.read("https://upload.wikimedia.org/wikipedia/commons/0/
 
 #### Source
 
-packages/core/dist/esm/index.d.ts:284
+packages/core/dist/esm/index.d.ts:292
 
 ***
 
@@ -196,23 +196,39 @@ packages/core/dist/esm/index.d.ts:284
 
 > **autocrop**(`options`?): `Jimp`
 
+Autocrop same color borders from this image.
+This function will attempt to crop out transparent pixels from the image.
+
 #### Parameters
 
-• **options?**: `AutocropOptions`
+• **options?**: [`AutocropOptions`](../interfaces/AutocropOptions.md)
 
 #### Returns
 
 `Jimp`
 
+#### Example
+
+```ts
+import { Jimp } from "jimp";
+
+const image = await Jimp.read("test/image.png");
+const cropped = image.autocrop();
+```
+
 #### Source
 
-plugins/plugin-crop/dist/esm/index.d.ts:28
+plugins/plugin-crop/dist/esm/index.d.ts:45
 
 ***
 
 ### blit()
 
 > **blit**(`options`): `Jimp`
+
+Short for "bit-block transfer".
+It involves the transfer of a block of pixel data from one area of a computer's memory to another area, typically for the purpose of rendering images on the screen or manipulating them in various ways.
+It's a fundamental operation in computer graphics utilized in various applications, from operating systems to video games.
 
 #### Parameters
 
@@ -222,15 +238,28 @@ plugins/plugin-crop/dist/esm/index.d.ts:28
 
 `Jimp`
 
+#### Example
+
+```ts
+import { Jimp } from "jimp";
+
+const image = await Jimp.read("test/image.png");
+const parrot = await Jimp.read("test/party-parrot.png");
+
+image.blit(parrot, x, y);
+```
+
 #### Source
 
-plugins/plugin-blit/dist/esm/index.d.ts:24
+plugins/plugin-blit/dist/esm/index.d.ts:34
 
 ***
 
 ### blur()
 
 > **blur**(`r`): `Jimp`
+
+A fast blur algorithm that produces similar effect to a Gaussian blur - but MUCH quicker
 
 #### Parameters
 
@@ -242,15 +271,27 @@ the pixel radius of the blur
 
 `Jimp`
 
+#### Example
+
+```ts
+import { Jimp } from "jimp";
+
+const image = await Jimp.read("test/image.png");
+
+image.blur(5);
+```
+
 #### Source
 
-plugins/plugin-blur/dist/esm/index.d.ts:7
+plugins/plugin-blur/dist/esm/index.d.ts:15
 
 ***
 
 ### brightness()
 
 > **brightness**(`val`): `Jimp`
+
+Adjusts the brightness of the image
 
 #### Parameters
 
@@ -262,9 +303,19 @@ the amount to adjust the brightness, a number between -1 and +1
 
 `Jimp`
 
+#### Example
+
+```ts
+import { Jimp } from "jimp";
+
+const image = await Jimp.read("test/image.png");
+
+image.brightness(0.5);
+```
+
 #### Source
 
-plugins/plugin-color/dist/esm/index.d.ts:93
+plugins/plugin-color/dist/esm/index.d.ts:117
 
 ***
 
@@ -272,17 +323,31 @@ plugins/plugin-color/dist/esm/index.d.ts:93
 
 > **circle**(`options`?): `Jimp`
 
+Creates a circle out of an image.
+
 #### Parameters
 
-• **options?**: `CircleOptions`
+• **options?**: [`CircleOptions`](../interfaces/CircleOptions.md)
 
 #### Returns
 
 `Jimp`
 
+#### Example
+
+```ts
+import { Jimp } from "jimp";
+
+const image = await Jimp.read("test/image.png");
+
+image.circle();
+// or
+image.circle({ radius: 50, x: 25, y: 25 });
+```
+
 #### Source
 
-plugins/plugin-circle/dist/esm/index.d.ts:11
+plugins/plugin-circle/dist/esm/index.d.ts:24
 
 ***
 
@@ -318,13 +383,15 @@ const clone = image.clone();
 
 #### Source
 
-packages/core/dist/esm/index.d.ts:122
+packages/core/dist/esm/index.d.ts:130
 
 ***
 
 ### color()
 
 > **color**(`actions`): `Jimp`
+
+Apply multiple color modification rules
 
 #### Parameters
 
@@ -336,9 +403,23 @@ list of color modification rules, in following format: \{ apply: '`<rule-name>`'
 
 `Jimp`
 
+#### Example
+
+```ts
+import { Jimp } from "jimp";
+
+const image = await Jimp.read("test/image.png");
+
+image.color([
+  { apply: "hue", params: [-90] },
+  { apply: "lighten", params: [50] },
+  { apply: "xor", params: ["#06D"] },
+]);
+```
+
 #### Source
 
-plugins/plugin-color/dist/esm/index.d.ts:154
+plugins/plugin-color/dist/esm/index.d.ts:290
 
 ***
 
@@ -393,13 +474,15 @@ image.composite(image2, 3, 3);
 
 #### Source
 
-packages/core/dist/esm/index.d.ts:202
+packages/core/dist/esm/index.d.ts:210
 
 ***
 
 ### contain()
 
 > **contain**(`w`, `h`, `alignBits`?, `mode`?): `Jimp`
+
+Scale the image to the given width and height keeping the aspect ratio. Some parts of the image may be letter boxed.
 
 #### Parameters
 
@@ -423,15 +506,27 @@ a scaling method (e.g. Jimp.RESIZE_BEZIER)
 
 `Jimp`
 
+#### Example
+
+```ts
+import { Jimp } from "jimp";
+
+const image = await Jimp.read("test/image.png");
+
+image.contain(150, 100);
+```
+
 #### Source
 
-plugins/plugin-contain/dist/esm/index.d.ts:11
+plugins/plugin-contain/dist/esm/index.d.ts:19
 
 ***
 
 ### contrast()
 
 > **contrast**(`val`): `Jimp`
+
+Adjusts the contrast of the image
 
 #### Parameters
 
@@ -443,15 +538,27 @@ the amount to adjust the contrast, a number between -1 and +1
 
 `Jimp`
 
+#### Example
+
+```ts
+import { Jimp } from "jimp";
+
+const image = await Jimp.read("test/image.png");
+
+image.contrast(0.75);
+```
+
 #### Source
 
-plugins/plugin-color/dist/esm/index.d.ts:98
+plugins/plugin-color/dist/esm/index.d.ts:130
 
 ***
 
 ### convolute()
 
 > **convolute**(`kernel`, `x`?, `y`?, `w`?, `h`?): `Jimp`
+
+Applies a convolution kernel to the image or a region
 
 #### Parameters
 
@@ -479,15 +586,39 @@ the convolution kernel
 
 `Jimp`
 
+#### Example
+
+```ts
+import { Jimp } from "jimp";
+
+const image = await Jimp.read("test/image.png");
+
+// apply a convolution kernel to the whole image
+image.convolution([
+  [-1, -1, 0],
+  [-1, 1, 1],
+  [0, 1, 1],
+]);
+
+// apply a convolution kernel to a region
+image.convolution([
+  [-1, -1, 0],
+  [-1, 1, 1],
+  [0, 1, 1],
+], 10, 10, 10, 20);
+```
+
 #### Source
 
-plugins/plugin-color/dist/esm/index.d.ts:149
+plugins/plugin-color/dist/esm/index.d.ts:273
 
 ***
 
 ### convolution()
 
 > **convolution**(`kernel`, `edgeHandling`?): `Jimp`
+
+Adds each element of the image to its local neighbors, weighted by the kernel
 
 #### Parameters
 
@@ -503,15 +634,31 @@ a matrix to weight the neighbors sum
 
 `Jimp`
 
+#### Example
+
+```ts
+import { Jimp } from "jimp";
+
+const image = await Jimp.read("test/image.png");
+
+image.convolute([
+  [-1, -1, 0],
+  [-1, 1, 1],
+  [0, 1, 1],
+]);
+```
+
 #### Source
 
-plugins/plugin-color/dist/esm/index.d.ts:127
+plugins/plugin-color/dist/esm/index.d.ts:211
 
 ***
 
 ### cover()
 
 > **cover**(`w`, `h`, `alignBits`?, `mode`?): `Jimp`
+
+Scale the image so the given width and height keeping the aspect ratio. Some parts of the image may be clipped.
 
 #### Parameters
 
@@ -535,15 +682,27 @@ a scaling method (e.g. Jimp.RESIZE_BEZIER)
 
 `Jimp`
 
+#### Example
+
+```ts
+import { Jimp } from "jimp";
+
+const image = await Jimp.read("test/image.png");
+
+image.cover(150, 100);
+```
+
 #### Source
 
-plugins/plugin-cover/dist/esm/index.d.ts:11
+plugins/plugin-cover/dist/esm/index.d.ts:19
 
 ***
 
 ### crop()
 
 > **crop**(`x`, `y`, `w`, `h`): `Jimp`
+
+Crops the image at a given point to a give size.
 
 #### Parameters
 
@@ -559,15 +718,26 @@ plugins/plugin-cover/dist/esm/index.d.ts:11
 
 `Jimp`
 
+#### Example
+
+```ts
+import { Jimp } from "jimp";
+
+const image = await Jimp.read("test/image.png");
+const cropped = image.crop(150, 100);
+```
+
 #### Source
 
-plugins/plugin-crop/dist/esm/index.d.ts:24
+plugins/plugin-crop/dist/esm/index.d.ts:32
 
 ***
 
 ### displace()
 
 > **displace**(`map`, `offset`): `Jimp`
+
+Displaces the image based on the provided displacement map
 
 #### Parameters
 
@@ -583,15 +753,28 @@ the maximum displacement value
 
 `Jimp`
 
+#### Example
+
+```ts
+import { Jimp } from "jimp";
+
+const image = await Jimp.read("test/image.png");
+const map = await Jimp.read("test/map.png");
+
+image.displace(map, 10);
+```
+
 #### Source
 
-plugins/plugin-displace/dist/esm/index.d.ts:8
+plugins/plugin-displace/dist/esm/index.d.ts:17
 
 ***
 
 ### distanceFromHash()
 
 > **distanceFromHash**(`compareHash`): `number`
+
+Calculates the hamming distance of the current image and a hash based on their perceptual hash
 
 #### Parameters
 
@@ -603,9 +786,21 @@ hash to compare to
 
 `number`
 
+a number ranging from 0 to 1, 0 means they are believed to be identical
+
+#### Example
+
+```ts
+import { Jimp } from "jimp";
+
+const image = await Jimp.read("test/image.png");
+
+image.distanceFromHash(image.pHash());
+```
+
 #### Source
 
-plugins/plugin-hash/dist/esm/index.d.ts:18
+plugins/plugin-hash/dist/esm/index.d.ts:43
 
 ***
 
@@ -613,19 +808,33 @@ plugins/plugin-hash/dist/esm/index.d.ts:18
 
 > **dither**(): `Jimp`
 
+Apply a ordered dithering effect.
+
 #### Returns
 
 `Jimp`
 
+#### Example
+
+```ts
+import { Jimp } from "jimp";
+
+const image = await Jimp.read("test/image.png");
+
+image.dither();
+```
+
 #### Source
 
-plugins/plugin-dither/dist/esm/index.d.ts:6
+plugins/plugin-dither/dist/esm/index.d.ts:14
 
 ***
 
 ### fade()
 
 > **fade**(`f`): `Jimp`
+
+Fades each pixel by a factor between 0 and 1
 
 #### Parameters
 
@@ -637,15 +846,27 @@ A number from 0 to 1. 0 will haven no effect. 1 will turn the image completely t
 
 `Jimp`
 
+#### Example
+
+```ts
+import { Jimp } from "jimp";
+
+const image = await Jimp.read("test/image.png");
+
+image.fade(0.7);
+```
+
 #### Source
 
-plugins/plugin-color/dist/esm/index.d.ts:121
+plugins/plugin-color/dist/esm/index.d.ts:193
 
 ***
 
 ### fisheye()
 
 > **fisheye**(`options`?): `Jimp`
+
+Adds a fisheye effect to the image.
 
 #### Parameters
 
@@ -655,15 +876,27 @@ plugins/plugin-color/dist/esm/index.d.ts:121
 
 `Jimp`
 
+#### Example
+
+```ts
+import { Jimp } from "jimp";
+
+const image = await Jimp.read("test/image.png");
+
+image.fisheye();
+```
+
 #### Source
 
-plugins/plugin-fisheye/dist/esm/index.d.ts:9
+plugins/plugin-fisheye/dist/esm/index.d.ts:17
 
 ***
 
 ### flip()
 
 > **flip**(`horizontal`, `vertical`): `Jimp`
+
+Flip the image.
 
 #### Parameters
 
@@ -679,15 +912,27 @@ a Boolean, if true the image will be flipped vertically
 
 `Jimp`
 
+#### Example
+
+```ts
+import { Jimp } from "jimp";
+
+const image = await Jimp.read("test/image.png");
+
+image.flip(true, false);
+```
+
 #### Source
 
-plugins/plugin-flip/dist/esm/index.d.ts:8
+plugins/plugin-flip/dist/esm/index.d.ts:16
 
 ***
 
 ### gaussian()
 
 > **gaussian**(`r`): `Jimp`
+
+Applies a true Gaussian blur to the image (warning: this is VERY slow)
 
 #### Parameters
 
@@ -699,9 +944,19 @@ the pixel radius of the blur
 
 `Jimp`
 
+#### Example
+
+```ts
+import { Jimp } from "jimp";
+
+const image = await Jimp.read("test/image.png");
+
+image.gaussian(15);
+```
+
 #### Source
 
-plugins/plugin-blur/dist/esm/index.d.ts:12
+plugins/plugin-blur/dist/esm/index.d.ts:28
 
 ***
 
@@ -715,7 +970,7 @@ Converts the image to a base 64 string
 
 • **ProvidedMimeType_1** extends `"image/bmp"` \| `"image/tiff"` \| `"image/x-ms-bmp"` \| `"image/gif"` \| `"image/jpeg"` \| `"image/png"`
 
-• **Options_1** extends `undefined` \| `Partial`\<`Pick`\<`BmpImage`, `"palette"` \| `"colors"` \| `"importantColors"` \| `"hr"` \| `"vr"` \| `"reserved1"` \| `"reserved2"`\>\> \| `JPEGOptions` \| `Record`\<`string`, `any`\> \| `Omit`\<`PNGOptions`, `"filterType"` \| `"colorType"` \| `"inputColorType"`\> & `Object`
+• **Options_1** extends `undefined` \| `Pretty`\<`Partial`\<`Pick`\<`BmpImage`, `"palette"` \| `"colors"` \| `"importantColors"` \| `"hr"` \| `"vr"` \| `"reserved1"` \| `"reserved2"`\>\>\> \| [`JPEGOptions`](../interfaces/JPEGOptions.md) \| `Record`\<`string`, `any`\> \| `Omit`\<`PNGOptions`, `"filterType"` \| `"colorType"` \| `"inputColorType"`\> & `Object`
 
 #### Parameters
 
@@ -749,7 +1004,7 @@ const base64 = image.getBase64("image/jpeg", {
 
 #### Source
 
-packages/core/dist/esm/index.d.ts:108
+packages/core/dist/esm/index.d.ts:116
 
 ***
 
@@ -763,7 +1018,7 @@ Converts the Jimp instance to an image buffer
 
 • **ProvidedMimeType** extends `"image/bmp"` \| `"image/tiff"` \| `"image/x-ms-bmp"` \| `"image/gif"` \| `"image/jpeg"` \| `"image/png"`
 
-• **Options** extends `undefined` \| `Partial`\<`Pick`\<`BmpImage`, `"palette"` \| `"colors"` \| `"importantColors"` \| `"hr"` \| `"vr"` \| `"reserved1"` \| `"reserved2"`\>\> \| `JPEGOptions` \| `Record`\<`string`, `any`\> \| `Omit`\<`PNGOptions`, `"filterType"` \| `"colorType"` \| `"inputColorType"`\> & `Object`
+• **Options** extends `undefined` \| `Pretty`\<`Partial`\<`Pick`\<`BmpImage`, `"palette"` \| `"colors"` \| `"importantColors"` \| `"hr"` \| `"vr"` \| `"reserved1"` \| `"reserved2"`\>\>\> \| [`JPEGOptions`](../interfaces/JPEGOptions.md) \| `Record`\<`string`, `any`\> \| `Omit`\<`PNGOptions`, `"filterType"` \| `"colorType"` \| `"inputColorType"`\> & `Object`
 
 #### Parameters
 
@@ -795,7 +1050,7 @@ await fs.writeFile("test/output.jpeg", buffer);
 
 #### Source
 
-packages/core/dist/esm/index.d.ts:87
+packages/core/dist/esm/index.d.ts:95
 
 ***
 
@@ -833,7 +1088,7 @@ image.getPixelColor(1, 1); // 0xffffffff
 
 #### Source
 
-packages/core/dist/esm/index.d.ts:153
+packages/core/dist/esm/index.d.ts:161
 
 ***
 
@@ -853,7 +1108,7 @@ the x coordinate
 
 the y coordinate
 
-• **edgeHandling?**: `Edge`
+• **edgeHandling?**: [`Edge`](../enumerations/Edge.md)
 
 (optional) define how to sum pixels from outside the border
 
@@ -875,7 +1130,7 @@ image.getPixelIndex(1, 1); // 2
 
 #### Source
 
-packages/core/dist/esm/index.d.ts:138
+packages/core/dist/esm/index.d.ts:146
 
 ***
 
@@ -883,13 +1138,25 @@ packages/core/dist/esm/index.d.ts:138
 
 > **greyscale**(): `Jimp`
 
+Removes colour from the image using ITU Rec 709 luminance values
+
 #### Returns
 
 `Jimp`
 
+#### Example
+
+```ts
+import { Jimp } from "jimp";
+
+const image = await Jimp.read("test/image.png");
+
+image.greyscale();
+```
+
 #### Source
 
-plugins/plugin-color/dist/esm/index.d.ts:107
+plugins/plugin-color/dist/esm/index.d.ts:155
 
 ***
 
@@ -905,7 +1172,7 @@ Determine if the image contains opaque pixels.
 
 #### Example
 
-```
+```ts
 import { Jimp } from "jimp";
 
 const image = new Jimp({ width: 3, height: 3, color: 0xffffffaa });
@@ -917,13 +1184,15 @@ image2.hasAlpha(); // true
 
 #### Source
 
-packages/core/dist/esm/index.d.ts:185
+packages/core/dist/esm/index.d.ts:193
 
 ***
 
 ### hash()
 
 > **hash**(`base`?): `string`
+
+Generates a perceptual hash of the image `<https://en.wikipedia.org/wiki/Perceptual_hashing>`. And pads the string. Can configure base.
 
 #### Parameters
 
@@ -935,9 +1204,20 @@ A number between 2 and 64 representing the base for the hash (e.g. 2 is binary, 
 
 `string`
 
+#### Example
+
+```ts
+import { Jimp } from "jimp";
+
+const image = await Jimp.read("test/image.png");
+
+image.hash(2); // binary
+image.hash(64); // base 64
+```
+
 #### Source
 
-plugins/plugin-hash/dist/esm/index.d.ts:12
+plugins/plugin-hash/dist/esm/index.d.ts:29
 
 ***
 
@@ -953,9 +1233,19 @@ Nicely format Jimp object when sent to the console e.g. console.log(image)
 
 Pretty printed jimp object
 
+#### Example
+
+```ts
+import { Jimp } from "jimp";
+
+const image = await Jimp.read("test/image.png");
+
+console.log(image);
+```
+
 #### Source
 
-packages/core/dist/esm/index.d.ts:64
+packages/core/dist/esm/index.d.ts:72
 
 ***
 
@@ -963,19 +1253,33 @@ packages/core/dist/esm/index.d.ts:64
 
 > **invert**(): `Jimp`
 
+Inverts the colors in the image.
+
 #### Returns
 
 `Jimp`
 
+#### Example
+
+```ts
+import { Jimp } from "jimp";
+
+const image = await Jimp.read("test/image.png");
+
+image.invert();
+```
+
 #### Source
 
-plugins/plugin-color/dist/esm/index.d.ts:88
+plugins/plugin-color/dist/esm/index.d.ts:104
 
 ***
 
 ### mask()
 
 > **mask**(`src`, `x`?, `y`?): `Jimp`
+
+Masks a source image on to this image using average pixel colour. A completely black pixel on the mask will turn a pixel in the image completely transparent.
 
 #### Parameters
 
@@ -995,9 +1299,20 @@ the vertical position to blit the image
 
 `Jimp`
 
+#### Example
+
+```ts
+import { Jimp } from "jimp";
+
+const image = await Jimp.read("test/image.png");
+const mask = await Jimp.read("test/mask.png");
+
+image.mask(mask);
+```
+
 #### Source
 
-plugins/plugin-mask/dist/esm/index.d.ts:9
+plugins/plugin-mask/dist/esm/index.d.ts:18
 
 ***
 
@@ -1005,19 +1320,33 @@ plugins/plugin-mask/dist/esm/index.d.ts:9
 
 > **normalize**(): `Jimp`
 
+Normalizes the image.
+
 #### Returns
 
 `Jimp`
 
+#### Example
+
+```ts
+import { Jimp } from "jimp";
+
+const image = await Jimp.read("test/image.png");
+
+image.normalize();
+```
+
 #### Source
 
-plugins/plugin-color/dist/esm/index.d.ts:84
+plugins/plugin-color/dist/esm/index.d.ts:92
 
 ***
 
 ### opacity()
 
 > **opacity**(`f`): `Jimp`
+
+Multiplies the opacity of each pixel by a factor between 0 and 1
 
 #### Parameters
 
@@ -1029,9 +1358,19 @@ A number, the factor by which to multiply the opacity of each pixel
 
 `Jimp`
 
+#### Example
+
+```ts
+import { Jimp } from "jimp";
+
+const image = await Jimp.read("test/image.png");
+
+image.opacity(0.5);
+```
+
 #### Source
 
-plugins/plugin-color/dist/esm/index.d.ts:112
+plugins/plugin-color/dist/esm/index.d.ts:168
 
 ***
 
@@ -1039,13 +1378,25 @@ plugins/plugin-color/dist/esm/index.d.ts:112
 
 > **opaque**(): `Jimp`
 
+Set the alpha channel on every pixel to fully opaque.
+
 #### Returns
 
 `Jimp`
 
+#### Example
+
+```ts
+import { Jimp } from "jimp";
+
+const image = await Jimp.read("test/image.png");
+
+image.opaque();
+```
+
 #### Source
 
-plugins/plugin-color/dist/esm/index.d.ts:131
+plugins/plugin-color/dist/esm/index.d.ts:223
 
 ***
 
@@ -1053,19 +1404,35 @@ plugins/plugin-color/dist/esm/index.d.ts:131
 
 > **pHash**(): `string`
 
+Calculates the perceptual hash
+
 #### Returns
 
 `string`
 
+the perceptual hash
+
+#### Example
+
+```ts
+import { Jimp } from "jimp";
+
+const image = await Jimp.read("test/image.png");
+
+image.hash();
+```
+
 #### Source
 
-plugins/plugin-hash/dist/esm/index.d.ts:7
+plugins/plugin-hash/dist/esm/index.d.ts:15
 
 ***
 
 ### pixelate()
 
 > **pixelate**(`size`, `x`?, `y`?, `w`?, `h`?): `Jimp`
+
+Pixelates the image or a region
 
 #### Parameters
 
@@ -1093,15 +1460,31 @@ the size of the pixels
 
 `Jimp`
 
+#### Example
+
+```ts
+import { Jimp } from "jimp";
+
+const image = await Jimp.read("test/image.png");
+
+// pixelate the whole image
+image.pixelate(10);
+
+// pixelate a region
+image.pixelate(10, 10, 10, 20, 20);
+```
+
 #### Source
 
-plugins/plugin-color/dist/esm/index.d.ts:140
+plugins/plugin-color/dist/esm/index.d.ts:244
 
 ***
 
 ### posterize()
 
 > **posterize**(`n`): `Jimp`
+
+Apply a posterize effect
 
 #### Parameters
 
@@ -1113,15 +1496,27 @@ the amount to adjust the contrast, minimum threshold is two
 
 `Jimp`
 
+#### Example
+
+```ts
+import { Jimp } from "jimp";
+
+const image = await Jimp.read("test/image.png");
+
+image.posterize(5);
+```
+
 #### Source
 
-plugins/plugin-color/dist/esm/index.d.ts:103
+plugins/plugin-color/dist/esm/index.d.ts:143
 
 ***
 
 ### print()
 
 > **print**(`font`, `x`, `y`, `text`, `maxWidth`?, `maxHeight`?, `cb`?): `Jimp`
+
+Draws a text on a image on a given boundary
 
 #### Parameters
 
@@ -1157,15 +1552,28 @@ the boundary height to draw in
 
 `Jimp`
 
+#### Example
+
+```ts
+import { Jimp } from "jimp";
+
+const image = await Jimp.read("test/image.png");
+const font = await Jimp.loadFont(Jimp.FONT_SANS_32_BLACK);
+
+image.print(font, 10, 10, "Hello world!");
+```
+
 #### Source
 
-plugins/plugin-print/dist/esm/index.d.ts:17
+plugins/plugin-print/dist/esm/index.d.ts:26
 
 ***
 
 ### resize()
 
 > **resize**(`w`, `h`, `mode`?): `Jimp`
+
+Resizes the image to a set width and height using a 2-pass bilinear algorithm
 
 #### Parameters
 
@@ -1185,15 +1593,27 @@ a scaling method (e.g. Jimp.RESIZE_BEZIER)
 
 `Jimp`
 
+#### Example
+
+```ts
+import { Jimp, AutoSize } from "jimp";
+
+const image = await Jimp.read("test/image.png");
+
+image.resize(150, AutoSize);
+```
+
 #### Source
 
-plugins/plugin-resize/dist/esm/index.d.ts:11
+plugins/plugin-resize/dist/esm/index.d.ts:19
 
 ***
 
 ### rotate()
 
 > **rotate**(`deg`, `mode`?): `Jimp`
+
+Rotates the image counter-clockwise by a number of degrees. By default the width and height of the image will be resized appropriately.
 
 #### Parameters
 
@@ -1207,15 +1627,27 @@ the number of degrees to rotate the image by
 
 `Jimp`
 
+#### Example
+
+```ts
+import { Jimp } from "jimp";
+
+const image = await Jimp.read("test/image.png");
+
+image.rotate(90);
+```
+
 #### Source
 
-plugins/plugin-rotate/dist/esm/index.d.ts:8
+plugins/plugin-rotate/dist/esm/index.d.ts:16
 
 ***
 
 ### scale()
 
 > **scale**(`f`, `mode`?): `Jimp`
+
+Uniformly scales the image by a factor.
 
 #### Parameters
 
@@ -1231,15 +1663,27 @@ the factor to scale the image by
 
 `Jimp`
 
+#### Example
+
+```ts
+import { Jimp } from "jimp";
+
+const image = await Jimp.read("test/image.png");
+
+image.scale(0.5);
+```
+
 #### Source
 
-plugins/plugin-resize/dist/esm/index.d.ts:17
+plugins/plugin-resize/dist/esm/index.d.ts:33
 
 ***
 
 ### scaleToFit()
 
 > **scaleToFit**(`w`, `h`, `mode`?): `Jimp`
+
+Scale the image to the largest size that fits inside the rectangle that has the given width and height.
 
 #### Parameters
 
@@ -1259,9 +1703,19 @@ a scaling method (e.g. ResizeStrategy.BEZIER)
 
 `Jimp`
 
+#### Example
+
+```ts
+import { Jimp } from "jimp";
+
+const image = await Jimp.read("test/image.png");
+
+image.scaleToFit(100, 100);
+```
+
 #### Source
 
-plugins/plugin-resize/dist/esm/index.d.ts:24
+plugins/plugin-resize/dist/esm/index.d.ts:48
 
 ***
 
@@ -1300,7 +1754,7 @@ image.scan(0, 0, 2, 2, (x, y, idx) => {
 
 ##### Source
 
-packages/core/dist/esm/index.d.ts:226
+packages/core/dist/esm/index.d.ts:234
 
 #### scan(x, y, w, h, cb)
 
@@ -1343,7 +1797,7 @@ image.scan(0, 0, 2, 2, (x, y, idx) => {
 
 ##### Source
 
-packages/core/dist/esm/index.d.ts:246
+packages/core/dist/esm/index.d.ts:254
 
 ***
 
@@ -1406,7 +1860,7 @@ for (const { x, y, idx, image } of j.scanIterator()) {
 
 #### Source
 
-packages/core/dist/esm/index.d.ts:264
+packages/core/dist/esm/index.d.ts:272
 
 ***
 
@@ -1414,13 +1868,25 @@ packages/core/dist/esm/index.d.ts:264
 
 > **sepia**(): `Jimp`
 
+Applies a sepia tone to the image.
+
 #### Returns
 
 `Jimp`
 
+#### Example
+
+```ts
+import { Jimp } from "jimp";
+
+const image = await Jimp.read("test/image.png");
+
+image.sepia();
+```
+
 #### Source
 
-plugins/plugin-color/dist/esm/index.d.ts:116
+plugins/plugin-color/dist/esm/index.d.ts:180
 
 ***
 
@@ -1460,13 +1926,16 @@ image.setPixelColor(0xff0000ff, 0, 0);
 
 #### Source
 
-packages/core/dist/esm/index.d.ts:170
+packages/core/dist/esm/index.d.ts:178
 
 ***
 
 ### threshold()
 
 > **threshold**(`options`): `Jimp`
+
+Applies a minimum color threshold to a grayscale image.
+Converts image to grayscale by default.
 
 #### Parameters
 
@@ -1476,9 +1945,19 @@ packages/core/dist/esm/index.d.ts:170
 
 `Jimp`
 
+#### Example
+
+```ts
+import { Jimp } from "jimp";
+
+const image = await Jimp.read("test/image.png");
+
+image.threshold({ max: 150 });
+```
+
 #### Source
 
-plugins/plugin-threshold/dist/esm/index.d.ts:14
+plugins/plugin-threshold/dist/esm/index.d.ts:23
 
 ***
 
@@ -1496,7 +1975,7 @@ pretty printed
 
 #### Source
 
-packages/core/dist/esm/index.d.ts:69
+packages/core/dist/esm/index.d.ts:77
 
 ## Properties
 

@@ -13,7 +13,16 @@ export interface ThresholdOptions {
 
 export const methods = {
   /**
-   * Applies a minimum color threshold to a grayscale image.  Converts image to grayscale by default
+   * Applies a minimum color threshold to a grayscale image.
+   * Converts image to grayscale by default.
+   * @example
+   * ```ts
+   * import { Jimp } from "jimp";
+   *
+   * const image = await Jimp.read("test/image.png");
+   *
+   * image.threshold({ max: 150 });
+   * ```
    */
   threshold<I extends JimpClass>(image: I, options: ThresholdOptions) {
     let { max, replace = 255, autoGreyscale = true } = options;

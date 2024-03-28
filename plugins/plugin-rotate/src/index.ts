@@ -214,6 +214,14 @@ export const methods = {
   /**
    * Rotates the image counter-clockwise by a number of degrees. By default the width and height of the image will be resized appropriately.
    * @param deg the number of degrees to rotate the image by
+   * @example
+   * ```ts
+   * import { Jimp } from "jimp";
+   *
+   * const image = await Jimp.read("test/image.png");
+   *
+   * image.rotate(90);
+   * ```
    */
   rotate<I extends JimpClass>(
     image: I,

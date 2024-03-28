@@ -10,6 +10,14 @@ export const methods = {
    * @param h the height to resize the image to
    * @param alignBits A bitmask for horizontal and vertical alignment
    * @param mode a scaling method (e.g. Jimp.RESIZE_BEZIER)
+   * @example
+   * ```ts
+   * import { Jimp } from "jimp";
+   *
+   * const image = await Jimp.read("test/image.png");
+   *
+   * image.cover(150, 100);
+   * ```
    */
   cover<I extends JimpClass>(
     image: I,

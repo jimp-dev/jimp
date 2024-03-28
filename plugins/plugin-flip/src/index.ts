@@ -5,6 +5,14 @@ export const methods = {
    * Flip the image.
    * @param horizontal a Boolean, if true the image will be flipped horizontally
    * @param vertical a Boolean, if true the image will be flipped vertically
+   * @example
+   * ```ts
+   * import { Jimp } from "jimp";
+   *
+   * const image = await Jimp.read("test/image.png");
+   *
+   * image.flip(true, false);
+   * ```
    */
   flip<I extends JimpClass>(image: I, horizontal: boolean, vertical: boolean) {
     if (typeof horizontal !== "boolean" || typeof vertical !== "boolean") {

@@ -25,6 +25,14 @@ export const methods = {
   /**
    * Calculates the perceptual hash
    * @returns the perceptual hash
+   * @example
+   * ```ts
+   * import { Jimp } from "jimp";
+   *
+   * const image = await Jimp.read("test/image.png");
+   *
+   * image.hash();
+   * ```
    */
   pHash<I extends JimpClass>(image: I) {
     const pHash = new ImagePHash();
@@ -34,6 +42,15 @@ export const methods = {
   /**
    * Generates a perceptual hash of the image <https://en.wikipedia.org/wiki/Perceptual_hashing>. And pads the string. Can configure base.
    * @param base A number between 2 and 64 representing the base for the hash (e.g. 2 is binary, 10 is decimal, 16 is hex, 64 is base 64). Defaults to 64.
+   * @example
+   * ```ts
+   * import { Jimp } from "jimp";
+   *
+   * const image = await Jimp.read("test/image.png");
+   *
+   * image.hash(2); // binary
+   * image.hash(64); // base 64
+   * ```
    */
   hash<I extends JimpClass>(image: I, base = 64) {
     if (base < 2 || base > 64) {
@@ -51,6 +68,14 @@ export const methods = {
    * Calculates the hamming distance of the current image and a hash based on their perceptual hash
    * @param compareHash hash to compare to
    * @returns  a number ranging from 0 to 1, 0 means they are believed to be identical
+   * @example
+   * ```ts
+   * import { Jimp } from "jimp";
+   *
+   * const image = await Jimp.read("test/image.png");
+   *
+   * image.distanceFromHash(image.pHash());
+   * ```
    */
   distanceFromHash<I extends JimpClass>(image: I, compareHash: string) {
     const pHash = new ImagePHash();

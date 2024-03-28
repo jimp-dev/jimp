@@ -2,7 +2,15 @@ import { JimpClass } from "@jimp/types";
 
 export const methods = {
   /**
-   * Apply a ordered dithering effect
+   * Apply a ordered dithering effect.
+   * @example
+   * ```ts
+   * import { Jimp } from "jimp";
+   *
+   * const image = await Jimp.read("test/image.png");
+   *
+   * image.dither();
+   * ```
    */
   dither<I extends JimpClass>(image: I) {
     const rgb565Matrix = [

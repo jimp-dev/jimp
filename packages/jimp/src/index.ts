@@ -141,6 +141,7 @@ export type {
   GrayscaleAction,
   DesaturateAction,
 } from "@jimp/plugin-color";
+export type { CircleOptions } from "@jimp/plugin-circle";
 export type { AutocropOptions } from "@jimp/plugin-crop";
 export { AutoSize, ResizeStrategy } from "@jimp/plugin-resize";
 export type { ThresholdOptions } from "@jimp/plugin-threshold";

@@ -5,7 +5,7 @@ prev: false
 title: "intToRGBA"
 ---
 
-> **intToRGBA**(`i`): `RGBAColor`
+> **intToRGBA**(`i`): [`RGBAColor`](../interfaces/RGBAColor.md)
 
 A helper method that converts RGBA values to a single integer value
 
@@ -17,7 +17,7 @@ A single integer value representing an RGBA colour (e.g. 0xFF0000FF for red)
 
 ## Returns
 
-`RGBAColor`
+[`RGBAColor`](../interfaces/RGBAColor.md)
 
 An object with the properties r, g, b and a representing RGBA values
 

@@ -4,6 +4,9 @@ export function load(app) {
   const fullSignaturePath = new Map();
   const needsUpdate = new Set();
 
+  const commentMap = new Map();
+  const needComment = new Set();
+
   let jimpClass;
   let options;
 
@@ -20,12 +23,20 @@ export function load(app) {
    * @param {import('typedoc')['DeclarationReflection']} refl
    */
   function onCreateDeclaration(context, refl) {
-    // console.log(refl);
     if (refl.kindOf(ReflectionKind.CallSignature)) {
       if (refl.typeParameters) {
+        // build a cache of all the types
         fullSignaturePath.set(refl.name, refl);
       } else if (refl.parameters?.[0]?.name === "args") {
+        // Recorder ones where the args have been merged
         needsUpdate.add(refl);
+      }
+
+      if (refl.comment) {
+        // build a cache of all the types
+        commentMap.set(refl.name, refl);
+      } else if (commentMap.get(refl.name)) {
+        refl.comment = commentMap.get(refl.name).comment;
       }
     }
 
@@ -33,6 +44,7 @@ export function load(app) {
       jimpClass = refl;
     }
 
+    // Fix return types
     if (
       refl.type.name === "Promise" &&
       refl.type.typeArguments.some((a) =>
@@ -44,6 +56,7 @@ export function load(app) {
       ];
     }
 
+    // Fix parameters
     if (refl.type.types?.some((t) => t.name === "JimpInstanceMethods")) {
       refl.type.types = [
         ReferenceType.createBrokenReference("Jimp", context.project),

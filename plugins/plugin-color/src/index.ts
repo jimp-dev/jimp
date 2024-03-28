@@ -185,7 +185,15 @@ const getBounds = function (histogramChannel: number[]) {
 
 export const methods = {
   /**
-   * Normalizes the image
+   * Normalizes the image.
+   * @example
+   * ```ts
+   * import { Jimp } from "jimp";
+   *
+   * const image = await Jimp.read("test/image.png");
+   *
+   * image.normalize();
+   * ```
    */
   normalize<I extends JimpClass>(image: I) {
     const h = histogram(image);
@@ -224,7 +232,15 @@ export const methods = {
   },
 
   /**
-   * Inverts the colors in the image
+   * Inverts the colors in the image.
+   * @example
+   * ```ts
+   * import { Jimp } from "jimp";
+   *
+   * const image = await Jimp.read("test/image.png");
+   *
+   * image.invert();
+   * ```
    */
   invert<I extends JimpClass>(image: I) {
     image.scan((_, __, idx) => {
@@ -239,6 +255,14 @@ export const methods = {
   /**
    * Adjusts the brightness of the image
    * @param val the amount to adjust the brightness, a number between -1 and +1
+   * @example
+   * ```ts
+   * import { Jimp } from "jimp";
+   *
+   * const image = await Jimp.read("test/image.png");
+   *
+   * image.brightness(0.5);
+   * ```
    */
   brightness<I extends JimpClass>(image: I, val: number) {
     if (typeof val !== "number") {
@@ -267,6 +291,14 @@ export const methods = {
   /**
    * Adjusts the contrast of the image
    * @param val the amount to adjust the contrast, a number between -1 and +1
+   * @example
+   * ```ts
+   * import { Jimp } from "jimp";
+   *
+   * const image = await Jimp.read("test/image.png");
+   *
+   * image.contrast(0.75);
+   * ```
    */
   contrast<I extends JimpClass>(image: I, val: number) {
     if (typeof val !== "number") {
@@ -296,6 +328,14 @@ export const methods = {
   /**
    * Apply a posterize effect
    * @param  n the amount to adjust the contrast, minimum threshold is two
+   * @example
+   * ```ts
+   * import { Jimp } from "jimp";
+   *
+   * const image = await Jimp.read("test/image.png");
+   *
+   * image.posterize(5);
+   * ```
    */
   posterize<I extends JimpClass>(image: I, n: number) {
     if (typeof n !== "number") {
@@ -324,6 +364,14 @@ export const methods = {
   },
   /**
    * Removes colour from the image using ITU Rec 709 luminance values
+   * @example
+   * ```ts
+   * import { Jimp } from "jimp";
+   *
+   * const image = await Jimp.read("test/image.png");
+   *
+   * image.greyscale();
+   * ```
    */
   greyscale<I extends JimpClass>(image: I) {
     image.scan((_, __, idx) => {
@@ -348,6 +396,14 @@ export const methods = {
   /**
    * Multiplies the opacity of each pixel by a factor between 0 and 1
    * @param f A number, the factor by which to multiply the opacity of each pixel
+   * @example
+   * ```ts
+   * import { Jimp } from "jimp";
+   *
+   * const image = await Jimp.read("test/image.png");
+   *
+   * image.opacity(0.5);
+   * ```
    */
   opacity<I extends JimpClass>(image: I, f: number) {
     if (typeof f !== "number") {
@@ -367,7 +423,15 @@ export const methods = {
   },
 
   /**
-   * Applies a sepia tone to the image
+   * Applies a sepia tone to the image.
+   * @example
+   * ```ts
+   * import { Jimp } from "jimp";
+   *
+   * const image = await Jimp.read("test/image.png");
+   *
+   * image.sepia();
+   * ```
    */
   sepia<I extends JimpClass>(image: I) {
     image.scan((_, __, idx) => {
@@ -390,6 +454,14 @@ export const methods = {
   /**
    * Fades each pixel by a factor between 0 and 1
    * @param f A number from 0 to 1. 0 will haven no effect. 1 will turn the image completely transparent.
+   * @example
+   * ```ts
+   * import { Jimp } from "jimp";
+   *
+   * const image = await Jimp.read("test/image.png");
+   *
+   * image.fade(0.7);
+   * ```
    */
   fade<I extends JimpClass>(image: I, f: number) {
     if (typeof f !== "number") {
@@ -408,6 +480,18 @@ export const methods = {
    * Adds each element of the image to its local neighbors, weighted by the kernel
    * @param kernel a matrix to weight the neighbors sum
    * @param edgeHandling (optional) define how to sum pixels from outside the border
+   * @example
+   * ```ts
+   * import { Jimp } from "jimp";
+   *
+   * const image = await Jimp.read("test/image.png");
+   *
+   * image.convolute([
+   *   [-1, -1, 0],
+   *   [-1, 1, 1],
+   *   [0, 1, 1],
+   * ]);
+   * ```
    */
   convolution<I extends JimpClass>(
     image: I,
@@ -504,7 +588,15 @@ export const methods = {
   },
 
   /**
-   * Set the alpha channel on every pixel to fully opaque
+   * Set the alpha channel on every pixel to fully opaque.
+   * @example
+   * ```ts
+   * import { Jimp } from "jimp";
+   *
+   * const image = await Jimp.read("test/image.png");
+   *
+   * image.opaque();
+   * ```
    */
   opaque<I extends JimpClass>(image: I) {
     image.scan((_, __, idx) => {
@@ -521,6 +613,18 @@ export const methods = {
    * @param y (optional) the y position of the region to pixelate
    * @param w (optional) the width of the region to pixelate
    * @param h (optional) the height of the region to pixelate
+   * @example
+   * ```ts
+   * import { Jimp } from "jimp";
+   *
+   * const image = await Jimp.read("test/image.png");
+   *
+   * // pixelate the whole image
+   * image.pixelate(10);
+   *
+   * // pixelate a region
+   * image.pixelate(10, 10, 10, 20, 20);
+   * ```
    */
   pixelate<I extends JimpClass>(
     image: I,
@@ -564,6 +668,26 @@ export const methods = {
    * @param y (optional) the y position of the region to apply convolution to
    * @param w (optional) the width of the region to apply convolution to
    * @param h (optional) the height of the region to apply convolution to
+   * @example
+   * ```ts
+   * import { Jimp } from "jimp";
+   *
+   * const image = await Jimp.read("test/image.png");
+   *
+   * // apply a convolution kernel to the whole image
+   * image.convolution([
+   *   [-1, -1, 0],
+   *   [-1, 1, 1],
+   *   [0, 1, 1],
+   * ]);
+   *
+   * // apply a convolution kernel to a region
+   * image.convolution([
+   *   [-1, -1, 0],
+   *   [-1, 1, 1],
+   *   [0, 1, 1],
+   * ], 10, 10, 10, 20);
+   * ```
    */
   convolute<I extends JimpClass>(
     image: I,
@@ -589,6 +713,18 @@ export const methods = {
   /**
    * Apply multiple color modification rules
    * @param  actions list of color modification rules, in following format: { apply: '<rule-name>', params: [ <rule-parameters> ]  }
+   * @example
+   * ```ts
+   * import { Jimp } from "jimp";
+   *
+   * const image = await Jimp.read("test/image.png");
+   *
+   * image.color([
+   *   { apply: "hue", params: [-90] },
+   *   { apply: "lighten", params: [50] },
+   *   { apply: "xor", params: ["#06D"] },
+   * ]);
+   * ```
    */
   color<I extends JimpClass>(image: I, actions: ColorAction[]) {
     if (!actions || !Array.isArray(actions)) {

@@ -317,6 +317,14 @@ export function createJimp<
     /**
      * Nicely format Jimp object when sent to the console e.g. console.log(image)
      * @returns Pretty printed jimp object
+     * @example
+     * ```ts
+     * import { Jimp } from "jimp";
+     *
+     * const image = await Jimp.read("test/image.png");
+     *
+     * console.log(image);
+     * ```
      */
     inspect() {
       return (
@@ -564,7 +572,7 @@ export function createJimp<
      * Determine if the image contains opaque pixels.
      *
      * @example
-     * ```
+     * ```ts
      * import { Jimp } from "jimp";
      *
      * const image = new Jimp({ width: 3, height: 3, color: 0xffffffaa });

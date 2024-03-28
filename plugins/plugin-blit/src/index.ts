@@ -23,6 +23,16 @@ export const methods = {
    * Short for "bit-block transfer".
    * It involves the transfer of a block of pixel data from one area of a computer's memory to another area, typically for the purpose of rendering images on the screen or manipulating them in various ways.
    * It's a fundamental operation in computer graphics utilized in various applications, from operating systems to video games.
+   *
+   * @example
+   * ```ts
+   * import { Jimp } from "jimp";
+   *
+   * const image = await Jimp.read("test/image.png");
+   * const parrot = await Jimp.read("test/party-parrot.png");
+   *
+   * image.blit(parrot, x, y);
+   * ```
    */
   blit<I extends JimpClass>(image: I, options: BlitOptions<I>) {
     let {

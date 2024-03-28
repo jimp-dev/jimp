@@ -97,6 +97,15 @@ export const methods = {
    * @param maxWidth the boundary width to draw in
    * @param maxHeight the boundary height to draw in
    * @param cb (optional) a callback for when complete that ahs the end co-ordinates of the text
+   * @example
+   * ```ts
+   * import { Jimp } from "jimp";
+   *
+   * const image = await Jimp.read("test/image.png");
+   * const font = await Jimp.loadFont(Jimp.FONT_SANS_32_BLACK);
+   *
+   * image.print(font, 10, 10, "Hello world!");
+   * ```
    */
   print<I extends JimpClass>(
     image: I,

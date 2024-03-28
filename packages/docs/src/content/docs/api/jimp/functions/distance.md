@@ -42,4 +42,4 @@ distance(image1, image2); // 0.5
 
 ## Source
 
-plugins/plugin-hash/dist/esm/index.d.ts:35
+plugins/plugin-hash/dist/esm/index.d.ts:60

@@ -6,6 +6,15 @@ export const methods = {
    * @param src the source Jimp instance
    * @param x the horizontal position to blit the image
    * @param y the vertical position to blit the image
+   * @example
+   * ```ts
+   * import { Jimp } from "jimp";
+   *
+   * const image = await Jimp.read("test/image.png");
+   * const mask = await Jimp.read("test/mask.png");
+   *
+   * image.mask(mask);
+   * ```
    */
   mask<I extends JimpClass>(image: I, src: I, x = 0, y = 0) {
     // round input

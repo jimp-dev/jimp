@@ -38,4 +38,4 @@ compareHashes(image1.pHash(), image2.pHash()); // 0.5
 
 ## Source
 
-plugins/plugin-hash/dist/esm/index.d.ts:51
+plugins/plugin-hash/dist/esm/index.d.ts:76

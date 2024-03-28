@@ -12,6 +12,14 @@ export const methods = {
    * @param w the width to resize the image to (or AutoSize)
    * @param h the height to resize the image to (or AutoSize)
    * @param mode a scaling method (e.g. Jimp.RESIZE_BEZIER)
+   * @example
+   * ```ts
+   * import { Jimp, AutoSize } from "jimp";
+   *
+   * const image = await Jimp.read("test/image.png");
+   *
+   * image.resize(150, AutoSize);
+   * ```
    */
   resize<I extends JimpClass>(
     image: I,
@@ -76,6 +84,14 @@ export const methods = {
    * Uniformly scales the image by a factor.
    * @param f the factor to scale the image by
    * @param mode (optional) a scaling method (e.g. Jimp.RESIZE_BEZIER)
+   * @example
+   * ```ts
+   * import { Jimp } from "jimp";
+   *
+   * const image = await Jimp.read("test/image.png");
+   *
+   * image.scale(0.5);
+   * ```
    */
   scale<I extends JimpClass>(image: I, f: number, mode?: ResizeStrategy) {
     if (typeof f !== "number") {
@@ -98,6 +114,14 @@ export const methods = {
    * @param w the width to resize the image to
    * @param h the height to resize the image to
    * @param mode a scaling method (e.g. ResizeStrategy.BEZIER)
+   * @example
+   * ```ts
+   * import { Jimp } from "jimp";
+   *
+   * const image = await Jimp.read("test/image.png");
+   *
+   * image.scaleToFit(100, 100);
+   * ```
    */
   scaleToFit<I extends JimpClass>(
     image: I,

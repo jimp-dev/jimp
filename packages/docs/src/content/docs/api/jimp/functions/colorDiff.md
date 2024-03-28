@@ -14,11 +14,11 @@ Where `a` is optional and `val` is an integer between 0 and 255.
 
 ## Parameters
 
-• **rgba1**: `RGBAColor` \| `RGBColor`
+• **rgba1**: [`RGBAColor`](../interfaces/RGBAColor.md) \| [`RGBColor`](../interfaces/RGBColor.md)
 
 first color to compare.
 
-• **rgba2**: `RGBAColor` \| `RGBColor`
+• **rgba2**: [`RGBAColor`](../interfaces/RGBAColor.md) \| [`RGBColor`](../interfaces/RGBColor.md)
 
 second color to compare.
 

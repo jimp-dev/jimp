@@ -19,7 +19,7 @@ plugins/plugin-color/dist/esm/index.d.ts:27
 
 ### params
 
-> **params**: [`RGBColor`]
+> **params**: [[`RGBColor`](RGBColor.md)]
 
 #### Source
 

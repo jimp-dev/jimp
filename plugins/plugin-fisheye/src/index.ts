@@ -7,7 +7,15 @@ export interface FisheyeOptions {
 
 export const methods = {
   /**
-   *  Adds a fisheye effect to the image
+   * Adds a fisheye effect to the image.
+   * @example
+   * ```ts
+   * import { Jimp } from "jimp";
+   *
+   * const image = await Jimp.read("test/image.png");
+   *
+   * image.fisheye();
+   * ```
    */
   fisheye<I extends JimpClass>(image: I, options: FisheyeOptions = {}) {
     const r = options.r || 2.5;
