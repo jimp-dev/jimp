@@ -24,9 +24,8 @@ export const methods = {
    * It involves the transfer of a block of pixel data from one area of a computer's memory to another area, typically for the purpose of rendering images on the screen or manipulating them in various ways.
    * It's a fundamental operation in computer graphics utilized in various applications, from operating systems to video games.
    */
-  blit<I extends JimpClass>(
-    image: I,
-    {
+  blit<I extends JimpClass>(image: I, options: BlitOptions<I>) {
+    let {
       src,
       x = 0,
       y = 0,
@@ -34,8 +33,8 @@ export const methods = {
       srcY = 0,
       srcW = src.bitmap.width,
       srcH = src.bitmap.height,
-    }: BlitOptions<I>
-  ) {
+    } = options;
+
     if (!("bitmap" in src)) {
       throw new Error("The source must be a Jimp image");
     }

@@ -75,16 +75,14 @@ export const methods = {
   /**
    * Autocrop same color borders from this image
    */
-  autocrop<I extends JimpClass>(
-    image: I,
-    {
+  autocrop<I extends JimpClass>(image: I, options: AutocropOptions = {}) {
+    const {
       tolerance = 0.0002,
       cropOnlyFrames = true,
       cropSymmetric = false,
       leaveBorder = 0,
       ignoreSides: ignoreSidesArg,
-    }: AutocropOptions = {}
-  ) {
+    } = options;
     const w = image.bitmap.width;
     const h = image.bitmap.height;
     const minPixelsPerSide = 1; // to avoid cropping completely the image, resulting in an invalid 0 sized image

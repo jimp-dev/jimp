@@ -34,7 +34,7 @@ import { createJimp } from "@jimp/core";
 /**
  * @class
  *
- * A `Jimp` class enables you to:
+ * A `Jimp` class enables you to:class
  *
  * - Read an image into a "bit map" (a collection of pixels)
  * - Modify the bit map through methods that change the pixels

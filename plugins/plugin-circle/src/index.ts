@@ -1,17 +1,16 @@
 import { JimpClass } from "@jimp/types";
 
+export interface CircleOptions {
+  x?: number;
+  y?: number;
+  radius?: number;
+}
+
 export const methods = {
   /**
    * Creates a circle out of an image.
    */
-  circle<I extends JimpClass>(
-    image: I,
-    options: {
-      x?: number;
-      y?: number;
-      radius?: number;
-    } = {}
-  ) {
+  circle<I extends JimpClass>(image: I, options: CircleOptions = {}) {
     const radius =
       options.radius ||
       (image.bitmap.width > image.bitmap.height

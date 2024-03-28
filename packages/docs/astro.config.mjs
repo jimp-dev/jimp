@@ -1,6 +1,7 @@
 import { defineConfig } from "astro/config";
 import starlight from "@astrojs/starlight";
 import starlightTypeDoc, { typeDocSidebarGroup } from "starlight-typedoc";
+import path from "path";
 
 export default defineConfig({
   integrations: [
@@ -29,6 +30,12 @@ export default defineConfig({
           typeDoc: {
             groupOrder: ["Classes", "Functions", "Enumerations", "Variables"],
             sort: ["static-first", "alphabetical"],
+            plugin: [
+              path.join(
+                path.dirname(import.meta.url).replace("file:", ""),
+                "./src/typedoc-plugin.js"
+              ),
+            ],
           },
         }),
       ],

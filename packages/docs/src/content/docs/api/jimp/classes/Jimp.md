@@ -5,9 +5,7 @@ prev: false
 title: "Jimp"
 ---
 
-## Param
-
-`Jimp` class enables you to:
+A `Jimp` class enables you to:class
 
 - Read an image into a "bit map" (a collection of pixels)
 - Modify the bit map through methods that change the pixels
@@ -71,7 +69,6 @@ const ctx = canvas.getContext("2d");
 ctx.putImageData(image.bitmap, 0, 0);
 
 document.body.appendChild(canvas);
-
 ```
 
 ## Constructors
@@ -86,7 +83,7 @@ document.body.appendChild(canvas);
 
 #### Source
 
-packages/core/dist/esm/index.d.ts:320
+packages/core/dist/esm/index.d.ts:51
 
 ## Methods
 
@@ -124,7 +121,7 @@ const image = Jimp.fromBitmap({
 
 #### Source
 
-packages/core/dist/esm/index.d.ts:1012
+packages/core/dist/esm/index.d.ts:743
 
 ***
 
@@ -155,7 +152,7 @@ const image = await Jimp.fromBuffer(buffer);
 
 #### Source
 
-packages/core/dist/esm/index.d.ts:1463
+packages/core/dist/esm/index.d.ts:1194
 
 ***
 
@@ -187,21 +184,21 @@ const image = await Jimp.read("https://upload.wikimedia.org/wikipedia/commons/0/
 
 #### Source
 
-packages/core/dist/esm/index.d.ts:553
+packages/core/dist/esm/index.d.ts:284
 
 ***
 
 ### autocrop()
 
-> **autocrop**(...`args`): `JimpInstanceMethods`\<`Object`, `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object`\> & `Object`
+> **autocrop**(`options`?): `Jimp`
 
 #### Parameters
 
-• ...**args**: [`AutocropOptions?`]
+• **options?**: `AutocropOptions`
 
 #### Returns
 
-`JimpInstanceMethods`\<`Object`, `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object`\> & `Object`
+`Jimp`
 
 #### Source
 
@@ -211,15 +208,15 @@ plugins/plugin-crop/dist/esm/index.d.ts:28
 
 ### blit()
 
-> **blit**(...`args`): `JimpInstanceMethods`\<`Object`, `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object`\> & `Object`
+> **blit**(`options`): `Jimp`
 
 #### Parameters
 
-• ...**args**: [`BlitOptions`\<`JimpClass`\>]
+• **options**: `BlitOptions`\<`I`\>
 
 #### Returns
 
-`JimpInstanceMethods`\<`Object`, `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object`\> & `Object`
+`Jimp`
 
 #### Source
 
@@ -229,15 +226,17 @@ plugins/plugin-blit/dist/esm/index.d.ts:24
 
 ### blur()
 
-> **blur**(...`args`): `JimpInstanceMethods`\<`Object`, `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object`\> & `Object`
+> **blur**(`r`): `Jimp`
 
 #### Parameters
 
-• ...**args**: [`number`]
+• **r**: `number`
+
+the pixel radius of the blur
 
 #### Returns
 
-`JimpInstanceMethods`\<`Object`, `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object`\> & `Object`
+`Jimp`
 
 #### Source
 
@@ -247,15 +246,17 @@ plugins/plugin-blur/dist/esm/index.d.ts:7
 
 ### brightness()
 
-> **brightness**(...`args`): `JimpInstanceMethods`\<`Object`, `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object`\> & `Object`
+> **brightness**(`val`): `Jimp`
 
 #### Parameters
 
-• ...**args**: [`number`]
+• **val**: `number`
+
+the amount to adjust the brightness, a number between -1 and +1
 
 #### Returns
 
-`JimpInstanceMethods`\<`Object`, `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object`\> & `Object`
+`Jimp`
 
 #### Source
 
@@ -265,19 +266,19 @@ plugins/plugin-color/dist/esm/index.d.ts:93
 
 ### circle()
 
-> **circle**(...`args`): `JimpInstanceMethods`\<`Object`, `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object`\> & `Object`
+> **circle**(`options`?): `Jimp`
 
 #### Parameters
 
-• ...**args**: [`Object`]
+• **options?**: `CircleOptions`
 
 #### Returns
 
-`JimpInstanceMethods`\<`Object`, `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object`\> & `Object`
+`Jimp`
 
 #### Source
 
-plugins/plugin-circle/dist/esm/index.d.ts:6
+plugins/plugin-circle/dist/esm/index.d.ts:11
 
 ***
 
@@ -313,21 +314,23 @@ const clone = image.clone();
 
 #### Source
 
-packages/core/dist/esm/index.d.ts:391
+packages/core/dist/esm/index.d.ts:122
 
 ***
 
 ### color()
 
-> **color**(...`args`): `JimpInstanceMethods`\<`Object`, `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object`\> & `Object`
+> **color**(`actions`): `Jimp`
 
 #### Parameters
 
-• ...**args**: [[`ColorAction`](../type-aliases/ColorAction.md)[]]
+• **actions**: [`ColorAction`](../type-aliases/ColorAction.md)[]
+
+list of color modification rules, in following format: \{ apply: '`<rule-name>`', params: [ `<rule-parameters>` ]  \}
 
 #### Returns
 
-`JimpInstanceMethods`\<`Object`, `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object`\> & `Object`
+`Jimp`
 
 #### Source
 
@@ -386,21 +389,35 @@ image.composite(image2, 3, 3);
 
 #### Source
 
-packages/core/dist/esm/index.d.ts:471
+packages/core/dist/esm/index.d.ts:202
 
 ***
 
 ### contain()
 
-> **contain**(...`args`): `JimpInstanceMethods`\<`Object`, `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object`\> & `Object`
+> **contain**(`w`, `h`, `alignBits`?, `mode`?): `Jimp`
 
 #### Parameters
 
-• ...**args**: [`number`, `number`, `number`, [`ResizeStrategy`](../enumerations/ResizeStrategy.md)]
+• **w**: `number`
+
+the width to resize the image to
+
+• **h**: `number`
+
+the height to resize the image to
+
+• **alignBits?**: `number`
+
+A bitmask for horizontal and vertical alignment
+
+• **mode?**: [`ResizeStrategy`](../enumerations/ResizeStrategy.md)
+
+a scaling method (e.g. Jimp.RESIZE_BEZIER)
 
 #### Returns
 
-`JimpInstanceMethods`\<`Object`, `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object`\> & `Object`
+`Jimp`
 
 #### Source
 
@@ -410,15 +427,17 @@ plugins/plugin-contain/dist/esm/index.d.ts:11
 
 ### contrast()
 
-> **contrast**(...`args`): `JimpInstanceMethods`\<`Object`, `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object`\> & `Object`
+> **contrast**(`val`): `Jimp`
 
 #### Parameters
 
-• ...**args**: [`number`]
+• **val**: `number`
+
+the amount to adjust the contrast, a number between -1 and +1
 
 #### Returns
 
-`JimpInstanceMethods`\<`Object`, `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object`\> & `Object`
+`Jimp`
 
 #### Source
 
@@ -428,15 +447,33 @@ plugins/plugin-color/dist/esm/index.d.ts:98
 
 ### convolute()
 
-> **convolute**(...`args`): `JimpInstanceMethods`\<`Object`, `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object`\> & `Object`
+> **convolute**(`kernel`, `x`?, `y`?, `w`?, `h`?): `Jimp`
 
 #### Parameters
 
-• ...**args**: [`number`[][], `number`, `number`, `number`, `number`]
+• **kernel**: `number`[][]
+
+the convolution kernel
+
+• **x?**: `number`
+
+(optional) the x position of the region to apply convolution to
+
+• **y?**: `number`
+
+(optional) the y position of the region to apply convolution to
+
+• **w?**: `number`
+
+(optional) the width of the region to apply convolution to
+
+• **h?**: `number`
+
+(optional) the height of the region to apply convolution to
 
 #### Returns
 
-`JimpInstanceMethods`\<`Object`, `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object`\> & `Object`
+`Jimp`
 
 #### Source
 
@@ -446,15 +483,21 @@ plugins/plugin-color/dist/esm/index.d.ts:149
 
 ### convolution()
 
-> **convolution**(...`args`): `JimpInstanceMethods`\<`Object`, `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object`\> & `Object`
+> **convolution**(`kernel`, `edgeHandling`?): `Jimp`
 
 #### Parameters
 
-• ...**args**: [`number`[][], `number`]
+• **kernel**: `number`[][]
+
+a matrix to weight the neighbors sum
+
+• **edgeHandling?**: `number`
+
+(optional) define how to sum pixels from outside the border
 
 #### Returns
 
-`JimpInstanceMethods`\<`Object`, `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object`\> & `Object`
+`Jimp`
 
 #### Source
 
@@ -464,15 +507,29 @@ plugins/plugin-color/dist/esm/index.d.ts:127
 
 ### cover()
 
-> **cover**(...`args`): `JimpInstanceMethods`\<`Object`, `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object`\> & `Object`
+> **cover**(`w`, `h`, `alignBits`?, `mode`?): `Jimp`
 
 #### Parameters
 
-• ...**args**: [`number`, `number`, `number`, [`ResizeStrategy`](../enumerations/ResizeStrategy.md)]
+• **w**: `number`
+
+the width to resize the image to
+
+• **h**: `number`
+
+the height to resize the image to
+
+• **alignBits?**: `number`
+
+A bitmask for horizontal and vertical alignment
+
+• **mode?**: [`ResizeStrategy`](../enumerations/ResizeStrategy.md)
+
+a scaling method (e.g. Jimp.RESIZE_BEZIER)
 
 #### Returns
 
-`JimpInstanceMethods`\<`Object`, `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object`\> & `Object`
+`Jimp`
 
 #### Source
 
@@ -482,15 +539,21 @@ plugins/plugin-cover/dist/esm/index.d.ts:11
 
 ### crop()
 
-> **crop**(...`args`): `JimpInstanceMethods`\<`Object`, `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object`\> & `Object`
+> **crop**(`x`, `y`, `w`, `h`): `Jimp`
 
 #### Parameters
 
-• ...**args**: [`number`, `number`, `number`, `number`]
+• **x**: `number`
+
+• **y**: `number`
+
+• **w**: `number`
+
+• **h**: `number`
 
 #### Returns
 
-`JimpInstanceMethods`\<`Object`, `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object`\> & `Object`
+`Jimp`
 
 #### Source
 
@@ -500,15 +563,21 @@ plugins/plugin-crop/dist/esm/index.d.ts:24
 
 ### displace()
 
-> **displace**(...`args`): `JimpInstanceMethods`\<`Object`, `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object`\> & `Object`
+> **displace**(`map`, `offset`): `Jimp`
 
 #### Parameters
 
-• ...**args**: [`JimpClass`, `number`]
+• **map**: `Jimp`
+
+the source Jimp instance
+
+• **offset**: `number`
+
+the maximum displacement value
 
 #### Returns
 
-`JimpInstanceMethods`\<`Object`, `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object`\> & `Object`
+`Jimp`
 
 #### Source
 
@@ -518,11 +587,13 @@ plugins/plugin-displace/dist/esm/index.d.ts:8
 
 ### distanceFromHash()
 
-> **distanceFromHash**(...`args`): `number`
+> **distanceFromHash**(`compareHash`): `number`
 
 #### Parameters
 
-• ...**args**: [`string`]
+• **compareHash**: `string`
+
+hash to compare to
 
 #### Returns
 
@@ -536,15 +607,11 @@ plugins/plugin-hash/dist/esm/index.d.ts:18
 
 ### dither()
 
-> **dither**(...`args`): `JimpInstanceMethods`\<`Object`, `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object`\> & `Object`
-
-#### Parameters
-
-• ...**args**: []
+> **dither**(): `Jimp`
 
 #### Returns
 
-`JimpInstanceMethods`\<`Object`, `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object`\> & `Object`
+`Jimp`
 
 #### Source
 
@@ -554,15 +621,17 @@ plugins/plugin-dither/dist/esm/index.d.ts:6
 
 ### fade()
 
-> **fade**(...`args`): `JimpInstanceMethods`\<`Object`, `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object`\> & `Object`
+> **fade**(`f`): `Jimp`
 
 #### Parameters
 
-• ...**args**: [`number`]
+• **f**: `number`
+
+A number from 0 to 1. 0 will haven no effect. 1 will turn the image completely transparent.
 
 #### Returns
 
-`JimpInstanceMethods`\<`Object`, `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object`\> & `Object`
+`Jimp`
 
 #### Source
 
@@ -572,33 +641,39 @@ plugins/plugin-color/dist/esm/index.d.ts:121
 
 ### fisheye()
 
-> **fisheye**(...`args`): `JimpInstanceMethods`\<`Object`, `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object`\> & `Object`
+> **fisheye**(`options`?): `Jimp`
 
 #### Parameters
 
-• ...**args**: [`Object?`]
+• **options?**: `FisheyeOptions`
 
 #### Returns
 
-`JimpInstanceMethods`\<`Object`, `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object`\> & `Object`
+`Jimp`
 
 #### Source
 
-plugins/plugin-fisheye/dist/esm/index.d.ts:6
+plugins/plugin-fisheye/dist/esm/index.d.ts:9
 
 ***
 
 ### flip()
 
-> **flip**(...`args`): `JimpInstanceMethods`\<`Object`, `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object`\> & `Object`
+> **flip**(`horizontal`, `vertical`): `Jimp`
 
 #### Parameters
 
-• ...**args**: [`boolean`, `boolean`]
+• **horizontal**: `boolean`
+
+a Boolean, if true the image will be flipped horizontally
+
+• **vertical**: `boolean`
+
+a Boolean, if true the image will be flipped vertically
 
 #### Returns
 
-`JimpInstanceMethods`\<`Object`, `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object`\> & `Object`
+`Jimp`
 
 #### Source
 
@@ -608,15 +683,17 @@ plugins/plugin-flip/dist/esm/index.d.ts:8
 
 ### gaussian()
 
-> **gaussian**(...`args`): `JimpInstanceMethods`\<`Object`, `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object`\> & `Object`
+> **gaussian**(`r`): `Jimp`
 
 #### Parameters
 
-• ...**args**: [`number`]
+• **r**: `number`
+
+the pixel radius of the blur
 
 #### Returns
 
-`JimpInstanceMethods`\<`Object`, `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object`\> & `Object`
+`Jimp`
 
 #### Source
 
@@ -668,7 +745,7 @@ const base64 = image.getBase64("image/jpeg", {
 
 #### Source
 
-packages/core/dist/esm/index.d.ts:377
+packages/core/dist/esm/index.d.ts:108
 
 ***
 
@@ -714,7 +791,7 @@ await fs.writeFile("test/output.jpeg", buffer);
 
 #### Source
 
-packages/core/dist/esm/index.d.ts:356
+packages/core/dist/esm/index.d.ts:87
 
 ***
 
@@ -752,7 +829,7 @@ image.getPixelColor(1, 1); // 0xffffffff
 
 #### Source
 
-packages/core/dist/esm/index.d.ts:422
+packages/core/dist/esm/index.d.ts:153
 
 ***
 
@@ -794,21 +871,17 @@ image.getPixelIndex(1, 1); // 2
 
 #### Source
 
-packages/core/dist/esm/index.d.ts:407
+packages/core/dist/esm/index.d.ts:138
 
 ***
 
 ### greyscale()
 
-> **greyscale**(...`args`): `JimpInstanceMethods`\<`Object`, `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object`\> & `Object`
-
-#### Parameters
-
-• ...**args**: []
+> **greyscale**(): `Jimp`
 
 #### Returns
 
-`JimpInstanceMethods`\<`Object`, `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object`\> & `Object`
+`Jimp`
 
 #### Source
 
@@ -840,17 +913,19 @@ image2.hasAlpha(); // true
 
 #### Source
 
-packages/core/dist/esm/index.d.ts:454
+packages/core/dist/esm/index.d.ts:185
 
 ***
 
 ### hash()
 
-> **hash**(...`args`): `string`
+> **hash**(`base`?): `string`
 
 #### Parameters
 
-• ...**args**: [`number`]
+• **base?**: `number`
+
+A number between 2 and 64 representing the base for the hash (e.g. 2 is binary, 10 is decimal, 16 is hex, 64 is base 64). Defaults to 64.
 
 #### Returns
 
@@ -876,21 +951,17 @@ Pretty printed jimp object
 
 #### Source
 
-packages/core/dist/esm/index.d.ts:333
+packages/core/dist/esm/index.d.ts:64
 
 ***
 
 ### invert()
 
-> **invert**(...`args`): `JimpInstanceMethods`\<`Object`, `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object`\> & `Object`
-
-#### Parameters
-
-• ...**args**: []
+> **invert**(): `Jimp`
 
 #### Returns
 
-`JimpInstanceMethods`\<`Object`, `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object`\> & `Object`
+`Jimp`
 
 #### Source
 
@@ -900,15 +971,25 @@ plugins/plugin-color/dist/esm/index.d.ts:88
 
 ### mask()
 
-> **mask**(...`args`): `JimpInstanceMethods`\<`Object`, `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object`\> & `Object`
+> **mask**(`src`, `x`?, `y`?): `Jimp`
 
 #### Parameters
 
-• ...**args**: [`JimpClass`, `number`, `number`]
+• **src**: `Jimp`
+
+the source Jimp instance
+
+• **x?**: `number`
+
+the horizontal position to blit the image
+
+• **y?**: `number`
+
+the vertical position to blit the image
 
 #### Returns
 
-`JimpInstanceMethods`\<`Object`, `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object`\> & `Object`
+`Jimp`
 
 #### Source
 
@@ -918,15 +999,11 @@ plugins/plugin-mask/dist/esm/index.d.ts:9
 
 ### normalize()
 
-> **normalize**(...`args`): `JimpInstanceMethods`\<`Object`, `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object`\> & `Object`
-
-#### Parameters
-
-• ...**args**: []
+> **normalize**(): `Jimp`
 
 #### Returns
 
-`JimpInstanceMethods`\<`Object`, `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object`\> & `Object`
+`Jimp`
 
 #### Source
 
@@ -936,15 +1013,17 @@ plugins/plugin-color/dist/esm/index.d.ts:84
 
 ### opacity()
 
-> **opacity**(...`args`): `JimpInstanceMethods`\<`Object`, `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object`\> & `Object`
+> **opacity**(`f`): `Jimp`
 
 #### Parameters
 
-• ...**args**: [`number`]
+• **f**: `number`
+
+A number, the factor by which to multiply the opacity of each pixel
 
 #### Returns
 
-`JimpInstanceMethods`\<`Object`, `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object`\> & `Object`
+`Jimp`
 
 #### Source
 
@@ -954,15 +1033,11 @@ plugins/plugin-color/dist/esm/index.d.ts:112
 
 ### opaque()
 
-> **opaque**(...`args`): `JimpInstanceMethods`\<`Object`, `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object`\> & `Object`
-
-#### Parameters
-
-• ...**args**: []
+> **opaque**(): `Jimp`
 
 #### Returns
 
-`JimpInstanceMethods`\<`Object`, `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object`\> & `Object`
+`Jimp`
 
 #### Source
 
@@ -972,11 +1047,7 @@ plugins/plugin-color/dist/esm/index.d.ts:131
 
 ### pHash()
 
-> **pHash**(...`args`): `string`
-
-#### Parameters
-
-• ...**args**: []
+> **pHash**(): `string`
 
 #### Returns
 
@@ -990,15 +1061,33 @@ plugins/plugin-hash/dist/esm/index.d.ts:7
 
 ### pixelate()
 
-> **pixelate**(...`args`): `JimpInstanceMethods`\<`Object`, `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object`\> & `Object`
+> **pixelate**(`size`, `x`?, `y`?, `w`?, `h`?): `Jimp`
 
 #### Parameters
 
-• ...**args**: [`number`, `number`, `number`, `number`, `number`]
+• **size**: `number`
+
+the size of the pixels
+
+• **x?**: `number`
+
+(optional) the x position of the region to pixelate
+
+• **y?**: `number`
+
+(optional) the y position of the region to pixelate
+
+• **w?**: `number`
+
+(optional) the width of the region to pixelate
+
+• **h?**: `number`
+
+(optional) the height of the region to pixelate
 
 #### Returns
 
-`JimpInstanceMethods`\<`Object`, `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object`\> & `Object`
+`Jimp`
 
 #### Source
 
@@ -1008,15 +1097,17 @@ plugins/plugin-color/dist/esm/index.d.ts:140
 
 ### posterize()
 
-> **posterize**(...`args`): `JimpInstanceMethods`\<`Object`, `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object`\> & `Object`
+> **posterize**(`n`): `Jimp`
 
 #### Parameters
 
-• ...**args**: [`number`]
+• **n**: `number`
+
+the amount to adjust the contrast, minimum threshold is two
 
 #### Returns
 
-`JimpInstanceMethods`\<`Object`, `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object`\> & `Object`
+`Jimp`
 
 #### Source
 
@@ -1026,15 +1117,41 @@ plugins/plugin-color/dist/esm/index.d.ts:103
 
 ### print()
 
-> **print**(...`args`): `JimpInstanceMethods`\<`Object`, `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object`\> & `Object`
+> **print**(`font`, `x`, `y`, `text`, `maxWidth`?, `maxHeight`?, `cb`?): `Jimp`
 
 #### Parameters
 
-• ...**args**: [`BmFont`\<`JimpClass`\>, `number`, `number`, `string` \| `number` \| `Object`, `number`, `number`, (`options`) => `void`]
+• **font**: `BmFont`\<`I`\>
+
+a bitmap font loaded from `Jimp.loadFont` command
+
+• **x**: `number`
+
+the x position to start drawing the text
+
+• **y**: `number`
+
+the y position to start drawing the text
+
+• **text**: `string` \| `number` \| `Object`
+
+the text to draw (string or object with `text`, `alignmentX`, and/or `alignmentY`)
+
+• **maxWidth?**: `number`
+
+the boundary width to draw in
+
+• **maxHeight?**: `number`
+
+the boundary height to draw in
+
+• **cb?**
+
+(optional) a callback for when complete that ahs the end co-ordinates of the text
 
 #### Returns
 
-`JimpInstanceMethods`\<`Object`, `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object`\> & `Object`
+`Jimp`
 
 #### Source
 
@@ -1044,15 +1161,25 @@ plugins/plugin-print/dist/esm/index.d.ts:17
 
 ### resize()
 
-> **resize**(...`args`): `JimpInstanceMethods`\<`Object`, `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object`\> & `Object`
+> **resize**(`w`, `h`, `mode`?): `Jimp`
 
 #### Parameters
 
-• ...**args**: [`number`, `number`, [`ResizeStrategy`](../enumerations/ResizeStrategy.md)]
+• **w**: `number`
+
+the width to resize the image to (or AutoSize)
+
+• **h**: `number`
+
+the height to resize the image to (or AutoSize)
+
+• **mode?**: [`ResizeStrategy`](../enumerations/ResizeStrategy.md)
+
+a scaling method (e.g. Jimp.RESIZE_BEZIER)
 
 #### Returns
 
-`JimpInstanceMethods`\<`Object`, `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object`\> & `Object`
+`Jimp`
 
 #### Source
 
@@ -1062,15 +1189,19 @@ plugins/plugin-resize/dist/esm/index.d.ts:11
 
 ### rotate()
 
-> **rotate**(...`args`): `JimpInstanceMethods`\<`Object`, `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object`\> & `Object`
+> **rotate**(`deg`, `mode`?): `Jimp`
 
 #### Parameters
 
-• ...**args**: [`number`, `boolean` \| [`ResizeStrategy`](../enumerations/ResizeStrategy.md)]
+• **deg**: `number`
+
+the number of degrees to rotate the image by
+
+• **mode?**: `boolean` \| [`ResizeStrategy`](../enumerations/ResizeStrategy.md)
 
 #### Returns
 
-`JimpInstanceMethods`\<`Object`, `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object`\> & `Object`
+`Jimp`
 
 #### Source
 
@@ -1080,15 +1211,21 @@ plugins/plugin-rotate/dist/esm/index.d.ts:8
 
 ### scale()
 
-> **scale**(...`args`): `JimpInstanceMethods`\<`Object`, `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object`\> & `Object`
+> **scale**(`f`, `mode`?): `Jimp`
 
 #### Parameters
 
-• ...**args**: [`number`, [`ResizeStrategy`](../enumerations/ResizeStrategy.md)]
+• **f**: `number`
+
+the factor to scale the image by
+
+• **mode?**: [`ResizeStrategy`](../enumerations/ResizeStrategy.md)
+
+(optional) a scaling method (e.g. Jimp.RESIZE_BEZIER)
 
 #### Returns
 
-`JimpInstanceMethods`\<`Object`, `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object`\> & `Object`
+`Jimp`
 
 #### Source
 
@@ -1098,15 +1235,25 @@ plugins/plugin-resize/dist/esm/index.d.ts:17
 
 ### scaleToFit()
 
-> **scaleToFit**(...`args`): `JimpInstanceMethods`\<`Object`, `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object`\> & `Object`
+> **scaleToFit**(`w`, `h`, `mode`?): `Jimp`
 
 #### Parameters
 
-• ...**args**: [`number`, `number`, [`ResizeStrategy`](../enumerations/ResizeStrategy.md)]
+• **w**: `number`
+
+the width to resize the image to
+
+• **h**: `number`
+
+the height to resize the image to
+
+• **mode?**: [`ResizeStrategy`](../enumerations/ResizeStrategy.md)
+
+a scaling method (e.g. ResizeStrategy.BEZIER)
 
 #### Returns
 
-`JimpInstanceMethods`\<`Object`, `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object`\> & `Object`
+`Jimp`
 
 #### Source
 
@@ -1149,7 +1296,7 @@ image.scan(0, 0, 2, 2, (x, y, idx) => {
 
 ##### Source
 
-packages/core/dist/esm/index.d.ts:495
+packages/core/dist/esm/index.d.ts:226
 
 #### scan(x, y, w, h, cb)
 
@@ -1192,7 +1339,7 @@ image.scan(0, 0, 2, 2, (x, y, idx) => {
 
 ##### Source
 
-packages/core/dist/esm/index.d.ts:515
+packages/core/dist/esm/index.d.ts:246
 
 ***
 
@@ -1255,21 +1402,17 @@ for (const { x, y, idx, image } of j.scanIterator()) {
 
 #### Source
 
-packages/core/dist/esm/index.d.ts:533
+packages/core/dist/esm/index.d.ts:264
 
 ***
 
 ### sepia()
 
-> **sepia**(...`args`): `JimpInstanceMethods`\<`Object`, `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object`\> & `Object`
-
-#### Parameters
-
-• ...**args**: []
+> **sepia**(): `Jimp`
 
 #### Returns
 
-`JimpInstanceMethods`\<`Object`, `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object`\> & `Object`
+`Jimp`
 
 #### Source
 
@@ -1313,21 +1456,21 @@ image.setPixelColor(0xff0000ff, 0, 0);
 
 #### Source
 
-packages/core/dist/esm/index.d.ts:439
+packages/core/dist/esm/index.d.ts:170
 
 ***
 
 ### threshold()
 
-> **threshold**(...`args`): `JimpInstanceMethods`\<`Object`, `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object`\> & `Object`
+> **threshold**(`options`): `Jimp`
 
 #### Parameters
 
-• ...**args**: [[`ThresholdOptions`](../interfaces/ThresholdOptions.md)]
+• **options**: [`ThresholdOptions`](../interfaces/ThresholdOptions.md)
 
 #### Returns
 
-`JimpInstanceMethods`\<`Object`, `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object`\> & `Object`
+`Jimp`
 
 #### Source
 
@@ -1349,7 +1492,7 @@ pretty printed
 
 #### Source
 
-packages/core/dist/esm/index.d.ts:338
+packages/core/dist/esm/index.d.ts:69
 
 ## Properties
 
@@ -1361,7 +1504,7 @@ Default color to use for new pixels
 
 #### Source
 
-packages/core/dist/esm/index.d.ts:326
+packages/core/dist/esm/index.d.ts:57
 
 ***
 
@@ -1373,7 +1516,7 @@ The bitmap data of the image
 
 #### Source
 
-packages/core/dist/esm/index.d.ts:324
+packages/core/dist/esm/index.d.ts:55
 
 ***
 
@@ -1385,4 +1528,4 @@ Formats that can be used with Jimp
 
 #### Source
 
-packages/core/dist/esm/index.d.ts:328
+packages/core/dist/esm/index.d.ts:59

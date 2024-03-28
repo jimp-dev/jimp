@@ -1,11 +1,16 @@
 import { JimpClass } from "@jimp/types";
 import { clone } from "@jimp/utils";
 
+export interface FisheyeOptions {
+  r?: number;
+}
+
 export const methods = {
   /**
    *  Adds a fisheye effect to the image
    */
-  fisheye<I extends JimpClass>(image: I, { r = 2.5 } = {}) {
+  fisheye<I extends JimpClass>(image: I, options: FisheyeOptions = {}) {
+    const r = options.r || 2.5;
     const source = clone(image);
     const { width, height } = source.bitmap;
 

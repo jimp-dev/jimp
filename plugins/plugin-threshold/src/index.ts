@@ -15,10 +15,9 @@ export const methods = {
   /**
    * Applies a minimum color threshold to a grayscale image.  Converts image to grayscale by default
    */
-  threshold<I extends JimpClass>(
-    image: I,
-    { max, replace = 255, autoGreyscale = true }: ThresholdOptions
-  ) {
+  threshold<I extends JimpClass>(image: I, options: ThresholdOptions) {
+    let { max, replace = 255, autoGreyscale = true } = options;
+
     if (typeof max !== "number") {
       throw new Error("max must be a number");
     }
