@@ -93,7 +93,7 @@ packages/core/dist/esm/index.d.ts:51
 
 ### fromBitmap()
 
-> **`static`** **fromBitmap**(`bitmap`): `Object` & `JimpInstanceMethods`\<`Object`, `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object`\>
+> **`static`** **fromBitmap**(`bitmap`): `Jimp`
 
 Create a Jimp instance from a bitmap.
 The difference between this and just using the constructor is that this will
@@ -105,7 +105,7 @@ convert raw image data into the bitmap format that Jimp uses.
 
 #### Returns
 
-`Object` & `JimpInstanceMethods`\<`Object`, `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object`\>
+`Jimp`
 
 #### Example
 
@@ -131,7 +131,7 @@ packages/core/dist/esm/index.d.ts:743
 
 ### fromBuffer()
 
-> **`static`** **fromBuffer**(`buffer`): `Promise`\<`Object` & `JimpInstanceMethods`\<`Object`, `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object`\>\>
+> **`static`** **fromBuffer**(`buffer`): `Promise`\<`Jimp`\>
 
 Parse a bitmap with the loaded image types.
 
@@ -143,7 +143,7 @@ Raw image data
 
 #### Returns
 
-`Promise`\<`Object` & `JimpInstanceMethods`\<`Object`, `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object`\>\>
+`Promise`\<`Jimp`\>
 
 #### Example
 
@@ -162,7 +162,7 @@ packages/core/dist/esm/index.d.ts:1194
 
 ### read()
 
-> **`static`** **read**(`url`): `Promise`\<`Object` & `JimpInstanceMethods`\<`Object`, `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object`\>\>
+> **`static`** **read**(`url`): `Promise`\<`Jimp`\>
 
 Create a Jimp instance from a URL or a file path
 
@@ -172,7 +172,7 @@ Create a Jimp instance from a URL or a file path
 
 #### Returns
 
-`Promise`\<`Object` & `JimpInstanceMethods`\<`Object`, `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object`\>\>
+`Promise`\<`Jimp`\>
 
 #### Example
 

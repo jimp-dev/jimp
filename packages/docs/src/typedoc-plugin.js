@@ -1,4 +1,4 @@
-import { Converter, ReflectionKind } from "typedoc";
+import { Converter, ReflectionKind, ReferenceType } from "typedoc";
 
 export function load(app) {
   const fullSignaturePath = new Map();
@@ -32,6 +32,23 @@ export function load(app) {
     if (refl.name === "new Jimp") {
       jimpClass = refl;
     }
+
+    if (
+      refl.type.name === "Promise" &&
+      refl.type.typeArguments.some((a) =>
+        a.types?.some((t) => t.name === "JimpInstanceMethods")
+      )
+    ) {
+      refl.type.typeArguments = [
+        ReferenceType.createBrokenReference("Jimp", context.project),
+      ];
+    }
+
+    if (refl.type.types?.some((t) => t.name === "JimpInstanceMethods")) {
+      refl.type.types = [
+        ReferenceType.createBrokenReference("Jimp", context.project),
+      ];
+    }
   }
 
   app.converter.on(Converter.EVENT_END, (context) => {
@@ -40,7 +57,6 @@ export function load(app) {
       refOrig.parameters = i.parameters
         .filter((p, index) => !(p.name === "image" && index === 0))
         .map((p) => {
-          console.log(p);
           if (p.type?.name === "I") {
             p.type.name = "Jimp";
           }
