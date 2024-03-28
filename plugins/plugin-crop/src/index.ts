@@ -24,7 +24,15 @@ export interface AutocropOptions {
 
 export const methods = {
   /**
-   * Crops the image at a given point to a give size
+   * Crops the image at a given point to a give size.
+   *
+   * @example
+   * ```ts
+   * import { Jimp } from "jimp";
+   *
+   * const image = await Jimp.read("test/image.png");
+   * const cropped = image.crop(150, 100);
+   * ```
    */
   crop<I extends JimpClass>(
     image: I,
@@ -73,7 +81,16 @@ export const methods = {
   },
 
   /**
-   * Autocrop same color borders from this image
+   * Autocrop same color borders from this image.
+   * This function will attempt to crop out transparent pixels from the image.
+   *
+   * @example
+   * ```ts
+   * import { Jimp } from "jimp";
+   *
+   * const image = await Jimp.read("test/image.png");
+   * const cropped = image.autocrop();
+   * ```
    */
   autocrop<I extends JimpClass>(image: I, options: AutocropOptions = {}) {
     const {

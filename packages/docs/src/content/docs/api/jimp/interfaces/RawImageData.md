@@ -9,7 +9,7 @@ title: "RawImageData"
 
 ### data
 
-> **data**: `number`[] \| `Buffer` \| `Uint8Array` \| `Uint8ClampedArray`
+> **data**: `Buffer` \| `Uint8Array` \| `Uint8ClampedArray` \| `number`[]
 
 #### Source
 
