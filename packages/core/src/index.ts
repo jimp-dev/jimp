@@ -683,5 +683,5 @@ export function createJimp<
     }
   };
 
-  return CustomJimp as Constructor<ExtraMethodMap> & typeof CustomJimp;
+  return CustomJimp as typeof CustomJimp & Constructor<ExtraMethodMap>;
 }

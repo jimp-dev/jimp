@@ -30,10 +30,10 @@ import * as threshold from "@jimp/plugin-threshold";
 
 import { createJimp } from "@jimp/core";
 
+// TODO: This doesn't document the constructor of the class
 /**
  * @class
- * @constructor {number}
- * @param {number}
+ *
  * A `Jimp` class enables you to:
  *
  * - Read an image into a "bit map" (a collection of pixels)
@@ -98,7 +98,6 @@ import { createJimp } from "@jimp/core";
  * ctx.putImageData(image.bitmap, 0, 0);
  *
  * document.body.appendChild(canvas);
- *
  * ```
  */
 export const Jimp = createJimp({
