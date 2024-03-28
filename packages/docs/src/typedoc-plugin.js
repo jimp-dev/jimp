@@ -4,7 +4,15 @@ export function load(app) {
   const fullSignaturePath = new Map();
   const needsUpdate = new Set();
 
+  let jimpClass;
+  let options;
+
   app.converter.on(Converter.EVENT_CREATE_SIGNATURE, onCreateDeclaration);
+  app.converter.on(Converter.EVENT_CREATE_DECLARATION, (c, r) => {
+    if (r.name === "JimpConstructorOptions") {
+      options = r;
+    }
+  });
 
   /**
    *
@@ -12,6 +20,7 @@ export function load(app) {
    * @param {import('typedoc')['DeclarationReflection']} refl
    */
   function onCreateDeclaration(context, refl) {
+    // console.log(refl);
     if (refl.kindOf(ReflectionKind.CallSignature)) {
       if (refl.typeParameters) {
         fullSignaturePath.set(refl.name, refl);
@@ -20,19 +29,9 @@ export function load(app) {
       }
     }
 
-    // const originalRef = refl.type.typeArguments?.[0]?.visit({
-    //     query: (t) => t.queryType,
-    // });
-    // const declaration = refl.project
-    //     .getSymbolFromReflection(refl)
-    //     ?.getDeclarations()
-    //     ?.find(ts.isTypeAliasDeclaration);
-    // if (!declaration) return;
-    // const type = context.getTypeAtLocation(declaration);
-    // refl.type = context.converter.convertType(context, type);
-    // if (originalRef) {
-    //     schemaTypes.set(refl, originalRef);
-    // }
+    if (refl.name === "new Jimp") {
+      jimpClass = refl;
+    }
   }
 
   app.converter.on(Converter.EVENT_END, (context) => {
@@ -54,6 +53,10 @@ export function load(app) {
         refOrig.type.name = "Jimp";
         refOrig.type.description = "butts";
       }
+    }
+
+    if (jimpClass) {
+      jimpClass.parameters = [options];
     }
   });
 }

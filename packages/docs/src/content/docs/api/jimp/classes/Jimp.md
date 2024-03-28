@@ -73,9 +73,13 @@ document.body.appendChild(canvas);
 
 ## Constructors
 
-### new Jimp(undefined)
+### new Jimp(JimpConstructorOptions)
 
-> **new Jimp**(): [`Jimp`](Jimp.md)
+> **new Jimp**(`JimpConstructorOptions`): [`Jimp`](Jimp.md)
+
+#### Parameters
+
+• **JimpConstructorOptions**: [`Bitmap`](../interfaces/Bitmap.md) \| [`JimpSimpleConstructorOptions`](../interfaces/JimpSimpleConstructorOptions.md)
 
 #### Returns
 
