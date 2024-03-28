@@ -3,16 +3,29 @@ import * as BMP from "bmp-ts";
 import { scan } from "@jimp/utils";
 import { Bitmap, Format } from "@jimp/types";
 
-type EncodeOptions = Partial<
-  Pick<
-    BMP.BmpImage,
-    | "palette"
-    | "colors"
-    | "importantColors"
-    | "hr"
-    | "vr"
-    | "reserved1"
-    | "reserved2"
+export type { BmpColor } from "bmp-ts";
+export { BmpCompression } from "bmp-ts";
+
+type Pretty<T> = {
+  [K in keyof T]: T[K] extends (...args: any[]) => any
+    ? T[K]
+    : T[K] extends object
+      ? Pretty<T[K]>
+      : T[K];
+};
+
+export type EncodeOptions = Pretty<
+  Partial<
+    Pick<
+      BMP.BmpImage,
+      | "palette"
+      | "colors"
+      | "importantColors"
+      | "hr"
+      | "vr"
+      | "reserved1"
+      | "reserved2"
+    >
   >
 >;
 

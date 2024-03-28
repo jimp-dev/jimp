@@ -141,17 +141,22 @@ export type {
   GrayscaleAction,
   DesaturateAction,
 } from "@jimp/plugin-color";
+export type { AutocropOptions } from "@jimp/plugin-crop";
 export { AutoSize, ResizeStrategy } from "@jimp/plugin-resize";
 export type { ThresholdOptions } from "@jimp/plugin-threshold";
 export { distance, compareHashes } from "@jimp/plugin-hash";
+export type { JPEGOptions } from "@jimp/js-jpeg";
 export { PNGColorType, PNGFilterType } from "@jimp/js-png";
+export { BmpCompression } from "@jimp/js-bmp";
+export type { EncodeOptions } from "@jimp/js-bmp";
+export type { BmpColor } from "@jimp/js-bmp";
 export { HorizontalAlign, VerticalAlign, BlendMode } from "@jimp/core";
 export type {
   RawImageData,
   JimpConstructorOptions,
   JimpSimpleConstructorOptions,
 } from "@jimp/core";
-export type { Bitmap } from "@jimp/types";
+export type { Bitmap, Edge, RGBAColor, RGBColor } from "@jimp/types";
 export { loadFont } from "@jimp/plugin-print/load-font";
 export { diff } from "@jimp/diff";
 export {

@@ -54,6 +54,11 @@ export function load(app) {
   app.converter.on(Converter.EVENT_END, (context) => {
     for (const refOrig of needsUpdate) {
       const i = fullSignaturePath.get(refOrig.name);
+
+      if (!i) {
+        return;
+      }
+
       refOrig.parameters = i.parameters
         .filter((p, index) => !(p.name === "image" && index === 0))
         .map((p) => {
