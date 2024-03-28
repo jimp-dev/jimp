@@ -2,10 +2,10 @@ import { expect, test, describe } from "vitest";
 
 import { makeTestImage } from "@jimp/test-utils";
 
-import color from "./index.js";
+import { methods } from "./index.js";
 import { createJimp } from "@jimp/core";
 
-const jimp = createJimp({ plugins: [color] });
+const jimp = createJimp({ plugins: [methods] });
 
 describe("Normalize", () => {
   test("change grayscale image", () => {

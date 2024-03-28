@@ -13,7 +13,7 @@ title: "TintAction"
 
 #### Source
 
-plugins/plugin-color/dist/esm/index.d.ts:20
+plugins/plugin-color/dist/esm/index.d.ts:19
 
 ***
 
@@ -23,4 +23,4 @@ plugins/plugin-color/dist/esm/index.d.ts:20
 
 #### Source
 
-plugins/plugin-color/dist/esm/index.d.ts:21
+plugins/plugin-color/dist/esm/index.d.ts:20

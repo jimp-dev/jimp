@@ -2,10 +2,10 @@ import { expect, test, describe } from "vitest";
 
 import { makeTestImage } from "@jimp/test-utils";
 
-import shadow from "./index.js";
+import { methods } from "./index.js";
 import { createJimp } from "@jimp/core";
 
-const jimp = createJimp({ plugins: [shadow] });
+const jimp = createJimp({ plugins: [methods] });
 
 describe("Shadow", () => {
   test("creates a shadow", async () => {

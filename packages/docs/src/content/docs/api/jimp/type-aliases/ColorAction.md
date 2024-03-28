@@ -9,4 +9,4 @@ title: "ColorAction"
 
 ## Source
 
-plugins/plugin-color/dist/esm/index.d.ts:63
+plugins/plugin-color/dist/esm/index.d.ts:62

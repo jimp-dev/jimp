@@ -13,7 +13,7 @@ title: "GreenAction"
 
 #### Source
 
-plugins/plugin-color/dist/esm/index.d.ts:36
+plugins/plugin-color/dist/esm/index.d.ts:35
 
 ***
 
@@ -23,4 +23,4 @@ plugins/plugin-color/dist/esm/index.d.ts:36
 
 #### Source
 
-plugins/plugin-color/dist/esm/index.d.ts:37
+plugins/plugin-color/dist/esm/index.d.ts:36

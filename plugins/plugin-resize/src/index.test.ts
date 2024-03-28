@@ -3,9 +3,9 @@ import { expect, test, describe } from "vitest";
 import { makeTestImage } from "@jimp/test-utils";
 import { createJimp } from "@jimp/core";
 
-import resize, { ResizeStrategy } from "./index.js";
+import { methods, ResizeStrategy } from "./index.js";
 
-const jimp = createJimp({ plugins: [resize], formats: [] });
+const jimp = createJimp({ plugins: [methods], formats: [] });
 
 describe("Resize images", () => {
   const testImages = [
@@ -20,8 +20,8 @@ describe("Resize images", () => {
           "□□□□■■■■",
           "□□□□■■■■",
           "□□□□■■■■",
-          "□□□□■■■■",
-        ),
+          "□□□□■■■■"
+        )
       ),
       tests: [
         { mode: "default", size: { height: 4, width: 4 } },
@@ -54,8 +54,8 @@ describe("Resize images", () => {
           "□□□□□□■■■■■■",
           "□□□■□□■■□■■■",
           "□□□□□□■■■■■■",
-          "□□□□□□■■■■■■",
-        ),
+          "□□□□□□■■■■■■"
+        )
       ),
       tests: [
         { mode: "default", size: { height: 6, width: 6 } },
@@ -88,7 +88,7 @@ describe("Resize images", () => {
           const mode = (ResizeStrategy as any)[modeType];
 
           expect(
-            image.src.clone().resize(size.width, size.height, mode),
+            image.src.clone().resize(size.width, size.height, mode)
           ).toMatchSnapshot();
         });
       });

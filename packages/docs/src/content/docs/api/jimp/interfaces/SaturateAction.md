@@ -13,7 +13,7 @@ title: "SaturateAction"
 
 #### Source
 
-plugins/plugin-color/dist/esm/index.d.ts:56
+plugins/plugin-color/dist/esm/index.d.ts:55
 
 ***
 
@@ -23,4 +23,4 @@ plugins/plugin-color/dist/esm/index.d.ts:56
 
 #### Source
 
-plugins/plugin-color/dist/esm/index.d.ts:57
+plugins/plugin-color/dist/esm/index.d.ts:56

@@ -1,11 +1,12 @@
 import { HorizontalAlign, VerticalAlign } from "@jimp/core";
 import { JimpClass } from "@jimp/types";
-import { blit } from "@jimp/plugin-blit";
+import { methods as blitMethods } from "@jimp/plugin-blit";
 
 import { measureText, measureTextHeight, splitLines } from "./measure-text.js";
 import { BmFont } from "./types.js";
 
 export { measureText, measureTextHeight } from "./measure-text.js";
+export * from "./types.js";
 
 function xOffsetBasedOnAlignment<I extends JimpClass>(
   font: BmFont<I>,
@@ -35,7 +36,7 @@ function drawCharacter<I extends JimpClass>(
     const characterPage = font.pages[char.page];
 
     if (characterPage) {
-      image = blit(image, {
+      image = blitMethods.blit(image, {
         src: characterPage,
         x: x + char.xoffset,
         y: y + char.yoffset,
@@ -86,112 +87,113 @@ function printText<I extends JimpClass>(
   }
 }
 
-function print<I extends JimpClass>(
-  image: I,
-  font: BmFont<I>,
-  x: number,
-  y: number,
-  text:
-    | string
-    | number
-    | {
-        text: string | number;
-        alignmentX?: HorizontalAlign;
-        alignmentY?: VerticalAlign;
-      },
-  maxWidth: number = Infinity,
-  maxHeight: number = Infinity,
-  cb: (options: { x: number; y: number }) => void = () => {}
-) {
-  if (typeof font !== "object") {
-    throw new Error("font must be a font loaded with loadFont");
-  }
-
-  if (
-    typeof x !== "number" ||
-    typeof y !== "number" ||
-    typeof maxWidth !== "number"
+export const methods = {
+  /**
+   * Draws a text on a image on a given boundary
+   * @param font a bitmap font loaded from `Jimp.loadFont` command
+   * @param x the x position to start drawing the text
+   * @param y the y position to start drawing the text
+   * @param text the text to draw (string or object with `text`, `alignmentX`, and/or `alignmentY`)
+   * @param maxWidth the boundary width to draw in
+   * @param maxHeight the boundary height to draw in
+   * @param cb (optional) a callback for when complete that ahs the end co-ordinates of the text
+   */
+  print<I extends JimpClass>(
+    image: I,
+    font: BmFont<I>,
+    x: number,
+    y: number,
+    text:
+      | string
+      | number
+      | {
+          text: string | number;
+          alignmentX?: HorizontalAlign;
+          alignmentY?: VerticalAlign;
+        },
+    maxWidth: number = Infinity,
+    maxHeight: number = Infinity,
+    cb: (options: { x: number; y: number }) => void = () => {}
   ) {
-    throw new Error("x, y and maxWidth must be numbers");
-  }
+    if (typeof font !== "object") {
+      throw new Error("font must be a font loaded with loadFont");
+    }
 
-  if (typeof maxWidth !== "number") {
-    throw new Error("maxWidth must be a number");
-  }
+    if (
+      typeof x !== "number" ||
+      typeof y !== "number" ||
+      typeof maxWidth !== "number"
+    ) {
+      throw new Error("x, y and maxWidth must be numbers");
+    }
 
-  if (typeof maxHeight !== "number") {
-    throw new Error("maxHeight must be a number");
-  }
+    if (typeof maxWidth !== "number") {
+      throw new Error("maxWidth must be a number");
+    }
 
-  let alignmentX: HorizontalAlign;
-  let alignmentY: VerticalAlign;
+    if (typeof maxHeight !== "number") {
+      throw new Error("maxHeight must be a number");
+    }
 
-  if (
-    typeof text === "object" &&
-    text.text !== null &&
-    text.text !== undefined
-  ) {
-    alignmentX = text.alignmentX || HorizontalAlign.LEFT;
-    alignmentY = text.alignmentY || VerticalAlign.TOP;
-    ({ text } = text);
-  } else {
-    alignmentX = HorizontalAlign.LEFT;
-    alignmentY = VerticalAlign.TOP;
-    text = text.toString();
-  }
+    let alignmentX: HorizontalAlign;
+    let alignmentY: VerticalAlign;
 
-  if (typeof text === "number") {
-    text = text.toString();
-  }
+    if (
+      typeof text === "object" &&
+      text.text !== null &&
+      text.text !== undefined
+    ) {
+      alignmentX = text.alignmentX || HorizontalAlign.LEFT;
+      alignmentY = text.alignmentY || VerticalAlign.TOP;
+      ({ text } = text);
+    } else {
+      alignmentX = HorizontalAlign.LEFT;
+      alignmentY = VerticalAlign.TOP;
+      text = text.toString();
+    }
 
-  if (maxHeight !== Infinity && alignmentY === VerticalAlign.BOTTOM) {
-    y += maxHeight - measureTextHeight(font, text, maxWidth);
-  } else if (maxHeight !== Infinity && alignmentY === VerticalAlign.MIDDLE) {
-    y += maxHeight / 2 - measureTextHeight(font, text, maxWidth) / 2;
-  }
+    if (typeof text === "number") {
+      text = text.toString();
+    }
 
-  const defaultCharWidth = Object.entries(font.chars).find(
-    (c) => c[1].xadvance
-  )?.[1].xadvance;
+    if (maxHeight !== Infinity && alignmentY === VerticalAlign.BOTTOM) {
+      y += maxHeight - measureTextHeight(font, text, maxWidth);
+    } else if (maxHeight !== Infinity && alignmentY === VerticalAlign.MIDDLE) {
+      y += maxHeight / 2 - measureTextHeight(font, text, maxWidth) / 2;
+    }
 
-  if (typeof defaultCharWidth !== "number") {
-    throw new Error("Could not find default character width");
-  }
+    const defaultCharWidth = Object.entries(font.chars).find(
+      (c) => c[1].xadvance
+    )?.[1].xadvance;
 
-  const { lines, longestLine } = splitLines(font, text, maxWidth);
+    if (typeof defaultCharWidth !== "number") {
+      throw new Error("Could not find default character width");
+    }
 
-  lines.forEach((line) => {
-    const lineString = line.join(" ");
-    const alignmentWidth = xOffsetBasedOnAlignment(
-      font,
-      lineString,
-      maxWidth,
-      alignmentX
-    );
+    const { lines, longestLine } = splitLines(font, text, maxWidth);
 
-    printText(image, font, x + alignmentWidth, y, lineString, defaultCharWidth);
-    y += font.common.lineHeight;
-  });
+    lines.forEach((line) => {
+      const lineString = line.join(" ");
+      const alignmentWidth = xOffsetBasedOnAlignment(
+        font,
+        lineString,
+        maxWidth,
+        alignmentX
+      );
 
-  cb({ x: x + longestLine, y });
+      printText(
+        image,
+        font,
+        x + alignmentWidth,
+        y,
+        lineString,
+        defaultCharWidth
+      );
+      y += font.common.lineHeight;
+    });
 
-  return image;
-}
+    cb({ x: x + longestLine, y });
 
-export default function printPlugin() {
-  return {
-    /**
-     * Draws a text on a image on a given boundary
-     * @param font a bitmap font loaded from `Jimp.loadFont` command
-     * @param x the x position to start drawing the text
-     * @param y the y position to start drawing the text
-     * @param text the text to draw (string or object with `text`, `alignmentX`, and/or `alignmentY`)
-     * @param maxWidth the boundary width to draw in
-     * @param maxHeight the boundary height to draw in
-     * @param cb (optional) a callback for when complete that ahs the end co-ordinates of the text
-     */
-    print,
-  };
-}
-
-export * from "./types.js";
+    return image;
+  },
+};

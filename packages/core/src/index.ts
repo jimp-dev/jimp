@@ -84,9 +84,9 @@ type JimpMethod<
   J extends JimpClass = JimpClass,
 > = (img: J, ...args: Args) => ReturnType;
 
-type JimpPlugin = () => {
+export interface JimpPlugin {
   [key: string]: JimpChainableMethod | JimpMethod;
-} | void;
+}
 
 type UnionToIntersection<U> = (U extends any ? (k: U) => void : never) extends (
   k: infer I
@@ -125,7 +125,7 @@ export function createJimp<
 } = {}) {
   type ExtraMethodMap = JimpInstanceMethods<
     InstanceType<typeof CustomJimp>,
-    UnionToIntersection<ReturnType<Methods[number]>>
+    UnionToIntersection<Methods[number]>
   >;
   type SupportedMimeTypes = ReturnType<Formats[number]>["mime"];
   type MimeTypeToExportOptions = CreateMimeTypeToExportOptions<
@@ -173,59 +173,58 @@ export function createJimp<
       }
 
       // Add the plugins
-      for (const plugin of plugins) {
-        const methods = plugin();
+      for (const methods of plugins) {
+        for (const key in methods) {
+          (this as any)[key] = (...args: any[]) => {
+            const result = methods[key]?.(this, ...args);
 
-        if (methods) {
-          for (const key in methods) {
-            (this as any)[key] = (...args: any[]) => {
-              const result = methods[key]?.(this, ...args);
+            if (typeof result === "object" && "bitmap" in result) {
+              this.bitmap = result.bitmap;
+              return this;
+            }
 
-              if (typeof result === "object" && "bitmap" in result) {
-                this.bitmap = result.bitmap;
-                return this;
-              }
-
-              return result;
-            };
-          }
+            return result;
+          };
         }
       }
     }
 
     /**
-     * Parse a bitmap with the loaded image types.
-     *
-     * @param buffer Raw image data
+     * Create a Jimp instance from a URL or a file path
      * @example
      * ```ts
      * import { Jimp } from "jimp";
      *
-     * const buffer = await fs.readFile("test/image.png");
-     * const image = await Jimp.fromBuffer(buffer);
+     * // Read from a file path
+     * const image = await Jimp.read("test/image.png");
+     *
+     * // Read from a URL
+     * const image = await Jimp.read("https://upload.wikimedia.org/wikipedia/commons/0/01/Bot-Test.jpg");
      * ```
      */
-    static async fromBuffer(buffer: Buffer) {
-      const mime = await fromBuffer(buffer);
-
-      if (!mime || !mime.mime) {
-        throw new Error("Could not find MIME for Buffer");
+    static async read(url: string) {
+      if (existsSync(url)) {
+        return Jimp.fromBuffer(await readFile(url));
       }
 
-      const format = formats.find((format) => format.mime === mime.mime);
+      const [fetchErr, response] = await to(fetch(url));
 
-      if (!format || !format.decode) {
-        throw new Error(`Mime type ${mime.mime} does not support decoding`);
+      if (fetchErr) {
+        throw new Error(`Could not load Buffer from URL: ${url}`);
       }
 
-      const image = new CustomJimp(await format.decode(buffer)) as InstanceType<
-        typeof CustomJimp
-      > &
-        ExtraMethodMap;
+      if (!response.ok) {
+        throw new Error(`HTTP Status ${response.status} for url ${url}`);
+      }
 
-      attemptExifRotate(image, buffer);
+      const [arrayBufferErr, data] = await to(response.arrayBuffer());
 
-      return image;
+      if (arrayBufferErr) {
+        throw new Error(`Could not load Buffer from ${url}`);
+      }
+
+      const buffer = bufferFromArrayBuffer(data);
+      return this.fromBuffer(buffer);
     }
 
     /**
@@ -281,41 +280,38 @@ export function createJimp<
     }
 
     /**
-     * Create a Jimp instance from a URL or a file path
+     * Parse a bitmap with the loaded image types.
+     *
+     * @param buffer Raw image data
      * @example
      * ```ts
      * import { Jimp } from "jimp";
      *
-     * // Read from a file path
-     * const image = await Jimp.read("test/image.png");
-     *
-     * // Read from a URL
-     * const image = await Jimp.read("https://upload.wikimedia.org/wikipedia/commons/0/01/Bot-Test.jpg");
+     * const buffer = await fs.readFile("test/image.png");
+     * const image = await Jimp.fromBuffer(buffer);
      * ```
      */
-    static async read(url: string) {
-      if (existsSync(url)) {
-        return Jimp.fromBuffer(await readFile(url));
+    static async fromBuffer(buffer: Buffer) {
+      const mime = await fromBuffer(buffer);
+
+      if (!mime || !mime.mime) {
+        throw new Error("Could not find MIME for Buffer");
       }
 
-      const [fetchErr, response] = await to(fetch(url));
+      const format = formats.find((format) => format.mime === mime.mime);
 
-      if (fetchErr) {
-        throw new Error(`Could not load Buffer from URL: ${url}`);
+      if (!format || !format.decode) {
+        throw new Error(`Mime type ${mime.mime} does not support decoding`);
       }
 
-      if (!response.ok) {
-        throw new Error(`HTTP Status ${response.status} for url ${url}`);
-      }
+      const image = new CustomJimp(await format.decode(buffer)) as InstanceType<
+        typeof CustomJimp
+      > &
+        ExtraMethodMap;
 
-      const [arrayBufferErr, data] = await to(response.arrayBuffer());
+      attemptExifRotate(image, buffer);
 
-      if (arrayBufferErr) {
-        throw new Error(`Could not load Buffer from ${url}`);
-      }
-
-      const buffer = bufferFromArrayBuffer(data);
-      return this.fromBuffer(buffer);
+      return image;
     }
 
     /**

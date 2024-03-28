@@ -5,9 +5,9 @@ import jpeg from "@jimp/js-jpeg";
 import { Edge } from "@jimp/types";
 import { createJimp } from "@jimp/core";
 
-import color from "./index.js";
+import { methods } from "./index.js";
 
-const jimp = createJimp({ formats: [png, jpeg], plugins: [color] });
+const jimp = createJimp({ formats: [png, jpeg], plugins: [methods] });
 
 describe("Convolution", function () {
   const imgMid = jimp.fromBitmap(

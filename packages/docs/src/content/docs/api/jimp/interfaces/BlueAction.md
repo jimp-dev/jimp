@@ -13,7 +13,7 @@ title: "BlueAction"
 
 #### Source
 
-plugins/plugin-color/dist/esm/index.d.ts:40
+plugins/plugin-color/dist/esm/index.d.ts:39
 
 ***
 
@@ -23,4 +23,4 @@ plugins/plugin-color/dist/esm/index.d.ts:40
 
 #### Source
 
-plugins/plugin-color/dist/esm/index.d.ts:41
+plugins/plugin-color/dist/esm/index.d.ts:40

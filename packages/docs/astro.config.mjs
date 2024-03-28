@@ -28,6 +28,7 @@ export default defineConfig({
           tsconfig: "../../packages/jimp/tsconfig.json",
           typeDoc: {
             groupOrder: ["Classes", "Functions", "Enumerations", "Variables"],
+            sort: ["static-first", "alphabetical"],
           },
         }),
       ],

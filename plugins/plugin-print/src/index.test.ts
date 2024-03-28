@@ -4,11 +4,11 @@ import { HorizontalAlign, VerticalAlign, createJimp } from "@jimp/core";
 import png from "@jimp/js-png";
 import jpeg from "@jimp/js-jpeg";
 
-import print, { measureText, measureTextHeight } from "./index.js";
+import { methods, measureText, measureTextHeight } from "./index.js";
 import { loadFont } from "./load-font.js";
 import * as fonts from "./fonts.js";
 
-const Jimp = createJimp({ plugins: [print], formats: [png, jpeg] });
+const Jimp = createJimp({ plugins: [methods], formats: [png, jpeg] });
 
 async function createTextImage(
   width: number,

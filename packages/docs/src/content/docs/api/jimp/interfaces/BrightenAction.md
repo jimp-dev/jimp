@@ -13,7 +13,7 @@ title: "BrightenAction"
 
 #### Source
 
-plugins/plugin-color/dist/esm/index.d.ts:44
+plugins/plugin-color/dist/esm/index.d.ts:43
 
 ***
 
@@ -23,4 +23,4 @@ plugins/plugin-color/dist/esm/index.d.ts:44
 
 #### Source
 
-plugins/plugin-color/dist/esm/index.d.ts:45
+plugins/plugin-color/dist/esm/index.d.ts:44

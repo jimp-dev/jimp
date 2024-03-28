@@ -13,7 +13,7 @@ title: "GrayscaleAction"
 
 #### Source
 
-plugins/plugin-color/dist/esm/index.d.ts:60
+plugins/plugin-color/dist/esm/index.d.ts:59
 
 ***
 
@@ -23,4 +23,4 @@ plugins/plugin-color/dist/esm/index.d.ts:60
 
 #### Source
 
-plugins/plugin-color/dist/esm/index.d.ts:61
+plugins/plugin-color/dist/esm/index.d.ts:60

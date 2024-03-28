@@ -3,9 +3,9 @@ import { expect, test, describe } from "vitest";
 import { makeTestImage } from "@jimp/test-utils";
 import { createJimp } from "@jimp/core";
 
-import fisheye from "./index.js";
+import { methods } from "./index.js";
 
-const Jimp = createJimp({ plugins: [fisheye] });
+const Jimp = createJimp({ plugins: [methods] });
 
 describe("Fisheye", () => {
   test("should create fisheye lens to image", () => {

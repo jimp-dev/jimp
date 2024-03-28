@@ -4,9 +4,9 @@ import jpeg from "@jimp/js-jpeg";
 import png from "@jimp/js-png";
 import { getTestImagePath, makeTestImage } from "@jimp/test-utils";
 
-import blit from "./index.js";
+import * as blit from "./index.js";
 
-const Jimp = createJimp({ formats: [jpeg, png], plugins: [blit] });
+const Jimp = createJimp({ formats: [jpeg, png], plugins: [blit.methods] });
 
 describe("Blit over image", function () {
   const targetImg = Jimp.fromBitmap(

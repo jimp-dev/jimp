@@ -10,28 +10,30 @@ import jpeg from "@jimp/js-jpeg";
 import png from "@jimp/js-png";
 import tiff from "@jimp/js-tiff";
 
-import blit from "@jimp/plugin-blit";
-import blur from "@jimp/plugin-blur";
-import circle from "@jimp/plugin-circle";
-import color from "@jimp/plugin-color";
-import contain from "@jimp/plugin-contain";
-import cover from "@jimp/plugin-cover";
-import crop from "@jimp/plugin-crop";
-import displace from "@jimp/plugin-displace";
-import dither from "@jimp/plugin-dither";
-import fisheye from "@jimp/plugin-fisheye";
-import flip from "@jimp/plugin-flip";
-import hash from "@jimp/plugin-hash";
-import mask from "@jimp/plugin-mask";
-import print from "@jimp/plugin-print";
-import resize from "@jimp/plugin-resize";
-import rotate from "@jimp/plugin-rotate";
-import threshold from "@jimp/plugin-threshold";
+import * as blit from "@jimp/plugin-blit";
+import * as blur from "@jimp/plugin-blur";
+import * as circle from "@jimp/plugin-circle";
+import * as color from "@jimp/plugin-color";
+import * as contain from "@jimp/plugin-contain";
+import * as cover from "@jimp/plugin-cover";
+import * as crop from "@jimp/plugin-crop";
+import * as displace from "@jimp/plugin-displace";
+import * as dither from "@jimp/plugin-dither";
+import * as fisheye from "@jimp/plugin-fisheye";
+import * as flip from "@jimp/plugin-flip";
+import * as hash from "@jimp/plugin-hash";
+import * as mask from "@jimp/plugin-mask";
+import * as print from "@jimp/plugin-print";
+import * as resize from "@jimp/plugin-resize";
+import * as rotate from "@jimp/plugin-rotate";
+import * as threshold from "@jimp/plugin-threshold";
 
 import { createJimp } from "@jimp/core";
 
 /**
  * @class
+ * @constructor {number}
+ * @param {number}
  * A `Jimp` class enables you to:
  *
  * - Read an image into a "bit map" (a collection of pixels)
@@ -102,23 +104,23 @@ import { createJimp } from "@jimp/core";
 export const Jimp = createJimp({
   formats: [bmp, msBmp, gif, jpeg, png, tiff],
   plugins: [
-    blit,
-    blur,
-    circle,
-    color,
-    contain,
-    cover,
-    crop,
-    displace,
-    dither,
-    fisheye,
-    flip,
-    hash,
-    mask,
-    print,
-    resize,
-    rotate,
-    threshold,
+    blit.methods,
+    blur.methods,
+    circle.methods,
+    color.methods,
+    contain.methods,
+    cover.methods,
+    crop.methods,
+    displace.methods,
+    dither.methods,
+    fisheye.methods,
+    flip.methods,
+    hash.methods,
+    mask.methods,
+    print.methods,
+    resize.methods,
+    rotate.methods,
+    threshold.methods,
   ],
 });
 

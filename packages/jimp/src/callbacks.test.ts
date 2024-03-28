@@ -11,7 +11,6 @@ describe("Callbacks", () => {
     crop: { args: [1, 1, 2, 1] },
     invert: { args: [] },
     flip: { args: [true, false] },
-    mirror: { args: [true, false] },
     gaussian: { args: [1] },
     blur: { args: [1] },
     greyscale: { args: [] },

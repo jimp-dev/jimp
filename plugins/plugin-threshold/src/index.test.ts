@@ -2,10 +2,10 @@ import { expect, test, describe } from "vitest";
 import "@jimp/test-utils";
 
 import jpeg from "@jimp/js-jpeg";
-import hash from "@jimp/plugin-hash";
+import { methods as hash } from "@jimp/plugin-hash";
 import { createJimp } from "@jimp/core";
 
-import threshold from "./index.js";
+import { methods as threshold } from "./index.js";
 
 const jimp = createJimp({ formats: [jpeg], plugins: [threshold, hash] });
 

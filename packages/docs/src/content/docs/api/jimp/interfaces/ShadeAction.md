@@ -13,7 +13,7 @@ title: "ShadeAction"
 
 #### Source
 
-plugins/plugin-color/dist/esm/index.d.ts:24
+plugins/plugin-color/dist/esm/index.d.ts:23
 
 ***
 
@@ -23,4 +23,4 @@ plugins/plugin-color/dist/esm/index.d.ts:24
 
 #### Source
 
-plugins/plugin-color/dist/esm/index.d.ts:25
+plugins/plugin-color/dist/esm/index.d.ts:24

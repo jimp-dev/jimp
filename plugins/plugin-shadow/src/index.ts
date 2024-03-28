@@ -1,9 +1,9 @@
 import { JimpClass } from "@jimp/types";
 import { composite } from "@jimp/core";
 import { clone } from "@jimp/utils";
-import { resize } from "@jimp/plugin-resize";
-import { blur } from "@jimp/plugin-blur";
-import { opacity } from "@jimp/plugin-color";
+import { methods as resizeMethods } from "@jimp/plugin-resize";
+import { methods as blurMethods } from "@jimp/plugin-blur";
+import { methods as colorMethods } from "@jimp/plugin-color";
 
 interface ShadowOptions {
   /** opacity of the shadow between 0 and 1 */
@@ -18,48 +18,41 @@ interface ShadowOptions {
   y?: number;
 }
 
-export function shadow<I extends JimpClass>(
-  image: I,
-  options: ShadowOptions = {}
-) {
-  const {
-    opacity: opacityAmount = 0.7,
-    size = 1.1,
-    x = -25,
-    y = 25,
-    blur: blurAmount = 5,
-  } = options;
+export const methods = {
+  /**
+   *  Adds a shadow to the image
+   */
+  shadow<I extends JimpClass>(image: I, options: ShadowOptions = {}) {
+    const {
+      opacity: opacityAmount = 0.7,
+      size = 1.1,
+      x = -25,
+      y = 25,
+      blur: blurAmount = 5,
+    } = options;
 
-  // clone the image
-  const orig = clone(image);
-  let shadow = clone(image);
-  // enlarge it. This creates a "shadow".
-  shadow = resize(
-    shadow,
-    image.bitmap.width * size,
-    image.bitmap.height * size
-  );
-  shadow = blur(shadow, blurAmount);
-  shadow = opacity(shadow, opacityAmount);
+    // clone the image
+    const orig = clone(image);
+    let shadow = clone(image);
+    // enlarge it. This creates a "shadow".
+    shadow = resizeMethods.resize(
+      shadow,
+      image.bitmap.width * size,
+      image.bitmap.height * size
+    );
+    shadow = blurMethods.blur(shadow, blurAmount);
+    shadow = colorMethods.opacity(shadow, opacityAmount);
 
-  const blankImage = new (image.constructor as any)({
-    width: image.bitmap.width,
-    height: image.bitmap.height,
-    color: 0x00000000,
-  });
+    const blankImage = new (image.constructor as any)({
+      width: image.bitmap.width,
+      height: image.bitmap.height,
+      color: 0x00000000,
+    });
 
-  // Then blit the "shadow" onto the background and the image on top of that.
-  let result = composite(blankImage, orig, 0, 0);
-  result = composite(result, shadow, x, y);
+    // Then blit the "shadow" onto the background and the image on top of that.
+    let result = composite(blankImage, orig, 0, 0);
+    result = composite(result, shadow, x, y);
 
-  return result;
-}
-
-export default function shadowPlugin() {
-  return {
-    /**
-     *  Adds a shadow to the image
-     */
-    shadow,
-  };
-}
+    return result;
+  },
+};

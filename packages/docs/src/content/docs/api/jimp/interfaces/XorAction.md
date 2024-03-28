@@ -13,7 +13,7 @@ title: "XorAction"
 
 #### Source
 
-plugins/plugin-color/dist/esm/index.d.ts:28
+plugins/plugin-color/dist/esm/index.d.ts:27
 
 ***
 
@@ -23,4 +23,4 @@ plugins/plugin-color/dist/esm/index.d.ts:28
 
 #### Source
 
-plugins/plugin-color/dist/esm/index.d.ts:29
+plugins/plugin-color/dist/esm/index.d.ts:28

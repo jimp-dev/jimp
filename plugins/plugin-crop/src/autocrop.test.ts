@@ -1,10 +1,10 @@
 import { expect, test, describe } from "vitest";
 
-import crop from "./index.js";
+import { methods } from "./index.js";
 import { createJimp } from "@jimp/core";
 import { makeTestImage } from "@jimp/test-utils";
 
-const jimp = createJimp({ plugins: [crop] });
+const jimp = createJimp({ plugins: [methods] });
 
 describe("Autocrop", () => {
   test("image with transparent surround color", async () => {
@@ -16,8 +16,8 @@ describe("Autocrop", () => {
         "  ◆▦▦▦▦◆  ",
         "   ◆▦▦◆   ",
         "    ◆◆    ",
-        "          ",
-      ),
+        "          "
+      )
     );
 
     expect(imgSrc.autocrop()).toMatchSnapshot();
@@ -32,8 +32,8 @@ describe("Autocrop", () => {
         "▥▥◆▦▦▦▦◆▥▥",
         "▥▥▥◆▦▦◆▥▥▥",
         "▥▥▥▥◆◆▥▥▥▥",
-        "▥▥▥▥▥▥▥▥▥▥",
-      ),
+        "▥▥▥▥▥▥▥▥▥▥"
+      )
     );
 
     expect(imgSrc.autocrop()).toMatchSnapshot();
@@ -50,8 +50,8 @@ describe("Autocrop", () => {
         "▥▥  ◆▦▦◆  ▥▥",
         "▥▥   ◆◆   ▥▥",
         "▥▥▥▥▥▥▥▥▥▥▥▥",
-        "▥▥▥▥▥▥▥▥▥▥▥▥",
-      ),
+        "▥▥▥▥▥▥▥▥▥▥▥▥"
+      )
     );
 
     expect(imgSrc.autocrop()).toMatchSnapshot();
@@ -68,8 +68,8 @@ describe("Autocrop", () => {
         "23  ◆▦▦◆  23",
         "32   ◆◆   32",
         "232323232323",
-        "323232323232",
-      ),
+        "323232323232"
+      )
     );
     expect(imgSrc.clone().autocrop()).toMatchSnapshot();
     expect(imgSrc.clone().autocrop(0.005)).toMatchSnapshot();
@@ -86,8 +86,8 @@ describe("Autocrop", () => {
         "23  ◆▦▦◆  23",
         "32   ◆◆   32",
         "232323232323",
-        "323232323232",
-      ),
+        "323232323232"
+      )
     );
     expect(imgSrc.clone().autocrop()).toMatchSnapshot();
     expect(imgSrc.clone().autocrop({ tolerance: 0.005 })).toMatchSnapshot();
@@ -102,8 +102,8 @@ describe("Autocrop", () => {
         "▥▥  ◆▦▦◆  ",
         "▥▥   ◆◆   ",
         "▥▥▥▥▥▥▥▥▥▥",
-        "▥▥▥▥▥▥▥▥▥▥",
-      ),
+        "▥▥▥▥▥▥▥▥▥▥"
+      )
     );
 
     expect(imgSrc.autocrop({ cropOnlyFrames: false })).toMatchSnapshot();
@@ -118,8 +118,8 @@ describe("Autocrop", () => {
         "▥▥  ◆▦▦◆  ",
         "▥▥   ◆◆   ",
         "▥▥▥▥▥▥▥▥▥▥",
-        "▥▥▥▥▥▥▥▥▥▥",
-      ),
+        "▥▥▥▥▥▥▥▥▥▥"
+      )
     );
 
     expect(imgSrc.autocrop({ cropOnlyFrames: false })).toMatchSnapshot();
@@ -135,8 +135,8 @@ describe("Autocrop", () => {
         "▥▥  ◆▦▦◆  ▥▥▥▥",
         "▥▥   ◆◆   ▥▥▥▥",
         "▥▥▥▥▥▥▥▥▥▥▥▥▥▥",
-        "▥▥▥▥▥▥▥▥▥▥▥▥▥▥",
-      ),
+        "▥▥▥▥▥▥▥▥▥▥▥▥▥▥"
+      )
     );
 
     expect(imgSrc.autocrop({ cropSymmetric: true })).toMatchSnapshot();
@@ -151,11 +151,11 @@ describe("Autocrop", () => {
         "▥▥  ◆▦▦◆  ▥▥▥▥",
         "▥▥   ◆◆   ▥▥▥▥",
         "▥▥▥▥▥▥▥▥▥▥▥▥▥▥",
-        "▥▥▥▥▥▥▥▥▥▥▥▥▥▥",
-      ),
+        "▥▥▥▥▥▥▥▥▥▥▥▥▥▥"
+      )
     );
     expect(
-      imgSrc.autocrop({ cropSymmetric: true, cropOnlyFrames: false }),
+      imgSrc.autocrop({ cropSymmetric: true, cropOnlyFrames: false })
     ).toMatchSnapshot();
   });
 
@@ -170,15 +170,15 @@ describe("Autocrop", () => {
         "23  ◆▦▦◆  23",
         "32   ◆◆   32",
         "232323232323",
-        "323232323232",
-      ),
+        "323232323232"
+      )
     );
 
     expect(
       imgSrc.autocrop({
         tolerance: 0.005,
         leaveBorder: 1,
-      }),
+      })
     ).toMatchSnapshot();
   });
 
@@ -193,14 +193,14 @@ describe("Autocrop", () => {
         "23  ◆▦▦◆  23",
         "32   ◆◆   32",
         "232323232323",
-        "323232323232",
-      ),
+        "323232323232"
+      )
     );
     expect(
       imgSrc.autocrop({
         tolerance: 0.005,
         leaveBorder: 100,
-      }),
+      })
     ).toMatchSnapshot();
   });
 
@@ -217,15 +217,15 @@ describe("Autocrop", () => {
         "   ◆◆   ",
         "▥▥▥▥▥▥▥▥",
         "▥▥▥▥▥▥▥▥",
-        "▥▥▥▥▥▥▥▥",
-      ),
+        "▥▥▥▥▥▥▥▥"
+      )
     );
     expect(
       imgSrc.autocrop({
         cropSymmetric: true,
         cropOnlyFrames: false,
         leaveBorder: 2,
-      }),
+      })
     ).toMatchSnapshot();
   });
 
@@ -238,11 +238,11 @@ describe("Autocrop", () => {
         "  ◆▦▦▦▦◆  ",
         "   ◆▦▦◆   ",
         "    ◆◆    ",
-        "          ",
-      ),
+        "          "
+      )
     );
     expect(
-      imgSrc.autocrop({ cropOnlyFrames: false, ignoreSides: { north: true } }),
+      imgSrc.autocrop({ cropOnlyFrames: false, ignoreSides: { north: true } })
     ).toMatchSnapshot();
   });
 
@@ -255,15 +255,15 @@ describe("Autocrop", () => {
         "  ◆▦▦▦▦◆  ",
         "   ◆▦▦◆   ",
         "    ◆◆    ",
-        "          ",
-      ),
+        "          "
+      )
     );
 
     expect(
       imgSrc.autocrop({
         cropOnlyFrames: false,
         ignoreSides: { west: true, south: true },
-      }),
+      })
     ).toMatchSnapshot();
   });
 
@@ -276,12 +276,12 @@ describe("Autocrop", () => {
         "  ◆▦▦▦▦◆  ",
         "   ◆▦▦◆   ",
         "    ◆◆    ",
-        "          ",
-      ),
+        "          "
+      )
     );
 
     expect(
-      imgSrc.autocrop({ cropOnlyFrames: false, ignoreSides: { east: true } }),
+      imgSrc.autocrop({ cropOnlyFrames: false, ignoreSides: { east: true } })
     ).toMatchSnapshot();
   });
 });

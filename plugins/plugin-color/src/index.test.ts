@@ -3,7 +3,7 @@ import { expect, test, describe } from "vitest";
 import { makeDonutTestImage } from "@jimp/test-utils";
 import { createJimp } from "@jimp/core";
 
-import color from "./index.js";
+import { methods as color } from "./index.js";
 
 const jimp = createJimp({ plugins: [color] });
 

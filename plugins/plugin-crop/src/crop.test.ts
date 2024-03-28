@@ -2,7 +2,7 @@ import { expect, test, describe } from "vitest";
 import { createJimp } from "@jimp/core";
 import { makeTestImage } from "@jimp/test-utils";
 
-import crop from "./index.js";
+import { methods as crop } from "./index.js";
 
 const jimp = createJimp({ plugins: [crop], formats: [] });
 
@@ -13,7 +13,7 @@ describe("crop", () => {
     " ◆▦▦◆ ",
     "◆▦▦▦▦◆",
     " ◆▦▦◆ ",
-    "  ◆◆  ",
+    "  ◆◆  "
   );
 
   test("full width from top", () => {

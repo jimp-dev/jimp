@@ -1,8 +1,8 @@
-import { ResizeStrategy, resize } from "@jimp/plugin-resize";
+import { ResizeStrategy, methods as resizeMethods } from "@jimp/plugin-resize";
 import { JimpClass } from "@jimp/types";
 import { clone } from "@jimp/utils";
 import { composite } from "@jimp/core";
-import { crop } from "@jimp/plugin-crop";
+import { methods as cropMethods } from "@jimp/plugin-crop";
 
 /** function to translate the x, y coordinate to the index of the pixel in the buffer */
 function createIdxTranslationFunction(w: number, h: number) {
@@ -155,7 +155,12 @@ function advancedRotate<I extends JimpClass>(
     });
 
     const max = Math.max(w, h, image.bitmap.width, image.bitmap.height);
-    image = resize(image, max, max, mode === true ? undefined : mode);
+    image = resizeMethods.resize(
+      image,
+      max,
+      max,
+      mode === true ? undefined : mode
+    );
 
     image = composite(
       image,
@@ -201,43 +206,39 @@ function advancedRotate<I extends JimpClass>(
     // now crop the image to the final size
     const x = Math.max(bW / 2 - w / 2, 0);
     const y = Math.max(bH / 2 - h / 2, 0);
-    image = crop(image, x, y, w, h);
+    image = cropMethods.crop(image, x, y, w, h);
   }
 }
 
-export function rotate<I extends JimpClass>(
-  image: I,
-  deg: number,
-  mode: boolean | ResizeStrategy = true
-) {
-  if (typeof deg !== "number") {
-    throw new Error("deg must be a number");
-  }
+export const methods = {
+  /**
+   * Rotates the image counter-clockwise by a number of degrees. By default the width and height of the image will be resized appropriately.
+   * @param deg the number of degrees to rotate the image by
+   */
+  rotate<I extends JimpClass>(
+    image: I,
+    deg: number,
+    mode: boolean | ResizeStrategy = true
+  ) {
+    if (typeof deg !== "number") {
+      throw new Error("deg must be a number");
+    }
 
-  if (typeof mode !== "boolean" && typeof mode !== "string") {
-    throw new Error("mode must be a boolean or a string");
-  }
+    if (typeof mode !== "boolean" && typeof mode !== "string") {
+      throw new Error("mode must be a boolean or a string");
+    }
 
-  // use matrixRotate if the angle is a multiple of 90 degrees (eg: 180 or -90) and resize is allowed or not needed.
-  const matrixRotateAllowed =
-    deg % 90 === 0 &&
-    (mode || image.bitmap.width === image.bitmap.height || deg % 180 === 0);
+    // use matrixRotate if the angle is a multiple of 90 degrees (eg: 180 or -90) and resize is allowed or not needed.
+    const matrixRotateAllowed =
+      deg % 90 === 0 &&
+      (mode || image.bitmap.width === image.bitmap.height || deg % 180 === 0);
 
-  if (matrixRotateAllowed) {
-    matrixRotate(image, deg);
-  } else {
-    advancedRotate(image, deg, mode);
-  }
+    if (matrixRotateAllowed) {
+      matrixRotate(image, deg);
+    } else {
+      advancedRotate(image, deg, mode);
+    }
 
-  return image;
-}
-
-export default function rotatePlugin() {
-  return {
-    /**
-     * Rotates the image counter-clockwise by a number of degrees. By default the width and height of the image will be resized appropriately.
-     * @param deg the number of degrees to rotate the image by
-     */
-    rotate,
-  };
-}
+    return image;
+  },
+};

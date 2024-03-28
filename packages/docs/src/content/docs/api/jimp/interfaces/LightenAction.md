@@ -13,7 +13,7 @@ title: "LightenAction"
 
 #### Source
 
-plugins/plugin-color/dist/esm/index.d.ts:12
+plugins/plugin-color/dist/esm/index.d.ts:11
 
 ***
 
@@ -23,4 +23,4 @@ plugins/plugin-color/dist/esm/index.d.ts:12
 
 #### Source
 
-plugins/plugin-color/dist/esm/index.d.ts:13
+plugins/plugin-color/dist/esm/index.d.ts:12

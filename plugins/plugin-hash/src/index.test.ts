@@ -6,9 +6,12 @@ import png from "@jimp/js-png";
 import jpeg from "@jimp/js-jpeg";
 import tiff from "@jimp/js-tiff";
 
-import hash, { compareHashes, distance } from "./index.js";
+import { methods, compareHashes, distance } from "./index.js";
 
-const Jimp = createJimp({ formats: [bmp, png, jpeg, tiff], plugins: [hash] });
+const Jimp = createJimp({
+  formats: [bmp, png, jpeg, tiff],
+  plugins: [methods],
+});
 
 describe("hash", () => {
   test("base 2", async () => {

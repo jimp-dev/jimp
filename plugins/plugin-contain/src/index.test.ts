@@ -3,9 +3,9 @@ import { expect, test, describe } from "vitest";
 import { makeTestImage } from "@jimp/test-utils";
 import { HorizontalAlign, VerticalAlign, createJimp } from "@jimp/core";
 
-import contain from "./index.js";
+import { methods } from "./index.js";
 
-const jimp = createJimp({ plugins: [contain] });
+const jimp = createJimp({ plugins: [methods] });
 
 describe("All align combinations for contain", () => {
   const vertical = jimp.fromBitmap(

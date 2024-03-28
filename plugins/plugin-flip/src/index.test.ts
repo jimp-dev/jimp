@@ -2,9 +2,9 @@ import { describe, expect, test } from "vitest";
 import { createJimp } from "@jimp/core";
 import { makeTestImage } from "@jimp/test-utils";
 
-import flip from "./index.js";
+import { methods } from "./index.js";
 
-const jimp = createJimp({ plugins: [flip] });
+const jimp = createJimp({ plugins: [methods] });
 
 describe("Flipping plugin", () => {
   test("can flip horizontally", () => {

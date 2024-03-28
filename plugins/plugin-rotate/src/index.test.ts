@@ -2,9 +2,9 @@ import { describe, expect, test } from "vitest";
 import { createJimp } from "@jimp/core";
 import { makeTestImage } from "@jimp/test-utils";
 
-import rotate from "./index.js";
+import { methods } from "./index.js";
 
-const jimp = createJimp({ plugins: [rotate] });
+const jimp = createJimp({ plugins: [methods] });
 
 describe("Rotate a image with even size", () => {
   const imgSrc = jimp.fromBitmap(

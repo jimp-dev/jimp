@@ -13,7 +13,7 @@ title: "DesaturateAction"
 
 #### Source
 
-plugins/plugin-color/dist/esm/index.d.ts:52
+plugins/plugin-color/dist/esm/index.d.ts:51
 
 ***
 
@@ -23,4 +23,4 @@ plugins/plugin-color/dist/esm/index.d.ts:52
 
 #### Source
 
-plugins/plugin-color/dist/esm/index.d.ts:53
+plugins/plugin-color/dist/esm/index.d.ts:52

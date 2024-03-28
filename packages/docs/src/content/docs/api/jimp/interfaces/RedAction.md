@@ -13,7 +13,7 @@ title: "RedAction"
 
 #### Source
 
-plugins/plugin-color/dist/esm/index.d.ts:32
+plugins/plugin-color/dist/esm/index.d.ts:31
 
 ***
 
@@ -23,4 +23,4 @@ plugins/plugin-color/dist/esm/index.d.ts:32
 
 #### Source
 
-plugins/plugin-color/dist/esm/index.d.ts:33
+plugins/plugin-color/dist/esm/index.d.ts:32

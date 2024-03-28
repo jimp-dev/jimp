@@ -5,13 +5,15 @@ prev: false
 title: "loadFont"
 ---
 
-> **loadFont**(`url`): `Promise`\<`Object`\>
+> **loadFont**(`file`): `Promise`\<`Object`\>
 
 Loads a Bitmap Font from a file.
 
 ## Parameters
 
-• **url**: `string`
+• **file**: `string`
+
+A path or URL to a font file
 
 ## Returns
 

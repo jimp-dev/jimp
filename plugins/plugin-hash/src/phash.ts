@@ -20,8 +20,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-import { greyscale } from "@jimp/plugin-color";
-import { resize } from "@jimp/plugin-resize";
+import { methods as color } from "@jimp/plugin-color";
+import { methods } from "@jimp/plugin-resize";
 import { JimpClass } from "@jimp/types";
 import { clone } from "@jimp/utils";
 
@@ -65,13 +65,13 @@ class ImagePHash {
      * This is really done to simplify the DCT computation and not
      * because it is needed to reduce the high frequencies.
      */
-    img = resize(clone(img), this.size, this.size);
+    img = methods.resize(clone(img), this.size, this.size);
 
     /* 2. Reduce color.
      * The image is reduced to a grayscale just to further simplify
      * the number of computations.
      */
-    img = greyscale(img);
+    img = color.greyscale(img);
 
     const vals = [];
 

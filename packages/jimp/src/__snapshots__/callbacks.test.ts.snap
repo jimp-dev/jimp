@@ -188,20 +188,6 @@ Data:
 00-FF-FF⁷ᶠ FF-00-FF⁷ᶠ FF-FF-00⁷ᶠ
 `;
 
-exports[`Callbacks > with mirror 1`] = `
-Visualization:
-
-▾▸▴
-▰▪◆
-▿▹▵
-
-Data:
-
-00-00-FFᶠᶠ 00-FF-00ᶠᶠ FF-00-00ᶠᶠ
-FF-00-FFᶠᶠ 00-FF-FFᶠᶠ FF-FF-00ᶠᶠ
-00-00-FF⁷ᶠ 00-FF-00⁷ᶠ FF-00-00⁷ᶠ
-`;
-
 exports[`Callbacks > with opacity 1`] = `
 Visualization:
 

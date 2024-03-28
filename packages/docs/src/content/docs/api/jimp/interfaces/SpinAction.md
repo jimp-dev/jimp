@@ -13,7 +13,7 @@ title: "SpinAction"
 
 #### Source
 
-plugins/plugin-color/dist/esm/index.d.ts:8
+plugins/plugin-color/dist/esm/index.d.ts:7
 
 ***
 
@@ -23,4 +23,4 @@ plugins/plugin-color/dist/esm/index.d.ts:8
 
 #### Source
 
-plugins/plugin-color/dist/esm/index.d.ts:9
+plugins/plugin-color/dist/esm/index.d.ts:8

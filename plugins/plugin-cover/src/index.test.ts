@@ -2,9 +2,9 @@ import { expect, test, describe } from "vitest";
 import { HorizontalAlign, VerticalAlign, createJimp } from "@jimp/core";
 import { makeTestImage } from "@jimp/test-utils";
 
-import cover from "./index.js";
+import { methods } from "./index.js";
 
-const jimp = createJimp({ plugins: [cover] });
+const jimp = createJimp({ plugins: [methods] });
 
 describe("All align combinations for cover", () => {
   const vertical = jimp.fromBitmap(

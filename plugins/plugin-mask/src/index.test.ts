@@ -3,9 +3,9 @@ import { expect, test, describe } from "vitest";
 import { makeTestImage } from "@jimp/test-utils";
 import { createJimp } from "@jimp/core";
 
-import mask from "./index.js";
+import { methods } from "./index.js";
 
-const jimp = createJimp({ plugins: [mask] });
+const jimp = createJimp({ plugins: [methods] });
 
 describe("Mask", () => {
   const imgSrcOpaq = jimp.fromBitmap(

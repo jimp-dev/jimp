@@ -13,7 +13,7 @@ title: "HueAction"
 
 #### Source
 
-plugins/plugin-color/dist/esm/index.d.ts:4
+plugins/plugin-color/dist/esm/index.d.ts:3
 
 ***
 
@@ -23,4 +23,4 @@ plugins/plugin-color/dist/esm/index.d.ts:4
 
 #### Source
 
-plugins/plugin-color/dist/esm/index.d.ts:5
+plugins/plugin-color/dist/esm/index.d.ts:4

@@ -13,7 +13,7 @@ title: "MixAction"
 
 #### Source
 
-plugins/plugin-color/dist/esm/index.d.ts:16
+plugins/plugin-color/dist/esm/index.d.ts:15
 
 ***
 
@@ -23,4 +23,4 @@ plugins/plugin-color/dist/esm/index.d.ts:16
 
 #### Source
 
-plugins/plugin-color/dist/esm/index.d.ts:17
+plugins/plugin-color/dist/esm/index.d.ts:16
