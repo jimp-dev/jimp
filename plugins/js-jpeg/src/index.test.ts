@@ -7,8 +7,6 @@ import jpeg from "./index.js";
 const jimp = createJimp({ formats: [jpeg] });
 
 describe("JPEG", () => {
-  const imagesDir = __dirname + "/images";
-
   test("load JPG", async () => {
     const image = await jimp.read(getTestImagePath("cops.jpg"));
 
@@ -18,7 +16,7 @@ describe("JPEG", () => {
   });
 
   test("load JPG with fill bytes", async () => {
-    const image = await jimp.read(imagesDir + "/fillbytes.jpg");
+    const image = await jimp.read(getTestImagePath("fillbytes.jpg"));
 
     expect(image.getPixelColor(10, 10)).toBe(0xaeb8c3ff);
     expect(image.getPixelColor(220, 190)).toBe(0x262b21ff);

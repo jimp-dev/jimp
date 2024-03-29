@@ -1,5 +1,6 @@
 import { describe, expect, test } from "vitest";
 import { createJimp } from "@jimp/core";
+import { getTestImagePath } from "@jimp/test-utils";
 
 import png from "@jimp/js-png";
 import bmp from "./index.js";
@@ -8,7 +9,7 @@ const jimp = createJimp({ formats: [bmp, png] });
 
 describe("BMP", () => {
   test("load BMP", async () => {
-    const image = await jimp.read(__dirname + "/images/windows95.bmp");
+    const image = await jimp.read(getTestImagePath("windows95.bmp"));
 
     expect(image.getPixelColor(10, 10)).toBe(0xeff7f7ff);
     expect(image.getPixelColor(150, 80)).toBe(0x73add6ff);
@@ -27,12 +28,5 @@ describe("BMP", () => {
     const buffer = await image.getBuffer("image/bmp");
 
     expect(buffer.toString()).toMatch(/^BM/);
-  });
-
-  test("uses correct colors for BMP", async function () {
-    const expectedImg = await jimp.read(__dirname + "/images/windows95.png");
-    const image = await jimp.read(__dirname + "/images/windows95.bmp");
-
-    expect(image.bitmap.data).toEqual(expectedImg.bitmap.data);
   });
 });

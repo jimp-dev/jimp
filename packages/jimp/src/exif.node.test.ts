@@ -1,5 +1,5 @@
 import { expect, test, describe } from "vitest";
-import "@jimp/test-utils";
+import "@jimp/test-utils/image-snapshot";
 
 import { getExifOrientation } from "@jimp/core";
 import { Jimp, distance } from "./index.js";

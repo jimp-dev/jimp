@@ -6,14 +6,15 @@ import { methods as hash } from "@jimp/plugin-hash";
 import { createJimp } from "@jimp/core";
 
 import { methods as threshold } from "./index.js";
+import { getTestImagePath } from "@jimp/test-utils";
 
 const jimp = createJimp({ formats: [jpeg], plugins: [threshold, hash] });
 
 describe("Threshold", () => {
   test("defines default threshold for lighter backgrounds", async () => {
-    const testImage = await jimp.read(__dirname + "/images/hands.jpg");
+    const testImage = await jimp.read(getTestImagePath("hands.jpg"));
     const expectedImage = await jimp.read(
-      __dirname + "/images/hands_mx200_rp255.jpg"
+      getTestImagePath("hands_mx200_rp255.jpg")
     );
     const output = testImage.threshold({ max: 200, replace: 255 }).hash();
 

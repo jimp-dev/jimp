@@ -4,7 +4,6 @@
   "repository": "jimp-dev/jimp",
   "scripts": {
     "lint": "eslint .",
-    "test": "vitest",
     "dev": "tshy --watch"
   },
   "author": "Andrew Lisowski <lisowski54@gmail.com>",
@@ -19,7 +18,8 @@
   },
   "dependencies": {
     "@esbuild-plugins/node-globals-polyfill": "^0.2.3",
-    "playwright": "^1.42.1"
+    "playwright": "^1.42.1",
+    "vite-plugin-node-polyfills": "^0.21.0"
   },
   "type": "module"
 }

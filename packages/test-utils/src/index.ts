@@ -213,6 +213,9 @@ export function getTestImagePath(
     | "rgb.tiff"
     | "windows95.png"
     | "windows95.bmp"
+    | "fillbytes.jpg"
+    | "hands.jpg"
+    | "hands_mx200_rp255.jpg"
 ) {
   if (typeof window !== "undefined") {
     return `/${name}`;

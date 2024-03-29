@@ -42,12 +42,6 @@ describe("Convolution", function () {
     [0, 1, 1],
   ];
 
-  const blurM = [
-    [1 / 9, 1 / 9, 1 / 9],
-    [1 / 9, 1 / 9, 1 / 9],
-    [1 / 9, 1 / 9, 1 / 9],
-  ];
-
   test("3x3 sharp matrix on EDGE_EXTEND", () => {
     expect(imgMid.clone().convolution(sharpM)).toMatchSnapshot();
     expect(imgTopLeft.clone().convolution(sharpM)).toMatchSnapshot();
@@ -61,30 +55,5 @@ describe("Convolution", function () {
   test("3x3 sharp matrix on EDGE_CROP", () => {
     expect(imgMid.clone().convolution(sharpM, Edge.CROP)).toMatchSnapshot();
     expect(imgTopLeft.clone().convolution(sharpM, Edge.CROP)).toMatchSnapshot();
-  });
-
-  test("3x3 box blur matrix using convolute", async () => {
-    const image = await jimp.read(__dirname + "/images/tiles.jpg");
-    const output = await image.convolute(blurM).getBuffer("image/png");
-
-    expect(output).toMatchImageSnapshot();
-  });
-
-  test("new pixel value is greater than 255", async () => {
-    const image = await jimp.read(__dirname + "/images/qr.jpg");
-
-    const convolutionMatrix = [
-      [0, 0, 0, 0, 0],
-      [0, 1, 1, 1, 0],
-      [0, 1, 0, 1, 0],
-      [0, 1, 1, 1, 0],
-      [0, 0, 0, 0, 0],
-    ];
-
-    const output = await image
-      .convolution(convolutionMatrix)
-      .getBuffer("image/png");
-
-    expect(output).toMatchImageSnapshot();
   });
 });

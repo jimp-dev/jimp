@@ -1,6 +1,5 @@
 # TODO
 
-- [ ] Browser tests
 - [ ] Object APIs
 
 ## Guides

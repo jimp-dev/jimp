@@ -1,5 +1,4 @@
-// @ts-ignore
-import { PNG, PNGOptions as PNGJSOptions } from "pngjs/browser.js";
+import { PNG, PNGOptions as PNGJSOptions } from "pngjs";
 import { Format } from "@jimp/types";
 import { PNGFilterType, PNGColorType } from "./constants.js";
 

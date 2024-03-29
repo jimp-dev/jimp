@@ -1,5 +1,5 @@
 import { expect, test, describe } from "vitest";
-import "@jimp/test-utils";
+import "@jimp/test-utils/image-snapshot";
 import { HorizontalAlign, VerticalAlign, createJimp } from "@jimp/core";
 import png from "@jimp/js-png";
 import jpeg from "@jimp/js-jpeg";

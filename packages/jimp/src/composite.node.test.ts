@@ -1,6 +1,6 @@
 import { expect, test, describe } from "vitest";
-import fs from "fs";
 
+import "@jimp/test-utils/image-snapshot";
 import { getTestImagePath } from "@jimp/test-utils";
 
 import { Jimp, BlendMode } from "./index.js";

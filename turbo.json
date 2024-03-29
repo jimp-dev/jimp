@@ -11,6 +11,9 @@
     "test": {
       "dependsOn": ["^test"]
     },
+    "test:browser": {
+      "dependsOn": ["^test:browser"]
+    },
     "dev": {
       "cache": false,
       "persistent": true

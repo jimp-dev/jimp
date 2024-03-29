@@ -1,7 +1,7 @@
 import { defineConfig } from "vitest/config";
-import { NodeGlobalsPolyfillPlugin } from "@esbuild-plugins/node-globals-polyfill";
 import { createRequire } from "module";
 import path from "path";
+import { nodePolyfills } from "vite-plugin-node-polyfills";
 
 const require = createRequire(import.meta.url);
 const imagesFolder = path.join(
@@ -10,8 +10,15 @@ const imagesFolder = path.join(
 );
 
 export default defineConfig({
+  resolve: {
+    alias: {
+      pngjs: "pngjs/browser.js",
+    },
+  },
   test: {
     exclude: [
+      "**/.tshy-build",
+      "**/.tshy",
       "**/*.node.test.ts",
       "**/node_modules/**",
       "**/dist/**",
@@ -27,13 +34,11 @@ export default defineConfig({
     },
   },
   publicDir: imagesFolder,
-  optimizeDeps: {
-    include: ["@jimp/core"],
-    esbuildOptions: {
-      define: {
-        global: "globalThis",
+  plugins: [
+    nodePolyfills({
+      globals: {
+        Buffer: true,
       },
-      plugins: [NodeGlobalsPolyfillPlugin({ buffer: true })],
-    },
-  },
+    }),
+  ],
 });
