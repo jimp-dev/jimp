@@ -1,15 +1,6 @@
 import { expect } from "vitest";
 import { Bitmap } from "@jimp/types";
-import { toMatchImageSnapshot } from "jest-image-snapshot";
 import path from "path";
-
-declare module "vitest" {
-  interface Assertion<T> {
-    toMatchImageSnapshot: () => T;
-  }
-}
-
-expect.extend({ toMatchImageSnapshot });
 
 export function hashForEach<Hash extends Record<string, any>>(
   hash: Hash,
@@ -220,7 +211,12 @@ export function getTestImagePath(
     | "mask.png"
     | "panoramic.jpg"
     | "rgb.tiff"
+    | "windows95.png"
     | "windows95.bmp"
 ) {
+  if (typeof window !== "undefined") {
+    return `/${name}`;
+  }
+
   return path.join(__dirname, "../../images", name);
 }

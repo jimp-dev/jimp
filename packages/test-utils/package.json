@@ -26,7 +26,8 @@
   "tshy": {
     "exports": {
       "./package.json": "./package.json",
-      ".": "./src/index.ts"
+      ".": "./src/index.ts",
+      "./image-snapshot": "./src/image-snapshot.ts"
     }
   },
   "exports": {
@@ -39,6 +40,16 @@
       "require": {
         "types": "./dist/commonjs/index.d.ts",
         "default": "./dist/commonjs/index.js"
+      }
+    },
+    "./image-snapshot": {
+      "import": {
+        "types": "./dist/esm/image-snapshot.d.ts",
+        "default": "./dist/esm/image-snapshot.js"
+      },
+      "require": {
+        "types": "./dist/commonjs/image-snapshot.d.ts",
+        "default": "./dist/commonjs/image-snapshot.js"
       }
     }
   },
