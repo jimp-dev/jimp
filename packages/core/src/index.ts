@@ -1,6 +1,6 @@
 import { Bitmap, Format, JimpClass, Edge } from "@jimp/types";
 import { cssColorToHex, scan, scanIterator } from "@jimp/utils";
-import { fromBuffer } from "file-type";
+import fileType from "file-type/core.js";
 import { to } from "await-to-js";
 import { existsSync, readFile } from "@jimp/read-file";
 
@@ -291,8 +291,11 @@ export function createJimp<
      * const image = await Jimp.fromBuffer(buffer);
      * ```
      */
-    static async fromBuffer(buffer: Buffer) {
-      const mime = await fromBuffer(buffer);
+    static async fromBuffer(buffer: Buffer | ArrayBuffer) {
+      const actualBuffer =
+        buffer instanceof ArrayBuffer ? bufferFromArrayBuffer(buffer) : buffer;
+
+      const mime = await fileType.fromBuffer(actualBuffer);
 
       if (!mime || !mime.mime) {
         throw new Error("Could not find MIME for Buffer");
@@ -304,12 +307,11 @@ export function createJimp<
         throw new Error(`Mime type ${mime.mime} does not support decoding`);
       }
 
-      const image = new CustomJimp(await format.decode(buffer)) as InstanceType<
-        typeof CustomJimp
-      > &
-        ExtraMethodMap;
+      const image = new CustomJimp(
+        await format.decode(actualBuffer)
+      ) as InstanceType<typeof CustomJimp> & ExtraMethodMap;
 
-      attemptExifRotate(image, buffer);
+      attemptExifRotate(image, actualBuffer);
 
       return image;
     }

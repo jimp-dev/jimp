@@ -45,8 +45,8 @@
   "types": "./dist/commonjs/index.d.ts",
   "type": "module",
   "dependencies": {
-    "utif2": "^4.1.0",
     "@jimp/core": "workspace:*",
-    "@jimp/types": "workspace:*"
+    "@jimp/types": "workspace:*",
+    "utif2": "^4.1.0"
   }
 }

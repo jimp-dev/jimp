@@ -1,8 +1,4 @@
-// import { fileTypeFromBuffer } from "file-type";
-
-// import { throwError } from "@jimp/utils";
 import EXIFParser, { ExifData } from "exif-parser";
-// // modify-exif
 import { JimpClass } from "@jimp/types";
 
 const EXIF_TAGS = {

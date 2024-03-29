@@ -137,7 +137,7 @@ Parse a bitmap with the loaded image types.
 
 #### Parameters
 
-• **buffer**: `Buffer`
+• **buffer**: `Buffer` \| `ArrayBuffer`
 
 Raw image data
 
@@ -970,7 +970,7 @@ Converts the image to a base 64 string
 
 • **ProvidedMimeType_1** extends `"image/bmp"` \| `"image/tiff"` \| `"image/x-ms-bmp"` \| `"image/gif"` \| `"image/jpeg"` \| `"image/png"`
 
-• **Options_1** extends `undefined` \| `Pretty`\<`Partial`\<`Pick`\<`BmpImage`, `"palette"` \| `"colors"` \| `"importantColors"` \| `"hr"` \| `"vr"` \| `"reserved1"` \| `"reserved2"`\>\>\> \| [`JPEGOptions`](../interfaces/JPEGOptions.md) \| `Record`\<`string`, `any`\> \| `Omit`\<`PNGOptions`, `"filterType"` \| `"colorType"` \| `"inputColorType"`\> & `Object`
+• **Options_1** extends `undefined` \| `Pretty`\<`Partial`\<`Pick`\<`BmpImage`, `"palette"` \| `"colors"` \| `"importantColors"` \| `"hr"` \| `"vr"` \| `"reserved1"` \| `"reserved2"`\>\>\> \| [`JPEGOptions`](../interfaces/JPEGOptions.md) \| `Record`\<`string`, `any`\> \| `Omit`\<`PNGJSOptions`, `"filterType"` \| `"colorType"` \| `"inputColorType"`\> & `Object`
 
 #### Parameters
 
@@ -1018,7 +1018,7 @@ Converts the Jimp instance to an image buffer
 
 • **ProvidedMimeType** extends `"image/bmp"` \| `"image/tiff"` \| `"image/x-ms-bmp"` \| `"image/gif"` \| `"image/jpeg"` \| `"image/png"`
 
-• **Options** extends `undefined` \| `Pretty`\<`Partial`\<`Pick`\<`BmpImage`, `"palette"` \| `"colors"` \| `"importantColors"` \| `"hr"` \| `"vr"` \| `"reserved1"` \| `"reserved2"`\>\>\> \| [`JPEGOptions`](../interfaces/JPEGOptions.md) \| `Record`\<`string`, `any`\> \| `Omit`\<`PNGOptions`, `"filterType"` \| `"colorType"` \| `"inputColorType"`\> & `Object`
+• **Options** extends `undefined` \| `Pretty`\<`Partial`\<`Pick`\<`BmpImage`, `"palette"` \| `"colors"` \| `"importantColors"` \| `"hr"` \| `"vr"` \| `"reserved1"` \| `"reserved2"`\>\>\> \| [`JPEGOptions`](../interfaces/JPEGOptions.md) \| `Record`\<`string`, `any`\> \| `Omit`\<`PNGJSOptions`, `"filterType"` \| `"colorType"` \| `"inputColorType"`\> & `Object`
 
 #### Parameters
 

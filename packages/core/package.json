@@ -12,10 +12,11 @@
   "author": "Andrew Lisowski <lisowski54@gmail.com>",
   "license": "MIT",
   "dependencies": {
-    "@jimp/types": "workspace:*",
     "@jimp/read-file": "workspace:*",
+    "@jimp/types": "workspace:*",
     "@jimp/utils": "workspace:*",
     "await-to-js": "^3.0.0",
+    "buffer": "^6.0.3",
     "exif-parser": "^0.1.12",
     "file-type": "^16.0.0"
   },

@@ -1,10 +1,31 @@
 import { defineConfig } from "astro/config";
 import starlight from "@astrojs/starlight";
 import starlightTypeDoc, { typeDocSidebarGroup } from "starlight-typedoc";
+import react from "@astrojs/react";
 import path from "path";
+import { NodeGlobalsPolyfillPlugin } from "@esbuild-plugins/node-globals-polyfill";
 
 export default defineConfig({
+  vite: {
+    optimizeDeps: {
+      // Only needed for this repo
+      include: [
+        "@jimp/core",
+        "@jimp/plugin-print",
+        "@jimp/plugin-print/load-font",
+      ],
+      // Needed for anyone using the browser
+      // Mainly just for Buffer
+      esbuildOptions: {
+        define: {
+          global: "globalThis",
+        },
+        plugins: [NodeGlobalsPolyfillPlugin({ buffer: true })],
+      },
+    },
+  },
   integrations: [
+    react(),
     starlight({
       title: "Jimp",
       social: {
@@ -16,6 +37,7 @@ export default defineConfig({
           items: [
             // Each item here is one entry in the navigation menu.
             { label: "Example Guide", link: "/guides/example/" },
+            { label: "Using in Browser", link: "/guides/browser/" },
           ],
         },
         typeDocSidebarGroup,

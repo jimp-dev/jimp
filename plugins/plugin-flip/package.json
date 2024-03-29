@@ -14,10 +14,10 @@
     "@jimp/types": "workspace:*"
   },
   "devDependencies": {
-    "@jimp/core": "workspace:*",
-    "@jimp/test-utils": "workspace:*",
     "@jimp/config-eslint": "workspace:*",
     "@jimp/config-typescript": "workspace:*",
+    "@jimp/core": "workspace:*",
+    "@jimp/test-utils": "workspace:*",
     "eslint": "^8.57.0",
     "tshy": "^1.12.0",
     "typescript": "^5.4.2",
