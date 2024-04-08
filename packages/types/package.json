@@ -13,6 +13,7 @@
   "devDependencies": {
     "@jimp/config-eslint": "workspace:*",
     "@jimp/config-typescript": "workspace:*",
+    "@types/node": "^20.12.5",
     "eslint": "^8.57.0",
     "tshy": "^1.12.0",
     "typescript": "^5.4.2",

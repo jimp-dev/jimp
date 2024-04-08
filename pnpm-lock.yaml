@@ -16,13 +16,13 @@ importers:
         version: link:packages/config-typescript
       '@turbo/gen':
         specifier: ^1.12.5
-        version: 1.12.5(@types/node@20.11.28)(typescript@5.4.3)
+        version: 1.12.5(@types/node@20.12.5)(typescript@5.4.3)
       any-base:
         specifier: ^1.1.0
         version: 1.1.0
       auto:
         specifier: ^11.1.1
-        version: 11.1.1(@types/node@20.11.28)(typescript@5.4.3)
+        version: 11.1.1(@types/node@20.12.5)(typescript@5.4.3)
       prettier:
         specifier: ^3.2.5
         version: 3.2.5
@@ -82,7 +82,7 @@ importers:
         version: 5.4.3
       vitest:
         specifier: ^1.4.0
-        version: 1.4.0(@types/node@20.11.28)(@vitest/browser@1.4.0)
+        version: 1.4.0(@types/node@20.12.5)(@vitest/browser@1.4.0)
 
   packages/core:
     dependencies:
@@ -131,7 +131,7 @@ importers:
         version: 5.4.2
       vitest:
         specifier: ^1.4.0
-        version: 1.4.0(@types/node@20.11.28)(@vitest/browser@1.4.0)
+        version: 1.4.0(@types/node@20.12.5)(@vitest/browser@1.4.0)
 
   packages/diff:
     dependencies:
@@ -174,7 +174,7 @@ importers:
         version: 5.4.2
       vitest:
         specifier: ^1.4.0
-        version: 1.4.0(@types/node@20.11.28)(@vitest/browser@1.4.0)
+        version: 1.4.0(@types/node@20.12.5)(@vitest/browser@1.4.0)
 
   packages/docs:
     dependencies:
@@ -198,7 +198,7 @@ importers:
         version: link:../../plugins/plugin-print
       astro:
         specifier: ^4.3.5
-        version: 4.5.10(@types/node@20.11.28)(typescript@5.4.3)
+        version: 4.5.10(@types/node@20.12.5)(typescript@5.4.3)
       eslint:
         specifier: ^8.57.0
         version: 8.57.0
@@ -341,7 +341,7 @@ importers:
         version: 0.21.0(vite@5.1.6)
       vitest:
         specifier: ^1.4.0
-        version: 1.4.0(@types/node@20.11.28)(@vitest/browser@1.4.0)
+        version: 1.4.0(@types/node@20.12.5)(@vitest/browser@1.4.0)
 
   packages/read-file:
     devDependencies:
@@ -351,6 +351,9 @@ importers:
       '@jimp/config-typescript':
         specifier: workspace:*
         version: link:../config-typescript
+      '@types/node':
+        specifier: ^20.12.5
+        version: 20.12.5
       eslint:
         specifier: ^8.57.0
         version: 8.57.0
@@ -362,7 +365,7 @@ importers:
         version: 5.4.3
       vitest:
         specifier: ^1.4.0
-        version: 1.4.0(@types/node@20.11.28)(@vitest/browser@1.4.0)
+        version: 1.4.0(@types/node@20.12.5)(@vitest/browser@1.4.0)
 
   packages/test-utils:
     dependencies:
@@ -396,7 +399,7 @@ importers:
         version: 5.4.2
       vitest:
         specifier: ^1.4.0
-        version: 1.4.0(@types/node@20.11.28)(@vitest/browser@1.4.0)
+        version: 1.4.0(@types/node@20.12.5)(@vitest/browser@1.4.0)
 
   packages/types:
     dependencies:
@@ -410,6 +413,9 @@ importers:
       '@jimp/config-typescript':
         specifier: workspace:*
         version: link:../config-typescript
+      '@types/node':
+        specifier: ^20.12.5
+        version: 20.12.5
       eslint:
         specifier: ^8.57.0
         version: 8.57.0
@@ -421,7 +427,7 @@ importers:
         version: 5.4.2
       vitest:
         specifier: ^1.4.0
-        version: 1.4.0(@types/node@20.11.28)(@vitest/browser@1.4.0)
+        version: 1.4.0(@types/node@20.12.5)(@vitest/browser@1.4.0)
 
   packages/utils:
     dependencies:
@@ -452,7 +458,7 @@ importers:
         version: 5.4.2
       vitest:
         specifier: ^1.4.0
-        version: 1.4.0(@types/node@20.11.28)(@vitest/browser@1.4.0)
+        version: 1.4.0(@types/node@20.12.5)(@vitest/browser@1.4.0)
 
   plugins/js-bmp:
     dependencies:
@@ -501,7 +507,7 @@ importers:
         version: 0.21.0(vite@5.1.6)
       vitest:
         specifier: ^1.4.0
-        version: 1.4.0(@types/node@20.11.28)(@vitest/browser@1.4.0)
+        version: 1.4.0(@types/node@20.12.5)(@vitest/browser@1.4.0)
 
   plugins/js-gif:
     dependencies:
@@ -550,7 +556,7 @@ importers:
         version: 0.21.0(vite@5.1.6)
       vitest:
         specifier: ^1.4.0
-        version: 1.4.0(@types/node@20.11.28)(@vitest/browser@1.4.0)
+        version: 1.4.0(@types/node@20.12.5)(@vitest/browser@1.4.0)
 
   plugins/js-jpeg:
     dependencies:
@@ -593,7 +599,7 @@ importers:
         version: 0.21.0(vite@5.1.6)
       vitest:
         specifier: ^1.4.0
-        version: 1.4.0(@types/node@20.11.28)(@vitest/browser@1.4.0)
+        version: 1.4.0(@types/node@20.12.5)(@vitest/browser@1.4.0)
 
   plugins/js-png:
     dependencies:
@@ -639,7 +645,7 @@ importers:
         version: 0.21.0(vite@5.1.6)
       vitest:
         specifier: ^1.4.0
-        version: 1.4.0(@types/node@20.11.28)(@vitest/browser@1.4.0)
+        version: 1.4.0(@types/node@20.12.5)(@vitest/browser@1.4.0)
 
   plugins/js-tiff:
     dependencies:
@@ -682,7 +688,7 @@ importers:
         version: 0.21.0(vite@5.1.6)
       vitest:
         specifier: ^1.4.0
-        version: 1.4.0(@types/node@20.11.28)(@vitest/browser@1.4.0)
+        version: 1.4.0(@types/node@20.12.5)(@vitest/browser@1.4.0)
 
   plugins/plugin-blit:
     dependencies:
@@ -734,7 +740,7 @@ importers:
         version: 0.21.0(vite@5.1.6)
       vitest:
         specifier: ^1.4.0
-        version: 1.4.0(@types/node@20.11.28)(@vitest/browser@1.4.0)
+        version: 1.4.0(@types/node@20.12.5)(@vitest/browser@1.4.0)
 
   plugins/plugin-blur:
     dependencies:
@@ -768,7 +774,7 @@ importers:
         version: 0.21.0(vite@5.1.6)
       vitest:
         specifier: ^1.4.0
-        version: 1.4.0(@types/node@20.11.28)(@vitest/browser@1.4.0)
+        version: 1.4.0(@types/node@20.12.5)(@vitest/browser@1.4.0)
 
   plugins/plugin-circle:
     dependencies:
@@ -811,7 +817,7 @@ importers:
         version: 0.21.0(vite@5.1.6)
       vitest:
         specifier: ^1.4.0
-        version: 1.4.0(@types/node@20.11.28)(@vitest/browser@1.4.0)
+        version: 1.4.0(@types/node@20.12.5)(@vitest/browser@1.4.0)
 
   plugins/plugin-color:
     dependencies:
@@ -869,7 +875,7 @@ importers:
         version: 0.21.0(vite@5.1.6)
       vitest:
         specifier: ^1.4.0
-        version: 1.4.0(@types/node@20.11.28)(@vitest/browser@1.4.0)
+        version: 1.4.0(@types/node@20.12.5)(@vitest/browser@1.4.0)
 
   plugins/plugin-contain:
     dependencies:
@@ -921,7 +927,7 @@ importers:
         version: 0.21.0(vite@5.1.6)
       vitest:
         specifier: ^1.4.0
-        version: 1.4.0(@types/node@20.11.28)(@vitest/browser@1.4.0)
+        version: 1.4.0(@types/node@20.12.5)(@vitest/browser@1.4.0)
 
   plugins/plugin-cover:
     dependencies:
@@ -973,7 +979,7 @@ importers:
         version: 0.21.0(vite@5.1.6)
       vitest:
         specifier: ^1.4.0
-        version: 1.4.0(@types/node@20.11.28)(@vitest/browser@1.4.0)
+        version: 1.4.0(@types/node@20.12.5)(@vitest/browser@1.4.0)
 
   plugins/plugin-crop:
     dependencies:
@@ -1019,7 +1025,7 @@ importers:
         version: 0.21.0(vite@5.1.6)
       vitest:
         specifier: ^1.4.0
-        version: 1.4.0(@types/node@20.11.28)(@vitest/browser@1.4.0)
+        version: 1.4.0(@types/node@20.12.5)(@vitest/browser@1.4.0)
 
   plugins/plugin-displace:
     dependencies:
@@ -1050,7 +1056,7 @@ importers:
         version: 5.4.2
       vitest:
         specifier: ^1.4.0
-        version: 1.4.0(@types/node@20.11.28)(@vitest/browser@1.4.0)
+        version: 1.4.0(@types/node@20.12.5)(@vitest/browser@1.4.0)
 
   plugins/plugin-dither:
     dependencies:
@@ -1078,7 +1084,7 @@ importers:
         version: 5.4.2
       vitest:
         specifier: ^1.4.0
-        version: 1.4.0(@types/node@20.11.28)(@vitest/browser@1.4.0)
+        version: 1.4.0(@types/node@20.12.5)(@vitest/browser@1.4.0)
 
   plugins/plugin-fisheye:
     dependencies:
@@ -1124,7 +1130,7 @@ importers:
         version: 0.21.0(vite@5.1.6)
       vitest:
         specifier: ^1.4.0
-        version: 1.4.0(@types/node@20.11.28)(@vitest/browser@1.4.0)
+        version: 1.4.0(@types/node@20.12.5)(@vitest/browser@1.4.0)
 
   plugins/plugin-flip:
     dependencies:
@@ -1167,7 +1173,7 @@ importers:
         version: 0.21.0(vite@5.1.6)
       vitest:
         specifier: ^1.4.0
-        version: 1.4.0(@types/node@20.11.28)(@vitest/browser@1.4.0)
+        version: 1.4.0(@types/node@20.12.5)(@vitest/browser@1.4.0)
 
   plugins/plugin-hash:
     dependencies:
@@ -1234,7 +1240,7 @@ importers:
         version: 0.21.0(vite@5.1.6)
       vitest:
         specifier: ^1.4.0
-        version: 1.4.0(@types/node@20.11.28)(@vitest/browser@1.4.0)
+        version: 1.4.0(@types/node@20.12.5)(@vitest/browser@1.4.0)
 
   plugins/plugin-mask:
     dependencies:
@@ -1277,7 +1283,7 @@ importers:
         version: 0.21.0(vite@5.1.6)
       vitest:
         specifier: ^1.4.0
-        version: 1.4.0(@types/node@20.11.28)(@vitest/browser@1.4.0)
+        version: 1.4.0(@types/node@20.12.5)(@vitest/browser@1.4.0)
 
   plugins/plugin-print:
     dependencies:
@@ -1332,7 +1338,7 @@ importers:
         version: 5.4.2
       vitest:
         specifier: ^1.4.0
-        version: 1.4.0(@types/node@20.11.28)(@vitest/browser@1.4.0)
+        version: 1.4.0(@types/node@20.12.5)(@vitest/browser@1.4.0)
 
   plugins/plugin-resize:
     dependencies:
@@ -1375,7 +1381,7 @@ importers:
         version: 0.21.0(vite@5.1.6)
       vitest:
         specifier: ^1.4.0
-        version: 1.4.0(@types/node@20.11.28)(@vitest/browser@1.4.0)
+        version: 1.4.0(@types/node@20.12.5)(@vitest/browser@1.4.0)
 
   plugins/plugin-rotate:
     dependencies:
@@ -1427,7 +1433,7 @@ importers:
         version: 0.21.0(vite@5.1.6)
       vitest:
         specifier: ^1.4.0
-        version: 1.4.0(@types/node@20.11.28)(@vitest/browser@1.4.0)
+        version: 1.4.0(@types/node@20.12.5)(@vitest/browser@1.4.0)
 
   plugins/plugin-shadow:
     dependencies:
@@ -1482,7 +1488,7 @@ importers:
         version: 0.21.0(vite@5.1.6)
       vitest:
         specifier: ^1.4.0
-        version: 1.4.0(@types/node@20.11.28)(@vitest/browser@1.4.0)
+        version: 1.4.0(@types/node@20.12.5)(@vitest/browser@1.4.0)
 
   plugins/plugin-threshold:
     dependencies:
@@ -1537,7 +1543,7 @@ importers:
         version: 0.21.0(vite@5.1.6)
       vitest:
         specifier: ^1.4.0
-        version: 1.4.0(@types/node@20.11.28)(@vitest/browser@1.4.0)
+        version: 1.4.0(@types/node@20.12.5)(@vitest/browser@1.4.0)
 
 packages:
 
@@ -1645,7 +1651,7 @@ packages:
       '@astrojs/markdown-remark': 4.3.2
       '@mdx-js/mdx': 3.0.1
       acorn: 8.11.3
-      astro: 4.5.10(@types/node@20.11.28)(typescript@5.4.3)
+      astro: 4.5.10(@types/node@20.12.5)(typescript@5.4.3)
       es-module-lexer: 1.5.0
       estree-util-visit: 2.0.0
       github-slugger: 2.0.0
@@ -1706,7 +1712,7 @@ packages:
       '@pagefind/default-ui': 1.0.4
       '@types/hast': 3.0.4
       '@types/mdast': 4.0.3
-      astro: 4.5.10(@types/node@20.11.28)(typescript@5.4.3)
+      astro: 4.5.10(@types/node@20.12.5)(typescript@5.4.3)
       astro-expressive-code: 0.33.5(astro@4.5.10)
       bcp-47: 2.1.0
       hast-util-from-html: 2.0.1
@@ -1746,7 +1752,7 @@ packages:
     engines: {node: '>=10.x'}
     dev: true
 
-  /@auto-it/core@11.1.1(@types/node@20.11.28)(typescript@5.4.3):
+  /@auto-it/core@11.1.1(@types/node@20.12.5)(typescript@5.4.3):
     resolution: {integrity: sha512-CIQYqJG/pXmWsQjgbjMF6qnwAu7Klrpm5fWHrXpzIEq/3qQfgGmTkauuJRSz9bM5z6pHHCjT1eypVV/EDj9ijg==}
     peerDependencies:
       '@types/node': '*'
@@ -1762,7 +1768,7 @@ packages:
       '@octokit/plugin-retry': 3.0.9
       '@octokit/plugin-throttling': 3.7.0(@octokit/core@3.6.0)
       '@octokit/rest': 18.12.0
-      '@types/node': 20.11.28
+      '@types/node': 20.12.5
       await-to-js: 3.0.0
       chalk: 4.1.2
       cosmiconfig: 7.0.0
@@ -1791,7 +1797,7 @@ packages:
       tapable: 2.2.1
       terminal-link: 2.1.1
       tinycolor2: 1.6.0
-      ts-node: 10.9.2(@types/node@20.11.28)(typescript@5.4.3)
+      ts-node: 10.9.2(@types/node@20.12.5)(typescript@5.4.3)
       tslib: 2.1.0
       type-fest: 0.21.3
       typescript: 5.4.3
@@ -1804,10 +1810,10 @@ packages:
       - supports-color
     dev: true
 
-  /@auto-it/npm@11.1.1(@types/node@20.11.28)(typescript@5.4.3):
+  /@auto-it/npm@11.1.1(@types/node@20.12.5)(typescript@5.4.3):
     resolution: {integrity: sha512-I7qWPdU2goCmqdvAEpa6yGwQmzx5YXEsZywqs6uTQXIDuGbFzNt/7jwJNt8p/MNE8M0ra8FJ05eHavBLFZuEfg==}
     dependencies:
-      '@auto-it/core': 11.1.1(@types/node@20.11.28)(typescript@5.4.3)
+      '@auto-it/core': 11.1.1(@types/node@20.12.5)(typescript@5.4.3)
       '@auto-it/package-json-utils': 11.1.1
       await-to-js: 3.0.0
       endent: 2.1.0
@@ -1838,11 +1844,11 @@ packages:
       parse-github-url: 1.0.2
     dev: true
 
-  /@auto-it/released@11.1.1(@types/node@20.11.28)(typescript@5.4.3):
+  /@auto-it/released@11.1.1(@types/node@20.12.5)(typescript@5.4.3):
     resolution: {integrity: sha512-iRUebl2q5V7hFEgScGVUMUVoOXrFFi5O280hUCpZxmd6kkG2v7Kl+Weii5zKpd7YSqG0HibJCD+LVwPClAfrCA==}
     dependencies:
       '@auto-it/bot-list': 11.1.1
-      '@auto-it/core': 11.1.1(@types/node@20.11.28)(typescript@5.4.3)
+      '@auto-it/core': 11.1.1(@types/node@20.12.5)(typescript@5.4.3)
       deepmerge: 4.3.1
       fp-ts: 2.16.3
       io-ts: 2.2.21(fp-ts@2.16.3)
@@ -1856,10 +1862,10 @@ packages:
       - typescript
     dev: true
 
-  /@auto-it/version-file@11.1.1(@types/node@20.11.28)(typescript@5.4.3):
+  /@auto-it/version-file@11.1.1(@types/node@20.12.5)(typescript@5.4.3):
     resolution: {integrity: sha512-KHKunip2nXWKd7zJ0hdALojY+E6sTdmxuq9SXYgTMXUcZw2BtxunVSK1hb2wmS6iUH4CCILk12dHksAO5BFzeQ==}
     dependencies:
-      '@auto-it/core': 11.1.1(@types/node@20.11.28)(typescript@5.4.3)
+      '@auto-it/core': 11.1.1(@types/node@20.12.5)(typescript@5.4.3)
       fp-ts: 2.16.3
       io-ts: 2.2.21(fp-ts@2.16.3)
       semver: 7.6.0
@@ -2495,7 +2501,7 @@ packages:
       '@jest/schemas': 29.6.3
       '@types/istanbul-lib-coverage': 2.0.6
       '@types/istanbul-reports': 3.0.4
-      '@types/node': 20.11.28
+      '@types/node': 20.12.5
       '@types/yargs': 17.0.32
       chalk: 4.1.2
     dev: true
@@ -2917,7 +2923,7 @@ packages:
     resolution: {integrity: sha512-vxhUy4J8lyeyinH7Azl1pdd43GJhZH/tP2weN8TntQblOY+A0XbT8DJk1/oCPuOOyg/Ja757rG0CgHcWC8OfMA==}
     dev: true
 
-  /@turbo/gen@1.12.5(@types/node@20.11.28)(typescript@5.4.3):
+  /@turbo/gen@1.12.5(@types/node@20.12.5)(typescript@5.4.3):
     resolution: {integrity: sha512-sEF/iryAcWYqONXcrAyWREUVPA4eba22hxU1yx4b9+Rs9SUNFkM54cDaXEAtzbh/iji428aQpnuxi+SUT7m9zw==}
     hasBin: true
     dependencies:
@@ -2929,7 +2935,7 @@ packages:
       minimatch: 9.0.3
       node-plop: 0.26.3
       proxy-agent: 6.4.0
-      ts-node: 10.9.2(@types/node@20.11.28)(typescript@5.4.3)
+      ts-node: 10.9.2(@types/node@20.12.5)(typescript@5.4.3)
       update-check: 1.5.4
       validate-npm-package-name: 5.0.0
     transitivePeerDependencies:
@@ -3031,7 +3037,7 @@ packages:
     resolution: {integrity: sha512-ZUxbzKl0IfJILTS6t7ip5fQQM/J3TJYubDm3nMbgubNNYS62eXeUpoLUC8/7fJNiFYHTrGPQn7hspDUzIHX3UA==}
     dependencies:
       '@types/minimatch': 5.1.2
-      '@types/node': 20.11.28
+      '@types/node': 20.12.5
     dev: true
 
   /@types/hast@2.3.10:
@@ -3120,8 +3126,8 @@ packages:
     resolution: {integrity: sha512-w+tIMs3rq2afQdsPJlODhoUEKzFP1ayaoyl1CcnwtIlsVe7K7bA1NGm4s3PraqTLlXnbIN84zuBlxBWo1u9BLw==}
     dev: false
 
-  /@types/node@20.11.28:
-    resolution: {integrity: sha512-M/GPWVS2wLkSkNHVeLkrF2fD5Lx5UC4PxA0uZcKc6QqbIQUJyW1jVjueJYi1z8n0I5PxYrtpnPnWglE+y9A0KA==}
+  /@types/node@20.12.5:
+    resolution: {integrity: sha512-BD+BjQ9LS/D8ST9p5uqBxghlN+S42iuNxjsUGjeZobe/ciXzk2qb1B6IXc6AnRLS+yFJRpN2IPEHMzwspfDJNw==}
     dependencies:
       undici-types: 5.26.5
 
@@ -3140,13 +3146,13 @@ packages:
   /@types/pixelmatch@5.2.6:
     resolution: {integrity: sha512-wC83uexE5KGuUODn6zkm9gMzTwdY5L0chiK+VrKcDfEjzxh1uadlWTvOmAbCpnM9zx/Ww3f8uKlYQVnO/TrqVg==}
     dependencies:
-      '@types/node': 20.11.28
+      '@types/node': 20.12.5
     dev: true
 
   /@types/pngjs@6.0.4:
     resolution: {integrity: sha512-atAK9xLKOnxiuArxcHovmnOUUGBZOQ3f0vCf43FnoKs6XnqiambT1kkJWmdo71IR+BoXSh+CueeFR0GfH3dTlQ==}
     dependencies:
-      '@types/node': 20.11.28
+      '@types/node': 20.12.5
     dev: true
 
   /@types/prop-types@15.7.12:
@@ -3167,7 +3173,7 @@ packages:
   /@types/sax@1.2.7:
     resolution: {integrity: sha512-rO73L89PJxeYM3s3pPPjiPgVVcymqU490g0YO5n5By0k2Erzj6tay/4lr1CHAAU4JyOWd1rpQ8bCf6cZfHU96A==}
     dependencies:
-      '@types/node': 20.11.28
+      '@types/node': 20.12.5
     dev: false
 
   /@types/semver@7.5.8:
@@ -3181,7 +3187,7 @@ packages:
   /@types/through@0.0.33:
     resolution: {integrity: sha512-HsJ+z3QuETzP3cswwtzt2vEIiHBk/dCcHGhbmG5X3ecnwFD/lPrMpliGXxSCg03L9AhrdwA4Oz/qfspkDW+xGQ==}
     dependencies:
-      '@types/node': 20.11.28
+      '@types/node': 20.12.5
     dev: true
 
   /@types/tinycolor2@1.4.6:
@@ -3352,7 +3358,7 @@ packages:
       '@babel/plugin-transform-react-jsx-source': 7.24.1(@babel/core@7.24.3)
       '@types/babel__core': 7.20.5
       react-refresh: 0.14.0
-      vite: 5.1.6(@types/node@20.11.28)
+      vite: 5.1.6(@types/node@20.12.5)
     transitivePeerDependencies:
       - supports-color
     dev: false
@@ -3375,7 +3381,7 @@ packages:
       '@vitest/utils': 1.4.0
       magic-string: 0.30.8
       sirv: 2.0.4
-      vitest: 1.4.0(@types/node@20.11.28)(@vitest/browser@1.4.0)
+      vitest: 1.4.0(@types/node@20.12.5)(@vitest/browser@1.4.0)
     dev: true
 
   /@vitest/expect@1.4.0:
@@ -3703,12 +3709,12 @@ packages:
     peerDependencies:
       astro: ^4.0.0-beta || ^3.3.0
     dependencies:
-      astro: 4.5.10(@types/node@20.11.28)(typescript@5.4.3)
+      astro: 4.5.10(@types/node@20.12.5)(typescript@5.4.3)
       hast-util-to-html: 8.0.4
       remark-expressive-code: 0.33.5
     dev: false
 
-  /astro@4.5.10(@types/node@20.11.28)(typescript@5.4.3):
+  /astro@4.5.10(@types/node@20.12.5)(typescript@5.4.3):
     resolution: {integrity: sha512-xW/ZTSqSHEQyzWzXHJa9gEQXC+MUD3mhzEBJyrMp/JWT+geLgUK2m0Rrc/AnBl8EfdS/6uFadiJV1fWao4lc7w==}
     engines: {node: '>=18.14.1', npm: '>=6.14.0'}
     hasBin: true
@@ -3769,7 +3775,7 @@ packages:
       tsconfck: 3.0.3(typescript@5.4.3)
       unist-util-visit: 5.0.0
       vfile: 6.0.1
-      vite: 5.1.6(@types/node@20.11.28)
+      vite: 5.1.6(@types/node@20.12.5)
       vitefu: 0.2.5(vite@5.1.6)
       which-pm: 2.1.1
       yargs-parser: 21.1.1
@@ -3794,15 +3800,15 @@ packages:
     engines: {node: '>=0.8'}
     dev: true
 
-  /auto@11.1.1(@types/node@20.11.28)(typescript@5.4.3):
+  /auto@11.1.1(@types/node@20.12.5)(typescript@5.4.3):
     resolution: {integrity: sha512-mOucdDWMjtuBDH8phH9Z0s1dD4uFrFIhYQ/Zh4wCH2uB3eEf8qZbu20DLOWCfj1zEUU2gxqVAuqJD4OyLWvaSQ==}
     engines: {node: '>=10.x'}
     hasBin: true
     dependencies:
-      '@auto-it/core': 11.1.1(@types/node@20.11.28)(typescript@5.4.3)
-      '@auto-it/npm': 11.1.1(@types/node@20.11.28)(typescript@5.4.3)
-      '@auto-it/released': 11.1.1(@types/node@20.11.28)(typescript@5.4.3)
-      '@auto-it/version-file': 11.1.1(@types/node@20.11.28)(typescript@5.4.3)
+      '@auto-it/core': 11.1.1(@types/node@20.12.5)(typescript@5.4.3)
+      '@auto-it/npm': 11.1.1(@types/node@20.12.5)(typescript@5.4.3)
+      '@auto-it/released': 11.1.1(@types/node@20.12.5)(typescript@5.4.3)
+      '@auto-it/version-file': 11.1.1(@types/node@20.12.5)(typescript@5.4.3)
       await-to-js: 3.0.0
       chalk: 4.1.2
       command-line-application: 0.10.1
@@ -6305,7 +6311,7 @@ packages:
     engines: {node: ^14.15.0 || ^16.10.0 || >=18.0.0}
     dependencies:
       '@jest/types': 29.6.3
-      '@types/node': 20.11.28
+      '@types/node': 20.12.5
       chalk: 4.1.2
       ci-info: 3.9.0
       graceful-fs: 4.2.11
@@ -8783,7 +8789,7 @@ packages:
       typedoc-plugin-markdown: '>=4.0.0-next.45'
     dependencies:
       '@astrojs/starlight': 0.21.2(astro@4.5.10)
-      astro: 4.5.10(@types/node@20.11.28)(typescript@5.4.3)
+      astro: 4.5.10(@types/node@20.12.5)(typescript@5.4.3)
       github-slugger: 2.0.0
       typedoc: 0.25.12(typescript@5.4.3)
       typedoc-plugin-markdown: 4.0.0-next.54(typedoc@0.25.12)
@@ -9140,7 +9146,7 @@ packages:
       typescript: 5.4.2
     dev: true
 
-  /ts-node@10.9.2(@types/node@20.11.28)(typescript@5.4.3):
+  /ts-node@10.9.2(@types/node@20.12.5)(typescript@5.4.3):
     resolution: {integrity: sha512-f0FFpIdcHgn8zcPSbf1dRevwt047YMnaiJM3u2w2RewrB+fob/zePZcrOyQoLMMO7aBIddLcQIEK5dYjkLnGrQ==}
     hasBin: true
     peerDependencies:
@@ -9159,7 +9165,7 @@ packages:
       '@tsconfig/node12': 1.0.11
       '@tsconfig/node14': 1.0.3
       '@tsconfig/node16': 1.0.4
-      '@types/node': 20.11.28
+      '@types/node': 20.12.5
       acorn: 8.11.3
       acorn-walk: 8.3.2
       arg: 4.1.3
@@ -9674,7 +9680,7 @@ packages:
       vfile-message: 4.0.2
     dev: false
 
-  /vite-node@1.4.0(@types/node@20.11.28):
+  /vite-node@1.4.0(@types/node@20.12.5):
     resolution: {integrity: sha512-VZDAseqjrHgNd4Kh8icYHWzTKSCZMhia7GyHfhtzLW33fZlG9SwsB6CEhgyVOWkJfJ2pFLrp/Gj1FSfAiqH9Lw==}
     engines: {node: ^18.0.0 || >=20.0.0}
     hasBin: true
@@ -9683,7 +9689,7 @@ packages:
       debug: 4.3.4
       pathe: 1.1.2
       picocolors: 1.0.0
-      vite: 5.1.6(@types/node@20.11.28)
+      vite: 5.1.6(@types/node@20.12.5)
     transitivePeerDependencies:
       - '@types/node'
       - less
@@ -9702,11 +9708,11 @@ packages:
     dependencies:
       '@rollup/plugin-inject': 5.0.5
       node-stdlib-browser: 1.2.0
-      vite: 5.1.6(@types/node@20.11.28)
+      vite: 5.1.6(@types/node@20.12.5)
     transitivePeerDependencies:
       - rollup
 
-  /vite@5.1.6(@types/node@20.11.28):
+  /vite@5.1.6(@types/node@20.12.5):
     resolution: {integrity: sha512-yYIAZs9nVfRJ/AiOLCA91zzhjsHUgMjB+EigzFb6W2XTLO8JixBCKCjvhKZaye+NKYHCrkv3Oh50dH9EdLU2RA==}
     engines: {node: ^18.0.0 || >=20.0.0}
     hasBin: true
@@ -9734,7 +9740,7 @@ packages:
       terser:
         optional: true
     dependencies:
-      '@types/node': 20.11.28
+      '@types/node': 20.12.5
       esbuild: 0.19.12
       postcss: 8.4.35
       rollup: 4.13.0
@@ -9749,10 +9755,10 @@ packages:
       vite:
         optional: true
     dependencies:
-      vite: 5.1.6(@types/node@20.11.28)
+      vite: 5.1.6(@types/node@20.12.5)
     dev: false
 
-  /vitest@1.4.0(@types/node@20.11.28)(@vitest/browser@1.4.0):
+  /vitest@1.4.0(@types/node@20.12.5)(@vitest/browser@1.4.0):
     resolution: {integrity: sha512-gujzn0g7fmwf83/WzrDTnncZt2UiXP41mHuFYFrdwaLRVQ6JYQEiME2IfEjU3vcFL3VKa75XhI3lFgn+hfVsQw==}
     engines: {node: ^18.0.0 || >=20.0.0}
     hasBin: true
@@ -9777,7 +9783,7 @@ packages:
       jsdom:
         optional: true
     dependencies:
-      '@types/node': 20.11.28
+      '@types/node': 20.12.5
       '@vitest/browser': 1.4.0(vitest@1.4.0)
       '@vitest/expect': 1.4.0
       '@vitest/runner': 1.4.0
@@ -9796,8 +9802,8 @@ packages:
       strip-literal: 2.0.0
       tinybench: 2.6.0
       tinypool: 0.8.2
-      vite: 5.1.6(@types/node@20.11.28)
-      vite-node: 1.4.0(@types/node@20.11.28)
+      vite: 5.1.6(@types/node@20.12.5)
+      vite-node: 1.4.0(@types/node@20.12.5)
       why-is-node-running: 2.2.2
     transitivePeerDependencies:
       - less

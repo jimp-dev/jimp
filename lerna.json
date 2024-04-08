@@ -1,7 +1,7 @@
 {
   "lerna": "^7.1.4",
-  "npmClient": "yarn",
+  "npmClient": "pnpm",
   "registry": "https://registry.npmjs.org/",
-  "version": "0.22.11",
+  "version": "0.22.12",
   "packages": ["packages/*"]
 }

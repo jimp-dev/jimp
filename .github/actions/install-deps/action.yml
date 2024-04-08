@@ -11,7 +11,7 @@ runs:
 
     - uses: pnpm/action-setup@v3
       with:
-        version: 8
+        version: 8.9.0
         run_install: false
 
     - name: Get pnpm store directory
