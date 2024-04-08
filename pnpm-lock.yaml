@@ -399,6 +399,10 @@ importers:
         version: 1.4.0(@types/node@20.11.28)(@vitest/browser@1.4.0)
 
   packages/types:
+    dependencies:
+      zod:
+        specifier: ^3.22.4
+        version: 3.22.4
     devDependencies:
       '@jimp/config-eslint':
         specifier: workspace:*
@@ -688,6 +692,9 @@ importers:
       '@jimp/utils':
         specifier: workspace:*
         version: link:../../packages/utils
+      zod:
+        specifier: ^3.22.4
+        version: 3.22.4
     devDependencies:
       '@jimp/config-eslint':
         specifier: workspace:*
@@ -768,6 +775,9 @@ importers:
       '@jimp/types':
         specifier: workspace:*
         version: link:../../packages/types
+      zod:
+        specifier: ^3.22.4
+        version: 3.22.4
     devDependencies:
       '@jimp/config-eslint':
         specifier: workspace:*
@@ -817,6 +827,9 @@ importers:
       tinycolor2:
         specifier: ^1.6.0
         version: 1.6.0
+      zod:
+        specifier: ^3.22.4
+        version: 3.22.4
     devDependencies:
       '@jimp/config-eslint':
         specifier: workspace:*
@@ -875,6 +888,9 @@ importers:
       '@jimp/utils':
         specifier: workspace:*
         version: link:../../packages/utils
+      zod:
+        specifier: ^3.22.4
+        version: 3.22.4
     devDependencies:
       '@jimp/config-eslint':
         specifier: workspace:*
@@ -924,6 +940,9 @@ importers:
       '@jimp/utils':
         specifier: workspace:*
         version: link:../../packages/utils
+      zod:
+        specifier: ^3.22.4
+        version: 3.22.4
     devDependencies:
       '@jimp/config-eslint':
         specifier: workspace:*
@@ -967,6 +986,9 @@ importers:
       '@jimp/utils':
         specifier: workspace:*
         version: link:../../packages/utils
+      zod:
+        specifier: ^3.22.4
+        version: 3.22.4
     devDependencies:
       '@jimp/config-eslint':
         specifier: workspace:*
@@ -1007,6 +1029,9 @@ importers:
       '@jimp/utils':
         specifier: workspace:*
         version: link:../../packages/utils
+      zod:
+        specifier: ^3.22.4
+        version: 3.22.4
     devDependencies:
       '@jimp/config-eslint':
         specifier: workspace:*
@@ -1063,6 +1088,9 @@ importers:
       '@jimp/utils':
         specifier: workspace:*
         version: link:../../packages/utils
+      zod:
+        specifier: ^3.22.4
+        version: 3.22.4
     devDependencies:
       '@jimp/config-eslint':
         specifier: workspace:*
@@ -1103,6 +1131,9 @@ importers:
       '@jimp/types':
         specifier: workspace:*
         version: link:../../packages/types
+      zod:
+        specifier: ^3.22.4
+        version: 3.22.4
     devDependencies:
       '@jimp/config-eslint':
         specifier: workspace:*
@@ -1210,6 +1241,9 @@ importers:
       '@jimp/types':
         specifier: workspace:*
         version: link:../../packages/types
+      zod:
+        specifier: ^3.22.4
+        version: 3.22.4
     devDependencies:
       '@jimp/config-eslint':
         specifier: workspace:*
@@ -1262,6 +1296,9 @@ importers:
       '@jimp/types':
         specifier: workspace:*
         version: link:../../packages/types
+      '@jimp/utils':
+        specifier: workspace:*
+        version: link:../../packages/utils
       parse-bmfont-ascii:
         specifier: ^1.0.6
         version: 1.0.6
@@ -1271,6 +1308,9 @@ importers:
       parse-bmfont-xml:
         specifier: ^1.1.6
         version: 1.1.6
+      zod:
+        specifier: ^3.22.4
+        version: 3.22.4
     devDependencies:
       '@jimp/config-eslint':
         specifier: workspace:*
@@ -1302,6 +1342,9 @@ importers:
       '@jimp/types':
         specifier: workspace:*
         version: link:../../packages/types
+      zod:
+        specifier: ^3.22.4
+        version: 3.22.4
     devDependencies:
       '@jimp/config-eslint':
         specifier: workspace:*
@@ -1351,6 +1394,9 @@ importers:
       '@jimp/utils':
         specifier: workspace:*
         version: link:../../packages/utils
+      zod:
+        specifier: ^3.22.4
+        version: 3.22.4
     devDependencies:
       '@jimp/config-eslint':
         specifier: workspace:*
@@ -1403,6 +1449,9 @@ importers:
       '@jimp/utils':
         specifier: workspace:*
         version: link:../../packages/utils
+      zod:
+        specifier: ^3.22.4
+        version: 3.22.4
     devDependencies:
       '@jimp/config-eslint':
         specifier: workspace:*
@@ -1452,6 +1501,9 @@ importers:
       '@jimp/utils':
         specifier: workspace:*
         version: link:../../packages/utils
+      zod:
+        specifier: ^3.22.4
+        version: 3.22.4
     devDependencies:
       '@jimp/config-eslint':
         specifier: workspace:*

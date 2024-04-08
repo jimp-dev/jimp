@@ -76,7 +76,9 @@ describe("Rotate a non-square image without resizing", () => {
 
   angles.forEach((angle) => {
     test(`${angle} degrees`, () => {
-      expect(imgSrc.clone().rotate(angle, false)).toMatchSnapshot();
+      expect(
+        imgSrc.clone().rotate({ deg: angle, mode: false })
+      ).toMatchSnapshot();
     });
   });
 });

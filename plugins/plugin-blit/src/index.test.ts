@@ -33,7 +33,7 @@ describe("Blit over image", function () {
   ));
 
   test("blit on top, with no crop", () => {
-    expect(targetImg.clone().blit({ src: srcImg })).toMatchSnapshot();
+    expect(targetImg.clone().blit(srcImg)).toMatchSnapshot();
   });
 
   test("blit on middle, with no crop", () => {

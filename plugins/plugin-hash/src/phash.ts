@@ -65,7 +65,7 @@ class ImagePHash {
      * This is really done to simplify the DCT computation and not
      * because it is needed to reduce the high frequencies.
      */
-    img = methods.resize(clone(img), this.size, this.size);
+    img = methods.resize(clone(img), { w: this.size, h: this.size });
 
     /* 2. Reduce color.
      * The image is reduced to a grayscale just to further simplify

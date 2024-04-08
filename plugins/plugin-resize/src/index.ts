@@ -1,50 +1,82 @@
 import { JimpClass } from "@jimp/types";
-import { ResizeStrategy, AutoSize } from "./constants.js";
+import { ResizeStrategy } from "./constants.js";
+import { z } from "zod";
 
 import Resize from "./modules/resize.js";
 import Resize2 from "./modules/resize2.js";
 
 export * from "./constants.js";
 
+const ResizeOptionsSchema = z.union([
+  z.object({
+    /** the width to resize the image to */
+    w: z.number().min(0),
+    /** the height to resize the image to */
+    h: z.number().min(0).optional(),
+    /** a scaling method (e.g. ResizeStrategy.BEZIER) */
+    mode: z.nativeEnum(ResizeStrategy).optional(),
+  }),
+  z.object({
+    /** the width to resize the image to */
+    w: z.number().min(0).optional(),
+    /** the height to resize the image to */
+    h: z.number().min(0),
+    /** a scaling method (e.g. ResizeStrategy.BEZIER) */
+    mode: z.nativeEnum(ResizeStrategy).optional(),
+  }),
+]);
+
+export type ResizeOptions = z.infer<typeof ResizeOptionsSchema>;
+
+const ScaleToFitOptionsSchema = z.object({
+  /** the width to resize the image to */
+  w: z.number().min(0),
+  /** the height to resize the image to */
+  h: z.number().min(0),
+  /** a scaling method (e.g. Jimp.RESIZE_BEZIER) */
+  mode: z.nativeEnum(ResizeStrategy).optional(),
+});
+
+export type ScaleToFitOptions = z.infer<typeof ScaleToFitOptionsSchema>;
+
+const ScaleComplexOptionsSchema = z.object({
+  /** the width to resize the image to */
+  f: z.number().min(0),
+  /** a scaling method (e.g. Jimp.RESIZE_BEZIER) */
+  mode: z.nativeEnum(ResizeStrategy).optional(),
+});
+
+export type ScaleComplexOptions = z.infer<typeof ScaleComplexOptionsSchema>;
+
+const ScaleOptionsSchema = z.union([z.number(), ScaleComplexOptionsSchema]);
+export type ScaleOptions = z.infer<typeof ScaleOptionsSchema>;
+
 export const methods = {
   /**
    * Resizes the image to a set width and height using a 2-pass bilinear algorithm
-   * @param w the width to resize the image to (or AutoSize)
-   * @param h the height to resize the image to (or AutoSize)
-   * @param mode a scaling method (e.g. Jimp.RESIZE_BEZIER)
    * @example
    * ```ts
-   * import { Jimp, AutoSize } from "jimp";
+   * import { Jimp } from "jimp";
    *
    * const image = await Jimp.read("test/image.png");
    *
-   * image.resize(150, AutoSize);
+   * image.resize({ w: 150 });
    * ```
    */
-  resize<I extends JimpClass>(
-    image: I,
-    w: number,
-    h: number,
-    mode?: ResizeStrategy
-  ) {
-    if (typeof w !== "number" || typeof h !== "number") {
-      throw new Error("w and h must be numbers");
-    }
+  resize<I extends JimpClass>(image: I, options: ResizeOptions) {
+    const { mode } = ResizeOptionsSchema.parse(options);
 
-    if (w === AutoSize && h === AutoSize) {
-      throw new Error("w and h cannot both be set to auto");
-    }
+    let w: number;
+    let h: number;
 
-    if (w === AutoSize) {
-      w = image.bitmap.width * (h / image.bitmap.height);
-    }
-
-    if (h === AutoSize) {
-      h = image.bitmap.height * (w / image.bitmap.width);
-    }
-
-    if (w < 0 || h < 0) {
-      throw new Error("w and h must be positive numbers");
+    if (typeof options.w === "number") {
+      w = options.w;
+      h = options.h ?? image.bitmap.height * (w / image.bitmap.width);
+    } else if (typeof options.h === "number") {
+      h = options.h;
+      w = options.w ?? image.bitmap.width * (h / image.bitmap.height);
+    } else {
+      throw new Error("w must be a number");
     }
 
     // round inputs
@@ -93,20 +125,15 @@ export const methods = {
    * image.scale(0.5);
    * ```
    */
-  scale<I extends JimpClass>(image: I, f: number, mode?: ResizeStrategy) {
-    if (typeof f !== "number") {
-      throw new Error("f must be a number");
-    }
-
-    if (f < 0) {
-      throw new Error("f must be a positive number");
-    }
-
+  scale<I extends JimpClass>(image: I, options: ScaleOptions) {
+    const { f, mode } =
+      typeof options === "number"
+        ? ({ f: options } as ScaleComplexOptions)
+        : ScaleComplexOptionsSchema.parse(options);
     const w = image.bitmap.width * f;
     const h = image.bitmap.height * f;
-    this.resize(image, w, h, mode);
 
-    return image;
+    return this.resize(image, { w, h, mode: mode });
   },
 
   /**
@@ -123,23 +150,13 @@ export const methods = {
    * image.scaleToFit(100, 100);
    * ```
    */
-  scaleToFit<I extends JimpClass>(
-    image: I,
-    w: number,
-    h: number,
-    mode?: ResizeStrategy
-  ) {
-    if (typeof w !== "number" || typeof h !== "number") {
-      throw new Error("w and h must be numbers");
-    }
-
+  scaleToFit<I extends JimpClass>(image: I, options: ScaleToFitOptions) {
+    const { h, w, mode } = ScaleToFitOptionsSchema.parse(options);
     const f =
       w / h > image.bitmap.width / image.bitmap.height
         ? h / image.bitmap.height
         : w / image.bitmap.width;
 
-    this.scale(image, f, mode);
-
-    return image;
+    return this.scale(image, { f, mode: mode });
   },
 };

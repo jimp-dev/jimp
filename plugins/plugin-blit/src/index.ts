@@ -1,22 +1,28 @@
-import { JimpClass } from "@jimp/types";
+import { JimpClass, JimpClassSchema } from "@jimp/types";
 import { limit255, scan } from "@jimp/utils";
+import { z } from "zod";
 
-export interface BlitOptions<I extends JimpClass> {
-  /** This image to blit on to the current image */
-  src: I;
+const BlitOptionsSchemaComplex = z.object({
+  src: JimpClassSchema,
   /** the x position to blit the image */
-  x?: number;
+  x: z.number().optional(),
   /** the y position to blit the image */
-  y?: number;
+  y: z.number().optional(),
   /** the x position from which to crop the source image */
-  srcX?: number;
+  srcX: z.number().optional(),
   /** the y position from which to crop the source image */
-  srcY?: number;
+  srcY: z.number().optional(),
   /** the width to which to crop the source image */
-  srcW?: number;
+  srcW: z.number().optional(),
   /** the height to which to crop the source image */
-  srcH?: number;
-}
+  srcH: z.number().optional(),
+});
+
+type BlitOptionsComplex = z.infer<typeof BlitOptionsSchemaComplex>;
+
+const BlitOptionsSchema = z.union([JimpClassSchema, BlitOptionsSchemaComplex]);
+
+export type BlitOptions = z.infer<typeof BlitOptionsSchema>;
 
 export const methods = {
   /**
@@ -34,7 +40,8 @@ export const methods = {
    * image.blit(parrot, x, y);
    * ```
    */
-  blit<I extends JimpClass>(image: I, options: BlitOptions<I>) {
+  blit<I extends JimpClass>(image: I, options: BlitOptions) {
+    const parsed = BlitOptionsSchema.parse(options);
     let {
       src,
       x = 0,
@@ -43,7 +50,7 @@ export const methods = {
       srcY = 0,
       srcW = src.bitmap.width,
       srcH = src.bitmap.height,
-    } = options;
+    } = "bitmap" in parsed ? ({ src: parsed } as BlitOptionsComplex) : parsed;
 
     if (!("bitmap" in src)) {
       throw new Error("The source must be a Jimp image");

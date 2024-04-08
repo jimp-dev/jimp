@@ -1,3 +1,5 @@
+import { z } from "zod";
+
 export enum Edge {
   EXTEND = 1,
   WRAP = 2,
@@ -32,6 +34,14 @@ export interface RGBAColor {
   b: number;
   a: number;
 }
+
+export const JimpClassSchema = z.object({
+  bitmap: z.object({
+    data: z.instanceof(Buffer),
+    width: z.number(),
+    height: z.number(),
+  }),
+});
 
 export interface JimpClass {
   background: number;

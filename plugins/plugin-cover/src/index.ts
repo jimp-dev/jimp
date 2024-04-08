@@ -2,14 +2,24 @@ import { JimpClass } from "@jimp/types";
 import { VerticalAlign, HorizontalAlign } from "@jimp/core";
 import { ResizeStrategy, methods as resizeMethods } from "@jimp/plugin-resize";
 import { methods as cropMethods } from "@jimp/plugin-crop";
+import { z } from "zod";
+
+const CoverOptionsSchema = z.object({
+  /** the width to resize the image to */
+  w: z.number(),
+  /** the height to resize the image to */
+  h: z.number(),
+  /** A bitmask for horizontal and vertical alignment */
+  align: z.number().optional(),
+  /** a scaling method (e.g. ResizeStrategy.BEZIER) */
+  mode: z.nativeEnum(ResizeStrategy).optional(),
+});
+
+export type CoverOptions = z.infer<typeof CoverOptionsSchema>;
 
 export const methods = {
   /**
    * Scale the image so the given width and height keeping the aspect ratio. Some parts of the image may be clipped.
-   * @param w the width to resize the image to
-   * @param h the height to resize the image to
-   * @param alignBits A bitmask for horizontal and vertical alignment
-   * @param mode a scaling method (e.g. Jimp.RESIZE_BEZIER)
    * @example
    * ```ts
    * import { Jimp } from "jimp";
@@ -19,16 +29,15 @@ export const methods = {
    * image.cover(150, 100);
    * ```
    */
-  cover<I extends JimpClass>(
-    image: I,
-    w: number,
-    h: number,
-    alignBits?: number,
-    mode?: ResizeStrategy
-  ) {
-    alignBits = alignBits || HorizontalAlign.CENTER | VerticalAlign.MIDDLE;
-    const hbits = alignBits & ((1 << 3) - 1);
-    const vbits = alignBits >> 3;
+  cover<I extends JimpClass>(image: I, options: CoverOptions) {
+    const {
+      w,
+      h,
+      align = HorizontalAlign.CENTER | VerticalAlign.MIDDLE,
+      mode,
+    } = CoverOptionsSchema.parse(options);
+    const hbits = align & ((1 << 3) - 1);
+    const vbits = align >> 3;
 
     // check if more flags than one is in the bit sets
     if (
@@ -48,14 +57,16 @@ export const methods = {
         ? w / image.bitmap.width
         : h / image.bitmap.height;
 
-    image = resizeMethods.scale(image, f, mode);
-    image = cropMethods.crop(
-      image,
-      ((image.bitmap.width - w) / 2) * alignH,
-      ((image.bitmap.height - h) / 2) * alignV,
+    image = resizeMethods.scale(image, {
+      f,
+      mode,
+    });
+    image = cropMethods.crop(image, {
+      x: ((image.bitmap.width - w) / 2) * alignH,
+      y: ((image.bitmap.height - h) / 2) * alignV,
       w,
-      h
-    );
+      h,
+    });
 
     return image;
   },

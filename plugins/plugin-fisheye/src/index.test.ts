@@ -43,6 +43,6 @@ describe("Fisheye", () => {
       )
     );
 
-    expect(imgNormal.fisheye({ r: 1.8 })).toMatchSnapshot();
+    expect(imgNormal.fisheye({ radius: 1.8 })).toMatchSnapshot();
   });
 });

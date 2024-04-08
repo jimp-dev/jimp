@@ -1,6 +1,62 @@
 import tinyColor from "tinycolor2";
 import { clone, limit255, scan } from "@jimp/utils";
 import { Edge, JimpClass, RGBColor } from "@jimp/types";
+import { z } from "zod";
+
+const ConvolutionMatrixSchema = z.array(z.number()).min(1).array();
+const ConvolutionComplexOptionsSchema = z.object({
+  /** a matrix to weight the neighbors sum */
+  kernel: ConvolutionMatrixSchema,
+  /**define how to sum pixels from outside the border */
+  edgeHandling: z.nativeEnum(Edge).optional(),
+});
+const ConvolutionOptionsSchema = z.union([
+  ConvolutionMatrixSchema,
+  ConvolutionComplexOptionsSchema,
+]);
+
+type ConvolutionOptions = z.infer<typeof ConvolutionOptionsSchema>;
+
+const ConvoluteComplexOptionsSchema = z.object({
+  /** the convolution kernel */
+  kernel: ConvolutionMatrixSchema,
+  /** the x position of the region to apply convolution to */
+  x: z.number().optional(),
+  /** the y position of the region to apply convolution to */
+  y: z.number().optional(),
+  /** the width of the region to apply convolution to */
+  w: z.number().optional(),
+  /** the height of the region to apply convolution to */
+  h: z.number().optional(),
+});
+const ConvoluteOptionsSchema = z.union([
+  ConvolutionMatrixSchema,
+  ConvoluteComplexOptionsSchema,
+]);
+
+type ConvoluteComplexOptions = z.infer<typeof ConvoluteComplexOptionsSchema>;
+type ConvoluteOptions = z.infer<typeof ConvoluteOptionsSchema>;
+
+const PixelateSize = z.number().min(1).max(Infinity);
+const PixelateComplexOptionsSchema = z.object({
+  /** the size of the pixels */
+  size: PixelateSize,
+  /** the x position of the region to pixelate */
+  x: z.number().optional(),
+  /** the y position of the region to pixelate */
+  y: z.number().optional(),
+  /** the width of the region to pixelate */
+  w: z.number().optional(),
+  /** the height of the region to pixelate */
+  h: z.number().optional(),
+});
+const PixelateOptionsSchema = z.union([
+  PixelateSize,
+  PixelateComplexOptionsSchema,
+]);
+
+type PixelateComplexOptions = z.infer<typeof PixelateComplexOptionsSchema>;
+type PixelateOptions = z.infer<typeof PixelateOptionsSchema>;
 
 function applyKernel(
   image: JimpClass,
@@ -32,97 +88,123 @@ function mix(clr: RGBColor, clr2: RGBColor, p = 50) {
   };
 }
 
-export interface HueAction {
-  apply: "hue";
-  params: [number];
-}
+const HueActionSchema = z.object({
+  apply: z.literal("hue"),
+  params: z.tuple([z.number().min(-360).max(360)]),
+});
+export type HueAction = z.infer<typeof HueActionSchema>;
 
-export interface SpinAction {
-  apply: "spin";
-  params: [number];
-}
+const SpinActionSchema = z.object({
+  apply: z.literal("spin"),
+  params: z.tuple([z.number().min(-360).max(360)]),
+});
+export type SpinAction = z.infer<typeof SpinActionSchema>;
 
-export interface LightenAction {
-  apply: "lighten";
-  params?: [number];
-}
+const LightenActionSchema = z.object({
+  apply: z.literal("lighten"),
+  params: z.tuple([z.number().min(0).max(100)]).optional(),
+});
+export type LightenAction = z.infer<typeof LightenActionSchema>;
 
-export interface MixAction {
-  apply: "mix";
-  params: [RGBColor, number] | [RGBColor];
-}
+const RGBColorSchema = z.object({
+  r: z.number().min(0).max(255),
+  g: z.number().min(0).max(255),
+  b: z.number().min(0).max(255),
+});
 
-export interface TintAction {
-  apply: "tint";
-  params?: [number];
-}
+const MixActionSchema = z.object({
+  apply: z.literal("mix"),
+  params: z.union([
+    z.tuple([RGBColorSchema]),
+    z.tuple([RGBColorSchema, z.number().min(0).max(100)]),
+  ]),
+});
+export type MixAction = z.infer<typeof MixActionSchema>;
 
-export interface ShadeAction {
-  apply: "shade";
-  params?: [number];
-}
+const TintActionSchema = z.object({
+  apply: z.literal("tint"),
+  params: z.tuple([z.number().min(0).max(100)]).optional(),
+});
+export type TintAction = z.infer<typeof TintActionSchema>;
 
-export interface XorAction {
-  apply: "xor";
-  params: [RGBColor];
-}
+const ShadeActionSchema = z.object({
+  apply: z.literal("shade"),
+  params: z.tuple([z.number().min(0).max(100)]).optional(),
+});
+export type ShadeAction = z.infer<typeof ShadeActionSchema>;
 
-export interface RedAction {
-  apply: "red";
-  params: [number];
-}
+const XorActionSchema = z.object({
+  apply: z.literal("xor"),
+  params: z.tuple([RGBColorSchema]),
+});
+export type XorAction = z.infer<typeof XorActionSchema>;
 
-export interface GreenAction {
-  apply: "green";
-  params: [number];
-}
+const RedActionSchema = z.object({
+  apply: z.literal("red"),
+  params: z.tuple([z.number().min(-255).max(255)]),
+});
+export type RedAction = z.infer<typeof RedActionSchema>;
 
-export interface BlueAction {
-  apply: "blue";
-  params: [number];
-}
+const GreenActionSchema = z.object({
+  apply: z.literal("green"),
+  params: z.tuple([z.number().min(-255).max(255)]),
+});
+export type GreenAction = z.infer<typeof GreenActionSchema>;
 
-export interface BrightenAction {
-  apply: "brighten";
-  params?: [number];
-}
+const BlueActionSchema = z.object({
+  apply: z.literal("blue"),
+  params: z.tuple([z.number().min(-255).max(255)]),
+});
+export type BlueAction = z.infer<typeof BlueActionSchema>;
 
-export interface DarkenAction {
-  apply: "darken";
-  params?: [number];
-}
+const BrightenActionSchema = z.object({
+  apply: z.literal("brighten"),
+  params: z.tuple([z.number().min(0).max(100)]).optional(),
+});
+export type BrightenAction = z.infer<typeof BrightenActionSchema>;
 
-export interface DesaturateAction {
-  apply: "desaturate";
-  params?: [number];
-}
+const DarkenActionSchema = z.object({
+  apply: z.literal("darken"),
+  params: z.tuple([z.number().min(0).max(100)]).optional(),
+});
+export type DarkenAction = z.infer<typeof DarkenActionSchema>;
 
-export interface SaturateAction {
-  apply: "saturate";
-  params?: [number];
-}
+const DesaturateActionSchema = z.object({
+  apply: z.literal("desaturate"),
+  params: z.tuple([z.number().min(0).max(100)]).optional(),
+});
+export type DesaturateAction = z.infer<typeof DesaturateActionSchema>;
 
-export interface GrayscaleAction {
-  apply: "greyscale";
-  params?: [number];
-}
+const SaturateActionSchema = z.object({
+  apply: z.literal("saturate"),
+  params: z.tuple([z.number().min(0).max(100)]).optional(),
+});
+export type SaturateAction = z.infer<typeof SaturateActionSchema>;
 
-export type ColorAction =
-  | HueAction
-  | SpinAction
-  | LightenAction
-  | MixAction
-  | TintAction
-  | ShadeAction
-  | XorAction
-  | RedAction
-  | GreenAction
-  | BlueAction
-  | BrightenAction
-  | DarkenAction
-  | DesaturateAction
-  | SaturateAction
-  | GrayscaleAction;
+const GrayscaleActionSchema = z.object({
+  apply: z.literal("greyscale"),
+  params: z.tuple([]).optional(),
+});
+export type GrayscaleAction = z.infer<typeof GrayscaleActionSchema>;
+
+const ColorActionNameSchema = z.union([
+  HueActionSchema,
+  SpinActionSchema,
+  LightenActionSchema,
+  MixActionSchema,
+  TintActionSchema,
+  ShadeActionSchema,
+  XorActionSchema,
+  RedActionSchema,
+  GreenActionSchema,
+  BlueActionSchema,
+  BrightenActionSchema,
+  DarkenActionSchema,
+  DesaturateActionSchema,
+  SaturateActionSchema,
+  GrayscaleActionSchema,
+]);
+export type ColorAction = z.infer<typeof ColorActionNameSchema>;
 
 export const ColorActionName = Object.freeze({
   LIGHTEN: "lighten",
@@ -362,6 +444,7 @@ export const methods = {
 
     return image;
   },
+
   /**
    * Removes colour from the image using ITU Rec 709 luminance values
    * @example
@@ -393,6 +476,7 @@ export const methods = {
 
     return image;
   },
+
   /**
    * Multiplies the opacity of each pixel by a factor between 0 and 1
    * @param f A number, the factor by which to multiply the opacity of each pixel
@@ -478,8 +562,6 @@ export const methods = {
 
   /**
    * Adds each element of the image to its local neighbors, weighted by the kernel
-   * @param kernel a matrix to weight the neighbors sum
-   * @param edgeHandling (optional) define how to sum pixels from outside the border
    * @example
    * ```ts
    * import { Jimp } from "jimp";
@@ -493,14 +575,10 @@ export const methods = {
    * ]);
    * ```
    */
-  convolution<I extends JimpClass>(
-    image: I,
-    kernel: number[][],
-    edgeHandling?: number
-  ) {
-    if (!edgeHandling) {
-      edgeHandling = Edge.EXTEND;
-    }
+  convolution<I extends JimpClass>(image: I, options: ConvolutionOptions) {
+    const parsed = ConvolutionOptionsSchema.parse(options);
+    const { kernel, edgeHandling = Edge.EXTEND } =
+      "kernel" in parsed ? parsed : { kernel: parsed, edgeHandling: undefined };
 
     if (!kernel[0]) {
       throw new Error("kernel must be a matrix");
@@ -608,11 +686,6 @@ export const methods = {
 
   /**
    * Pixelates the image or a region
-   * @param size the size of the pixels
-   * @param x (optional) the x position of the region to pixelate
-   * @param y (optional) the y position of the region to pixelate
-   * @param w (optional) the width of the region to pixelate
-   * @param h (optional) the height of the region to pixelate
    * @example
    * ```ts
    * import { Jimp } from "jimp";
@@ -626,24 +699,23 @@ export const methods = {
    * image.pixelate(10, 10, 10, 20, 20);
    * ```
    */
-  pixelate<I extends JimpClass>(
-    image: I,
-    size: number,
-    x?: number,
-    y?: number,
-    w?: number,
-    h?: number
-  ) {
+  pixelate<I extends JimpClass>(image: I, options: PixelateOptions) {
+    const parsed = PixelateOptionsSchema.parse(options);
+    let {
+      size,
+      x = 0,
+      y = 0,
+      w = image.bitmap.width - x,
+      h = image.bitmap.height - y,
+    } = typeof parsed === "number"
+      ? ({ size: parsed } as PixelateComplexOptions)
+      : parsed;
+
     const kernel = [
       [1 / 16, 2 / 16, 1 / 16],
       [2 / 16, 4 / 16, 2 / 16],
       [1 / 16, 2 / 16, 1 / 16],
     ];
-
-    x = x || 0;
-    y = y || 0;
-    w = w || image.bitmap.width - x;
-    h = h || image.bitmap.height - y;
 
     const source = clone(image);
 
@@ -663,11 +735,6 @@ export const methods = {
 
   /**
    * Applies a convolution kernel to the image or a region
-   * @param kernel the convolution kernel
-   * @param x (optional) the x position of the region to apply convolution to
-   * @param y (optional) the y position of the region to apply convolution to
-   * @param w (optional) the width of the region to apply convolution to
-   * @param h (optional) the height of the region to apply convolution to
    * @example
    * ```ts
    * import { Jimp } from "jimp";
@@ -689,14 +756,18 @@ export const methods = {
    * ], 10, 10, 10, 20);
    * ```
    */
-  convolute<I extends JimpClass>(
-    image: I,
-    kernel: number[][],
-    x = 0,
-    y = 0,
-    w = image.bitmap.width - x,
-    h = image.bitmap.height - y
-  ) {
+  convolute<I extends JimpClass>(image: I, options: ConvoluteOptions) {
+    const parsed = ConvoluteOptionsSchema.parse(options);
+    const {
+      kernel,
+      x = 0,
+      y = 0,
+      w = image.bitmap.width - x,
+      h = image.bitmap.height - y,
+    } = "kernel" in parsed
+      ? parsed
+      : ({ kernel: parsed } as ConvoluteComplexOptions);
+
     const source = clone(image);
 
     scan(source, x, y, w, h, (xx, yx, idx) => {
@@ -730,6 +801,8 @@ export const methods = {
     if (!actions || !Array.isArray(actions)) {
       throw new Error("actions must be an array");
     }
+
+    actions.forEach((action) => ColorActionNameSchema.parse(action));
 
     actions = actions.map((action) => {
       if (action.apply === "xor" || action.apply === "mix") {

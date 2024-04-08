@@ -48,12 +48,24 @@ describe("Convolution", function () {
   });
 
   test("3x3 sharp matrix on EDGE_WRAP", () => {
-    expect(imgMid.clone().convolution(sharpM, Edge.WRAP)).toMatchSnapshot();
-    expect(imgTopLeft.clone().convolution(sharpM, Edge.WRAP)).toMatchSnapshot();
+    expect(
+      imgMid.clone().convolution({ kernel: sharpM, edgeHandling: Edge.WRAP })
+    ).toMatchSnapshot();
+    expect(
+      imgTopLeft
+        .clone()
+        .convolution({ kernel: sharpM, edgeHandling: Edge.WRAP })
+    ).toMatchSnapshot();
   });
 
   test("3x3 sharp matrix on EDGE_CROP", () => {
-    expect(imgMid.clone().convolution(sharpM, Edge.CROP)).toMatchSnapshot();
-    expect(imgTopLeft.clone().convolution(sharpM, Edge.CROP)).toMatchSnapshot();
+    expect(
+      imgMid.clone().convolution({ kernel: sharpM, edgeHandling: Edge.CROP })
+    ).toMatchSnapshot();
+    expect(
+      imgTopLeft
+        .clone()
+        .convolution({ kernel: sharpM, edgeHandling: Edge.CROP })
+    ).toMatchSnapshot();
   });
 });

@@ -1,11 +1,7 @@
-# TODO
-
-- [ ] Object APIs
-
 ## Guides
 
 - [ ] Getting Started
 - [ ] Custom Jimp
 - [ ] Authoring Plugins
-- [ ] Using in Browser
+- [] Using in Browser
   - [ ] Worker

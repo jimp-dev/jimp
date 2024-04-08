@@ -1,12 +1,39 @@
 import { HorizontalAlign, VerticalAlign } from "@jimp/core";
 import { JimpClass } from "@jimp/types";
 import { methods as blitMethods } from "@jimp/plugin-blit";
+import { z } from "zod";
 
 import { measureText, measureTextHeight, splitLines } from "./measure-text.js";
 import { BmFont } from "./types.js";
 
 export { measureText, measureTextHeight } from "./measure-text.js";
 export * from "./types.js";
+
+const PrintOptionsSchema = z.object({
+  /** the x position to draw the image */
+  x: z.number(),
+  /** the y position to draw the image */
+  y: z.number(),
+  /** the text to print */
+  text: z.union([
+    z.union([z.string(), z.number()]),
+    z.object({
+      text: z.union([z.string(), z.number()]),
+      alignmentX: z.nativeEnum(HorizontalAlign).optional(),
+      alignmentY: z.nativeEnum(VerticalAlign).optional(),
+    }),
+  ]),
+  /** the boundary width to draw in */
+  maxWidth: z.number().optional(),
+  /** the boundary height to draw in */
+  maxHeight: z.number().optional(),
+  /** a callback for when complete that ahs the end co-ordinates of the text */
+  cb: z
+    .function(z.tuple([z.object({ x: z.number(), y: z.number() })]))
+    .optional(),
+});
+
+export type PrintOptions = z.infer<typeof PrintOptionsSchema>;
 
 function xOffsetBasedOnAlignment<I extends JimpClass>(
   font: BmFont<I>,
@@ -94,9 +121,6 @@ export const methods = {
    * @param x the x position to start drawing the text
    * @param y the y position to start drawing the text
    * @param text the text to draw (string or object with `text`, `alignmentX`, and/or `alignmentY`)
-   * @param maxWidth the boundary width to draw in
-   * @param maxHeight the boundary height to draw in
-   * @param cb (optional) a callback for when complete that ahs the end co-ordinates of the text
    * @example
    * ```ts
    * import { Jimp } from "jimp";
@@ -109,40 +133,22 @@ export const methods = {
    */
   print<I extends JimpClass>(
     image: I,
-    font: BmFont<I>,
-    x: number,
-    y: number,
-    text:
-      | string
-      | number
-      | {
-          text: string | number;
-          alignmentX?: HorizontalAlign;
-          alignmentY?: VerticalAlign;
-        },
-    maxWidth: number = Infinity,
-    maxHeight: number = Infinity,
-    cb: (options: { x: number; y: number }) => void = () => {}
+    {
+      font,
+      ...options
+    }: PrintOptions & {
+      /** the BMFont instance */
+      font: BmFont<I>;
+    }
   ) {
-    if (typeof font !== "object") {
-      throw new Error("font must be a font loaded with loadFont");
-    }
-
-    if (
-      typeof x !== "number" ||
-      typeof y !== "number" ||
-      typeof maxWidth !== "number"
-    ) {
-      throw new Error("x, y and maxWidth must be numbers");
-    }
-
-    if (typeof maxWidth !== "number") {
-      throw new Error("maxWidth must be a number");
-    }
-
-    if (typeof maxHeight !== "number") {
-      throw new Error("maxHeight must be a number");
-    }
+    let {
+      x,
+      y,
+      text,
+      maxWidth = Infinity,
+      maxHeight = Infinity,
+      cb = () => {},
+    } = PrintOptionsSchema.parse(options);
 
     let alignmentX: HorizontalAlign;
     let alignmentY: VerticalAlign;

@@ -31,10 +31,16 @@ export function diff<I extends JimpClass>(img1: I, img2: I, threshold = 0.1) {
   if (bmp1.width !== bmp2.width || bmp1.height !== bmp2.height) {
     if (bmp1.width * bmp1.height > bmp2.width * bmp2.height) {
       // img1 is bigger
-      img1 = methods.resize(clone(img1), bmp2.width, bmp2.height);
+      img1 = methods.resize(clone(img1), {
+        w: bmp2.width,
+        h: bmp2.height,
+      });
     } else {
       // img2 is bigger (or they are the same in area)
-      img2 = methods.resize(clone(img2), bmp1.width, bmp1.height);
+      img2 = methods.resize(clone(img2), {
+        w: bmp1.width,
+        h: bmp1.height,
+      });
     }
   }
 

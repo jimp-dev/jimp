@@ -1,4 +1,17 @@
-import { JimpClass } from "@jimp/types";
+import { JimpClass, JimpClassSchema } from "@jimp/types";
+import { z } from "zod";
+
+const MaskOptionsObjectSchema = z.object({
+  src: JimpClassSchema,
+  /** the x position to draw the image */
+  x: z.number().optional(),
+  /** the y position to draw the image */
+  y: z.number().optional(),
+});
+
+const MaskOptionsSchema = z.union([JimpClassSchema, MaskOptionsObjectSchema]);
+
+export type MaskOptions = z.infer<typeof MaskOptionsSchema>;
 
 export const methods = {
   /**
@@ -16,7 +29,23 @@ export const methods = {
    * image.mask(mask);
    * ```
    */
-  mask<I extends JimpClass>(image: I, src: I, x = 0, y = 0) {
+  mask<I extends JimpClass>(image: I, options: MaskOptions) {
+    MaskOptionsSchema.parse(options);
+
+    let src: JimpClass;
+    let x: number;
+    let y: number;
+
+    if ("bitmap" in options) {
+      src = options as unknown as JimpClass;
+      x = 0;
+      y = 0;
+    } else {
+      src = options.src as unknown as JimpClass;
+      x = options.x ?? 0;
+      y = options.y ?? 0;
+    }
+
     // round input
     x = Math.round(x);
     y = Math.round(y);

@@ -20,7 +20,7 @@ describe("Flipping plugin", () => {
       )
     );
 
-    expect(src.flip(true, false)).toMatchSnapshot();
+    expect(src.flip({ horizontal: true })).toMatchSnapshot();
   });
 
   test("can flip vertically", () => {
@@ -36,7 +36,7 @@ describe("Flipping plugin", () => {
       )
     );
 
-    expect(src.flip(false, true)).toMatchSnapshot();
+    expect(src.flip({ vertical: true })).toMatchSnapshot();
   });
 
   test("can flip both horizontally and vertically at once", async () => {
@@ -52,6 +52,6 @@ describe("Flipping plugin", () => {
       )
     );
 
-    expect(src.flip(true, true)).toMatchSnapshot();
+    expect(src.flip({ horizontal: true, vertical: true })).toMatchSnapshot();
   });
 });

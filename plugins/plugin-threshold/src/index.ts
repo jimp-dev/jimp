@@ -1,15 +1,18 @@
 import { JimpClass } from "@jimp/types";
 import { limit255 } from "@jimp/utils";
 import { methods as color } from "@jimp/plugin-color";
+import { z } from "zod";
 
-export interface ThresholdOptions {
+const ThresholdOptionsSchema = z.object({
   /** A number auto limited between 0 - 255 */
-  max: number;
+  max: z.number().min(0).max(255),
   /** A number auto limited between 0 - 255 (default 255)  */
-  replace?: number;
+  replace: z.number().min(0).max(255).optional(),
   /** A boolean whether to apply greyscale beforehand (default true)  */
-  autoGreyscale?: boolean;
-}
+  autoGreyscale: z.boolean().optional(),
+});
+
+export type ThresholdOptions = z.infer<typeof ThresholdOptionsSchema>;
 
 export const methods = {
   /**
@@ -25,19 +28,11 @@ export const methods = {
    * ```
    */
   threshold<I extends JimpClass>(image: I, options: ThresholdOptions) {
-    let { max, replace = 255, autoGreyscale = true } = options;
-
-    if (typeof max !== "number") {
-      throw new Error("max must be a number");
-    }
-
-    if (typeof replace !== "number") {
-      throw new Error("replace must be a number");
-    }
-
-    if (typeof autoGreyscale !== "boolean") {
-      throw new Error("autoGreyscale must be a boolean");
-    }
+    let {
+      max,
+      replace = 255,
+      autoGreyscale = true,
+    } = ThresholdOptionsSchema.parse(options);
 
     max = limit255(max);
     replace = limit255(replace);

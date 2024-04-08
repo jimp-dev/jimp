@@ -63,7 +63,7 @@ import { createJimp } from "@jimp/core";
  * then write it back to a file.
  *
  * ```ts
- * import { Jimp, AutoSize } from "jimp";
+ * import { Jimp } from "jimp";
  * import { promises as fs } from "fs";
  *
  * const image = await Jimp.read("test/image.png");
@@ -143,7 +143,7 @@ export type {
 } from "@jimp/plugin-color";
 export type { CircleOptions } from "@jimp/plugin-circle";
 export type { AutocropOptions } from "@jimp/plugin-crop";
-export { AutoSize, ResizeStrategy } from "@jimp/plugin-resize";
+export { ResizeStrategy } from "@jimp/plugin-resize";
 export type { ThresholdOptions } from "@jimp/plugin-threshold";
 export { distance, compareHashes } from "@jimp/plugin-hash";
 export type { JPEGOptions } from "@jimp/js-jpeg";

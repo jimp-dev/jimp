@@ -3,6 +3,19 @@ import { JimpClass } from "@jimp/types";
 import { clone } from "@jimp/utils";
 import { composite } from "@jimp/core";
 import { methods as cropMethods } from "@jimp/plugin-crop";
+import { z } from "zod";
+
+const RotateOptionsSchema = z.union([
+  z.number(),
+  z.object({
+    /** the number of degrees to rotate the image by */
+    deg: z.number(),
+    /** resize mode or a boolean, if false then the width and height of the image will not be changed */
+    mode: z.union([z.boolean(), z.nativeEnum(ResizeStrategy)]).optional(),
+  }),
+]);
+
+export type RotateOptions = z.infer<typeof RotateOptionsSchema>;
 
 /** function to translate the x, y coordinate to the index of the pixel in the buffer */
 function createIdxTranslationFunction(w: number, h: number) {
@@ -107,7 +120,6 @@ function createTranslationFunction(deltaX: number, deltaY: number) {
 /**
  * Rotates an image counter-clockwise by an arbitrary number of degrees. NB: 'this' must be a Jimp object.
  * @param {number} deg the number of degrees to rotate the image by
- * @param {string|boolean} mode (optional) resize mode or a boolean, if false then the width and height of the image will not be changed
  */
 function advancedRotate<I extends JimpClass>(
   image: I,
@@ -155,12 +167,11 @@ function advancedRotate<I extends JimpClass>(
     });
 
     const max = Math.max(w, h, image.bitmap.width, image.bitmap.height);
-    image = resizeMethods.resize(
-      image,
-      max,
-      max,
-      mode === true ? undefined : mode
-    );
+    image = resizeMethods.resize(image, {
+      h: max,
+      w: max,
+      mode: mode === true ? undefined : mode,
+    });
 
     image = composite(
       image,
@@ -206,14 +217,13 @@ function advancedRotate<I extends JimpClass>(
     // now crop the image to the final size
     const x = Math.max(bW / 2 - w / 2, 0);
     const y = Math.max(bH / 2 - h / 2, 0);
-    image = cropMethods.crop(image, x, y, w, h);
+    image = cropMethods.crop(image, { x, y, w, h });
   }
 }
 
 export const methods = {
   /**
    * Rotates the image counter-clockwise by a number of degrees. By default the width and height of the image will be resized appropriately.
-   * @param deg the number of degrees to rotate the image by
    * @example
    * ```ts
    * import { Jimp } from "jimp";
@@ -223,19 +233,10 @@ export const methods = {
    * image.rotate(90);
    * ```
    */
-  rotate<I extends JimpClass>(
-    image: I,
-    deg: number,
-    mode: boolean | ResizeStrategy = true
-  ) {
-    if (typeof deg !== "number") {
-      throw new Error("deg must be a number");
-    }
-
-    if (typeof mode !== "boolean" && typeof mode !== "string") {
-      throw new Error("mode must be a boolean or a string");
-    }
-
+  rotate<I extends JimpClass>(image: I, options: RotateOptions) {
+    const parsed = RotateOptionsSchema.parse(options);
+    const { deg, mode = true } =
+      typeof parsed === "number" ? { deg: parsed } : parsed;
     // use matrixRotate if the angle is a multiple of 90 degrees (eg: 180 or -90) and resize is allowed or not needed.
     const matrixRotateAllowed =
       deg % 90 === 0 &&

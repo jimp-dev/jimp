@@ -17,26 +17,38 @@ describe("crop", () => {
   );
 
   test("full width from top", () => {
-    expect(jimp.fromBitmap(testImage).crop(0, 0, 6, 2)).toMatchSnapshot();
+    expect(
+      jimp.fromBitmap(testImage).crop({ x: 0, y: 0, w: 6, h: 2 })
+    ).toMatchSnapshot();
   });
 
   test("full width from bottom", () => {
-    expect(jimp.fromBitmap(testImage).crop(0, 3, 6, 2)).toMatchSnapshot();
+    expect(
+      jimp.fromBitmap(testImage).crop({ x: 0, y: 3, w: 6, h: 2 })
+    ).toMatchSnapshot();
   });
 
   test("full width from middle", () => {
-    expect(jimp.fromBitmap(testImage).crop(0, 2, 6, 2)).toMatchSnapshot();
+    expect(
+      jimp.fromBitmap(testImage).crop({ x: 0, y: 2, w: 6, h: 2 })
+    ).toMatchSnapshot();
   });
 
   test("full height from left", () => {
-    expect(jimp.fromBitmap(testImage).crop(0, 0, 2, 5)).toMatchSnapshot();
+    expect(
+      jimp.fromBitmap(testImage).crop({ x: 0, y: 0, w: 2, h: 5 })
+    ).toMatchSnapshot();
   });
 
   test("full height from right", () => {
-    expect(jimp.fromBitmap(testImage).crop(4, 0, 2, 5)).toMatchSnapshot();
+    expect(
+      jimp.fromBitmap(testImage).crop({ x: 4, y: 0, w: 2, h: 5 })
+    ).toMatchSnapshot();
   });
 
   test("full height from middle", () => {
-    expect(jimp.fromBitmap(testImage).crop(2, 0, 2, 5)).toMatchSnapshot();
+    expect(
+      jimp.fromBitmap(testImage).crop({ x: 2, y: 0, w: 2, h: 5 })
+    ).toMatchSnapshot();
   });
 });

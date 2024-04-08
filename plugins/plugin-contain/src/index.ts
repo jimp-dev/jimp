@@ -3,13 +3,27 @@ import { HorizontalAlign, VerticalAlign } from "@jimp/core";
 import { clone } from "@jimp/utils";
 import { ResizeStrategy, methods as resizeMethods } from "@jimp/plugin-resize";
 import { methods as blitMethods } from "@jimp/plugin-blit";
+import { z } from "zod";
+
+const ContainOptionsSchema = z.object({
+  /** the width to resize the image to */
+  w: z.number(),
+  /** the height to resize the image to */
+  h: z.number(),
+  /** A bitmask for horizontal and vertical alignment */
+  align: z.number().optional(),
+  /** a scaling method (e.g. Jimp.RESIZE_BEZIER) */
+  mode: z.nativeEnum(ResizeStrategy).optional(),
+});
+
+export type ContainOptions = z.infer<typeof ContainOptionsSchema>;
 
 export const methods = {
   /**
    * Scale the image to the given width and height keeping the aspect ratio. Some parts of the image may be letter boxed.
    * @param w the width to resize the image to
    * @param h the height to resize the image to
-   * @param alignBits A bitmask for horizontal and vertical alignment
+   * @param align A bitmask for horizontal and vertical alignment
    * @param mode a scaling method (e.g. Jimp.RESIZE_BEZIER)
    * @example
    * ```ts
@@ -20,17 +34,16 @@ export const methods = {
    * image.contain(150, 100);
    * ```
    */
-  contain<I extends JimpClass>(
-    image: I,
-    w: number,
-    h: number,
-    alignBits?: number,
-    mode?: ResizeStrategy
-  ) {
-    alignBits = alignBits || HorizontalAlign.CENTER | VerticalAlign.MIDDLE;
+  contain<I extends JimpClass>(image: I, options: ContainOptions) {
+    const {
+      w,
+      h,
+      align = HorizontalAlign.CENTER | VerticalAlign.MIDDLE,
+      mode,
+    } = ContainOptionsSchema.parse(options);
 
-    const hbits = alignBits & ((1 << 3) - 1);
-    const vbits = alignBits >> 3;
+    const hbits = align & ((1 << 3) - 1);
+    const vbits = align >> 3;
 
     // check if more flags than one is in the bit sets
     if (
@@ -50,9 +63,9 @@ export const methods = {
         ? h / image.bitmap.height
         : w / image.bitmap.width;
 
-    const c = resizeMethods.scale(clone(image), f, mode);
+    const c = resizeMethods.scale(clone(image), { f, mode });
 
-    image = resizeMethods.resize(image, w, h, mode);
+    image = resizeMethods.resize(image, { w, h, mode });
 
     image.scan((_, __, idx) => {
       image.bitmap.data.writeUInt32BE(image.background, idx);

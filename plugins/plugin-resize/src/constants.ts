@@ -1,6 +1,3 @@
-/** Used to automate the resizing of one dimension of an image */
-export const AutoSize = -1;
-
 /**
  * What resizing algorithm to use.
  */

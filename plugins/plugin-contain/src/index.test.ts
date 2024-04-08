@@ -59,11 +59,15 @@ describe("All align combinations for contain", () => {
       (VerticalAlign as any)[verticalAlign];
 
     test("vertical contain aligned to " + align, () => {
-      expect(vertical.clone().contain(6, 6, alignValue)).toMatchSnapshot();
+      expect(
+        vertical.clone().contain({ w: 6, h: 6, align: alignValue })
+      ).toMatchSnapshot();
     });
 
     test("horizontal contain aligned to " + align, () => {
-      expect(horizontal.clone().contain(6, 6, alignValue)).toMatchSnapshot();
+      expect(
+        horizontal.clone().contain({ w: 6, h: 6, align: alignValue })
+      ).toMatchSnapshot();
     });
   });
 });

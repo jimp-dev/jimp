@@ -58,11 +58,15 @@ describe("All align combinations for cover", () => {
       (VerticalAlign as any)[verticalAlign];
 
     test("vertical contain aligned to " + align, () => {
-      expect(vertical.clone().cover(4, 4, alignValue)).toMatchSnapshot();
+      expect(
+        vertical.clone().cover({ w: 4, h: 4, align: alignValue })
+      ).toMatchSnapshot();
     });
 
     test("horizontal contain aligned to " + align, () => {
-      expect(horizontal.clone().cover(4, 4, alignValue)).toMatchSnapshot();
+      expect(
+        horizontal.clone().cover({ w: 4, h: 4, align: alignValue })
+      ).toMatchSnapshot();
     });
   });
 });

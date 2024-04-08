@@ -38,7 +38,7 @@ async function createTextImage(
   const image = new Jimp({ width, height, color: 0xffffffff });
 
   return image
-    .print(loadedFont, x, y, text, maxWidth, maxHeight)
+    .print({ font: loadedFont, x, y, text, maxWidth, maxHeight })
     .getBuffer("image/png");
 }
 
@@ -62,7 +62,13 @@ describe("Write text over image", function () {
       const font = await loadFont(fonts[fontName as keyof typeof fonts]);
       const image = new Jimp({ width: conf.w, height: conf.h, color: conf.bg });
       const output = await image
-        .print(font, 0, 0, "This is only a test.", image.bitmap.width)
+        .print({
+          font,
+          x: 0,
+          y: 0,
+          text: "This is only a test.",
+          maxWidth: image.bitmap.width,
+        })
         .getBuffer("image/png");
 
       expect(output).toMatchImageSnapshot();
@@ -73,7 +79,13 @@ describe("Write text over image", function () {
     const font = await loadFont(fonts.SANS_16_BLACK);
     const image = new Jimp({ width: 300, height: 100, color: 0xff8800ff });
     const output = await image
-      .print(font, 150, 50, "This is only a test.", 100)
+      .print({
+        font,
+        x: 150,
+        y: 50,
+        text: "This is only a test.",
+        maxWidth: 100,
+      })
       .getBuffer("image/png");
 
     expect(output).toMatchImageSnapshot();
@@ -85,7 +97,13 @@ describe("Write text over image", function () {
     );
     const image = new Jimp({ width: 300, height: 100, color: 0xff8800ff });
     const output = await image
-      .print(font, 150, 50, "This is only a test.", 100)
+      .print({
+        font,
+        x: 150,
+        y: 50,
+        text: "This is only a test.",
+        maxWidth: 100,
+      })
       .getBuffer("image/png");
 
     expect(output).toMatchImageSnapshot();
@@ -95,7 +113,7 @@ describe("Write text over image", function () {
     const font = await loadFont(fonts.SANS_16_BLACK);
     const image = new Jimp({ width: 300, height: 100, color: 0xff8800ff });
     const output = await image
-      .print(font, 0, 0, "ツ ツ ツ", 100)
+      .print({ font, x: 0, y: 0, text: "ツ ツ ツ", maxWidth: 100 })
       .getBuffer("image/png");
 
     expect(output).toMatchImageSnapshot();
@@ -105,7 +123,7 @@ describe("Write text over image", function () {
     const font = await loadFont(fonts.SANS_16_BLACK);
     const image = new Jimp({ width: 300, height: 100, color: 0xff8800ff });
     const output = await image
-      .print(font, 0, 0, 12345678, 100)
+      .print({ font, x: 0, y: 0, text: 12345678, maxWidth: 100 })
       .getBuffer("image/png");
 
     expect(output).toMatchImageSnapshot();
@@ -223,23 +241,22 @@ describe("Write text over image", function () {
     const loadedFont = await loadFont(fonts.SANS_16_BLACK);
     const image = new Jimp({ width: 500, height: 500, color: 0xffffffff });
 
-    image.print(
-      loadedFont,
-      0,
-      0,
-      "One two three four fix six seven eight nine ten eleven twelve",
-      250,
-      undefined,
-      ({ x, y }) => {
-        image.print(
-          loadedFont,
+    image.print({
+      font: loadedFont,
+      x: 0,
+      y: 0,
+      text: "One two three four fix six seven eight nine ten eleven twelve",
+      maxWidth: 250,
+      cb: ({ x, y }) => {
+        image.print({
+          font: loadedFont,
           x,
-          y + 50,
-          "thirteen fourteen fifteen sixteen seventeen eighteen nineteen twenty",
-          250
-        );
-      }
-    );
+          y: y + 50,
+          text: "thirteen fourteen fifteen sixteen seventeen eighteen nineteen twenty",
+          maxWidth: 250,
+        });
+      },
+    });
 
     const output = await image.getBuffer("image/png");
     expect(output).toMatchImageSnapshot();

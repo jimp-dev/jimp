@@ -56,11 +56,15 @@ describe("Mask", () => {
   });
 
   test("Affect opaque image with a gray mask with the same size, blited", () => {
-    expect(imgSrcOpaq.clone().mask(maskGrayBig, 1, 1)).toMatchSnapshot();
+    expect(
+      imgSrcOpaq.clone().mask({ src: maskGrayBig, x: 1, y: 1 })
+    ).toMatchSnapshot();
   });
 
   test("Affect opaque image with a gray mask with the same size, blited negative", () => {
-    expect(imgSrcOpaq.clone().mask(maskGrayBig, -1, -1)).toMatchSnapshot();
+    expect(
+      imgSrcOpaq.clone().mask({ src: maskGrayBig, x: -1, y: -1 })
+    ).toMatchSnapshot();
   });
 
   test("Affect opaque image with a smaller gray mask", () => {
@@ -68,7 +72,9 @@ describe("Mask", () => {
   });
 
   test("Affect opaque image with a smaller gray mask, blited", () => {
-    expect(imgSrcOpaq.clone().mask(maskGraySmall, 1, 1)).toMatchSnapshot();
+    expect(
+      imgSrcOpaq.clone().mask({ src: maskGraySmall, x: 1, y: 1 })
+    ).toMatchSnapshot();
   });
 
   test("Affect alpha image with a bigger gray mask", () => {
@@ -76,10 +82,14 @@ describe("Mask", () => {
   });
 
   test("Affect alpha image with a bigger gray mask, blited", () => {
-    expect(imgSrcAlpa.clone().mask(maskGrayBig, -1, -1)).toMatchSnapshot();
+    expect(
+      imgSrcAlpa.clone().mask({ src: maskGrayBig, x: -1, y: -1 })
+    ).toMatchSnapshot();
   });
 
   test("Affect opaque image with a colored mask", () => {
-    expect(imgSrcOpaq.clone().mask(maskColor, 1, 1)).toMatchSnapshot();
+    expect(
+      imgSrcOpaq.clone().mask({ src: maskColor, x: 1, y: 1 })
+    ).toMatchSnapshot();
   });
 });

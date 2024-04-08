@@ -1,11 +1,21 @@
-import { JimpClass } from "@jimp/types";
+import { JimpClass, JimpClassSchema } from "@jimp/types";
 import { clone } from "@jimp/utils";
+import { z } from "zod";
+
+const DisplaceOptionsSchema = z.object({
+  /** the source Jimp instance */
+  map: JimpClassSchema,
+  /** the maximum displacement value */
+  offset: z.number(),
+});
+
+export type DisplaceOptions = z.infer<typeof DisplaceOptionsSchema>;
 
 export const methods = {
   /**
    * Displaces the image based on the provided displacement map
    * @param map the source Jimp instance
-   * @param offset the maximum displacement value
+   * @param offset
    * @example
    * ```ts
    * import { Jimp } from "jimp";
@@ -16,15 +26,8 @@ export const methods = {
    * image.displace(map, 10);
    * ```
    */
-  displace<I extends JimpClass>(image: I, map: I, offset: number) {
-    if (typeof map !== "object" || !map.bitmap) {
-      throw new Error("The source must be a Jimp image");
-    }
-
-    if (typeof offset !== "number") {
-      throw new Error("offset must be a number");
-    }
-
+  displace<I extends JimpClass>(image: I, options: DisplaceOptions) {
+    const { map, offset } = DisplaceOptionsSchema.parse(options);
     const source = clone(image);
 
     image.scan((x, y, idx) => {

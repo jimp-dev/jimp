@@ -2,25 +2,44 @@
 
 import { JimpClass } from "@jimp/types";
 import { colorDiff, intToRGBA, scan } from "@jimp/utils";
+import { z } from "zod";
 
-export interface AutocropOptions {
+const CropOptionsSchema = z.object({
+  x: z.number(),
+  y: z.number(),
+  w: z.number(),
+  h: z.number(),
+});
+
+export type CropOptions = z.infer<typeof CropOptionsSchema>;
+
+const AutocropComplexOptionsSchema = z.object({
   /** percent of color difference tolerance (default value) */
-  tolerance?: number;
+  tolerance: z.number().min(0).max(1).optional(),
   /** flag to force cropping only if the image has a real "frame" i.e. all 4 sides have some border (default value) */
-  cropOnlyFrames?: boolean;
-  /**
-   * force cropping top be symmetric
-   */
-  cropSymmetric?: boolean;
+  cropOnlyFrames: z.boolean().optional(),
+  /** force cropping top be symmetric */
+  cropSymmetric: z.boolean().optional(),
   /** Amount of pixels in border to leave */
-  leaveBorder?: number;
-  ignoreSides?: {
-    north?: boolean;
-    south?: boolean;
-    east?: boolean;
-    west?: boolean;
-  };
-}
+  leaveBorder: z.number().optional(),
+  ignoreSides: z
+    .object({
+      north: z.boolean().optional(),
+      south: z.boolean().optional(),
+      east: z.boolean().optional(),
+      west: z.boolean().optional(),
+    })
+    .optional(),
+});
+const AutocropOptionsSchema = z.union([
+  z.number().min(0).max(1),
+  AutocropComplexOptionsSchema,
+]);
+
+export type AutocropComplexOptions = z.infer<
+  typeof AutocropComplexOptionsSchema
+>;
+export type AutocropOptions = z.infer<typeof AutocropOptionsSchema>;
 
 export const methods = {
   /**
@@ -34,21 +53,8 @@ export const methods = {
    * const cropped = image.crop(150, 100);
    * ```
    */
-  crop<I extends JimpClass>(
-    image: I,
-    x: number,
-    y: number,
-    w: number,
-    h: number
-  ) {
-    if (typeof x !== "number" || typeof y !== "number") {
-      throw new Error("x and y must be numbers");
-    }
-
-    if (typeof w !== "number" || typeof h !== "number") {
-      throw new Error("w and h must be numbers");
-    }
-
+  crop<I extends JimpClass>(image: I, options: CropOptions) {
+    let { x, y, w, h } = CropOptionsSchema.parse(options);
     // round input
     x = Math.round(x);
     y = Math.round(y);
@@ -99,7 +105,9 @@ export const methods = {
       cropSymmetric = false,
       leaveBorder = 0,
       ignoreSides: ignoreSidesArg,
-    } = options;
+    } = typeof options === "number"
+      ? ({ tolerance: options } as AutocropComplexOptions)
+      : options;
     const w = image.bitmap.width;
     const h = image.bitmap.height;
     const minPixelsPerSide = 1; // to avoid cropping completely the image, resulting in an invalid 0 sized image
@@ -261,13 +269,12 @@ export const methods = {
 
     if (doCrop) {
       // do the real crop
-      this.crop(
-        image,
-        westPixelsToCrop,
-        northPixelsToCrop,
-        widthOfRemainingPixels,
-        heightOfRemainingPixels
-      );
+      this.crop(image, {
+        x: westPixelsToCrop,
+        y: northPixelsToCrop,
+        w: widthOfRemainingPixels,
+        h: heightOfRemainingPixels,
+      });
     }
 
     return image;

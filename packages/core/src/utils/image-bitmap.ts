@@ -141,7 +141,6 @@ function exifRotate<I extends JimpClass>(img: I) {
 
   if (transformation) {
     transformBitmap(img, newWidth, newHeight, transformation);
-    console.log("done", img);
   }
 }
 
