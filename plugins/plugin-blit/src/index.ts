@@ -43,6 +43,7 @@ export const methods = {
   blit<I extends JimpClass>(image: I, options: BlitOptions) {
     const parsed = BlitOptionsSchema.parse(options);
     let {
+      // eslint-disable-next-line prefer-const
       src,
       x = 0,
       y = 0,

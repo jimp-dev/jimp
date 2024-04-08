@@ -18,7 +18,7 @@ const RotateOptionsSchema = z.union([
 export type RotateOptions = z.infer<typeof RotateOptionsSchema>;
 
 /** function to translate the x, y coordinate to the index of the pixel in the buffer */
-function createIdxTranslationFunction(w: number, h: number) {
+function createIdxTranslationFunction(w: number) {
   return function (x: number, y: number) {
     return (y * w + x) << 2;
   };
@@ -76,8 +76,8 @@ function matrixRotate<I extends JimpClass>(image: I, deg: number) {
 
   const dstBuffer = Buffer.alloc(image.bitmap.data.length);
 
-  const srcIdxFunction = createIdxTranslationFunction(w, h);
-  const dstIdxFunction = createIdxTranslationFunction(nW, nH);
+  const srcIdxFunction = createIdxTranslationFunction(w);
+  const dstIdxFunction = createIdxTranslationFunction(nW);
 
   for (let x = 0; x < w; x++) {
     for (let y = 0; y < h; y++) {

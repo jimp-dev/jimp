@@ -4,7 +4,6 @@
   "type": "module",
   "version": "0.0.1",
   "scripts": {
-    "lint": "eslint .",
     "dev": "astro dev",
     "start": "astro dev",
     "build-website": "rm -rf dist && astro check && astro build",

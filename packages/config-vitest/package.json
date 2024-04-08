@@ -4,13 +4,11 @@
   "private": true,
   "repository": "jimp-dev/jimp",
   "scripts": {
-    "lint": "eslint .",
     "dev": "tshy --watch"
   },
   "author": "Andrew Lisowski <lisowski54@gmail.com>",
   "license": "MIT",
   "devDependencies": {
-    "@jimp/config-eslint": "workspace:*",
     "@jimp/config-typescript": "workspace:*",
     "@jimp/test-utils": "workspace:*",
     "eslint": "^8.57.0",

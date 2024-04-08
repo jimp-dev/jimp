@@ -3,6 +3,7 @@
   "version": "0.0.0",
   "license": "MIT",
   "private": true,
+  "main": "base.js",
   "scripts": {
     "clean": "rm -rf node_modules"
   },

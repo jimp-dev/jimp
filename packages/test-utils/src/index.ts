@@ -2,12 +2,13 @@ import { expect } from "vitest";
 import { Bitmap } from "@jimp/types";
 import path from "path";
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function hashForEach<Hash extends Record<string, any>>(
   hash: Hash,
   func: (key: keyof Hash, value: Hash[keyof Hash]) => void
 ) {
   for (const key in hash)
-    if (hash.hasOwnProperty(key)) {
+    if (key in hash) {
       func(key, hash[key]);
     }
 }
@@ -134,7 +135,7 @@ export function testImgToStr(testImage: Bitmap) {
     colors2[c] = k;
   });
 
-  let unknownColors = new Set<number>();
+  const unknownColors = new Set<number>();
 
   for (let y = 0; y < testImage.height; y++) {
     for (let x = 0; x < w; x++) {

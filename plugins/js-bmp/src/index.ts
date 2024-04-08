@@ -7,6 +7,7 @@ export type { BmpColor } from "bmp-ts";
 export { BmpCompression } from "bmp-ts";
 
 type Pretty<T> = {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   [K in keyof T]: T[K] extends (...args: any[]) => any
     ? T[K]
     : T[K] extends object

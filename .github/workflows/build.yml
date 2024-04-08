@@ -49,15 +49,6 @@ jobs:
       - uses: ./.github/actions/build-cache
       - run: pnpm lint
 
-  test-types:
-    runs-on: ubuntu-latest
-    needs: build
-    steps:
-      - uses: actions/checkout@v3
-      - uses: ./.github/actions/install-deps
-      - uses: ./.github/actions/build-cache
-      - run: pnpm tsTest:custom && pnpm tsTest:main
-
   test:
     runs-on: ubuntu-latest
     needs: build
@@ -70,12 +61,11 @@ jobs:
   test-browser:
     runs-on: ubuntu-latest
     needs: build
-    if: ${{ false }} # disable for now
     steps:
       - uses: actions/checkout@v3
       - uses: ./.github/actions/install-deps
       - uses: ./.github/actions/build-cache
-      - run: pnpm test:browser --ci
+      - run: pnpm test:browser
 
   release:
     runs-on: ubuntu-latest

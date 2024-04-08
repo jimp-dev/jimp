@@ -55,7 +55,9 @@ describe("All align combinations for contain", () => {
   tests.forEach(([horizontalAlign, verticalAlign]) => {
     const align = horizontalAlign + " " + verticalAlign;
     const alignValue =
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (HorizontalAlign as any)[horizontalAlign] |
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (VerticalAlign as any)[verticalAlign];
 
     test("vertical contain aligned to " + align, () => {

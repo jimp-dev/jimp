@@ -14,6 +14,7 @@ export interface Bitmap {
 
 export interface Format<
   Mime extends string = string,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   ExportOptions extends Record<string, any> | undefined = undefined,
 > {
   mime: Mime;
@@ -51,19 +52,23 @@ export interface JimpClass {
   getPixelColor: (x: number, y: number) => number;
   setPixelColor: (hex: number, x: number, y: number) => JimpClass;
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   scan(f: (x: number, y: number, idx: number) => any): JimpClass;
   scan(
     x: number,
     y: number,
     w: number,
     h: number,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     cb: (x: number, y: number, idx: number) => any
   ): JimpClass;
   scan(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     x: number | ((x: number, y: number, idx: number) => any),
     y?: number,
     w?: number,
     h?: number,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     f?: (x: number, y: number, idx: number) => any
   ): JimpClass;
 }

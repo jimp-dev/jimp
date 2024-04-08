@@ -45,6 +45,7 @@ export const methods = {
     shadow = blurMethods.blur(shadow, blurAmount);
     shadow = colorMethods.opacity(shadow, opacityAmount);
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const blankImage = new (image.constructor as any)({
       width: image.bitmap.width,
       height: image.bitmap.height,

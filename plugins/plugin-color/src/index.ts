@@ -701,7 +701,7 @@ export const methods = {
    */
   pixelate<I extends JimpClass>(image: I, options: PixelateOptions) {
     const parsed = PixelateOptionsSchema.parse(options);
-    let {
+    const {
       size,
       x = 0,
       y = 0,
@@ -843,6 +843,7 @@ export const methods = {
           clr.b = colorModifier("b", action.params[0]);
         } else {
           if (action.apply === "hue") {
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             // @ts-ignore
             action.apply = "spin";
           }
@@ -854,6 +855,7 @@ export const methods = {
             throw new Error("action " + action.apply + " not supported");
           }
 
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           clr = (fn as any)(...(action.params || [])).toRgb();
         }
       });

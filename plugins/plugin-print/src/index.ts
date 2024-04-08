@@ -4,7 +4,7 @@ import { methods as blitMethods } from "@jimp/plugin-blit";
 import { z } from "zod";
 
 import { measureText, measureTextHeight, splitLines } from "./measure-text.js";
-import { BmFont } from "./types.js";
+import { BmCharacter, BmFont } from "./types.js";
 
 export { measureText, measureTextHeight } from "./measure-text.js";
 export * from "./types.js";
@@ -57,7 +57,7 @@ function drawCharacter<I extends JimpClass>(
   font: BmFont<I>,
   x: number,
   y: number,
-  char: any
+  char: BmCharacter
 ) {
   if (char.width > 0 && char.height > 0) {
     const characterPage = font.pages[char.page];
@@ -102,7 +102,9 @@ function printText<I extends JimpClass>(
     const fontChar = font.chars[char] || { xadvance: undefined };
     const fontKerning = font.kernings[char];
 
-    drawCharacter(image, font, x, y, fontChar || {});
+    if (fontChar) {
+      drawCharacter(image, font, x, y, fontChar as BmCharacter);
+    }
 
     const nextChar = text[i + 1];
     const kerning =
@@ -142,11 +144,15 @@ export const methods = {
     }
   ) {
     let {
+      // eslint-disable-next-line prefer-const
       x,
       y,
       text,
+      // eslint-disable-next-line prefer-const
       maxWidth = Infinity,
+      // eslint-disable-next-line prefer-const
       maxHeight = Infinity,
+      // eslint-disable-next-line prefer-const
       cb = () => {},
     } = PrintOptionsSchema.parse(options);
 

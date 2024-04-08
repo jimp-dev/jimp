@@ -31,6 +31,7 @@ export const methods = {
     let {
       max,
       replace = 255,
+      // eslint-disable-next-line prefer-const
       autoGreyscale = true,
     } = ThresholdOptionsSchema.parse(options);
 

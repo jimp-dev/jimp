@@ -27,7 +27,8 @@ function parseFont(
   chars: BmCharacter[];
   kernings: BmKerning[];
   common: BmCommonProps;
-  info: {};
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  info: Record<string, any>;
   pages: string[];
 } {
   if (isBinary(data)) {

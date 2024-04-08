@@ -8,11 +8,13 @@ export function clone<I extends JimpClass>(image: I): I {
     data: Buffer.from(image.bitmap.data),
   };
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   return new (image.constructor as any)(newBitmap);
 }
 
 export function scan<I extends JimpClass>(
   image: I,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   f: (this: I, x: number, y: number, idx: number) => any
 ): I;
 export function scan<I extends { bitmap: Bitmap }>(
@@ -21,20 +23,24 @@ export function scan<I extends { bitmap: Bitmap }>(
   y: number,
   w: number,
   h: number,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   cb: (x: number, y: number, idx: number) => any
 ): I;
 export function scan<I extends { bitmap: Bitmap }>(
   image: I,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   xArg: number | ((x: number, y: number, idx: number) => any),
   yArg?: number,
   wArg?: number,
   hArg?: number,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   cbArg?: (x: number, y: number, idx: number) => any
 ): I {
   let x: number;
   let y: number;
   let w: number;
   let h: number;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let cb: (x: number, y: number, idx: number) => any;
 
   if (typeof xArg === "function") {
