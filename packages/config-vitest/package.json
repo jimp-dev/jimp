@@ -1,6 +1,7 @@
 {
   "name": "@jimp/config-vitest",
   "version": "1.0.0",
+  "private": true,
   "repository": "jimp-dev/jimp",
   "scripts": {
     "lint": "eslint .",

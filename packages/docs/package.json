@@ -7,7 +7,7 @@
     "lint": "eslint .",
     "dev": "astro dev",
     "start": "astro dev",
-    "build-off": "astro check && astro build",
+    "build-website": "rm -rf dist && astro check && astro build",
     "preview": "astro preview",
     "astro": "astro"
   },

@@ -36,8 +36,10 @@ export default defineConfig({
           label: "Docs",
           items: [
             // Each item here is one entry in the navigation menu.
-            { label: "Example Guide", link: "/guides/example/" },
+            { label: "Getting Started", link: "/guides/getting-started/" },
             { label: "Using in Browser", link: "/guides/browser/" },
+            { label: "Writing Plugins", link: "/guides/writing-plugins/" },
+            { label: "Custom Jimp", link: "/guides/custom-jimp/" },
           ],
         },
         typeDocSidebarGroup,
