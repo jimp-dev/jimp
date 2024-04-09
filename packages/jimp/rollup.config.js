@@ -4,6 +4,7 @@ import commonjs from "@rollup/plugin-commonjs";
 import alias from "@rollup/plugin-alias";
 import nodePolyfills from "rollup-plugin-polyfill-node";
 import inject from "@rollup/plugin-inject";
+import terser from "@rollup/plugin-terser";
 
 export default [
   {
@@ -20,6 +21,7 @@ export default [
       inject({ Buffer: ["buffer", "Buffer"] }),
       commonjs(),
       nodePolyfills(),
+      terser(),
     ],
     output: [
       {
