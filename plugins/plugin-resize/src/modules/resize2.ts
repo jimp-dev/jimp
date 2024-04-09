@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /**
  * Copyright (c) 2015 Guyon Roche
  *
@@ -20,8 +21,8 @@
  * THE SOFTWARE.
  */
 
-const operations = {
-  nearestNeighbor(src, dst) {
+export const operations = {
+  nearestNeighbor(src: any, dst: any) {
     const wSrc = src.width;
     const hSrc = src.height;
 
@@ -47,7 +48,7 @@ const operations = {
     }
   },
 
-  bilinearInterpolation(src, dst) {
+  bilinearInterpolation(src: any, dst: any) {
     const wSrc = src.width;
     const hSrc = src.height;
 
@@ -57,7 +58,13 @@ const operations = {
     const bufSrc = src.data;
     const bufDst = dst.data;
 
-    const interpolate = function (k, kMin, vMin, kMax, vMax) {
+    const interpolate = function (
+      k: number,
+      kMin: number,
+      vMin: number,
+      kMax: number,
+      vMax: number
+    ) {
       // special case - k is integer
       if (kMin === kMax) {
         return vMin;
@@ -66,7 +73,16 @@ const operations = {
       return Math.round((k - kMin) * vMax + (kMax - k) * vMin);
     };
 
-    const assign = function (pos, offset, x, xMin, xMax, y, yMin, yMax) {
+    const assign = function (
+      pos: number,
+      offset: number,
+      x: number,
+      xMin: number,
+      xMax: number,
+      y: number,
+      yMin: number,
+      yMax: number
+    ) {
       let posMin = (yMin * wSrc + xMin) * 4 + offset;
       let posMax = (yMin * wSrc + xMax) * 4 + offset;
       const vMin = interpolate(x, xMin, bufSrc[posMin], xMax, bufSrc[posMax]);
@@ -103,7 +119,7 @@ const operations = {
     }
   },
 
-  _interpolate2D(src, dst, options, interpolate) {
+  _interpolate2D(src: any, dst: any, options?: any, interpolate?: any) {
     const bufSrc = src.data;
     const bufDst = dst.data;
 
@@ -175,13 +191,13 @@ const operations = {
           const y0 =
             yPos > 0
               ? buf1[kPos - wDst2 * 4]
-              : 2 * buf1[kPos] - buf1[kPos + wDst2 * 4];
+              : 2 * buf1[kPos]! - buf1[kPos + wDst2 * 4]!;
           const y1 = buf1[kPos];
           const y2 = buf1[kPos + wDst2 * 4];
           const y3 =
             yPos < hSrc - 2
               ? buf1[kPos + wDst2 * 8]
-              : 2 * buf1[kPos + wDst2 * 4] - buf1[kPos];
+              : 2 * buf1[kPos + wDst2 * 4]! - buf1[kPos]!;
 
           buf2[buf2Pos + k] = interpolate(y0, y1, y2, y3, t);
         }
@@ -208,12 +224,12 @@ const operations = {
             for (let x = 0; x < wM; x++) {
               const xPos = j * wM + x;
               const xyPos = (yPos * wDst2 + xPos) * 4;
-              const pixelAlpha = buf2[xyPos + 3];
+              const pixelAlpha = buf2[xyPos + 3]!;
 
               if (pixelAlpha) {
-                r += buf2[xyPos];
-                g += buf2[xyPos + 1];
-                b += buf2[xyPos + 2];
+                r += buf2[xyPos]!;
+                g += buf2[xyPos + 1]!;
+                b += buf2[xyPos + 2]!;
                 realColors++;
               }
 
@@ -234,8 +250,14 @@ const operations = {
     }
   },
 
-  bicubicInterpolation(src, dst, options) {
-    const interpolateCubic = function (x0, x1, x2, x3, t) {
+  bicubicInterpolation(src: any, dst: any, options?: any) {
+    const interpolateCubic = function (
+      x0: number,
+      x1: number,
+      x2: number,
+      x3: number,
+      t: number
+    ) {
       const a0 = x3 - x2 - x0 + x1;
       const a1 = x0 - x1 - a0;
       const a2 = x2 - x0;
@@ -249,8 +271,14 @@ const operations = {
     return this._interpolate2D(src, dst, options, interpolateCubic);
   },
 
-  hermiteInterpolation(src, dst, options) {
-    const interpolateHermite = function (x0, x1, x2, x3, t) {
+  hermiteInterpolation(src: any, dst: any, options?: any) {
+    const interpolateHermite = function (
+      x0: number,
+      x1: number,
+      x2: number,
+      x3: number,
+      t: number
+    ) {
       const c0 = x1;
       const c1 = 0.5 * (x2 - x0);
       const c2 = x0 - 2.5 * x1 + 2 * x2 - 0.5 * x3;
@@ -264,7 +292,7 @@ const operations = {
     return this._interpolate2D(src, dst, options, interpolateHermite);
   },
 
-  bezierInterpolation(src, dst, options) {
+  bezierInterpolation(src: any, dst: any, options?: any) {
     // between 2 points y(n), y(n+1), use next points out, y(n-1), y(n+2)
     // to predict control points (a & b) to be placed at n+0.5
     //  ya(n) = y(n) + (y(n+1)-y(n-1))/4
@@ -276,7 +304,13 @@ const operations = {
     //  y(-1) = y(0) - 2*(y(1)-y(0))
     //  y(w) = y(w-1) + 2*(y(w-1)-y(w-2))
     // but can go with y(-1) = y(0) and y(w) = y(w-1)
-    const interpolateBezier = function (x0, x1, x2, x3, t) {
+    const interpolateBezier = function (
+      x0: number,
+      x1: number,
+      x2: number,
+      x3: number,
+      t: number
+    ) {
       // x1, x2 are the knots, use x0 and x3 to calculate control points
       const cp1 = x1 + (x2 - x0) / 4;
       const cp2 = x2 - (x3 - x1) / 4;
@@ -291,5 +325,3 @@ const operations = {
     return this._interpolate2D(src, dst, options, interpolateBezier);
   },
 };
-
-export default operations;

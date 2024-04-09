@@ -1,3 +1,5 @@
+// @ts-nocheck
+
 // JavaScript Image Resizer (c) 2012 - Grant Galitz
 // Released to public domain 29 July 2013: https://github.com/grantgalitz/JS-Image-Resizer/issues/4
 

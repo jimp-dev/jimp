@@ -6,24 +6,6 @@ import path from "path";
 import { NodeGlobalsPolyfillPlugin } from "@esbuild-plugins/node-globals-polyfill";
 
 export default defineConfig({
-  vite: {
-    optimizeDeps: {
-      // Only needed for this repo
-      include: [
-        "@jimp/core",
-        "@jimp/plugin-print",
-        "@jimp/plugin-print/load-font",
-      ],
-      // Needed for anyone using the browser
-      // Mainly just for Buffer
-      esbuildOptions: {
-        define: {
-          global: "globalThis",
-        },
-        plugins: [NodeGlobalsPolyfillPlugin({ buffer: true })],
-      },
-    },
-  },
   integrations: [
     react(),
     starlight({

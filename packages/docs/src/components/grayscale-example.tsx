@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Jimp } from "jimp";
+import { Jimp } from "jimp/browser";
 
 export function GrayscaleExample() {
   const [selectedFile, setSelectedFile] = useState("");

@@ -3,9 +3,25 @@ import { ResizeStrategy } from "./constants.js";
 import { z } from "zod";
 
 import Resize from "./modules/resize.js";
-import Resize2 from "./modules/resize2.js";
+import { operations as Resize2 } from "./modules/resize2.js";
 
 export * from "./constants.js";
+
+interface ResizeClass {
+  // eslint-disable-next-line @typescript-eslint/no-misused-new
+  new (
+    widthOriginal: number,
+    heightOriginal: number,
+    targetWidth: number,
+    targetHeight: number,
+    blendAlpha: boolean,
+    interpolationPass: boolean,
+    resizeCallback: (buffer: Buffer) => void
+  ): ResizeClass;
+  resize(buffer: Buffer): void;
+}
+
+type Constructable<T> = new (...args: any[]) => T;
 
 const ResizeOptionsSchema = z.union([
   z.object({
@@ -92,14 +108,14 @@ export const methods = {
       Resize2[mode](image.bitmap, dst);
       image.bitmap = dst;
     } else {
-      const resize = new Resize(
+      const resize = new (Resize as unknown as Constructable<ResizeClass>)(
         image.bitmap.width,
         image.bitmap.height,
         w,
         h,
         true,
         true,
-        (buffer) => {
+        (buffer: Buffer) => {
           image.bitmap.data = Buffer.from(buffer);
           image.bitmap.width = w;
           image.bitmap.height = h;

@@ -2,6 +2,7 @@
   "name": "@jimp/plugin-print",
   "version": "1.0.0",
   "repository": "jimp-dev/jimp",
+  "sideEffects": false,
   "scripts": {
     "lint": "eslint .",
     "test": "vitest",
