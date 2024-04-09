@@ -83,9 +83,9 @@ importers:
 
   packages/core:
     dependencies:
-      '@jimp/read-file':
+      '@jimp/file-ops':
         specifier: workspace:*
-        version: link:../read-file
+        version: link:../file-ops
       '@jimp/types':
         specifier: workspace:*
         version: link:../types
@@ -104,6 +104,9 @@ importers:
       file-type:
         specifier: ^16.0.0
         version: 16.5.4
+      mime:
+        specifier: '3'
+        version: 3.0.0
     devDependencies:
       '@jimp/config-eslint':
         specifier: workspace:*
@@ -117,6 +120,9 @@ importers:
       '@types/file-type':
         specifier: ^10.9.1
         version: 10.9.1
+      '@types/mime':
+        specifier: ^3.0.4
+        version: 3.0.4
       eslint:
         specifier: ^8.57.0
         version: 8.57.0
@@ -227,6 +233,30 @@ importers:
       '@types/react':
         specifier: ^18.2.73
         version: 18.2.73
+
+  packages/file-ops:
+    devDependencies:
+      '@jimp/config-eslint':
+        specifier: workspace:*
+        version: link:../config-eslint
+      '@jimp/config-typescript':
+        specifier: workspace:*
+        version: link:../config-typescript
+      '@types/node':
+        specifier: ^20.12.5
+        version: 20.12.5
+      eslint:
+        specifier: ^8.57.0
+        version: 8.57.0
+      tshy:
+        specifier: ^1.12.0
+        version: 1.12.0
+      typescript:
+        specifier: ^5.4.2
+        version: 5.4.3
+      vitest:
+        specifier: ^1.4.0
+        version: 1.4.0(@types/node@20.12.5)(@vitest/browser@1.4.0)
 
   packages/jimp:
     dependencies:
@@ -366,30 +396,6 @@ importers:
       vite-plugin-node-polyfills:
         specifier: ^0.21.0
         version: 0.21.0(rollup@4.14.1)(vite@5.1.6)
-      vitest:
-        specifier: ^1.4.0
-        version: 1.4.0(@types/node@20.12.5)(@vitest/browser@1.4.0)
-
-  packages/read-file:
-    devDependencies:
-      '@jimp/config-eslint':
-        specifier: workspace:*
-        version: link:../config-eslint
-      '@jimp/config-typescript':
-        specifier: workspace:*
-        version: link:../config-typescript
-      '@types/node':
-        specifier: ^20.12.5
-        version: 20.12.5
-      eslint:
-        specifier: ^8.57.0
-        version: 8.57.0
-      tshy:
-        specifier: ^1.12.0
-        version: 1.12.0
-      typescript:
-        specifier: ^5.4.2
-        version: 5.4.3
       vitest:
         specifier: ^1.4.0
         version: 1.4.0(@types/node@20.12.5)(@vitest/browser@1.4.0)
@@ -3464,6 +3470,10 @@ packages:
   /@types/mime@1.3.5:
     resolution: {integrity: sha512-/pyBZWSLD2n0dcHE3hq8s8ZvcETHtEuF+3E7XVt0Ig2nvsVQXdghHVcEkIWjy9A0wKfTn97a/PSDYohKIlnP/w==}
     dev: false
+
+  /@types/mime@3.0.4:
+    resolution: {integrity: sha512-iJt33IQnVRkqeqC7PzBHPTC6fDlRNRW8vjrgqtScAhrmMwe8c4Eo7+fUGTa+XdWrpEgpyKWMYmi2dIwMAYRzPw==}
+    dev: true
 
   /@types/minimatch@5.1.2:
     resolution: {integrity: sha512-K0VQKziLUWkVKiRVrx4a40iPaxTUefQmjtkQofBkYRcoaaL/8rhwDWww9qWbrgicNOgnpIsMxyNIUM4+n6dUIA==}

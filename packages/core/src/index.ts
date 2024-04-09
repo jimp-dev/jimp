@@ -2,7 +2,8 @@ import { Bitmap, Format, JimpClass, Edge } from "@jimp/types";
 import { cssColorToHex, scan, scanIterator } from "@jimp/utils";
 import fileType from "file-type/core.js";
 import { to } from "await-to-js";
-import { existsSync, readFile } from "@jimp/read-file";
+import { existsSync, readFile, writeFile } from "@jimp/file-ops";
+import mime from "mime/lite.js";
 
 import { composite } from "./utils/composite.js";
 import { BlendMode } from "./index.js";
@@ -104,9 +105,15 @@ type JimpFormat<
 
 type CreateMimeTypeToExportOptions<T extends Format<string, any>> =
   T extends Format<infer M, infer O> ? Record<M, O> : never;
-
 type GetOptionsForMimeType<Mime extends string, MimeTypeMap> =
   MimeTypeMap extends Record<Mime, infer O> ? O : never;
+
+type PathWithExtension<E extends string> = `${string}.${E}`;
+type MimeToExtension<M extends string> = `${string}/${M}`;
+type CreateExtensionToMimeType<M extends string> =
+  M extends MimeToExtension<infer E> ? Record<E, M> : never;
+type GetMimeTypeForExtension<Mime extends string, MimeTypeMap> =
+  MimeTypeMap extends Record<Mime, infer M> ? M : never;
 
 /**
  * Create a Jimp class that support the given image formats and methods
@@ -131,6 +138,7 @@ export function createJimp<
   type MimeTypeToExportOptions = CreateMimeTypeToExportOptions<
     ReturnType<Formats[number]>
   >;
+  type ExtensionToMimeType = CreateExtensionToMimeType<SupportedMimeTypes>;
 
   const plugins = pluginsArg || [];
   const formats = (formatsArg || []).map((format) => format());
@@ -357,10 +365,9 @@ export function createJimp<
      *
      * const image = new Jimp({ width: 3, height: 3, color: 0xffffffff });
      *
-     * const buffer = await image.getBuffer("image/jpeg", {
+     * await image.write("test/output.jpeg", {
      *   quality: 50,
      * });
-     * await fs.writeFile("test/output.jpeg", buffer);
      * ```
      */
     async getBuffer<
@@ -422,6 +429,18 @@ export function createJimp<
     >(mime: ProvidedMimeType, options?: Options) {
       const data = await this.getBuffer(mime, options);
       return "data:" + mime + ";base64," + data.toString("base64");
+    }
+
+    async write<
+      Extension extends string,
+      Mime extends GetMimeTypeForExtension<Extension, ExtensionToMimeType>,
+      Options extends GetOptionsForMimeType<Mime, MimeTypeToExportOptions>,
+    >(path: PathWithExtension<Extension>, options?: Options) {
+      const mimeType = mime.getType(path);
+      await writeFile(
+        path,
+        await this.getBuffer(mimeType as SupportedMimeTypes, options)
+      );
     }
 
     /**

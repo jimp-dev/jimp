@@ -71,8 +71,7 @@ import { createJimp } from "@jimp/core";
  * image.resize(256, 100);
  * image.greyscale();
  *
- * const output = await image.getBuffer("test/image.png");
- * await fs.writeFile("test/output.png", output);
+ * await image.write('test/output.png');
  * ```
  *
  * #### Browser

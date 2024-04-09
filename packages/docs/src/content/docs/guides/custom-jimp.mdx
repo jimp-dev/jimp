@@ -25,6 +25,5 @@ const image = await MyJimp.read("test/image.png");
 
 image.resize({ width: 100 });
 
-const buffer = await image.getBuffer("image/png");
-await fs.writeFile("test/output.png", buffer);
+await image.write("test/output.png");
 ```

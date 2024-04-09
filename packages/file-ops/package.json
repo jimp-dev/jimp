@@ -1,5 +1,5 @@
 {
-  "name": "@jimp/read-file",
+  "name": "@jimp/file-ops",
   "version": "1.0.0",
   "repository": "jimp-dev/jimp",
   "scripts": {

@@ -6,7 +6,7 @@
     "lint": "eslint .",
     "test": "vitest",
     "test:browser": "vitest --config vitest.config.browser.ts",
-    "build": "tshy && mkdir dist/esm/modules/ && cp src/modules/* dist/esm/modules/ && mkdir dist/commonjs/modules/ && cp src/modules/* dist/commonjs/modules/",
+    "build": "tshy",
     "dev": "tshy --watch"
   },
   "author": "Andrew Lisowski <lisowski54@gmail.com>",
