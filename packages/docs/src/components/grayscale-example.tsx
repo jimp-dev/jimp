@@ -1,4 +1,6 @@
 import React, { useEffect, useState } from "react";
+
+// This version is bundled into a single file that can be used in the browser.
 import { Jimp } from "jimp/browser";
 
 export function GrayscaleExample() {
@@ -21,6 +23,7 @@ export function GrayscaleExample() {
         return;
       }
 
+      // Manipulate images uploaded directly from the website.
       const image = await Jimp.fromBuffer(data);
 
       image.greyscale();
@@ -33,6 +36,7 @@ export function GrayscaleExample() {
   }
 
   useEffect(() => {
+    // Or load images hosted on the same domain.
     Jimp.read("/dice.png").then(async (image) => {
       setSelectedFile(await image.getBase64("image/png"));
       image.greyscale();
