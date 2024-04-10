@@ -11,16 +11,18 @@ export default [
     input: `src/index.ts`,
     plugins: [
       esbuild(),
+
+      // Polyfill Node.js builtins
+      nodePolyfills(),
+      nodeResolve({ browser: true, preferBuiltins: false }),
+      commonjs(),
+      inject({ Buffer: ["buffer", "Buffer"] }),
+
+      // Use the browser version of some packages
       alias({
-        // Use the browser version of pngjs
         entries: [{ find: "pngjs", replacement: "pngjs/browser" }],
       }),
-      // Polyfill Node.js builtins
-      nodeResolve({ preferBuiltins: false, browser: true }),
-      // Polyfill Node.js globals
-      inject({ Buffer: ["buffer", "Buffer"] }),
-      commonjs(),
-      nodePolyfills(),
+
       terser(),
     ],
     output: [
@@ -28,6 +30,7 @@ export default [
         file: `browser.js`,
         format: "es",
         sourcemap: true,
+        inlineDynamicImports: true,
       },
     ],
   },
