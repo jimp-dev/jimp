@@ -26,6 +26,7 @@
     "starlight-typedoc": "^0.10.0",
     "typedoc": "^0.25.12",
     "typedoc-plugin-markdown": "next",
+    "typedoc-plugin-zod": "^1.1.2",
     "typescript": "^5.4.3"
   },
   "devDependencies": {

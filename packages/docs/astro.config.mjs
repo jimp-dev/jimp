@@ -37,6 +37,7 @@ export default defineConfig({
             groupOrder: ["Classes", "Functions", "Enumerations", "Variables"],
             sort: ["static-first", "alphabetical"],
             plugin: [
+              "typedoc-plugin-zod",
               path.join(
                 path.dirname(import.meta.url).replace("file:", ""),
                 "./src/typedoc-plugin.js"
