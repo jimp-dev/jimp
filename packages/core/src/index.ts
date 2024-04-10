@@ -431,6 +431,23 @@ export function createJimp<
       return "data:" + mime + ";base64," + data.toString("base64");
     }
 
+    /**
+     * Write the image to a file
+     * @param path the path to write the image to
+     * @param options the options to use when writing the image
+     * @example
+     * ```ts
+     * import { Jimp } from "jimp";
+     *
+     * const image = Jimp.fromBuffer(Buffer.from([
+     *   0xff, 0x00, 0x00, 0x00, 0xff, 0x00, 0x00, 0x00,
+     *   0xff, 0x00, 0x00, 0x00, 0xff, 0x00, 0x00, 0x00,
+     *   0xff, 0x00, 0x00, 0x00, 0xff, 0x00, 0x00, 0x00,
+     * ]));
+     *
+     * await image.write("test/output.png");
+     * ```
+     */
     async write<
       Extension extends string,
       Mime extends GetMimeTypeForExtension<Extension, ExtensionToMimeType>,
