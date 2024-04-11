@@ -85,7 +85,6 @@ export function load(app) {
 
       if (refOrig.type.name === "I" || refOrig.type.name.startsWith("I_")) {
         refOrig.type.name = "Jimp";
-        refOrig.type.description = "butts";
       }
     }
 

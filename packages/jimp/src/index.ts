@@ -141,8 +141,13 @@ export type {
   DesaturateAction,
 } from "@jimp/plugin-color";
 export type { CircleOptions } from "@jimp/plugin-circle";
-export type { AutocropOptions } from "@jimp/plugin-crop";
+export type { AutocropOptions, CropOptions } from "@jimp/plugin-crop";
 export { ResizeStrategy } from "@jimp/plugin-resize";
+export type {
+  ScaleOptions,
+  ResizeOptions,
+  ScaleToFitOptions,
+} from "@jimp/plugin-resize";
 export type { ThresholdOptions } from "@jimp/plugin-threshold";
 export { distance, compareHashes } from "@jimp/plugin-hash";
 export type { JPEGOptions } from "@jimp/js-jpeg";
@@ -166,3 +171,8 @@ export {
   limit255,
   cssColorToHex,
 } from "@jimp/utils";
+export type { FlipOptions } from "@jimp/plugin-flip";
+export type { FisheyeOptions } from "@jimp/plugin-fisheye";
+export type { DisplaceOptions } from "@jimp/plugin-displace";
+export type { CoverOptions } from "@jimp/plugin-cover";
+export type { ContainOptions } from "@jimp/plugin-contain";

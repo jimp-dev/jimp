@@ -4,10 +4,14 @@ import { JimpClass } from "@jimp/types";
 import { colorDiff, intToRGBA, scan } from "@jimp/utils";
 import { z } from "zod";
 
-const CropOptionsSchema = z.object({
+export const CropOptionsSchema = z.object({
+  /** the x position to crop form */
   x: z.number(),
+  /** the y position to crop form */
   y: z.number(),
+  /** the width to crop form */
   w: z.number(),
+  /** the height to crop form */
   h: z.number(),
 });
 
