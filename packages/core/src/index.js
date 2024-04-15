@@ -983,16 +983,16 @@ Jimp.diff = function (img1, img2, threshold = 0.1) {
   if (!(img1 instanceof Jimp) || !(img2 instanceof Jimp))
     return throwError.call(this, "img1 and img2 must be an Jimp images");
 
-  const bmp1 = img1.bitmap;
-  const bmp2 = img2.bitmap;
+  let bmp1 = img1.bitmap;
+  let bmp2 = img2.bitmap;
 
   if (bmp1.width !== bmp2.width || bmp1.height !== bmp2.height) {
     if (bmp1.width * bmp1.height > bmp2.width * bmp2.height) {
       // img1 is bigger
-      img1 = img1.cloneQuiet().resize(bmp2.width, bmp2.height);
+      bmp1 = img1.cloneQuiet().resize(bmp2.width, bmp2.height).bitmap;
     } else {
       // img2 is bigger (or they are the same in area)
-      img2 = img2.cloneQuiet().resize(bmp1.width, bmp1.height);
+      bmp2 = img2.cloneQuiet().resize(bmp1.width, bmp1.height).bitmap;
     }
   }
 
