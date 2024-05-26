@@ -7,7 +7,7 @@ Example usage:
 ```html
 <script src="jimp.min.js"></script>
 <script>
-  Jimp.read("lenna.png")
+  Jimp.read("boats.png")
     .then(function (lenna) {
       lenna
         .resize(256, 256) // resize
@@ -41,7 +41,7 @@ worker.onmessage = function (e) {
   img.setAttribute("src", e.data);
   document.body.appendChild(img);
 };
-worker.postMessage("lenna.png"); // message the worker thread
+worker.postMessage("boats.png"); // message the worker thread
 ```
 
 ```js

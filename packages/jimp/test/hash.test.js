@@ -45,16 +45,16 @@ describe("hash", () => {
   });
 
   it("base 17", async () => {
-    const image = await jimp.read(imagesDir + "/lenna.png");
+    const image = await jimp.read(imagesDir + "/boats.png");
 
-    expect(image.hash(17)).toBe("4fa6aga5a64ad0c1");
+    expect(image.hash(17)).toBe("54ge561ddb1b75c8");
   });
 });
 
 describe("pHash", () => {
   it("should calculate the distance using distanceFromHash", async function () {
     this.timeout(10000);
-    const image1 = await Jimp.read(imagesDir + "/lenna.png");
+    const image1 = await Jimp.read(imagesDir + "/boats.png");
     const image2 = await Jimp.read(imagesDir + "/mask.png");
 
     const hash = image1.pHash();
@@ -63,7 +63,7 @@ describe("pHash", () => {
 
   it("should calculate the distance using compareHashes.", async function () {
     this.timeout(10000);
-    const image1 = await Jimp.read(imagesDir + "/lenna.png");
+    const image1 = await Jimp.read(imagesDir + "/boats.png");
     const image2 = await Jimp.read(imagesDir + "/mask.png");
 
     const hash1 = image1.pHash();

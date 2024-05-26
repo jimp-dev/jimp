@@ -28,8 +28,8 @@ Example usage (Promise will never resolve if callback is passed):
 ```js
 var Jimp = require("jimp");
 
-// open a file called "lenna.png"
-Jimp.read("lenna.png", (err, lenna) => {
+// open a file called "boats.png"
+Jimp.read("boats.png", (err, lenna) => {
   if (err) throw err;
   lenna
     .resize(256, 256) // resize
@@ -42,7 +42,7 @@ Jimp.read("lenna.png", (err, lenna) => {
 Using promises:
 
 ```js
-Jimp.read("lenna.png")
+Jimp.read("boats.png")
   .then((lenna) => {
     return lenna
       .resize(256, 256) // resize
@@ -759,7 +759,7 @@ Jimp.compareHashes(hash1, hash2); // same result as above
 Most instance methods can be chained together, for example as follows:
 
 ```js
-Jimp.read("lenna.png").then((image) => {
+Jimp.read("boats.png").then((image) => {
   image.greyscale().scale(0.5).write("lena-half-bw.png");
 });
 ```
@@ -767,7 +767,7 @@ Jimp.read("lenna.png").then((image) => {
 Alternatively, methods can be passed Node-style callbacks:
 
 ```js
-Jimp.read("lenna.png").then((image) => {
+Jimp.read("boats.png").then((image) => {
   image.greyscale((err, image) => {
     image.scale(0.5, (err, image) => {
       image.write("lena-half-bw.png");
