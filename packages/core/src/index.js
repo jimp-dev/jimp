@@ -1,6 +1,6 @@
 import fs from "fs";
 import Path from "path";
-import EventEmitter from "events";
+import * as EventEmitter from "events";
 
 import { isNodePattern, throwError, scan, scanIterator } from "@jimp/utils";
 import anyBase from "any-base";
