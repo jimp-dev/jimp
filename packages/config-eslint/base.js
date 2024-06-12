@@ -34,6 +34,7 @@ module.exports = {
     ".*.js",
     "node_modules/",
     "dist/",
+    "**/browser.js",
   ],
   overrides: [
     {

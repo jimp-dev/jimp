@@ -6,8 +6,6 @@ describe("hasAlpha", () => {
   test("image with no alpha", async () => {
     const image = await Jimp.read(getTestImagePath("cops.jpg"));
     expect(image.hasAlpha()).toBe(false);
-
-    await image.write("test/output.png");
   });
 
   test("image with alpha", async () => {
