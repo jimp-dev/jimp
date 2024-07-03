@@ -740,7 +740,7 @@ class Jimp extends EventEmitter {
       return throwError.call(this, "x and y must be numbers", cb);
 
     const idx = this.getPixelIndex(x, y);
-    const hex = this.bitmap.data.readUInt32BE(idx);
+    const hex = this.bitmap.data.readUInt32LE(idx);
 
     if (isNodePattern(cb)) {
       cb.call(this, null, hex);
