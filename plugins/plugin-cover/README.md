@@ -131,56 +131,7 @@ Jimp.read({
   });
 ```
 
-Jimp uses [phin](https://github.com/ethanent/phin) as its HTTP client. Phin uses [`http.request(options[, callback])`](https://nodejs.org/dist/latest-v8.x/docs/api/http.html#http_http_request_options_callback) or [`https.request(options[, callback])`](https://nodejs.org/dist/latest-v8.x/docs/api/https.html#https_https_request_options_callback) methods for making HTTP requests. Phin parses a `url` with the `url.parse(...)` method and passes it with all the other parameters as an `options` to the [`http.request(options[, callback])`](https://nodejs.org/dist/latest-v8.x/docs/api/http.html#http_http_request_options_callback) or [`https.request(options[, callback])`](https://nodejs.org/dist/latest-v8.x/docs/api/https.html#https_https_request_options_callback) methods.
-
-Briefly speaking, you can pass any options from [`http.request(options[, callback])`](https://nodejs.org/dist/latest-v8.x/docs/api/http.html#http_http_request_options_callback), [`https.request(options[, callback])`](https://nodejs.org/dist/latest-v8.x/docs/api/https.html#https_https_request_options_callback) or even [`tls.connect(options[, callback])`](https://nodejs.org/dist/latest-v8.x/docs/api/tls.html#tls_tls_connect_options_callback).
-
-Phin parses a `url` and combines it with any options you want. This behavior can be very useful when you need to pass some additional `headers`. Also, you can pass `rejectUnauthorized: false` if you don't require an SSL certificate to be valid (it helps to prevent `unable to verify the first certificate` error).
-
 The convenience method `Jimp.create` also exists. It is just a wrapper around `Jimp.read`.
-
-### Custom Constructor
-
-You might want to initialize jimp in so custom way. To do this Jimp exposes the static function `appendConstructorOption`. The appended constructor options run after all the defaults.
-
-To define a custom constructor provide a name for it, a function to call to determine if the arguments provided to jimp match your constructor, and a function called where you can construct the image however you want.
-
-```js
-Jimp.appendConstructorOption(
-  "Name of Option",
-  (args) => arg.hasSomeCustomThing,
-  function (resolve, reject, args) {
-    this.bitmap = customParser(args);
-    resolve();
-  },
-);
-```
-
-If you don't want to handle parsing the bitmap. For example if you want to do some sort of authentication for URL request. Jimp exposes `parseBitmap` so you can fall back to jimp to do the heavy lifting.
-
-Parse bitmap takes the raw image data in a Buffer, a path (optional), and a node style callback.
-
-```js
-Jimp.appendConstructorOption(
-  "Custom Url",
-  (options) => options.url,
-  function (resolve, reject, options) {
-    phin(options, (err, res) => {
-      if (err) {
-        return reject(err);
-      }
-
-      this.parseBitmap(res.body, options.url, (err) => {
-        if (err) {
-          return reject(err);
-        }
-
-        resolve();
-      });
-    });
-  },
-);
-```
 
 ### Methods
 
@@ -373,7 +324,7 @@ Jimp.loadFont(pathOrURL).then((font) => {
       alignmentY: Jimp.VERTICAL_ALIGN_MIDDLE,
     },
     maxWidth,
-    maxHeight,
+    maxHeight
   ); // prints 'Hello world!' on an image, middle and center-aligned, when x = 0 and y = 0
 });
 ```
@@ -418,7 +369,7 @@ Jimp.measureText(await Jimp.loadFont(Jimp.FONT_SANS_32_BLACK), "Some string"); /
 Jimp.measureTextHeight(
   await Jimp.loadFont(Jimp.FONT_SANS_32_BLACK),
   "Some string",
-  100,
+  100
 ); // height of text
 ```
 
@@ -436,7 +387,7 @@ Jimp.loadFont(Jimp.FONT_SANS_32_BLACK).then((font) => {
     50,
     (err, image, { x, y }) => {
       image.print(font, x, y + 20, "More text on another line", 50);
-    },
+    }
   );
 });
 ```
@@ -626,7 +577,7 @@ for (const { x, y, idx, image } of image.scanIterator(
   0,
   0,
   image.bitmap.width,
-  image.bitmap.height,
+  image.bitmap.height
 )) {
 }
 ```
