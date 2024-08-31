@@ -3,9 +3,10 @@ import starlight from "@astrojs/starlight";
 import starlightTypeDoc, { typeDocSidebarGroup } from "starlight-typedoc";
 import react from "@astrojs/react";
 import path from "path";
-import { NodeGlobalsPolyfillPlugin } from "@esbuild-plugins/node-globals-polyfill";
 
 export default defineConfig({
+  site: "https://jimp-dev.github.io",
+  base: "jimp",
   integrations: [
     react(),
     starlight({

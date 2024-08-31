@@ -1,10 +1,4 @@
-import {
-  Converter,
-  ReflectionKind,
-  ReferenceType,
-  TypeScript,
-  Comment,
-} from "typedoc";
+import { Converter, TypeScript, Comment } from "typedoc";
 
 function sourceKey(source) {
   return source.fileName + ":" + source.line + ":" + source.character;
@@ -38,7 +32,7 @@ export function load(app) {
     toUpdate.set(key, options);
   });
 
-  function onCreateDeclaration(context, refl) {
+  function onCreateDeclaration(_, refl) {
     console.log(refl.name);
     if (refl.name.endsWith("Options")) {
       const declaration = refl.project

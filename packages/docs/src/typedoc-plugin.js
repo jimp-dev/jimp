@@ -5,13 +5,12 @@ export function load(app) {
   const needsUpdate = new Set();
 
   const commentMap = new Map();
-  const needComment = new Set();
 
   let jimpClass;
   let options;
 
   app.converter.on(Converter.EVENT_CREATE_SIGNATURE, onCreateDeclaration);
-  app.converter.on(Converter.EVENT_CREATE_DECLARATION, (c, r) => {
+  app.converter.on(Converter.EVENT_CREATE_DECLARATION, (_, r) => {
     if (r.name === "JimpConstructorOptions") {
       options = r;
     }
@@ -64,7 +63,7 @@ export function load(app) {
     }
   }
 
-  app.converter.on(Converter.EVENT_END, (context) => {
+  app.converter.on(Converter.EVENT_END, () => {
     for (const refOrig of needsUpdate) {
       const i = fullSignaturePath.get(refOrig.name);
 
