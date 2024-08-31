@@ -1,3 +1,36 @@
+# v1.0.0 (Sat Aug 31 2024)
+
+:tada: This release contains work from a new contributor! :tada:
+
+Thank you, Juan Pablo Garcia Ripa ([@Sarabadu](https://github.com/Sarabadu)), for all your work!
+
+#### 💥 Breaking Change
+
+- `@jimp/core`, `@jimp/diff`, `@jimp/file-ops`, `jimp`, `@jimp/test-utils`, `@jimp/types`, `@jimp/utils`, `@jimp/js-bmp`, `@jimp/js-gif`, `@jimp/js-jpeg`, `@jimp/js-png`, `@jimp/js-tiff`, `@jimp/plugin-blit`, `@jimp/plugin-blur`, `@jimp/plugin-circle`, `@jimp/plugin-color`, `@jimp/plugin-contain`, `@jimp/plugin-cover`, `@jimp/plugin-crop`, `@jimp/plugin-displace`, `@jimp/plugin-dither`, `@jimp/plugin-fisheye`, `@jimp/plugin-flip`, `@jimp/plugin-hash`, `@jimp/plugin-mask`, `@jimp/plugin-print`, `@jimp/plugin-resize`, `@jimp/plugin-rotate`, `@jimp/plugin-shadow`, `@jimp/plugin-threshold`
+  - V1 [#1285](https://github.com/jimp-dev/jimp/pull/1285) ([@Sarabadu](https://github.com/Sarabadu) [@hipstersmoothie](https://github.com/hipstersmoothie))
+
+#### ⚠️ Pushed to `main`
+
+- udpate auto ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- add plugins ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- remove CI release ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- `@jimp/core`, `@jimp/diff`, `@jimp/file-ops`, `jimp`, `@jimp/test-utils`, `@jimp/types`, `@jimp/utils`, `@jimp/js-bmp`, `@jimp/js-gif`, `@jimp/js-jpeg`, `@jimp/js-png`, `@jimp/js-tiff`, `@jimp/plugin-blit`, `@jimp/plugin-blur`, `@jimp/plugin-circle`, `@jimp/plugin-color`, `@jimp/plugin-contain`, `@jimp/plugin-cover`, `@jimp/plugin-crop`, `@jimp/plugin-displace`, `@jimp/plugin-dither`, `@jimp/plugin-fisheye`, `@jimp/plugin-flip`, `@jimp/plugin-hash`, `@jimp/plugin-mask`, `@jimp/plugin-print`, `@jimp/plugin-resize`, `@jimp/plugin-rotate`, `@jimp/plugin-shadow`, `@jimp/plugin-threshold`
+  - set side effects ([@hipstersmoothie](https://github.com/hipstersmoothie))
+  - fix versions ([@hipstersmoothie](https://github.com/hipstersmoothie))
+  - add publish config ([@hipstersmoothie](https://github.com/hipstersmoothie))
+
+#### 📝 Documentation
+
+- `@jimp/plugin-cover`
+  - remove outdated docs [#1301](https://github.com/jimp-dev/jimp/pull/1301) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+
+#### Authors: 2
+
+- Andrew Lisowski ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- Juan Pablo Garcia Ripa ([@Sarabadu](https://github.com/Sarabadu))
+
+---
+
 # v0.22.12 (Fri Feb 23 2024)
 
 :tada: This release contains work from a new contributor! :tada:
