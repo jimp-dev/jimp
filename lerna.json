@@ -3,5 +3,5 @@
   "npmClient": "pnpm",
   "registry": "https://registry.npmjs.org/",
   "version": "1.0.1",
-  "packages": ["packages/*"]
+  "packages": ["packages/*", "plugins/*"]
 }
