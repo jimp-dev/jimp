@@ -1,0 +1,281 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Callbacks > with blit 1`] = `
+Visualization:
+
+□▥▾
+▥■▰
+▵▹▿
+
+Data:
+
+FF-FF-FFᶠᶠ BF-BF-BFᶠᶠ 00-00-FFᶠᶠ
+BF-BF-BFᶠᶠ 00-00-00ᶠᶠ FF-00-FFᶠᶠ
+FF-00-00⁷ᶠ 00-FF-00⁷ᶠ 00-00-FF⁷ᶠ
+`;
+
+exports[`Callbacks > with blur 1`] = `
+Visualization:
+
+7▩▵
+F0F
+2B4
+
+Data:
+
+AA-94-3Fᶠ¹ 7E-7E-7Eᶠ¹ 54-69-BFᶠ¹
+9B-C2-52ᵈ⁴ 85-A7-85ᵈ⁴ 6E-8B-B6ᵈ⁴
+88-00-6Cᵇ⁷ 8C-DC-8Cᵇ⁷ 92-B7-ACᵇ⁷
+`;
+
+exports[`Callbacks > with brightness 1`] = `
+Visualization:
+
+▫▾4
+2 A
+D▦◆
+
+Data:
+
+FF-7F-7Fᶠᶠ 7F-FF-7Fᶠᶠ 7F-7F-FFᶠᶠ
+FF-FF-7Fᶠᶠ 7F-FF-FFᶠᶠ FF-7F-FFᶠᶠ
+FF-7F-7F⁷ᶠ 7F-FF-7F⁷ᶠ 7F-7F-FF⁷ᶠ
+`;
+
+exports[`Callbacks > with composite 1`] = `
+Visualization:
+
+□▥▾
+▥■▰
+▵▹▿
+
+Data:
+
+FF-FF-FFᶠᶠ BF-BF-BFᶠᶠ 00-00-FFᶠᶠ
+BF-BF-BFᶠᶠ 00-00-00ᶠᶠ FF-00-FFᶠᶠ
+FF-00-00⁷ᶠ 00-FF-00⁷ᶠ 00-00-FF⁷ᶠ
+`;
+
+exports[`Callbacks > with contain 1`] = `
+Visualization:
+
+C0 
+◇◇ 
+
+Data:
+
+AA-8E-1Cᶠᶠ 39-55-C6ᶠᶠ 00-00-00⁰⁰
+71-5F-13ᵃᵃ 26-39-84ᵃᵃ 00-00-00⁰⁰
+`;
+
+exports[`Callbacks > with contrast 1`] = `
+Visualization:
+
+▴▸▾
+◆▪▰
+▵▹▿
+
+Data:
+
+FF-00-00ᶠᶠ 00-FF-00ᶠᶠ 00-00-FFᶠᶠ
+FF-FF-00ᶠᶠ 00-FF-FFᶠᶠ FF-00-FFᶠᶠ
+FF-00-00⁷ᶠ 00-FF-00⁷ᶠ 00-00-FF⁷ᶠ
+`;
+
+exports[`Callbacks > with cover 1`] = `
+Visualization:
+
+▴▸▾
+◆▪▰
+
+Data:
+
+FF-00-00ᶠᶠ 00-FF-00ᶠᶠ 00-00-FFᶠᶠ
+FF-FF-00ᶠᶠ 00-FF-FFᶠᶠ FF-00-FFᶠᶠ
+`;
+
+exports[`Callbacks > with crop 1`] = `
+Visualization:
+
+▪▰
+
+Data:
+
+00-FF-FFᶠᶠ FF-00-FFᶠᶠ
+`;
+
+exports[`Callbacks > with dither 1`] = `
+Visualization:
+
+▸FD
+85▰
+0▵▦
+
+Data:
+
+FF-01-01ᶠᶠ 09-FF-09ᶠᶠ 03-03-FFᶠᶠ
+FF-FF-0Dᶠᶠ 05-FF-FFᶠᶠ FF-0F-FFᶠᶠ
+FF-04-04⁷ᶠ 0C-FF-0C⁷ᶠ 02-02-FF⁷ᶠ
+`;
+
+exports[`Callbacks > with fade 1`] = `
+Visualization:
+
+▵▹▿
+◇▫▱
+3▹F
+
+Data:
+
+FF-00-00⁷ᶠ 00-FF-00⁷ᶠ 00-00-FF⁷ᶠ
+FF-FF-00⁷ᶠ 00-FF-FF⁷ᶠ FF-00-FF⁷ᶠ
+FF-00-00³ᶠ 00-FF-00³ᶠ 00-00-FF³ᶠ
+`;
+
+exports[`Callbacks > with flip 1`] = `
+Visualization:
+
+▾▸▴
+▰▪◆
+▿▹▵
+
+Data:
+
+00-00-FFᶠᶠ 00-FF-00ᶠᶠ FF-00-00ᶠᶠ
+FF-00-FFᶠᶠ 00-FF-FFᶠᶠ FF-FF-00ᶠᶠ
+00-00-FF⁷ᶠ 00-FF-00⁷ᶠ FF-00-00⁷ᶠ
+`;
+
+exports[`Callbacks > with gaussian 1`] = `
+Visualization:
+
+0▸7
+▹▥7
+▥▱F
+
+Data:
+
+72-A0-2Bᶠ⁸ 4F-70-92ᶠ⁵ 59-50-B9ᶠ³
+78-7F-4Fᵈ⁴ 6F-64-79ᶜᶠ 45-55-A4ᶜᶜ
+55-8F-51ᶜ³ 49-5A-8Fᵇᵉ 51-5D-93ᶜᶠ
+`;
+
+exports[`Callbacks > with greyscale 1`] = `
+Visualization:
+
+◇D▩
+3▴D
+▥81
+
+Data:
+
+36-36-36ᶠᶠ B6-B6-B6ᶠᶠ 12-12-12ᶠᶠ
+EC-EC-ECᶠᶠ C8-C8-C8ᶠᶠ 48-48-48ᶠᶠ
+36-36-36⁷ᶠ B6-B6-B6⁷ᶠ 12-12-12⁷ᶠ
+`;
+
+exports[`Callbacks > with invert 1`] = `
+Visualization:
+
+▪▰◆
+▾▴▸
+▫▱◇
+
+Data:
+
+00-FF-FFᶠᶠ FF-00-FFᶠᶠ FF-FF-00ᶠᶠ
+00-00-FFᶠᶠ FF-00-00ᶠᶠ 00-FF-00ᶠᶠ
+00-FF-FF⁷ᶠ FF-00-FF⁷ᶠ FF-FF-00⁷ᶠ
+`;
+
+exports[`Callbacks > with opacity 1`] = `
+Visualization:
+
+▵▹▿
+◇▫▱
+3▹F
+
+Data:
+
+FF-00-00⁷ᶠ 00-FF-00⁷ᶠ 00-00-FF⁷ᶠ
+FF-FF-00⁷ᶠ 00-FF-FF⁷ᶠ FF-00-FF⁷ᶠ
+FF-00-00³ᶠ 00-FF-00³ᶠ 00-00-FF³ᶠ
+`;
+
+exports[`Callbacks > with opaque 1`] = `
+Visualization:
+
+▴▸▾
+◆▪▰
+▴▸▾
+
+Data:
+
+FF-00-00ᶠᶠ 00-FF-00ᶠᶠ 00-00-FFᶠᶠ
+FF-FF-00ᶠᶠ 00-FF-FFᶠᶠ FF-00-FFᶠᶠ
+FF-00-00ᶠᶠ 00-FF-00ᶠᶠ 00-00-FFᶠᶠ
+`;
+
+exports[`Callbacks > with posterize 1`] = `
+Visualization:
+
+▴▸▾
+◆▪▰
+▵▹▿
+
+Data:
+
+FF-00-00ᶠᶠ 00-FF-00ᶠᶠ 00-00-FFᶠᶠ
+FF-FF-00ᶠᶠ 00-FF-FFᶠᶠ FF-00-FFᶠᶠ
+FF-00-00⁷ᶠ 00-FF-00⁷ᶠ 00-00-FF⁷ᶠ
+`;
+
+exports[`Callbacks > with resize 1`] = `
+Visualization:
+
+C0
+▿▰
+
+Data:
+
+AA-8E-1Cᶠᶠ 39-55-C6ᶠᶠ
+AA-8E-1Cᵃᵃ 39-55-C6ᵃᵃ
+`;
+
+exports[`Callbacks > with scale 1`] = `
+Visualization:
+
+C0
+▿▰
+
+Data:
+
+AA-8E-1Cᶠᶠ 39-55-C6ᶠᶠ
+AA-8E-1Cᵃᵃ 39-55-C6ᵃᵃ
+`;
+
+exports[`Callbacks > with scaleToFit 1`] = `
+Visualization:
+
+C0
+▿▰
+
+Data:
+
+AA-8E-1Cᶠᶠ 39-55-C6ᶠᶠ
+AA-8E-1Cᵃᵃ 39-55-C6ᵃᵃ
+`;
+
+exports[`Callbacks > with sepia 1`] = `
+Visualization:
+
+▥◇5
+4□◆
+6▥◇
+
+Data:
+
+64-22-2Dᶠᶠ C4-F3-B7ᶠᶠ 30-3B-4Eᶠᶠ
+FF-FF-E5ᶠᶠ F4-FF-FFᶠᶠ 94-5E-7Cᶠᶠ
+64-22-2D⁷ᶠ C4-F3-B7⁷ᶠ 30-3B-4E⁷ᶠ
+`;

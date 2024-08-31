@@ -1,0 +1,99 @@
+---
+title: Using in Browser
+description: How to use Jimp in the browser.
+---
+
+import { GrayscaleExample } from '../../../components/grayscale-example'
+import GrayscaleExampleCode from '../../../components/grayscale-example?raw';
+import { Code } from '@astrojs/starlight/components';
+
+Jimp can be used anywhere that javascript is supported. It can be used in the browser, in Node.js, or in a web worker.
+
+<br />
+<GrayscaleExample client:load />
+
+<details>
+  <summary>How to use in the browser</summary>
+
+<Code code={GrayscaleExampleCode} lang="ts" title="example.jsx" />
+
+</details>
+
+## Usage
+
+There are two main ways to use Jimp in the browser.
+
+### With hosted file
+
+You can initialize a Jimp instance from a URL or a file path.
+
+```ts
+import Jimp from "jimp";
+
+// Read a file hosted on the same domain
+const image1 = await Jimp.read("/some/url")
+
+// Read a file hosted on a different domain 
+const image2 = await Jimp.read("https://some.other.domain/some/url")
+```
+
+### With uploaded files
+
+Or you can use Jimp with an `ArrayBuffer`.
+Here we take a user's uploaded image and modify it to greyscale.
+
+```ts
+function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
+  const reader = new FileReader();
+
+  reader.onload = async (e) => {
+    const image = await Jimp.fromBuffer(e.target?.result);
+
+    image.greyscale();
+
+    const base64 = await image.getBase64("image/jpeg")
+  };
+
+  reader.readAsArrayBuffer(e.target.files[0]);
+}
+
+input.addEventListener("change", handleFile); 
+```
+
+## Setup
+
+For the most part Jimp's code can be used in the browser. However, there are a few things to be aware of.
+
+The `Buffer` class is not available in the browser.
+You will need to polyfill this however the bundler you're using will handle this for you.
+
+### `webpack`
+
+To do this in `webpack` you can use the `resolve.fallback` option.
+
+```js
+module.exports = {
+  resolve: {
+    fallback: {
+      buffer: require.resolve('buffer/'),
+    },
+  },
+};
+```
+
+### `vite` / `astro`
+
+To do this in `vite` you can use the `resolve.alias` option.
+
+```js
+import { NodeGlobalsPolyfillPlugin } from "@esbuild-plugins/node-globals-polyfill";
+
+export default defineConfig({
+  esbuildOptions: {
+    define: {
+      global: "globalThis",
+    },
+    plugins: [NodeGlobalsPolyfillPlugin({ buffer: true })],
+  },
+});
+```
