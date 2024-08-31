@@ -20,5 +20,8 @@
     "playwright": "^1.42.1",
     "vite-plugin-node-polyfills": "^0.21.0"
   },
-  "type": "module"
+  "type": "module",
+  "publishConfig": {
+    "access": "public"
+  }
 }

@@ -52,5 +52,8 @@
     "@jimp/core": "workspace:*",
     "@jimp/types": "workspace:*",
     "utif2": "^4.1.0"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

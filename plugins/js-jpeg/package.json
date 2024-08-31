@@ -52,5 +52,8 @@
     "jpeg-js": "^0.4.4",
     "@jimp/core": "workspace:*",
     "@jimp/types": "workspace:*"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

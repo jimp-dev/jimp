@@ -46,5 +46,8 @@
   "type": "module",
   "dependencies": {
     "zod": "^3.22.4"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

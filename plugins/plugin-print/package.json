@@ -79,5 +79,8 @@
     "parse-bmfont-binary": "^1.0.6",
     "parse-bmfont-xml": "^1.1.6",
     "zod": "^3.22.4"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

@@ -54,5 +54,8 @@
     "@jimp/types": "workspace:*",
     "gifwrap": "^0.10.1",
     "omggif": "^1.0.10"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }
