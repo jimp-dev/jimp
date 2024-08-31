@@ -1,6 +1,6 @@
 {
   "name": "@jimp/diff",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "repository": "jimp-dev/jimp",
   "scripts": {
     "lint": "eslint .",
@@ -17,9 +17,9 @@
     "pixelmatch": "^5.3.0"
   },
   "devDependencies": {
-    "@jimp/core": "workspace:*",
     "@jimp/config-eslint": "workspace:*",
     "@jimp/config-typescript": "workspace:*",
+    "@jimp/core": "workspace:*",
     "@jimp/test-utils": "workspace:*",
     "@types/pixelmatch": "^5.2.6",
     "eslint": "^8.57.0",

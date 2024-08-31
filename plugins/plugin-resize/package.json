@@ -1,6 +1,6 @@
 {
   "name": "@jimp/plugin-resize",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "repository": "jimp-dev/jimp",
   "scripts": {
     "lint": "eslint .",

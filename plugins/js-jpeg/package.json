@@ -1,6 +1,6 @@
 {
   "name": "@jimp/js-jpeg",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "repository": "jimp-dev/jimp",
   "scripts": {
     "lint": "eslint .",
@@ -16,12 +16,12 @@
     "@jimp/config-typescript": "workspace:*",
     "@jimp/config-vitest": "workspace:*",
     "@jimp/test-utils": "workspace:*",
+    "@vitest/browser": "^1.4.0",
     "eslint": "^8.57.0",
     "tshy": "^1.12.0",
     "typescript": "^5.4.2",
-    "@vitest/browser": "^1.4.0",
-    "vitest": "^1.4.0",
-    "vite-plugin-node-polyfills": "^0.21.0"
+    "vite-plugin-node-polyfills": "^0.21.0",
+    "vitest": "^1.4.0"
   },
   "tshy": {
     "exclude": [
@@ -49,9 +49,9 @@
   "types": "./dist/commonjs/index.d.ts",
   "type": "module",
   "dependencies": {
-    "jpeg-js": "^0.4.4",
     "@jimp/core": "workspace:*",
-    "@jimp/types": "workspace:*"
+    "@jimp/types": "workspace:*",
+    "jpeg-js": "^0.4.4"
   },
   "publishConfig": {
     "access": "public"

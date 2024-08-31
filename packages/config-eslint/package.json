@@ -1,6 +1,6 @@
 {
   "name": "@jimp/config-eslint",
-  "version": "0.0.0",
+  "version": "1.0.2",
   "license": "MIT",
   "private": true,
   "main": "base.js",

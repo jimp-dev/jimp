@@ -1,6 +1,6 @@
 {
   "name": "@jimp/js-bmp",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "repository": "jimp-dev/jimp",
   "scripts": {
     "lint": "eslint .",
@@ -12,17 +12,17 @@
   "author": "Andrew Lisowski <lisowski54@gmail.com>",
   "license": "MIT",
   "devDependencies": {
-    "@jimp/js-png": "workspace:*",
     "@jimp/config-eslint": "workspace:*",
     "@jimp/config-typescript": "workspace:*",
     "@jimp/config-vitest": "workspace:*",
+    "@jimp/js-png": "workspace:*",
     "@jimp/test-utils": "workspace:*",
+    "@vitest/browser": "^1.4.0",
     "eslint": "^8.57.0",
     "tshy": "^1.12.0",
     "typescript": "^5.4.2",
-    "@vitest/browser": "^1.4.0",
-    "vitest": "^1.4.0",
-    "vite-plugin-node-polyfills": "^0.21.0"
+    "vite-plugin-node-polyfills": "^0.21.0",
+    "vitest": "^1.4.0"
   },
   "tshy": {
     "exclude": [
