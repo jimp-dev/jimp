@@ -15,7 +15,7 @@
   "scripts": {
     "lint": "eslint .",
     "test": "vitest",
-    "test:browser": "vitest --config vitest.config.browser.ts",
+    "test:browser": "vitest --config vitest.config.browser.mjs",
     "build": "tshy",
     "build:browser": "rollup -c",
     "dev": "tshy --watch",

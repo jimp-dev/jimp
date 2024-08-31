@@ -5,7 +5,7 @@
   "scripts": {
     "lint": "eslint .",
     "test": "vitest",
-    "test:browser": "vitest --config vitest.config.browser.ts",
+    "test:browser": "vitest --config vitest.config.browser.mjs",
     "build": "tshy",
     "dev": "tshy --watch"
   },
