@@ -10,8 +10,7 @@
   "author": "Andrew Lisowski <lisowski54@gmail.com>",
   "license": "MIT",
   "dependencies": {
-    "@jimp/types": "workspace:*",
-    "@jimp/utils": "workspace:*"
+    "@jimp/types": "workspace:*"
   },
   "devDependencies": {
     "@jimp/config-eslint": "workspace:*",
