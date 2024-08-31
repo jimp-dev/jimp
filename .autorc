@@ -1,19 +1,5 @@
 {
   "plugins": [
-    [
-      "protected-branch",
-      {
-        "releaseTemporaryBranchPrefix": "protected-release-",
-        "requiredStatusChecks": [
-          "install",
-          "build",
-          "test",
-          "test-types",
-          "lint"
-        ]
-      }
-    ],
-    "magic-zero",
     "npm",
     "released",
     "first-time-contributor",

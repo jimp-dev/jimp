@@ -19,6 +19,9 @@
     "generate-plugin": "turbo gen plugin"
   },
   "devDependencies": {
+    "@auto-it/all-contributors": "^11.2.1",
+    "@auto-it/first-time-contributor": "^11.2.1",
+    "@auto-it/released": "^11.2.1",
     "@jimp/config-eslint": "workspace:*",
     "@jimp/config-typescript": "workspace:*",
     "@turbo/gen": "^1.12.5",
