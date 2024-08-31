@@ -18,7 +18,7 @@ function imageWithOrientation2(orientation: number) {
 
 describe("EXIF orientation", () => {
   for (let orientation = 1; orientation <= 8; orientation++) {
-    test.only(`is fixed when EXIF orientation is ${orientation}`, async () => {
+    test(`is fixed when EXIF orientation is ${orientation}`, async () => {
       const regularImg = await imageWithOrientation(1);
       const orientedImg = await imageWithOrientation(orientation);
 
@@ -35,7 +35,7 @@ describe("EXIF orientation", () => {
   }
 
   for (let orientation = 1; orientation <= 8; orientation++) {
-    test.only(`is fixed when EXIF orientation is ${orientation}`, async () => {
+    test(`is fixed when EXIF orientation is ${orientation}`, async () => {
       const regularImg = await imageWithOrientation2(1);
       const orientedImg = await imageWithOrientation2(orientation);
 
