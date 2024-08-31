@@ -59,5 +59,6 @@
   "type": "module",
   "publishConfig": {
     "access": "public"
-  }
+  },
+  "sideEffects": false
 }
