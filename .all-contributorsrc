@@ -1328,6 +1328,18 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "Sarabadu",
+      "name": "Juan Pablo Garcia Ripa",
+      "avatar_url": "https://avatars.githubusercontent.com/u/1770453?v=4",
+      "profile": "https://github.com/Sarabadu",
+      "contributions": [
+        "doc",
+        "infra",
+        "test",
+        "code"
+      ]
     }
   ],
   "contributorsPerLine": 7,
