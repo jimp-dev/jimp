@@ -1,6 +1,6 @@
 {
   "name": "@jimp/{{ kebabCase name }}",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "repository": "jimp-dev/jimp",
   "scripts": {
     "lint": "eslint .",
