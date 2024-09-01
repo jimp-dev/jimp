@@ -33,7 +33,6 @@ export function load(app) {
   });
 
   function onCreateDeclaration(_, refl) {
-    console.log(refl.name);
     if (refl.name.endsWith("Options")) {
       const declaration = refl.project
         .getSymbolFromReflection(refl)
@@ -49,7 +48,6 @@ export function load(app) {
 
       schemaTypes.set(sourceKey(refl.type.declaration.sources[0]), refl);
 
-      console.log(matchingSchema);
       refl.type.declaration.children.forEach((child) => {
         child.comment = new Comment([
           {

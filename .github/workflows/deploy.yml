@@ -28,12 +28,12 @@ jobs:
       - uses: actions/checkout@v3
       - uses: ./.github/actions/install-deps
       - run: pnpm build
-      - name: Install, build, and upload your site
-        uses: withastro/action@v2
+      - run: pnpm build
+        working-directory: packages/docs
+      - name: Upload Pages Artifact
+        uses: actions/upload-pages-artifact@v3
         with:
-          path: packages/docs
-          node-version: 18
-          package-manager: pnpm@8.9.0
+          path: "${{ inputs.path }}/dist/"
 
   deploy:
     needs: build
