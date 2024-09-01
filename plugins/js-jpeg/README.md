@@ -4,9 +4,3 @@
   <h1>@jimp/jpeg</h1>
   <p>Default Jimp jpeg encoder/decoder.</p>
 </div>
-
-## Available Methods
-
-### Jimp.quality
-
-Sets the quality of the image when saving as JPEG format (default is 100)

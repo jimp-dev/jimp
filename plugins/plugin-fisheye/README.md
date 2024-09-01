@@ -5,23 +5,4 @@
   <p>Apply a fisheye effect to an image</p>
 </div>
 
-## Usage
-
-- @param {function(Error, Jimp)} options (optional) radius
-- @param {function(Error, Jimp)} cb (optional) a callback for when complete
-
-```js
-import jimp from "jimp";
-
-async function main() {
-  const image = await jimp.read("test/image.png");
-
-  image.fisheye();
-  // or
-  image.fisheye({ r: 1.6 });
-}
-
-main();
-```
-
-Produces nice images with [@jimp/plugin-circle](../plugin-circle).
+- [fisheye](http://jimp-dev.github.io/jimp/api/jimp/classes/jimp#fisheye)

@@ -7,6 +7,7 @@ The goals of v1 were to:
 
 1. Make jimp easier to use in any environment
 2. Make jimp's API more consistent and easier to use
+3. Many constants have been removed and are string value powered by TS
 
 ## Positional Arguments to Options Objects 
 
@@ -24,11 +25,6 @@ Now it looks like this:
 ```js
 image.resize({ w: 100, h: 100 });
 ```
-
-### `ResizeStrategy.AUTO`
-
-This constant was only needed for positional arguments.
-It is no longer needed with the new API.
 
 ## `Jimp` Constructor
 
@@ -103,3 +99,39 @@ async function main() {
   const image = await Jimp.fromBitmap(bitmap);
 }
 ```
+
+## Encoding and Decoding Options
+
+Another area where the API has changed is the way that encodings and decoding are handled.
+
+Previously the options were global and it was confusing where they might be applied (unless you have experience with the underlying image codecs).
+
+For example in v0 if you wanted to export a JPEG with the quality set to 80% you would do this:
+
+```js
+import { Jimp } from "jimp";
+
+const image = new Jimp(...);
+
+const resized = await image
+  .resize(512, Jimp.AUTO)
+  .quality(80)
+  .getBufferAsync(Jimp.MIME_JPEG);
+```
+
+In v1 the options are passed when you get the encoded image:
+
+```js
+import { Jimp } from "jimp";
+
+const image = new Jimp(...);
+
+const resized = await image
+  .resize({ w: 512 })
+  .getBufferAsync('image/jpeg', { quality: 80 });
+```
+
+## Removed Constants
+
+- `Jimp.AUTO` - This constant was only needed for positional arguments. It is no longer needed with the new API.
+- `Jimp.MIME_*` - These are now part of the TS api when encoding
