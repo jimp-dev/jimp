@@ -82,7 +82,7 @@
     "rollup-plugin-esbuild": "^6.1.1",
     "rollup-plugin-polyfill-node": "^0.13.0",
     "tshy": "^1.12.0",
-    "typescript": "^5.4.2",
+    "typescript": "^5.5.4",
     "vite-plugin-node-polyfills": "^0.21.0",
     "vitest": "^1.4.0"
   },

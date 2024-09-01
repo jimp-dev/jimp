@@ -13,7 +13,7 @@
     "eslint-config-prettier": "^9.1.0",
     "eslint-config-turbo": "^1.12.5",
     "eslint-plugin-only-warn": "^1.1.0",
-    "typescript": "^5.4.2"
+    "typescript": "^5.5.4"
   },
   "publishConfig": {},
   "sideEffects": false
