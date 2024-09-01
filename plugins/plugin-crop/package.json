@@ -23,6 +23,7 @@
     "@jimp/config-typescript": "workspace:*",
     "@jimp/config-vitest": "workspace:*",
     "@jimp/test-utils": "workspace:*",
+    "@types/node": "^20.12.5",
     "@vitest/browser": "^1.4.0",
     "eslint": "^8.57.0",
     "tshy": "^1.12.0",

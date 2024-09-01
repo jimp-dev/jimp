@@ -19,6 +19,7 @@
     "@jimp/js-jpeg": "workspace:*",
     "@jimp/js-png": "workspace:*",
     "@jimp/test-utils": "workspace:*",
+    "@types/node": "^20.12.5",
     "@types/tinycolor2": "^1.4.6",
     "@vitest/browser": "^1.4.0",
     "eslint": "^8.57.0",
