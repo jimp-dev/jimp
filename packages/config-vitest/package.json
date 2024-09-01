@@ -4,7 +4,8 @@
   "private": true,
   "repository": "jimp-dev/jimp",
   "scripts": {
-    "dev": "tshy --watch"
+    "dev": "tshy --watch",
+    "clean": "rm -rf node_modules .tshy .tshy-build dist .turbo"
   },
   "author": "Andrew Lisowski <lisowski54@gmail.com>",
   "license": "MIT",
@@ -12,7 +13,7 @@
     "@jimp/config-typescript": "workspace:*",
     "@jimp/test-utils": "workspace:*",
     "eslint": "^8.57.0",
-    "typescript": "^5.4.2",
+    "typescript": "^5.5.4",
     "vitest": "^1.4.0"
   },
   "dependencies": {

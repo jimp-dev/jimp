@@ -27,7 +27,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: ./.github/actions/install-deps
-      - run: pnpm run build
+      - run: pnpm build
       - name: Install, build, and upload your site
         uses: withastro/action@v2
         with:
