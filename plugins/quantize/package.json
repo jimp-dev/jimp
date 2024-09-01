@@ -1,6 +1,6 @@
 {
   "name": "@jimp/plugin-quantize",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "repository": "jimp-dev/jimp",
   "scripts": {
     "lint": "eslint .",
