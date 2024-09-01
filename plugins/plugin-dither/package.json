@@ -17,7 +17,7 @@
     "@jimp/config-eslint": "workspace:*",
     "@jimp/config-typescript": "workspace:*",
     "eslint": "^8.57.0",
-    "tshy": "^1.12.0",
+    "tshy": "^3.0.2",
     "typescript": "^5.5.4",
     "vitest": "^1.4.0"
   },
@@ -49,5 +49,6 @@
   "publishConfig": {
     "access": "public"
   },
-  "sideEffects": false
+  "sideEffects": false,
+  "module": "./dist/esm/index.js"
 }

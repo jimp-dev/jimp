@@ -136,8 +136,8 @@ importers:
         specifier: ^8.57.0
         version: 8.57.0
       tshy:
-        specifier: ^1.12.0
-        version: 1.12.0
+        specifier: ^3.0.2
+        version: 3.0.2
       typescript:
         specifier: ^5.5.4
         version: 5.5.4
@@ -179,8 +179,8 @@ importers:
         specifier: ^8.57.0
         version: 8.57.0
       tshy:
-        specifier: ^1.12.0
-        version: 1.12.0
+        specifier: ^3.0.2
+        version: 3.0.2
       typescript:
         specifier: ^5.5.4
         version: 5.5.4
@@ -261,8 +261,8 @@ importers:
         specifier: ^8.57.0
         version: 8.57.0
       tshy:
-        specifier: ^1.12.0
-        version: 1.12.0
+        specifier: ^3.0.2
+        version: 3.0.2
       typescript:
         specifier: ^5.5.4
         version: 5.5.4
@@ -403,8 +403,8 @@ importers:
         specifier: ^0.13.0
         version: 0.13.0(rollup@4.14.1)
       tshy:
-        specifier: ^1.12.0
-        version: 1.12.0
+        specifier: ^3.0.2
+        version: 3.0.2
       typescript:
         specifier: ^5.5.4
         version: 5.5.4
@@ -443,8 +443,8 @@ importers:
         specifier: ^8.57.0
         version: 8.57.0
       tshy:
-        specifier: ^1.12.0
-        version: 1.12.0
+        specifier: ^3.0.2
+        version: 3.0.2
       typescript:
         specifier: ^5.5.4
         version: 5.5.4
@@ -471,8 +471,8 @@ importers:
         specifier: ^8.57.0
         version: 8.57.0
       tshy:
-        specifier: ^1.12.0
-        version: 1.12.0
+        specifier: ^3.0.2
+        version: 3.0.2
       typescript:
         specifier: ^5.5.4
         version: 5.5.4
@@ -505,8 +505,8 @@ importers:
         specifier: ^8.57.0
         version: 8.57.0
       tshy:
-        specifier: ^1.12.0
-        version: 1.12.0
+        specifier: ^3.0.2
+        version: 3.0.2
       typescript:
         specifier: ^5.5.4
         version: 5.5.4
@@ -554,8 +554,8 @@ importers:
         specifier: ^8.57.0
         version: 8.57.0
       tshy:
-        specifier: ^1.12.0
-        version: 1.12.0
+        specifier: ^3.0.2
+        version: 3.0.2
       typescript:
         specifier: ^5.5.4
         version: 5.5.4
@@ -649,8 +649,8 @@ importers:
         specifier: ^8.57.0
         version: 8.57.0
       tshy:
-        specifier: ^1.12.0
-        version: 1.12.0
+        specifier: ^3.0.2
+        version: 3.0.2
       typescript:
         specifier: ^5.5.4
         version: 5.5.4
@@ -695,8 +695,8 @@ importers:
         specifier: ^8.57.0
         version: 8.57.0
       tshy:
-        specifier: ^1.12.0
-        version: 1.12.0
+        specifier: ^3.0.2
+        version: 3.0.2
       typescript:
         specifier: ^5.5.4
         version: 5.5.4
@@ -741,8 +741,8 @@ importers:
         specifier: ^8.57.0
         version: 8.57.0
       tshy:
-        specifier: ^1.12.0
-        version: 1.12.0
+        specifier: ^3.0.2
+        version: 3.0.2
       typescript:
         specifier: ^5.5.4
         version: 5.5.4
@@ -793,8 +793,8 @@ importers:
         specifier: ^8.57.0
         version: 8.57.0
       tshy:
-        specifier: ^1.12.0
-        version: 1.12.0
+        specifier: ^3.0.2
+        version: 3.0.2
       typescript:
         specifier: ^5.5.4
         version: 5.5.4
@@ -827,8 +827,8 @@ importers:
         specifier: ^8.57.0
         version: 8.57.0
       tshy:
-        specifier: ^1.12.0
-        version: 1.12.0
+        specifier: ^3.0.2
+        version: 3.0.2
       typescript:
         specifier: ^5.5.4
         version: 5.5.4
@@ -870,8 +870,8 @@ importers:
         specifier: ^8.57.0
         version: 8.57.0
       tshy:
-        specifier: ^1.12.0
-        version: 1.12.0
+        specifier: ^3.0.2
+        version: 3.0.2
       typescript:
         specifier: ^5.5.4
         version: 5.5.4
@@ -983,8 +983,8 @@ importers:
         specifier: ^8.57.0
         version: 8.57.0
       tshy:
-        specifier: ^1.12.0
-        version: 1.12.0
+        specifier: ^3.0.2
+        version: 3.0.2
       typescript:
         specifier: ^5.5.4
         version: 5.5.4
@@ -1032,8 +1032,8 @@ importers:
         specifier: ^8.57.0
         version: 8.57.0
       tshy:
-        specifier: ^1.12.0
-        version: 1.12.0
+        specifier: ^3.0.2
+        version: 3.0.2
       typescript:
         specifier: ^5.5.4
         version: 5.5.4
@@ -1081,8 +1081,8 @@ importers:
         specifier: ^8.57.0
         version: 8.57.0
       tshy:
-        specifier: ^1.12.0
-        version: 1.12.0
+        specifier: ^3.0.2
+        version: 3.0.2
       typescript:
         specifier: ^5.5.4
         version: 5.5.4
@@ -1115,8 +1115,8 @@ importers:
         specifier: ^8.57.0
         version: 8.57.0
       tshy:
-        specifier: ^1.12.0
-        version: 1.12.0
+        specifier: ^3.0.2
+        version: 3.0.2
       typescript:
         specifier: ^5.5.4
         version: 5.5.4
@@ -1140,8 +1140,8 @@ importers:
         specifier: ^8.57.0
         version: 8.57.0
       tshy:
-        specifier: ^1.12.0
-        version: 1.12.0
+        specifier: ^3.0.2
+        version: 3.0.2
       typescript:
         specifier: ^5.5.4
         version: 5.5.4
@@ -1183,8 +1183,8 @@ importers:
         specifier: ^8.57.0
         version: 8.57.0
       tshy:
-        specifier: ^1.12.0
-        version: 1.12.0
+        specifier: ^3.0.2
+        version: 3.0.2
       typescript:
         specifier: ^5.5.4
         version: 5.5.4
@@ -1229,8 +1229,8 @@ importers:
         specifier: ^8.57.0
         version: 8.57.0
       tshy:
-        specifier: ^1.12.0
-        version: 1.12.0
+        specifier: ^3.0.2
+        version: 3.0.2
       typescript:
         specifier: ^5.5.4
         version: 5.5.4
@@ -1339,8 +1339,8 @@ importers:
         specifier: ^8.57.0
         version: 8.57.0
       tshy:
-        specifier: ^1.12.0
-        version: 1.12.0
+        specifier: ^3.0.2
+        version: 3.0.2
       typescript:
         specifier: ^5.5.4
         version: 5.5.4
@@ -1397,8 +1397,8 @@ importers:
         specifier: ^8.57.0
         version: 8.57.0
       tshy:
-        specifier: ^1.12.0
-        version: 1.12.0
+        specifier: ^3.0.2
+        version: 3.0.2
       typescript:
         specifier: ^5.5.4
         version: 5.5.4
@@ -1440,8 +1440,8 @@ importers:
         specifier: ^8.57.0
         version: 8.57.0
       tshy:
-        specifier: ^1.12.0
-        version: 1.12.0
+        specifier: ^3.0.2
+        version: 3.0.2
       typescript:
         specifier: ^5.5.4
         version: 5.5.4
@@ -1495,8 +1495,8 @@ importers:
         specifier: ^8.57.0
         version: 8.57.0
       tshy:
-        specifier: ^1.12.0
-        version: 1.12.0
+        specifier: ^3.0.2
+        version: 3.0.2
       typescript:
         specifier: ^5.5.4
         version: 5.5.4
@@ -1550,8 +1550,8 @@ importers:
         specifier: ^8.57.0
         version: 8.57.0
       tshy:
-        specifier: ^1.12.0
-        version: 1.12.0
+        specifier: ^3.0.2
+        version: 3.0.2
       typescript:
         specifier: ^5.5.4
         version: 5.5.4
@@ -1605,8 +1605,8 @@ importers:
         specifier: ^8.57.0
         version: 8.57.0
       tshy:
-        specifier: ^1.12.0
-        version: 1.12.0
+        specifier: ^3.0.2
+        version: 3.0.2
       typescript:
         specifier: ^5.5.4
         version: 5.5.4
@@ -4144,6 +4144,11 @@ packages:
     engines: {node: '>=16 || 14 >=14.17'}
     hasBin: true
 
+  glob@11.0.0:
+    resolution: {integrity: sha512-9UiX/Bl6J2yaBbxKoEBRm4Cipxgok8kQYcOPEhScPwebu2I0HoQOuYdIO6S3hLuWoZgpDpwQZMzTFxgpkyT76g==}
+    engines: {node: 20 || >=22}
+    hasBin: true
+
   glob@7.2.3:
     resolution: {integrity: sha512-nFR0zLpU2YCaRxwoCJvL6UvCH2JFyFVIvwTLsIf21AuHlMskA1hhTdk+LlYJtOlYt9v6dvszD2BGRqBL+iQK9Q==}
     deprecated: Glob versions prior to v9 are no longer supported
@@ -4630,6 +4635,10 @@ packages:
     resolution: {integrity: sha512-N3yCS/NegsOBokc8GAdM8UcmfsKiSS8cipheD/nivzr700H+nsMOxJjQnvwOcRYVuFkdH0wGUvW2WbXGmrZGbQ==}
     engines: {node: '>=14'}
 
+  jackspeak@4.0.1:
+    resolution: {integrity: sha512-cub8rahkh0Q/bw1+GxP7aeSe29hHHn2V4m29nnDlvCdlgU+3UGxkZp7Z53jLUdpX3jdTO0nJZUDl3xvbWc2Xog==}
+    engines: {node: 20 || >=22}
+
   java-properties@1.0.2:
     resolution: {integrity: sha512-qjdpeo2yKlYTH7nFdK0vbZWuTCesk4o63v5iVOlhMQPfuIZQfW/HI35SjfhA+4qpg36rnFSvUK5b1m+ckIblQQ==}
     engines: {node: '>= 0.6.0'}
@@ -4819,6 +4828,10 @@ packages:
   lru-cache@10.2.0:
     resolution: {integrity: sha512-2bIM8x+VAf6JT4bKAljS1qUWgMsqZRPGJS6FSahIMPVvctcNhyVp7AJu7quxOW9jwkryBReKZY5tY5JYv2n/7Q==}
     engines: {node: 14 || >=16.14}
+
+  lru-cache@11.0.0:
+    resolution: {integrity: sha512-Qv32eSV1RSCfhY3fpPE2GNZ8jgM9X7rdAfemLWqTUxwiyIC4jJ6Sy0fZ8H+oLWevO6i4/bizg7c8d8i6bxrzbA==}
+    engines: {node: 20 || >=22}
 
   lru-cache@5.1.1:
     resolution: {integrity: sha512-KpNARQA3Iwv+jTA0utUVVbrh+Jlrr1Fv0e56GGzAFOXN7dk/FviaDW8LHmK52DlcH4WP2n6gI8vN1aesBFgo9w==}
@@ -5075,6 +5088,10 @@ packages:
   minimalistic-crypto-utils@1.0.1:
     resolution: {integrity: sha512-JIYlbt6g8i5jKfJ3xz7rF0LXmv2TkDxBLUkiBeZ7bAx4GnnNMr8xFpGnOxn6GhTEHx3SjRrZEoU+j04prX1ktg==}
 
+  minimatch@10.0.1:
+    resolution: {integrity: sha512-ethXTt3SGGR+95gudmqJ1eNhRO7eGEGIgYA9vnPatK4/etz2MEVDno5GMCibdMTuBMyElzIlgxMna3K94XDIDQ==}
+    engines: {node: 20 || >=22}
+
   minimatch@3.1.2:
     resolution: {integrity: sha512-J7p63hRiAjw1NDEww1W7i37+ByIrOWO5XQQAzZ3VOcL0PNybwpfmV/N05zFAzwQ9USyEcX6t3UO+K5aqBQOIHw==}
 
@@ -5095,6 +5112,10 @@ packages:
 
   minipass@7.0.4:
     resolution: {integrity: sha512-jYofLM5Dam9279rdkWzqHozUo4ybjdZmCsDHePy5V/PbBcVMiSZR97gmAy45aqi8CK1lG2ECd356FU86avfwUQ==}
+    engines: {node: '>=16 || 14 >=14.17'}
+
+  minipass@7.1.2:
+    resolution: {integrity: sha512-qOOzS1cBTWYF4BH8fVePDBOO9iptMnGUEZwNc/cMWnTV2nVLZ7VoNWEPHkYczZA0pdoA7dl6e7FL659nX9S2aw==}
     engines: {node: '>=16 || 14 >=14.17'}
 
   mkdirp-classic@0.5.3:
@@ -5330,6 +5351,9 @@ packages:
     resolution: {integrity: sha512-5NPgf87AT2STgwa2ntRMr45jTKrYBGkVU36yT0ig/n/GMAa3oPqhZfIQ2kMEimReg0+t9kZViDVZ83qfVUlckg==}
     engines: {node: '>= 14'}
 
+  package-json-from-dist@1.0.0:
+    resolution: {integrity: sha512-dATvCeZN/8wQsGywez1mzHtTlP22H8OEfPrVMLNr4/eGa+ijtLn/6M5f0dY8UKNrC2O9UCU6SSoG3qRKnt7STw==}
+
   pagefind@1.0.4:
     resolution: {integrity: sha512-oRIizYe+zSI2Jw4zcMU0ebDZm27751hRFiSOBLwc1OIYMrsZKk+3m8p9EVaOmc6zZdtqwwdilNUNxXvBeHcP9w==}
     hasBin: true
@@ -5422,6 +5446,10 @@ packages:
   path-scurry@1.10.1:
     resolution: {integrity: sha512-MkhCqzzBEpPvxxQ71Md0b1Kk51W01lrYvlMzSUaIzNsODdd7mqhiimSZlr+VegAz5Z6Vzt9Xg2ttE//XBhH3EQ==}
     engines: {node: '>=16 || 14 >=14.17'}
+
+  path-scurry@2.0.0:
+    resolution: {integrity: sha512-ypGJsmGtdXUOeM5u93TyeIEfEhM6s+ljAhrk5vAvSx8uyY/02OvrZnA0YNGUrPXfpJMgI1ODd3nwz8Npx4O4cg==}
+    engines: {node: 20 || >=22}
 
   path-to-regexp@6.2.2:
     resolution: {integrity: sha512-GQX3SSMokngb36+whdpRXE+3f9V8UzyAorlYvOGx87ufGHehNTn5lCxrKtLyZ4Yl/wEKnNnr98ZzOwwDZV5ogw==}
@@ -5521,6 +5549,10 @@ packages:
 
   polite-json@4.0.1:
     resolution: {integrity: sha512-8LI5ZeCPBEb4uBbcYKNVwk4jgqNx1yHReWoW4H4uUihWlSqZsUDfSITrRhjliuPgxsNPFhNSudGO2Zu4cbWinQ==}
+    engines: {node: ^14.17.0 || ^16.13.0 || >=18.0.0}
+
+  polite-json@5.0.0:
+    resolution: {integrity: sha512-OLS/0XeUAcE8a2fdwemNja+udKgXNnY6yKVIXqAD2zVRx1KvY6Ato/rZ2vdzbxqYwPW0u6SCNC/bAMPNzpzxbw==}
     engines: {node: ^14.17.0 || ^16.13.0 || >=18.0.0}
 
   possible-typed-array-names@1.0.0:
@@ -5774,6 +5806,10 @@ packages:
     resolution: {integrity: sha512-HXb4YqODuuXT7Icq1Z++0g2JmhgbUHSs3VT2xR83gqvAPUikYT2Xk+562KHQgiaNkbBOlPddYrDLsC44qQggzw==}
     engines: {node: 16 >=16.17.0 || 18 >= 18.6.0 || >=20}
 
+  resolve-import@2.0.0:
+    resolution: {integrity: sha512-jpKjLibLuc8D1XEV2+7zb0aqN7I8d12u89g/v6IsgCzdVlccMQJq4TKkPw5fbhHdxhm7nbVtN+KvOTnjFf+nEA==}
+    engines: {node: 20 || >=22}
+
   resolve-pkg-maps@1.0.0:
     resolution: {integrity: sha512-seS2Tj26TBVOC2NIc2rOe2y2ZO7efxITtLZcGSOnHHNOQ7CkiUBfw0Iw2ck6xkIhPwLhKNLS8BO+hEpngQlqzw==}
 
@@ -5821,6 +5857,11 @@ packages:
   rimraf@5.0.5:
     resolution: {integrity: sha512-CqDakW+hMe/Bz202FPEymy68P+G50RfMQK+Qo5YUqc9SPipvbGjCGKd0RSKEelbsfQuw3g5NZDSrlZZAJurH1A==}
     engines: {node: '>=14'}
+    hasBin: true
+
+  rimraf@6.0.1:
+    resolution: {integrity: sha512-9dkvaxAsk/xNXSJzMgFqqMCuFgt2+KsOFek3TMLfo8NCPfWpBmqwyNn5Y+NX56QUYfCtsyhF3ayiboEoUmJk/A==}
+    engines: {node: 20 || >=22}
     hasBin: true
 
   ripemd160@2.0.2:
@@ -6192,6 +6233,11 @@ packages:
     engines: {node: '>=14'}
     hasBin: true
 
+  sync-content@2.0.1:
+    resolution: {integrity: sha512-NI1mo514yFhr8pV/5Etvgh+pSBUIpoAKoiBIUwALVlQQNAwb40bTw8hhPFaip/dvv0GhpHVOq0vq8iY02ppLTg==}
+    engines: {node: 20 || >=22}
+    hasBin: true
+
   table-layout@1.0.2:
     resolution: {integrity: sha512-qd/R7n5rQTRFi+Zf2sk5XVVd9UQl6ZkduPFC3S7WEGJAmetDTjY3qPN50eSKzwuzEyQKy5TN2TiZdkIjos2L6A==}
     engines: {node: '>=8.0.0'}
@@ -6324,6 +6370,11 @@ packages:
   tshy@1.12.0:
     resolution: {integrity: sha512-WooNSTc+uyjLseTdzUFa4Lx3KYMcwxdrJMsWacl39BlfKZKhr30gLjAJkTQWHFkmAO+dj0L4P2jxiIrOo81V3w==}
     engines: {node: 16 >=16.17 || 18 >=18.15.0 || >=20.6.1}
+    hasBin: true
+
+  tshy@3.0.2:
+    resolution: {integrity: sha512-8GkWnAfmNXxl8iDTZ1o2H4jdaj9H7HeDKkr5qd0ZhQBCNA41D3xqTyg2Ycs51VCfmjJ5e+0v9AUmD6ylAI9Bgw==}
+    engines: {node: 20 || >=22}
     hasBin: true
 
   tslib@1.10.0:
@@ -6802,6 +6853,10 @@ packages:
 
   walk-up-path@3.0.1:
     resolution: {integrity: sha512-9YlCL/ynK3CTlrSRrDxZvUauLzAswPCrsaCgilqFevUYpeEW0/3ScEjaa3kbW/T0ghhkEr7mv+fpjqn1Y1YuTA==}
+
+  walk-up-path@4.0.0:
+    resolution: {integrity: sha512-3hu+tD8YzSLGuFYtPRb48vdhKMi0KQV5sn+uWr8+7dMEq/2G/dtLrdDinkLjqq5TIbIBjYJ4Ax/n3YiaW7QM8A==}
+    engines: {node: 20 || >=22}
 
   wcwidth@1.0.1:
     resolution: {integrity: sha512-XHPEwS0q6TaxcvG85+8EYkbiCux2XtWG2mkc47Ng2A77BQu9+DqIOJldST4HgPkuea7dvKSj5VgX3P1d4rW8Tg==}
@@ -10035,6 +10090,15 @@ snapshots:
       minipass: 7.0.4
       path-scurry: 1.10.1
 
+  glob@11.0.0:
+    dependencies:
+      foreground-child: 3.1.1
+      jackspeak: 4.0.1
+      minimatch: 10.0.1
+      minipass: 7.1.2
+      package-json-from-dist: 1.0.0
+      path-scurry: 2.0.0
+
   glob@7.2.3:
     dependencies:
       fs.realpath: 1.0.0
@@ -10671,6 +10735,12 @@ snapshots:
     optionalDependencies:
       '@pkgjs/parseargs': 0.11.0
 
+  jackspeak@4.0.1:
+    dependencies:
+      '@isaacs/cliui': 8.0.2
+    optionalDependencies:
+      '@pkgjs/parseargs': 0.11.0
+
   java-properties@1.0.2: {}
 
   jest-diff@29.7.0:
@@ -10864,6 +10934,8 @@ snapshots:
   lower-case@1.1.4: {}
 
   lru-cache@10.2.0: {}
+
+  lru-cache@11.0.0: {}
 
   lru-cache@5.1.1:
     dependencies:
@@ -11405,6 +11477,10 @@ snapshots:
 
   minimalistic-crypto-utils@1.0.1: {}
 
+  minimatch@10.0.1:
+    dependencies:
+      brace-expansion: 2.0.1
+
   minimatch@3.1.2:
     dependencies:
       brace-expansion: 1.1.11
@@ -11424,6 +11500,8 @@ snapshots:
   minimist@1.2.8: {}
 
   minipass@7.0.4: {}
+
+  minipass@7.1.2: {}
 
   mkdirp-classic@0.5.3: {}
 
@@ -11697,6 +11775,8 @@ snapshots:
       degenerator: 5.0.1
       netmask: 2.0.2
 
+  package-json-from-dist@1.0.0: {}
+
   pagefind@1.0.4:
     optionalDependencies:
       '@pagefind/darwin-arm64': 1.0.4
@@ -11805,6 +11885,11 @@ snapshots:
       lru-cache: 10.2.0
       minipass: 7.0.4
 
+  path-scurry@2.0.0:
+    dependencies:
+      lru-cache: 11.0.0
+      minipass: 7.1.2
+
   path-to-regexp@6.2.2: {}
 
   path-type@3.0.0:
@@ -11885,6 +11970,8 @@ snapshots:
   pngjs@7.0.0: {}
 
   polite-json@4.0.1: {}
+
+  polite-json@5.0.0: {}
 
   possible-typed-array-names@1.0.0: {}
 
@@ -12216,6 +12303,11 @@ snapshots:
       glob: 10.3.10
       walk-up-path: 3.0.1
 
+  resolve-import@2.0.0:
+    dependencies:
+      glob: 11.0.0
+      walk-up-path: 4.0.0
+
   resolve-pkg-maps@1.0.0: {}
 
   resolve@1.22.8:
@@ -12276,6 +12368,11 @@ snapshots:
   rimraf@5.0.5:
     dependencies:
       glob: 10.3.10
+
+  rimraf@6.0.1:
+    dependencies:
+      glob: 11.0.0
+      package-json-from-dist: 1.0.0
 
   ripemd160@2.0.2:
     dependencies:
@@ -12735,6 +12832,14 @@ snapshots:
       path-scurry: 1.10.1
       rimraf: 5.0.5
 
+  sync-content@2.0.1:
+    dependencies:
+      glob: 11.0.0
+      mkdirp: 3.0.1
+      path-scurry: 2.0.0
+      rimraf: 6.0.1
+      tshy: 3.0.2
+
   table-layout@1.0.2:
     dependencies:
       array-back: 4.0.2
@@ -12884,6 +12989,20 @@ snapshots:
       sync-content: 1.0.2
       typescript: 5.3.3
       walk-up-path: 3.0.1
+
+  tshy@3.0.2:
+    dependencies:
+      chalk: 5.3.0
+      chokidar: 3.6.0
+      foreground-child: 3.1.1
+      minimatch: 10.0.1
+      mkdirp: 3.0.1
+      polite-json: 5.0.0
+      resolve-import: 2.0.0
+      rimraf: 6.0.1
+      sync-content: 2.0.1
+      typescript: 5.5.4
+      walk-up-path: 4.0.0
 
   tslib@1.10.0: {}
 
@@ -13379,6 +13498,8 @@ snapshots:
   vscode-uri@3.0.8: {}
 
   walk-up-path@3.0.1: {}
+
+  walk-up-path@4.0.0: {}
 
   wcwidth@1.0.1:
     dependencies:
