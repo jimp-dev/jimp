@@ -33,7 +33,7 @@ jobs:
       - name: Upload Pages Artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: "${{ inputs.path }}/dist/"
+          path: packages/docs/dist/
 
   deploy:
     needs: build
