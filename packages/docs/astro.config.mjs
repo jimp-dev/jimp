@@ -23,6 +23,7 @@ export default defineConfig({
             { label: "Using in Browser", link: "/guides/browser/" },
             { label: "Writing Plugins", link: "/guides/writing-plugins/" },
             { label: "Custom Jimp", link: "/guides/custom-jimp/" },
+            { label: "Migrate to v1", link: "/guides/migrate-to-v1/" },
           ],
         },
         typeDocSidebarGroup,

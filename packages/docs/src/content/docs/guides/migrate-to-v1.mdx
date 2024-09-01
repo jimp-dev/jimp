@@ -1,0 +1,105 @@
+---
+title: Migrating to v1
+description: How to migrate from v0 to v1
+---
+
+The goals of v1 were to:
+
+1. Make jimp easier to use in any environment
+2. Make jimp's API more consistent and easier to use
+
+## Positional Arguments to Options Objects 
+
+In jimp v0 there were many ways to provide arguments to a method. 
+Most methods used positional arguments, which leads to code thats harder to read and extend.
+
+For example the resize method used to look like this:
+
+```js
+image.resize(100, 100);
+```
+
+Now it looks like this:
+
+```js
+image.resize({ w: 100, h: 100 });
+```
+
+### `ResizeStrategy.AUTO`
+
+This constant was only needed for positional arguments.
+It is no longer needed with the new API.
+
+## `Jimp` Constructor
+
+The constructor for `Jimp` has changed.
+Much in the same vein as above, the constructor now takes an options object.
+
+To create and empty jimp image:
+
+```js
+import { Jimp } from "jimp";
+
+const image = new Jimp({ width: 100, height: 100 });
+```
+
+Even give it a background color:
+
+```js
+const image = new Jimp({ width: 100, height: 100, color: 0xff0000ff }); 
+```
+
+### `Jimp.read`
+
+In v0 of jimp the constructor was async!
+This is a huge anit-pattern so it had to go.
+
+Now you should instead use the `Jimp.read` method.
+
+In node environments it will read a file from disk.
+
+```js
+import { Jimp } from "jimp";
+
+async function main() {
+  const image = await Jimp.read("test/image.png");
+}
+```
+
+In the browser it fetch the file from the url.
+
+```js
+import { Jimp } from "jimp";
+
+async function main() {
+  const image = await Jimp.read("https://example.com/image.png");
+}
+```
+
+### `Jimp.fromBuffer`
+
+You can load an image from a buffer.
+In v0 this was done through the constructor.
+In v1 it is done through the `Jimp.fromBuffer` method.
+
+```js
+import { Jimp } from "jimp";
+
+async function main() {
+  const image = await Jimp.fromBuffer(buffer);
+}
+```
+
+### `Jimp.fromBitmap`
+
+You can load an image from a bitmap.
+In v0 this was done through the constructor.
+In v1 it is done through the `Jimp.fromBitmap` method.
+
+```js
+import { Jimp } from "jimp";
+
+async function main() {
+  const image = await Jimp.fromBitmap(bitmap);
+}
+```
