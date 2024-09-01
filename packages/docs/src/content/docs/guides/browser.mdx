@@ -9,6 +9,11 @@ import { Code } from '@astrojs/starlight/components';
 
 Jimp can be used anywhere that javascript is supported. It can be used in the browser, in Node.js, or in a web worker.
 
+Jimp comes with a pre-bundled browser version.
+To use it simply import `jimp/browser` instead.
+
+> Note: Your bundler might do this automatically for you!
+
 <br />
 <GrayscaleExample client:load />
 
@@ -58,42 +63,4 @@ function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
 }
 
 input.addEventListener("change", handleFile); 
-```
-
-## Setup
-
-For the most part Jimp's code can be used in the browser. However, there are a few things to be aware of.
-
-The `Buffer` class is not available in the browser.
-You will need to polyfill this however the bundler you're using will handle this for you.
-
-### `webpack`
-
-To do this in `webpack` you can use the `resolve.fallback` option.
-
-```js
-module.exports = {
-  resolve: {
-    fallback: {
-      buffer: require.resolve('buffer/'),
-    },
-  },
-};
-```
-
-### `vite` / `astro`
-
-To do this in `vite` you can use the `resolve.alias` option.
-
-```js
-import { NodeGlobalsPolyfillPlugin } from "@esbuild-plugins/node-globals-polyfill";
-
-export default defineConfig({
-  esbuildOptions: {
-    define: {
-      global: "globalThis",
-    },
-    plugins: [NodeGlobalsPolyfillPlugin({ buffer: true })],
-  },
-});
 ```
