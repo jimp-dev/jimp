@@ -384,6 +384,9 @@ importers:
       eslint:
         specifier: ^8.57.0
         version: 8.57.0
+      node-self:
+        specifier: ^1.0.2
+        version: 1.0.2
       path-browserify:
         specifier: ^1.0.1
         version: 1.0.1
@@ -5178,6 +5181,9 @@ packages:
 
   node-releases@2.0.18:
     resolution: {integrity: sha512-d9VeXT4SJ7ZeOqGX6R5EM022wpL+eWPooLI+5UpWn2jCT1aosUQEhQP214x33Wkwx3JQMvIm+tIoVOdodFS40g==}
+
+  node-self@1.0.2:
+    resolution: {integrity: sha512-7oanohlazOw8RygP1OPmzAvJTLucwXKoioP4FMrzqnE6xUMM58i8aF18HDU0Hx5oxdsRLbmklieyjdNmvj1jHA==}
 
   node-stdlib-browser@1.2.0:
     resolution: {integrity: sha512-VSjFxUhRhkyed8AtLwSCkMrJRfQ3e2lGtG3sP6FEgaLKBBbxM/dLfjRe1+iLhjvyLFW3tBQ8+c0pcOtXGbAZJg==}
@@ -11491,6 +11497,8 @@ snapshots:
       resolve: 1.22.8
 
   node-releases@2.0.18: {}
+
+  node-self@1.0.2: {}
 
   node-stdlib-browser@1.2.0:
     dependencies:

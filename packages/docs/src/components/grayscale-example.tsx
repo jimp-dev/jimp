@@ -37,7 +37,7 @@ export function GrayscaleExample() {
 
   useEffect(() => {
     // Or load images hosted on the same domain.
-    Jimp.read("/dice.png").then(async (image) => {
+    Jimp.read("/jimp/dice.png").then(async (image) => {
       setSelectedFile(await image.getBase64("image/png"));
       image.greyscale();
       setOutput(await image.getBase64("image/png"));

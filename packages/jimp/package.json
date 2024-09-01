@@ -75,6 +75,7 @@
     "@rollup/plugin-terser": "^0.4.4",
     "@vitest/browser": "^1.4.0",
     "eslint": "^8.57.0",
+    "node-self": "^1.0.2",
     "path-browserify": "^1.0.1",
     "rollup": "^4.14.1",
     "rollup-plugin-dts": "^6.1.0",
