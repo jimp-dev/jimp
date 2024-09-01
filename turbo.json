@@ -2,8 +2,12 @@
   "$schema": "https://turbo.build/schema.json",
   "pipeline": {
     "build": {
-      "outputs": ["dist/**", "storybook-static/**"],
+      "outputs": ["dist/**"],
       "dependsOn": ["^build"]
+    },
+    "build:browser": {
+      "outputs": ["browser.js"],
+      "dependsOn": ["^build", "^build:browser"]
     },
     "lint": {
       "dependsOn": ["^lint"]
