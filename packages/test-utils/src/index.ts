@@ -155,15 +155,18 @@ export function testImgToStr(testImage: Bitmap) {
     unknownColorMap[c] = color;
   });
 
-  const lines = [];
+  const lines: string[] = [];
 
   for (let y = 0; y < testImage.height; y++) {
-    lines[y] = "";
+    let line = "";
+
     for (let x = 0; x < w; x++) {
       const cell = testImage.data.readUInt32BE(4 * (y * w + x))!;
       const k = colors2[cell] || unknownColorMap[cell] || "?";
-      lines[y] += k;
+      line += k;
     }
+
+    lines[y] = line;
   }
 
   return lines.join("\n");
