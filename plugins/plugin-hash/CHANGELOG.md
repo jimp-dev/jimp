@@ -1,3 +1,16 @@
+# v1.0.5 (Sun Sep 01 2024)
+
+#### 🐛 Bug Fix
+
+- add missing dependency [#1306](https://github.com/jimp-dev/jimp/pull/1306) ([@benmccann](https://github.com/benmccann) [@hipstersmoothie](https://github.com/hipstersmoothie))
+
+#### Authors: 2
+
+- Andrew Lisowski ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- Ben McCann ([@benmccann](https://github.com/benmccann))
+
+---
+
 # v1.0.3 (Sat Aug 31 2024)
 
 #### 🐛 Bug Fix

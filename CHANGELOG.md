@@ -1,3 +1,29 @@
+# v1.0.5 (Sun Sep 01 2024)
+
+:tada: This release contains work from a new contributor! :tada:
+
+Thank you, Ben McCann ([@benmccann](https://github.com/benmccann)), for all your work!
+
+#### 🐛 Bug Fix
+
+- `@jimp/plugin-hash`
+  - add missing dependency [#1306](https://github.com/jimp-dev/jimp/pull/1306) ([@benmccann](https://github.com/benmccann) [@hipstersmoothie](https://github.com/hipstersmoothie))
+
+#### ⚠️ Pushed to `main`
+
+- fix build command ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- build browser bundle when building ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- fixing docs deploy ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- `jimp`
+  - fix browser build ([@hipstersmoothie](https://github.com/hipstersmoothie))
+
+#### Authors: 2
+
+- Andrew Lisowski ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- Ben McCann ([@benmccann](https://github.com/benmccann))
+
+---
+
 # v1.0.4 (Sat Aug 31 2024)
 
 #### ⚠️ Pushed to `main`
