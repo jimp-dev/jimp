@@ -17,7 +17,6 @@
     "@jimp/plugin-crop": "workspace:*",
     "@jimp/plugin-resize": "workspace:*",
     "@jimp/types": "workspace:*",
-    "@jimp/utils": "workspace:*",
     "zod": "^3.22.4"
   },
   "devDependencies": {

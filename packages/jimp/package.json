@@ -61,8 +61,7 @@
     "@jimp/plugin-rotate": "workspace:*",
     "@jimp/plugin-threshold": "workspace:*",
     "@jimp/types": "workspace:*",
-    "@jimp/utils": "workspace:*",
-    "@rspack/cli": "^0.5.9"
+    "@jimp/utils": "workspace:*"
   },
   "devDependencies": {
     "@jimp/config-eslint": "workspace:*",

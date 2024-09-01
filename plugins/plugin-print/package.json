@@ -76,7 +76,6 @@
     "@jimp/js-png": "workspace:*",
     "@jimp/plugin-blit": "workspace:*",
     "@jimp/types": "workspace:*",
-    "@jimp/utils": "workspace:*",
     "parse-bmfont-ascii": "^1.0.6",
     "parse-bmfont-binary": "^1.0.6",
     "parse-bmfont-xml": "^1.1.6",
