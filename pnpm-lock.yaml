@@ -1270,6 +1270,9 @@ importers:
       '@types/any-base':
         specifier: ^1.1.3
         version: 1.1.3
+      any-base:
+        specifier: ^1.1.0
+        version: 1.1.0
     devDependencies:
       '@jimp/config-eslint':
         specifier: workspace:*
@@ -1286,9 +1289,6 @@ importers:
       '@vitest/browser':
         specifier: ^1.4.0
         version: 1.4.0(playwright@1.42.1)(vitest@1.4.0)
-      any-base:
-        specifier: ^1.1.0
-        version: 1.1.0
       eslint:
         specifier: ^8.57.0
         version: 8.57.0
