@@ -1,3 +1,26 @@
+# v1.1.0 (Sun Sep 01 2024)
+
+#### 🚀 Enhancement
+
+- `jimp`, `@jimp/plugin-quantize`
+  - Add quantize plugin [#1307](https://github.com/jimp-dev/jimp/pull/1307) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+
+#### ⚠️ Pushed to `main`
+
+- Update browser docs ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- Add migration guide ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- fix docs upload path ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- `@jimp/core`, `@jimp/diff`, `@jimp/file-ops`, `jimp`, `@jimp/test-utils`, `@jimp/types`, `@jimp/utils`, `@jimp/js-bmp`, `@jimp/js-jpeg`, `@jimp/js-png`, `@jimp/js-tiff`, `@jimp/plugin-blit`, `@jimp/plugin-blur`, `@jimp/plugin-circle`, `@jimp/plugin-contain`, `@jimp/plugin-cover`, `@jimp/plugin-crop`, `@jimp/plugin-displace`, `@jimp/plugin-dither`, `@jimp/plugin-fisheye`, `@jimp/plugin-flip`, `@jimp/plugin-mask`, `@jimp/plugin-print`, `@jimp/plugin-resize`, `@jimp/plugin-rotate`, `@jimp/plugin-shadow`, `@jimp/plugin-threshold`
+  - upgrade tshy ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- `@jimp/js-jpeg`, `@jimp/plugin-blit`, `@jimp/plugin-blur`, `@jimp/plugin-circle`, `@jimp/plugin-color`, `@jimp/plugin-contain`, `@jimp/plugin-cover`, `@jimp/plugin-crop`, `@jimp/plugin-displace`, `@jimp/plugin-dither`, `@jimp/plugin-fisheye`, `@jimp/plugin-flip`, `@jimp/plugin-mask`, `@jimp/plugin-print`, `@jimp/plugin-resize`, `@jimp/plugin-rotate`, `@jimp/plugin-shadow`, `@jimp/plugin-threshold`
+  - update more docs ([@hipstersmoothie](https://github.com/hipstersmoothie))
+
+#### Authors: 1
+
+- Andrew Lisowski ([@hipstersmoothie](https://github.com/hipstersmoothie))
+
+---
+
 # v1.0.5 (Sun Sep 01 2024)
 
 :tada: This release contains work from a new contributor! :tada:

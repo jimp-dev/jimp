@@ -1,3 +1,16 @@
+# v1.1.0 (Sun Sep 01 2024)
+
+#### ⚠️ Pushed to `main`
+
+- upgrade tshy ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- update more docs ([@hipstersmoothie](https://github.com/hipstersmoothie))
+
+#### Authors: 1
+
+- Andrew Lisowski ([@hipstersmoothie](https://github.com/hipstersmoothie))
+
+---
+
 # v1.0.3 (Sat Aug 31 2024)
 
 :tada: This release contains work from a new contributor! :tada:
