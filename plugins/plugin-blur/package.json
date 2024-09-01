@@ -1,6 +1,6 @@
 {
   "name": "@jimp/plugin-blur",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "repository": "jimp-dev/jimp",
   "scripts": {
     "lint": "eslint .",
