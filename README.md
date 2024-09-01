@@ -214,6 +214,9 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
     <td align="center"><a href="https://ca.linkedin.com/in/dathanliblik"><img src="https://avatars.githubusercontent.com/u/4047997?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Dathan</b></sub></a><br /><a href="https://github.com/jimp-dev/jimp/commits?author=DLiblik" title="Code">💻</a></td>
     <td align="center"><a href="https://github.com/Sarabadu"><img src="https://avatars.githubusercontent.com/u/1770453?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Juan Pablo Garcia Ripa</b></sub></a><br /><a href="https://github.com/jimp-dev/jimp/commits?author=Sarabadu" title="Documentation">📖</a> <a href="#infra-Sarabadu" title="Infrastructure (Hosting, Build-Tools, etc)">🚇</a> <a href="https://github.com/jimp-dev/jimp/commits?author=Sarabadu" title="Tests">⚠️</a> <a href="https://github.com/jimp-dev/jimp/commits?author=Sarabadu" title="Code">💻</a></td>
   </tr>
+  <tr>
+    <td align="center"><a href="http://www.benmccann.com/"><img src="https://avatars.githubusercontent.com/u/322311?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Ben McCann</b></sub></a><br /><a href="https://github.com/jimp-dev/jimp/commits?author=benmccann" title="Code">💻</a></td>
+  </tr>
 </table>
 
 <!-- markdownlint-restore -->
