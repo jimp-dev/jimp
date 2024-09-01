@@ -1,3 +1,15 @@
+# v1.0.4 (Sat Aug 31 2024)
+
+#### ⚠️ Pushed to `main`
+
+- fix release script (lisowski54@gmail.com)
+
+#### Authors: 1
+
+- Andrew Lisowski (lisowski54@gmail.com)
+
+---
+
 # v1.0.3 (Sat Aug 31 2024)
 
 :tada: This release contains work from a new contributor! :tada:
