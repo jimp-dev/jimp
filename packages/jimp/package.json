@@ -19,7 +19,7 @@
     "build": "tshy",
     "build:browser": "rollup -c",
     "dev": "tshy --watch",
-    "clean": "rm -rf node_modules .tshy .tshy-build dist"
+    "clean": "rm -rf node_modules .tshy .tshy-build dist .turbo"
   },
   "keywords": [
     "image",

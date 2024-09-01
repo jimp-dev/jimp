@@ -5,7 +5,7 @@
   "private": true,
   "main": "base.js",
   "scripts": {
-    "clean": "rm -rf node_modules"
+    "clean": "rm -rf node_modules .tshy .tshy-build dist .turbo"
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^7.2.0",

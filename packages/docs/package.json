@@ -8,7 +8,8 @@
     "start": "astro dev",
     "build": "rm -rf dist && astro check && astro build",
     "preview": "astro preview",
-    "astro": "astro"
+    "astro": "astro",
+    "clean": "rm -rf node_modules .tshy .tshy-build dist .turbo"
   },
   "dependencies": {
     "@astrojs/check": "^0.9.3",
