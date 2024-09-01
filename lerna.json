@@ -2,7 +2,7 @@
   "lerna": "^7.1.4",
   "npmClient": "pnpm",
   "registry": "https://registry.npmjs.org/",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "packages": [
     "packages/*",
     "plugins/*"

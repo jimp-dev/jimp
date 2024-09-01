@@ -1,6 +1,6 @@
 {
   "name": "@jimp/diff",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "repository": "jimp-dev/jimp",
   "scripts": {
     "lint": "eslint .",

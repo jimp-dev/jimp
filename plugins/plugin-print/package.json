@@ -1,6 +1,6 @@
 {
   "name": "@jimp/plugin-print",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "repository": "jimp-dev/jimp",
   "sideEffects": false,
   "scripts": {
