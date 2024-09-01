@@ -335,6 +335,9 @@ importers:
       '@jimp/plugin-print':
         specifier: workspace:*
         version: link:../../plugins/plugin-print
+      '@jimp/plugin-quantize':
+        specifier: workspace:*
+        version: link:../../plugins/quantize
       '@jimp/plugin-resize':
         specifier: workspace:*
         version: link:../../plugins/plugin-resize
@@ -1613,6 +1616,49 @@ importers:
       vite-plugin-node-polyfills:
         specifier: ^0.21.0
         version: 0.21.0(rollup@4.21.2)(vite@5.4.2(@types/node@20.12.5)(terser@5.30.3))
+      vitest:
+        specifier: ^1.4.0
+        version: 1.4.0(@types/node@20.12.5)(@vitest/browser@1.4.0)(terser@5.30.3)
+
+  plugins/quantize:
+    dependencies:
+      image-q:
+        specifier: ^4.0.0
+        version: 4.0.0
+      zod:
+        specifier: ^3.22.4
+        version: 3.23.8
+    devDependencies:
+      '@jimp/config-eslint':
+        specifier: workspace:*
+        version: link:../../packages/config-eslint
+      '@jimp/config-typescript':
+        specifier: workspace:*
+        version: link:../../packages/config-typescript
+      '@jimp/core':
+        specifier: workspace:*
+        version: link:../../packages/core
+      '@jimp/js-jpeg':
+        specifier: workspace:*
+        version: link:../js-jpeg
+      '@jimp/js-png':
+        specifier: workspace:*
+        version: link:../js-png
+      '@jimp/test-utils':
+        specifier: workspace:*
+        version: link:../../packages/test-utils
+      '@jimp/types':
+        specifier: workspace:*
+        version: link:../../packages/types
+      eslint:
+        specifier: ^8.57.0
+        version: 8.57.0
+      tshy:
+        specifier: ^3.0.2
+        version: 3.0.2
+      typescript:
+        specifier: ^5.5.4
+        version: 5.5.4
       vitest:
         specifier: ^1.4.0
         version: 1.4.0(@types/node@20.12.5)(@vitest/browser@1.4.0)(terser@5.30.3)

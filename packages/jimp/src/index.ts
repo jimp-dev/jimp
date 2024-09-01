@@ -27,6 +27,7 @@ import * as print from "@jimp/plugin-print";
 import * as resize from "@jimp/plugin-resize";
 import * as rotate from "@jimp/plugin-rotate";
 import * as threshold from "@jimp/plugin-threshold";
+import * as quantize from "@jimp/plugin-quantize";
 
 import { createJimp } from "@jimp/core";
 
@@ -119,6 +120,7 @@ export const Jimp = createJimp({
     resize.methods,
     rotate.methods,
     threshold.methods,
+    quantize.methods,
   ],
 });
 
