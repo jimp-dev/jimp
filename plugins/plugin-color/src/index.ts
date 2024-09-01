@@ -64,7 +64,7 @@ function applyKernel(
   x: number,
   y: number
 ) {
-  const value = [0, 0, 0];
+  const value = [0, 0, 0] as [number, number, number];
   const size = (kernel.length - 1) / 2;
 
   for (let kx = 0; kx < kernel.length; kx += 1) {
@@ -236,9 +236,9 @@ function histogram<I extends JimpClass>(image: I) {
   };
 
   image.scan((_, __, index) => {
-    histogram.r[image.bitmap.data[index + 0]!]++;
-    histogram.g[image.bitmap.data[index + 1]!]++;
-    histogram.b[image.bitmap.data[index + 2]!]++;
+    histogram.r[image.bitmap.data[index + 0]!]!++;
+    histogram.g[image.bitmap.data[index + 1]!]!++;
+    histogram.b[image.bitmap.data[index + 2]!]!++;
   });
 
   return histogram;
@@ -357,13 +357,15 @@ export const methods = {
 
     image.scan((_, __, idx) => {
       if (val < 0.0) {
-        image.bitmap.data[idx] *= 1 + val;
-        image.bitmap.data[idx + 1] *= 1 + val;
-        image.bitmap.data[idx + 2] *= 1 + val;
+        image.bitmap.data[idx]! *= 1 + val;
+        image.bitmap.data[idx + 1]! *= 1 + val;
+        image.bitmap.data[idx + 2]! *= 1 + val;
       } else {
-        image.bitmap.data[idx] += (255 - image.bitmap.data[idx]!) * val;
-        image.bitmap.data[idx + 1] += (255 - image.bitmap.data[idx + 1]!) * val;
-        image.bitmap.data[idx + 2] += (255 - image.bitmap.data[idx + 2]!) * val;
+        image.bitmap.data[idx]! += (255 - image.bitmap.data[idx]!) * val;
+        image.bitmap.data[idx + 1]! +=
+          (255 - image.bitmap.data[idx + 1]!) * val;
+        image.bitmap.data[idx + 2]! +=
+          (255 - image.bitmap.data[idx + 2]!) * val;
       }
     });
 

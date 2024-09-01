@@ -19,7 +19,7 @@
     "build": "tshy",
     "build:browser": "rollup -c",
     "dev": "tshy --watch",
-    "clean": "rm -rf node_modules .tshy .tshy-build dist"
+    "clean": "rm -rf node_modules .tshy .tshy-build dist .turbo"
   },
   "keywords": [
     "image",
@@ -82,7 +82,7 @@
     "rollup-plugin-esbuild": "^6.1.1",
     "rollup-plugin-polyfill-node": "^0.13.0",
     "tshy": "^1.12.0",
-    "typescript": "^5.4.2",
+    "typescript": "^5.5.4",
     "vite-plugin-node-polyfills": "^0.21.0",
     "vitest": "^1.4.0"
   },

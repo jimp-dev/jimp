@@ -7,7 +7,7 @@
     "test": "vitest",
     "build": "tshy",
     "dev": "tshy --watch",
-    "clean": "rm -rf node_modules .tshy .tshy-build dist"
+    "clean": "rm -rf node_modules .tshy .tshy-build dist .turbo"
   },
   "author": "Andrew Lisowski <lisowski54@gmail.com>",
   "license": "MIT",
@@ -18,10 +18,11 @@
   "devDependencies": {
     "@jimp/config-eslint": "workspace:*",
     "@jimp/config-typescript": "workspace:*",
+    "@types/node": "^20.12.5",
     "@types/tinycolor2": "^1.4.6",
     "eslint": "^8.57.0",
     "tshy": "^1.12.0",
-    "typescript": "^5.4.2",
+    "typescript": "^5.5.4",
     "vitest": "^1.4.0"
   },
   "tshy": {

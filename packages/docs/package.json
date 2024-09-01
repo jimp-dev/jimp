@@ -8,7 +8,8 @@
     "start": "astro dev",
     "build": "rm -rf dist && astro check && astro build",
     "preview": "astro preview",
-    "astro": "astro"
+    "astro": "astro",
+    "clean": "rm -rf node_modules .tshy .tshy-build dist .turbo"
   },
   "dependencies": {
     "@astrojs/check": "^0.9.3",
@@ -26,7 +27,7 @@
     "starlight-typedoc": "^0.15.0",
     "typedoc": "^0.26.6",
     "typedoc-plugin-markdown": "4.2.6",
-    "typedoc-plugin-zod": "^1.1.2",
+    "typedoc-plugin-zod": "^1.2.1",
     "typescript": "^5.4.3"
   },
   "devDependencies": {
