@@ -1,6 +1,6 @@
 {
   "name": "@jimp/config-typescript",
-  "version": "1.1.4",
+  "version": "1.1.5",
   "private": true,
   "license": "MIT",
   "publishConfig": {

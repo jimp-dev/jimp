@@ -1,6 +1,6 @@
 {
   "name": "@jimp/plugin-crop",
-  "version": "1.1.4",
+  "version": "1.1.5",
   "repository": "jimp-dev/jimp",
   "engines": {
     "node": ">=18"
