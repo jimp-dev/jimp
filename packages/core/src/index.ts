@@ -386,6 +386,7 @@ export function createJimp<
       let outputImage: Jimp;
 
       if (format.hasAlpha) {
+        // eslint-disable-next-line @typescript-eslint/no-this-alias
         outputImage = this;
       } else {
         outputImage = new CustomJimp({

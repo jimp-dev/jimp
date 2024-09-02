@@ -20,7 +20,7 @@ An image format plugins is composed of two functions: `encode` and `decode`.
 
 ```ts
 import { Format } from "@jimp/types";
-import WEBP, { WEBPOptions} from "webp-js";
+import WEBP, { WEBPOptions } from "webp-js";
 
 export default function webp() {
   return {
@@ -42,28 +42,28 @@ For example, the [blur](https://github.com/jimp-dev/jimp/tree/main/packages/plug
 
 An image manipulation method takes an image as its first argument, does something to it, and returns a new image.
 
-```ts
+````ts
 import { JimpClass } from "@jimp/types";
 import { BlurOptions } from "blur-ts";
 
 export const methods = {
   /**
    * A blur effect
-   * 
+   *
    * @example
    * ```ts
    * import { Jimp } from "jimp";
-   * 
+   *
    * const image = await Jimp.read("test/image.png");
-   * 
+   *
    * image.blur(5);
    * ```
    */
   blur<I extends JimpClass>(image: I, r: number) {
     // Implementation
-  }
+  },
 };
-```
+````
 
 Generally our method APIs follow the following pattern:
 

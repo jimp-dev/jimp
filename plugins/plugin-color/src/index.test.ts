@@ -28,7 +28,7 @@ describe("canvas color transformation", () => {
   test("brighten", () => {
     const image = jimp.fromBitmap(redDonutJGD);
     expect(
-      image.color([{ apply: "brighten", params: [25] }])
+      image.color([{ apply: "brighten", params: [25] }]),
     ).toMatchSnapshot();
   });
 

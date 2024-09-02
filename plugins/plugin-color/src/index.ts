@@ -62,7 +62,7 @@ function applyKernel(
   image: JimpClass,
   kernel: number[][],
   x: number,
-  y: number
+  y: number,
 ) {
   const value = [0, 0, 0, 0] as [number, number, number, number];
   const size = (kernel.length - 1) / 2;
@@ -297,17 +297,17 @@ export const methods = {
       image.bitmap.data[idx + 0] = normalizeValue(
         r,
         bounds.r[0]!,
-        bounds.r[1]!
+        bounds.r[1]!,
       );
       image.bitmap.data[idx + 1] = normalizeValue(
         g,
         bounds.g[0]!,
-        bounds.g[1]!
+        bounds.g[1]!,
       );
       image.bitmap.data[idx + 2] = normalizeValue(
         b,
         bounds.b[0]!,
-        bounds.b[1]!
+        bounds.b[1]!,
       );
     });
 

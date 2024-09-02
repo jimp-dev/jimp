@@ -16,8 +16,8 @@ describe("Flipping plugin", () => {
         "CCCCCCCC",
         "CCCCCCCC",
         "CCCCCCCC",
-        "AACCCCAA"
-      )
+        "AACCCCAA",
+      ),
     );
 
     expect(src.flip({ horizontal: true })).toMatchSnapshot();
@@ -32,8 +32,8 @@ describe("Flipping plugin", () => {
         "CCCCCCCC",
         "CCCCCCCC",
         "CCCCCCCC",
-        "AACCCCAA"
-      )
+        "AACCCCAA",
+      ),
     );
 
     expect(src.flip({ vertical: true })).toMatchSnapshot();
@@ -48,8 +48,8 @@ describe("Flipping plugin", () => {
         "CCCCCCCC",
         "CCCCCCCC",
         "CCCCCCCC",
-        "AACCCCAA"
-      )
+        "AACCCCAA",
+      ),
     );
 
     expect(src.flip({ horizontal: true, vertical: true })).toMatchSnapshot();

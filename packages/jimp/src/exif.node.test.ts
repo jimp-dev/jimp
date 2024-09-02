@@ -29,7 +29,7 @@ describe("EXIF orientation", () => {
       expect(output).toMatchImageSnapshot();
 
       expect(getExifOrientation(orientedImg)).toBe(
-        getExifOrientation(regularImg)
+        getExifOrientation(regularImg),
       );
     });
   }
@@ -47,7 +47,7 @@ describe("EXIF orientation", () => {
 
       expect(distance(regularImg, orientedImg)).toBeLessThan(0.07);
       expect(getExifOrientation(orientedImg)).toBe(
-        getExifOrientation(regularImg)
+        getExifOrientation(regularImg),
       );
     });
   }

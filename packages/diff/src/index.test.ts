@@ -44,13 +44,13 @@ describe("Compare image difference", () => {
 
   test("throws an error if threshold is invalid", () => {
     expect(() => diff(imgs[0], imgs[3], -1)).toThrow(
-      "threshold must be a number between 0 and 1"
+      "threshold must be a number between 0 and 1",
     );
   });
 
   test("should resize image before diffing", () => {
     expect(diff(imgs[3], imgs[4]).percent).toStrictEqual(
-      diff(imgs[4], imgs[3]).percent
+      diff(imgs[4], imgs[3]).percent,
     );
   });
 });

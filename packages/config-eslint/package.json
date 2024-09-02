@@ -4,17 +4,20 @@
   "license": "MIT",
   "private": true,
   "main": "base.js",
+  "type": "module",
   "scripts": {
     "clean": "rm -rf node_modules .tshy .tshy-build dist .turbo"
   },
   "devDependencies": {
-    "@typescript-eslint/eslint-plugin": "^7.2.0",
-    "@typescript-eslint/parser": "^7.2.0",
     "eslint-config-prettier": "^9.1.0",
-    "eslint-config-turbo": "^1.12.5",
-    "eslint-plugin-only-warn": "^1.1.0",
+    "eslint-config-turbo": "^2.1.1",
     "typescript": "^5.5.4"
   },
   "publishConfig": {},
-  "sideEffects": false
+  "sideEffects": false,
+  "dependencies": {
+    "@eslint/js": "^9.9.1",
+    "@types/eslint__js": "^8.42.3",
+    "typescript-eslint": "^8.3.0"
+  }
 }

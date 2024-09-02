@@ -39,7 +39,7 @@ function xOffsetBasedOnAlignment<I extends JimpClass>(
   font: BmFont<I>,
   line: string,
   maxWidth: number,
-  alignment: HorizontalAlign
+  alignment: HorizontalAlign,
 ) {
   if (alignment === HorizontalAlign.LEFT) {
     return 0;
@@ -57,7 +57,7 @@ function drawCharacter<I extends JimpClass>(
   font: BmFont<I>,
   x: number,
   y: number,
-  char: BmCharacter
+  char: BmCharacter,
 ) {
   if (char.width > 0 && char.height > 0) {
     const characterPage = font.pages[char.page];
@@ -84,7 +84,7 @@ function printText<I extends JimpClass>(
   x: number,
   y: number,
   text: string,
-  defaultCharWidth: number
+  defaultCharWidth: number,
 ) {
   for (let i = 0; i < text.length; i++) {
     const stringChar = text[i]!;
@@ -141,7 +141,7 @@ export const methods = {
     }: PrintOptions & {
       /** the BMFont instance */
       font: BmFont<I>;
-    }
+    },
   ) {
     let {
       // eslint-disable-next-line prefer-const
@@ -184,7 +184,7 @@ export const methods = {
     }
 
     const defaultCharWidth = Object.entries(font.chars).find(
-      (c) => c[1].xadvance
+      (c) => c[1].xadvance,
     )?.[1].xadvance;
 
     if (typeof defaultCharWidth !== "number") {
@@ -199,7 +199,7 @@ export const methods = {
         font,
         lineString,
         maxWidth,
-        alignmentX
+        alignmentX,
       );
 
       printText(
@@ -208,7 +208,7 @@ export const methods = {
         x + alignmentWidth,
         y,
         lineString,
-        defaultCharWidth
+        defaultCharWidth,
       );
       y += font.common.lineHeight;
     });

@@ -2,6 +2,9 @@
   "name": "@jimp/{{ kebabCase name }}",
   "version": "1.0.1",
   "repository": "jimp-dev/jimp",
+  "engines": {
+    "node": ">=18"
+  },
   "scripts": {
     "lint": "eslint .",
     "test": "vitest",
@@ -14,10 +17,10 @@
   "devDependencies": {
     "@jimp/config-eslint": "workspace:*",
     "@jimp/config-typescript": "workspace:*",
-    "eslint": "^8.57.0",
+    "eslint": "^9.9.1",
     "tshy": "^3.0.2",
     "typescript": "^5.5.4",
-    "vitest": "^1.4.0"
+    "vitest": "^2.0.5"
   },
   "tshy": {
     "exclude": [

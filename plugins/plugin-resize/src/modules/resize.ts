@@ -1,3 +1,4 @@
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck
 
 // JavaScript Image Resizer (c) 2012 - Grant Galitz
@@ -526,6 +527,7 @@ Resize.prototype.generateFloatBuffer = function (bufferLength) {
   try {
     return new Float32Array(bufferLength);
   } catch (error) {
+    console.error(error);
     return [];
   }
 };
@@ -535,6 +537,7 @@ Resize.prototype.generateFloat64Buffer = function (bufferLength) {
   try {
     return new Float64Array(bufferLength);
   } catch (error) {
+    console.error(error);
     return [];
   }
 };
@@ -544,6 +547,7 @@ Resize.prototype.generateUint8Buffer = function (bufferLength) {
   try {
     return new Uint8Array(bufferLength);
   } catch (error) {
+    console.error(error);
     return [];
   }
 };

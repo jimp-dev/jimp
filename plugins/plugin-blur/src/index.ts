@@ -65,7 +65,6 @@ export const methods = {
     let yp: number;
     let yi: number;
     let yw: number;
-    let pa: number;
 
     const wm = image.bitmap.width - 1;
     const hm = image.bitmap.height - 1;

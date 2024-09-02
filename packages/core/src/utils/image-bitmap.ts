@@ -1,12 +1,6 @@
 import EXIFParser, { ExifData } from "exif-parser";
 import { JimpClass } from "@jimp/types";
 
-const EXIF_TAGS = {
-  ORIENTATION: 0x0112, // decimal: 274
-  IMAGE_WIDTH: 0x0100, // decimal: 256
-  IMAGE_HEIGHT: 0x0101, // decimal: 257
-};
-
 /**
  * Obtains image orientation from EXIF metadata.
  *
@@ -120,7 +114,7 @@ function transformBitmap<I extends JimpClass>(
   img.bitmap.width = width;
   img.bitmap.height = height;
 
-  // @ts-ignore
+  // @ts-expect-error Accessing private property
   img._exif.tags.Orientation = 1;
 }
 
@@ -154,6 +148,6 @@ export async function attemptExifRotate<I extends JimpClass>(
 
     exifRotate(image); // EXIF data
   } catch (error) {
-    /* meh */
+    console.error(error);
   }
 }

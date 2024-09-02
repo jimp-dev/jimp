@@ -63,7 +63,7 @@ describe("Callbacks", () => {
 
       expect(
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (clone[op as keyof typeof clone] as any)(...args)
+        (clone[op as keyof typeof clone] as any)(...args),
       ).toMatchSnapshot();
     });
   });

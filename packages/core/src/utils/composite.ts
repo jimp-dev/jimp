@@ -2,7 +2,7 @@ import { Edge, JimpClass } from "@jimp/types";
 
 import { BlendMode } from "./constants.js";
 import * as compositeModes from "./composite-modes.js";
-import { limit255, scan } from "@jimp/utils";
+import { limit255 } from "@jimp/utils";
 
 export function composite<I extends JimpClass>(
   baseImage: I,
@@ -23,11 +23,8 @@ export function composite<I extends JimpClass>(
     throw new Error("x and y must be numbers");
   }
 
-  let {
-    mode = BlendMode.SRC_OVER,
-    opacitySource = 1.0,
-    opacityDest = 1.0,
-  } = options;
+  const { mode = BlendMode.SRC_OVER } = options;
+  let { opacitySource = 1.0, opacityDest = 1.0 } = options;
 
   if (
     typeof opacitySource !== "number" ||
@@ -41,7 +38,6 @@ export function composite<I extends JimpClass>(
     opacityDest = 1.0;
   }
 
-  // eslint-disable-next-line import/namespace
   const blendmode = compositeModes[mode];
 
   // round input

@@ -18,19 +18,17 @@
     "@esbuild-plugins/node-globals-polyfill": "^0.2.3",
     "@jimp/core": "workspace:*",
     "@jimp/plugin-print": "workspace:*",
+    "@types/react": "^18.3.5",
     "astro": "^4.15.1",
-    "eslint": "^8.57.0",
+    "eslint": "^9.9.1",
     "jimp": "workspace:*",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "sharp": "^0.32.5",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "sharp": "^0.33.5",
     "starlight-typedoc": "^0.15.0",
     "typedoc": "^0.26.6",
     "typedoc-plugin-markdown": "4.2.6",
     "typedoc-plugin-zod": "^1.2.1",
-    "typescript": "^5.4.3"
-  },
-  "devDependencies": {
-    "@types/react": "^18.2.73"
+    "typescript": "^5.5.4"
   }
 }

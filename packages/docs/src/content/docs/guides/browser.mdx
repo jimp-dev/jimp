@@ -3,9 +3,9 @@ title: Using in Browser
 description: How to use Jimp in the browser.
 ---
 
-import { GrayscaleExample } from '../../../components/grayscale-example'
-import GrayscaleExampleCode from '../../../components/grayscale-example?raw';
-import { Code } from '@astrojs/starlight/components';
+import { GrayscaleExample } from "../../../components/grayscale-example";
+import GrayscaleExampleCode from "../../../components/grayscale-example?raw";
+import { Code } from "@astrojs/starlight/components";
 
 Jimp can be used anywhere that javascript is supported. It can be used in the browser, in Node.js, or in a web worker.
 
@@ -36,10 +36,10 @@ You can initialize a Jimp instance from a URL or a file path.
 import Jimp from "jimp";
 
 // Read a file hosted on the same domain
-const image1 = await Jimp.read("/some/url")
+const image1 = await Jimp.read("/some/url");
 
-// Read a file hosted on a different domain 
-const image2 = await Jimp.read("https://some.other.domain/some/url")
+// Read a file hosted on a different domain
+const image2 = await Jimp.read("https://some.other.domain/some/url");
 ```
 
 ### With uploaded files
@@ -56,11 +56,11 @@ function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
 
     image.greyscale();
 
-    const base64 = await image.getBase64("image/jpeg")
+    const base64 = await image.getBase64("image/jpeg");
   };
 
   reader.readAsArrayBuffer(e.target.files[0]);
 }
 
-input.addEventListener("change", handleFile); 
+input.addEventListener("change", handleFile);
 ```

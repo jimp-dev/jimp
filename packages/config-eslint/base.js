@@ -1,44 +1,28 @@
-const { resolve } = require("node:path");
+import js from "@eslint/js";
+import eslintConfigPrettier from "eslint-config-prettier";
+import turboPlugin from "eslint-plugin-turbo";
+import tseslint from "typescript-eslint";
 
-const project = resolve(process.cwd(), "tsconfig.json");
-
-/** @type {import("eslint").Linter.Config} */
-module.exports = {
-  extends: [
-    "eslint:recommended",
-    "prettier",
-    "eslint-config-turbo",
-    "plugin:@typescript-eslint/recommended",
-  ],
-  plugins: ["only-warn"],
-  globals: {
-    React: true,
-    JSX: true,
+export default [
+  js.configs.recommended,
+  eslintConfigPrettier,
+  ...tseslint.configs.recommended,
+  {
+    ignores: [
+      // Ignore dotfiles
+      ".*.js",
+      "node_modules/",
+      "dist/",
+      "**/browser.js",
+    ],
   },
-  env: {
-    node: true,
-  },
-  settings: {
-    "import/resolver": {
-      typescript: {
-        project,
-      },
+  {
+    name: "eslint-config-turbo (recreated flat)",
+    plugins: {
+      turbo: { rules: turboPlugin.rules },
+    },
+    rules: {
+      "turbo/no-undeclared-env-vars": "error",
     },
   },
-  parser: "@typescript-eslint/parser",
-  parserOptions: {
-    project,
-  },
-  ignorePatterns: [
-    // Ignore dotfiles
-    ".*.js",
-    "node_modules/",
-    "dist/",
-    "**/browser.js",
-  ],
-  overrides: [
-    {
-      files: ["*.js?(x)", "*.ts?(x)"],
-    },
-  ],
-};
+];

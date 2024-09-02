@@ -33,7 +33,7 @@ describe("scan", () => {
       0,
       0,
       j.bitmap.width,
-      j.bitmap.height
+      j.bitmap.height,
     )) {
       const color = [
         [0xff, 0x00, 0x00],

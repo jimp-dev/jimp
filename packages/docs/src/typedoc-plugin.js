@@ -47,7 +47,7 @@ export function load(app) {
     if (
       refl.type.name === "Promise" &&
       refl.type.typeArguments.some((a) =>
-        a.types?.some((t) => t.name === "JimpInstanceMethods")
+        a.types?.some((t) => t.name === "JimpInstanceMethods"),
       )
     ) {
       refl.type.typeArguments = [

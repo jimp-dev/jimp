@@ -20,8 +20,8 @@ describe("All align combinations for cover", () => {
       "▾▾▾▾◆◆◆◆",
       "▾▾▾▾◆◆◆◆",
       "▾▾▾▾◆◆◆◆",
-      "▾▾▾▾◆◆◆◆"
-    )
+      "▾▾▾▾◆◆◆◆",
+    ),
   );
 
   const horizontal = jimp.fromBitmap(
@@ -33,8 +33,8 @@ describe("All align combinations for cover", () => {
       "▾▾▾▾▾▾◆◆◆◆◆◆",
       "▾▾▾▾▾▾◆◆◆◆◆◆",
       "▾▾▾▾▾▾◆◆◆◆◆◆",
-      "▾▾▾▾▾▾◆◆◆◆◆◆"
-    )
+      "▾▾▾▾▾▾◆◆◆◆◆◆",
+    ),
   );
 
   const tests: Array<
@@ -61,13 +61,13 @@ describe("All align combinations for cover", () => {
 
     test("vertical contain aligned to " + align, () => {
       expect(
-        vertical.clone().cover({ w: 4, h: 4, align: alignValue })
+        vertical.clone().cover({ w: 4, h: 4, align: alignValue }),
       ).toMatchSnapshot();
     });
 
     test("horizontal contain aligned to " + align, () => {
       expect(
-        horizontal.clone().cover({ w: 4, h: 4, align: alignValue })
+        horizontal.clone().cover({ w: 4, h: 4, align: alignValue }),
       ).toMatchSnapshot();
     });
   });

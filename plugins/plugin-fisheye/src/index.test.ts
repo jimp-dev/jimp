@@ -20,8 +20,8 @@ describe("Fisheye", () => {
         "0122112210",
         "0022222200",
         "0001221000",
-        "0000000000"
-      )
+        "0000000000",
+      ),
     );
 
     expect(img.fisheye()).toMatchSnapshot();
@@ -39,8 +39,8 @@ describe("Fisheye", () => {
         "0000000000",
         "0000000000",
         "0000000000",
-        "0000000000"
-      )
+        "0000000000",
+      ),
     );
 
     expect(imgNormal.fisheye({ radius: 1.8 })).toMatchSnapshot();

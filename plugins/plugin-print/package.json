@@ -1,7 +1,10 @@
 {
   "name": "@jimp/plugin-print",
-  "version": "1.1.2",
+  "version": "1.1.1",
   "repository": "jimp-dev/jimp",
+  "engines": {
+    "node": ">=18"
+  },
   "sideEffects": false,
   "scripts": {
     "lint": "eslint .",
@@ -17,11 +20,11 @@
     "@jimp/config-typescript": "workspace:*",
     "@jimp/js-png": "workspace:*",
     "@jimp/test-utils": "workspace:*",
-    "@types/node": "^20.12.5",
-    "eslint": "^8.57.0",
+    "@types/node": "^18.19.48",
+    "eslint": "^9.9.1",
     "tshy": "^3.0.2",
     "typescript": "^5.5.4",
-    "vitest": "^1.4.0"
+    "vitest": "^2.0.5"
   },
   "tshy": {
     "exclude": [
@@ -79,7 +82,7 @@
     "parse-bmfont-ascii": "^1.0.6",
     "parse-bmfont-binary": "^1.0.6",
     "parse-bmfont-xml": "^1.1.6",
-    "zod": "^3.22.4"
+    "zod": "^3.23.8"
   },
   "publishConfig": {
     "access": "public"

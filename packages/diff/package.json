@@ -2,6 +2,9 @@
   "name": "@jimp/diff",
   "version": "1.1.2",
   "repository": "jimp-dev/jimp",
+  "engines": {
+    "node": ">=18"
+  },
   "scripts": {
     "lint": "eslint .",
     "test": "vitest",
@@ -23,10 +26,10 @@
     "@jimp/core": "workspace:*",
     "@jimp/test-utils": "workspace:*",
     "@types/pixelmatch": "^5.2.6",
-    "eslint": "^8.57.0",
+    "eslint": "^9.9.1",
     "tshy": "^3.0.2",
     "typescript": "^5.5.4",
-    "vitest": "^1.4.0"
+    "vitest": "^2.0.5"
   },
   "tshy": {
     "exclude": [

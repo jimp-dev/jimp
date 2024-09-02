@@ -60,7 +60,7 @@ export interface JimpClass {
     w: number,
     h: number,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    cb: (x: number, y: number, idx: number) => any
+    cb: (x: number, y: number, idx: number) => any,
   ): JimpClass;
   scan(
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -69,6 +69,6 @@ export interface JimpClass {
     w?: number,
     h?: number,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    f?: (x: number, y: number, idx: number) => any
+    f?: (x: number, y: number, idx: number) => any,
   ): JimpClass;
 }

@@ -27,7 +27,7 @@ export default function png() {
         colorType,
         inputHasAlpha = true,
         ...options
-      }: PNGOptions = {}
+      }: PNGOptions = {},
     ) => {
       const png = new PNG({
         width: bitmap.width,

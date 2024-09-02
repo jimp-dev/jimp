@@ -37,8 +37,8 @@ export async function loadFont(file: string) {
     ...font,
     pages: await Promise.all(
       font.pages.map(async (page) =>
-        CharacterJimp.read(path.join(path.dirname(file), page))
-      )
+        CharacterJimp.read(path.join(path.dirname(file), page)),
+      ),
     ),
   };
 }

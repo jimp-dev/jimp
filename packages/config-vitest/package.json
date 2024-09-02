@@ -3,6 +3,9 @@
   "version": "1.1.2",
   "private": true,
   "repository": "jimp-dev/jimp",
+  "engines": {
+    "node": ">=18"
+  },
   "scripts": {
     "dev": "tshy --watch",
     "clean": "rm -rf node_modules .tshy .tshy-build dist .turbo"
@@ -12,14 +15,14 @@
   "devDependencies": {
     "@jimp/config-typescript": "workspace:*",
     "@jimp/test-utils": "workspace:*",
-    "eslint": "^8.57.0",
+    "eslint": "^9.9.1",
     "typescript": "^5.5.4",
-    "vitest": "^1.4.0"
+    "vitest": "^2.0.5"
   },
   "dependencies": {
     "@esbuild-plugins/node-globals-polyfill": "^0.2.3",
-    "playwright": "^1.42.1",
-    "vite-plugin-node-polyfills": "^0.21.0"
+    "playwright": "^1.46.1",
+    "vite-plugin-node-polyfills": "^0.22.0"
   },
   "type": "module",
   "publishConfig": {

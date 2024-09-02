@@ -228,8 +228,9 @@ export const methods = {
    */
   rotate<I extends JimpClass>(image: I, options: RotateOptions) {
     const parsed = RotateOptionsSchema.parse(options);
-    let { deg, mode = true } =
-      typeof parsed === "number" ? { deg: parsed } : parsed;
+    const actualOptions = typeof parsed === "number" ? { deg: parsed } : parsed;
+    const { mode = true } = actualOptions;
+    let { deg } = actualOptions;
 
     // No need to do extra rotation
     deg %= 360;

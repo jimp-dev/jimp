@@ -21,7 +21,7 @@ interface ResizeClass {
   resize(buffer: Buffer): void;
 }
 
-type Constructable<T> = new (...args: any[]) => T;
+type Constructable<T> = new (...args: unknown[]) => T;
 
 const ResizeOptionsSchema = z.union([
   z.object({
@@ -63,9 +63,7 @@ const ScaleComplexOptionsSchema = z.object({
 });
 
 export type ScaleComplexOptions = z.infer<typeof ScaleComplexOptionsSchema>;
-
-const ScaleOptionsSchema = z.union([z.number(), ScaleComplexOptionsSchema]);
-export type ScaleOptions = z.infer<typeof ScaleOptionsSchema>;
+export type ScaleOptions = number | ScaleComplexOptions;
 
 export const methods = {
   /**

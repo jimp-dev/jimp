@@ -18,7 +18,7 @@ export default function generator(plop: PlopTypes.NodePlopAPI): void {
         type: "addMany",
         templateFiles: "templates/package/**/*",
         base: "templates/package",
-        destination: path.join(__dirname, '../../packages/{{kebabCase name}}'),
+        destination: path.join(__dirname, "../../packages/{{kebabCase name}}"),
       },
     ],
   });
@@ -36,7 +36,7 @@ export default function generator(plop: PlopTypes.NodePlopAPI): void {
         type: "addMany",
         templateFiles: "templates/package/**/*",
         base: "templates/package",
-        destination: path.join(__dirname, '../../plugins/{{kebabCase name}}'),
+        destination: path.join(__dirname, "../../plugins/{{kebabCase name}}"),
       },
     ],
   });

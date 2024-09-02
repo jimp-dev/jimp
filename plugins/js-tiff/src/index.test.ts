@@ -26,6 +26,7 @@ describe("TIFF", () => {
     });
     const buffer = await image.getBuffer("image/tiff");
 
+    // eslint-disable-next-line no-control-regex
     expect(buffer.toString()).toMatch(/^MM\u0000*\u0000/);
   });
 });

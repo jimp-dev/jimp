@@ -15,7 +15,7 @@ describe("Mask", () => {
       "■▴■▾■□",
       "■□▴□▾□",
       "■□■▴■▾"
-    )
+    ),
   );
   const imgSrcAlpa = jimp.fromBitmap(
     // prettier-ignore
@@ -23,7 +23,7 @@ describe("Mask", () => {
       "▴▵▾▿",
       "▴▵▾▿",
       "▴▵▾▿"
-    )
+    ),
   );
   const maskGrayBig = jimp.fromBitmap(
     // prettier-ignore
@@ -32,7 +32,7 @@ describe("Mask", () => {
       "8CFFC8",
       "8CFFC8",
       "048840"
-    )
+    ),
   );
   const maskGraySmall = jimp.fromBitmap(
     // prettier-ignore
@@ -40,7 +40,7 @@ describe("Mask", () => {
       "0369",
       "369C",
       "69CF"
-    )
+    ),
   );
   const maskColor = jimp.fromBitmap(
     // prettier-ignore
@@ -48,7 +48,7 @@ describe("Mask", () => {
       "▴▴▾▾",
       "▪▪▰▰",
       "□□□□"
-    )
+    ),
   );
 
   test("Affect opaque image with a gray mask with the same size", () => {
@@ -57,13 +57,13 @@ describe("Mask", () => {
 
   test("Affect opaque image with a gray mask with the same size, blited", () => {
     expect(
-      imgSrcOpaq.clone().mask({ src: maskGrayBig, x: 1, y: 1 })
+      imgSrcOpaq.clone().mask({ src: maskGrayBig, x: 1, y: 1 }),
     ).toMatchSnapshot();
   });
 
   test("Affect opaque image with a gray mask with the same size, blited negative", () => {
     expect(
-      imgSrcOpaq.clone().mask({ src: maskGrayBig, x: -1, y: -1 })
+      imgSrcOpaq.clone().mask({ src: maskGrayBig, x: -1, y: -1 }),
     ).toMatchSnapshot();
   });
 
@@ -73,7 +73,7 @@ describe("Mask", () => {
 
   test("Affect opaque image with a smaller gray mask, blited", () => {
     expect(
-      imgSrcOpaq.clone().mask({ src: maskGraySmall, x: 1, y: 1 })
+      imgSrcOpaq.clone().mask({ src: maskGraySmall, x: 1, y: 1 }),
     ).toMatchSnapshot();
   });
 
@@ -83,13 +83,13 @@ describe("Mask", () => {
 
   test("Affect alpha image with a bigger gray mask, blited", () => {
     expect(
-      imgSrcAlpa.clone().mask({ src: maskGrayBig, x: -1, y: -1 })
+      imgSrcAlpa.clone().mask({ src: maskGrayBig, x: -1, y: -1 }),
     ).toMatchSnapshot();
   });
 
   test("Affect opaque image with a colored mask", () => {
     expect(
-      imgSrcOpaq.clone().mask({ src: maskColor, x: 1, y: 1 })
+      imgSrcOpaq.clone().mask({ src: maskColor, x: 1, y: 1 }),
     ).toMatchSnapshot();
   });
 });

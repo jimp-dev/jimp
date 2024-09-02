@@ -14,7 +14,7 @@ describe("Threshold", () => {
   test("defines default threshold for lighter backgrounds", async () => {
     const testImage = await jimp.read(getTestImagePath("hands.jpg"));
     const expectedImage = await jimp.read(
-      getTestImagePath("hands_mx200_rp255.jpg")
+      getTestImagePath("hands_mx200_rp255.jpg"),
     );
     const output = testImage.threshold({ max: 200, replace: 255 }).hash();
 
