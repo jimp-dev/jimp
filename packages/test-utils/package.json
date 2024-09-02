@@ -22,7 +22,7 @@
     "@jimp/config-eslint": "workspace:*",
     "@jimp/config-typescript": "workspace:*",
     "@types/jest-image-snapshot": "^6.4.0",
-    "@types/node": "^20.12.5",
+    "@types/node": "^18.19.48",
     "eslint": "^8.57.0",
     "tshy": "^3.0.2",
     "typescript": "^5.5.4",
