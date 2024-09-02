@@ -1,6 +1,6 @@
 {
   "name": "@jimp/plugin-color",
-  "version": "1.1.3",
+  "version": "1.1.4",
   "repository": "jimp-dev/jimp",
   "engines": {
     "node": ">=18"
