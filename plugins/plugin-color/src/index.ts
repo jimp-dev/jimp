@@ -64,7 +64,7 @@ function applyKernel(
   x: number,
   y: number
 ) {
-  const value = [0, 0, 0] as [number, number, number];
+  const value = [0, 0, 0, 0] as [number, number, number, number];
   const size = (kernel.length - 1) / 2;
 
   for (let kx = 0; kx < kernel.length; kx += 1) {
@@ -74,6 +74,7 @@ function applyKernel(
       value[0] += image.bitmap.data[idx]! * kernel[kx]![ky]!;
       value[1] += image.bitmap.data[idx + 1]! * kernel[kx]![ky]!;
       value[2] += image.bitmap.data[idx + 2]! * kernel[kx]![ky]!;
+      value[3] += image.bitmap.data[idx + 3]! * kernel[kx]![ky]!;
     }
   }
 
@@ -718,6 +719,7 @@ export const methods = {
       image.bitmap.data[idx] = value[0]!;
       image.bitmap.data[idx + 1] = value[1]!;
       image.bitmap.data[idx + 2] = value[2]!;
+      image.bitmap.data[idx + 3] = value[3]!;
     });
 
     return image;
@@ -766,6 +768,7 @@ export const methods = {
       image.bitmap.data[idx] = limit255(value[0]!);
       image.bitmap.data[idx + 1] = limit255(value[1]!);
       image.bitmap.data[idx + 2] = limit255(value[2]!);
+      image.bitmap.data[idx + 3] = limit255(value[3]!);
     });
 
     return image;
