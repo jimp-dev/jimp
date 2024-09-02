@@ -2,7 +2,15 @@ import parseASCII from "parse-bmfont-ascii";
 import parseXML from "parse-bmfont-xml";
 import readBinary from "parse-bmfont-binary";
 import { BmCharacter, BmKerning, BmFont, BmCommonProps } from "./types.js";
+import png from "@jimp/js-png";
+import { createJimp } from "@jimp/core";
+import path from "path";
+import { convertXML } from "simple-xml-to-json";
 
+export const isWebWorker =
+  typeof self !== "undefined" && self.document === undefined;
+
+const CharacterJimp = createJimp({ formats: [png] });
 const HEADER = Buffer.from([66, 77, 70, 3]);
 
 function isBinary(buf: Buffer | string) {
@@ -20,17 +28,16 @@ function isBinary(buf: Buffer | string) {
   );
 }
 
-function parseFont(
-  file: string,
-  data: Buffer | string,
-): {
+export interface LoadedFont {
   chars: BmCharacter[];
   kernings: BmKerning[];
   common: BmCommonProps;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   info: Record<string, any>;
   pages: string[];
-} {
+}
+
+function parseFont(file: string, data: Buffer | string): LoadedFont {
   if (isBinary(data)) {
     if (typeof data === "string") {
       data = Buffer.from(data, "binary");
@@ -52,13 +59,68 @@ function parseFont(
   return parseASCII(data);
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function parseNumbersInObject<T extends Record<string, any>>(obj: T) {
+  for (const key in obj) {
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (obj as any)[key] = parseInt(obj[key], 10);
+    } catch {
+      // do nothing
+    }
+
+    if (typeof obj[key] === "object") {
+      parseNumbersInObject(obj[key]);
+    }
+  }
+
+  return obj;
+}
+
 /**
  *
  * @param bufferOrUrl A URL to a file or a buffer
  * @returns
  */
-async function loadBitmapFontData(bufferOrUrl: string | Buffer) {
-  if (typeof bufferOrUrl === "string") {
+export async function loadBitmapFontData(
+  bufferOrUrl: string | Buffer
+): Promise<LoadedFont> {
+  if (isWebWorker && typeof bufferOrUrl === "string") {
+    const res = await fetch(bufferOrUrl);
+    const text = await res.text();
+    const json = convertXML(text);
+
+    const font = json.font.children.reduce(
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (acc: Record<string, any>, i: any) => ({ ...acc, ...i }),
+      {}
+    );
+    const pages: LoadedFont["pages"] = [];
+    const chars: LoadedFont["chars"] = [];
+    const kernings: LoadedFont["kernings"] = [];
+
+    for (let i = 0; i < font.pages.children.length; i++) {
+      const p = font.pages.children[i].page;
+      const id = parseInt(p.id, 10);
+      pages[id] = parseNumbersInObject(p.file);
+    }
+
+    for (let i = 0; i < font.chars.children.length; i++) {
+      chars.push(parseNumbersInObject(font.chars.children[i].char));
+    }
+
+    for (let i = 0; i < font.kernings.children.length; i++) {
+      kernings.push(parseNumbersInObject(font.kernings.children[i].kerning));
+    }
+
+    return {
+      info: font.info,
+      common: font.common,
+      pages,
+      chars,
+      kernings,
+    } satisfies LoadedFont;
+  } else if (typeof bufferOrUrl === "string") {
     const res = await fetch(bufferOrUrl);
     const text = await res.text();
 
@@ -69,11 +131,9 @@ async function loadBitmapFontData(bufferOrUrl: string | Buffer) {
 }
 
 type RawFont = Awaited<ReturnType<typeof loadBitmapFontData>>;
+export type ResolveBmFont = Omit<BmFont, "pages"> & Pick<RawFont, "pages">;
 
-export async function loadBitmapFont(
-  bufferOrUrl: string | Buffer,
-): Promise<Omit<BmFont, "pages"> & Pick<RawFont, "pages">> {
-  const font = await loadBitmapFontData(bufferOrUrl);
+export async function processBitmapFont(file: string, font: LoadedFont) {
   const chars: Record<string, BmCharacter> = {};
   const kernings: Record<string, BmKerning> = {};
 
@@ -94,5 +154,10 @@ export async function loadBitmapFont(
     ...font,
     chars,
     kernings,
+    pages: await Promise.all(
+      font.pages.map(async (page) =>
+        CharacterJimp.read(path.join(path.dirname(file), page))
+      )
+    ),
   };
 }

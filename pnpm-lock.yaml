@@ -1392,6 +1392,9 @@ importers:
       parse-bmfont-xml:
         specifier: ^1.1.6
         version: 1.1.6
+      simple-xml-to-json:
+        specifier: ^1.2.2
+        version: 1.2.2
       zod:
         specifier: ^3.23.8
         version: 3.23.8
@@ -5842,6 +5845,10 @@ packages:
   simple-swizzle@0.2.2:
     resolution: {integrity: sha512-JA//kQgZtbuY83m+xT+tXJkmJncGMTFT+C+g2h2R9uxkYIrE2yy9sgmcLhCnw57/WSD+Eh3J97FPEDFnbXnDUg==}
 
+  simple-xml-to-json@1.2.2:
+    resolution: {integrity: sha512-bmJJf5YiYL60eOQk3gaVxbM6vgYuwrFydCEAA2x3jccHUTsAffiPyblS/yQGr8GDUQVxSDm3WwLNL5HmRqDUcg==}
+    engines: {node: '>=14.20.0'}
+
   sirv@2.0.4:
     resolution: {integrity: sha512-94Bdh3cC2PKrbgSOUqTiGPWVZeSiXfKOVZNJniWoqrWrRkB1CJzBU3NEbiTsPcYy1lDsANA/THzS+9WBiy5nfQ==}
     engines: {node: '>= 10'}
@@ -8258,7 +8265,7 @@ snapshots:
       magic-string: 0.30.11
       msw: 2.4.1(typescript@5.5.4)
       sirv: 2.0.4
-      vitest: 2.0.5(@types/node@18.19.48)(@vitest/browser@2.0.5)(terser@5.30.3)
+      vitest: 2.0.5(@types/node@22.5.2)(@vitest/browser@2.0.5)(terser@5.30.3)
       ws: 8.18.0
     optionalDependencies:
       playwright: 1.46.1
@@ -12166,6 +12173,8 @@ snapshots:
   simple-swizzle@0.2.2:
     dependencies:
       is-arrayish: 0.3.2
+
+  simple-xml-to-json@1.2.2: {}
 
   sirv@2.0.4:
     dependencies:
