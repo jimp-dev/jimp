@@ -1,0 +1,3 @@
+{
+  "reject": ["pixelmatch", "mime", "@types/mime", "file-typ"]
+}

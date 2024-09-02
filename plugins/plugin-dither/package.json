@@ -2,6 +2,9 @@
   "name": "@jimp/plugin-dither",
   "version": "1.1.2",
   "repository": "jimp-dev/jimp",
+  "engines": {
+    "node": ">=18"
+  },
   "scripts": {
     "lint": "eslint .",
     "build": "tshy",

@@ -2,6 +2,9 @@
   "name": "@jimp/{{ kebabCase name }}",
   "version": "1.0.1",
   "repository": "jimp-dev/jimp",
+  "engines": {
+    "node": ">=18"
+  },
   "scripts": {
     "lint": "eslint .",
     "test": "vitest",

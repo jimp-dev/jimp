@@ -4,6 +4,9 @@
   "packageManager": "pnpm@8.9.0",
   "description": "The jimp monorepo.",
   "repository": "jimp-dev/jimp",
+  "engines": {
+    "node": ">=18"
+  },
   "author": "Andrew Lisowski <lisowski54@gmail.com>",
   "engines": {
     "node": ">=18"

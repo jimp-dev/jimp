@@ -3,6 +3,9 @@
   "version": "1.1.2",
   "private": true,
   "repository": "jimp-dev/jimp",
+  "engines": {
+    "node": ">=18"
+  },
   "scripts": {
     "dev": "tshy --watch",
     "clean": "rm -rf node_modules .tshy .tshy-build dist .turbo"

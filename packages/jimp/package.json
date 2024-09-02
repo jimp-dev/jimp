@@ -12,6 +12,9 @@
     "types"
   ],
   "repository": "jimp-dev/jimp",
+  "engines": {
+    "node": ">=18"
+  },
   "scripts": {
     "lint": "eslint .",
     "test": "vitest",
