@@ -116,7 +116,7 @@ const image = new Jimp(...);
 const resized = await image
   .resize(512, Jimp.AUTO)
   .quality(80)
-  .getBufferAsync(Jimp.MIME_JPEG);
+  .getBuffer(Jimp.MIME_JPEG);
 ```
 
 In v1 the options are passed when you get the encoded image:
@@ -128,7 +128,7 @@ const image = new Jimp(...);
 
 const resized = await image
   .resize({ w: 512 })
-  .getBufferAsync('image/jpeg', { quality: 80 });
+  .getBuffer('image/jpeg', { quality: 80 });
 ```
 
 ## Removed Constants
