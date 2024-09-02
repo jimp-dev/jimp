@@ -17,7 +17,7 @@
     "@jimp/config-eslint": "workspace:*",
     "@jimp/config-typescript": "workspace:*",
     "@types/node": "^18.19.48",
-    "eslint": "^8.57.0",
+    "eslint": "^9.9.1",
     "tshy": "^3.0.2",
     "typescript": "^5.5.4",
     "vitest": "^2.0.5"

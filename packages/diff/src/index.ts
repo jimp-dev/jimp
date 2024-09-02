@@ -48,6 +48,7 @@ export function diff<I extends JimpClass>(img1: I, img2: I, threshold = 0.1) {
     throw new Error("threshold must be a number between 0 and 1");
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const diff = new (img1 as any).constructor({
     width: bmp1.width,
     height: bmp1.height,
@@ -60,7 +61,7 @@ export function diff<I extends JimpClass>(img1: I, img2: I, threshold = 0.1) {
     diff.bitmap.data,
     diff.bitmap.width,
     diff.bitmap.height,
-    { threshold },
+    { threshold }
   );
 
   return {

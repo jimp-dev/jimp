@@ -78,7 +78,7 @@
     "@rollup/plugin-node-resolve": "^15.2.3",
     "@rollup/plugin-terser": "^0.4.4",
     "@vitest/browser": "^2.0.5",
-    "eslint": "^8.57.0",
+    "eslint": "^9.9.1",
     "node-self": "^1.0.2",
     "path-browserify": "^1.0.1",
     "rollup": "^4.21.2",

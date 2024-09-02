@@ -6,15 +6,13 @@ function addPublishConfigToPackageJson(directory) {
     const fullPath = path.join(directory, entry.name);
     if (entry.isDirectory()) {
       addPublishConfigToPackageJson(fullPath);
-    } else if (entry.isFile() && entry.name === "package.json") {
-      const packageJson = JSON.parse(fs.readFileSync(fullPath, "utf8"));
-      if (!packageJson.scripts) {
-        packageJson.scripts = {};
-      }
-      packageJson.scripts.clean =
-        "rm -rf node_modules .tshy .tshy-build dist .turbo";
-      fs.writeFileSync(fullPath, JSON.stringify(packageJson, null, 2));
-      console.log(`Updated publishConfig in: ${fullPath}`);
+    } else if (entry.isFile() && entry.name === ".eslintrc.mjs") {
+      fs.unlinkSync(fullPath);
+      const dir = path.dirname(fullPath);
+      fs.writeFileSync(
+        path.join(dir, "eslint.config.mjs"),
+        `import shared from "@jimp/config-eslint/base.js";\nexport default [...shared];`
+      );
     }
   });
 }

@@ -26,7 +26,7 @@
     "@jimp/core": "workspace:*",
     "@jimp/test-utils": "workspace:*",
     "@vitest/browser": "^2.0.5",
-    "eslint": "^8.57.0",
+    "eslint": "^9.9.1",
     "tshy": "^3.0.2",
     "typescript": "^5.5.4",
     "vite-plugin-node-polyfills": "^0.22.0",

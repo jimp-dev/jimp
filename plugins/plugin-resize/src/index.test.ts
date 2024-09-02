@@ -20,8 +20,8 @@ describe("Resize images", () => {
           "□□□□■■■■",
           "□□□□■■■■",
           "□□□□■■■■",
-          "□□□□■■■■",
-        ),
+          "□□□□■■■■"
+        )
       ),
       tests: [
         { mode: "default", size: { height: 4, width: 4 } },
@@ -54,8 +54,8 @@ describe("Resize images", () => {
           "□□□□□□■■■■■■",
           "□□□■□□■■□■■■",
           "□□□□□□■■■■■■",
-          "□□□□□□■■■■■■",
-        ),
+          "□□□□□□■■■■■■"
+        )
       ),
       tests: [
         { mode: "default", size: { height: 6, width: 6 } },
@@ -85,14 +85,14 @@ describe("Resize images", () => {
     describe(image.title, () => {
       image.tests.forEach(({ mode: modeType, size }) => {
         test(`to ${modeType} ${size.width}x${size.height}`, () => {
-          const mode = (ResizeStrategy as any)[modeType];
+          const mode = ResizeStrategy[modeType as keyof typeof ResizeStrategy];
 
           expect(
             image.src.clone().resize({
               w: size.width,
               h: size.height,
               mode,
-            }),
+            })
           ).toMatchSnapshot();
         });
       });

@@ -1,12 +1,6 @@
 import EXIFParser, { ExifData } from "exif-parser";
 import { JimpClass } from "@jimp/types";
 
-const EXIF_TAGS = {
-  ORIENTATION: 0x0112, // decimal: 274
-  IMAGE_WIDTH: 0x0100, // decimal: 256
-  IMAGE_HEIGHT: 0x0101, // decimal: 257
-};
-
 /**
  * Obtains image orientation from EXIF metadata.
  *
@@ -95,7 +89,7 @@ function transformBitmap<I extends JimpClass>(
   img: I,
   width: number,
   height: number,
-  transformation: (x: number, y: number) => readonly [number, number],
+  transformation: (x: number, y: number) => readonly [number, number]
 ) {
   // Underscore-prefixed values are related to the source bitmap
   // Their counterparts with no prefix are related to the target bitmap
@@ -120,7 +114,7 @@ function transformBitmap<I extends JimpClass>(
   img.bitmap.width = width;
   img.bitmap.height = height;
 
-  // @ts-ignore
+  // @ts-expect-error Accessing private property
   img._exif.tags.Orientation = 1;
 }
 
@@ -146,7 +140,7 @@ function exifRotate<I extends JimpClass>(img: I) {
 
 export async function attemptExifRotate<I extends JimpClass>(
   image: I,
-  buffer: Buffer,
+  buffer: Buffer
 ) {
   try {
     (image as unknown as { _exif: ExifData })._exif =
@@ -154,6 +148,6 @@ export async function attemptExifRotate<I extends JimpClass>(
 
     exifRotate(image); // EXIF data
   } catch (error) {
-    /* meh */
+    console.error(error);
   }
 }

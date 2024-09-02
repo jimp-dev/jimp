@@ -1,5 +1,3 @@
-/* eslint-disable no-labels */
-
 import { JimpClass } from "@jimp/types";
 import { colorDiff, intToRGBA, scan } from "@jimp/utils";
 import { z } from "zod";
@@ -35,15 +33,11 @@ const AutocropComplexOptionsSchema = z.object({
     })
     .optional(),
 });
-const AutocropOptionsSchema = z.union([
-  z.number().min(0).max(1),
-  AutocropComplexOptionsSchema,
-]);
 
 export type AutocropComplexOptions = z.infer<
   typeof AutocropComplexOptionsSchema
 >;
-export type AutocropOptions = z.infer<typeof AutocropOptionsSchema>;
+export type AutocropOptions = number | AutocropComplexOptions;
 
 export const methods = {
   /**
@@ -111,13 +105,13 @@ export const methods = {
       ignoreSides: ignoreSidesArg,
     } = typeof options === "number"
       ? ({ tolerance: options } as AutocropComplexOptions)
-      : options;
+      : AutocropComplexOptionsSchema.parse(options);
     const w = image.bitmap.width;
     const h = image.bitmap.height;
     const minPixelsPerSide = 1; // to avoid cropping completely the image, resulting in an invalid 0 sized image
 
     // i.e. north and south / east and west are cropped by the same value
-    let ignoreSides = {
+    const ignoreSides = {
       north: false,
       south: false,
       east: false,

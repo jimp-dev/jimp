@@ -90,7 +90,7 @@ export interface JimpPlugin {
 }
 
 type UnionToIntersection<U> = (U extends any ? (k: U) => void : never) extends (
-  k: infer I,
+  k: infer I
 ) => void
   ? I
   : never;
@@ -272,8 +272,8 @@ export function createJimp<
       if (Array.isArray(bitmap.data)) {
         data = Buffer.concat(
           bitmap.data.map((hex) =>
-            Buffer.from(hex.toString(16).padStart(8, "0"), "hex"),
-          ),
+            Buffer.from(hex.toString(16).padStart(8, "0"), "hex")
+          )
         );
       }
 
@@ -316,7 +316,7 @@ export function createJimp<
       }
 
       const image = new CustomJimp(
-        await format.decode(actualBuffer),
+        await format.decode(actualBuffer)
       ) as InstanceType<typeof CustomJimp> & ExtraMethodMap;
 
       attemptExifRotate(image, actualBuffer);
@@ -386,6 +386,7 @@ export function createJimp<
       let outputImage: Jimp;
 
       if (format.hasAlpha) {
+        // eslint-disable-next-line @typescript-eslint/no-this-alias
         outputImage = this;
       } else {
         outputImage = new CustomJimp({
@@ -456,7 +457,7 @@ export function createJimp<
       const mimeType = mime.getType(path);
       await writeFile(
         path,
-        await this.getBuffer(mimeType as SupportedMimeTypes, options),
+        await this.getBuffer(mimeType as SupportedMimeTypes, options)
       );
     }
 
@@ -657,7 +658,7 @@ export function createJimp<
         mode?: BlendMode;
         opacitySource?: number;
         opacityDest?: number;
-      } = {},
+      } = {}
     ) {
       return composite(this, src, x, y, options);
     }
@@ -687,14 +688,14 @@ export function createJimp<
       y: number,
       w: number,
       h: number,
-      cb: (x: number, y: number, idx: number) => any,
+      cb: (x: number, y: number, idx: number) => any
     ): this;
     scan(
       x: number | ((x: number, y: number, idx: number) => any),
       y?: number,
       w?: number,
       h?: number,
-      f?: (x: number, y: number, idx: number) => any,
+      f?: (x: number, y: number, idx: number) => any
     ): this {
       return scan(this, x as any, y as any, w as any, h as any, f as any);
     }

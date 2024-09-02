@@ -118,7 +118,7 @@ function createTranslationFunction(deltaX: number, deltaY: number) {
 function advancedRotate<I extends JimpClass>(
   image: I,
   deg: number,
-  mode: boolean | ResizeStrategy,
+  mode: boolean | ResizeStrategy
 ) {
   const rad = (deg * Math.PI) / 180;
   const cosine = Math.cos(rad);
@@ -137,12 +137,12 @@ function advancedRotate<I extends JimpClass>(
     w =
       Math.ceil(
         Math.abs(image.bitmap.width * cosine) +
-          Math.abs(image.bitmap.height * sine),
+          Math.abs(image.bitmap.height * sine)
       ) + 1;
     h =
       Math.ceil(
         Math.abs(image.bitmap.width * sine) +
-          Math.abs(image.bitmap.height * cosine),
+          Math.abs(image.bitmap.height * cosine)
       ) + 1;
     // Ensure destination to have even size to a better result.
     if (w % 2 !== 0) {
@@ -170,7 +170,7 @@ function advancedRotate<I extends JimpClass>(
       image,
       c,
       image.bitmap.width / 2 - c.bitmap.width / 2,
-      image.bitmap.height / 2 - c.bitmap.height / 2,
+      image.bitmap.height / 2 - c.bitmap.height / 2
     );
   }
 
@@ -181,7 +181,7 @@ function advancedRotate<I extends JimpClass>(
   const translate2Cartesian = createTranslationFunction(-(bW / 2), -(bH / 2));
   const translate2Screen = createTranslationFunction(
     bW / 2 + 0.5,
-    bH / 2 + 0.5,
+    bH / 2 + 0.5
   );
 
   for (let y = 1; y <= bH; y++) {
@@ -189,7 +189,7 @@ function advancedRotate<I extends JimpClass>(
       const cartesian = translate2Cartesian(x, y);
       const source = translate2Screen(
         cosine * cartesian.x - sine * cartesian.y,
-        cosine * cartesian.y + sine * cartesian.x,
+        cosine * cartesian.y + sine * cartesian.x
       );
       const dstIdx = (bW * (y - 1) + x - 1) << 2;
 
@@ -228,8 +228,9 @@ export const methods = {
    */
   rotate<I extends JimpClass>(image: I, options: RotateOptions) {
     const parsed = RotateOptionsSchema.parse(options);
-    let { deg, mode = true } =
-      typeof parsed === "number" ? { deg: parsed } : parsed;
+    const actualOptions = typeof parsed === "number" ? { deg: parsed } : parsed;
+    const { mode = true } = actualOptions;
+    let { deg } = actualOptions;
 
     // No need to do extra rotation
     deg %= 360;

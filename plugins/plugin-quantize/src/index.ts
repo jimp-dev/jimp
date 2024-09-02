@@ -50,19 +50,18 @@ export const methods = {
   /**
    * Image color number reduction.
    */
-  quantize<I extends JimpClass>(
-    image: I,
-    {
+  quantize<I extends JimpClass>(image: I, options: QuantizeOptions) {
+    const {
       colors,
       colorDistanceFormula,
       paletteQuantization,
       imageQuantization,
-    }: QuantizeOptions,
-  ) {
+    } = QuantizeOptionsSchema.parse(options);
+
     const inPointContainer = utils.PointContainer.fromUint8Array(
       image.bitmap.data,
       image.bitmap.width,
-      image.bitmap.height,
+      image.bitmap.height
     );
 
     const palette = buildPaletteSync([inPointContainer], {

@@ -1,3 +1,11 @@
 {
-  "reject": ["pixelmatch", "mime", "@types/mime", "file-typ"]
+  "reject": [
+    // These deps are esm only
+    "pixelmatch",
+    "mime",
+    "@types/mime",
+    "file-type",
+    // We support node 18 and above
+    "@types/node"
+  ]
 }

@@ -18,7 +18,8 @@
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "release": "pnpm build && auto shipit",
     "generate-package": "turbo gen package",
-    "generate-plugin": "turbo gen plugin"
+    "generate-plugin": "turbo gen plugin",
+    "check-updates": "ncu --packageFile '{,*/**/}package.json'"
   },
   "devDependencies": {
     "@auto-it/all-contributors": "^11.2.1",
@@ -28,6 +29,7 @@
     "@jimp/config-typescript": "workspace:*",
     "@turbo/gen": "^2.1.1",
     "auto": "^11.2.1",
+    "npm-check-updates": "^17.1.1",
     "prettier": "^3.3.3",
     "turbo": "^2.1.1"
   }

@@ -37,6 +37,7 @@ describe("JPEG", () => {
       quality: 50,
     });
 
+    // eslint-disable-next-line no-control-regex
     expect(buffer.toString()).toMatch(/^.{3,9}JFIF\u0000/);
   });
 });

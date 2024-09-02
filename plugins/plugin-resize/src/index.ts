@@ -16,12 +16,12 @@ interface ResizeClass {
     targetHeight: number,
     blendAlpha: boolean,
     interpolationPass: boolean,
-    resizeCallback: (buffer: Buffer) => void,
+    resizeCallback: (buffer: Buffer) => void
   ): ResizeClass;
   resize(buffer: Buffer): void;
 }
 
-type Constructable<T> = new (...args: any[]) => T;
+type Constructable<T> = new (...args: unknown[]) => T;
 
 const ResizeOptionsSchema = z.union([
   z.object({
@@ -63,9 +63,7 @@ const ScaleComplexOptionsSchema = z.object({
 });
 
 export type ScaleComplexOptions = z.infer<typeof ScaleComplexOptionsSchema>;
-
-const ScaleOptionsSchema = z.union([z.number(), ScaleComplexOptionsSchema]);
-export type ScaleOptions = z.infer<typeof ScaleOptionsSchema>;
+export type ScaleOptions = number | ScaleComplexOptions;
 
 export const methods = {
   /**
@@ -119,7 +117,7 @@ export const methods = {
           image.bitmap.data = Buffer.from(buffer);
           image.bitmap.width = w;
           image.bitmap.height = h;
-        },
+        }
       );
 
       resize.resize(image.bitmap.data);
