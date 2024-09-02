@@ -1,3 +1,18 @@
+# v1.1.3 (Mon Sep 02 2024)
+
+#### 🐛 Bug Fix
+
+- `jimp`
+  - Include browser files [#1320](https://github.com/jimp-dev/jimp/pull/1320) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- `@jimp/core`, `@jimp/diff`, `@jimp/file-ops`, `jimp`, `@jimp/test-utils`, `@jimp/types`, `@jimp/utils`, `@jimp/js-bmp`, `@jimp/js-gif`, `@jimp/js-jpeg`, `@jimp/js-png`, `@jimp/js-tiff`, `@jimp/plugin-blit`, `@jimp/plugin-blur`, `@jimp/plugin-circle`, `@jimp/plugin-color`, `@jimp/plugin-contain`, `@jimp/plugin-cover`, `@jimp/plugin-crop`, `@jimp/plugin-displace`, `@jimp/plugin-dither`, `@jimp/plugin-fisheye`, `@jimp/plugin-flip`, `@jimp/plugin-hash`, `@jimp/plugin-mask`, `@jimp/plugin-print`, `@jimp/plugin-quantize`, `@jimp/plugin-resize`, `@jimp/plugin-rotate`, `@jimp/plugin-shadow`, `@jimp/plugin-threshold`
+  - Update deps [#1319](https://github.com/jimp-dev/jimp/pull/1319) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+
+#### Authors: 1
+
+- Andrew Lisowski ([@hipstersmoothie](https://github.com/hipstersmoothie))
+
+---
+
 # v1.1.2 (Mon Sep 02 2024)
 
 ### Release Notes

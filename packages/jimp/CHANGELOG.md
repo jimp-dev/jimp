@@ -1,3 +1,16 @@
+# v1.1.3 (Mon Sep 02 2024)
+
+#### 🐛 Bug Fix
+
+- Include browser files [#1320](https://github.com/jimp-dev/jimp/pull/1320) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- Update deps [#1319](https://github.com/jimp-dev/jimp/pull/1319) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+
+#### Authors: 1
+
+- Andrew Lisowski ([@hipstersmoothie](https://github.com/hipstersmoothie))
+
+---
+
 # v1.1.2 (Mon Sep 02 2024)
 
 ### Release Notes
