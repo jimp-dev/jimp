@@ -45,7 +45,7 @@
   "types": "./dist/commonjs/index.d.ts",
   "type": "module",
   "dependencies": {
-    "zod": "^3.22.4"
+    "zod": "^3.23.8"
   },
   "publishConfig": {
     "access": "public"

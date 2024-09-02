@@ -16,7 +16,7 @@
     "@jimp/core": "workspace:*",
     "@jimp/types": "workspace:*",
     "@jimp/utils": "workspace:*",
-    "zod": "^3.22.4"
+    "zod": "^3.23.8"
   },
   "devDependencies": {
     "@jimp/config-eslint": "workspace:*",

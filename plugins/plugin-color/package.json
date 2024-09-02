@@ -33,7 +33,7 @@
     "@jimp/types": "workspace:*",
     "@jimp/utils": "workspace:*",
     "tinycolor2": "^1.6.0",
-    "zod": "^3.22.4"
+    "zod": "^3.23.8"
   },
   "tshy": {
     "exclude": [
