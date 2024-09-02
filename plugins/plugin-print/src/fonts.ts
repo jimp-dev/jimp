@@ -1,6 +1,7 @@
 import path from "path";
+import { dirname } from "./dirname.js";
 
-const dir = path.join(__dirname, "../");
+const dir = path.join(dirname, "../");
 
 export const SANS_8_BLACK = path.join(
   dir,
