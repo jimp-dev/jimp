@@ -31,15 +31,15 @@ AA-94-3Fᶠ¹ 7E-7E-7Eᶠ¹ 54-69-BFᶠ¹
 exports[`Callbacks > with brightness 1`] = `
 Visualization:
 
-▫▾4
-2 A
-D▦◆
+▴▸▾
+◆▪▰
+▵▹▿
 
 Data:
 
-FF-7F-7Fᶠᶠ 7F-FF-7Fᶠᶠ 7F-7F-FFᶠᶠ
-FF-FF-7Fᶠᶠ 7F-FF-FFᶠᶠ FF-7F-FFᶠᶠ
-FF-7F-7F⁷ᶠ 7F-FF-7F⁷ᶠ 7F-7F-FF⁷ᶠ
+FF-00-00ᶠᶠ 00-FF-00ᶠᶠ 00-00-FFᶠᶠ
+FF-FF-00ᶠᶠ 00-FF-FFᶠᶠ FF-00-FFᶠᶠ
+FF-00-00⁷ᶠ 00-FF-00⁷ᶠ 00-00-FF⁷ᶠ
 `;
 
 exports[`Callbacks > with composite 1`] = `

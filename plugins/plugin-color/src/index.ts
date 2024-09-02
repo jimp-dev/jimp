@@ -336,7 +336,7 @@ export const methods = {
 
   /**
    * Adjusts the brightness of the image
-   * @param val the amount to adjust the brightness, a number between -1 and +1
+   * @param val the amount to adjust the brightness.
    * @example
    * ```ts
    * import { Jimp } from "jimp";
@@ -351,22 +351,10 @@ export const methods = {
       throw new Error("val must be numbers");
     }
 
-    if (val < -1 || val > +1) {
-      throw new Error("val must be a number between -1 and +1");
-    }
-
     image.scan((_, __, idx) => {
-      if (val < 0.0) {
-        image.bitmap.data[idx]! *= 1 + val;
-        image.bitmap.data[idx + 1]! *= 1 + val;
-        image.bitmap.data[idx + 2]! *= 1 + val;
-      } else {
-        image.bitmap.data[idx]! += (255 - image.bitmap.data[idx]!) * val;
-        image.bitmap.data[idx + 1]! +=
-          (255 - image.bitmap.data[idx + 1]!) * val;
-        image.bitmap.data[idx + 2]! +=
-          (255 - image.bitmap.data[idx + 2]!) * val;
-      }
+      image.bitmap.data[idx]! = limit255(image.bitmap.data[idx]! * val);
+      image.bitmap.data[idx + 1]! = limit255(image.bitmap.data[idx + 1]! * val);
+      image.bitmap.data[idx + 2]! = limit255(image.bitmap.data[idx + 2]! * val);
     });
 
     return image;
