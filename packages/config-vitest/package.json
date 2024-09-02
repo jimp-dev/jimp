@@ -14,7 +14,7 @@
     "@jimp/test-utils": "workspace:*",
     "eslint": "^8.57.0",
     "typescript": "^5.5.4",
-    "vitest": "^1.4.0"
+    "vitest": "^2.0.5"
   },
   "dependencies": {
     "@esbuild-plugins/node-globals-polyfill": "^0.2.3",
