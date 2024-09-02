@@ -281,10 +281,18 @@ export function createJimp<
         throw new Error("data must be a Buffer");
       }
 
-      return new CustomJimp({ ...bitmap, data }) as InstanceType<
-        typeof CustomJimp
-      > &
-        ExtraMethodMap;
+      if (
+        typeof bitmap.height !== "number" ||
+        typeof bitmap.width !== "number"
+      ) {
+        throw new Error("bitmap must have width and height");
+      }
+
+      return new CustomJimp({
+        height: bitmap.height,
+        width: bitmap.width,
+        data,
+      }) as InstanceType<typeof CustomJimp> & ExtraMethodMap;
     }
 
     /**

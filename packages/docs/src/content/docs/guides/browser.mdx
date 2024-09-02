@@ -25,7 +25,7 @@ To use it simply import `jimp` instead.
 
 ## Usage
 
-There are two main ways to use Jimp in the browser.
+There are a few main ways to use Jimp in the browser.
 
 ### With hosted file
 
@@ -62,6 +62,32 @@ function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
 }
 
 input.addEventListener("change", handleFile);
+```
+
+### Using Canvas
+
+You can also use Jimp with a canvas.
+
+```ts
+const canvas = document.getElementById("my-canvas");
+const ctx = canvas.getContext("2d");
+
+// Load the canvas into a Jimp instance
+const image = await Jimp.fromBitmap(
+  ctx.getImageData(0, 0, canvas.width, canvas.height)
+);
+
+// Manipulate the image
+image.greyscale();
+
+const imageData = new ImageData(
+  new Uint8ClampedArray(image.bitmap.data),
+  image.bitmap.width,
+  image.bitmap.height
+);
+
+// Write back to the canvas
+ctx.putImageData(imageData, 0, 0);
 ```
 
 ## Using Fonts

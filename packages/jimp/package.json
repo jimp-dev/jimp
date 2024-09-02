@@ -18,7 +18,7 @@
   },
   "scripts": {
     "lint": "eslint .",
-    "test": "vitest",
+    "test": "vitest --exclude '**/*.browser.test.ts'",
     "test:browser": "vitest --config vitest.config.browser.mjs",
     "build": "tshy",
     "build:browser": "rollup -c",

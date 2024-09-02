@@ -88,7 +88,7 @@ async function main() {
 
 ### `Jimp.fromBitmap`
 
-You can load an image from a bitmap.
+You can load an image (or canvas data) from a bitmap.
 In v0 this was done through the constructor.
 In v1 it is done through the `Jimp.fromBitmap` method.
 
@@ -96,7 +96,12 @@ In v1 it is done through the `Jimp.fromBitmap` method.
 import { Jimp } from "jimp";
 
 async function main() {
-  const image = await Jimp.fromBitmap(bitmap);
+  const canvas = document.getElementById("my-canvas");
+  const ctx = canvas.getContext("2d");
+
+  const image = await Jimp.fromBitmap(
+    ctx.getImageData(0, 0, canvas.width, canvas.height)
+  );
 }
 ```
 
