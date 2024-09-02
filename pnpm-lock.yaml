@@ -334,7 +334,7 @@ importers:
         version: link:../../plugins/plugin-print
       '@jimp/plugin-quantize':
         specifier: workspace:*
-        version: link:../../plugins/quantize
+        version: link:../../plugins/plugin-quantize
       '@jimp/plugin-resize':
         specifier: workspace:*
         version: link:../../plugins/plugin-resize
@@ -1418,6 +1418,49 @@ importers:
         specifier: ^2.0.5
         version: 2.0.5(@types/node@20.12.5)(@vitest/browser@1.4.0)(terser@5.30.3)
 
+  plugins/plugin-quantize:
+    dependencies:
+      image-q:
+        specifier: ^4.0.0
+        version: 4.0.0
+      zod:
+        specifier: ^3.22.4
+        version: 3.23.8
+    devDependencies:
+      '@jimp/config-eslint':
+        specifier: workspace:*
+        version: link:../../packages/config-eslint
+      '@jimp/config-typescript':
+        specifier: workspace:*
+        version: link:../../packages/config-typescript
+      '@jimp/core':
+        specifier: workspace:*
+        version: link:../../packages/core
+      '@jimp/js-jpeg':
+        specifier: workspace:*
+        version: link:../js-jpeg
+      '@jimp/js-png':
+        specifier: workspace:*
+        version: link:../js-png
+      '@jimp/test-utils':
+        specifier: workspace:*
+        version: link:../../packages/test-utils
+      '@jimp/types':
+        specifier: workspace:*
+        version: link:../../packages/types
+      eslint:
+        specifier: ^8.57.0
+        version: 8.57.0
+      tshy:
+        specifier: ^3.0.2
+        version: 3.0.2
+      typescript:
+        specifier: ^5.5.4
+        version: 5.5.4
+      vitest:
+        specifier: ^2.0.5
+        version: 2.0.5(@types/node@20.12.5)(@vitest/browser@1.4.0)(terser@5.30.3)
+
   plugins/plugin-resize:
     dependencies:
       '@jimp/core':
@@ -1625,49 +1668,6 @@ importers:
       vite-plugin-node-polyfills:
         specifier: ^0.21.0
         version: 0.21.0(rollup@4.21.2)(vite@5.4.2(@types/node@20.12.5)(terser@5.30.3))
-      vitest:
-        specifier: ^2.0.5
-        version: 2.0.5(@types/node@20.12.5)(@vitest/browser@1.4.0)(terser@5.30.3)
-
-  plugins/quantize:
-    dependencies:
-      image-q:
-        specifier: ^4.0.0
-        version: 4.0.0
-      zod:
-        specifier: ^3.22.4
-        version: 3.23.8
-    devDependencies:
-      '@jimp/config-eslint':
-        specifier: workspace:*
-        version: link:../../packages/config-eslint
-      '@jimp/config-typescript':
-        specifier: workspace:*
-        version: link:../../packages/config-typescript
-      '@jimp/core':
-        specifier: workspace:*
-        version: link:../../packages/core
-      '@jimp/js-jpeg':
-        specifier: workspace:*
-        version: link:../js-jpeg
-      '@jimp/js-png':
-        specifier: workspace:*
-        version: link:../js-png
-      '@jimp/test-utils':
-        specifier: workspace:*
-        version: link:../../packages/test-utils
-      '@jimp/types':
-        specifier: workspace:*
-        version: link:../../packages/types
-      eslint:
-        specifier: ^8.57.0
-        version: 8.57.0
-      tshy:
-        specifier: ^3.0.2
-        version: 3.0.2
-      typescript:
-        specifier: ^5.5.4
-        version: 5.5.4
       vitest:
         specifier: ^2.0.5
         version: 2.0.5(@types/node@20.12.5)(@vitest/browser@1.4.0)(terser@5.30.3)
@@ -7514,7 +7514,7 @@ snapshots:
   '@eslint/eslintrc@2.1.4':
     dependencies:
       ajv: 6.12.6
-      debug: 4.3.4
+      debug: 4.3.6
       espree: 9.6.1
       globals: 13.24.0
       ignore: 5.3.1
@@ -7555,7 +7555,7 @@ snapshots:
   '@humanwhocodes/config-array@0.11.14':
     dependencies:
       '@humanwhocodes/object-schema': 2.0.2
-      debug: 4.3.4
+      debug: 4.3.6
       minimatch: 3.1.2
     transitivePeerDependencies:
       - supports-color
@@ -8425,10 +8425,6 @@ snapshots:
       vscode-uri: 2.1.2
 
   '@vscode/l10n@0.0.18': {}
-
-  acorn-jsx@5.3.2(acorn@8.11.3):
-    dependencies:
-      acorn: 8.11.3
 
   acorn-jsx@5.3.2(acorn@8.12.1):
     dependencies:
@@ -9510,7 +9506,7 @@ snapshots:
       ajv: 6.12.6
       chalk: 4.1.2
       cross-spawn: 7.0.3
-      debug: 4.3.4
+      debug: 4.3.6
       doctrine: 3.0.0
       escape-string-regexp: 4.0.0
       eslint-scope: 7.2.2
@@ -9542,8 +9538,8 @@ snapshots:
 
   espree@9.6.1:
     dependencies:
-      acorn: 8.11.3
-      acorn-jsx: 5.3.2(acorn@8.11.3)
+      acorn: 8.12.1
+      acorn-jsx: 5.3.2(acorn@8.12.1)
       eslint-visitor-keys: 3.4.3
 
   esprima@4.0.1: {}
@@ -9857,7 +9853,7 @@ snapshots:
     dependencies:
       foreground-child: 3.1.1
       jackspeak: 2.3.6
-      minimatch: 9.0.3
+      minimatch: 9.0.5
       minipass: 7.0.4
       path-scurry: 1.10.1
 
