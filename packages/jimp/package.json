@@ -4,7 +4,8 @@
   "sideEffects": false,
   "description": "An image processing library written entirely in JavaScript.",
   "files": [
-    "browser",
+    "browser.js",
+    "browser.js.map",
     "dist",
     "es",
     "index.d.ts",
