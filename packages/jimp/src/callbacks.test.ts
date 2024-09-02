@@ -27,7 +27,7 @@ describe("Callbacks", () => {
     opacity: { args: [0.5] },
     resize: { args: [{ w: 2, h: 2 } as ResizeOptions] },
     scale: { args: [0.5] },
-    brightness: { args: [0.5] },
+    brightness: { args: [1.5] },
     contrast: { args: [0.75] },
     posterize: { args: [5] },
     dither: { args: [] },

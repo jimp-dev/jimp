@@ -13,10 +13,10 @@
       "dependsOn": ["^lint"]
     },
     "test": {
-      "dependsOn": ["^test"]
+      "dependsOn": ["^build", "^test"]
     },
     "test:browser": {
-      "dependsOn": ["^test:browser"]
+      "dependsOn": ["^build", "^test:browser"]
     },
     "dev": {
       "cache": false,
