@@ -6,7 +6,7 @@
   "scripts": {
     "lint": "eslint .",
     "test": "vitest",
-    "build": "tshy",
+    "build": "tshy && cp -r fonts dist",
     "dev": "tshy --watch",
     "clean": "rm -rf node_modules .tshy .tshy-build dist .turbo"
   },
