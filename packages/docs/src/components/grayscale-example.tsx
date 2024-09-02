@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 
-// This version is bundled into a single file that can be used in the browser.
-import { Jimp } from "jimp/browser";
+import { Jimp } from "jimp";
 
 export function GrayscaleExample() {
   const [selectedFile, setSelectedFile] = useState("");
