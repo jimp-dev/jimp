@@ -22,7 +22,7 @@
     "@jimp/config-typescript": "workspace:*",
     "@jimp/config-vitest": "workspace:*",
     "@jimp/test-utils": "workspace:*",
-    "@types/pngjs": "^6.0.4",
+    "@types/pngjs": "^6.0.5",
     "@vitest/browser": "^2.0.5",
     "eslint": "^8.57.0",
     "tshy": "^3.0.2",

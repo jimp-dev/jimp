@@ -686,8 +686,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/test-utils
       '@types/pngjs':
-        specifier: ^6.0.4
-        version: 6.0.4
+        specifier: ^6.0.5
+        version: 6.0.5
       '@vitest/browser':
         specifier: ^2.0.5
         version: 2.0.5(playwright@1.46.1)(typescript@5.5.4)(vitest@2.0.5)
@@ -2800,8 +2800,8 @@ packages:
   '@types/pixelmatch@5.2.6':
     resolution: {integrity: sha512-wC83uexE5KGuUODn6zkm9gMzTwdY5L0chiK+VrKcDfEjzxh1uadlWTvOmAbCpnM9zx/Ww3f8uKlYQVnO/TrqVg==}
 
-  '@types/pngjs@6.0.4':
-    resolution: {integrity: sha512-atAK9xLKOnxiuArxcHovmnOUUGBZOQ3f0vCf43FnoKs6XnqiambT1kkJWmdo71IR+BoXSh+CueeFR0GfH3dTlQ==}
+  '@types/pngjs@6.0.5':
+    resolution: {integrity: sha512-0k5eKfrA83JOZPppLtS2C7OUtyNAl2wKNxfyYl9Q5g9lPkgBl/9hNyAu6HuEH2J4XmIv2znEpkDd0SaZVxW6iQ==}
 
   '@types/prop-types@15.7.12':
     resolution: {integrity: sha512-5zvhXYtRNRluoE/jAp4GVsSduVUzNWKkOZrCDBWYtE7biZywwdC2AcEzg+cSMLFRfVgeAFqpfNabiPjxFddV1Q==}
@@ -8356,7 +8356,7 @@ snapshots:
     dependencies:
       '@types/node': 20.12.5
 
-  '@types/pngjs@6.0.4':
+  '@types/pngjs@6.0.5':
     dependencies:
       '@types/node': 20.12.5
 
