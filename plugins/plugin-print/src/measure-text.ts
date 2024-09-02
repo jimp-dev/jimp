@@ -30,6 +30,34 @@ export function splitLines(font: BmFont, text: string, maxWidth: number) {
   let longestLine = 0;
 
   words.forEach((word) => {
+    const wordWidth = measureText(font, word + (words.length > 1 ? " " : ""));
+
+    // If a word is longer than the allowable width we need to split it across lines.
+    if (wordWidth > maxWidth) {
+      const characterIterator = word[Symbol.iterator]();
+
+      let current = "";
+
+      for (const char of characterIterator) {
+        const nextLine = [...currentLine, current + char].join(" ");
+        const length = measureText(font, nextLine);
+
+        if (length < maxWidth) {
+          current += char;
+        } else if (length > maxWidth) {
+          lines.push([...currentLine, current]);
+          currentLine = [];
+          current = char;
+        } else {
+          lines.push([...currentLine, current + char]);
+          currentLine = [];
+          current = "";
+        }
+      }
+
+      return;
+    }
+
     const line = [...currentLine, word].join(" ");
     const length = measureText(font, line);
 

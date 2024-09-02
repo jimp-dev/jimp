@@ -109,6 +109,24 @@ describe("Write text over image", function () {
     expect(output).toMatchImageSnapshot();
   });
 
+  test("Max width works without spaces", async () => {
+    const font = await loadFont(
+      "https://raw.githubusercontent.com/jimp-dev/jimp/main/plugins/plugin-print/fonts/open-sans/open-sans-16-black/open-sans-16-black.fnt"
+    );
+    const image = new Jimp({ width: 300, height: 100, color: 0xff8800ff });
+    const output = await image
+      .print({
+        font,
+        x: 150,
+        y: 50,
+        text: "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+        maxWidth: 100,
+      })
+      .getBuffer("image/png");
+
+    expect(output).toMatchImageSnapshot();
+  });
+
   test("Jimp renders ? for unknown characters", async () => {
     const font = await loadFont(fonts.SANS_16_BLACK);
     const image = new Jimp({ width: 300, height: 100, color: 0xff8800ff });
