@@ -5,6 +5,25 @@ import alias from "@rollup/plugin-alias";
 import nodePolyfills from "rollup-plugin-polyfill-node";
 import inject from "@rollup/plugin-inject";
 import terser from "@rollup/plugin-terser";
+import { dts } from "rollup-plugin-dts";
+
+import { promises as fs } from "fs";
+
+async function maybeUnlink(path) {
+  try {
+    await fs.unlink(path);
+  } catch (error) {
+    if (error.code !== "ENOENT") {
+      throw error;
+    }
+  }
+}
+
+// Remove tshy's output
+await maybeUnlink("dist/browser/index-browser.d.mts.map");
+await maybeUnlink("dist/browser/index-browser.mjs.map");
+await maybeUnlink("dist/browser/index.d.ts");
+await maybeUnlink("dist/browser/index.js");
 
 function injectCodePlugin(code) {
   return {
@@ -62,11 +81,16 @@ export default [
     ],
     output: [
       {
-        file: `browser.js`,
+        file: "dist/browser/index.js",
         format: "es",
         sourcemap: true,
         inlineDynamicImports: true,
       },
     ],
+  },
+  {
+    input: `src/index.ts`,
+    output: [{ file: "dist/browser/index.d.ts", format: "es" }],
+    plugins: [dts()],
   },
 ];
