@@ -810,9 +810,12 @@ importers:
 
   plugins/plugin-blur:
     dependencies:
-      '@jimp/types':
+      '@jimp/core':
         specifier: workspace:*
-        version: link:../../packages/types
+        version: link:../../packages/core
+      '@jimp/utils':
+        specifier: workspace:*
+        version: link:../../packages/utils
     devDependencies:
       '@jimp/config-eslint':
         specifier: workspace:*
@@ -823,6 +826,15 @@ importers:
       '@jimp/config-vitest':
         specifier: workspace:*
         version: link:../../packages/config-vitest
+      '@jimp/js-png':
+        specifier: workspace:*
+        version: link:../js-png
+      '@jimp/test-utils':
+        specifier: workspace:*
+        version: link:../../packages/test-utils
+      '@jimp/types':
+        specifier: workspace:*
+        version: link:../../packages/types
       '@vitest/browser':
         specifier: ^1.4.0
         version: 1.4.0(playwright@1.42.1)(vitest@1.4.0)
