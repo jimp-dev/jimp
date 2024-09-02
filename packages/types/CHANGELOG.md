@@ -1,3 +1,15 @@
+# v1.1.5 (Mon Sep 02 2024)
+
+#### 🐛 Bug Fix
+
+- Fix loading fonts in web-worker [#1322](https://github.com/jimp-dev/jimp/pull/1322) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+
+#### Authors: 1
+
+- Andrew Lisowski ([@hipstersmoothie](https://github.com/hipstersmoothie))
+
+---
+
 # v1.1.3 (Mon Sep 02 2024)
 
 #### 🐛 Bug Fix

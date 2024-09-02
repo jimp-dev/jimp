@@ -1,3 +1,15 @@
+# v1.1.5 (Mon Sep 02 2024)
+
+#### ⚠️ Pushed to `main`
+
+- Fix height/width being undefined when creating a Jimp from a canvas ([@hipstersmoothie](https://github.com/hipstersmoothie))
+
+#### Authors: 1
+
+- Andrew Lisowski ([@hipstersmoothie](https://github.com/hipstersmoothie))
+
+---
+
 # v1.1.3 (Mon Sep 02 2024)
 
 #### 🐛 Bug Fix

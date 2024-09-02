@@ -1,3 +1,21 @@
+# v1.1.5 (Mon Sep 02 2024)
+
+#### 🐛 Bug Fix
+
+- `@jimp/types`, `@jimp/plugin-print`
+  - Fix loading fonts in web-worker [#1322](https://github.com/jimp-dev/jimp/pull/1322) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+
+#### ⚠️ Pushed to `main`
+
+- `@jimp/core`, `jimp`
+  - Fix height/width being undefined when creating a Jimp from a canvas ([@hipstersmoothie](https://github.com/hipstersmoothie))
+
+#### Authors: 1
+
+- Andrew Lisowski ([@hipstersmoothie](https://github.com/hipstersmoothie))
+
+---
+
 # v1.1.4 (Mon Sep 02 2024)
 
 ### Release Notes
