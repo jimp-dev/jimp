@@ -34,19 +34,19 @@ export default defineConfig({
             "../../packages/jimp/src/index.ts",
             "../../packages/jimp/src/fonts.ts",
           ],
-          tsconfig: "../../packages/jimp/tsconfig.json",
+          tsconfig: "../../packages/jimp/tsconfig.docs.json",
           typeDoc: {
             groupOrder: ["Classes", "Functions", "Enumerations", "Variables"],
             sort: ["static-first", "alphabetical"],
             plugin: [
               path.join(
                 path.dirname(import.meta.url).replace("file:", ""),
-                "./src/typedoc-plugin.js",
+                "./src/typedoc-plugin.js"
               ),
               "typedoc-plugin-zod",
               path.join(
                 path.dirname(import.meta.url).replace("file:", ""),
-                "./src/typedoc-zod-extended.js",
+                "./src/typedoc-zod-extended.js"
               ),
             ],
           },
