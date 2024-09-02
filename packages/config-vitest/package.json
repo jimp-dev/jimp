@@ -18,7 +18,7 @@
   },
   "dependencies": {
     "@esbuild-plugins/node-globals-polyfill": "^0.2.3",
-    "playwright": "^1.42.1",
+    "playwright": "^1.46.1",
     "vite-plugin-node-polyfills": "^0.22.0"
   },
   "type": "module",
