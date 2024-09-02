@@ -5,7 +5,6 @@
   "scripts": {
     "lint": "eslint .",
     "test": "vitest",
-    "test:browser": "vitest --config vitest.config.browser.mjs",
     "build": "tshy",
     "dev": "tshy --watch",
     "clean": "rm -rf node_modules .tshy .tshy-build dist .turbo"
