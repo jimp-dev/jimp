@@ -36,18 +36,12 @@ function matrixRotate<I extends JimpClass>(image: I, deg: number) {
     throw new Error("Unsupported matrix rotation degree");
   }
 
-  deg %= 360;
-
-  if (Math.abs(deg) === 0) {
-    // no rotation for 0, 360, -360, 720, -720, ...
-    return;
-  }
-
   const w = image.bitmap.width;
   const h = image.bitmap.height;
 
   // decide which rotation angle to use
   let angle;
+
   switch (deg) {
     // 90 degree & -270 degree are same
     case 90:
@@ -126,7 +120,6 @@ function advancedRotate<I extends JimpClass>(
   deg: number,
   mode: boolean | ResizeStrategy
 ) {
-  deg %= 360;
   const rad = (deg * Math.PI) / 180;
   const cosine = Math.cos(rad);
   const sine = Math.sin(rad);
@@ -235,8 +228,17 @@ export const methods = {
    */
   rotate<I extends JimpClass>(image: I, options: RotateOptions) {
     const parsed = RotateOptionsSchema.parse(options);
-    const { deg, mode = true } =
+    let { deg, mode = true } =
       typeof parsed === "number" ? { deg: parsed } : parsed;
+
+    // No need to do extra rotation
+    deg %= 360;
+
+    // no rotation for 0, 360, -360, 720, -720, ...
+    if (deg % 360 === 0) {
+      return image;
+    }
+
     // use matrixRotate if the angle is a multiple of 90 degrees (eg: 180 or -90) and resize is allowed or not needed.
     const matrixRotateAllowed =
       deg % 90 === 0 &&
