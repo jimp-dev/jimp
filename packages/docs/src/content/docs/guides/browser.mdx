@@ -63,3 +63,60 @@ function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
 
 input.addEventListener("change", handleFile);
 ```
+
+## Using Fonts
+
+Jimp supports loading fonts from a URL or a file path.
+You must host the fonts and will not be able to use the ones included in the node version of Jimp.
+
+> PRs welcome! 
+
+## Web Workers
+
+Jimp can be slow and you don't want that running on the main thread.
+Workers can make this experience a lot better.
+
+First define a worker.
+This is where you should import jimp and do your image transformations.
+
+```ts
+import { Jimp, loadFont } from "jimp";
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const ctx: Worker = self as any;
+
+ctx.addEventListener("message", async (e) => {
+  // Initialize Jimp
+  const image = await Jimp.fromBuffer(e.data.image);
+  const options = e.data.options;
+
+  // Manipulate the image
+  if (options.blur) {
+    image.blur(options.blur);
+  }
+
+  // Return the result
+  ctx.postMessage({ base64: await image.getBase64("image/png") });
+});
+```
+
+Then you can use the worker.
+
+```ts
+const fileData: ArrayBuffer = new ArrayBuffer(); // Your image data
+const worker = new Worker(new URL("./jimp.worker.ts", import.meta.url), {
+  type: "module",
+});
+
+worker.postMessage({
+  image: fileData,
+  options: {
+    blur: 8
+  },
+});
+
+worker.addEventListener("message", (e) => {
+  setOutput(e.data.base64);
+  setIsLoading(false);
+});
+```

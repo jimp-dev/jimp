@@ -1,9 +1,8 @@
-import { loadBitmapFont } from "./load-bitmap-font.js";
-import { createJimp } from "@jimp/core";
-import png from "@jimp/js-png";
-import path from "path";
-
-const CharacterJimp = createJimp({ formats: [png] });
+import {
+  isWebWorker,
+  loadBitmapFontData,
+  processBitmapFont,
+} from "./load-bitmap-font.js";
 
 /**
  * Loads a Bitmap Font from a file.
@@ -23,7 +22,7 @@ const CharacterJimp = createJimp({ formats: [png] });
 export async function loadFont(file: string) {
   let fileOrBuffer: string | Buffer = file;
 
-  if (typeof window === "undefined") {
+  if (typeof window === "undefined" && !isWebWorker) {
     const { existsSync, promises: fs } = await import("fs");
 
     if (existsSync(file)) {
@@ -31,14 +30,6 @@ export async function loadFont(file: string) {
     }
   }
 
-  const font = await loadBitmapFont(fileOrBuffer);
-
-  return {
-    ...font,
-    pages: await Promise.all(
-      font.pages.map(async (page) =>
-        CharacterJimp.read(path.join(path.dirname(file), page)),
-      ),
-    ),
-  };
+  const data = await loadBitmapFontData(fileOrBuffer);
+  return processBitmapFont(file, data);
 }
