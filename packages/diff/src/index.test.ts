@@ -13,6 +13,7 @@ describe("Compare image difference", () => {
     Jimp.fromBitmap(makeTestImage("2468", "2468", "2468", "2468")),
     Jimp.fromBitmap(makeTestImage("2212", "4434", "6656", "8878")),
     Jimp.fromBitmap(makeTestImage("2232", "4454", "6676", "8898")),
+    Jimp.fromBitmap(makeTestImage("22322", "44544", "66766", "88988")),
   ] as const;
 
   test("images 0 and 1", () => {
@@ -44,6 +45,12 @@ describe("Compare image difference", () => {
   test("throws an error if threshold is invalid", () => {
     expect(() => diff(imgs[0], imgs[3], -1)).toThrow(
       "threshold must be a number between 0 and 1"
+    );
+  });
+
+  test("should resize image before diffing", () => {
+    expect(diff(imgs[3], imgs[4]).percent).toStrictEqual(
+      diff(imgs[4], imgs[3]).percent
     );
   });
 });
