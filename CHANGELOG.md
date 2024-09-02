@@ -1,3 +1,38 @@
+# v1.1.2 (Mon Sep 02 2024)
+
+### Release Notes
+
+#### Make brightness function behave like other implementations ([#1312](https://github.com/jimp-dev/jimp/pull/1312))
+
+This PR changes the `brightness` function to behave like the css brightness function and other implementations. Previously it was doing something odd. Instead of multiplying the color channel by the multiplier value, it multiplied against the inversion of the current color. 
+
+In the current version a value of `1` won't change the colors at all. Values above 1 will brighten the colors, values below 1 will darken the colors.
+
+---
+
+#### 🐛 Bug Fix
+
+- fix incorrect usage in docs [#1318](https://github.com/jimp-dev/jimp/pull/1318) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- `jimp`, `@jimp/plugin-blur`, `@jimp/plugin-shadow`
+  - Fix blur on transparent images [#1315](https://github.com/jimp-dev/jimp/pull/1315) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- `@jimp/plugin-rotate`
+  - Rotate short circuit [#1317](https://github.com/jimp-dev/jimp/pull/1317) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- `@jimp/plugin-color`
+  - Fix pixelate not working well with alpha channel [#1314](https://github.com/jimp-dev/jimp/pull/1314) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- `jimp`, `@jimp/plugin-color`
+  - Make brightness function behave like other implementations [#1312](https://github.com/jimp-dev/jimp/pull/1312) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- `@jimp/plugin-print`
+  - Fix printing string when words are longer than max-width [#1313](https://github.com/jimp-dev/jimp/pull/1313) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+  - Fix using dirname in print plugin [#1310](https://github.com/jimp-dev/jimp/pull/1310) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- `@jimp/diff`
+  - Jimp.diff() to make real resize before image compare [#1311](https://github.com/jimp-dev/jimp/pull/1311) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+
+#### Authors: 1
+
+- Andrew Lisowski ([@hipstersmoothie](https://github.com/hipstersmoothie))
+
+---
+
 # v1.1.1 (Sun Sep 01 2024)
 
 #### 🐛 Bug Fix
