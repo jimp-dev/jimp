@@ -95,19 +95,22 @@
     "exclude": [
       "**/*.test.ts"
     ],
+    "esmDialects": [
+      "browser"
+    ],
     "exports": {
       "./package.json": "./package.json",
       ".": "./src/index.ts",
-      "./fonts": "./src/fonts.ts",
-      "./browser": {
-        "types": "./dist/esm/index.d.ts",
-        "import": "./browser.js"
-      }
+      "./fonts": "./src/fonts.ts"
     }
   },
   "exports": {
     "./package.json": "./package.json",
     ".": {
+      "browser": {
+        "types": "./dist/browser/index.d.ts",
+        "default": "./dist/browser/index.js"
+      },
       "import": {
         "types": "./dist/esm/index.d.ts",
         "default": "./dist/esm/index.js"
@@ -118,6 +121,10 @@
       }
     },
     "./fonts": {
+      "browser": {
+        "types": "./dist/browser/fonts.d.ts",
+        "default": "./dist/browser/fonts.js"
+      },
       "import": {
         "types": "./dist/esm/fonts.d.ts",
         "default": "./dist/esm/fonts.js"
@@ -126,10 +133,6 @@
         "types": "./dist/commonjs/fonts.d.ts",
         "default": "./dist/commonjs/fonts.js"
       }
-    },
-    "./browser": {
-      "types": "./dist/esm/index.d.ts",
-      "import": "./browser.js"
     }
   },
   "main": "./dist/commonjs/index.js",
