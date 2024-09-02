@@ -1,6 +1,6 @@
 {
   "name": "@jimp/plugin-flip",
-  "version": "1.1.2",
+  "version": "1.1.3",
   "repository": "jimp-dev/jimp",
   "engines": {
     "node": ">=18"
