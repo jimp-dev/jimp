@@ -17,15 +17,15 @@ FF-00-00⁷ᶠ 00-FF-00⁷ᶠ 00-00-FF⁷ᶠ
 exports[`Callbacks > with blur 1`] = `
 Visualization:
 
-7▩▵
-F0F
-2B4
+▩▴4
+C◆▴
+1 ◆
 
 Data:
 
-AA-94-3Fᶠ¹ 7E-7E-7Eᶠ¹ 54-69-BFᶠ¹
-9B-C2-52ᵈ⁴ 85-A7-85ᵈ⁴ 6E-8B-B6ᵈ⁴
-88-00-6Cᵇ⁷ 8C-DC-8Cᵇ⁷ 92-B7-ACᵇ⁷
+97-83-38ᶠ¹ 71-71-71ᶠ¹ 4B-5E-A9ᶠ¹
+97-83-38ᵈ⁴ 71-71-71ᵈ⁴ 4B-5E-A9ᵈ⁴
+97-83-38ᵇ⁷ 71-71-71ᵇ⁷ 4B-5E-A9ᵇ⁷
 `;
 
 exports[`Callbacks > with brightness 1`] = `

@@ -1,5 +1,6 @@
 import { mulTable, shgTable } from "./blur-tables.js";
 import { JimpClass } from "@jimp/types";
+import { limit255 } from "@jimp/utils";
 
 /*
     Superfast Blur (0.5)
@@ -145,24 +146,10 @@ export const methods = {
         yi = x << 2;
 
         for (y = 0; y < image.bitmap.height; y++) {
-          pa = (asum * mulSum) >>> shgSum;
-          image.bitmap.data[yi + 3] = pa;
-
-          // normalize alpha
-          if (pa > 255) {
-            image.bitmap.data[yi + 3] = 255;
-          }
-
-          if (pa > 0) {
-            pa = 255 / pa;
-            image.bitmap.data[yi] = ((rsum * mulSum) >>> shgSum) * pa;
-            image.bitmap.data[yi + 1] = ((gsum * mulSum) >>> shgSum) * pa;
-            image.bitmap.data[yi + 2] = ((bsum * mulSum) >>> shgSum) * pa;
-          } else {
-            image.bitmap.data[yi + 2] = 0;
-            image.bitmap.data[yi + 1] = 0;
-            image.bitmap.data[yi] = 0;
-          }
+          image.bitmap.data[yi] = limit255((rsum * mulSum) >>> shgSum);
+          image.bitmap.data[yi + 1] = limit255((gsum * mulSum) >>> shgSum);
+          image.bitmap.data[yi + 2] = limit255((bsum * mulSum) >>> shgSum);
+          image.bitmap.data[yi + 3] = limit255((asum * mulSum) >>> shgSum);
 
           if (x === 0) {
             vmin[y] = ((p = y + rad1) < hm ? p : hm) * image.bitmap.width;
