@@ -1,6 +1,6 @@
 import { Bitmap, Format, JimpClass, Edge } from "@jimp/types";
 import { cssColorToHex, scan, scanIterator } from "@jimp/utils";
-import * as fileType from "file-type/core.js";
+import fileType from "file-type/core.js";
 import { to } from "await-to-js";
 import { existsSync, readFile, writeFile } from "@jimp/file-ops";
 import mime from "mime/lite.js";
