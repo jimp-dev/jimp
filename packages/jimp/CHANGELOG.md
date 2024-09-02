@@ -1,3 +1,23 @@
+# v1.1.4 (Mon Sep 02 2024)
+
+### Release Notes
+
+#### improve bundler integration ([#1321](https://github.com/jimp-dev/jimp/pull/1321))
+
+Instead of having to import `jimp/browser` you can now just import `jimp` and the bundler should pick up the `browser` export.
+
+---
+
+#### 🐛 Bug Fix
+
+- improve bundler integration [#1321](https://github.com/jimp-dev/jimp/pull/1321) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+
+#### Authors: 1
+
+- Andrew Lisowski ([@hipstersmoothie](https://github.com/hipstersmoothie))
+
+---
+
 # v1.1.3 (Mon Sep 02 2024)
 
 #### 🐛 Bug Fix
