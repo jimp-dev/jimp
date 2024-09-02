@@ -9,7 +9,7 @@
     "node": ">=18"
   },
   "scripts": {
-    "build": "turbo run build build:browser --filter=!docs",
+    "build": "turbo run build build:browser --filter=!@jimp/docs",
     "dev": "turbo run dev",
     "lint": "turbo run lint",
     "test": "turbo run test -- --watch=false",
