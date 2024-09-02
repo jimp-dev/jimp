@@ -6,7 +6,7 @@ import { nodePolyfills } from "vite-plugin-node-polyfills";
 const require = createRequire(import.meta.url);
 const imagesFolder = path.join(
   path.join(path.dirname(require.resolve("@jimp/test-utils")), "../../"),
-  "images"
+  "images",
 );
 
 export default defineConfig({

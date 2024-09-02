@@ -22,7 +22,7 @@ function isBinary(buf: Buffer | string) {
 
 function parseFont(
   file: string,
-  data: Buffer | string
+  data: Buffer | string,
 ): {
   chars: BmCharacter[];
   kernings: BmKerning[];
@@ -71,7 +71,7 @@ async function loadBitmapFontData(bufferOrUrl: string | Buffer) {
 type RawFont = Awaited<ReturnType<typeof loadBitmapFontData>>;
 
 export async function loadBitmapFont(
-  bufferOrUrl: string | Buffer
+  bufferOrUrl: string | Buffer,
 ): Promise<Omit<BmFont, "pages"> & Pick<RawFont, "pages">> {
   const font = await loadBitmapFontData(bufferOrUrl);
   const chars: Record<string, BmCharacter> = {};

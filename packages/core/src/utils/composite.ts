@@ -13,7 +13,7 @@ export function composite<I extends JimpClass>(
     mode?: BlendMode;
     opacitySource?: number;
     opacityDest?: number;
-  } = {}
+  } = {},
 ) {
   if (!(src instanceof baseImage.constructor)) {
     throw new Error("The source must be a Jimp image");
@@ -76,7 +76,7 @@ export function composite<I extends JimpClass>(
         b: baseImage.bitmap.data[dstIdx + 2]! / 255,
         a: baseImage.bitmap.data[dstIdx + 3]! / 255,
       },
-      opacitySource
+      opacitySource,
     );
 
     baseImage.bitmap.data[dstIdx + 0] = limit255(blended.r * 255);

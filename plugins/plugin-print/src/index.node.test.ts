@@ -32,7 +32,7 @@ async function createTextImage(
     maxHeight?: number;
     x?: number;
     y?: number;
-  }
+  },
 ) {
   const loadedFont = await loadFont(font);
   const image = new Jimp({ width, height, color: 0xffffffff });
@@ -93,7 +93,7 @@ describe("Write text over image", function () {
 
   test("Jimp loads font from URL", async () => {
     const font = await loadFont(
-      "https://raw.githubusercontent.com/jimp-dev/jimp/main/plugins/plugin-print/fonts/open-sans/open-sans-16-black/open-sans-16-black.fnt"
+      "https://raw.githubusercontent.com/jimp-dev/jimp/main/plugins/plugin-print/fonts/open-sans/open-sans-16-black/open-sans-16-black.fnt",
     );
     const image = new Jimp({ width: 300, height: 100, color: 0xff8800ff });
     const output = await image
@@ -111,7 +111,7 @@ describe("Write text over image", function () {
 
   test("Max width works without spaces", async () => {
     const font = await loadFont(
-      "https://raw.githubusercontent.com/jimp-dev/jimp/main/plugins/plugin-print/fonts/open-sans/open-sans-16-black/open-sans-16-black.fnt"
+      "https://raw.githubusercontent.com/jimp-dev/jimp/main/plugins/plugin-print/fonts/open-sans/open-sans-16-black/open-sans-16-black.fnt",
     );
     const image = new Jimp({ width: 300, height: 100, color: 0xff8800ff });
     const output = await image

@@ -60,7 +60,7 @@ export function diff<I extends JimpClass>(img1: I, img2: I, threshold = 0.1) {
     diff.bitmap.data,
     diff.bitmap.width,
     diff.bitmap.height,
-    { threshold }
+    { threshold },
   );
 
   return {

@@ -95,7 +95,7 @@ function transformBitmap<I extends JimpClass>(
   img: I,
   width: number,
   height: number,
-  transformation: (x: number, y: number) => readonly [number, number]
+  transformation: (x: number, y: number) => readonly [number, number],
 ) {
   // Underscore-prefixed values are related to the source bitmap
   // Their counterparts with no prefix are related to the target bitmap
@@ -146,7 +146,7 @@ function exifRotate<I extends JimpClass>(img: I) {
 
 export async function attemptExifRotate<I extends JimpClass>(
   image: I,
-  buffer: Buffer
+  buffer: Buffer,
 ) {
   try {
     (image as unknown as { _exif: ExifData })._exif =

@@ -63,7 +63,7 @@ export const operations = {
       kMin: number,
       vMin: number,
       kMax: number,
-      vMax: number
+      vMax: number,
     ) {
       // special case - k is integer
       if (kMin === kMax) {
@@ -81,7 +81,7 @@ export const operations = {
       xMax: number,
       y: number,
       yMin: number,
-      yMax: number
+      yMax: number,
     ) {
       let posMin = (yMin * wSrc + xMin) * 4 + offset;
       let posMax = (yMin * wSrc + xMax) * 4 + offset;
@@ -256,7 +256,7 @@ export const operations = {
       x1: number,
       x2: number,
       x3: number,
-      t: number
+      t: number,
     ) {
       const a0 = x3 - x2 - x0 + x1;
       const a1 = x0 - x1 - a0;
@@ -264,7 +264,7 @@ export const operations = {
       const a3 = x1;
       return Math.max(
         0,
-        Math.min(255, a0 * (t * t * t) + a1 * (t * t) + a2 * t + a3)
+        Math.min(255, a0 * (t * t * t) + a1 * (t * t) + a2 * t + a3),
       );
     };
 
@@ -277,7 +277,7 @@ export const operations = {
       x1: number,
       x2: number,
       x3: number,
-      t: number
+      t: number,
     ) {
       const c0 = x1;
       const c1 = 0.5 * (x2 - x0);
@@ -285,7 +285,7 @@ export const operations = {
       const c3 = 0.5 * (x3 - x0) + 1.5 * (x1 - x2);
       return Math.max(
         0,
-        Math.min(255, Math.round(((c3 * t + c2) * t + c1) * t + c0))
+        Math.min(255, Math.round(((c3 * t + c2) * t + c1) * t + c0)),
       );
     };
 
@@ -309,7 +309,7 @@ export const operations = {
       x1: number,
       x2: number,
       x3: number,
-      t: number
+      t: number,
     ) {
       // x1, x2 are the knots, use x0 and x3 to calculate control points
       const cp1 = x1 + (x2 - x0) / 4;

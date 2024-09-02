@@ -84,7 +84,7 @@ export function splitLines(font: BmFont, text: string, maxWidth: number) {
 export function measureTextHeight(
   font: BmFont,
   text: string,
-  maxWidth: number
+  maxWidth: number,
 ) {
   const { lines } = splitLines(font, text, maxWidth);
 

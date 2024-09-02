@@ -1,5 +1,7 @@
 {
+  "name": "jimp-monorepo",
   "private": true,
+  "packageManager": "pnpm@8.9.0",
   "description": "The jimp monorepo.",
   "repository": "jimp-dev/jimp",
   "author": "Andrew Lisowski <lisowski54@gmail.com>",
@@ -24,16 +26,9 @@
     "@auto-it/released": "^11.2.1",
     "@jimp/config-eslint": "workspace:*",
     "@jimp/config-typescript": "workspace:*",
-    "@turbo/gen": "^1.12.5",
-    "any-base": "^1.1.0",
+    "@turbo/gen": "^2.1.1",
     "auto": "^11.2.1",
-    "prettier": "^3.2.5",
-    "turbo": "^1.13.0"
-  },
-  "packageManager": "pnpm@8.9.0",
-  "publishConfig": {
-    "registry": "https://registry.npmjs.org/",
-    "access": "public"
-  },
-  "sideEffects": false
+    "prettier": "^3.3.3",
+    "turbo": "^2.1.1"
+  }
 }

@@ -57,12 +57,12 @@ export const methods = {
       colorDistanceFormula,
       paletteQuantization,
       imageQuantization,
-    }: QuantizeOptions
+    }: QuantizeOptions,
   ) {
     const inPointContainer = utils.PointContainer.fromUint8Array(
       image.bitmap.data,
       image.bitmap.width,
-      image.bitmap.height
+      image.bitmap.height,
     );
 
     const palette = buildPaletteSync([inPointContainer], {

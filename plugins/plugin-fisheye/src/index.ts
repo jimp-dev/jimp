@@ -44,7 +44,7 @@ export const methods = {
     image.setPixelColor(
       source.getPixelColor(width / 2, height / 2),
       width / 2,
-      height / 2
+      height / 2,
     );
 
     return image;

@@ -20,8 +20,8 @@ describe("Resize images", () => {
           "□□□□■■■■",
           "□□□□■■■■",
           "□□□□■■■■",
-          "□□□□■■■■"
-        )
+          "□□□□■■■■",
+        ),
       ),
       tests: [
         { mode: "default", size: { height: 4, width: 4 } },
@@ -54,8 +54,8 @@ describe("Resize images", () => {
           "□□□□□□■■■■■■",
           "□□□■□□■■□■■■",
           "□□□□□□■■■■■■",
-          "□□□□□□■■■■■■"
-        )
+          "□□□□□□■■■■■■",
+        ),
       ),
       tests: [
         { mode: "default", size: { height: 6, width: 6 } },
@@ -92,7 +92,7 @@ describe("Resize images", () => {
               w: size.width,
               h: size.height,
               mode,
-            })
+            }),
           ).toMatchSnapshot();
         });
       });

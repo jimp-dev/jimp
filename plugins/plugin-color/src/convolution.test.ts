@@ -19,8 +19,8 @@ describe("Convolution", function () {
       "22888822",
       "22888822",
       "22222222",
-      "22222222"
-    )
+      "22222222",
+    ),
   );
   /** stores the Jimp instances of the JGD images above. */
   const imgTopLeft = jimp.fromBitmap(
@@ -32,8 +32,8 @@ describe("Convolution", function () {
       "22222222",
       "22222222",
       "22222222",
-      "22222222"
-    )
+      "22222222",
+    ),
   );
 
   const sharpM = [
@@ -49,23 +49,23 @@ describe("Convolution", function () {
 
   test("3x3 sharp matrix on EDGE_WRAP", () => {
     expect(
-      imgMid.clone().convolution({ kernel: sharpM, edgeHandling: Edge.WRAP })
+      imgMid.clone().convolution({ kernel: sharpM, edgeHandling: Edge.WRAP }),
     ).toMatchSnapshot();
     expect(
       imgTopLeft
         .clone()
-        .convolution({ kernel: sharpM, edgeHandling: Edge.WRAP })
+        .convolution({ kernel: sharpM, edgeHandling: Edge.WRAP }),
     ).toMatchSnapshot();
   });
 
   test("3x3 sharp matrix on EDGE_CROP", () => {
     expect(
-      imgMid.clone().convolution({ kernel: sharpM, edgeHandling: Edge.CROP })
+      imgMid.clone().convolution({ kernel: sharpM, edgeHandling: Edge.CROP }),
     ).toMatchSnapshot();
     expect(
       imgTopLeft
         .clone()
-        .convolution({ kernel: sharpM, edgeHandling: Edge.CROP })
+        .convolution({ kernel: sharpM, edgeHandling: Edge.CROP }),
     ).toMatchSnapshot();
   });
 });

@@ -16,7 +16,7 @@ interface ResizeClass {
     targetHeight: number,
     blendAlpha: boolean,
     interpolationPass: boolean,
-    resizeCallback: (buffer: Buffer) => void
+    resizeCallback: (buffer: Buffer) => void,
   ): ResizeClass;
   resize(buffer: Buffer): void;
 }
@@ -119,7 +119,7 @@ export const methods = {
           image.bitmap.data = Buffer.from(buffer);
           image.bitmap.width = w;
           image.bitmap.height = h;
-        }
+        },
       );
 
       resize.resize(image.bitmap.data);

@@ -41,7 +41,7 @@ export const methods = {
 
     image.scan((x, y, idx) => {
       const curR = Math.sqrt(
-        Math.pow(x - center.x, 2) + Math.pow(y - center.y, 2)
+        Math.pow(x - center.x, 2) + Math.pow(y - center.y, 2),
       );
 
       if (radius - curR <= 0.0) {

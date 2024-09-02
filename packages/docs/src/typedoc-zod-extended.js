@@ -39,7 +39,7 @@ export function load(app) {
         ?.getDeclarations()
         ?.find(TypeScript.isTypeAliasDeclaration);
       const matchingSchema = declaration?.parent.locals.get(
-        `${refl.name}Schema`
+        `${refl.name}Schema`,
       );
 
       if (!matchingSchema || !refl.type.declaration) {

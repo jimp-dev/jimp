@@ -10,7 +10,7 @@ const maxHashLength = [NaN, NaN];
 for (let i = 2; i < 65; i++) {
   const maxHash = anyBase(
     anyBase.BIN,
-    alphabet.slice(0, i)
+    alphabet.slice(0, i),
   )(new Array(64 + 1).join("1"));
   maxHashLength.push(maxHash.length);
 }

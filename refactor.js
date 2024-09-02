@@ -11,7 +11,8 @@ function addPublishConfigToPackageJson(directory) {
       if (!packageJson.scripts) {
         packageJson.scripts = {};
       }
-      packageJson.scripts.clean = 'rm -rf node_modules .tshy .tshy-build dist .turbo'
+      packageJson.scripts.clean =
+        "rm -rf node_modules .tshy .tshy-build dist .turbo";
       fs.writeFileSync(fullPath, JSON.stringify(packageJson, null, 2));
       console.log(`Updated publishConfig in: ${fullPath}`);
     }

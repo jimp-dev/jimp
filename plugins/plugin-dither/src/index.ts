@@ -24,11 +24,11 @@ export const methods = {
       image.bitmap.data[idx] = Math.min(image.bitmap.data[idx]! + dither, 0xff);
       image.bitmap.data[idx + 1] = Math.min(
         image.bitmap.data[idx + 1]! + dither,
-        0xff
+        0xff,
       );
       image.bitmap.data[idx + 2] = Math.min(
         image.bitmap.data[idx + 2]! + dither,
-        0xff
+        0xff,
       );
     });
 

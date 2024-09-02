@@ -221,11 +221,11 @@ export const methods = {
           for (let ix = 0; ix < range; ix++) {
             const x1 = Math.min(
               image.bitmap.width - 1,
-              Math.max(0, ix + x - rs)
+              Math.max(0, ix + x - rs),
             );
             const y1 = Math.min(
               image.bitmap.height - 1,
-              Math.max(0, iy + y - rs)
+              Math.max(0, iy + y - rs),
             );
             const weight = weights[iy]![ix]!;
             const idx = (y1 * image.bitmap.width + x1) << 2;

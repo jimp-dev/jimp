@@ -18,8 +18,8 @@ describe("Blit over image", function () {
       "▾▾▾▾◆◆◆◆",
       "▾▾▾▾◆◆◆◆",
       "▾▾▾▾◆◆◆◆",
-      "▾▾▾▾◆◆◆◆"
-    )
+      "▾▾▾▾◆◆◆◆",
+    ),
   );
   // stores the Jimp instances of the JGD images above.
   // prettier-ignore
@@ -38,7 +38,7 @@ describe("Blit over image", function () {
 
   test("blit on middle, with no crop", () => {
     expect(
-      targetImg.clone().blit({ src: srcImg, x: 1, y: 1 })
+      targetImg.clone().blit({ src: srcImg, x: 1, y: 1 }),
     ).toMatchSnapshot();
   });
 
@@ -46,7 +46,7 @@ describe("Blit over image", function () {
     expect(
       targetImg
         .clone()
-        .blit({ src: srcImg, x: 2, y: 2, srcX: 1, srcY: 1, srcW: 5, srcH: 5 })
+        .blit({ src: srcImg, x: 2, y: 2, srcX: 1, srcY: 1, srcW: 5, srcH: 5 }),
     ).toMatchSnapshot();
   });
 
@@ -54,19 +54,19 @@ describe("Blit over image", function () {
     expect(
       targetImg
         .clone()
-        .blit({ src: srcImg, x: 2, y: 2, srcX: 1, srcY: 1, srcW: 4, srcH: 4 })
+        .blit({ src: srcImg, x: 2, y: 2, srcX: 1, srcY: 1, srcW: 4, srcH: 4 }),
     ).toMatchSnapshot();
   });
 
   test("blit partially out, on top-left", () => {
     expect(
-      targetImg.clone().blit({ src: srcImg, x: -1, y: -1 })
+      targetImg.clone().blit({ src: srcImg, x: -1, y: -1 }),
     ).toMatchSnapshot();
   });
 
   test("blit partially out, on bottom-right", () => {
     expect(
-      targetImg.clone().blit({ src: srcImg, x: 3, y: 3 })
+      targetImg.clone().blit({ src: srcImg, x: 3, y: 3 }),
     ).toMatchSnapshot();
   });
 });

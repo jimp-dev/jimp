@@ -17,8 +17,8 @@ describe("Shadow", () => {
         "  ◆▦▦▦▦◆  ",
         "   ◆▦▦◆   ",
         "    ◆◆    ",
-        "          "
-      )
+        "          ",
+      ),
     );
 
     expect(testImage.shadow({ x: -1, y: 1, blur: 1 })).toMatchSnapshot();

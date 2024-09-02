@@ -41,12 +41,12 @@ export default defineConfig({
             plugin: [
               path.join(
                 path.dirname(import.meta.url).replace("file:", ""),
-                "./src/typedoc-plugin.js"
+                "./src/typedoc-plugin.js",
               ),
               "typedoc-plugin-zod",
               path.join(
                 path.dirname(import.meta.url).replace("file:", ""),
-                "./src/typedoc-zod-extended.js"
+                "./src/typedoc-zod-extended.js",
               ),
             ],
           },

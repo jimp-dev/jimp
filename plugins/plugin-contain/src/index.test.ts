@@ -21,8 +21,8 @@ describe("All align combinations for contain", () => {
       "▾▾▾▾◆◆◆◆",
       "▾▾▾▾◆◆◆◆",
       "▾▾▾▾◆◆◆◆",
-      "▾▾▾▾◆◆◆◆"
-    )
+      "▾▾▾▾◆◆◆◆",
+    ),
   );
   // stores the Jimp instances of the JGD images above.
   const horizontal = jimp.fromBitmap(
@@ -34,8 +34,8 @@ describe("All align combinations for contain", () => {
       "▾▾▾▾▾▾◆◆◆◆◆◆",
       "▾▾▾▾▾▾◆◆◆◆◆◆",
       "▾▾▾▾▾▾◆◆◆◆◆◆",
-      "▾▾▾▾▾▾◆◆◆◆◆◆"
-    )
+      "▾▾▾▾▾▾◆◆◆◆◆◆",
+    ),
   );
 
   const tests: Array<
@@ -62,13 +62,13 @@ describe("All align combinations for contain", () => {
 
     test("vertical contain aligned to " + align, () => {
       expect(
-        vertical.clone().contain({ w: 6, h: 6, align: alignValue })
+        vertical.clone().contain({ w: 6, h: 6, align: alignValue }),
       ).toMatchSnapshot();
     });
 
     test("horizontal contain aligned to " + align, () => {
       expect(
-        horizontal.clone().contain({ w: 6, h: 6, align: alignValue })
+        horizontal.clone().contain({ w: 6, h: 6, align: alignValue }),
       ).toMatchSnapshot();
     });
   });

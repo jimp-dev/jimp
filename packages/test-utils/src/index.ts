@@ -5,7 +5,7 @@ import path from "path";
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function hashForEach<Hash extends Record<string, any>>(
   hash: Hash,
-  func: (key: keyof Hash, value: Hash[keyof Hash]) => void
+  func: (key: keyof Hash, value: Hash[keyof Hash]) => void,
 ) {
   for (const key in hash)
     if (key in hash) {
@@ -25,7 +25,7 @@ function throwUndefinedChar(char: string) {
       char +
       '" do not defines a color. ' +
       "This are the valid chars: " +
-      cList.join(" ")
+      cList.join(" "),
   );
 }
 
@@ -115,7 +115,7 @@ export function testImageReadableMatrix(img: Bitmap) {
       pix.replace(/(..)(..)(..)(.)(.)/, (sel, r, g, b, a1, a2) => {
         const a = sup[parseInt(a1, 16)]! + sup[parseInt(a2, 16)]!;
         return r + "-" + g + "-" + b + a;
-      })
+      }),
     );
     if (i > 0 && (i + 1) % img.width === 0) {
       rMatrix.push(line.join(" "));
@@ -219,7 +219,7 @@ export function getTestImagePath(
     | "windows95.bmp"
     | "fillbytes.jpg"
     | "hands.jpg"
-    | "hands_mx200_rp255.jpg"
+    | "hands_mx200_rp255.jpg",
 ) {
   if (typeof window !== "undefined") {
     return `/${name}`;

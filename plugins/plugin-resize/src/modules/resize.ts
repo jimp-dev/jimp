@@ -10,7 +10,7 @@ function Resize(
   targetHeight,
   blendAlpha,
   interpolationPass,
-  resizeCallback
+  resizeCallback,
 ) {
   this.widthOriginal = Math.abs(Math.floor(widthOriginal) || 0);
   this.heightOriginal = Math.abs(Math.floor(heightOriginal) || 0);
@@ -87,7 +87,7 @@ Resize.prototype.configurePasses = function () {
 
 Resize.prototype._resizeWidthInterpolatedRGBChannels = function (
   buffer,
-  fourthChannel
+  fourthChannel,
 ) {
   const channelsNum = fourthChannel ? 4 : 3;
   const ratioWeight = this.ratioWeightWidthPass;
@@ -363,18 +363,18 @@ Resize.prototype._resizeHeightRGBChannels = function (buffer, fourthChannel) {
           : 0
         : ratioWeightDivisor;
       outputBuffer[outputOffset++] = Math.round(
-        output[pixelOffset++] * multiplier
+        output[pixelOffset++] * multiplier,
       );
       outputBuffer[outputOffset++] = Math.round(
-        output[pixelOffset++] * multiplier
+        output[pixelOffset++] * multiplier,
       );
       outputBuffer[outputOffset++] = Math.round(
-        output[pixelOffset++] * multiplier
+        output[pixelOffset++] * multiplier,
       );
 
       if (fourthChannel) {
         outputBuffer[outputOffset++] = Math.round(
-          output[pixelOffset++] * ratioWeightDivisor
+          output[pixelOffset++] * ratioWeightDivisor,
         );
       }
     }
@@ -446,7 +446,7 @@ Resize.prototype.resizeHeightInterpolated = function (buffer) {
     ) {
       outputBuffer[finalOffset++] = Math.round(
         buffer[pixelOffsetAccumulated++] * firstWeight +
-          buffer[pixelOffsetAccumulated2++] * secondWeight
+          buffer[pixelOffsetAccumulated2++] * secondWeight,
       );
     }
   }
@@ -462,7 +462,7 @@ Resize.prototype.resizeHeightInterpolated = function (buffer) {
       ++pixelOffset
     ) {
       outputBuffer[finalOffset++] = Math.round(
-        buffer[pixelOffsetAccumulated++]
+        buffer[pixelOffsetAccumulated++],
       );
     }
   }
@@ -493,12 +493,12 @@ Resize.prototype.initializeFirstPassBuffers = function (BILINEARAlgo) {
 
   if (!BILINEARAlgo) {
     this.outputWidthWorkBench = this.generateFloatBuffer(
-      this.originalHeightMultipliedByChannels
+      this.originalHeightMultipliedByChannels,
     );
 
     if (this.colorChannels > 3) {
       this.outputWidthWorkBenchOpaquePixelsCount = this.generateFloat64Buffer(
-        this.heightOriginal
+        this.heightOriginal,
       );
     }
   }
@@ -510,12 +510,12 @@ Resize.prototype.initializeSecondPassBuffers = function (BILINEARAlgo) {
 
   if (!BILINEARAlgo) {
     this.outputHeightWorkBench = this.generateFloatBuffer(
-      this.targetWidthMultipliedByChannels
+      this.targetWidthMultipliedByChannels,
     );
 
     if (this.colorChannels > 3) {
       this.outputHeightWorkBenchOpaquePixelsCount = this.generateFloat64Buffer(
-        this.targetWidth
+        this.targetWidth,
       );
     }
   }

@@ -9,9 +9,9 @@ The goals of v1 were to:
 2. Make jimp's API more consistent and easier to use
 3. Many constants have been removed and are string value powered by TS
 
-## Positional Arguments to Options Objects 
+## Positional Arguments to Options Objects
 
-In jimp v0 there were many ways to provide arguments to a method. 
+In jimp v0 there were many ways to provide arguments to a method.
 Most methods used positional arguments, which leads to code thats harder to read and extend.
 
 For example the resize method used to look like this:
@@ -42,7 +42,7 @@ const image = new Jimp({ width: 100, height: 100 });
 Even give it a background color:
 
 ```js
-const image = new Jimp({ width: 100, height: 100, color: 0xff0000ff }); 
+const image = new Jimp({ width: 100, height: 100, color: 0xff0000ff });
 ```
 
 ### `Jimp.read`

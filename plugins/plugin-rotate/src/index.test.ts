@@ -16,8 +16,8 @@ describe("Rotate a image with even size", () => {
       "▪▪▪▪▴▴▴▴",
       "▪▪▪▪▴▴▴▴",
       "▪▪▪▪▴▴▴▴",
-      "▦▪▪▪▴▴▴▦"
-    )
+      "▦▪▪▪▴▴▴▦",
+    ),
   );
 
   const angles = [
@@ -40,8 +40,8 @@ describe("Rotate a image with odd size", () => {
       "▦▦▦▦▦▦▦",
       "▴▴▴▦▴▴▴",
       "▴▴▴▦▴▴▴",
-      "▴▴▴▦▴▴▴"
-    )
+      "▴▴▴▦▴▴▴",
+    ),
   );
 
   const angles = [45, 135, 225, 315];
@@ -55,7 +55,7 @@ describe("Rotate a image with odd size", () => {
 
 describe("Rotate a non-square image", () => {
   const imgSrc = jimp.fromBitmap(
-    makeTestImage("▴▴▴▴▪▪▪▪", "▴▴▴▴▪▪▪▪", "▦▦▦▦▴▴▴▴", "▦▦▦▦▴▴▴▴")
+    makeTestImage("▴▴▴▴▪▪▪▪", "▴▴▴▴▪▪▪▪", "▦▦▦▦▴▴▴▴", "▦▦▦▦▴▴▴▴"),
   );
 
   const angles = [1, 10, 30, 45, 90, -90, 135, 180, 225, 315, -180, -270];
@@ -69,7 +69,7 @@ describe("Rotate a non-square image", () => {
 
 describe("Rotate a non-square image without resizing", () => {
   const imgSrc = jimp.fromBitmap(
-    makeTestImage("□□□□□□□□", "▹▹▹▹▹▹▹▹", "▿▿▿▿▿▿▿▿", "□□□□□□□□")
+    makeTestImage("□□□□□□□□", "▹▹▹▹▹▹▹▹", "▿▿▿▿▿▿▿▿", "□□□□□□□□"),
   );
 
   const angles = [90, 180, 270, 45];
@@ -77,7 +77,7 @@ describe("Rotate a non-square image without resizing", () => {
   angles.forEach((angle) => {
     test(`${angle} degrees`, () => {
       expect(
-        imgSrc.clone().rotate({ deg: angle, mode: false })
+        imgSrc.clone().rotate({ deg: angle, mode: false }),
       ).toMatchSnapshot();
     });
   });
