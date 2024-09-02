@@ -1,3 +1,16 @@
+# v1.1.1 (Sun Sep 01 2024)
+
+#### 🐛 Bug Fix
+
+- `@jimp/core`
+  - fix file-type import for esm projects [#1309](https://github.com/jimp-dev/jimp/pull/1309) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+
+#### Authors: 1
+
+- Andrew Lisowski ([@hipstersmoothie](https://github.com/hipstersmoothie))
+
+---
+
 # v1.1.0 (Sun Sep 01 2024)
 
 #### 🚀 Enhancement
