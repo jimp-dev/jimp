@@ -1772,6 +1772,9 @@ importers:
 
   plugins/wasm-png:
     dependencies:
+      '@jsquash/oxipng':
+        specifier: ^2.3.0
+        version: 2.3.0
       '@jsquash/png':
         specifier: ^3.0.1
         version: 3.0.1
@@ -2492,6 +2495,9 @@ packages:
 
   '@jsquash/jpeg@1.4.0':
     resolution: {integrity: sha512-I/uGQ5Gk3qOEQNufUcR9boZ0qH+eoXW7cp0mW9eNInlgjRXwEhepvfbnutQ+RM1dNeuIHoOM5YVCEK1y/ATipQ==}
+
+  '@jsquash/oxipng@2.3.0':
+    resolution: {integrity: sha512-aQ8wiEp6ztlTMXc+RMt/CG8crU3mEHDU+h+JYkIi6ctMhlh8+Ltj5XwQFfBuyzKYrp8NxaFW80Dp824bqjr+zA==}
 
   '@jsquash/png@3.0.1':
     resolution: {integrity: sha512-Bnvv93Y5LL92cuk2r2gpV+9JKuDo2/w7bOODw1iPxk8VARknky0sS1tSDgMosUdhNb4CdMlcCm3TMzTaqa3zZw==}
@@ -7828,6 +7834,10 @@ snapshots:
       wasm-feature-detect: 1.6.2
 
   '@jsquash/jpeg@1.4.0': {}
+
+  '@jsquash/oxipng@2.3.0':
+    dependencies:
+      wasm-feature-detect: 1.6.2
 
   '@jsquash/png@3.0.1': {}
 
