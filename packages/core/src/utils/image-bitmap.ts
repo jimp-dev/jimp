@@ -147,7 +147,7 @@ export async function attemptExifRotate<I extends JimpClass>(
       EXIFParser.create(buffer).parse();
 
     exifRotate(image); // EXIF data
-  } catch (error) {
-    console.error(error);
+  } catch {
+    // do nothing
   }
 }
