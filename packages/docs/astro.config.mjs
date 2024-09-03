@@ -3,6 +3,7 @@ import starlight from "@astrojs/starlight";
 import starlightTypeDoc, { typeDocSidebarGroup } from "starlight-typedoc";
 import react from "@astrojs/react";
 import path from "path";
+import { nodePolyfills } from "vite-plugin-node-polyfills";
 
 export default defineConfig({
   site: "https://jimp-dev.github.io",
@@ -24,6 +25,7 @@ export default defineConfig({
             { label: "Writing Plugins", link: "/guides/writing-plugins/" },
             { label: "Custom Jimp", link: "/guides/custom-jimp/" },
             { label: "Migrate to v1", link: "/guides/migrate-to-v1/" },
+            { label: "WEBP/WASM", link: "/guides/webp/" },
           ],
         },
         typeDocSidebarGroup,
@@ -54,4 +56,7 @@ export default defineConfig({
       ],
     }),
   ],
+  vite: {
+    plugins: [nodePolyfills({ include: ["buffer"] })],
+  },
 });

@@ -1,0 +1,52 @@
+---
+title: Using WEBP (And other WASM plugins)
+description: How to use Jimp WebP and other WASM plugins.
+---
+
+import { WebpExample } from "../../../components/webp-example";
+import WebpExampleCode from "../../../components/webp-example?raw";
+import { Code } from "@astrojs/starlight/components";
+
+The default build of Jimp only includes image formats written in javascript.
+To utilize webp (and anything else we don't have a JS implementation for) we need to use format plugins and create a custom jimp.
+
+```ts
+import { createJimp } from "@jimp/core";
+import { defaultFormats, defaultPlugins } from "jimp";
+import webp from "@jimp/wasm-webp";
+
+// A custom jimp that supports webp
+const Jimp = createJimp({
+  formats: [...defaultFormats, webp],
+  plugins: defaultPlugins,
+});
+```
+
+<br />
+<WebpExample client:load />
+
+<details>
+  <summary>Full code for example</summary>
+
+<Code code={WebpExampleCode} lang="ts" title="example.jsx" />
+
+</details>
+
+## Browser Usage
+
+Since you're no longer using a pre-bundled version of jimp you need configure your bundler to handle the node code.
+
+For example in vite/astro you can use `vite-plugin-node-polyfills`.
+
+```js
+
+import { nodePolyfills } from "vite-plugin-node-polyfills";
+
+export default defineConfig({
+  plugins: [
+    // You only need to polyfill buffer if you're using a browser
+    plugins: [nodePolyfills({ include: ["buffer"] })],
+  ],
+});
+```
+

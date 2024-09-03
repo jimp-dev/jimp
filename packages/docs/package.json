@@ -18,6 +18,7 @@
     "@esbuild-plugins/node-globals-polyfill": "^0.2.3",
     "@jimp/core": "workspace:*",
     "@jimp/plugin-print": "workspace:*",
+    "@jimp/wasm-webp": "workspace:*",
     "@types/react": "^18.3.5",
     "astro": "^4.15.1",
     "eslint": "^9.9.1",
@@ -29,6 +30,7 @@
     "typedoc": "^0.26.6",
     "typedoc-plugin-markdown": "4.2.6",
     "typedoc-plugin-zod": "^1.2.1",
-    "typescript": "^5.5.4"
+    "typescript": "^5.5.4",
+    "vite-plugin-node-polyfills": "^0.22.0"
   }
 }
