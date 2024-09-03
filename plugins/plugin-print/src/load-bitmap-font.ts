@@ -5,7 +5,9 @@ import { BmCharacter, BmKerning, BmFont, BmCommonProps } from "./types.js";
 import png from "@jimp/js-png";
 import { createJimp } from "@jimp/core";
 import path from "path";
-import { convertXML } from "simple-xml-to-json";
+import xmlPackage from "simple-xml-to-json";
+
+const { convertXML } = xmlPackage;
 
 export const isWebWorker =
   typeof self !== "undefined" && self.document === undefined;
