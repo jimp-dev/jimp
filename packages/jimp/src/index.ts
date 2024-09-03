@@ -31,6 +31,29 @@ import * as quantize from "@jimp/plugin-quantize";
 
 import { createJimp } from "@jimp/core";
 
+export const defaultPlugins = [
+  blit.methods,
+  blur.methods,
+  circle.methods,
+  color.methods,
+  contain.methods,
+  cover.methods,
+  crop.methods,
+  displace.methods,
+  dither.methods,
+  fisheye.methods,
+  flip.methods,
+  hash.methods,
+  mask.methods,
+  print.methods,
+  resize.methods,
+  rotate.methods,
+  threshold.methods,
+  quantize.methods,
+];
+
+export const defaultFormats = [bmp, msBmp, gif, jpeg, png, tiff];
+
 // TODO: This doesn't document the constructor of the class
 /**
  * @class
@@ -101,27 +124,8 @@ import { createJimp } from "@jimp/core";
  * ```
  */
 export const Jimp = createJimp({
-  formats: [bmp, msBmp, gif, jpeg, png, tiff],
-  plugins: [
-    blit.methods,
-    blur.methods,
-    circle.methods,
-    color.methods,
-    contain.methods,
-    cover.methods,
-    crop.methods,
-    displace.methods,
-    dither.methods,
-    fisheye.methods,
-    flip.methods,
-    hash.methods,
-    mask.methods,
-    print.methods,
-    resize.methods,
-    rotate.methods,
-    threshold.methods,
-    quantize.methods,
-  ],
+  formats: defaultFormats,
+  plugins: defaultPlugins,
 });
 
 export type {
