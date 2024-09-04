@@ -30,7 +30,9 @@
     "typedoc": "^0.26.6",
     "typedoc-plugin-markdown": "4.2.6",
     "typedoc-plugin-zod": "^1.2.1",
-    "typescript": "^5.5.4",
+    "typescript": "^5.5.4"
+  },
+  "devDependencies": {
     "vite-plugin-node-polyfills": "^0.22.0"
   }
 }
