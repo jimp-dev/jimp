@@ -1,3 +1,16 @@
+# v1.3.0 (Wed Sep 04 2024)
+
+#### 🚀 Enhancement
+
+- `@jimp/core`
+  - Add width/height/mime getters [#1327](https://github.com/jimp-dev/jimp/pull/1327) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+
+#### Authors: 1
+
+- Andrew Lisowski ([@hipstersmoothie](https://github.com/hipstersmoothie))
+
+---
+
 # v1.2.0 (Tue Sep 03 2024)
 
 #### 🚀 Enhancement
