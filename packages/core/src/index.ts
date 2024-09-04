@@ -155,6 +155,9 @@ export function createJimp<
     /** Formats that can be used with Jimp */
     formats: Format<any>[] = [];
 
+    /** The original MIME type of the image */
+    mime?: string;
+
     constructor(options: JimpConstructorOptions = emptyBitmap) {
       // Add the formats
       this.formats = formats;
@@ -327,6 +330,8 @@ export function createJimp<
         await format.decode(actualBuffer)
       ) as InstanceType<typeof CustomJimp> & ExtraMethodMap;
 
+      image.mime = mime.mime;
+
       attemptExifRotate(image, actualBuffer);
 
       return image;
@@ -360,6 +365,16 @@ export function createJimp<
      */
     toString() {
       return "[object Jimp]";
+    }
+
+    /** Get the width of the image */
+    get width() {
+      return this.bitmap.width;
+    }
+
+    /** Get the height of the image */
+    get height() {
+      return this.bitmap.height;
     }
 
     /**
