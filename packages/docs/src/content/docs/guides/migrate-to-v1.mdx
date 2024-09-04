@@ -9,6 +9,14 @@ The goals of v1 were to:
 2. Make jimp's API more consistent and easier to use
 3. Many constants have been removed and are string value powered by TS
 
+## Importing
+
+`Jimp` no longer uses a default export. Instead it uses named exports.
+
+```js
+import { Jimp } from "jimp";
+```
+
 ## Positional Arguments to Options Objects
 
 In jimp v0 there were many ways to provide arguments to a method.
@@ -140,3 +148,10 @@ const resized = await image
 
 - `Jimp.AUTO` - This constant was only needed for positional arguments. It is no longer needed with the new API.
 - `Jimp.MIME_*` - These are now part of the TS api when encoding
+
+## Moved Functions
+
+- `Jimp.intToRGBA` was moved `import { intToRGBA } from "jimp";`
+- `image.getHeight()` was moved `image.height`
+- `image.getWidth()` was moved `image.width`
+- `image.getMIME()` was moved `image.mime`
