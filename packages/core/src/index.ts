@@ -98,13 +98,20 @@ type UnionToIntersection<U> = (U extends any ? (k: U) => void : never) extends (
 type Constructor<T> = new (...args: any[]) => T;
 
 type JimpFormat<
-  M extends string = string,
-  O extends Record<string, any> | undefined = undefined,
-  T extends Format<M, O> = Format<M, O>,
+  MimeType extends string = string,
+  EncodeOptions extends Record<string, any> | undefined = undefined,
+  DecodeOptions extends Record<string, any> | undefined = undefined,
+  T extends Format<MimeType, EncodeOptions, DecodeOptions> = Format<
+    MimeType,
+    EncodeOptions,
+    DecodeOptions
+  >,
 > = () => T;
 
 type CreateMimeTypeToExportOptions<T extends Format<string, any>> =
   T extends Format<infer M, infer O> ? Record<M, O> : never;
+type CreateMimeTypeToDecodeOptions<T extends Format<string, any>> =
+  T extends Format<infer M, any, infer O> ? Record<M, O> : never;
 type GetOptionsForMimeType<Mime extends string, MimeTypeMap> =
   MimeTypeMap extends Record<Mime, infer O> ? O : never;
 
@@ -136,6 +143,9 @@ export function createJimp<
   >;
   type SupportedMimeTypes = ReturnType<Formats[number]>["mime"];
   type MimeTypeToExportOptions = CreateMimeTypeToExportOptions<
+    ReturnType<Formats[number]>
+  >;
+  type MimeTypeToDecodeOptions = CreateMimeTypeToDecodeOptions<
     ReturnType<Formats[number]>
   >;
   type ExtensionToMimeType = CreateExtensionToMimeType<SupportedMimeTypes>;
@@ -213,7 +223,10 @@ export function createJimp<
      * const image = await Jimp.read("https://upload.wikimedia.org/wikipedia/commons/0/01/Bot-Test.jpg");
      * ```
      */
-    static async read(url: string | Buffer | ArrayBuffer) {
+    static async read(
+      url: string | Buffer | ArrayBuffer,
+      options?: MimeTypeToDecodeOptions
+    ) {
       if (Buffer.isBuffer(url) || url instanceof ArrayBuffer) {
         return this.fromBuffer(url);
       }
@@ -239,7 +252,7 @@ export function createJimp<
       }
 
       const buffer = bufferFromArrayBuffer(data);
-      return this.fromBuffer(buffer);
+      return this.fromBuffer(buffer, options);
     }
 
     /**
@@ -314,7 +327,10 @@ export function createJimp<
      * const image = await Jimp.fromBuffer(buffer);
      * ```
      */
-    static async fromBuffer(buffer: Buffer | ArrayBuffer) {
+    static async fromBuffer(
+      buffer: Buffer | ArrayBuffer,
+      options?: MimeTypeToDecodeOptions
+    ) {
       const actualBuffer =
         buffer instanceof ArrayBuffer ? bufferFromArrayBuffer(buffer) : buffer;
 
@@ -331,7 +347,7 @@ export function createJimp<
       }
 
       const image = new CustomJimp(
-        await format.decode(actualBuffer)
+        await format.decode(actualBuffer, options?.[format.mime])
       ) as InstanceType<typeof CustomJimp> & ExtraMethodMap;
 
       image.mime = mime.mime;

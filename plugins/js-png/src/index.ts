@@ -12,6 +12,11 @@ export type PNGOptions = Omit<
   inputColorType?: PNGColorType;
 };
 
+export interface DecodePngOptions {
+  checkCRC?: boolean | undefined;
+  skipRescale?: boolean | undefined;
+}
+
 export * from "./constants.js";
 
 export default function png() {
@@ -27,7 +32,7 @@ export default function png() {
         colorType,
         inputHasAlpha = true,
         ...options
-      }: PNGOptions = {},
+      }: PNGOptions = {}
     ) => {
       const png = new PNG({
         width: bitmap.width,
@@ -50,8 +55,8 @@ export default function png() {
         inputHasAlpha,
       });
     },
-    decode: (data) => {
-      const result = PNG.sync.read(data);
+    decode: (data, options?: DecodePngOptions) => {
+      const result = PNG.sync.read(data, options);
 
       return {
         data: result.data,
