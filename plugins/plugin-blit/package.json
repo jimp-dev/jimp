@@ -1,6 +1,6 @@
 {
   "name": "@jimp/plugin-blit",
-  "version": "1.4.0",
+  "version": "1.5.0",
   "repository": "jimp-dev/jimp",
   "engines": {
     "node": ">=18"
