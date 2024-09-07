@@ -1,6 +1,6 @@
 {
   "name": "@jimp/plugin-cover",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "repository": "jimp-dev/jimp",
   "engines": {
     "node": ">=18"
