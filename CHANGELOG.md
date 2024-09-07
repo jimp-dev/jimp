@@ -1,3 +1,35 @@
+# v1.4.0 (Sat Sep 07 2024)
+
+#### 🚀 Enhancement
+
+- `@jimp/core`
+  - Let Jimp.read accept a Buffer [#1332](https://github.com/jimp-dev/jimp/pull/1332) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- `jimp`
+  - Export measure text functions from jimp package [#1333](https://github.com/jimp-dev/jimp/pull/1333) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+  - Add JimpMime constant [#1331](https://github.com/jimp-dev/jimp/pull/1331) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+  - add JimpInstance type [#1330](https://github.com/jimp-dev/jimp/pull/1330) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+
+#### 🐛 Bug Fix
+
+- `@jimp/utils`, `@jimp/plugin-print`
+  - Bind callback to image instance [#1335](https://github.com/jimp-dev/jimp/pull/1335) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+
+#### ⚠️ Pushed to `main`
+
+- `@jimp/core`, `@jimp/types`, `@jimp/utils`, `@jimp/plugin-print`, `@jimp/plugin-quantize`, `@jimp/wasm-webp`
+  - fix docs build ([@hipstersmoothie](https://github.com/hipstersmoothie))
+
+#### 📝 Documentation
+
+- `@jimp/plugin-blit`, `@jimp/plugin-print`
+  - Misc doc updates [#1334](https://github.com/jimp-dev/jimp/pull/1334) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+
+#### Authors: 1
+
+- Andrew Lisowski ([@hipstersmoothie](https://github.com/hipstersmoothie))
+
+---
+
 # v1.3.0 (Wed Sep 04 2024)
 
 #### 🚀 Enhancement

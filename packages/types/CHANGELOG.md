@@ -1,3 +1,15 @@
+# v1.4.0 (Sat Sep 07 2024)
+
+#### ⚠️ Pushed to `main`
+
+- fix docs build ([@hipstersmoothie](https://github.com/hipstersmoothie))
+
+#### Authors: 1
+
+- Andrew Lisowski ([@hipstersmoothie](https://github.com/hipstersmoothie))
+
+---
+
 # v1.1.5 (Mon Sep 02 2024)
 
 #### 🐛 Bug Fix

@@ -1,3 +1,17 @@
+# v1.4.0 (Sat Sep 07 2024)
+
+#### 🚀 Enhancement
+
+- Export measure text functions from jimp package [#1333](https://github.com/jimp-dev/jimp/pull/1333) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- Add JimpMime constant [#1331](https://github.com/jimp-dev/jimp/pull/1331) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- add JimpInstance type [#1330](https://github.com/jimp-dev/jimp/pull/1330) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+
+#### Authors: 1
+
+- Andrew Lisowski ([@hipstersmoothie](https://github.com/hipstersmoothie))
+
+---
+
 # v1.2.0 (Tue Sep 03 2024)
 
 #### 🚀 Enhancement

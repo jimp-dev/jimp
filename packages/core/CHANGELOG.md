@@ -1,3 +1,19 @@
+# v1.4.0 (Sat Sep 07 2024)
+
+#### 🚀 Enhancement
+
+- Let Jimp.read accept a Buffer [#1332](https://github.com/jimp-dev/jimp/pull/1332) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+
+#### ⚠️ Pushed to `main`
+
+- fix docs build ([@hipstersmoothie](https://github.com/hipstersmoothie))
+
+#### Authors: 1
+
+- Andrew Lisowski ([@hipstersmoothie](https://github.com/hipstersmoothie))
+
+---
+
 # v1.3.0 (Wed Sep 04 2024)
 
 #### 🚀 Enhancement

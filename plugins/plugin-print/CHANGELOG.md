@@ -1,3 +1,23 @@
+# v1.4.0 (Sat Sep 07 2024)
+
+#### 🐛 Bug Fix
+
+- Bind callback to image instance [#1335](https://github.com/jimp-dev/jimp/pull/1335) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+
+#### ⚠️ Pushed to `main`
+
+- fix docs build ([@hipstersmoothie](https://github.com/hipstersmoothie))
+
+#### 📝 Documentation
+
+- Misc doc updates [#1334](https://github.com/jimp-dev/jimp/pull/1334) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+
+#### Authors: 1
+
+- Andrew Lisowski ([@hipstersmoothie](https://github.com/hipstersmoothie))
+
+---
+
 # v1.2.0 (Tue Sep 03 2024)
 
 #### 🚀 Enhancement
