@@ -16,11 +16,13 @@ export interface Format<
   Mime extends string = string,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   ExportOptions extends Record<string, any> | undefined = undefined,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  DecodeOptions extends Record<string, any> | undefined = undefined,
 > {
   mime: Mime;
   hasAlpha?: boolean;
   encode: (image: Bitmap, options?: ExportOptions) => Promise<Buffer> | Buffer;
-  decode: (data: Buffer) => Promise<Bitmap> | Bitmap;
+  decode: (data: Buffer, options?: DecodeOptions) => Promise<Bitmap> | Bitmap;
 }
 
 export interface RGBColor {

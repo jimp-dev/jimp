@@ -30,6 +30,10 @@ export type EncodeOptions = Pretty<
   >
 >;
 
+export interface DecodeBmpOptions {
+  toRGBA?: boolean;
+}
+
 function encode(image: Bitmap, options: EncodeOptions = {}) {
   scan(
     { bitmap: image },
@@ -47,14 +51,14 @@ function encode(image: Bitmap, options: EncodeOptions = {}) {
       image.data[index + 1] = blue;
       image.data[index + 2] = green;
       image.data[index + 3] = red;
-    },
+    }
   );
 
   return BMP.encode({ ...image, ...options }).data;
 }
 
-function decode(data: Buffer) {
-  const result = BMP.decode(data);
+function decode(data: Buffer, options?: DecodeBmpOptions) {
+  const result = BMP.decode(data, options);
 
   scan(
     { bitmap: result },
@@ -72,7 +76,7 @@ function decode(data: Buffer) {
       result.data[index + 1] = green;
       result.data[index + 2] = blue;
       result.data[index + 3] = 0xff;
-    },
+    }
   );
 
   return result as Bitmap;
