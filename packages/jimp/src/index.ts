@@ -169,6 +169,7 @@ export type {
 } from "@jimp/core";
 export type { Bitmap, Edge, RGBAColor, RGBColor } from "@jimp/types";
 export { loadFont } from "@jimp/plugin-print/load-font";
+export { measureText, measureTextHeight } from "@jimp/plugin-print";
 export { diff } from "@jimp/diff";
 export {
   intToRGBA,
