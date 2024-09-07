@@ -147,7 +147,17 @@ const resized = await image
 ## Removed Constants
 
 - `Jimp.AUTO` - This constant was only needed for positional arguments. It is no longer needed with the new API.
-- `Jimp.MIME_*` - These are now part of the TS api when encoding
+
+### `Jimp.MIME_*`
+
+These have moved to a named export `JimpMime`.
+
+```js
+import { JimpMime } from "jimp";
+
+JimpMime.jpeg;
+```
+
 
 ## Moved Functions
 

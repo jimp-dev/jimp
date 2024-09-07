@@ -54,6 +54,15 @@ export const defaultPlugins = [
 
 export const defaultFormats = [bmp, msBmp, gif, jpeg, png, tiff];
 
+/** Convenience object for getting the MIME types of the default formats */
+export const JimpMime = {
+  bmp: bmp().mime,
+  gif: gif().mime,
+  jpeg: jpeg().mime,
+  png: png().mime,
+  tiff: tiff().mime,
+};
+
 // TODO: This doesn't document the constructor of the class
 /**
  * @class
