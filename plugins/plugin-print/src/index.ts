@@ -213,7 +213,7 @@ export const methods = {
       y += font.common.lineHeight;
     });
 
-    cb({ x: x + longestLine, y });
+    cb.bind(image)({ x: x + longestLine, y });
 
     return image;
   },

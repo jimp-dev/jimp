@@ -15,7 +15,7 @@ export function clone<I extends JimpClass>(image: I): I {
 export function scan<I extends JimpClass>(
   image: I,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  f: (this: I, x: number, y: number, idx: number) => any,
+  f: (this: I, x: number, y: number, idx: number) => any
 ): I;
 export function scan<I extends { bitmap: Bitmap }>(
   image: I,
@@ -24,7 +24,7 @@ export function scan<I extends { bitmap: Bitmap }>(
   w: number,
   h: number,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  cb: (x: number, y: number, idx: number) => any,
+  cb: (x: number, y: number, idx: number) => any
 ): I;
 export function scan<I extends { bitmap: Bitmap }>(
   image: I,
@@ -34,7 +34,7 @@ export function scan<I extends { bitmap: Bitmap }>(
   wArg?: number,
   hArg?: number,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  cbArg?: (x: number, y: number, idx: number) => any,
+  cbArg?: (x: number, y: number, idx: number) => any
 ): I {
   let x: number;
   let y: number;
@@ -67,10 +67,13 @@ export function scan<I extends { bitmap: Bitmap }>(
   w = Math.round(w);
   h = Math.round(h);
 
+  const bound = cb.bind(image);
+
   for (let _y = y; _y < y + h; _y++) {
     for (let _x = x; _x < x + w; _x++) {
       const idx = (image.bitmap.width * _y + _x) << 2;
-      cb(_x, _y, idx);
+      // Bind the images so this.bitmap works
+      bound(_x, _y, idx);
     }
   }
 
@@ -82,7 +85,7 @@ export function* scanIterator<I extends JimpClass>(
   x: number,
   y: number,
   w: number,
-  h: number,
+  h: number
 ) {
   // round input
   x = Math.round(x);
@@ -125,14 +128,14 @@ export function intToRGBA(i: number) {
   rgba.g = Math.floor((i - rgba.r * Math.pow(256, 3)) / Math.pow(256, 2));
   rgba.b = Math.floor(
     (i - rgba.r * Math.pow(256, 3) - rgba.g * Math.pow(256, 2)) /
-      Math.pow(256, 1),
+      Math.pow(256, 1)
   );
   rgba.a = Math.floor(
     (i -
       rgba.r * Math.pow(256, 3) -
       rgba.g * Math.pow(256, 2) -
       rgba.b * Math.pow(256, 1)) /
-      Math.pow(256, 0),
+      Math.pow(256, 0)
   );
 
   return rgba;
@@ -216,7 +219,7 @@ export function rgbaToInt(r: number, g: number, b: number, a: number) {
  */
 export function colorDiff(
   rgba1: RGBAColor | RGBColor,
-  rgba2: RGBAColor | RGBColor,
+  rgba2: RGBAColor | RGBColor
 ) {
   const sq = (n: number) => Math.pow(n, 2);
   const { max } = Math;
