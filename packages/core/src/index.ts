@@ -201,7 +201,7 @@ export function createJimp<
     }
 
     /**
-     * Create a Jimp instance from a URL or a file path
+     * Create a Jimp instance from a URL, a file path, or a Buffer
      * @example
      * ```ts
      * import { Jimp } from "jimp";
@@ -213,9 +213,13 @@ export function createJimp<
      * const image = await Jimp.read("https://upload.wikimedia.org/wikipedia/commons/0/01/Bot-Test.jpg");
      * ```
      */
-    static async read(url: string) {
+    static async read(url: string | Buffer | ArrayBuffer) {
+      if (Buffer.isBuffer(url) || url instanceof ArrayBuffer) {
+        return this.fromBuffer(url);
+      }
+
       if (existsSync(url)) {
-        return Jimp.fromBuffer(await readFile(url));
+        return this.fromBuffer(await readFile(url));
       }
 
       const [fetchErr, response] = await to(fetch(url));
