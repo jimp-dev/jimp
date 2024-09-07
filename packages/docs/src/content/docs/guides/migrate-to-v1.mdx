@@ -9,6 +9,17 @@ The goals of v1 were to:
 2. Make jimp's API more consistent and easier to use
 3. Many constants have been removed and are string value powered by TS
 
+## Async/Sync
+
+In v0 of jimp there were a mix of async and sync methods for export.
+In v1 all "export" methods are async.
+
+They have also been renamed:
+
+- `getBufferAsync` -> `getBuffer`
+- `getBase64Async` -> `getBase64`
+- `writeAsync` -> `write`
+
 ## Importing
 
 `Jimp` no longer uses a default export. Instead it uses named exports.

@@ -37,7 +37,7 @@ export const methods = {
    * const image = await Jimp.read("test/image.png");
    * const parrot = await Jimp.read("test/party-parrot.png");
    *
-   * image.blit(parrot, x, y);
+   * image.blit({ src: parrot, x: 10, y: 10 });
    * ```
    */
   blit<I extends JimpClass>(image: I, options: BlitOptions) {
