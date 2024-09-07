@@ -128,6 +128,8 @@ export const Jimp = createJimp({
   plugins: defaultPlugins,
 });
 
+export type JimpInstance = InstanceType<typeof Jimp>;
+
 export type {
   ColorAction,
   HueAction,
