@@ -1,3 +1,19 @@
+# v1.6.0 (Mon Sep 09 2024)
+
+#### 🐛 Bug Fix
+
+- Bump version to: v1.5.0 \[skip ci\] ([@hipstersmoothie](https://github.com/hipstersmoothie))
+
+#### ⚠️ Pushed to `main`
+
+- add readme to jimp ([@hipstersmoothie](https://github.com/hipstersmoothie))
+
+#### Authors: 1
+
+- Andrew Lisowski ([@hipstersmoothie](https://github.com/hipstersmoothie))
+
+---
+
 # v1.4.0 (Sat Sep 07 2024)
 
 #### 🚀 Enhancement
