@@ -13,7 +13,7 @@ export default defineConfig({
     starlight({
       title: "Jimp",
       social: {
-        github: "https://github.com/withastro/starlight",
+        github: "https://github.com/jimp-dev/jimp",
       },
       sidebar: [
         {
