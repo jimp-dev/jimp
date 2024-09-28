@@ -408,7 +408,7 @@ export function createJimp<
      *
      * const image = new Jimp({ width: 3, height: 3, color: 0xffffffff });
      *
-     * await image.write("test/output.jpeg", {
+     * await image.getBuffer("image/jpeg", {
      *   quality: 50,
      * });
      * ```
