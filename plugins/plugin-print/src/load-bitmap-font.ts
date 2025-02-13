@@ -10,7 +10,7 @@ import xmlPackage from "simple-xml-to-json";
 const { convertXML } = xmlPackage;
 
 export const isWebWorker =
-  typeof self !== "undefined" && self.document === undefined;
+  typeof WorkerGlobalScope !== 'undefined' && self instanceof WorkerGlobalScope;
 
 const CharacterJimp = createJimp({ formats: [png] });
 const HEADER = Buffer.from([66, 77, 70, 3]);
