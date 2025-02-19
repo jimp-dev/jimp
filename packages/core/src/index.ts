@@ -1,6 +1,5 @@
 import { Bitmap, Format, JimpClass, Edge } from "@jimp/types";
 import { cssColorToHex, scan, scanIterator } from "@jimp/utils";
-import fileType from "file-type/core.js";
 import { to } from "await-to-js";
 import { existsSync, readFile, writeFile } from "@jimp/file-ops";
 import mime from "mime/lite.js";
@@ -334,7 +333,8 @@ export function createJimp<
       const actualBuffer =
         buffer instanceof ArrayBuffer ? bufferFromArrayBuffer(buffer) : buffer;
 
-      const mime = await fileType.fromBuffer(actualBuffer);
+      const { fileTypeFromBuffer } = await import("file-type/core");
+      const mime = await fileTypeFromBuffer(actualBuffer);
 
       if (!mime || !mime.mime) {
         throw new Error("Could not find MIME for Buffer");
