@@ -7,7 +7,6 @@
     "node": ">=18"
   },
   "scripts": {
-    "dev": "tshy --watch",
     "clean": "rm -rf node_modules .tshy .tshy-build dist .turbo"
   },
   "author": "Andrew Lisowski <lisowski54@gmail.com>",
