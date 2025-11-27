@@ -20,7 +20,7 @@
     "@jimp/plugin-print": "workspace:*",
     "@jimp/wasm-webp": "workspace:*",
     "@types/react": "^18.3.5",
-    "astro": "^4.15.1",
+    "astro": "^5.15.9",
     "eslint": "^9.9.1",
     "jimp": "workspace:*",
     "react": "^18.3.1",
