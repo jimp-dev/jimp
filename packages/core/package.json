@@ -20,14 +20,14 @@
     "@jimp/utils": "workspace:*",
     "await-to-js": "^3.0.0",
     "exif-parser": "^0.1.12",
-    "file-type": "^16.0.0",
+    "file-type": "^21.3.1",
     "mime": "3"
   },
   "devDependencies": {
     "@jimp/config-eslint": "workspace:*",
     "@jimp/config-typescript": "workspace:*",
     "@jimp/test-utils": "workspace:*",
-    "@types/file-type": "^10.9.1",
+
     "@types/mime": "^3.0.4",
     "@types/node": "^18.19.48",
     "eslint": "^9.9.1",
