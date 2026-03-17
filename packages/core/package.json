@@ -20,7 +20,7 @@
     "@jimp/utils": "workspace:*",
     "await-to-js": "^3.0.0",
     "exif-parser": "^0.1.12",
-    "file-type": "^21.3.1",
+    "file-type": "^21.3.3",
     "mime": "3"
   },
   "devDependencies": {
