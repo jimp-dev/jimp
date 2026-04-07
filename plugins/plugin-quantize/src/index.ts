@@ -59,7 +59,7 @@ export const methods = {
     } = QuantizeOptionsSchema.parse(options);
 
     const inPointContainer = utils.PointContainer.fromUint8Array(
-      image.bitmap.data,
+      new Uint8Array(image.bitmap.data.buffer),
       image.bitmap.width,
       image.bitmap.height
     );
