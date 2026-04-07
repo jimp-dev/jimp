@@ -1,3 +1,36 @@
+# v1.6.1 (Tue Apr 07 2026)
+
+:tada: This release contains work from new contributors! :tada:
+
+Thanks for all your work!
+
+:heart: Denys Kashkovskyi ([@Kashkovsky](https://github.com/Kashkovsky))
+
+:heart: Viki ([@vikiboss](https://github.com/vikiboss))
+
+#### 🐛 Bug Fix
+
+- fix docs imports ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- `@jimp/core`, `@jimp/plugin-quantize`, `@jimp/wasm-avif`, `@jimp/wasm-jpeg`, `@jimp/wasm-png`, `@jimp/wasm-webp`
+  - Update file-type from ^16 to ^21.3.3 in @jimp/core [#1400](https://github.com/jimp-dev/jimp/pull/1400) ([@Kashkovsky](https://github.com/Kashkovsky) [@hipstersmoothie](https://github.com/hipstersmoothie))
+
+#### ⚠️ Pushed to `main`
+
+- `@jimp/core`
+  - Doc updates (closes #1342) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+
+#### 📝 Documentation
+
+- docs: correct GitHub repo link [#1340](https://github.com/jimp-dev/jimp/pull/1340) ([@vikiboss](https://github.com/vikiboss))
+
+#### Authors: 3
+
+- Andrew Lisowski ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- Denys Kashkovskyi ([@Kashkovsky](https://github.com/Kashkovsky))
+- Viki ([@vikiboss](https://github.com/vikiboss))
+
+---
+
 # v1.5.0 (Mon Sep 09 2024)
 
 ### Release Notes
