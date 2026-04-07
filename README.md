@@ -216,6 +216,7 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
   </tr>
   <tr>
     <td align="center"><a href="http://www.benmccann.com/"><img src="https://avatars.githubusercontent.com/u/322311?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Ben McCann</b></sub></a><br /><a href="https://github.com/jimp-dev/jimp/commits?author=benmccann" title="Code">💻</a></td>
+    <td align="center"><a href="https://github.com/vikiboss"><img src="https://avatars.githubusercontent.com/u/53367348?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Viki</b></sub></a><br /><a href="https://github.com/jimp-dev/jimp/commits?author=vikiboss" title="Documentation">📖</a></td>
   </tr>
 </table>
 
