@@ -176,10 +176,10 @@ export default function png() {
     },
     decode: async (data) => {
       await initDecoder();
-      const result = await decode(data);
+      const result = await decode(new Uint8Array(data).buffer);
 
       return {
-        data: Buffer.from(result.data),
+        data: Buffer.from(new Uint8Array(result.data.buffer, result.data.byteOffset, result.data.byteLength)),
         width: result.width,
         height: result.height,
       };
