@@ -157,9 +157,15 @@ export async function processBitmapFont(file: string, font: LoadedFont) {
     chars,
     kernings,
     pages: await Promise.all(
-      font.pages.map(async (page) =>
-        CharacterJimp.read(path.join(path.dirname(file), page))
-      )
+      font.pages.map(async (page) => {
+        let fileUrl = ''
+        if (file.startsWith('http')) {
+          fileUrl = new URL(page, file).toString()
+        } else {
+          fileUrl = path.join(path.dirname(file), page)
+        }
+        return CharacterJimp.read(fileUrl)
+      })
     ),
   };
 }
