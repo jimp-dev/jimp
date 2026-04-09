@@ -236,11 +236,11 @@ export function createJimp<
       options?: MimeTypeToDecodeOptions
     ) {
       if (Buffer.isBuffer(url) || url instanceof ArrayBuffer) {
-        return this.fromBuffer(url);
+        return this.fromBuffer(url, options);
       }
 
       if (existsSync(url)) {
-        return this.fromBuffer(await readFile(url));
+        return this.fromBuffer(await readFile(url), options);
       }
 
       const [fetchErr, response] = await to(fetch(url));
