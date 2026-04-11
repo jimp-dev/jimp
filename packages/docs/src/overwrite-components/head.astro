@@ -1,0 +1,11 @@
+---
+import type { Props } from "@astrojs/starlight/props";
+import Default from "@astrojs/starlight/components/Head.astro";
+---
+
+<Default {...Astro.props}>
+	<slot />
+</Default>
+<meta name="twitter:image" content="https://jimp-dev.github.io/jimp/share-banner.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta property="og:image" content="https://jimp-dev.github.io/jimp/share-banner.png">

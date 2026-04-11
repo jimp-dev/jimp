@@ -15,6 +15,10 @@ export default defineConfig({
       social: {
         github: "https://github.com/jimp-dev/jimp",
       },
+      favicon: "/favicon.png",
+      components: {
+        Head: "./src/overwrite-components/head.astro",
+      },
       sidebar: [
         {
           label: "Docs",
