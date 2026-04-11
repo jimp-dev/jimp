@@ -8,7 +8,7 @@
 
 ## Custom Jimp
 
-If you want to extend jimp or omit types or functions visit [@jimp/custom](./packages/custom).
+If you want to extend jimp or omit types or functions visit [@jimp/custom](https://jimp-dev.github.io/jimp/guides/custom-jimp/).
 
 - Add file-types or switch encoder/decoders
 - Add add/remove plugins (image manipulation methods)
