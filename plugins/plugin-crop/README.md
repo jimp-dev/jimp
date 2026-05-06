@@ -7,3 +7,4 @@
 
 - [crop](http://jimp-dev.github.io/jimp/api/jimp/classes/jimp#crop)
 - [autocrop](http://jimp-dev.github.io/jimp/api/jimp/classes/jimp#autocrop)
+- [autocropRect](http://jimp-dev.github.io/jimp/api/jimp/classes/jimp#autocropRect)

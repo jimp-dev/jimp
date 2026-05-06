@@ -39,6 +39,187 @@ export type AutocropComplexOptions = z.infer<
 >;
 export type AutocropOptions = number | AutocropComplexOptions;
 
+function getAutocropRect<I extends JimpClass>(
+  image: I,
+  options: AutocropOptions = {}
+): CropOptions {
+  const {
+    tolerance = 0.0002,
+    cropOnlyFrames = true,
+    cropSymmetric = false,
+    leaveBorder = 0,
+    ignoreSides: ignoreSidesArg,
+  } = typeof options === "number"
+    ? ({ tolerance: options } as AutocropComplexOptions)
+    : AutocropComplexOptionsSchema.parse(options);
+  const w = image.bitmap.width;
+  const h = image.bitmap.height;
+  const minPixelsPerSide = 1; // to avoid cropping completely the image, resulting in an invalid 0 sized image
+
+  // i.e. north and south / east and west are cropped by the same value
+  const ignoreSides = {
+    north: false,
+    south: false,
+    east: false,
+    west: false,
+    ...ignoreSidesArg,
+  };
+
+  /**
+   * All borders must be of the same color as the top left pixel, to be cropped.
+   * It should be possible to crop borders each with a different color,
+   * but since there are many ways for corners to intersect, it would
+   * introduce unnecessary complexity to the algorithm.
+   */
+
+  // scan each side for same color borders
+  const rgba1 = intToRGBA(image.getPixelColor(0, 0));
+
+  let northPixelsToCrop = 0;
+  let eastPixelsToCrop = 0;
+  let southPixelsToCrop = 0;
+  let westPixelsToCrop = 0;
+
+  // north side (scan rows from north to south)
+  if (!ignoreSides.north) {
+    north: for (let y = 0; y < h - minPixelsPerSide; y++) {
+      for (let x = 0; x < w; x++) {
+        const colorXY = image.getPixelColor(x, y);
+        const rgba2 = intToRGBA(colorXY);
+
+        if (colorDiff(rgba1, rgba2) > tolerance) {
+          // this pixel is too distant from the first one: abort this side scan
+          break north;
+        }
+      }
+
+      // this row contains all pixels with the same color: increment this side pixels to crop
+      northPixelsToCrop++;
+    }
+  }
+
+  // west side (scan columns from west to east)
+  if (!ignoreSides.west) {
+    west: for (let x = 0; x < w - minPixelsPerSide; x++) {
+      for (let y = 0 + northPixelsToCrop; y < h; y++) {
+        const colorXY = image.getPixelColor(x, y);
+        const rgba2 = intToRGBA(colorXY);
+
+        if (colorDiff(rgba1, rgba2) > tolerance) {
+          // this pixel is too distant from the first one: abort this side scan
+          break west;
+        }
+      }
+
+      // this column contains all pixels with the same color: increment this side pixels to crop
+      westPixelsToCrop++;
+    }
+  }
+
+  // south side (scan rows from south to north)
+  if (!ignoreSides.south) {
+    south: for (
+      let y = h - 1;
+      y >= northPixelsToCrop + minPixelsPerSide;
+      y--
+    ) {
+      for (let x = w - eastPixelsToCrop - 1; x >= 0; x--) {
+        const colorXY = image.getPixelColor(x, y);
+        const rgba2 = intToRGBA(colorXY);
+
+        if (colorDiff(rgba1, rgba2) > tolerance) {
+          // this pixel is too distant from the first one: abort this side scan
+          break south;
+        }
+      }
+
+      // this row contains all pixels with the same color: increment this side pixels to crop
+      southPixelsToCrop++;
+    }
+  }
+
+  // east side (scan columns from east to west)
+  if (!ignoreSides.east) {
+    east: for (
+      let x = w - 1;
+      x >= 0 + westPixelsToCrop + minPixelsPerSide;
+      x--
+    ) {
+      for (let y = h - 1; y >= 0 + northPixelsToCrop; y--) {
+        const colorXY = image.getPixelColor(x, y);
+        const rgba2 = intToRGBA(colorXY);
+
+        if (colorDiff(rgba1, rgba2) > tolerance) {
+          // this pixel is too distant from the first one: abort this side scan
+          break east;
+        }
+      }
+
+      // this column contains all pixels with the same color: increment this side pixels to crop
+      eastPixelsToCrop++;
+    }
+  }
+
+  // apply leaveBorder
+  westPixelsToCrop -= leaveBorder;
+  eastPixelsToCrop -= leaveBorder;
+  northPixelsToCrop -= leaveBorder;
+  southPixelsToCrop -= leaveBorder;
+
+  if (cropSymmetric) {
+    const horizontal = Math.min(eastPixelsToCrop, westPixelsToCrop);
+    const vertical = Math.min(northPixelsToCrop, southPixelsToCrop);
+    westPixelsToCrop = horizontal;
+    eastPixelsToCrop = horizontal;
+    northPixelsToCrop = vertical;
+    southPixelsToCrop = vertical;
+  }
+
+  // make sure that crops are >= 0
+  westPixelsToCrop = westPixelsToCrop >= 0 ? westPixelsToCrop : 0;
+  eastPixelsToCrop = eastPixelsToCrop >= 0 ? eastPixelsToCrop : 0;
+  northPixelsToCrop = northPixelsToCrop >= 0 ? northPixelsToCrop : 0;
+  southPixelsToCrop = southPixelsToCrop >= 0 ? southPixelsToCrop : 0;
+
+  // safety checks
+  const widthOfRemainingPixels = w - (westPixelsToCrop + eastPixelsToCrop);
+  const heightOfRemainingPixels = h - (southPixelsToCrop + northPixelsToCrop);
+
+  let doCrop = false;
+
+  if (cropOnlyFrames) {
+    // crop image if all sides should be cropped
+    doCrop =
+      eastPixelsToCrop !== 0 &&
+      northPixelsToCrop !== 0 &&
+      westPixelsToCrop !== 0 &&
+      southPixelsToCrop !== 0;
+  } else {
+    // crop image if at least one side should be cropped
+    doCrop =
+      eastPixelsToCrop !== 0 ||
+      northPixelsToCrop !== 0 ||
+      westPixelsToCrop !== 0 ||
+      southPixelsToCrop !== 0;
+  }
+
+  if (!doCrop) {
+    return {
+      x: 0,
+      y: 0,
+      w,
+      h,
+    };
+  }
+
+  return {
+    x: westPixelsToCrop,
+    y: northPixelsToCrop,
+    w: widthOfRemainingPixels,
+    h: heightOfRemainingPixels,
+  };
+}
+
 export const methods = {
   /**
    * Crops the image at a given point to a give size.
@@ -85,6 +266,29 @@ export const methods = {
   },
 
   /**
+   * Measure the crop rectangle that {@link autocrop} would apply.
+   * This is useful when you need the crop offsets for packing, alignment,
+   * or when you want to inspect the crop area before mutating the image.
+   * If no crop would be applied, this returns the current image bounds.
+   *
+   * @example
+   * ```ts
+   * import { Jimp } from "jimp";
+   *
+   * const image = await Jimp.read("test/image.png");
+   * const rect = image.autocropRect();
+   *
+   * image.crop(rect);
+   * ```
+   */
+  autocropRect<I extends JimpClass>(
+    image: I,
+    options: AutocropOptions = {}
+  ) {
+    return getAutocropRect(image, options);
+  },
+
+  /**
    * Autocrop same color borders from this image.
    * This function will attempt to crop out transparent pixels from the image.
    *
@@ -97,182 +301,15 @@ export const methods = {
    * ```
    */
   autocrop<I extends JimpClass>(image: I, options: AutocropOptions = {}) {
-    const {
-      tolerance = 0.0002,
-      cropOnlyFrames = true,
-      cropSymmetric = false,
-      leaveBorder = 0,
-      ignoreSides: ignoreSidesArg,
-    } = typeof options === "number"
-      ? ({ tolerance: options } as AutocropComplexOptions)
-      : AutocropComplexOptionsSchema.parse(options);
-    const w = image.bitmap.width;
-    const h = image.bitmap.height;
-    const minPixelsPerSide = 1; // to avoid cropping completely the image, resulting in an invalid 0 sized image
+    const crop = this.autocropRect(image, options);
 
-    // i.e. north and south / east and west are cropped by the same value
-    const ignoreSides = {
-      north: false,
-      south: false,
-      east: false,
-      west: false,
-      ...ignoreSidesArg,
-    };
-
-    /**
-     * All borders must be of the same color as the top left pixel, to be cropped.
-     * It should be possible to crop borders each with a different color,
-     * but since there are many ways for corners to intersect, it would
-     * introduce unnecessary complexity to the algorithm.
-     */
-
-    // scan each side for same color borders
-    let colorTarget = image.getPixelColor(0, 0); // top left pixel color is the target color
-    const rgba1 = intToRGBA(colorTarget);
-
-    // for north and east sides
-    let northPixelsToCrop = 0;
-    let eastPixelsToCrop = 0;
-    let southPixelsToCrop = 0;
-    let westPixelsToCrop = 0;
-
-    // north side (scan rows from north to south)
-    colorTarget = image.getPixelColor(0, 0);
-    if (!ignoreSides.north) {
-      north: for (let y = 0; y < h - minPixelsPerSide; y++) {
-        for (let x = 0; x < w; x++) {
-          const colorXY = image.getPixelColor(x, y);
-          const rgba2 = intToRGBA(colorXY);
-
-          if (colorDiff(rgba1, rgba2) > tolerance) {
-            // this pixel is too distant from the first one: abort this side scan
-            break north;
-          }
-        }
-
-        // this row contains all pixels with the same color: increment this side pixels to crop
-        northPixelsToCrop++;
-      }
-    }
-
-    // west side (scan columns from west to east)
-    colorTarget = image.getPixelColor(w, 0);
-    if (!ignoreSides.west) {
-      west: for (let x = 0; x < w - minPixelsPerSide; x++) {
-        for (let y = 0 + northPixelsToCrop; y < h; y++) {
-          const colorXY = image.getPixelColor(x, y);
-          const rgba2 = intToRGBA(colorXY);
-
-          if (colorDiff(rgba1, rgba2) > tolerance) {
-            // this pixel is too distant from the first one: abort this side scan
-            break west;
-          }
-        }
-
-        // this column contains all pixels with the same color: increment this side pixels to crop
-        westPixelsToCrop++;
-      }
-    }
-
-    // south side (scan rows from south to north)
-    colorTarget = image.getPixelColor(0, h);
-
-    if (!ignoreSides.south) {
-      south: for (
-        let y = h - 1;
-        y >= northPixelsToCrop + minPixelsPerSide;
-        y--
-      ) {
-        for (let x = w - eastPixelsToCrop - 1; x >= 0; x--) {
-          const colorXY = image.getPixelColor(x, y);
-          const rgba2 = intToRGBA(colorXY);
-
-          if (colorDiff(rgba1, rgba2) > tolerance) {
-            // this pixel is too distant from the first one: abort this side scan
-            break south;
-          }
-        }
-
-        // this row contains all pixels with the same color: increment this side pixels to crop
-        southPixelsToCrop++;
-      }
-    }
-
-    // east side (scan columns from east to west)
-    colorTarget = image.getPixelColor(w, h);
-    if (!ignoreSides.east) {
-      east: for (
-        let x = w - 1;
-        x >= 0 + westPixelsToCrop + minPixelsPerSide;
-        x--
-      ) {
-        for (let y = h - 1; y >= 0 + northPixelsToCrop; y--) {
-          const colorXY = image.getPixelColor(x, y);
-          const rgba2 = intToRGBA(colorXY);
-
-          if (colorDiff(rgba1, rgba2) > tolerance) {
-            // this pixel is too distant from the first one: abort this side scan
-            break east;
-          }
-        }
-
-        // this column contains all pixels with the same color: increment this side pixels to crop
-        eastPixelsToCrop++;
-      }
-    }
-
-    // decide if a crop is needed
-    let doCrop = false;
-
-    // apply leaveBorder
-    westPixelsToCrop -= leaveBorder;
-    eastPixelsToCrop -= leaveBorder;
-    northPixelsToCrop -= leaveBorder;
-    southPixelsToCrop -= leaveBorder;
-
-    if (cropSymmetric) {
-      const horizontal = Math.min(eastPixelsToCrop, westPixelsToCrop);
-      const vertical = Math.min(northPixelsToCrop, southPixelsToCrop);
-      westPixelsToCrop = horizontal;
-      eastPixelsToCrop = horizontal;
-      northPixelsToCrop = vertical;
-      southPixelsToCrop = vertical;
-    }
-
-    // make sure that crops are >= 0
-    westPixelsToCrop = westPixelsToCrop >= 0 ? westPixelsToCrop : 0;
-    eastPixelsToCrop = eastPixelsToCrop >= 0 ? eastPixelsToCrop : 0;
-    northPixelsToCrop = northPixelsToCrop >= 0 ? northPixelsToCrop : 0;
-    southPixelsToCrop = southPixelsToCrop >= 0 ? southPixelsToCrop : 0;
-
-    // safety checks
-    const widthOfRemainingPixels = w - (westPixelsToCrop + eastPixelsToCrop);
-    const heightOfRemainingPixels = h - (southPixelsToCrop + northPixelsToCrop);
-
-    if (cropOnlyFrames) {
-      // crop image if all sides should be cropped
-      doCrop =
-        eastPixelsToCrop !== 0 &&
-        northPixelsToCrop !== 0 &&
-        westPixelsToCrop !== 0 &&
-        southPixelsToCrop !== 0;
-    } else {
-      // crop image if at least one side should be cropped
-      doCrop =
-        eastPixelsToCrop !== 0 ||
-        northPixelsToCrop !== 0 ||
-        westPixelsToCrop !== 0 ||
-        southPixelsToCrop !== 0;
-    }
-
-    if (doCrop) {
-      // do the real crop
-      this.crop(image, {
-        x: westPixelsToCrop,
-        y: northPixelsToCrop,
-        w: widthOfRemainingPixels,
-        h: heightOfRemainingPixels,
-      });
+    if (
+      crop.x !== 0 ||
+      crop.y !== 0 ||
+      crop.w !== image.bitmap.width ||
+      crop.h !== image.bitmap.height
+    ) {
+      this.crop(image, crop);
     }
 
     return image;
