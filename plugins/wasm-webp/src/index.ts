@@ -101,7 +101,96 @@ const WebpOptionsSchema = z.object({
 
 type WebpOptions = z.infer<typeof WebpOptionsSchema>;
 
-export default function png() {
+const isNodeRuntime =
+  typeof process === "object" &&
+  typeof process.versions === "object" &&
+  typeof process.versions.node === "string";
+
+const nodeWasmModuleCache = new Map<string, Promise<WebAssembly.Module>>();
+let decoderInitPromise: Promise<unknown> | undefined;
+let encoderInitPromise: Promise<unknown> | undefined;
+
+async function supportsSimd() {
+  return WebAssembly.validate(
+    new Uint8Array([
+      0, 97, 115, 109, 1, 0, 0, 0, 1, 5, 1, 96, 0, 1, 123, 3, 2, 1, 0,
+      10, 10, 1, 8, 0, 65, 0, 253, 15, 253, 98, 11,
+    ])
+  );
+}
+
+function resetPromiseOnError<T>(
+  promise: Promise<T>,
+  reset: () => void
+): Promise<T> {
+  return promise.catch((error) => {
+    reset();
+    throw error;
+  });
+}
+
+async function loadNodeWasmModule(specifier: string): Promise<WebAssembly.Module> {
+  const cachedModule = nodeWasmModuleCache.get(specifier);
+  if (cachedModule) {
+    return cachedModule;
+  }
+
+  const modulePromise = (async () => {
+    try {
+      const { readFile } = await import("node:fs/promises");
+      const { default: Module } = await import("node:module");
+
+      const require = Module.createRequire(import.meta.url);
+      const wasmPath = require.resolve(specifier);
+      return WebAssembly.compile(await readFile(wasmPath));
+    } catch (error) {
+      nodeWasmModuleCache.delete(specifier);
+      throw error;
+    }
+  })();
+
+  nodeWasmModuleCache.set(specifier, modulePromise);
+  return modulePromise;
+}
+
+async function ensureDecoderInitialized() {
+  if (!decoderInitPromise) {
+    decoderInitPromise = resetPromiseOnError(
+      isNodeRuntime
+        ? initDecoder(
+            await loadNodeWasmModule("@jsquash/webp/codec/dec/webp_dec.wasm")
+          )
+        : initDecoder(),
+      () => {
+        decoderInitPromise = undefined;
+      }
+    );
+  }
+
+  return decoderInitPromise;
+}
+
+async function ensureEncoderInitialized() {
+  if (!encoderInitPromise) {
+    const encoderWasmSpecifier =
+      isNodeRuntime && (await supportsSimd())
+        ? "@jsquash/webp/codec/enc/webp_enc_simd.wasm"
+        : "@jsquash/webp/codec/enc/webp_enc.wasm";
+
+    encoderInitPromise = resetPromiseOnError(
+      isNodeRuntime
+        ? initEncoder(await loadNodeWasmModule(encoderWasmSpecifier))
+        : initEncoder(),
+      () => {
+        encoderInitPromise = undefined;
+      }
+    );
+  }
+
+  return encoderInitPromise;
+}
+
+export default function webp() {
   return {
     mime: "image/webp",
     hasAlpha: true,
@@ -135,7 +224,7 @@ export default function png() {
         targetSize,
         colorSpace = "srgb",
       } = WebpOptionsSchema.parse(options);
-      await initEncoder();
+      await ensureEncoderInitialized();
       const arrayBuffer = await encode(
         {
           ...bitmap,
@@ -175,7 +264,7 @@ export default function png() {
       return Buffer.from(arrayBuffer);
     },
     decode: async (data) => {
-      await initDecoder();
+      await ensureDecoderInitialized();
       const result = await decode(new Uint8Array(data).buffer);
 
       return {
