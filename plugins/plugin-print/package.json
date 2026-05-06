@@ -9,7 +9,7 @@
   "scripts": {
     "lint": "eslint .",
     "test": "vitest",
-    "build": "tshy && cp -r fonts dist",
+    "build": "tshy && node scripts/copy-fonts.mjs",
     "dev": "tshy --watch",
     "clean": "rm -rf node_modules .tshy .tshy-build dist .turbo"
   },
