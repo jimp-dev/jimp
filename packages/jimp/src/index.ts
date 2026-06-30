@@ -101,7 +101,7 @@ export const JimpMime = {
  *
  * const image = await Jimp.read("test/image.png");
  *
- * image.resize(256, 100);
+ * image.resize({ w: 256, h: 100 });
  * image.greyscale();
  *
  * await image.write('test/output.png');
@@ -116,7 +116,7 @@ export const JimpMime = {
  *
  * const image = await Jimp.read("https://upload.wikimedia.org/wikipedia/commons/0/01/Bot-Test.jpg");
  *
- * image.resize(256, 100);
+ * image.resize({ w: 256, h: 100 });
  * image.greyscale();
  *
  * const output = await image.getBuffer("test/image.png");
