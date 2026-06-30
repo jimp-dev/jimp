@@ -27,13 +27,21 @@ const PrintOptionsSchema = z.object({
   maxWidth: z.number().optional(),
   /** the boundary height to draw in */
   maxHeight: z.number().optional(),
-  /** a callback for when complete that ahs the end co-ordinates of the text */
+  /** a callback for when complete that has the end co-ordinates of the text */
   cb: z
     .function(z.tuple([z.object({ x: z.number(), y: z.number() })]))
     .optional(),
 });
 
 export type PrintOptions = z.infer<typeof PrintOptionsSchema>;
+
+/**
+ * Options for {@link print}.
+ */
+export type PrintOptionsWithFont<I extends JimpClass> = PrintOptions & {
+  /** the BMFont instance */
+  font: BmFont<I>;
+};
 
 function xOffsetBasedOnAlignment<I extends JimpClass>(
   font: BmFont<I>,
@@ -133,16 +141,8 @@ export const methods = {
    * image.print({ font, x: 10, y: 10, text: "Hello world!" });
    * ```
    */
-  print<I extends JimpClass>(
-    image: I,
-    {
-      font,
-      ...options
-    }: PrintOptions & {
-      /** the BMFont instance */
-      font: BmFont<I>;
-    }
-  ) {
+  print<I extends JimpClass>(image: I, options: PrintOptionsWithFont<I>) {
+    const { font, ...printOptions } = options;
     let {
       // eslint-disable-next-line prefer-const
       x,
@@ -154,7 +154,7 @@ export const methods = {
       maxHeight = Infinity,
       // eslint-disable-next-line prefer-const
       cb = () => {},
-    } = PrintOptionsSchema.parse(options);
+    } = PrintOptionsSchema.parse(printOptions);
 
     let alignmentX: HorizontalAlign;
     let alignmentY: VerticalAlign;
