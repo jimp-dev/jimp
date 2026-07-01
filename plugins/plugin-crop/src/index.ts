@@ -41,14 +41,14 @@ export type AutocropOptions = number | AutocropComplexOptions;
 
 export const methods = {
   /**
-   * Crops the image at a given point to a give size.
+   * Crops the image at a given point to a given size.
    *
    * @example
    * ```ts
    * import { Jimp } from "jimp";
    *
    * const image = await Jimp.read("test/image.png");
-   * const cropped = image.crop(150, 100);
+   * const cropped = image.crop({ x: 50, y: 50, w: 150, h: 100 });
    * ```
    */
   crop<I extends JimpClass>(image: I, options: CropOptions) {
