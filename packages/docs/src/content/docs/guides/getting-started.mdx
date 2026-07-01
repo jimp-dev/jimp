@@ -56,3 +56,22 @@ The workflow for using jimp
    ```
 
 </Steps>
+
+## EXIF orientation
+
+When loading JPEGs, Jimp reads EXIF metadata and automatically rotates the
+bitmap according to the EXIF `Orientation` tag. After rotation, the image is
+treated as normal orientation:
+
+```ts
+import { getExifOrientation } from "@jimp/core";
+import { Jimp } from "jimp";
+
+const image = await Jimp.read("photo.jpg");
+
+console.log(getExifOrientation(image)); // 1 after auto-rotation
+```
+
+Jimp uses EXIF metadata for orientation correction when reading an image. It
+does not provide a public API for editing, adding, copying, or preserving
+arbitrary EXIF tags when writing images.

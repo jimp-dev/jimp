@@ -39,3 +39,13 @@ image.resize(256, 256); // resize
 
 await image.write("test-small.jpg"); // save
 ```
+
+## EXIF orientation
+
+Jimp automatically applies EXIF orientation when reading JPEG images. You can
+inspect the normalized orientation with `getExifOrientation(image)` from
+`@jimp/core`, which returns `1` after auto-rotation.
+
+Jimp uses EXIF metadata for orientation correction only. It does not expose a
+public API for editing, adding, copying, or preserving arbitrary EXIF tags when
+writing images.
