@@ -99,13 +99,30 @@ export const methods = {
           a: image.bitmap.data[dstIdx + 3] || 0,
         };
 
-        image.bitmap.data[dstIdx] =
-          ((srcColor.a * (srcColor.r - dst.r) - dst.r + 255) >> 8) + dst.r;
-        image.bitmap.data[dstIdx + 1] =
-          ((srcColor.a * (srcColor.g - dst.g) - dst.g + 255) >> 8) + dst.g;
-        image.bitmap.data[dstIdx + 2] =
-          ((srcColor.a * (srcColor.b - dst.b) - dst.b + 255) >> 8) + dst.b;
-        image.bitmap.data[dstIdx + 3] = limit255(dst.a + srcColor.a);
+        const srcAlpha = srcColor.a / 255;
+        const dstAlpha = dst.a / 255;
+        const outAlpha = srcAlpha + dstAlpha * (1 - srcAlpha);
+
+        if (outAlpha === 0) {
+          image.bitmap.data[dstIdx] = 0;
+          image.bitmap.data[dstIdx + 1] = 0;
+          image.bitmap.data[dstIdx + 2] = 0;
+          image.bitmap.data[dstIdx + 3] = 0;
+        } else {
+          image.bitmap.data[dstIdx] = limit255(
+            (srcColor.r * srcAlpha + dst.r * dstAlpha * (1 - srcAlpha)) /
+              outAlpha,
+          );
+          image.bitmap.data[dstIdx + 1] = limit255(
+            (srcColor.g * srcAlpha + dst.g * dstAlpha * (1 - srcAlpha)) /
+              outAlpha,
+          );
+          image.bitmap.data[dstIdx + 2] = limit255(
+            (srcColor.b * srcAlpha + dst.b * dstAlpha * (1 - srcAlpha)) /
+              outAlpha,
+          );
+          image.bitmap.data[dstIdx + 3] = limit255(outAlpha * 255);
+        }
       }
     });
 

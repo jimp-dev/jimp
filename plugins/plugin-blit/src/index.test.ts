@@ -69,4 +69,21 @@ describe("Blit over image", function () {
       targetImg.clone().blit({ src: srcImg, x: 3, y: 3 }),
     ).toMatchSnapshot();
   });
+
+  test("blit preserves source colors over transparent pixels", () => {
+    const target = Jimp.fromBitmap({
+      width: 1,
+      height: 1,
+      data: new Uint8Array([0, 0, 0, 0]),
+    });
+    const source = Jimp.fromBitmap({
+      width: 1,
+      height: 1,
+      data: new Uint8Array([255, 255, 255, 128]),
+    });
+
+    target.blit(source);
+
+    expect(Array.from(target.bitmap.data)).toEqual([255, 255, 255, 128]);
+  });
 });
