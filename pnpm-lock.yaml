@@ -495,12 +495,12 @@ importers:
 
   packages/utils:
     dependencies:
+      '@colordx/core':
+        specifier: ^6.3.0
+        version: 6.3.0
       '@jimp/types':
         specifier: workspace:*
         version: link:../types
-      tinycolor2:
-        specifier: ^1.6.0
-        version: 1.6.0
     devDependencies:
       '@jimp/config-eslint':
         specifier: workspace:*
@@ -511,9 +511,6 @@ importers:
       '@types/node':
         specifier: ^18.19.48
         version: 18.19.48
-      '@types/tinycolor2':
-        specifier: ^1.4.6
-        version: 1.4.6
       eslint:
         specifier: ^9.9.1
         version: 9.9.1
@@ -912,6 +909,9 @@ importers:
 
   plugins/plugin-color:
     dependencies:
+      '@colordx/core':
+        specifier: ^6.3.0
+        version: 6.3.0
       '@jimp/core':
         specifier: workspace:*
         version: link:../../packages/core
@@ -921,9 +921,6 @@ importers:
       '@jimp/utils':
         specifier: workspace:*
         version: link:../../packages/utils
-      tinycolor2:
-        specifier: ^1.6.0
-        version: 1.6.0
       zod:
         specifier: ^3.23.8
         version: 3.23.8
@@ -949,9 +946,6 @@ importers:
       '@types/node':
         specifier: ^18.19.48
         version: 18.19.48
-      '@types/tinycolor2':
-        specifier: ^1.4.6
-        version: 1.4.6
       '@vitest/browser':
         specifier: ^2.0.5
         version: 2.0.5(playwright@1.46.1)(typescript@5.5.4)(vitest@2.0.5)
@@ -2117,6 +2111,9 @@ packages:
 
   '@bundled-es-modules/tough-cookie@0.1.6':
     resolution: {integrity: sha512-dvMHbL464C0zI+Yqxbz6kZ5TOEp7GLW+pry/RWndAR8MJQAXZ2rPmIs8tziTZjeIyhSNZgZbCePtfSbdWqStJw==}
+
+  '@colordx/core@6.3.0':
+    resolution: {integrity: sha512-skoCSPWAZTfawy3t6Qk1lqXsx1OPb/mCNYBpbG667+PmXIc7kt+rhjoS2SmYywaW9fnKaufPG59NztX6jpRNaw==}
 
   '@cspotcode/source-map-support@0.8.1':
     resolution: {integrity: sha512-IchNf6dN4tHoMFIn/7OE8LWZ19Y6q/67Bmf6vnGREv8RSbBVb9LPJxEcnwrcwX6ixSvaiGoomAUvu4YSxXrVgw==}
@@ -7521,6 +7518,8 @@ snapshots:
     dependencies:
       '@types/tough-cookie': 4.0.5
       tough-cookie: 4.1.4
+
+  '@colordx/core@6.3.0': {}
 
   '@cspotcode/source-map-support@0.8.1':
     dependencies:
