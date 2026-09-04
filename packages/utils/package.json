@@ -15,14 +15,13 @@
   "author": "Andrew Lisowski <lisowski54@gmail.com>",
   "license": "MIT",
   "dependencies": {
-    "@jimp/types": "workspace:*",
-    "tinycolor2": "^1.6.0"
+    "@colordx/core": "^6.3.0",
+    "@jimp/types": "workspace:*"
   },
   "devDependencies": {
     "@jimp/config-eslint": "workspace:*",
     "@jimp/config-typescript": "workspace:*",
     "@types/node": "^18.19.48",
-    "@types/tinycolor2": "^1.4.6",
     "eslint": "^9.9.1",
     "tshy": "^3.0.2",
     "typescript": "^5.5.4",

@@ -1,4 +1,4 @@
-import tinyColor from "tinycolor2";
+import { Colordx } from "@colordx/core";
 import { clone, limit255, scan } from "@jimp/utils";
 import { Edge, JimpClass, RGBColor } from "@jimp/types";
 import { z } from "zod";
@@ -799,7 +799,7 @@ export const methods = {
 
     actions = actions.map((action) => {
       if (action.apply === "xor" || action.apply === "mix") {
-        action.params[0] = tinyColor(action.params[0]).toRgb();
+        action.params[0] = new Colordx(action.params[0]).toRgb();
       }
 
       return action;
@@ -835,21 +835,43 @@ export const methods = {
         } else if (action.apply === "blue") {
           clr.b = colorModifier("b", action.params[0]);
         } else {
-          if (action.apply === "hue") {
-            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            // @ts-ignore
-            action.apply = "spin";
+          const amount = (action.params?.[0] as number | undefined) ?? 10;
+          const color = new Colordx(clr);
+
+          switch (action.apply) {
+            case "hue":
+            case "spin":
+              clr = color.rotate(amount).toRgb();
+              break;
+            case "lighten":
+              clr = color.lighten(amount / 100).toRgb();
+              break;
+            case "darken":
+              clr = color.darken(amount / 100).toRgb();
+              break;
+            case "saturate":
+              clr = color.saturate(amount / 100).toRgb();
+              break;
+            case "desaturate":
+              clr = color.desaturate(amount / 100).toRgb();
+              break;
+            case "greyscale":
+              clr = color.grayscale().toRgb();
+              break;
+            case "brighten": {
+              const offset = -Math.round(255 * -(amount / 100));
+              clr = {
+                r: limit255(clr.r! + offset),
+                g: limit255(clr.g! + offset),
+                b: limit255(clr.b! + offset),
+              };
+              break;
+            }
+            default:
+              throw new Error(
+                "action " + (action as ColorAction).apply + " not supported"
+              );
           }
-
-          const tnyClr = tinyColor(clr);
-          const fn = tnyClr[action.apply].bind(tnyClr);
-
-          if (!fn) {
-            throw new Error("action " + action.apply + " not supported");
-          }
-
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          clr = (fn as any)(...(action.params || [])).toRgb();
         }
       });
 

@@ -1,5 +1,11 @@
 import { RGBAColor, JimpClass, Bitmap, RGBColor } from "@jimp/types";
-import tinyColor from "tinycolor2";
+import { Colordx, extend } from "@colordx/core";
+import names from "@colordx/core/plugins/names";
+import hsv from "@colordx/core/plugins/hsv";
+
+extend([names, hsv]);
+
+const BARE_HEX = /^(?:[0-9a-f]{3,4}|[0-9a-f]{6}|[0-9a-f]{8})$/i;
 
 export function clone<I extends JimpClass>(image: I): I {
   const newBitmap = {
@@ -267,5 +273,9 @@ export function cssColorToHex(cssColor: string | number) {
     return cssColor;
   }
 
-  return parseInt(tinyColor(cssColor).toHex8(), 16);
+  const trimmed = cssColor.trim();
+
+  return new Colordx(
+    BARE_HEX.test(trimmed) ? `#${trimmed}` : cssColor
+  ).toNumber32();
 }
