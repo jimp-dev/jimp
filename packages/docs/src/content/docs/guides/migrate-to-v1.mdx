@@ -45,6 +45,28 @@ Now it looks like this:
 image.resize({ w: 100, h: 100 });
 ```
 
+### `blit`
+
+In v0, `blit` accepted the source image and coordinates as positional arguments:
+
+```js
+image.blit(sourceImage, 10, 20, 0, 0, 100, 100);
+```
+
+In v1, pass the source image and coordinates in an options object:
+
+```js
+image.blit({
+  src: sourceImage,
+  x: 10,
+  y: 20,
+  srcX: 0,
+  srcY: 0,
+  srcW: 100,
+  srcH: 100,
+});
+```
+
 ## `Jimp` Constructor
 
 The constructor for `Jimp` has changed.
