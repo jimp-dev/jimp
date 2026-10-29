@@ -135,6 +135,26 @@ export async function loadBitmapFontData(
 type RawFont = Awaited<ReturnType<typeof loadBitmapFontData>>;
 export type ResolveBmFont = Omit<BmFont, "pages"> & Pick<RawFont, "pages">;
 
+/**
+ * Resolve a page file name from the font relative to the font file.
+ * The name comes from the font data, so it must not escape the font's directory.
+ */
+function resolvePagePath(file: string, page: string) {
+  const dir = path.dirname(file);
+  const pagePath = path.join(dir, page);
+  const relative = path.relative(dir, pagePath);
+
+  if (
+    relative === ".." ||
+    relative.startsWith(`..${path.sep}`) ||
+    path.isAbsolute(relative)
+  ) {
+    throw new Error(`Font page is outside of the font directory: ${page}`);
+  }
+
+  return pagePath;
+}
+
 export async function processBitmapFont(file: string, font: LoadedFont) {
   const chars: Record<string, BmCharacter> = {};
   const kernings: Record<string, BmKerning> = {};
@@ -158,7 +178,7 @@ export async function processBitmapFont(file: string, font: LoadedFont) {
     kernings,
     pages: await Promise.all(
       font.pages.map(async (page) =>
-        CharacterJimp.read(path.join(path.dirname(file), page))
+        CharacterJimp.read(resolvePagePath(file, page))
       )
     ),
   };

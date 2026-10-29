@@ -3,6 +3,9 @@ import "@jimp/test-utils/image-snapshot";
 import { HorizontalAlign, VerticalAlign, createJimp } from "@jimp/core";
 import png from "@jimp/js-png";
 import jpeg from "@jimp/js-jpeg";
+import { promises as fs } from "fs";
+import os from "os";
+import path from "path";
 
 import { methods, measureText, measureTextHeight } from "./index.js";
 import { loadFont } from "./load-font.js";
@@ -125,6 +128,30 @@ describe("Write text over image", function () {
       .getBuffer("image/png");
 
     expect(output).toMatchImageSnapshot();
+  });
+
+  test("Jimp does not load font pages outside of the font directory", async () => {
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "jimp-font-"));
+    const fontFile = path.join(dir, "fonts", "font.fnt");
+    const secret = new Jimp({ width: 4, height: 4, color: 0xff0000ff });
+
+    await fs.mkdir(path.dirname(fontFile));
+    await fs.writeFile(
+      path.join(dir, "secret.png"),
+      await secret.getBuffer("image/png"),
+    );
+    await fs.writeFile(
+      fontFile,
+      [
+        "common lineHeight=4 base=4 scaleW=4 scaleH=4 pages=1",
+        'page id=0 file="../secret.png"',
+        "char id=65 x=0 y=0 width=4 height=4 xoffset=0 yoffset=0 xadvance=4 page=0",
+      ].join("\n"),
+    );
+
+    await expect(loadFont(fontFile)).rejects.toThrow(
+      "Font page is outside of the font directory",
+    );
   });
 
   test("Jimp renders ? for unknown characters", async () => {
