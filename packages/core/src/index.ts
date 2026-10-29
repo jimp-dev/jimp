@@ -288,13 +288,15 @@ export function createJimp<
 
       if (bitmap.data instanceof Buffer) {
         data = Buffer.from(bitmap.data);
-      }
-
-      if (
+      } else if (
         bitmap.data instanceof Uint8Array ||
         bitmap.data instanceof Uint8ClampedArray
       ) {
-        data = Buffer.from(bitmap.data.buffer);
+        data = Buffer.from(
+          bitmap.data.buffer,
+          bitmap.data.byteOffset,
+          bitmap.data.byteLength
+        );
       }
 
       if (Array.isArray(bitmap.data)) {
