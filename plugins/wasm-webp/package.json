@@ -55,7 +55,7 @@
   "sideEffects": false,
   "dependencies": {
     "@jsquash/webp": "^1.4.0",
-    "zod": "^3.23.8"
+    "zod": "^4.6.7"
   },
   "module": "./dist/esm/index.js"
 }
