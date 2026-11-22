@@ -142,7 +142,7 @@ async function loadNodeWasmModule(specifier: string): Promise<WebAssembly.Module
 
       const require = Module.createRequire(import.meta.url);
       const wasmPath = require.resolve(specifier);
-      return WebAssembly.compile(await readFile(wasmPath));
+      return WebAssembly.compile(new Uint8Array(await readFile(wasmPath)));
     } catch (error) {
       nodeWasmModuleCache.delete(specifier);
       throw error;
