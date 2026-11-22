@@ -24,25 +24,45 @@ const AvifOptionsSchema = z.object({
 
 type AvifOptions = z.infer<typeof AvifOptionsSchema>;
 
+export interface AvifWasm {
+  /** The compiled `@jsquash/avif/codec/dec/avif_dec.wasm` */
+  decoder?: WebAssembly.Module;
+  /**
+   * The compiled `@jsquash/avif/codec/enc/avif_enc.wasm`, the single-threaded
+   * encoder that @jsquash/avif uses in Node and Cloudflare Workers
+   */
+  encoder?: WebAssembly.Module;
+}
+
+export interface AvifFormatOptions {
+  /**
+   * Precompiled wasm modules for runtimes where the codecs can't load their
+   * own wasm, like Cloudflare Workers.
+   * Each codec is initialized once, by the first instance that encodes or
+   * decodes, so pass the same modules to every instance.
+   */
+  wasm?: AvifWasm;
+}
+
 let decoderReady: Promise<unknown> | undefined;
 let encoderReady: Promise<unknown> | undefined;
 
-function initDecoderOnce() {
-  decoderReady ??= loadWasm("@jsquash/avif/codec/dec/avif_dec.wasm").then(
-    initDecoder,
-  );
+function initDecoderOnce(module?: WebAssembly.Module) {
+  decoderReady ??= Promise.resolve(
+    module ?? loadWasm("@jsquash/avif/codec/dec/avif_dec.wasm"),
+  ).then(initDecoder);
   return decoderReady;
 }
 
-function initEncoderOnce() {
+function initEncoderOnce(module?: WebAssembly.Module) {
   // @jsquash/avif only uses the multi-threaded encoder outside of Node
-  encoderReady ??= loadWasm("@jsquash/avif/codec/enc/avif_enc.wasm").then(
-    initEncoder,
-  );
+  encoderReady ??= Promise.resolve(
+    module ?? loadWasm("@jsquash/avif/codec/enc/avif_enc.wasm"),
+  ).then(initEncoder);
   return encoderReady;
 }
 
-export default function avif() {
+export default function avif({ wasm }: AvifFormatOptions = {}) {
   return {
     mime: "image/avif",
     hasAlpha: true,
@@ -60,7 +80,7 @@ export default function avif() {
         tileRowsLog2,
         tune,
       } = AvifOptionsSchema.parse(options);
-      await initEncoderOnce();
+      await initEncoderOnce(wasm?.encoder);
       const arrayBuffer = await encode(
         {
           ...bitmap,
@@ -84,7 +104,7 @@ export default function avif() {
       return Buffer.from(arrayBuffer);
     },
     decode: async (data) => {
-      await initDecoderOnce();
+      await initDecoderOnce(wasm?.decoder);
       const result = await decode(new Uint8Array(data).buffer);
 
       return {

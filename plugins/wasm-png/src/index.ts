@@ -22,27 +22,50 @@ const PngOptionsSchema = z.object({
 
 type PngOptions = z.infer<typeof PngOptionsSchema>;
 
+export interface PngWasm {
+  /**
+   * The compiled `@jsquash/png/codec/pkg/squoosh_png_bg.wasm`, used to decode
+   * and encode
+   */
+  png?: WebAssembly.Module;
+  /**
+   * The compiled `@jsquash/oxipng/codec/pkg/squoosh_oxipng_bg.wasm`, used
+   * when encoding with `optimize`
+   */
+  optimise?: WebAssembly.Module;
+}
+
+export interface PngFormatOptions {
+  /**
+   * Precompiled wasm modules for runtimes where the codecs can't load their
+   * own wasm, like Cloudflare Workers.
+   * Each codec is initialized once, by the first instance that encodes or
+   * decodes, so pass the same modules to every instance.
+   */
+  wasm?: PngWasm;
+}
+
 let pngReady: Promise<unknown> | undefined;
 let optimiseReady: Promise<typeof optimiseCodec> | undefined;
 
-function initPngOnce() {
+function initPngOnce(module?: WebAssembly.Module) {
   // The decoder and encoder share one wasm module
-  pngReady ??= loadWasm("@jsquash/png/codec/pkg/squoosh_png_bg.wasm").then(
-    async (module) => {
-      await initDecoder(module);
-      await initEncoder(module);
-    },
-  );
+  pngReady ??= Promise.resolve(
+    module ?? loadWasm("@jsquash/png/codec/pkg/squoosh_png_bg.wasm"),
+  ).then(async (module) => {
+    await initDecoder(module);
+    await initEncoder(module);
+  });
   return pngReady;
 }
 
-function initOptimiseOnce() {
+function initOptimiseOnce(module?: WebAssembly.Module) {
   // Load the single-threaded codec directly, and only once it's needed.
   // @jsquash/oxipng/optimise.js can also load the multi-threaded build, whose
   // worker imports a bare directory that webpack 5 can't resolve.
   optimiseReady ??= Promise.all([
     import("@jsquash/oxipng/codec/pkg/squoosh_oxipng.js"),
-    loadWasm("@jsquash/oxipng/codec/pkg/squoosh_oxipng_bg.wasm"),
+    module ?? loadWasm("@jsquash/oxipng/codec/pkg/squoosh_oxipng_bg.wasm"),
   ]).then(async ([codec, module]) => {
     await codec.default(module);
     return codec.optimise;
@@ -50,13 +73,13 @@ function initOptimiseOnce() {
   return optimiseReady;
 }
 
-export default function png() {
+export default function png({ wasm }: PngFormatOptions = {}) {
   return {
     mime: "image/png",
     hasAlpha: true,
     encode: async (bitmap, options: Partial<PngOptions> = {}) => {
       const { colorSpace = "srgb", optimize } = PngOptionsSchema.parse(options);
-      await initPngOnce();
+      await initPngOnce(wasm?.png);
       let arrayBuffer = await encode({
         ...bitmap,
         data: new Uint8ClampedArray(bitmap.data),
@@ -64,7 +87,7 @@ export default function png() {
       });
 
       if (optimize) {
-        const optimise = await initOptimiseOnce();
+        const optimise = await initOptimiseOnce(wasm?.optimise);
         arrayBuffer = optimise(
           new Uint8Array(arrayBuffer),
           optimize.level,
@@ -76,7 +99,7 @@ export default function png() {
       return Buffer.from(arrayBuffer);
     },
     decode: async (data) => {
-      await initPngOnce();
+      await initPngOnce(wasm?.png);
       const result = await decode(new Uint8Array(data).buffer);
 
       return {
