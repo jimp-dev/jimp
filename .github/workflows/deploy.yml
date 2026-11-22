@@ -27,6 +27,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: ./.github/actions/install-deps
+      - uses: ./.github/actions/turbo-cache
       - run: pnpm build
       - run: pnpm build
         working-directory: packages/docs

@@ -37,34 +37,34 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: ./.github/actions/install-deps
-      - uses: ./.github/actions/build-cache
+      - uses: ./.github/actions/turbo-cache
       - run: pnpm build
 
   lint:
     runs-on: ubuntu-latest
-    needs: build
+    needs: install
     steps:
       - uses: actions/checkout@v3
       - uses: ./.github/actions/install-deps
-      - uses: ./.github/actions/build-cache
+      - uses: ./.github/actions/turbo-cache
       - run: pnpm lint
 
   test:
     runs-on: ubuntu-latest
-    needs: build
+    needs: install
     steps:
       - uses: actions/checkout@v3
       - uses: ./.github/actions/install-deps
-      - uses: ./.github/actions/build-cache
+      - uses: ./.github/actions/turbo-cache
       - run: pnpm test
 
   test-browser:
     runs-on: ubuntu-latest
-    needs: build
+    needs: install
     steps:
       - uses: actions/checkout@v3
       - uses: ./.github/actions/install-deps
-      - uses: ./.github/actions/build-cache
+      - uses: ./.github/actions/turbo-cache
       - run: pnpm exec playwright install --with-deps chromium
         working-directory: ./packages/config-vitest
       - run: pnpm test:browser
