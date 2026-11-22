@@ -1,6 +1,7 @@
-import { PNG, PNGOptions as PNGJSOptions } from "pngjs";
+import type { PNGOptions as PNGJSOptions } from "pngjs";
 import { Format } from "@jimp/types";
 import { PNGFilterType, PNGColorType } from "./constants.js";
+import { PNG } from "./pngjs.js";
 
 export type { PNGOptions as PNGJSOptions } from "pngjs";
 export type PNGOptions = Omit<
