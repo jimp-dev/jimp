@@ -1,7 +1,7 @@
 import decode, { init as initDecoder } from "@jsquash/png/decode.js";
 import encode, { init as initEncoder } from "@jsquash/png/encode.js";
 import { Format } from "@jimp/types";
-import optimise, { init as initOptimise } from "@jsquash/oxipng/optimise.js";
+import type { optimise as optimiseCodec } from "@jsquash/oxipng/codec/pkg/squoosh_oxipng.js";
 import z from "zod";
 
 import { loadWasm } from "./load-wasm.js";
@@ -23,7 +23,7 @@ const PngOptionsSchema = z.object({
 type PngOptions = z.infer<typeof PngOptionsSchema>;
 
 let pngReady: Promise<unknown> | undefined;
-let optimiseReady: Promise<unknown> | undefined;
+let optimiseReady: Promise<typeof optimiseCodec> | undefined;
 
 function initPngOnce() {
   // The decoder and encoder share one wasm module
@@ -37,9 +37,16 @@ function initPngOnce() {
 }
 
 function initOptimiseOnce() {
-  optimiseReady ??= loadWasm(
-    "@jsquash/oxipng/codec/pkg/squoosh_oxipng_bg.wasm",
-  ).then(initOptimise);
+  // Load the single-threaded codec directly, and only once it's needed.
+  // @jsquash/oxipng/optimise.js can also load the multi-threaded build, whose
+  // worker imports a bare directory that webpack 5 can't resolve.
+  optimiseReady ??= Promise.all([
+    import("@jsquash/oxipng/codec/pkg/squoosh_oxipng.js"),
+    loadWasm("@jsquash/oxipng/codec/pkg/squoosh_oxipng_bg.wasm"),
+  ]).then(async ([codec, module]) => {
+    await codec.default(module);
+    return codec.optimise;
+  });
   return optimiseReady;
 }
 
@@ -57,8 +64,13 @@ export default function png() {
       });
 
       if (optimize) {
-        await initOptimiseOnce();
-        arrayBuffer = await optimise(arrayBuffer, optimize);
+        const optimise = await initOptimiseOnce();
+        arrayBuffer = optimise(
+          new Uint8Array(arrayBuffer),
+          optimize.level,
+          optimize.interlace,
+          optimize.optimiseAlpha,
+        ).buffer;
       }
 
       return Buffer.from(arrayBuffer);

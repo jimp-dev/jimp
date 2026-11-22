@@ -11,9 +11,8 @@ const imagesFolder = path.join(
 
 export default defineConfig({
   resolve: {
-    alias: {
-      pngjs: "pngjs/browser.js",
-    },
+    // Exact match, so imports of "pngjs/browser.js" itself aren't rewritten.
+    alias: [{ find: /^pngjs$/, replacement: "pngjs/browser.js" }],
   },
   test: {
     exclude: [

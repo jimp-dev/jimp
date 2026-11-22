@@ -14,8 +14,9 @@ export type DisplaceOptions = z.infer<typeof DisplaceOptionsSchema>;
 export const methods = {
   /**
    * Displaces the image based on the provided displacement map
-   * @param map the source Jimp instance
-   * @param offset
+   * @param options the displacement map and offset
+   * @param options.map the source Jimp instance
+   * @param options.offset the maximum displacement value
    * @example
    * ```ts
    * import { Jimp } from "jimp";
@@ -23,7 +24,7 @@ export const methods = {
    * const image = await Jimp.read("test/image.png");
    * const map = await Jimp.read("test/map.png");
    *
-   * image.displace(map, 10);
+   * image.displace({ map, offset: 10 });
    * ```
    */
   displace<I extends JimpClass>(image: I, options: DisplaceOptions) {

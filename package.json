@@ -9,7 +9,7 @@
   },
   "author": "Andrew Lisowski <lisowski54@gmail.com>",
   "scripts": {
-    "build": "turbo run build build:browser --filter=!@jimp/docs",
+    "build": "turbo run build build:browser --filter=!@jimp/docs && node scripts/check-browser-bundle.mjs",
     "dev": "turbo run dev",
     "lint": "turbo run lint",
     "test": "turbo run test -- --watch=false",

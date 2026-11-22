@@ -26,7 +26,7 @@ export const methods = {
    *
    * const image = await Jimp.read("test/image.png");
    *
-   * image.cover(150, 100);
+   * image.cover({ w: 150, h: 100 });
    * ```
    */
   cover<I extends JimpClass>(image: I, options: CoverOptions) {

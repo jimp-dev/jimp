@@ -128,15 +128,19 @@ export const methods = {
 
   /**
    * Uniformly scales the image by a factor.
-   * @param f the factor to scale the image by
-   * @param mode (optional) a scaling method (e.g. Jimp.RESIZE_BEZIER)
+   * @param options the factor to scale the image by, or an object with the factor and scaling method
+   * @param options.f the factor to scale the image by
+   * @param options.mode (optional) a scaling method (e.g. ResizeStrategy.BEZIER)
    * @example
    * ```ts
-   * import { Jimp } from "jimp";
+   * import { Jimp, ResizeStrategy } from "jimp";
    *
    * const image = await Jimp.read("test/image.png");
    *
    * image.scale(0.5);
+   *
+   * // or pick the scaling method
+   * image.scale({ f: 0.5, mode: ResizeStrategy.BEZIER });
    * ```
    */
   scale<I extends JimpClass>(image: I, options: ScaleOptions) {
@@ -152,16 +156,17 @@ export const methods = {
 
   /**
    * Scale the image to the largest size that fits inside the rectangle that has the given width and height.
-   * @param w the width to resize the image to
-   * @param h the height to resize the image to
-   * @param mode a scaling method (e.g. ResizeStrategy.BEZIER)
+   * @param options the size to fit the image in
+   * @param options.w the width to resize the image to
+   * @param options.h the height to resize the image to
+   * @param options.mode a scaling method (e.g. ResizeStrategy.BEZIER)
    * @example
    * ```ts
    * import { Jimp } from "jimp";
    *
    * const image = await Jimp.read("test/image.png");
    *
-   * image.scaleToFit(100, 100);
+   * image.scaleToFit({ w: 100, h: 100 });
    * ```
    */
   scaleToFit<I extends JimpClass>(image: I, options: ScaleToFitOptions) {

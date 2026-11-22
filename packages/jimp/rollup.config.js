@@ -74,7 +74,7 @@ export default [
 
       // Use the browser version of some packages
       alias({
-        entries: [{ find: "pngjs", replacement: "pngjs/browser" }],
+        entries: [{ find: /^pngjs$/, replacement: "pngjs/browser.js" }],
       }),
 
       terser(),

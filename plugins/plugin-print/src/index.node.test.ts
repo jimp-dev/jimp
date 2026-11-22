@@ -163,6 +163,13 @@ describe("Write text over image", function () {
     }
   });
 
+  test("loadFont throws a clear error when not given a path", async () => {
+    // e.g. v0's Jimp.FONT_SANS_32_BLACK, which is undefined in v1
+    await expect(loadFont(undefined as unknown as string)).rejects.toThrow(
+      'loadFont expects a path or URL to a font file, but received undefined. Fonts are named exports of "jimp/fonts"',
+    );
+  });
+
   test("Jimp does not load font pages outside of a remote font's directory", async () => {
     const page = await new Jimp({
       width: 4,

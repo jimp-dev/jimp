@@ -21,10 +21,11 @@ export type ContainOptions = z.infer<typeof ContainOptionsSchema>;
 export const methods = {
   /**
    * Scale the image to the given width and height keeping the aspect ratio. Some parts of the image may be letter boxed.
-   * @param w the width to resize the image to
-   * @param h the height to resize the image to
-   * @param align A bitmask for horizontal and vertical alignment
-   * @param mode a scaling method (e.g. Jimp.RESIZE_BEZIER)
+   * @param options the size to contain the image in
+   * @param options.w the width to resize the image to
+   * @param options.h the height to resize the image to
+   * @param options.align A bitmask for horizontal and vertical alignment
+   * @param options.mode a scaling method (e.g. ResizeStrategy.BEZIER)
    * @example
    * ```ts
    * import { Jimp } from "jimp";
