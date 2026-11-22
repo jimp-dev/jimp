@@ -20,7 +20,7 @@
     "@jimp/plugin-crop": "workspace:*",
     "@jimp/plugin-resize": "workspace:*",
     "@jimp/types": "workspace:*",
-    "zod": "^3.23.8"
+    "zod": "^4.6.7"
   },
   "devDependencies": {
     "@jimp/config-eslint": "workspace:*",
