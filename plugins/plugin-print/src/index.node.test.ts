@@ -5,6 +5,7 @@ import png from "@jimp/js-png";
 import jpeg from "@jimp/js-jpeg";
 
 import { methods, measureText, measureTextHeight } from "./index.js";
+import { splitLines } from "./measure-text.js";
 import { loadFont } from "./load-font.js";
 import * as fonts from "./fonts.js";
 
@@ -289,6 +290,26 @@ describe("Write text over image", function () {
     const lineHeight = measureTextHeight(font, text, Infinity);
 
     expect(height).toEqual(lineHeight);
+  });
+
+  test("words wider than maxWidth keep their last characters", async () => {
+    const font = await loadFont(fonts.SANS_16_BLACK);
+    const maxWidth = measureText(font, "x".repeat(12)) + 1;
+    const { lines } = splitLines(font, `${"x".repeat(30)} yy`, maxWidth);
+
+    expect(lines).toEqual([
+      ["x".repeat(12)],
+      ["x".repeat(12)],
+      ["xxxxxx", "yy"],
+    ]);
+  });
+
+  test("words that only overflow with their trailing space are kept", async () => {
+    const font = await loadFont(fonts.SANS_16_BLACK);
+    const maxWidth = measureText(font, "xxxx") + 1;
+    const { lines } = splitLines(font, "xxxx yy", maxWidth);
+
+    expect(lines).toEqual([["xxxx"], ["yy"]]);
   });
 
   test("text with newlines, default alignment", async () => {
