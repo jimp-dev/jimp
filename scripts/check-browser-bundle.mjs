@@ -2,6 +2,10 @@
 // tshy writes a tiny `export {}` placeholder to dist/browser/index.js and
 // rollup replaces it. If they run in the wrong order (or a cache restore
 // misses the bundle) the stub ships. See #1402.
+//
+// Also fails if the bundle stops parsing once Babel's preset-env has
+// transformed it, which many apps do to their dependencies. See #1405.
+import { parseSync, transformSync } from "@babel/core";
 import { readFileSync, statSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 
@@ -34,6 +38,24 @@ const code = readFileSync(bundle, "utf8");
 
 if (!/export\s*\{[^}]*\bas Jimp\b/.test(code)) {
   fail("it does not export Jimp");
+}
+
+try {
+  const options = { babelrc: false, configFile: false, sourceType: "module" };
+  const result = transformSync(code, {
+    ...options,
+    compact: true,
+    presets: [["@babel/preset-env", { modules: false }]],
+  });
+
+  parseSync(result.code, options);
+} catch (error) {
+  // The bundle is a single line, so skip the code frame
+  console.error(
+    `Invalid jimp browser bundle (${bundle}): it does not parse after @babel/preset-env transforms it:`,
+    error.message.split("\n")[0],
+  );
+  process.exit(1);
 }
 
 console.log(`jimp browser bundle OK (${size} bytes)`);

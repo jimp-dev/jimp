@@ -9,17 +9,26 @@ import ImagePHash from "./phash.js";
 const alphabet =
   "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ$_";
 
-// an array storing the maximum string length of hashes at various bases
-// 0 and 1 do not exist as possible hash lengths
-const maxHashLength = [NaN, NaN];
+// This loop lives in a function instead of at module scope so it doesn't end up
+// at the top level of the browser bundle, where Babel 7's block-scoping
+// transform can produce a duplicate declaration (#1405).
+function getMaxHashLengths() {
+  // an array storing the maximum string length of hashes at various bases
+  // 0 and 1 do not exist as possible hash lengths
+  const maxHashLength = [NaN, NaN];
 
-for (let i = 2; i < 65; i++) {
-  const maxHash = anyBase(
-    anyBase.BIN,
-    alphabet.slice(0, i),
-  )(new Array(64 + 1).join("1"));
-  maxHashLength.push(maxHash.length);
+  for (let i = 2; i < 65; i++) {
+    const maxHash = anyBase(
+      anyBase.BIN,
+      alphabet.slice(0, i),
+    )(new Array(64 + 1).join("1"));
+    maxHashLength.push(maxHash.length);
+  }
+
+  return maxHashLength;
 }
+
+const maxHashLength = getMaxHashLengths();
 
 export const methods = {
   /**
