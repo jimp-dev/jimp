@@ -6,3 +6,5 @@ allowBuilds:
   esbuild: true
   msw: false
   sharp: true
+minimumReleaseAgeExclude:
+  - bmp-ts@1.1.0
