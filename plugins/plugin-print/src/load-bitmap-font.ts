@@ -135,6 +135,61 @@ export async function loadBitmapFontData(
 type RawFont = Awaited<ReturnType<typeof loadBitmapFontData>>;
 export type ResolveBmFont = Omit<BmFont, "pages"> & Pick<RawFont, "pages">;
 
+// Two or more characters so Windows drive letters (C:\) aren't treated as schemes
+const URL_SCHEME = /^[a-z][a-z\d+.-]+:/i;
+const ABSOLUTE_URL = /^[a-z][a-z\d+.-]+:\/\//i;
+
+/**
+ * Resolve a page file name from the font relative to the font file.
+ * The name comes from the font data, so it must not escape the font's directory.
+ */
+export function resolvePagePath(file: string, page: string) {
+  const outside = new Error(
+    `Font page is outside of the font directory: ${page}`,
+  );
+
+  // Resolve pages of remote fonts the same way fetch will, so encoded dots
+  // (%2e%2e) and backslashes can't be used to walk out of the directory.
+  if (ABSOLUTE_URL.test(file)) {
+    const dir = new URL(".", file);
+    const url = new URL(page, file);
+
+    // Encoded slashes are left alone by URL but some servers decode them
+    if (
+      url.protocol !== dir.protocol ||
+      url.host !== dir.host ||
+      !url.pathname.startsWith(dir.pathname) ||
+      /%2f|%5c/i.test(url.pathname.slice(dir.pathname.length))
+    ) {
+      throw outside;
+    }
+
+    return url.href;
+  }
+
+  // Checked against the page alone so the result doesn't depend on the cwd
+  // (the browser path polyfill resolves relative paths against "/"). Relative
+  // fonts in the browser are fetched, so treat "\\" and "%2e" like fetch does.
+  const relative = path.join(
+    ".",
+    page.replace(/\\/g, "/").replace(/%2e/gi, "."),
+  );
+
+  if (relative === ".." || relative.startsWith(`..${path.sep}`)) {
+    throw outside;
+  }
+
+  const pagePath = path.join(path.dirname(file), page);
+
+  // With no directory in front of it a page like "http://host/x.png" would
+  // survive the join and be fetched by Jimp.read
+  if (URL_SCHEME.test(pagePath)) {
+    throw outside;
+  }
+
+  return pagePath;
+}
+
 export async function processBitmapFont(file: string, font: LoadedFont) {
   const chars: Record<string, BmCharacter> = {};
   const kernings: Record<string, BmKerning> = {};
@@ -158,7 +213,7 @@ export async function processBitmapFont(file: string, font: LoadedFont) {
     kernings,
     pages: await Promise.all(
       font.pages.map(async (page) =>
-        CharacterJimp.read(path.join(path.dirname(file), page))
+        CharacterJimp.read(resolvePagePath(file, page))
       )
     ),
   };
