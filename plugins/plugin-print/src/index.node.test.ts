@@ -3,12 +3,27 @@ import "@jimp/test-utils/image-snapshot";
 import { HorizontalAlign, VerticalAlign, createJimp } from "@jimp/core";
 import png from "@jimp/js-png";
 import jpeg from "@jimp/js-jpeg";
+import { promises as fs } from "fs";
+import http from "http";
+import { AddressInfo } from "net";
+import os from "os";
+import path from "path";
 
 import { methods, measureText, measureTextHeight } from "./index.js";
+import { splitLines } from "./measure-text.js";
 import { loadFont } from "./load-font.js";
+import { resolvePagePath } from "./load-bitmap-font.js";
 import * as fonts from "./fonts.js";
 
 const Jimp = createJimp({ plugins: [methods], formats: [png, jpeg] });
+
+function createFontFile(page: string) {
+  return [
+    "common lineHeight=4 base=4 scaleW=4 scaleH=4 pages=1",
+    `page id=0 file="${page}"`,
+    "char id=65 x=0 y=0 width=4 height=4 xoffset=0 yoffset=0 xadvance=4 page=0",
+  ].join("\n");
+}
 
 async function createTextImage(
   width: number,
@@ -125,6 +140,115 @@ describe("Write text over image", function () {
       .getBuffer("image/png");
 
     expect(output).toMatchImageSnapshot();
+  });
+
+  test("Jimp does not load font pages outside of the font directory", async () => {
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "jimp-font-"));
+    const fontFile = path.join(dir, "fonts", "font.fnt");
+    const secret = new Jimp({ width: 4, height: 4, color: 0xff0000ff });
+
+    try {
+      await fs.mkdir(path.dirname(fontFile));
+      await fs.writeFile(
+        path.join(dir, "secret.png"),
+        await secret.getBuffer("image/png"),
+      );
+      await fs.writeFile(fontFile, createFontFile("../secret.png"));
+
+      await expect(loadFont(fontFile)).rejects.toThrow(
+        "Font page is outside of the font directory",
+      );
+    } finally {
+      await fs.rm(dir, { recursive: true, force: true });
+    }
+  });
+
+  test("Jimp does not load font pages outside of a remote font's directory", async () => {
+    const page = await new Jimp({
+      width: 4,
+      height: 4,
+      color: 0xff0000ff,
+    }).getBuffer("image/png");
+    const requests: string[] = [];
+    const server = http.createServer((req, res) => {
+      const url = new URL(req.url!, "http://localhost");
+      requests.push(url.pathname);
+
+      if (url.pathname.endsWith(".fnt")) {
+        res.end(createFontFile(url.searchParams.get("page")!));
+      } else {
+        res.end(page);
+      }
+    });
+
+    await new Promise<void>((resolve) => server.listen(0, resolve));
+    const { port } = server.address() as AddressInfo;
+    const fontUrl = (page: string) =>
+      `http://127.0.0.1:${port}/fonts/font.fnt?page=${encodeURIComponent(page)}`;
+
+    try {
+      const font = await loadFont(fontUrl("sub/page.png"));
+      expect(font.pages[0]!.bitmap.width).toBe(4);
+      expect(requests).toEqual(["/fonts/font.fnt", "/fonts/sub/page.png"]);
+
+      for (const evil of [
+        "../secret.png",
+        "%2e%2e/secret.png",
+        "..\\secret.png",
+        "sub%2f..%2f..%2fsecret.png",
+        "//localhost/secret.png",
+        "http://localhost/secret.png",
+        "../../../http://localhost/secret.png",
+      ]) {
+        requests.length = 0;
+        await expect(loadFont(fontUrl(evil))).rejects.toThrow(
+          "Font page is outside of the font directory",
+        );
+        expect(requests).toEqual(["/fonts/font.fnt"]);
+      }
+    } finally {
+      server.close();
+    }
+  });
+
+  test("resolvePagePath keeps pages inside the font directory", () => {
+    const inside = [
+      ["/fonts/a.fnt", "a.png", path.join("/fonts", "a.png")],
+      ["/fonts/a.fnt", "sub/a.png", path.join("/fonts", "sub/a.png")],
+      ["/fonts/a.fnt", "sub/../a.png", path.join("/fonts", "a.png")],
+      ["/fonts/a.fnt", "/a.png", path.join("/fonts", "a.png")],
+      ["a.fnt", "a.png", "a.png"],
+      ["http://host/fonts/a.fnt", "a.png", "http://host/fonts/a.png"],
+      ["https://host/f/a.fnt?v=1", "sub/a.png", "https://host/f/sub/a.png"],
+      ["https://host/o/fonts%2Fa.fnt", "a.png", "https://host/o/a.png"],
+    ];
+
+    for (const [file, page, expected] of inside) {
+      expect(resolvePagePath(file!, page!)).toBe(expected);
+    }
+
+    const outside = [
+      ["/fonts/a.fnt", "../a.png"],
+      ["/fonts/a.fnt", ".."],
+      ["/fonts/a.fnt", "sub/../../a.png"],
+      ["/fonts/a.fnt", "..\\a.png"],
+      ["/fonts/a.fnt", "%2e%2e/a.png"],
+      ["a.fnt", "../a.png"],
+      ["a.fnt", "http://host/a.png"],
+      ["a.fnt", "data:image/png;base64,AAAA"],
+      ["http://host/fonts/a.fnt", "../a.png"],
+      ["http://host/fonts/a.fnt", "%2E%2E/a.png"],
+      ["http://host/fonts/a.fnt", "..\\a.png"],
+      ["http://host/fonts/a.fnt", "..%2fa.png"],
+      ["http://host/fonts/a.fnt", "//other/fonts/a.png"],
+      ["http://host/fonts/a.fnt", "https://host/fonts/a.png"],
+    ];
+
+    for (const [file, page] of outside) {
+      expect(() => resolvePagePath(file!, page!), `${file} ${page}`).toThrow(
+        "Font page is outside of the font directory",
+      );
+    }
   });
 
   test("Jimp renders ? for unknown characters", async () => {
@@ -289,6 +413,26 @@ describe("Write text over image", function () {
     const lineHeight = measureTextHeight(font, text, Infinity);
 
     expect(height).toEqual(lineHeight);
+  });
+
+  test("words wider than maxWidth keep their last characters", async () => {
+    const font = await loadFont(fonts.SANS_16_BLACK);
+    const maxWidth = measureText(font, "x".repeat(12)) + 1;
+    const { lines } = splitLines(font, `${"x".repeat(30)} yy`, maxWidth);
+
+    expect(lines).toEqual([
+      ["x".repeat(12)],
+      ["x".repeat(12)],
+      ["xxxxxx", "yy"],
+    ]);
+  });
+
+  test("words that only overflow with their trailing space are kept", async () => {
+    const font = await loadFont(fonts.SANS_16_BLACK);
+    const maxWidth = measureText(font, "xxxx") + 1;
+    const { lines } = splitLines(font, "xxxx yy", maxWidth);
+
+    expect(lines).toEqual([["xxxx"], ["yy"]]);
   });
 
   test("text with newlines, default alignment", async () => {

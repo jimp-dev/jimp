@@ -29,7 +29,7 @@ const PrintOptionsSchema = z.object({
   maxHeight: z.number().optional(),
   /** a callback for when complete that ahs the end co-ordinates of the text */
   cb: z
-    .function(z.tuple([z.object({ x: z.number(), y: z.number() })]))
+    .function({ input: z.tuple([z.object({ x: z.number(), y: z.number() })]) })
     .optional(),
 });
 

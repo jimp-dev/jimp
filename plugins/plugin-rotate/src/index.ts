@@ -102,6 +102,16 @@ function matrixRotate<I extends JimpClass>(image: I, deg: number) {
   image.bitmap.height = nH;
 }
 
+/**
+ * Math.cos and Math.sin are not exact (Math.cos(Math.PI / 2) is 6e-17), so a
+ * source coordinate that should be a whole number can land just below or above
+ * it. Snap such values to the whole number before choosing the source pixel.
+ */
+function snapToInteger(value: number, tolerance: number) {
+  const rounded = Math.round(value);
+  return Math.abs(value - rounded) < tolerance ? rounded : value;
+}
+
 function createTranslationFunction(deltaX: number, deltaY: number) {
   return function (x: number, y: number) {
     return {
@@ -177,6 +187,8 @@ function advancedRotate<I extends JimpClass>(
   const bW = image.bitmap.width;
   const bH = image.bitmap.height;
   const dstBuffer = Buffer.alloc(image.bitmap.data.length);
+  // the rounding error of the coordinates grows with the image size
+  const tolerance = (bW + bH) * Number.EPSILON * 4;
 
   const translate2Cartesian = createTranslationFunction(-(bW / 2), -(bH / 2));
   const translate2Screen = createTranslationFunction(
@@ -191,10 +203,12 @@ function advancedRotate<I extends JimpClass>(
         cosine * cartesian.x - sine * cartesian.y,
         cosine * cartesian.y + sine * cartesian.x
       );
+      const sourceX = snapToInteger(source.x, tolerance);
+      const sourceY = snapToInteger(source.y, tolerance);
       const dstIdx = (bW * (y - 1) + x - 1) << 2;
 
-      if (source.x >= 0 && source.x < bW && source.y >= 0 && source.y < bH) {
-        const srcIdx = ((bW * (source.y | 0) + source.x) | 0) << 2;
+      if (sourceX >= 0 && sourceX < bW && sourceY >= 0 && sourceY < bH) {
+        const srcIdx = (bW * (sourceY | 0) + (sourceX | 0)) << 2;
         const pixelRGBA = image.bitmap.data.readUInt32BE(srcIdx);
         dstBuffer.writeUInt32BE(pixelRGBA, dstIdx);
       } else {

@@ -1,6 +1,5 @@
 import { Bitmap, Format, JimpClass, Edge } from "@jimp/types";
 import { cssColorToHex, scan, scanIterator } from "@jimp/utils";
-import fileType from "file-type/core.js";
 import { to } from "await-to-js";
 import { existsSync, readFile, writeFile } from "@jimp/file-ops";
 import mime from "mime/lite.js";
@@ -27,6 +26,15 @@ function bufferFromArrayBuffer(arrayBuffer: ArrayBuffer) {
   }
 
   return buffer;
+}
+
+async function detectFileTypeFromBuffer(buffer: Buffer | ArrayBuffer) {
+  const { fileTypeFromBuffer } = await import("file-type");
+  return fileTypeFromBuffer(
+    buffer instanceof ArrayBuffer
+      ? buffer
+      : new Uint8Array(buffer.buffer, buffer.byteOffset, buffer.byteLength)
+  );
 }
 
 export { getExifOrientation } from "./utils/image-bitmap.js";
@@ -228,11 +236,11 @@ export function createJimp<
       options?: MimeTypeToDecodeOptions
     ) {
       if (Buffer.isBuffer(url) || url instanceof ArrayBuffer) {
-        return this.fromBuffer(url);
+        return this.fromBuffer(url, options);
       }
 
       if (existsSync(url)) {
-        return this.fromBuffer(await readFile(url));
+        return this.fromBuffer(await readFile(url), options);
       }
 
       const [fetchErr, response] = await to(fetch(url));
@@ -280,13 +288,15 @@ export function createJimp<
 
       if (bitmap.data instanceof Buffer) {
         data = Buffer.from(bitmap.data);
-      }
-
-      if (
+      } else if (
         bitmap.data instanceof Uint8Array ||
         bitmap.data instanceof Uint8ClampedArray
       ) {
-        data = Buffer.from(bitmap.data.buffer);
+        data = Buffer.from(
+          bitmap.data.buffer,
+          bitmap.data.byteOffset,
+          bitmap.data.byteLength
+        );
       }
 
       if (Array.isArray(bitmap.data)) {
@@ -334,7 +344,7 @@ export function createJimp<
       const actualBuffer =
         buffer instanceof ArrayBuffer ? bufferFromArrayBuffer(buffer) : buffer;
 
-      const mime = await fileType.fromBuffer(actualBuffer);
+      const mime = await detectFileTypeFromBuffer(actualBuffer);
 
       if (!mime || !mime.mime) {
         throw new Error("Could not find MIME for Buffer");

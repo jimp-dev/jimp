@@ -1,6 +1,6 @@
 {
   "name": "@jimp/plugin-shadow",
-  "version": "1.6.0",
+  "version": "1.7.0",
   "repository": "jimp-dev/jimp",
   "engines": {
     "node": ">=18"
@@ -34,7 +34,7 @@
     "@jimp/plugin-resize": "workspace:*",
     "@jimp/types": "workspace:*",
     "@jimp/utils": "workspace:*",
-    "zod": "^3.23.8"
+    "zod": "^4.6.7"
   },
   "tshy": {
     "exclude": [

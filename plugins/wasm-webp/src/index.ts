@@ -1,7 +1,10 @@
 import decode, { init as initDecoder } from "@jsquash/webp/decode.js";
 import encode, { init as initEncoder } from "@jsquash/webp/encode.js";
 import { Format } from "@jimp/types";
+import { simd } from "wasm-feature-detect";
 import z from "zod";
+
+import { loadWasm } from "./load-wasm.js";
 
 const WebpOptionsSchema = z.object({
   colorSpace: z.union([z.literal("display-p3"), z.literal("srgb")]).optional(),
@@ -101,7 +104,31 @@ const WebpOptionsSchema = z.object({
 
 type WebpOptions = z.infer<typeof WebpOptionsSchema>;
 
-export default function png() {
+let decoderReady: Promise<unknown> | undefined;
+let encoderReady: Promise<unknown> | undefined;
+
+function initDecoderOnce() {
+  decoderReady ??= loadWasm("@jsquash/webp/codec/dec/webp_dec.wasm").then(
+    initDecoder,
+  );
+  return decoderReady;
+}
+
+function initEncoderOnce() {
+  // Load the same encoder build @jsquash/webp picks for this runtime
+  encoderReady ??= simd()
+    .then((hasSimd) =>
+      loadWasm(
+        hasSimd
+          ? "@jsquash/webp/codec/enc/webp_enc_simd.wasm"
+          : "@jsquash/webp/codec/enc/webp_enc.wasm",
+      ),
+    )
+    .then(initEncoder);
+  return encoderReady;
+}
+
+export default function webp() {
   return {
     mime: "image/webp",
     hasAlpha: true,
@@ -135,7 +162,7 @@ export default function png() {
         targetSize,
         colorSpace = "srgb",
       } = WebpOptionsSchema.parse(options);
-      await initEncoder();
+      await initEncoderOnce();
       const arrayBuffer = await encode(
         {
           ...bitmap,
@@ -175,11 +202,11 @@ export default function png() {
       return Buffer.from(arrayBuffer);
     },
     decode: async (data) => {
-      await initDecoder();
-      const result = await decode(data);
+      await initDecoderOnce();
+      const result = await decode(new Uint8Array(data).buffer);
 
       return {
-        data: Buffer.from(result.data),
+        data: Buffer.from(new Uint8Array(result.data.buffer, result.data.byteOffset, result.data.byteLength)),
         width: result.width,
         height: result.height,
       };

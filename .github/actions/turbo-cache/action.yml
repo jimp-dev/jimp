@@ -1,0 +1,15 @@
+name: "Turbo Cache"
+description: Restore and save the turbo local cache with actions/cache
+
+runs:
+  using: "composite"
+  steps:
+    # Each job keeps its own cache. Restoring the latest entry for the job lets
+    # turbo replay any task whose inputs haven't changed since the last run.
+    - name: turbo cache
+      uses: actions/cache@v4
+      with:
+        path: .turbo/cache
+        key: ${{ runner.os }}-turbo-${{ github.job }}-${{ github.sha }}
+        restore-keys: |
+          ${{ runner.os }}-turbo-${{ github.job }}-

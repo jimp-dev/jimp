@@ -8,7 +8,7 @@
 
 ## Custom Jimp
 
-If you want to extend jimp or omit types or functions visit [@jimp/custom](./packages/custom).
+If you want to extend jimp or omit types or functions visit [@jimp/custom](https://jimp-dev.github.io/jimp/guides/custom-jimp/).
 
 - Add file-types or switch encoder/decoders
 - Add add/remove plugins (image manipulation methods)
@@ -216,6 +216,7 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
   </tr>
   <tr>
     <td align="center"><a href="http://www.benmccann.com/"><img src="https://avatars.githubusercontent.com/u/322311?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Ben McCann</b></sub></a><br /><a href="https://github.com/jimp-dev/jimp/commits?author=benmccann" title="Code">💻</a></td>
+    <td align="center"><a href="https://ilyas.life/"><img src="https://avatars.githubusercontent.com/u/93825870?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Ilyas Landikov</b></sub></a><br /><a href="https://github.com/jimp-dev/jimp/commits?author=ilandikov" title="Code">💻</a></td>
   </tr>
 </table>
 
