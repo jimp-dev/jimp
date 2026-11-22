@@ -55,42 +55,11 @@ function parseFont(file: string, data: Buffer | string): LoadedFont {
   }
 
   if (/.xml$/.test(file) || data.charAt(0) === "<") {
-    return parseXML(data);
-  }
-
-  return parseASCII(data);
-}
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function parseNumbersInObject<T extends Record<string, any>>(obj: T) {
-  for (const key in obj) {
-    try {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (obj as any)[key] = parseInt(obj[key], 10);
-    } catch {
-      // do nothing
+    if (!isWebWorker) {
+      return parseXML(data);
     }
-
-    if (typeof obj[key] === "object") {
-      parseNumbersInObject(obj[key]);
-    }
-  }
-
-  return obj;
-}
-
-/**
- *
- * @param bufferOrUrl A URL to a file or a buffer
- * @returns
- */
-export async function loadBitmapFontData(
-  bufferOrUrl: string | Buffer
-): Promise<LoadedFont> {
-  if (isWebWorker && typeof bufferOrUrl === "string") {
-    const res = await fetch(bufferOrUrl);
-    const text = await res.text();
-    const json = convertXML(text);
+    
+    const json = convertXML(data);
 
     const font = json.font.children.reduce(
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -122,7 +91,38 @@ export async function loadBitmapFontData(
       chars,
       kernings,
     } satisfies LoadedFont;
-  } else if (typeof bufferOrUrl === "string") {
+  }
+
+  return parseASCII(data);
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function parseNumbersInObject<T extends Record<string, any>>(obj: T) {
+  for (const key in obj) {
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (obj as any)[key] = parseInt(obj[key], 10);
+    } catch {
+      // do nothing
+    }
+
+    if (typeof obj[key] === "object") {
+      parseNumbersInObject(obj[key]);
+    }
+  }
+
+  return obj;
+}
+
+/**
+ *
+ * @param bufferOrUrl A URL to a file or a buffer
+ * @returns
+ */
+export async function loadBitmapFontData(
+  bufferOrUrl: string | Buffer
+): Promise<LoadedFont> {
+  if (typeof bufferOrUrl === "string") {
     const res = await fetch(bufferOrUrl);
     const text = await res.text();
 
