@@ -10,6 +10,12 @@ import { Code } from "@astrojs/starlight/components";
 The default build of Jimp only includes image formats written in javascript.
 To utilize webp (and anything else we don't have a JS implementation for) we need to use format plugins and create a custom jimp.
 
+The WASM plugins aren't dependencies of `jimp`, so install the ones you need alongside `@jimp/core`:
+
+```sh
+npm install jimp @jimp/core @jimp/wasm-webp
+```
+
 ```ts
 import { createJimp } from "@jimp/core";
 import { defaultFormats, defaultPlugins } from "jimp";
@@ -36,17 +42,40 @@ const Jimp = createJimp({
 
 Since you're no longer using a pre-bundled version of jimp you need configure your bundler to handle the node code.
 
-For example in vite/astro you can use `vite-plugin-node-polyfills`.
+### Vite
+
+In vite/astro you can use `vite-plugin-node-polyfills` to polyfill `buffer`.
+Vite 7 and earlier also need some config for the WASM plugins:
 
 ```js
-
+import { defineConfig } from "vite";
 import { nodePolyfills } from "vite-plugin-node-polyfills";
 
 export default defineConfig({
   // You only need to polyfill buffer if you're using a browser
   plugins: [nodePolyfills({ include: ["buffer"] })],
+  // The @jsquash codecs load their wasm relative to their own files
+  optimizeDeps: {
+    exclude: [
+      "@jsquash/avif",
+      "@jsquash/jpeg",
+      "@jsquash/png",
+      "@jsquash/oxipng",
+      "@jsquash/webp",
+    ],
+  },
+  // Needed for @jimp/wasm-avif's multi-threaded encoder
+  worker: { format: "es" },
 });
 ```
+
+- `optimizeDeps.exclude`: Vite pre-bundles dependencies into `node_modules/.vite/deps`, which separates the codec code from the `.wasm` file it loads with `new URL("*.wasm", import.meta.url)`.
+  Without it, the dev server and vitest browser mode fail to load the wasm with errors like `both async and sync fetching of the wasm failed` or `expected magic word 00 61 73 6d`.
+  Only the packages used by the plugins you install need to be listed (`@jimp/wasm-png` uses both `@jsquash/png` and `@jsquash/oxipng`).
+- `worker.format`: only needed for `@jimp/wasm-avif`.
+  Its encoder runs in a worker and Vite's default `iife` worker format can't code-split, so `vite build` fails with `Invalid value "iife" for option "worker.format"` (`"output.format"` on Vite 5).
+
+Vite 8 handles both of these on its own, so there you only need the polyfill.
 
 ## All WASM Plugins
 

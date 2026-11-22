@@ -7,6 +7,10 @@ It also support optimizing the image using [oxipng](https://github.com/shssoichi
 
 ## Usage
 
+```sh
+npm install jimp @jimp/core @jimp/wasm-png
+```
+
 ```ts
 import { createJimp } from "@jimp/core";
 import { defaultPlugins } from "jimp";
@@ -18,3 +22,8 @@ const Jimp = createJimp({
   plugins: defaultPlugins,
 });
 ```
+
+## Bundler Setup
+
+Using this plugin in the browser with Vite 7 or earlier needs some extra config.
+See the [Vite section of the WASM plugins guide](https://jimp-dev.github.io/jimp/guides/webp/#vite).
