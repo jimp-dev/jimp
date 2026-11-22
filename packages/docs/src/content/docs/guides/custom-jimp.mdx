@@ -23,7 +23,7 @@ const MyJimp = createJimp({
 
 const image = await MyJimp.read("test/image.png");
 
-image.resize({ width: 100 });
+image.resize({ w: 100 });
 
 await image.write("test/output.png");
 ```
