@@ -93,7 +93,8 @@
   },
   "tshy": {
     "exclude": [
-      "**/*.test.ts"
+      "**/*.test.ts",
+      "**/*.test-d.ts"
     ],
     "esmDialects": [
       "browser"
