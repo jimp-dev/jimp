@@ -229,7 +229,7 @@ export const methods = {
    * import { Jimp } from "jimp";
    *
    * const image = await Jimp.read("test/image.png");
-   * const cropped = image.crop(150, 100);
+   * const cropped = image.crop({ x: 10, y: 10, w: 150, h: 100 });
    * ```
    */
   crop<I extends JimpClass>(image: I, options: CropOptions) {

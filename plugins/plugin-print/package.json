@@ -73,6 +73,16 @@
   },
   "main": "./dist/commonjs/index.js",
   "types": "./dist/commonjs/index.d.ts",
+  "typesVersions": {
+    "*": {
+      "load-font": [
+        "./dist/commonjs/load-font.d.ts"
+      ],
+      "fonts": [
+        "./dist/commonjs/fonts.d.ts"
+      ]
+    }
+  },
   "type": "module",
   "dependencies": {
     "@jimp/core": "workspace:*",
