@@ -35,8 +35,14 @@ export const methods = {
     } = ShadowOptionsSchema.parse(options);
 
     // clone the image
-    const orig = clone(image);
     let shadow = clone(image);
+    // turn all its pixels black, keeping their alpha, so the shadow is the
+    // image's silhouette rather than a copy of its colors
+    shadow.scan((_, __, idx) => {
+      shadow.bitmap.data[idx + 0] = 0x00;
+      shadow.bitmap.data[idx + 1] = 0x00;
+      shadow.bitmap.data[idx + 2] = 0x00;
+    });
     // enlarge it. This creates a "shadow".
     shadow = resizeMethods.resize(shadow, {
       w: image.bitmap.width * size,
@@ -53,8 +59,8 @@ export const methods = {
     });
 
     // Then blit the "shadow" onto the background and the image on top of that.
-    let result = composite(blankImage, orig, 0, 0);
-    result = composite(result, shadow, x, y);
+    let result = composite(blankImage, shadow, x, y);
+    result = composite(result, image, 0, 0);
 
     return result;
   },
