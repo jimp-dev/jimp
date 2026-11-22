@@ -7,4 +7,4 @@
 
 Rotates the image counter-clockwise by a number of degrees. By default the width and height of the image will be resized appropriately.
 
-- [rotate](http://jimp-dev.github.io/jimp/api/jimp/classes/jimp#rotate)
+- [rotate](https://jimp-dev.github.io/jimp/api/jimp/classes/jimp/#rotate)

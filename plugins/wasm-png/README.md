@@ -16,7 +16,7 @@ import { createJimp } from "@jimp/core";
 import { defaultPlugins } from "jimp";
 import png from "@jimp/wasm-png";
 
-// A custom jimp that supports webp
+// A custom jimp that uses the wasm png codec
 const Jimp = createJimp({
   formats: [png],
   plugins: defaultPlugins,

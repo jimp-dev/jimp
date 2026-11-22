@@ -7,4 +7,4 @@
 
 Masks a source image on to this image using average pixel colour. A completely black pixel on the mask will turn a pixel in the image completely transparent.
 
-- [mask](http://jimp-dev.github.io/jimp/api/jimp/classes/jimp#mask)
+- [mask](https://jimp-dev.github.io/jimp/api/jimp/classes/jimp/#mask)

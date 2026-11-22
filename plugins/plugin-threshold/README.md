@@ -7,4 +7,4 @@
 
 This is useful as a simplified method for processing scanned drawings, signatures, etc
 
-- [threshold](http://jimp-dev.github.io/jimp/api/jimp/classes/jimp#threshold)
+- [threshold](https://jimp-dev.github.io/jimp/api/jimp/classes/jimp/#threshold)
