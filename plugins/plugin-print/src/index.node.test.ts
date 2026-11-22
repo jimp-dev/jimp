@@ -435,6 +435,22 @@ describe("Write text over image", function () {
     expect(lines).toEqual([["xxxx"], ["yy"]]);
   });
 
+  test("line wrapping does not re-measure the whole line for every word", async () => {
+    const font = await loadFont(fonts.SANS_16_BLACK);
+    let lookups = 0;
+    const chars = new Proxy(font.chars, {
+      get(target, key, receiver) {
+        lookups++;
+        return Reflect.get(target, key, receiver);
+      },
+    });
+    const text = "n ".repeat(2000);
+
+    measureTextHeight({ ...font, chars }, text, Infinity);
+
+    expect(lookups).toBeLessThan(text.length * 10);
+  });
+
   test("text with newlines, default alignment", async () => {
     const textImage = await createTextImage(100, 240, fonts.SANS_16_BLACK, {
       text: "This \nis only \na \ntest.",
