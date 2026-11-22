@@ -43,10 +43,8 @@ For example in vite/astro you can use `vite-plugin-node-polyfills`.
 import { nodePolyfills } from "vite-plugin-node-polyfills";
 
 export default defineConfig({
-  plugins: [
-    // You only need to polyfill buffer if you're using a browser
-    plugins: [nodePolyfills({ include: ["buffer"] })],
-  ],
+  // You only need to polyfill buffer if you're using a browser
+  plugins: [nodePolyfills({ include: ["buffer"] })],
 });
 ```
 

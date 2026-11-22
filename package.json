@@ -1,7 +1,7 @@
 {
   "name": "jimp-monorepo",
   "private": true,
-  "packageManager": "pnpm@9.9.0",
+  "packageManager": "pnpm@12.21.0",
   "description": "The jimp monorepo.",
   "repository": "jimp-dev/jimp",
   "engines": {

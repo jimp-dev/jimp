@@ -1,6 +1,6 @@
 {
   "name": "@jimp/config-eslint",
-  "version": "1.6.0",
+  "version": "1.7.0",
   "license": "MIT",
   "private": true,
   "main": "base.js",
@@ -11,6 +11,7 @@
   "devDependencies": {
     "eslint-config-prettier": "^9.1.0",
     "eslint-config-turbo": "^2.1.1",
+    "eslint-plugin-turbo": "^2.1.1",
     "typescript": "^5.5.4"
   },
   "publishConfig": {},

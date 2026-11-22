@@ -3,6 +3,7 @@ import starlight from "@astrojs/starlight";
 import starlightTypeDoc, { typeDocSidebarGroup } from "starlight-typedoc";
 import react from "@astrojs/react";
 import path from "path";
+import { fileURLToPath } from "url";
 import { nodePolyfills } from "vite-plugin-node-polyfills";
 
 export default defineConfig({
@@ -15,6 +16,23 @@ export default defineConfig({
       social: {
         github: "https://github.com/jimp-dev/jimp",
       },
+      favicon: "/favicon.png",
+      head: [
+        {
+          tag: "meta",
+          attrs: {
+            property: "og:image",
+            content: "https://jimp-dev.github.io/jimp/share-banner.png",
+          },
+        },
+        {
+          tag: "meta",
+          attrs: {
+            name: "twitter:image",
+            content: "https://jimp-dev.github.io/jimp/share-banner.png",
+          },
+        },
+      ],
       sidebar: [
         {
           label: "Docs",
@@ -42,12 +60,12 @@ export default defineConfig({
             sort: ["static-first", "alphabetical"],
             plugin: [
               path.join(
-                path.dirname(import.meta.url).replace("file:", ""),
+                path.dirname(fileURLToPath(import.meta.url)),
                 "./src/typedoc-plugin.js"
               ),
               "typedoc-plugin-zod",
               path.join(
-                path.dirname(import.meta.url).replace("file:", ""),
+                path.dirname(fileURLToPath(import.meta.url)),
                 "./src/typedoc-zod-extended.js"
               ),
             ],
