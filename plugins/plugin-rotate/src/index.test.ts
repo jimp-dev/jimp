@@ -82,3 +82,70 @@ describe("Rotate a non-square image without resizing", () => {
     });
   });
 });
+
+describe("Rotate without resizing does not sample the wrong pixel", () => {
+  // Exact reference for the same mapping advancedRotate uses, with exact
+  // cos and sin for right angles.
+  function referenceRotate(w: number, h: number, data: Buffer, deg: number) {
+    const cos = Math.round(Math.cos((deg * Math.PI) / 180));
+    const sin = Math.round(Math.sin((deg * Math.PI) / 180));
+    const out = Buffer.alloc(w * h * 4);
+
+    for (let y = 1; y <= h; y++) {
+      for (let x = 1; x <= w; x++) {
+        const cx = x - w / 2;
+        const cy = y - h / 2;
+        const sx = cos * cx - sin * cy + w / 2 + 0.5;
+        const sy = cos * cy + sin * cx + h / 2 + 0.5;
+        const dst = (w * (y - 1) + x - 1) << 2;
+
+        if (sx >= 0 && sx < w && sy >= 0 && sy < h) {
+          const src = (w * Math.floor(sy) + Math.floor(sx)) << 2;
+          data.copy(out, dst, src, src + 4);
+        }
+      }
+    }
+
+    return out;
+  }
+
+  test.each([
+    [2, 5, -270],
+    [1, 4, -270],
+    [4, 7, -270],
+    [8, 11, -270],
+    [1, 2, 270],
+    [1, 2, 630],
+    [6, 5, 90],
+    [5, 2, 270],
+    [7, 4, -90],
+  ])("%ix%i: %i degrees", (w, h, deg) => {
+    const data = Buffer.alloc(w * h * 4);
+
+    for (let i = 0; i < w * h; i++) {
+      data.writeUInt32BE(((i + 1) * 0x01010100 + 0xff) >>> 0, i * 4);
+    }
+
+    const rotated = jimp
+      .fromBitmap({
+        width: w,
+        height: h,
+        data: Buffer.alloc(data.length, data),
+      })
+      .rotate({ deg, mode: false });
+
+    expect(rotated.bitmap.width).toBe(w);
+    expect(rotated.bitmap.height).toBe(h);
+    expect(rotated.bitmap.data).toEqual(referenceRotate(w, h, data, deg));
+  });
+
+  test("1x3: -315 degrees does not read past the end of the image", () => {
+    const image = jimp.fromBitmap({
+      width: 1,
+      height: 3,
+      data: Buffer.alloc(12, 0xff),
+    });
+
+    expect(() => image.rotate({ deg: -315, mode: false })).not.toThrow();
+  });
+});
