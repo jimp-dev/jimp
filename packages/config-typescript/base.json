@@ -8,6 +8,7 @@
     "incremental": false,
     "isolatedModules": true,
     "sourceMap": true,
+    "inlineSources": true,
     "lib": ["es2022", "DOM", "DOM.Iterable"],
     "module": "NodeNext",
     "moduleDetection": "force",
