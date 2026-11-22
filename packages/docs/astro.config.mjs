@@ -76,10 +76,5 @@ export default defineConfig({
   ],
   vite: {
     plugins: [nodePolyfills({ include: ["buffer"] })],
-    resolve: {
-      alias: {
-        "jimp": path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../jimp/dist/esm/index.js"),
-      },
-    },
   },
 });
