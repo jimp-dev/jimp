@@ -1,6 +1,6 @@
 {
   "name": "@jimp/plugin-quantize",
-  "version": "1.6.0",
+  "version": "1.7.0",
   "repository": "jimp-dev/jimp",
   "engines": {
     "node": ">=18"
@@ -59,7 +59,7 @@
   "sideEffects": false,
   "dependencies": {
     "image-q": "^4.0.0",
-    "zod": "^3.23.8"
+    "zod": "^4.6.7"
   },
   "module": "./dist/esm/index.js"
 }
