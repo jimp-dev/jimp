@@ -66,7 +66,7 @@ type JimpInstanceMethod<ClassInstance, MethodMap, Method> =
   Method extends JimpChainableMethod<infer Args>
     ? (
         ...args: Args
-      ) => JimpInstanceMethods<ClassInstance, MethodMap> & ClassInstance
+      ) => ClassInstance & JimpInstanceMethods<ClassInstance, MethodMap>
     : Method extends JimpMethod<infer Args, infer Return>
       ? (...args: Args) => Return
       : never;
@@ -149,6 +149,8 @@ export function createJimp<
     InstanceType<typeof CustomJimp>,
     UnionToIntersection<Methods[number]>
   >;
+  /** The image type made by the constructor, static readers and chainable methods */
+  type Instance = InstanceType<typeof CustomJimp> & ExtraMethodMap;
   type SupportedMimeTypes = ReturnType<Formats[number]>["mime"];
   type MimeTypeToExportOptions = CreateMimeTypeToExportOptions<
     ReturnType<Formats[number]>
@@ -234,7 +236,7 @@ export function createJimp<
     static async read(
       url: string | Buffer | ArrayBuffer,
       options?: MimeTypeToDecodeOptions
-    ) {
+    ): Promise<Instance> {
       if (Buffer.isBuffer(url) || url instanceof ArrayBuffer) {
         return this.fromBuffer(url, options);
       }
@@ -283,7 +285,7 @@ export function createJimp<
      * });
      * ```
      */
-    static fromBitmap(bitmap: RawImageData) {
+    static fromBitmap(bitmap: RawImageData): Instance {
       let data: Buffer | undefined;
 
       if (bitmap.data instanceof Buffer) {
@@ -322,7 +324,7 @@ export function createJimp<
         height: bitmap.height,
         width: bitmap.width,
         data,
-      }) as InstanceType<typeof CustomJimp> & ExtraMethodMap;
+      }) as Instance;
     }
 
     /**
@@ -340,7 +342,7 @@ export function createJimp<
     static async fromBuffer(
       buffer: Buffer | ArrayBuffer,
       options?: MimeTypeToDecodeOptions
-    ) {
+    ): Promise<Instance> {
       const actualBuffer =
         buffer instanceof ArrayBuffer ? bufferFromArrayBuffer(buffer) : buffer;
 
@@ -358,7 +360,7 @@ export function createJimp<
 
       const image = new CustomJimp(
         await format.decode(actualBuffer, options?.[format.mime])
-      ) as InstanceType<typeof CustomJimp> & ExtraMethodMap;
+      ) as Instance;
 
       image.mime = mime.mime;
 
@@ -504,8 +506,14 @@ export function createJimp<
      */
     async write<
       Extension extends string,
-      Mime extends GetMimeTypeForExtension<Extension, ExtensionToMimeType>,
-      Options extends GetOptionsForMimeType<Mime, MimeTypeToExportOptions>,
+      // Don't add a type parameter no argument uses (like a `Mime`) here. The
+      // emitted .d.ts repeats this class in several places and TypeScript
+      // can't relate those copies when a method has one, which makes images
+      // from `new Jimp()`, `Jimp.read()` and chained methods incompatible.
+      Options extends GetOptionsForMimeType<
+        GetMimeTypeForExtension<Extension, ExtensionToMimeType>,
+        MimeTypeToExportOptions
+      >,
     >(path: PathWithExtension<Extension>, options?: Options) {
       const mimeType = mime.getType(path);
       await writeFile(
@@ -527,10 +535,10 @@ export function createJimp<
      * const clone = image.clone();
      * ```
      */
-    clone<S extends typeof CustomJimp>(this: S) {
+    clone<S extends JimpClass>(this: S) {
       return new CustomJimp({
-        ...(this as any).bitmap,
-        data: Buffer.from((this as any).bitmap.data),
+        ...this.bitmap,
+        data: Buffer.from(this.bitmap.data),
       }) as unknown as S;
     }
 
@@ -785,3 +793,26 @@ export function createJimp<
 
   return CustomJimp as typeof CustomJimp & Constructor<ExtraMethodMap>;
 }
+
+/**
+ * The Jimp class that `createJimp` returns for the given plugins and formats.
+ *
+ * Annotate exported Jimp classes with this. Otherwise TypeScript copies the
+ * whole class into your .d.ts, and images from `new`, `read()` and chained
+ * methods stop being assignable to each other for consumers.
+ *
+ * @example
+ * ```ts
+ * import { createJimp, JimpClassFor } from "@jimp/core";
+ *
+ * const plugins = [crop.methods];
+ * const formats = [png];
+ *
+ * export const Jimp: JimpClassFor<typeof plugins, typeof formats> =
+ *   createJimp({ plugins, formats });
+ * ```
+ */
+export type JimpClassFor<
+  Methods extends JimpPlugin[],
+  Formats extends JimpFormat[],
+> = ReturnType<typeof createJimp<Methods, Formats>>;

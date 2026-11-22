@@ -29,7 +29,7 @@ import * as rotate from "@jimp/plugin-rotate";
 import * as threshold from "@jimp/plugin-threshold";
 import * as quantize from "@jimp/plugin-quantize";
 
-import { createJimp } from "@jimp/core";
+import { createJimp, JimpClassFor } from "@jimp/core";
 
 export const defaultPlugins = [
   blit.methods,
@@ -132,10 +132,13 @@ export const JimpMime = {
  * document.body.appendChild(canvas);
  * ```
  */
-export const Jimp = createJimp({
-  formats: defaultFormats,
-  plugins: defaultPlugins,
-});
+// The annotation keeps the emitted .d.ts from inlining a copy of the class,
+// which would make images from `new`, `read()` and chained methods unrelated.
+export const Jimp: JimpClassFor<typeof defaultPlugins, typeof defaultFormats> =
+  createJimp({
+    formats: defaultFormats,
+    plugins: defaultPlugins,
+  });
 
 export type JimpInstance = InstanceType<typeof Jimp>;
 
