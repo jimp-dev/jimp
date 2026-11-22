@@ -16,9 +16,22 @@ export default defineConfig({
         github: "https://github.com/jimp-dev/jimp",
       },
       favicon: "/favicon.png",
-      components: {
-        Head: "./src/overwrite-components/head.astro",
-      },
+      head: [
+        {
+          tag: "meta",
+          attrs: {
+            property: "og:image",
+            content: "https://jimp-dev.github.io/jimp/share-banner.png",
+          },
+        },
+        {
+          tag: "meta",
+          attrs: {
+            name: "twitter:image",
+            content: "https://jimp-dev.github.io/jimp/share-banner.png",
+          },
+        },
+      ],
       sidebar: [
         {
           label: "Docs",
