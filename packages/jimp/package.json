@@ -4,13 +4,7 @@
   "sideEffects": false,
   "description": "An image processing library written entirely in JavaScript.",
   "files": [
-    "browser.js",
-    "browser.js.map",
-    "dist",
-    "es",
-    "index.d.ts",
-    "fonts",
-    "types"
+    "dist"
   ],
   "repository": "jimp-dev/jimp",
   "engines": {
