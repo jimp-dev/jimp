@@ -828,6 +828,9 @@ importers:
       '@jimp/test-utils':
         specifier: workspace:*
         version: link:../../packages/test-utils
+      '@types/node':
+        specifier: ^18.19.48
+        version: 18.19.48
       '@vitest/browser':
         specifier: ^2.0.5
         version: 2.0.5(playwright@1.46.1)(typescript@5.5.4)(vitest@2.0.5)
@@ -842,10 +845,10 @@ importers:
         version: 5.5.4
       vite-plugin-node-polyfills:
         specifier: ^0.22.0
-        version: 0.22.0(rollup@4.21.2)(vite@5.4.2(@types/node@22.5.2)(terser@5.30.3))
+        version: 0.22.0(rollup@4.21.2)(vite@5.4.2(@types/node@18.19.48)(terser@5.30.3))
       vitest:
         specifier: ^2.0.5
-        version: 2.0.5(@types/node@22.5.2)(@vitest/browser@2.0.5)(terser@5.30.3)
+        version: 2.0.5(@types/node@18.19.48)(@vitest/browser@2.0.5)(terser@5.30.3)
 
   plugins/js-png:
     dependencies:
