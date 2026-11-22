@@ -36,24 +36,9 @@ A custom Jimp is bundled by your own bundler instead, so there are a few things 
 `@jimp/js-png` has a `browser` export condition that uses the browser build of `pngjs`.
 Bundlers that target the browser (Vite, webpack, esbuild, Rollup with `@rollup/plugin-node-resolve`'s `browser: true`) pick it up automatically, so you don't need to polyfill `stream`, `zlib` or `util`.
 
-`@jimp/core` and the format plugins use `Buffer`, which browsers don't provide.
-Make the [`buffer`](https://www.npmjs.com/package/buffer) package available as a global before you import Jimp:
-
-```ts
-// buffer-global.ts
-import { Buffer } from "buffer";
-
-globalThis.Buffer = Buffer;
-```
-
-```ts
-import "./buffer-global";
-
-import { createJimp } from "@jimp/core";
-import png from "@jimp/js-png";
-
-const MyJimp = createJimp({ formats: [png] });
-```
+Older versions of `@jimp/core` and the format plugins use the global `Buffer`, which browsers don't provide.
+If you see `ReferenceError: Buffer is not defined`, update your Jimp packages.
+If you can't update, set `globalThis.Buffer` from the [`buffer`](https://www.npmjs.com/package/buffer) package before you import Jimp.
 
 `@jimp/js-gif` depends on `gifwrap`, which imports `fs` for file helpers that Jimp doesn't use.
 Vite logs `Module "fs" has been externalized for browser compatibility` for it, and that warning is safe to ignore.
