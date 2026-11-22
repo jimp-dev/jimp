@@ -143,26 +143,24 @@ export const operations = {
       for (let j = 0; j < wDst2; j++) {
         // i in src coords, j in dst coords
 
-        // calculate x in src coords
+        // calculate x in src coords, aligned like bilinearInterpolation
         // this interpolation requires 4 sample points and the two inner ones must be real
         // the outer points can be fudged for the edges.
-        // therefore (wSrc-1)/wDst2
-        const x = (j * (wSrc - 1)) / wDst2;
+        // x is clamped to the last pixel, where t = 0 and the result is that pixel
+        const x = Math.min((j * wSrc) / wDst2, wSrc - 1);
         const xPos = Math.floor(x);
         const t = x - xPos;
         const srcPos = (i * wSrc + xPos) * 4;
+        // offset to the next pixel, 0 on the last column
+        const next = xPos < wSrc - 1 ? 4 : 0;
         const buf1Pos = (i * wDst2 + j) * 4;
 
         for (let k = 0; k < 4; k++) {
           const kPos = srcPos + k;
-          const x0 =
-            xPos > 0 ? bufSrc[kPos - 4] : 2 * bufSrc[kPos] - bufSrc[kPos + 4];
           const x1 = bufSrc[kPos];
-          const x2 = bufSrc[kPos + 4];
-          const x3 =
-            xPos < wSrc - 2
-              ? bufSrc[kPos + 8]
-              : 2 * bufSrc[kPos + 4] - bufSrc[kPos];
+          const x2 = bufSrc[kPos + next];
+          const x0 = xPos > 0 ? bufSrc[kPos - 4] : 2 * x1 - x2;
+          const x3 = xPos < wSrc - 2 ? bufSrc[kPos + 8] : 2 * x2 - x1;
           buf1[buf1Pos + k] = interpolate(x0, x1, x2, x3, t);
         }
       }
@@ -177,27 +175,23 @@ export const operations = {
       for (let j = 0; j < wDst2; j++) {
         // i&j in dst2 coords
 
-        // calculate y in buf1 coords
+        // calculate y in buf1 coords, aligned like bilinearInterpolation
         // this interpolation requires 4 sample points and the two inner ones must be real
         // the outer points can be fudged for the edges.
-        // therefore (hSrc-1)/hDst2
-        const y = (i * (hSrc - 1)) / hDst2;
+        // y is clamped to the last row, where t = 0 and the result is that row
+        const y = Math.min((i * hSrc) / hDst2, hSrc - 1);
         const yPos = Math.floor(y);
         const t = y - yPos;
         const buf1Pos = (yPos * wDst2 + j) * 4;
+        // offset to the next row, 0 on the last row
+        const next = yPos < hSrc - 1 ? wDst2 * 4 : 0;
         const buf2Pos = (i * wDst2 + j) * 4;
         for (let k = 0; k < 4; k++) {
           const kPos = buf1Pos + k;
-          const y0 =
-            yPos > 0
-              ? buf1[kPos - wDst2 * 4]
-              : 2 * buf1[kPos]! - buf1[kPos + wDst2 * 4]!;
-          const y1 = buf1[kPos];
-          const y2 = buf1[kPos + wDst2 * 4];
-          const y3 =
-            yPos < hSrc - 2
-              ? buf1[kPos + wDst2 * 8]
-              : 2 * buf1[kPos + wDst2 * 4]! - buf1[kPos]!;
+          const y1 = buf1[kPos]!;
+          const y2 = buf1[kPos + next]!;
+          const y0 = yPos > 0 ? buf1[kPos - wDst2 * 4] : 2 * y1 - y2;
+          const y3 = yPos < hSrc - 2 ? buf1[kPos + wDst2 * 8] : 2 * y2 - y1;
 
           buf2[buf2Pos + k] = interpolate(y0, y1, y2, y3, t);
         }
