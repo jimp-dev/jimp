@@ -35,7 +35,7 @@ const { Jimp } = require("jimp");
 // open a file called "lenna.png"
 const image = await Jimp.read("test.png");
 
-image.resize(256, 256); // resize
+image.resize({w: 256, h: 256}); // resize
 
 await image.write("test-small.jpg"); // save
 ```
