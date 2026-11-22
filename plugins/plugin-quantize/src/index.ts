@@ -58,8 +58,10 @@ export const methods = {
       imageQuantization,
     } = QuantizeOptionsSchema.parse(options);
 
+    // image-q reads the whole backing ArrayBuffer, so pass a copy that
+    // starts at offset 0 instead of a view into a possibly pooled Buffer
     const inPointContainer = utils.PointContainer.fromUint8Array(
-      new Uint8Array(image.bitmap.data.buffer),
+      new Uint8Array(image.bitmap.data),
       image.bitmap.width,
       image.bitmap.height
     );
