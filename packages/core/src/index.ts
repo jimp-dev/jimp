@@ -116,18 +116,22 @@ type JimpFormat<
   >,
 > = () => T;
 
-type CreateMimeTypeToExportOptions<T extends Format<string, any>> =
+// The helpers below are exported so that .d.ts files of packages using
+// `createJimp` (like `jimp`) can refer to them by name. If tsc can't name them
+// it expands them into a separate copy for each place the class type is
+// repeated, and TypeScript treats those copies as unrelated types.
+export type CreateMimeTypeToExportOptions<T extends Format<string, any>> =
   T extends Format<infer M, infer O> ? Record<M, O> : never;
-type CreateMimeTypeToDecodeOptions<T extends Format<string, any>> =
+export type CreateMimeTypeToDecodeOptions<T extends Format<string, any>> =
   T extends Format<infer M, any, infer O> ? Record<M, O> : never;
-type GetOptionsForMimeType<Mime extends string, MimeTypeMap> =
+export type GetOptionsForMimeType<Mime extends string, MimeTypeMap> =
   MimeTypeMap extends Record<Mime, infer O> ? O : never;
 
 type PathWithExtension<E extends string> = `${string}.${E}`;
 type MimeToExtension<M extends string> = `${string}/${M}`;
-type CreateExtensionToMimeType<M extends string> =
+export type CreateExtensionToMimeType<M extends string> =
   M extends MimeToExtension<infer E> ? Record<E, M> : never;
-type GetMimeTypeForExtension<Mime extends string, MimeTypeMap> =
+export type GetMimeTypeForExtension<Mime extends string, MimeTypeMap> =
   MimeTypeMap extends Record<Mime, infer M> ? M : never;
 
 /**
@@ -811,26 +815,3 @@ export function createJimp<
 
   return CustomJimp as typeof CustomJimp & Constructor<ExtraMethodMap>;
 }
-
-/**
- * The Jimp class that `createJimp` returns for the given plugins and formats.
- *
- * Annotate exported Jimp classes with this. Otherwise TypeScript copies the
- * whole class into your .d.ts, and images from `new`, `read()` and chained
- * methods stop being assignable to each other for consumers.
- *
- * @example
- * ```ts
- * import { createJimp, JimpClassFor } from "@jimp/core";
- *
- * const plugins = [crop.methods];
- * const formats = [png];
- *
- * export const Jimp: JimpClassFor<typeof plugins, typeof formats> =
- *   createJimp({ plugins, formats });
- * ```
- */
-export type JimpClassFor<
-  Methods extends JimpPlugin[],
-  Formats extends JimpFormat[],
-> = ReturnType<typeof createJimp<Methods, Formats>>;
