@@ -1,3 +1,4 @@
+import { Buffer } from "buffer";
 import { Bitmap, Format, JimpClass, Edge } from "@jimp/types";
 import { cssColorToHex, scan, scanIterator } from "@jimp/utils";
 import { to } from "await-to-js";
@@ -453,7 +454,15 @@ export function createJimp<
         composite(outputImage, this);
       }
 
-      return format.encode(outputImage.bitmap, options);
+      const data: Buffer | Uint8Array = await format.encode(
+        outputImage.bitmap,
+        options
+      );
+
+      // Some encoders (e.g. jpeg-js outside of CommonJS) return a plain Uint8Array
+      return Buffer.isBuffer(data)
+        ? data
+        : Buffer.from(data.buffer, data.byteOffset, data.byteLength);
     }
 
     /**

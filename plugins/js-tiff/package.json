@@ -56,6 +56,7 @@
   "dependencies": {
     "@jimp/core": "workspace:*",
     "@jimp/types": "workspace:*",
+    "buffer": "^6.0.3",
     "utif2": "^4.1.0"
   },
   "publishConfig": {

@@ -35,6 +35,7 @@
     "@jimp/core": "workspace:*",
     "@jimp/types": "workspace:*",
     "@jimp/utils": "workspace:*",
+    "buffer": "^6.0.3",
     "tinycolor2": "^1.6.0",
     "zod": "^4.6.7"
   },

@@ -1,3 +1,4 @@
+import { Buffer } from "buffer";
 import EXIFParser, { ExifData } from "exif-parser";
 import { JimpClass } from "@jimp/types";
 

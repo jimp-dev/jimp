@@ -1,3 +1,4 @@
+import { Buffer } from "buffer";
 import { ResizeStrategy, methods as resizeMethods } from "@jimp/plugin-resize";
 import { JimpClass } from "@jimp/types";
 import { clone } from "@jimp/utils";

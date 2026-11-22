@@ -40,20 +40,17 @@ const Jimp = createJimp({
 
 ## Browser Usage
 
-Since you're no longer using a pre-bundled version of jimp you need configure your bundler to handle the node code.
+Since you're no longer using a pre-bundled version of jimp your bundler has to handle the code written for node.
+Jimp's packages import `Buffer` from the `buffer` package, so you don't need a `Buffer` polyfill (see [Custom Jimp](/jimp/guides/custom-jimp#using-a-custom-jimp-outside-of-nodejs)).
 
 ### Vite
 
-In vite/astro you can use `vite-plugin-node-polyfills` to polyfill `buffer`.
-Vite 7 and earlier also need some config for the WASM plugins:
+Vite 7 and earlier need some config for the WASM plugins:
 
 ```js
 import { defineConfig } from "vite";
-import { nodePolyfills } from "vite-plugin-node-polyfills";
 
 export default defineConfig({
-  // You only need to polyfill buffer if you're using a browser
-  plugins: [nodePolyfills({ include: ["buffer"] })],
   // The @jsquash codecs load their wasm relative to their own files
   optimizeDeps: {
     exclude: [
@@ -75,7 +72,7 @@ export default defineConfig({
 - `worker.format`: only needed for `@jimp/wasm-avif`.
   Its encoder runs in a worker and Vite's default `iife` worker format can't code-split, so `vite build` fails with `Invalid value "iife" for option "worker.format"` (`"output.format"` on Vite 5).
 
-Vite 8 handles both of these on its own, so there you only need the polyfill.
+Vite 8 handles both of these on its own, so it doesn't need any config.
 
 ## All WASM Plugins
 

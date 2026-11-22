@@ -1,3 +1,4 @@
+import { Buffer } from "buffer";
 import { JimpClass } from "@jimp/types";
 import { z } from "zod";
 

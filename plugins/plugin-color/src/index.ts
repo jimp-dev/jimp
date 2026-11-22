@@ -1,3 +1,4 @@
+import { Buffer } from "buffer";
 import tinyColor from "tinycolor2";
 import { clone, limit255, scan } from "@jimp/utils";
 import { Edge, JimpClass, RGBColor } from "@jimp/types";
