@@ -138,6 +138,13 @@
   },
   "main": "./dist/commonjs/index.js",
   "types": "./dist/commonjs/index.d.ts",
+  "typesVersions": {
+    "*": {
+      "fonts": [
+        "./dist/commonjs/fonts.d.ts"
+      ]
+    }
+  },
   "type": "module",
   "publishConfig": {
     "access": "public"

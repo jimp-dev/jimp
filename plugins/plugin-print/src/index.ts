@@ -27,7 +27,7 @@ const PrintOptionsSchema = z.object({
   maxWidth: z.number().optional(),
   /** the boundary height to draw in */
   maxHeight: z.number().optional(),
-  /** a callback for when complete that ahs the end co-ordinates of the text */
+  /** a callback for when complete that has the end co-ordinates of the text */
   cb: z
     .function({ input: z.tuple([z.object({ x: z.number(), y: z.number() })]) })
     .optional(),
@@ -119,30 +119,33 @@ function printText<I extends JimpClass>(
 export const methods = {
   /**
    * Draws a text on a image on a given boundary
-   * @param font a bitmap font loaded from `Jimp.loadFont` command
-   * @param x the x position to start drawing the text
-   * @param y the y position to start drawing the text
-   * @param text the text to draw (string or object with `text`, `alignmentX`, and/or `alignmentY`)
+   * @param options the font, position and text to print
+   * @param options.font a bitmap font loaded with `loadFont`
+   * @param options.x the x position to start drawing the text
+   * @param options.y the y position to start drawing the text
+   * @param options.text the text to draw (string or object with `text`, `alignmentX`, and/or `alignmentY`)
+   * @param options.maxWidth the boundary width to draw in
+   * @param options.maxHeight the boundary height to draw in
+   * @param options.cb a callback for when complete that has the end co-ordinates of the text
    * @example
    * ```ts
-   * import { Jimp } from "jimp";
+   * import { Jimp, loadFont } from "jimp";
+   * import { SANS_32_BLACK } from "jimp/fonts";
    *
    * const image = await Jimp.read("test/image.png");
-   * const font = await Jimp.loadFont(Jimp.FONT_SANS_32_BLACK);
+   * const font = await loadFont(SANS_32_BLACK);
    *
    * image.print({ font, x: 10, y: 10, text: "Hello world!" });
    * ```
    */
   print<I extends JimpClass>(
     image: I,
-    {
-      font,
-      ...options
-    }: PrintOptions & {
+    options: PrintOptions & {
       /** the BMFont instance */
       font: BmFont<I>;
     }
   ) {
+    const { font, ...printOptions } = options;
     let {
       // eslint-disable-next-line prefer-const
       x,
@@ -154,7 +157,7 @@ export const methods = {
       maxHeight = Infinity,
       // eslint-disable-next-line prefer-const
       cb = () => {},
-    } = PrintOptionsSchema.parse(options);
+    } = PrintOptionsSchema.parse(printOptions);
 
     let alignmentX: HorizontalAlign;
     let alignmentY: VerticalAlign;

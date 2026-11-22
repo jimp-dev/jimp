@@ -16,9 +16,10 @@ export type MaskOptions = z.infer<typeof MaskOptionsSchema>;
 export const methods = {
   /**
    * Masks a source image on to this image using average pixel colour. A completely black pixel on the mask will turn a pixel in the image completely transparent.
-   * @param src the source Jimp instance
-   * @param x the horizontal position to blit the image
-   * @param y the vertical position to blit the image
+   * @param options the mask image, or an object with the mask image and its position
+   * @param options.src the source Jimp instance
+   * @param options.x the horizontal position to blit the image
+   * @param options.y the vertical position to blit the image
    * @example
    * ```ts
    * import { Jimp } from "jimp";
@@ -27,6 +28,9 @@ export const methods = {
    * const mask = await Jimp.read("test/mask.png");
    *
    * image.mask(mask);
+   *
+   * // or position the mask
+   * image.mask({ src: mask, x: 10, y: 10 });
    * ```
    */
   mask<I extends JimpClass>(image: I, options: MaskOptions) {

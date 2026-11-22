@@ -197,6 +197,32 @@ import { JimpMime } from "jimp";
 JimpMime.jpeg;
 ```
 
+## Fonts
+
+`Jimp.loadFont` has moved to a named export `loadFont`, and the `Jimp.FONT_*` constants have moved to named exports of `jimp/fonts` without the `FONT_` prefix.
+
+In v0 you would load and print with a font like this:
+
+```js
+import Jimp from "jimp";
+
+const font = await Jimp.loadFont(Jimp.FONT_SANS_32_BLACK);
+
+image.print(font, 10, 10, "Hello world!");
+```
+
+In v1:
+
+```js
+import { Jimp, loadFont } from "jimp";
+import { SANS_32_BLACK } from "jimp/fonts";
+
+const font = await loadFont(SANS_32_BLACK);
+
+image.print({ font, x: 10, y: 10, text: "Hello world!" });
+```
+
+For example `Jimp.FONT_SANS_128_WHITE` is now `SANS_128_WHITE` and `Jimp.FONT_SANS_16_BLACK` is now `SANS_16_BLACK`.
 
 ## Moved Functions
 
