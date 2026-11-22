@@ -5,5 +5,7 @@ export const readFile = async () => {
 };
 
 export const writeFile = async () => {
-  throw new Error("Not supported");
+  throw new Error(
+    "Jimp.write cannot write directly to a local path in the browser. Use getBuffer to retrieve the encoded image bytes."
+  );
 };
