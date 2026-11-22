@@ -40,64 +40,6 @@ export interface DecodeBmpOptions {
   maxResolutionInMP?: number;
 }
 
-const FILE_HEADER_SIZE = 14;
-const SUPPORTED_BIT_DEPTHS = [1, 4, 8, 16, 24, 32];
-
-/**
- * bmp-ts allocates width * height * 4 bytes straight from the header, so
- * check the header before handing the data to it.
- */
-function validateHeader(data: Buffer, maxResolutionInMP: number) {
-  if (data.length < FILE_HEADER_SIZE + 20) {
-    throw new Error("Invalid BMP file: header is truncated");
-  }
-
-  const headerSize = data.readUInt32LE(14);
-  const width = data.readInt32LE(18);
-  // Negative heights mean the rows are stored top-down
-  const height = Math.abs(data.readInt32LE(22));
-  const bitDepth = data.readUInt16LE(28);
-  const compression = data.readUInt32LE(30);
-
-  if (width <= 0 || height <= 0) {
-    throw new Error(`Invalid BMP dimensions ${width}x${height}`);
-  }
-
-  if (!SUPPORTED_BIT_DEPTHS.includes(bitDepth)) {
-    throw new Error(`Unsupported BMP bit depth ${bitDepth}`);
-  }
-
-  if (width * height > maxResolutionInMP * 1_000_000) {
-    throw new Error(
-      `BMP dimensions ${width}x${height} exceed the maximum resolution of ${maxResolutionInMP} megapixels`
-    );
-  }
-
-  const available = data.length - FILE_HEADER_SIZE - headerSize;
-  const isRle =
-    (compression === BMP.BmpCompression.BI_RLE8 && bitDepth === 8) ||
-    (compression === BMP.BmpCompression.BI_RLE4 && bitDepth === 4);
-
-  if (isRle) {
-    // A single run-length code is 2 bytes and expands to at most 255 pixels
-    if (width * height > Math.ceil(Math.max(available, 0) / 2) * 255) {
-      throw new Error(
-        `BMP data is too short for an RLE image of ${width}x${height}`
-      );
-    }
-  } else {
-    // Rows are padded to 4 bytes, except that the last row's padding can be missing
-    const stride = Math.ceil((width * bitDepth) / 32) * 4;
-    const required = stride * (height - 1) + Math.ceil((width * bitDepth) / 8);
-
-    if (required > available) {
-      throw new Error(
-        `BMP data is too short for an image of ${width}x${height} at ${bitDepth} bits per pixel`
-      );
-    }
-  }
-}
-
 function encode(image: Bitmap, options: EncodeOptions = {}) {
   scan(
     { bitmap: image },
@@ -121,12 +63,7 @@ function encode(image: Bitmap, options: EncodeOptions = {}) {
   return BMP.encode({ ...image, ...options }).data;
 }
 
-function decode(
-  data: Buffer,
-  { maxResolutionInMP = 100, ...options }: DecodeBmpOptions = {}
-) {
-  validateHeader(data, maxResolutionInMP);
-
+function decode(data: Buffer, options?: DecodeBmpOptions) {
   const result = BMP.decode(data, options);
 
   scan(
