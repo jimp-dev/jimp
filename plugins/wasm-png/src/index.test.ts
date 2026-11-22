@@ -1,5 +1,6 @@
 import { describe, expect, test } from "vitest";
 import { makeTestImage } from "@jimp/test-utils";
+import { createJimp } from "@jimp/core";
 
 import png from "./index.js";
 
@@ -26,5 +27,21 @@ describe("WASM PNG", () => {
   test("optimizes the encoded image", async () => {
     const buffer = await format.encode(image, { optimize: {} });
     expect((await format.decode(buffer)).width).toBe(image.width);
+  });
+
+  describe("getBuffer", () => {
+    const Jimp = createJimp({ formats: [png] });
+
+    test("encodes without options", async () => {
+      const jimp = Jimp.fromBitmap(image);
+      const decoded = await Jimp.read(await jimp.getBuffer("image/png"));
+      expect(decoded.width).toBe(image.width);
+    });
+
+    test("encodes with empty options", async () => {
+      const jimp = Jimp.fromBitmap(image);
+      const decoded = await Jimp.read(await jimp.getBuffer("image/png", {}));
+      expect(decoded.width).toBe(image.width);
+    });
   });
 });

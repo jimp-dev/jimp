@@ -1,5 +1,6 @@
 import { describe, expect, test } from "vitest";
 import { makeTestImage } from "@jimp/test-utils";
+import { createJimp } from "@jimp/core";
 
 import avif from "./index.js";
 
@@ -21,5 +22,21 @@ describe("WASM AVIF", () => {
     expect(decoded.width).toBe(image.width);
     expect(decoded.height).toBe(image.height);
     expect(decoded.data.length).toBe(image.width * image.height * 4);
+  });
+
+  describe("getBuffer", () => {
+    const Jimp = createJimp({ formats: [avif] });
+
+    test("encodes without options", async () => {
+      const jimp = Jimp.fromBitmap(image);
+      const decoded = await Jimp.read(await jimp.getBuffer("image/avif"));
+      expect(decoded.width).toBe(image.width);
+    });
+
+    test("encodes with empty options", async () => {
+      const jimp = Jimp.fromBitmap(image);
+      const decoded = await Jimp.read(await jimp.getBuffer("image/avif", {}));
+      expect(decoded.width).toBe(image.width);
+    });
   });
 });
