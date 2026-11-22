@@ -653,7 +653,12 @@ export function createJimp<
      * image.setPixelColor(0xff0000ff, 0, 0);
      * ```
      */
-    setPixelColor(hex: number, x: number, y: number) {
+    setPixelColor<S extends JimpClass>(
+      this: S,
+      hex: number,
+      x: number,
+      y: number
+    ): S {
       if (
         typeof hex !== "number" ||
         typeof x !== "number" ||
@@ -711,8 +716,9 @@ export function createJimp<
      * image.composite(image2, 3, 3);
      * ```
      */
-    composite<I extends typeof this>(
-      src: I,
+    composite<S extends JimpClass>(
+      this: S,
+      src: JimpClass,
       x = 0,
       y = 0,
       options: {
@@ -720,8 +726,9 @@ export function createJimp<
         opacitySource?: number;
         opacityDest?: number;
       } = {}
-    ) {
-      return composite(this, src, x, y, options);
+    ): S {
+      composite(this, src, x, y, options);
+      return this;
     }
 
     /**
@@ -743,21 +750,26 @@ export function createJimp<
      * });
      * ```
      */
-    scan(f: (x: number, y: number, idx: number) => any): this;
-    scan(
+    scan<S extends JimpClass>(
+      this: S,
+      f: (x: number, y: number, idx: number) => any
+    ): S;
+    scan<S extends JimpClass>(
+      this: S,
       x: number,
       y: number,
       w: number,
       h: number,
       cb: (x: number, y: number, idx: number) => any
-    ): this;
-    scan(
+    ): S;
+    scan<S extends JimpClass>(
+      this: S,
       x: number | ((x: number, y: number, idx: number) => any),
       y?: number,
       w?: number,
       h?: number,
       f?: (x: number, y: number, idx: number) => any
-    ): this {
+    ): S {
       return scan(this, x as any, y as any, w as any, h as any, f as any);
     }
 
@@ -778,7 +790,13 @@ export function createJimp<
      * }
      * ```
      */
-    scanIterator(x = 0, y = 0, w = this.bitmap.width, h = this.bitmap.height) {
+    scanIterator<S extends JimpClass>(
+      this: S,
+      x = 0,
+      y = 0,
+      w = this.bitmap.width,
+      h = this.bitmap.height
+    ) {
       if (typeof x !== "number" || typeof y !== "number") {
         throw new Error("x and y must be numbers");
       }

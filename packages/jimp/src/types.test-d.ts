@@ -50,6 +50,41 @@ describe("JimpInstance", () => {
     takesRead(takesInstance(new Jimp({ width: 1, height: 1 }).blur(1)));
   });
 
+  test("core methods that return the image keep its type when chained", () => {
+    const image = new Jimp({ width: 2, height: 2 });
+    const scanned = image.scan(() => {});
+    const scannedRegion = image.scan(0, 0, 1, 1, () => {});
+    const colored = image.setPixelColor(0xff0000ff, 0, 0);
+    const composited = image.composite(new Jimp({ width: 1, height: 1 }));
+
+    expectTypeOf(scanned).not.toBeAny();
+    expectTypeOf(scannedRegion).not.toBeAny();
+    expectTypeOf(colored).not.toBeAny();
+    expectTypeOf(composited).not.toBeAny();
+
+    let chained: JimpInstance = image
+      .scan(() => {})
+      .resize({ w: 1 })
+      .setPixelColor(0xff0000ff, 0, 0)
+      .composite(new Jimp({ width: 1, height: 1 }), 0, 0)
+      .greyscale();
+    chained = scanned;
+    chained = scannedRegion;
+    chained = colored;
+    chained = composited;
+    expectTypeOf(chained).not.toBeAny();
+
+    for (const pixel of image.scanIterator()) {
+      expectTypeOf(pixel.image).not.toBeAny();
+      expectTypeOf(pixel.image).toMatchTypeOf<JimpInstance>();
+    }
+
+    // @ts-expect-error unknown methods are rejected after chaining
+    image.scan(() => {}).notAMethod();
+    // @ts-expect-error composite needs a Jimp image
+    image.composite({});
+  });
+
   test("fromBitmap is not any (#1386)", () => {
     const image = Jimp.fromBitmap({ width: 1, height: 1, data: [0] });
 
