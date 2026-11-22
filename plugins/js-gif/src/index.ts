@@ -1,3 +1,4 @@
+import { Buffer } from "buffer";
 import GIF from "omggif";
 import { GifUtil, GifFrame, BitmapImage, GifCodec } from "gifwrap";
 import { Format } from "@jimp/types";

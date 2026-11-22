@@ -58,6 +58,7 @@
   },
   "sideEffects": false,
   "dependencies": {
+    "buffer": "^6.0.3",
     "image-q": "^4.0.0",
     "zod": "^4.6.7"
   },

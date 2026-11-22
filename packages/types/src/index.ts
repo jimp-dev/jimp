@@ -40,7 +40,8 @@ export interface RGBAColor {
 
 export const JimpClassSchema = z.object({
   bitmap: z.object({
-    data: z.union([z.instanceof(Buffer), z.instanceof(Uint8Array)]),
+    // Buffer is a Uint8Array subclass, and the Buffer global isn't available everywhere
+    data: z.instanceof(Uint8Array),
     width: z.number(),
     height: z.number(),
   }),

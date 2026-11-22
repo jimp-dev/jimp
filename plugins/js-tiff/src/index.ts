@@ -1,3 +1,4 @@
+import { Buffer } from "buffer";
 import utif, { TiffTag } from "utif2";
 import { Bitmap, Format } from "@jimp/types";
 

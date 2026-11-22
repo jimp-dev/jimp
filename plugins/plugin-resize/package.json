@@ -18,6 +18,7 @@
   "dependencies": {
     "@jimp/core": "workspace:*",
     "@jimp/types": "workspace:*",
+    "buffer": "^6.0.3",
     "zod": "^4.6.7"
   },
   "devDependencies": {

@@ -1,3 +1,4 @@
+import { Buffer } from "buffer";
 import decode, { init as initDecoder } from "@jsquash/jpeg/decode.js";
 import encode, { init as initEncoder } from "@jsquash/jpeg/encode.js";
 import { Format } from "@jimp/types";

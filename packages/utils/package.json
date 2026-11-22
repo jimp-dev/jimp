@@ -16,6 +16,7 @@
   "license": "MIT",
   "dependencies": {
     "@jimp/types": "workspace:*",
+    "buffer": "^6.0.3",
     "tinycolor2": "^1.6.0"
   },
   "devDependencies": {

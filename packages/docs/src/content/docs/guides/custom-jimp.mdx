@@ -28,7 +28,13 @@ image.resize({ w: 100 });
 await image.write("test/output.png");
 ```
 
-## Using a custom Jimp in the browser
+## Using a custom Jimp outside of Node.js
+
+Jimp's packages import `Buffer` from the [`buffer`](https://www.npmjs.com/package/buffer) package instead of relying on the Node.js global.
+In Node.js, Deno, and Bun this resolves to the built-in module, and bundlers targeting the browser use the npm package.
+So a custom Jimp works in browsers and in Cloudflare Workers without a `Buffer` polyfill.
+
+### Browsers
 
 The `jimp` package ships a pre-bundled browser build with everything it needs.
 A custom Jimp is bundled by your own bundler instead, so there are a few things to know.
@@ -42,3 +48,13 @@ If you can't update, set `globalThis.Buffer` from the [`buffer`](https://www.npm
 
 `@jimp/js-gif` depends on `gifwrap`, which imports `fs` for file helpers that Jimp doesn't use.
 Vite logs `Module "fs" has been externalized for browser compatibility` for it, and that warning is safe to ignore.
+
+### Cloudflare Workers
+
+A custom Jimp works in Workers without any extra configuration.
+The WASM format plugins (like `@jimp/wasm-webp`) don't currently load in Workers, though.
+If other dependencies in your worker need Node.js APIs, enable the [`nodejs_compat`](https://developers.cloudflare.com/workers/runtime-apis/nodejs/) compatibility flag:
+
+```toml title="wrangler.toml"
+compatibility_flags = ["nodejs_compat"]
+```

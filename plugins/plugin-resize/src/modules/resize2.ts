@@ -21,6 +21,8 @@
  * THE SOFTWARE.
  */
 
+import { Buffer } from "buffer";
+
 export const operations = {
   nearestNeighbor(src: any, dst: any) {
     const wSrc = src.width;
