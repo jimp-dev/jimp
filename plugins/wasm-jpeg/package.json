@@ -7,6 +7,8 @@
   },
   "scripts": {
     "lint": "eslint .",
+    "test": "vitest",
+    "test:browser": "vitest --config vitest.config.browser.mjs",
     "build": "tshy",
     "dev": "tshy --watch",
     "clean": "rm -rf node_modules .tshy .tshy-build dist .turbo"
@@ -16,14 +18,17 @@
   "devDependencies": {
     "@jimp/config-eslint": "workspace:*",
     "@jimp/config-typescript": "workspace:*",
+    "@jimp/config-vitest": "workspace:*",
     "@jimp/core": "workspace:*",
     "@jimp/plugin-color": "workspace:*",
     "@jimp/test-utils": "workspace:*",
     "@jimp/types": "workspace:*",
     "@types/node": "^18.19.48",
+    "@vitest/browser": "^2.0.5",
     "eslint": "^9.9.1",
     "tshy": "^3.0.2",
     "typescript": "^5.5.4",
+    "vite-plugin-node-polyfills": "^0.22.0",
     "vitest": "^2.0.5"
   },
   "tshy": {
@@ -33,6 +38,9 @@
     "dialects": [
       "esm"
     ],
+    "esmDialects": [
+      "browser"
+    ],
     "exports": {
       "./package.json": "./package.json",
       ".": "./src/index.ts"
@@ -41,6 +49,10 @@
   "exports": {
     "./package.json": "./package.json",
     ".": {
+      "browser": {
+        "types": "./dist/browser/index.d.ts",
+        "default": "./dist/browser/index.js"
+      },
       "import": {
         "types": "./dist/esm/index.d.ts",
         "default": "./dist/esm/index.js"
