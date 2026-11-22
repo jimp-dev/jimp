@@ -55,6 +55,11 @@ export function splitLines(font: BmFont, text: string, maxWidth: number) {
         }
       }
 
+      // Keep the rest of the word so following words continue after it.
+      if (current) {
+        currentLine.push(current);
+      }
+
       return;
     }
 
