@@ -5,4 +5,4 @@
   <p>Contain an image within a height and width.</p>
 </div>
 
-- [contain](http://jimp-dev.github.io/jimp/api/jimp/classes/jimp#contain)
+- [contain](https://jimp-dev.github.io/jimp/api/jimp/classes/jimp/#contain)

@@ -5,6 +5,6 @@
   <p>Crop an image.</p>
 </div>
 
-- [crop](http://jimp-dev.github.io/jimp/api/jimp/classes/jimp#crop)
-- [autocrop](http://jimp-dev.github.io/jimp/api/jimp/classes/jimp#autocrop)
-- [autocropRect](http://jimp-dev.github.io/jimp/api/jimp/classes/jimp#autocropRect)
+- [crop](https://jimp-dev.github.io/jimp/api/jimp/classes/jimp/#crop)
+- [autocrop](https://jimp-dev.github.io/jimp/api/jimp/classes/jimp/#autocrop)
+- [autocropRect](https://jimp-dev.github.io/jimp/api/jimp/classes/jimp/#autocroprect)

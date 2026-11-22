@@ -3,15 +3,29 @@
     src="https://s3.amazonaws.com/pix.iemoji.com/images/emoji/apple/ios-11/256/crayon.png">
   <h1>Jimp</h1>
   <p>JavaScript Image Manipulation Program</p>
-  <p>An image processing library for Node written entirely in JavaScript, with zero native dependencies</p>
+  <p>An image processing library for Node and the browser written entirely in JavaScript, with zero native dependencies</p>
 </div>
+
+## Usage
+
+```js
+import { Jimp } from "jimp";
+
+const image = await Jimp.read("test.png");
+
+image.resize({ w: 256 });
+
+await image.write("test-small.png");
+```
+
+[Read the full docs](https://jimp-dev.github.io/jimp/), or the [v1 migration guide](https://jimp-dev.github.io/jimp/guides/migrate-to-v1/) if you're upgrading from v0.
 
 ## Custom Jimp
 
-If you want to extend jimp or omit types or functions visit [@jimp/custom](https://jimp-dev.github.io/jimp/guides/custom-jimp/).
+If you want to extend jimp or omit types or functions, create a custom Jimp with `createJimp` from `@jimp/core`. See the [Custom Jimp guide](https://jimp-dev.github.io/jimp/guides/custom-jimp/).
 
 - Add file-types or switch encoder/decoders
-- Add add/remove plugins (image manipulation methods)
+- Add or remove plugins (image manipulation methods)
 
 ## Contributing
 

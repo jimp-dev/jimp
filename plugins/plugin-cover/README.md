@@ -5,4 +5,4 @@
   <p>Cover an image within a height and width.</p>
 </div>
 
-- [cover](http://jimp-dev.github.io/jimp/api/jimp/classes/jimp#cover)
+- [cover](https://jimp-dev.github.io/jimp/api/jimp/classes/jimp/#cover)

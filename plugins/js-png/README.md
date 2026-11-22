@@ -1,35 +1,27 @@
 <div align="center">
   <img width="200" height="200"
     src="https://s3.amazonaws.com/pix.iemoji.com/images/emoji/apple/ios-11/256/crayon.png">
-  <h1>@jimp/png</h1>
+  <h1>@jimp/js-png</h1>
   <p>Default Jimp png encoder/decoder.</p>
 </div>
 
-## Available Methods
+## Encoding options
 
-### Jimp.deflateLevel
-
-Sets the deflate level used when saving as PNG format (default is 9)
-
-### Jimp.deflateStrategy
-
-Sets the deflate strategy used when saving as PNG format (default is 3)
-
-### Jimp.filterType
-
-Sets the filter type used when saving as PNG format (default is automatic filters)
-
-### Jimp.colorType
-
-Sets the color type used when saving as PNG format (one of 0, 2, 4, 6)
-
-### Filter Types
+Pass PNG options to `getBuffer`, `getBase64` or `write`:
 
 ```js
-Jimp.PNG_FILTER_AUTO;
-Jimp.PNG_FILTER_NONE;
-Jimp.PNG_FILTER_SUB;
-Jimp.PNG_FILTER_UP;
-Jimp.PNG_FILTER_AVERAGE;
-Jimp.PNG_FILTER_PATH;
+import { Jimp, JimpMime, PNGColorType, PNGFilterType } from "jimp";
+
+const image = await Jimp.read("test.png");
+
+const buffer = await image.getBuffer(JimpMime.png, {
+  deflateLevel: 6,
+  filterType: PNGFilterType.NONE,
+  colorType: PNGColorType.COLOR,
+});
 ```
+
+- `deflateLevel` - the deflate level used when saving (default is 9)
+- `deflateStrategy` - the deflate strategy used when saving (default is 3)
+- `filterType` - a [`PNGFilterType`](https://jimp-dev.github.io/jimp/api/jimp/enumerations/pngfiltertype/) (default is `PNGFilterType.AUTO`)
+- `colorType` - a [`PNGColorType`](https://jimp-dev.github.io/jimp/api/jimp/enumerations/pngcolortype/) (default is `PNGColorType.COLOR_ALPHA`)

@@ -5,4 +5,4 @@
   <p>Reduces the number of colors in an image.</p>
 </div>
 
-- [quantize](http://jimp-dev.github.io/jimp/api/jimp/classes/jimp#quantize)
+- [quantize](https://jimp-dev.github.io/jimp/api/jimp/classes/jimp/#quantize)

@@ -7,5 +7,5 @@
 
 A fast blur algorithm that produces similar effect to a Gaussian blur - but MUCH quicker
 
-- [blur](http://jimp-dev.github.io/jimp/api/jimp/classes/jimp#blur)
-- [gaussian](http://jimp-dev.github.io/jimp/api/jimp/classes/jimp#gaussian)
+- [blur](https://jimp-dev.github.io/jimp/api/jimp/classes/jimp/#blur)
+- [gaussian](https://jimp-dev.github.io/jimp/api/jimp/classes/jimp/#gaussian)

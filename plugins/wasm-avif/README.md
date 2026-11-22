@@ -15,7 +15,7 @@ import { createJimp } from "@jimp/core";
 import { defaultPlugins } from "jimp";
 import avif from "@jimp/wasm-avif";
 
-// A custom jimp that supports webp
+// A custom jimp that supports avif
 const Jimp = createJimp({
   formats: [avif],
   plugins: defaultPlugins,

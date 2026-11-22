@@ -5,4 +5,4 @@
   <p>Creates a circle out of an image.</p>
 </div>
 
-- [circle](http://jimp-dev.github.io/jimp/api/jimp/classes/jimp#circle)
+- [circle](https://jimp-dev.github.io/jimp/api/jimp/classes/jimp/#circle)

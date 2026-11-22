@@ -7,4 +7,4 @@
 
 > Blit - a data operation commonly used in computer graphics in which several bitmaps are combined into one using a boolean function.
 
-[Read the docs](http://jimp-dev.github.io/jimp/api/jimp/classes/jimp#blit)
+[Read the docs](https://jimp-dev.github.io/jimp/api/jimp/classes/jimp/#blit)
