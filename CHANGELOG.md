@@ -1,3 +1,20 @@
+# v1.7.0 (Sat Nov 21 2026)
+
+:tada: This release contains work from a new contributor! :tada:
+
+Thank you, Ilyas Landikov ([@ilandikov](https://github.com/ilandikov)), for all your work!
+
+#### 🚀 Enhancement
+
+- `@jimp/types`, `@jimp/plugin-blit`, `@jimp/plugin-circle`, `@jimp/plugin-color`, `@jimp/plugin-contain`, `@jimp/plugin-cover`, `@jimp/plugin-crop`, `@jimp/plugin-displace`, `@jimp/plugin-fisheye`, `@jimp/plugin-flip`, `@jimp/plugin-mask`, `@jimp/plugin-print`, `@jimp/plugin-quantize`, `@jimp/plugin-resize`, `@jimp/plugin-rotate`, `@jimp/plugin-shadow`, `@jimp/plugin-threshold`, `@jimp/wasm-avif`, `@jimp/wasm-jpeg`, `@jimp/wasm-png`, `@jimp/wasm-webp`
+  - Migrate to Zod v4 [#1420](https://github.com/jimp-dev/jimp/pull/1420) ([@ilandikov](https://github.com/ilandikov))
+
+#### Authors: 1
+
+- Ilyas Landikov ([@ilandikov](https://github.com/ilandikov))
+
+---
+
 # v1.5.0 (Mon Sep 09 2024)
 
 ### Release Notes
