@@ -3,6 +3,8 @@ import encode, { init as initEncoder } from "@jsquash/avif/encode.js";
 import { Format } from "@jimp/types";
 import z from "zod";
 
+import { loadWasm } from "./load-wasm.js";
+
 const AvifOptionsSchema = z.object({
   colorSpace: z.union([z.literal("display-p3"), z.literal("srgb")]).optional(),
   chromaDeltaQ: z.boolean().optional().default(false),
@@ -22,6 +24,24 @@ const AvifOptionsSchema = z.object({
 
 type AvifOptions = z.infer<typeof AvifOptionsSchema>;
 
+let decoderReady: Promise<unknown> | undefined;
+let encoderReady: Promise<unknown> | undefined;
+
+function initDecoderOnce() {
+  decoderReady ??= loadWasm("@jsquash/avif/codec/dec/avif_dec.wasm").then(
+    initDecoder,
+  );
+  return decoderReady;
+}
+
+function initEncoderOnce() {
+  // @jsquash/avif only uses the multi-threaded encoder outside of Node
+  encoderReady ??= loadWasm("@jsquash/avif/codec/enc/avif_enc.wasm").then(
+    initEncoder,
+  );
+  return encoderReady;
+}
+
 export default function avif() {
   return {
     mime: "image/avif",
@@ -40,7 +60,7 @@ export default function avif() {
         tileRowsLog2,
         tune,
       } = AvifOptionsSchema.parse(options);
-      await initEncoder();
+      await initEncoderOnce();
       const arrayBuffer = await encode(
         {
           ...bitmap,
@@ -64,7 +84,7 @@ export default function avif() {
       return Buffer.from(arrayBuffer);
     },
     decode: async (data) => {
-      await initDecoder();
+      await initDecoderOnce();
       const result = await decode(new Uint8Array(data).buffer);
 
       return {

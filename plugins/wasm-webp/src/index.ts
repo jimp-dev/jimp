@@ -1,7 +1,10 @@
 import decode, { init as initDecoder } from "@jsquash/webp/decode.js";
 import encode, { init as initEncoder } from "@jsquash/webp/encode.js";
 import { Format } from "@jimp/types";
+import { simd } from "wasm-feature-detect";
 import z from "zod";
+
+import { loadWasm } from "./load-wasm.js";
 
 const WebpOptionsSchema = z.object({
   colorSpace: z.union([z.literal("display-p3"), z.literal("srgb")]).optional(),
@@ -101,93 +104,28 @@ const WebpOptionsSchema = z.object({
 
 type WebpOptions = z.infer<typeof WebpOptionsSchema>;
 
-const isNodeRuntime =
-  typeof process === "object" &&
-  typeof process.versions === "object" &&
-  typeof process.versions.node === "string";
+let decoderReady: Promise<unknown> | undefined;
+let encoderReady: Promise<unknown> | undefined;
 
-const nodeWasmModuleCache = new Map<string, Promise<WebAssembly.Module>>();
-let decoderInitPromise: Promise<unknown> | undefined;
-let encoderInitPromise: Promise<unknown> | undefined;
-
-async function supportsSimd() {
-  return WebAssembly.validate(
-    new Uint8Array([
-      0, 97, 115, 109, 1, 0, 0, 0, 1, 5, 1, 96, 0, 1, 123, 3, 2, 1, 0,
-      10, 10, 1, 8, 0, 65, 0, 253, 15, 253, 98, 11,
-    ])
+function initDecoderOnce() {
+  decoderReady ??= loadWasm("@jsquash/webp/codec/dec/webp_dec.wasm").then(
+    initDecoder,
   );
+  return decoderReady;
 }
 
-function resetPromiseOnError<T>(
-  promise: Promise<T>,
-  reset: () => void
-): Promise<T> {
-  return promise.catch((error) => {
-    reset();
-    throw error;
-  });
-}
-
-async function loadNodeWasmModule(specifier: string): Promise<WebAssembly.Module> {
-  const cachedModule = nodeWasmModuleCache.get(specifier);
-  if (cachedModule) {
-    return cachedModule;
-  }
-
-  const modulePromise = (async () => {
-    try {
-      const { readFile } = await import("node:fs/promises");
-      const { default: Module } = await import("node:module");
-
-      const require = Module.createRequire(import.meta.url);
-      const wasmPath = require.resolve(specifier);
-      return WebAssembly.compile(new Uint8Array(await readFile(wasmPath)));
-    } catch (error) {
-      nodeWasmModuleCache.delete(specifier);
-      throw error;
-    }
-  })();
-
-  nodeWasmModuleCache.set(specifier, modulePromise);
-  return modulePromise;
-}
-
-async function ensureDecoderInitialized() {
-  if (!decoderInitPromise) {
-    decoderInitPromise = resetPromiseOnError(
-      isNodeRuntime
-        ? initDecoder(
-            await loadNodeWasmModule("@jsquash/webp/codec/dec/webp_dec.wasm")
-          )
-        : initDecoder(),
-      () => {
-        decoderInitPromise = undefined;
-      }
-    );
-  }
-
-  return decoderInitPromise;
-}
-
-async function ensureEncoderInitialized() {
-  if (!encoderInitPromise) {
-    const encoderWasmSpecifier =
-      isNodeRuntime && (await supportsSimd())
-        ? "@jsquash/webp/codec/enc/webp_enc_simd.wasm"
-        : "@jsquash/webp/codec/enc/webp_enc.wasm";
-
-    encoderInitPromise = resetPromiseOnError(
-      isNodeRuntime
-        ? initEncoder(await loadNodeWasmModule(encoderWasmSpecifier))
-        : initEncoder(),
-      () => {
-        encoderInitPromise = undefined;
-      }
-    );
-  }
-
-  return encoderInitPromise;
+function initEncoderOnce() {
+  // Load the same encoder build @jsquash/webp picks for this runtime
+  encoderReady ??= simd()
+    .then((hasSimd) =>
+      loadWasm(
+        hasSimd
+          ? "@jsquash/webp/codec/enc/webp_enc_simd.wasm"
+          : "@jsquash/webp/codec/enc/webp_enc.wasm",
+      ),
+    )
+    .then(initEncoder);
+  return encoderReady;
 }
 
 export default function webp() {
@@ -224,7 +162,7 @@ export default function webp() {
         targetSize,
         colorSpace = "srgb",
       } = WebpOptionsSchema.parse(options);
-      await ensureEncoderInitialized();
+      await initEncoderOnce();
       const arrayBuffer = await encode(
         {
           ...bitmap,
@@ -264,7 +202,7 @@ export default function webp() {
       return Buffer.from(arrayBuffer);
     },
     decode: async (data) => {
-      await ensureDecoderInitialized();
+      await initDecoderOnce();
       const result = await decode(new Uint8Array(data).buffer);
 
       return {

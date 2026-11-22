@@ -1882,6 +1882,9 @@ importers:
       '@jimp/config-typescript':
         specifier: workspace:*
         version: link:../../packages/config-typescript
+      '@jimp/config-vitest':
+        specifier: workspace:*
+        version: link:../../packages/config-vitest
       '@jimp/core':
         specifier: workspace:*
         version: link:../../packages/core
@@ -1897,6 +1900,9 @@ importers:
       '@types/node':
         specifier: ^18.19.48
         version: 18.19.48
+      '@vitest/browser':
+        specifier: ^2.0.5
+        version: 2.0.5(playwright@1.46.1)(typescript@5.5.4)(vitest@2.0.5)
       eslint:
         specifier: ^9.9.1
         version: 9.9.1
@@ -1906,6 +1912,9 @@ importers:
       typescript:
         specifier: ^5.5.4
         version: 5.5.4
+      vite-plugin-node-polyfills:
+        specifier: ^0.22.0
+        version: 0.22.0(rollup@4.21.2)(vite@5.4.2(@types/node@18.19.48)(terser@5.30.3))
       vitest:
         specifier: ^2.0.5
         version: 2.0.5(@types/node@18.19.48)(@vitest/browser@2.0.5)(terser@5.30.3)
@@ -1925,6 +1934,9 @@ importers:
       '@jimp/config-typescript':
         specifier: workspace:*
         version: link:../../packages/config-typescript
+      '@jimp/config-vitest':
+        specifier: workspace:*
+        version: link:../../packages/config-vitest
       '@jimp/core':
         specifier: workspace:*
         version: link:../../packages/core
@@ -1940,6 +1952,9 @@ importers:
       '@types/node':
         specifier: ^18.19.48
         version: 18.19.48
+      '@vitest/browser':
+        specifier: ^2.0.5
+        version: 2.0.5(playwright@1.46.1)(typescript@5.5.4)(vitest@2.0.5)
       eslint:
         specifier: ^9.9.1
         version: 9.9.1
@@ -1949,6 +1964,9 @@ importers:
       typescript:
         specifier: ^5.5.4
         version: 5.5.4
+      vite-plugin-node-polyfills:
+        specifier: ^0.22.0
+        version: 0.22.0(rollup@4.21.2)(vite@5.4.2(@types/node@18.19.48)(terser@5.30.3))
       vitest:
         specifier: ^2.0.5
         version: 2.0.5(@types/node@18.19.48)(@vitest/browser@2.0.5)(terser@5.30.3)
@@ -1971,6 +1989,9 @@ importers:
       '@jimp/config-typescript':
         specifier: workspace:*
         version: link:../../packages/config-typescript
+      '@jimp/config-vitest':
+        specifier: workspace:*
+        version: link:../../packages/config-vitest
       '@jimp/core':
         specifier: workspace:*
         version: link:../../packages/core
@@ -1986,6 +2007,9 @@ importers:
       '@types/node':
         specifier: ^18.19.48
         version: 18.19.48
+      '@vitest/browser':
+        specifier: ^2.0.5
+        version: 2.0.5(playwright@1.46.1)(typescript@5.5.4)(vitest@2.0.5)
       eslint:
         specifier: ^9.9.1
         version: 9.9.1
@@ -1995,6 +2019,9 @@ importers:
       typescript:
         specifier: ^5.5.4
         version: 5.5.4
+      vite-plugin-node-polyfills:
+        specifier: ^0.22.0
+        version: 0.22.0(rollup@4.21.2)(vite@5.4.2(@types/node@18.19.48)(terser@5.30.3))
       vitest:
         specifier: ^2.0.5
         version: 2.0.5(@types/node@18.19.48)(@vitest/browser@2.0.5)(terser@5.30.3)
@@ -2004,6 +2031,9 @@ importers:
       '@jsquash/webp':
         specifier: ^1.4.0
         version: 1.4.0
+      wasm-feature-detect:
+        specifier: ^1.6.2
+        version: 1.6.2
       zod:
         specifier: ^4.6.7
         version: 4.6.7
@@ -2014,6 +2044,9 @@ importers:
       '@jimp/config-typescript':
         specifier: workspace:*
         version: link:../../packages/config-typescript
+      '@jimp/config-vitest':
+        specifier: workspace:*
+        version: link:../../packages/config-vitest
       '@jimp/core':
         specifier: workspace:*
         version: link:../../packages/core
@@ -2029,6 +2062,9 @@ importers:
       '@types/node':
         specifier: ^18.19.48
         version: 18.19.48
+      '@vitest/browser':
+        specifier: ^2.0.5
+        version: 2.0.5(playwright@1.46.1)(typescript@5.5.4)(vitest@2.0.5)
       eslint:
         specifier: ^9.9.1
         version: 9.9.1

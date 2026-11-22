@@ -3,13 +3,14 @@ import encode, { init as initEncoder } from "@jsquash/jpeg/encode.js";
 import { Format } from "@jimp/types";
 import z from "zod";
 
+import { loadWasm } from "./load-wasm.js";
+
 const JpegOptionsSchema = z.object({
   colorSpace: z.union([z.literal("display-p3"), z.literal("srgb")]).optional(),
-  jpegColorSpace: z.union([
-    z.literal("rgb"),
-    z.literal("grayscale"),
-    z.literal("ycbcr"),
-  ]),
+  jpegColorSpace: z
+    .union([z.literal("rgb"), z.literal("grayscale"), z.literal("ycbcr")])
+    .optional()
+    .default("ycbcr"),
   /**
    * Image quality, between 0 and 100.
    * For lossy, 0 gives the smallest size and 100 the largest.
@@ -37,6 +38,23 @@ const JpegOptionsSchema = z.object({
 
 type JpegOptions = z.infer<typeof JpegOptionsSchema>;
 
+let decoderReady: Promise<unknown> | undefined;
+let encoderReady: Promise<unknown> | undefined;
+
+function initDecoderOnce() {
+  decoderReady ??= loadWasm("@jsquash/jpeg/codec/dec/mozjpeg_dec.wasm").then(
+    initDecoder,
+  );
+  return decoderReady;
+}
+
+function initEncoderOnce() {
+  encoderReady ??= loadWasm("@jsquash/jpeg/codec/enc/mozjpeg_enc.wasm").then(
+    initEncoder,
+  );
+  return encoderReady;
+}
+
 export default function jpeg() {
   return {
     mime: "image/jpeg",
@@ -61,7 +79,7 @@ export default function jpeg() {
         trellisOptZero,
         jpegColorSpace,
       } = JpegOptionsSchema.parse(options);
-      await initEncoder();
+      await initEncoderOnce();
       const arrayBuffer = await encode(
         {
           ...bitmap,
@@ -96,7 +114,7 @@ export default function jpeg() {
       return Buffer.from(arrayBuffer);
     },
     decode: async (data) => {
-      await initDecoder();
+      await initDecoderOnce();
       const result = await decode(new Uint8Array(data).buffer);
 
       return {
