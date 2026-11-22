@@ -122,6 +122,8 @@ type CreateMimeTypeToDecodeOptions<T extends Format<string, any>> =
   T extends Format<infer M, any, infer O> ? Record<M, O> : never;
 type GetOptionsForMimeType<Mime extends string, MimeTypeMap> =
   MimeTypeMap extends Record<Mime, infer O> ? O : never;
+type ExportOptions<MimeTypeMap> =
+  MimeTypeMap extends Record<string, infer O> ? O : never;
 
 type PathWithExtension<E extends string> = `${string}.${E}`;
 type MimeToExtension<M extends string> = `${string}/${M}`;
@@ -506,8 +508,27 @@ export function createJimp<
       Extension extends string,
       Mime extends GetMimeTypeForExtension<Extension, ExtensionToMimeType>,
       Options extends GetOptionsForMimeType<Mime, MimeTypeToExportOptions>,
-    >(path: PathWithExtension<Extension>, options?: Options) {
+    >(path: PathWithExtension<Extension>, options?: Options): Promise<void>;
+    // Non-literal paths (path.join, user input) can't be narrowed to a format.
+    // The guard keeps literal paths with mismatched options from landing here.
+    async write<Path extends string>(
+      path: string extends Path ? Path : never,
+      options?: ExportOptions<MimeTypeToExportOptions>
+    ): Promise<void>;
+    async write<
+      Options extends GetOptionsForMimeType<
+        SupportedMimeTypes,
+        MimeTypeToExportOptions
+      >,
+    >(path: string, options?: Options) {
       const mimeType = mime.getType(path);
+
+      if (!mimeType) {
+        throw new Error(
+          `Cannot write "${path}": the path has no recognisable file extension to determine the image format`
+        );
+      }
+
       await writeFile(
         path,
         await this.getBuffer(mimeType as SupportedMimeTypes, options)
