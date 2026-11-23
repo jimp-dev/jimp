@@ -25,7 +25,7 @@ export const methods = {
   /**
    *  Adds a shadow to the image
    */
-  shadow<I extends JimpClass>(image: I, options: ShadowOptions = {}) {
+  shadow<I extends JimpClass>(image: I, options: ShadowOptions = {}): I {
     const {
       opacity: opacityAmount = 0.7,
       size = 1.1,
@@ -52,7 +52,7 @@ export const methods = {
     shadow = colorMethods.opacity(shadow, opacityAmount);
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const blankImage = new (image.constructor as any)({
+    const blankImage: I = new (image.constructor as any)({
       width: image.bitmap.width,
       height: image.bitmap.height,
       color: 0x00000000,

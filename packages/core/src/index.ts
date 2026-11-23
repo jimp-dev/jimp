@@ -67,7 +67,7 @@ type JimpInstanceMethod<ClassInstance, MethodMap, Method> =
   Method extends JimpChainableMethod<infer Args>
     ? (
         ...args: Args
-      ) => JimpInstanceMethods<ClassInstance, MethodMap> & ClassInstance
+      ) => ClassInstance & JimpInstanceMethods<ClassInstance, MethodMap>
     : Method extends JimpMethod<infer Args, infer Return>
       ? (...args: Args) => Return
       : never;
@@ -117,20 +117,24 @@ type JimpFormat<
   >,
 > = () => T;
 
-type CreateMimeTypeToExportOptions<T extends Format<string, any>> =
+// The helpers below are exported so that .d.ts files of packages using
+// `createJimp` (like `jimp`) can refer to them by name. If tsc can't name them
+// it expands them into a separate copy for each place the class type is
+// repeated, and TypeScript treats those copies as unrelated types.
+export type CreateMimeTypeToExportOptions<T extends Format<string, any>> =
   T extends Format<infer M, infer O> ? Record<M, O> : never;
-type CreateMimeTypeToDecodeOptions<T extends Format<string, any>> =
+export type CreateMimeTypeToDecodeOptions<T extends Format<string, any>> =
   T extends Format<infer M, any, infer O> ? Record<M, O> : never;
-type GetOptionsForMimeType<Mime extends string, MimeTypeMap> =
+export type GetOptionsForMimeType<Mime extends string, MimeTypeMap> =
   MimeTypeMap extends Record<Mime, infer O> ? O : never;
 type ExportOptions<MimeTypeMap> =
   MimeTypeMap extends Record<string, infer O> ? O : never;
 
 type PathWithExtension<E extends string> = `${string}.${E}`;
 type MimeToExtension<M extends string> = `${string}/${M}`;
-type CreateExtensionToMimeType<M extends string> =
+export type CreateExtensionToMimeType<M extends string> =
   M extends MimeToExtension<infer E> ? Record<E, M> : never;
-type GetMimeTypeForExtension<Mime extends string, MimeTypeMap> =
+export type GetMimeTypeForExtension<Mime extends string, MimeTypeMap> =
   MimeTypeMap extends Record<Mime, infer M> ? M : never;
 
 /**
@@ -152,6 +156,8 @@ export function createJimp<
     InstanceType<typeof CustomJimp>,
     UnionToIntersection<Methods[number]>
   >;
+  /** The image type made by the constructor, static readers and chainable methods */
+  type Instance = InstanceType<typeof CustomJimp> & ExtraMethodMap;
   type SupportedMimeTypes = ReturnType<Formats[number]>["mime"];
   type MimeTypeToExportOptions = CreateMimeTypeToExportOptions<
     ReturnType<Formats[number]>
@@ -237,7 +243,7 @@ export function createJimp<
     static async read(
       url: string | Buffer | ArrayBuffer,
       options?: MimeTypeToDecodeOptions
-    ) {
+    ): Promise<Instance> {
       if (Buffer.isBuffer(url) || url instanceof ArrayBuffer) {
         return this.fromBuffer(url, options);
       }
@@ -286,7 +292,7 @@ export function createJimp<
      * });
      * ```
      */
-    static fromBitmap(bitmap: RawImageData) {
+    static fromBitmap(bitmap: RawImageData): Instance {
       let data: Buffer | undefined;
 
       if (bitmap.data instanceof Buffer) {
@@ -325,7 +331,7 @@ export function createJimp<
         height: bitmap.height,
         width: bitmap.width,
         data,
-      }) as InstanceType<typeof CustomJimp> & ExtraMethodMap;
+      }) as Instance;
     }
 
     /**
@@ -343,7 +349,7 @@ export function createJimp<
     static async fromBuffer(
       buffer: Buffer | ArrayBuffer,
       options?: MimeTypeToDecodeOptions
-    ) {
+    ): Promise<Instance> {
       const actualBuffer =
         buffer instanceof ArrayBuffer ? bufferFromArrayBuffer(buffer) : buffer;
 
@@ -361,7 +367,7 @@ export function createJimp<
 
       const image = new CustomJimp(
         await format.decode(actualBuffer, options?.[format.mime])
-      ) as InstanceType<typeof CustomJimp> & ExtraMethodMap;
+      ) as Instance;
 
       image.mime = mime.mime;
 
@@ -557,10 +563,10 @@ export function createJimp<
      * const clone = image.clone();
      * ```
      */
-    clone<S extends typeof CustomJimp>(this: S) {
+    clone<S extends JimpClass>(this: S) {
       return new CustomJimp({
-        ...(this as any).bitmap,
-        data: Buffer.from((this as any).bitmap.data),
+        ...this.bitmap,
+        data: Buffer.from(this.bitmap.data),
       }) as unknown as S;
     }
 
@@ -675,7 +681,12 @@ export function createJimp<
      * image.setPixelColor(0xff0000ff, 0, 0);
      * ```
      */
-    setPixelColor(hex: number, x: number, y: number) {
+    setPixelColor<S extends JimpClass>(
+      this: S,
+      hex: number,
+      x: number,
+      y: number
+    ): S {
       if (
         typeof hex !== "number" ||
         typeof x !== "number" ||
@@ -733,8 +744,9 @@ export function createJimp<
      * image.composite(image2, 3, 3);
      * ```
      */
-    composite<I extends typeof this>(
-      src: I,
+    composite<S extends JimpClass>(
+      this: S,
+      src: JimpClass,
       x = 0,
       y = 0,
       options: {
@@ -742,8 +754,9 @@ export function createJimp<
         opacitySource?: number;
         opacityDest?: number;
       } = {}
-    ) {
-      return composite(this, src, x, y, options);
+    ): S {
+      composite(this, src, x, y, options);
+      return this;
     }
 
     /**
@@ -765,21 +778,26 @@ export function createJimp<
      * });
      * ```
      */
-    scan(f: (x: number, y: number, idx: number) => any): this;
-    scan(
+    scan<S extends JimpClass>(
+      this: S,
+      f: (x: number, y: number, idx: number) => any
+    ): S;
+    scan<S extends JimpClass>(
+      this: S,
       x: number,
       y: number,
       w: number,
       h: number,
       cb: (x: number, y: number, idx: number) => any
-    ): this;
-    scan(
+    ): S;
+    scan<S extends JimpClass>(
+      this: S,
       x: number | ((x: number, y: number, idx: number) => any),
       y?: number,
       w?: number,
       h?: number,
       f?: (x: number, y: number, idx: number) => any
-    ): this {
+    ): S {
       return scan(this, x as any, y as any, w as any, h as any, f as any);
     }
 
@@ -800,7 +818,13 @@ export function createJimp<
      * }
      * ```
      */
-    scanIterator(x = 0, y = 0, w = this.bitmap.width, h = this.bitmap.height) {
+    scanIterator<S extends JimpClass>(
+      this: S,
+      x = 0,
+      y = 0,
+      w = this.bitmap.width,
+      h = this.bitmap.height
+    ) {
       if (typeof x !== "number" || typeof y !== "number") {
         throw new Error("x and y must be numbers");
       }
