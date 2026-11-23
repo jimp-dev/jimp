@@ -319,6 +319,20 @@ describe("format options are still checked", () => {
     Jimp.fromBuffer(buffer, { "image/png": { checkCRC: false } });
     // @ts-expect-error unknown mime types are rejected
     Jimp.read("image.webp", { "image/webp": {} });
+    Jimp.read("image.jpg", {
+      exifRotate: false,
+      "image/jpeg": { maxMemoryUsageInMB: 1024 },
+      "image/png": { checkCRC: false },
+    });
+    Jimp.fromBuffer(buffer, { exifRotate: true });
+    Jimp.read("image.jpg", {});
+    // @ts-expect-error exifRotate is a boolean
+    Jimp.read("image.jpg", { exifRotate: "no" });
+    Jimp.read("image.jpg", {
+      exifRotate: false,
+      // @ts-expect-error each format's options are checked
+      "image/png": { checkCRC: "no" },
+    });
   });
 });
 

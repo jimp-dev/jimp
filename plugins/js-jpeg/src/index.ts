@@ -6,8 +6,10 @@ export interface JPEGOptions {
   /**
    * Write the EXIF data of the JPEG the image was read from (camera make and
    * model, resolution, date, GPS location, ...). Orientation is set to 1, as
-   * the pixels were already rotated on read, and the pixel dimensions are
-   * updated to the image's current size. The embedded thumbnail is dropped.
+   * the pixels were already rotated on read, unless the image was read with
+   * `exifRotate: false`, which keeps the original orientation. The pixel
+   * dimensions are updated to the image's current size and the embedded
+   * thumbnail is dropped.
    *
    * Off by default, as EXIF can contain private data such as the location.
    * @default false

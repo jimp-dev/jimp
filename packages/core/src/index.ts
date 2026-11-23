@@ -24,7 +24,7 @@ import type { ExifData } from "exif-parser";
 import { composite, CompositeSource } from "./utils/composite.js";
 import { BlendMode } from "./index.js";
 import {
-  attemptExifRotate,
+  readExif,
   getExifOrientation,
 } from "./utils/image-bitmap.js";
 import { copyExif, writeJpegExif } from "./utils/exif.js";
@@ -276,6 +276,28 @@ export type CreateMimeTypeToExportOptions<T extends Format<string, any>> =
 type DeclaredOptions<O> = string extends keyof NonNullable<O> ? undefined : O;
 export type CreateMimeTypeToDecodeOptions<T extends Format<string, any>> =
   T extends Format<infer M, any, infer O> ? Record<M, O> : never;
+
+/** Options for `Jimp.read` and `Jimp.fromBuffer` that apply to every format */
+export interface ReadOptions {
+  /**
+   * Rotate and flip the pixels to match the EXIF Orientation tag of a JPEG,
+   * as cameras store photos sideways and set the tag instead of rotating
+   * them. The tag is then set to 1, so it isn't applied twice.
+   *
+   * With `false` the pixels and the tag are kept as stored, so
+   * `getExifOrientation(image)` returns the original orientation and writing
+   * with `exif: true` keeps it, leaving viewers to rotate the image.
+   * @default true
+   */
+  exifRotate?: boolean;
+}
+/**
+ * The options `Jimp.read` and `Jimp.fromBuffer` take: `ReadOptions` and each
+ * format's decode options under its MIME type. Takes the result of
+ * `CreateMimeTypeToDecodeOptions`.
+ */
+export type CreateReadOptions<MimeTypeToDecodeOptions> = ReadOptions &
+  Partial<UnionToIntersection<MimeTypeToDecodeOptions>>;
 export type GetOptionsForMimeType<Mime extends string, MimeTypeMap> =
   MimeTypeMap extends Record<Mime, infer O> ? O : never;
 type ExportOptions<MimeTypeMap> =
@@ -350,6 +372,7 @@ export function createJimp<
   type MimeTypeToDecodeOptions = CreateMimeTypeToDecodeOptions<
     ReturnType<Formats[number]>
   >;
+  type JimpReadOptions = CreateReadOptions<MimeTypeToDecodeOptions>;
   type ExtensionToMimeType = CreateExtensionToMimeType<SupportedMimeTypes>;
 
   const plugins = pluginsArg || [];
@@ -451,11 +474,21 @@ export function createJimp<
      *
      * // Read a file picked in the browser
      * const image = await Jimp.read(input.files[0]);
+     *
+     * // Keep a JPEG's pixels as stored instead of rotating them to match its
+     * // EXIF orientation, and pass options to the JPEG decoder
+     * const image = await Jimp.read("photo.jpg", {
+     *   exifRotate: false,
+     *   "image/jpeg": { maxMemoryUsageInMB: 1024 },
+     * });
      * ```
+     * @param url the URL, path or data to read
+     * @param options `exifRotate` and each format's decode options, keyed by
+     * MIME type. See `ReadOptions`.
      */
     static async read(
       url: string | ImageInput,
-      options?: MimeTypeToDecodeOptions
+      options?: JimpReadOptions
     ): Promise<Instance> {
       if (typeof url !== "string") {
         return this.fromBuffer(url, options);
@@ -525,6 +558,8 @@ export function createJimp<
      *
      * @param buffer Encoded image data: a Buffer, ArrayBuffer, Uint8Array (or
      * other ArrayBuffer view) or Blob
+     * @param options `exifRotate` and each format's decode options, keyed by
+     * MIME type, as for `read`
      * @example
      * ```ts
      * import { Jimp } from "jimp";
@@ -536,7 +571,7 @@ export function createJimp<
      */
     static async fromBuffer(
       buffer: ImageInput,
-      options?: MimeTypeToDecodeOptions
+      options?: JimpReadOptions
     ): Promise<Instance> {
       const actualBuffer = await toBuffer(buffer);
 
@@ -553,12 +588,15 @@ export function createJimp<
       }
 
       const image = new CustomJimp(
-        await format.decode(actualBuffer, options?.[format.mime])
+        await format.decode(
+          actualBuffer,
+          (options as Record<string, any> | undefined)?.[format.mime]
+        )
       ) as Instance;
 
       image.mime = mime.mime;
 
-      attemptExifRotate(image, actualBuffer);
+      readExif(image, actualBuffer, { rotate: options?.exifRotate ?? true });
       image.iccProfile = readIccProfile(actualBuffer);
 
       return image;

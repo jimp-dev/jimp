@@ -58,6 +58,15 @@ const image = await Jimp.fromBuffer(buffer);
 const blank = new Jimp({ width: 256, height: 256, color: 0xffffffff });
 ```
 
+JPEGs are rotated to match their EXIF orientation when they're read, so photos taken in portrait come out upright. Pass `exifRotate: false` to keep the pixels as stored. Decode options for a format go under its MIME type:
+
+```js
+const image = await Jimp.read("photo.jpg", {
+  exifRotate: false,
+  "image/jpeg": { maxMemoryUsageInMB: 1024 },
+});
+```
+
 Most methods take an options object rather than positional arguments:
 
 ```js

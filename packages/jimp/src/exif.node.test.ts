@@ -2,7 +2,7 @@ import { expect, test, describe } from "vitest";
 import "@jimp/test-utils/image-snapshot";
 
 import { getExifOrientation } from "@jimp/core";
-import { Jimp, distance } from "./index.js";
+import { Jimp, diff, distance } from "./index.js";
 
 function imageWithOrientation(orientation: number) {
   const imageName = `Landscape_${orientation}.jpg`;
@@ -51,6 +51,99 @@ describe("EXIF orientation", () => {
       );
     });
   }
+});
+
+describe("exifRotate: false", () => {
+  const landscape = (orientation: number) =>
+    __dirname + `/images/exif-orientation/Landscape_${orientation}.jpg`;
+
+  for (let orientation = 1; orientation <= 8; orientation++) {
+    test(`keeps the pixels as stored when EXIF orientation is ${orientation}`, async () => {
+      const rotated = await Jimp.read(landscape(orientation));
+      const stored = await Jimp.read(landscape(orientation), {
+        exifRotate: false,
+      });
+
+      // 5-8 are stored with width and height swapped
+      if (orientation > 4) {
+        expect(stored.width).toBe(rotated.height);
+        expect(stored.height).toBe(rotated.width);
+      } else {
+        expect(stored.width).toBe(rotated.width);
+        expect(stored.height).toBe(rotated.height);
+      }
+
+      if (orientation === 1) {
+        expect(stored.bitmap.data).toEqual(rotated.bitmap.data);
+      } else {
+        expect(stored.bitmap.data).not.toEqual(rotated.bitmap.data);
+      }
+
+      expect(getExifOrientation(stored)).toBe(orientation);
+      expect(getExifOrientation(rotated)).toBe(1);
+    });
+
+    test(`writes EXIF orientation ${orientation} back with the exif option`, async () => {
+      const stored = await Jimp.read(landscape(orientation), {
+        exifRotate: false,
+      });
+      const output = await stored.getBuffer("image/jpeg", { exif: true });
+      const written = await Jimp.read(output, { exifRotate: false });
+
+      expect(exifOf(written)?.tags?.Orientation).toBe(orientation);
+      expect(written.width).toBe(stored.width);
+      expect(written.height).toBe(stored.height);
+
+      // Reading the output with the default rotates it like the original
+      const original = await Jimp.read(landscape(orientation));
+      const reread = await Jimp.read(output);
+
+      expect(reread.width).toBe(original.width);
+      expect(reread.height).toBe(original.height);
+      expect(diff(reread, original).percent).toBeLessThan(0.05);
+    });
+  }
+
+  test("is the same as the default for images without EXIF data", async () => {
+    const png = await new Jimp({
+      width: 3,
+      height: 2,
+      color: 0xff0000ff,
+    }).getBuffer("image/png");
+    const image = await Jimp.fromBuffer(png, { exifRotate: false });
+
+    expect(image.width).toBe(3);
+    expect(image.height).toBe(2);
+    expect(getExifOrientation(image)).toBe(1);
+  });
+
+  test("keeps the EXIF data and ICC profile of a camera photo", async () => {
+    // Canon_240dpi_6.jpg with a Display P3 profile
+    const image = await Jimp.read(
+      __dirname + "/images/icc-profile/Canon_240dpi_6_p3.jpg",
+      { exifRotate: false },
+    );
+
+    expect(image.width).toBe(150);
+    expect(image.height).toBe(200);
+    expect(image.colorSpace).toBe("display-p3");
+
+    const clone = image.clone().resize({ w: 75 });
+    const written = await Jimp.read(
+      await clone.getBuffer("image/jpeg", { exif: true }),
+      { exifRotate: false },
+    );
+
+    expect(exifOf(written)?.tags).toMatchObject({
+      Make: "Canon",
+      Orientation: 6,
+      ExifImageWidth: 75,
+      ExifImageHeight: 100,
+    });
+    expect(written.width).toBe(75);
+    expect(written.height).toBe(100);
+    expect(written.colorSpace).toBe("display-p3");
+  });
 });
 
 interface ParsedExif {
