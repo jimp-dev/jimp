@@ -31,14 +31,15 @@ Jimp detects the image's type and passes only the matching options to its decode
 import { Jimp } from "jimp";
 
 const image = await Jimp.read("huge-photo.jpg", {
-  "image/jpeg": { maxResolutionInMP: 200, maxMemoryUsageInMB: 1024 },
-  "image/gif": { maxResolutionInMP: 200 },
-  "image/tiff": { maxResolutionInMP: 200 },
-  "image/bmp": { maxResolutionInMP: 200 },
+  "image/jpeg": { maxResolutionInMP: 150, maxMemoryUsageInMB: 4096 },
+  "image/gif": { maxResolutionInMP: 150 },
+  "image/tiff": { maxResolutionInMP: 150 },
+  "image/bmp": { maxResolutionInMP: 150 },
 });
 ```
 
 The keys and option names are typed: TypeScript only accepts options for the formats your `Jimp` class supports.
+The same object also takes [`exifRotate`](/jimp/guides/exif/#turning-auto-rotation-off), which isn't a size option and applies to every format.
 
 ## Options by format
 
@@ -54,7 +55,19 @@ A 100 megapixel limit allows a 10,000 × 10,000 image.
 | `tolerantDecoding`   | `true`  | Decode corrupt or truncated files as far as possible instead of throwing.                     |
 | `colorTransform`     | auto    | Whether to convert from YCbCr to RGB. By default this is chosen from the image's color model. |
 
-A large JPEG can hit `maxMemoryUsageInMB` before `maxResolutionInMP`, so raise both when needed.
+A large JPEG usually hits `maxMemoryUsageInMB` before `maxResolutionInMP`, so raise both.
+The decoder counts its working buffers as well as the pixels, which can come to about 21 MB per megapixel.
+The default of 512 MB is enough for about 24 megapixels, and a 100 megapixel JPEG needs more than 2,048 MB:
+
+| Largest JPEG to read | `maxResolutionInMP` | `maxMemoryUsageInMB` |
+| -------------------- | ------------------- | -------------------- |
+| 24 megapixels        | `100` (default)     | `512` (default)      |
+| 40 megapixels        | `100` (default)     | `1024`               |
+| 100 megapixels       | `100` (default)     | `4096`               |
+| 150 megapixels       | `150`               | `4096`               |
+| 250 megapixels       | `250`               | `8192`               |
+
+The limit isn't memory Jimp sets aside: a JPEG only uses what it needs, so a higher limit doesn't slow down smaller images. It does let larger files through, so keep it as low as your images allow if you read untrusted uploads.
 
 ### GIF (`image/gif`)
 
@@ -82,9 +95,45 @@ PNG has no size limit.
 | ---------- | ------- | ------------------------------------------ |
 | `checkCRC` | `true`  | Throw if a chunk's checksum doesn't match. |
 
-### WASM formats
+### ICO (`image/x-icon`)
 
-The [WASM format plugins](/jimp/guides/webp/) (`@jimp/wasm-avif`, `@jimp/wasm-jpeg`, `@jimp/wasm-png` and `@jimp/wasm-webp`) take no decode options, and Jimp applies no size limit to them.
+ICO has no size limit. Its options pick which image in the file to decode:
+
+| Option  | Default | Description                                                                                                      |
+| ------- | ------- | ---------------------------------------------------------------------------------------------------------------- |
+| `size`  | none    | Decode the smallest image whose longest side is at least this many pixels, or the largest if they're all smaller. |
+| `index` | none    | Decode the image at this position in the file.                                                                  |
+
+Without either, the largest image is decoded.
+
+### JPEG 2000 (`image/jp2`, `image/j2c`, `image/jpx`)
+
+The [`@jimp/wasm-jpeg2000`](/jimp/guides/webp/#jpeg-2000) plugin can decode a large image at a lower resolution without decoding it in full:
+
+| Option              | Default | Description                                                                                       |
+| ------------------- | ------- | ------------------------------------------------------------------------------------------------- |
+| `maxResolutionInMP` | `100`   | Largest image, in megapixels, that will be decoded, after `reduce`.                               |
+| `reduce`            | `0`     | Decode at a lower resolution. Each step halves the width and height, so `3` decodes at 1/8 size. |
+| `layers`            | `0`     | Decode only the first quality layers, for a quick lower-quality preview. `0` decodes all of them. |
+
+```ts title="example.ts"
+// A 400 megapixel scan, decoded at 1/4 of the width and height (25 megapixels)
+const preview = await Jimp.read("huge-scan.jp2", { "image/jp2": { reduce: 2 } });
+```
+
+### SVG (`image/svg+xml`)
+
+The [`@jimp/wasm-svg`](/jimp/guides/webp/#svg) plugin renders the SVG at the size it sets, or at the size you ask for:
+
+| Option              | Default         | Description                                                                         |
+| ------------------- | --------------- | ----------------------------------------------------------------------------------- |
+| `maxResolutionInMP` | `100`           | Largest image, in megapixels, that will be rendered. Checked before rendering.      |
+| `width`, `height`   | the SVG's size  | Render at this width or height, keeping the aspect ratio.                           |
+| `scale`             | `1`             | Render at a multiple of the SVG's size.                                             |
+
+### Other WASM formats
+
+The other [WASM format plugins](/jimp/guides/webp/) (`@jimp/wasm-avif`, `@jimp/wasm-jpeg`, `@jimp/wasm-png` and `@jimp/wasm-webp`) take no decode options, and Jimp applies no size limit to them.
 
 ## When an image is too large
 
@@ -97,6 +146,8 @@ When an image is over a limit, decoding throws before any pixel memory is alloca
 | GIF    | `GIF dimensions <w>x<h> exceed the maximum resolution of <n> megapixels`          |
 | TIFF   | `TIFF dimensions <w>x<h> exceed the maximum resolution of <n> megapixels`         |
 | BMP    | `BMP dimensions <w>x<h> exceed the maximum resolution of <n> megapixels`          |
+| JPEG 2000 | `JPEG 2000 dimensions <w>x<h> exceed the maximum resolution of <n> megapixels. Use the reduce option to decode it at a lower resolution.` |
+| SVG    | `SVG dimensions <w>x<h> exceed the maximum resolution of <n> megapixels. Use the width, height or scale option to render it smaller.` |
 
 If your app accepts uploads, keep the defaults (or lower them) and turn the error into a friendly message:
 
@@ -106,7 +157,7 @@ import { Jimp } from "jimp";
 async function readUpload(data: ArrayBuffer) {
   try {
     return await Jimp.fromBuffer(data, {
-      "image/jpeg": { maxResolutionInMP: 40 },
+      "image/jpeg": { maxResolutionInMP: 40, maxMemoryUsageInMB: 1024 },
       "image/gif": { maxResolutionInMP: 40 },
       "image/tiff": { maxResolutionInMP: 40 },
       "image/bmp": { maxResolutionInMP: 40 },

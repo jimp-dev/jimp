@@ -18,7 +18,7 @@ export default [
     icon: "formats",
     group: "io",
     description:
-      "Encode the image in a format and decode it again, to see what the format keeps: JPEG quality loss, GIF's 256 colors, lost transparency.",
+      "Encode the image in a format and decode it again, to see what the format keeps: JPEG quality loss, GIF's 256 colors, lost transparency, ICO's 256 pixel limit.",
     controls: [
       {
         type: "select",
@@ -28,6 +28,7 @@ export default [
           { value: "image/png", label: "PNG" },
           { value: "image/gif", label: "GIF" },
           { value: "image/bmp", label: "BMP" },
+          { value: "image/x-icon", label: "ICO" },
         ],
       },
       {
@@ -82,6 +83,9 @@ export default [
         );
       } else if (format === "image/gif") {
         encoded = await image.getBuffer("image/gif");
+      } else if (format === "image/x-icon") {
+        // Images larger than 256 x 256 are scaled down to fit
+        encoded = await image.getBuffer("image/x-icon");
       } else {
         encoded = await image.getBuffer("image/bmp");
       }

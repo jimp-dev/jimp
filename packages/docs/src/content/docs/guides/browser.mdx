@@ -48,7 +48,7 @@ The browser build at `dist/browser/index.js` is a self-contained ES module, so y
 <img id="output" alt="" />
 
 <script type="module">
-  import { Jimp } from "https://cdn.jsdelivr.net/npm/jimp@1/dist/browser/index.js";
+  import { Jimp } from "https://cdn.jsdelivr.net/npm/jimp@2/dist/browser/index.js";
 
   const image = await Jimp.read("/images/photo.jpg");
 
@@ -58,8 +58,8 @@ The browser build at `dist/browser/index.js` is a self-contained ES module, so y
 </script>
 ```
 
-The same file is on unpkg at `https://unpkg.com/jimp@1/dist/browser/index.js`.
-`jimp@1` always loads the latest v1 release. Pin an exact version, such as `jimp@1.7.0`, so an update never changes your page.
+The same file is on unpkg at `https://unpkg.com/jimp@2/dist/browser/index.js`.
+`jimp@2` always loads the latest 2.x release. Pin an exact version, such as `jimp@2.0.0`, so an update never changes your page.
 
 The `jimp/fonts` export isn't part of the bundle and can't be imported from a CDN. Load fonts by URL instead; see [Fonts](#fonts).
 
@@ -89,8 +89,7 @@ A failed fetch rejects with `Could not load Buffer from URL: <url>`, and an erro
 
 ### From a file input
 
-A `File` from an `<input type="file">` or a drop event has an `arrayBuffer()` method.
-Pass the result to [`Jimp.fromBuffer`](/jimp/methods/from-buffer/):
+A `File` from an `<input type="file">` or a drop event is a `Blob`, so you can pass it to [`Jimp.fromBuffer`](/jimp/methods/from-buffer/) or [`Jimp.read`](/jimp/methods/read/) directly:
 
 ```html title="index.html"
 <input type="file" accept="image/*" id="picker" />
@@ -107,7 +106,7 @@ picker.addEventListener("change", async () => {
   const file = picker.files?.[0];
   if (!file) return;
 
-  const image = await Jimp.fromBuffer(await file.arrayBuffer());
+  const image = await Jimp.fromBuffer(file);
 
   image.resize({ w: 600 }).greyscale();
 
@@ -116,6 +115,7 @@ picker.addEventListener("change", async () => {
 ```
 
 `Jimp.fromBuffer` detects the format from the file's contents, so it doesn't matter what the file is called.
+Passing a `Blob` directly was added in 2.0; with older versions, pass `await file.arrayBuffer()`.
 If the user picks a format Jimp can't read, such as WebP, it rejects with `Mime type image/webp does not support decoding`. Add the format with a [WASM plugin](/jimp/guides/webp/) to support it.
 
 ## Show and download the result
@@ -155,7 +155,7 @@ That makes moving pixels between them cheap.
 
 <Steps>
 
-1. Read the canvas pixels with `getImageData` and wrap them with [`Jimp.fromBitmap`](/jimp/methods/from-bitmap/). Unlike `Jimp.read`, `fromBitmap` is synchronous.
+1. Read the canvas pixels with `getImageData` and pass them to [`Jimp.fromBitmap`](/jimp/methods/from-bitmap/). Unlike `Jimp.read`, `fromBitmap` is synchronous. It copies the pixels, so the `ImageData` isn't changed by later edits.
 
    ```ts title="main.ts"
    import { Jimp } from "jimp";
@@ -191,10 +191,24 @@ That makes moving pixels between them cheap.
 To get pixels from an `<img>` element or an `ImageBitmap`, draw it on a canvas with `drawImage` first, then read the canvas as above.
 The image must be on the same site or served with CORS headers, or the canvas is "tainted" and `getImageData` throws.
 
-<Aside type="note">
-  `Jimp.fromBitmap` wraps a `Uint8ClampedArray` without copying it, so methods
-  that edit pixels in place can change the `ImageData` you passed in. Pass
-  `new Uint8ClampedArray(imageData.data)` instead if you need to keep it.
+`fromBitmap` checks that the data has exactly `width * height * 4` bytes, as the `ImageData` constructor does, and throws otherwise.
+
+To skip the copy in step 3, wrap the image's own memory in the `ImageData` instead:
+
+```ts title="main.ts"
+const { data } = image.bitmap;
+
+const imageData = new ImageData(
+  new Uint8ClampedArray(data.buffer, data.byteOffset, data.length),
+  image.width,
+  image.height,
+);
+```
+
+<Aside type="caution" title="The ImageData shares the image's memory">
+  Without the copy, edits to the image change the `ImageData` too, until a
+  method such as `resize` or `crop` replaces the image's bitmap. Draw it right
+  away, and create a new one after the next edit.
 </Aside>
 
 See [Colors and pixels](/jimp/concepts/colors-and-pixels/) for the bitmap layout and for reading and writing single pixels.
@@ -204,7 +218,7 @@ See [Colors and pixels](/jimp/concepts/colors-and-pixels/) for the bitmap layout
 The `SANS_*` constants in `jimp/fonts` are file paths for Node.js, so they don't work in the browser.
 In the browser, [`loadFont`](/jimp/methods/load-font/) fetches the font by URL. A font is a `.fnt` file plus one or more `.png` pages, which are loaded from the same directory as the `.fnt` file.
 
-You can host the bundled Open Sans fonts yourself. They're in `node_modules/@jimp/plugin-print/fonts/open-sans/`, one folder per size and color (`open-sans-8-black` to `open-sans-128-white`).
+You can host the bundled Open Sans fonts yourself. They're in `node_modules/@jimp/plugin-print/dist/fonts/open-sans/`, one folder per size and color (`open-sans-8-black` to `open-sans-128-white`).
 Copy the folders you need into your public directory, then load them by URL:
 
 ```ts title="main.ts"
@@ -220,7 +234,7 @@ For a quick prototype you can load them from a CDN instead, as the `@jimp/plugin
 
 ```ts title="main.ts"
 const font = await loadFont(
-  "https://cdn.jsdelivr.net/npm/@jimp/plugin-print@1/fonts/open-sans/open-sans-32-black/open-sans-32-black.fnt",
+  "https://cdn.jsdelivr.net/npm/@jimp/plugin-print@2/dist/fonts/open-sans/open-sans-32-black/open-sans-32-black.fnt",
 );
 ```
 

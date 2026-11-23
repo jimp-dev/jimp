@@ -14,19 +14,30 @@ Use it as a canvas to draw on: a background to [`composite`](/jimp/methods/compo
 ## Signature
 
 ```ts title="Jimp.d.ts"
-new Jimp(options: { width: number; height: number; color?: number | string })
-new Jimp(bitmap: { width: number; height: number; data: Buffer })
+new Jimp(options: {
+  width: number;
+  height: number;
+  color?: number | string;
+  colorSpace?: "srgb" | "display-p3";
+})
+new Jimp(bitmap: {
+  width: number;
+  height: number;
+  data: Buffer | Uint8Array | Uint8ClampedArray | number[];
+  colorSpace?: "srgb" | "display-p3";
+})
 ```
 
 The constructor is synchronous and returns the new image.
 
 ## Options
 
-| Option   | Type               | Default      | Description                                                                                                 |
-| -------- | ------------------ | ------------ | ----------------------------------------------------------------------------------------------------------- |
-| `width`  | `number`           | required     | Width in pixels.                                                                                            |
-| `height` | `number`           | required     | Height in pixels.                                                                                           |
-| `color`  | `number \| string` | `0x00000000` | Fill color: an RGBA number such as `0xff0000ff`, or a CSS color string such as `"#ff0000"`, `"red"` or `"rgba(255, 0, 0, 0.5)"`. The default is transparent. |
+| Option       | Type                       | Default      | Description                                                                                                                                                      |
+| ------------ | -------------------------- | ------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `width`      | `number`                   | required     | Width in pixels.                                                                                                                                                 |
+| `height`     | `number`                   | required     | Height in pixels.                                                                                                                                                |
+| `color`      | `number \| string`         | `0x00000000` | Fill color: an RGBA number such as `0xff0000ff`, or a CSS color string such as `"#ff0000"`, `"red"` or `"rgba(255, 0, 0, 0.5)"`. The default is transparent. |
+| `colorSpace` | `"srgb" \| "display-p3"`   | `"srgb"`     | The image's color space. A Display P3 image can hold more saturated colors and is written with a Display P3 profile. See [Color Spaces](/jimp/guides/color-spaces/). |
 
 The options type is [`JimpSimpleConstructorOptions`](/jimp/api/jimp/interfaces/jimpsimpleconstructoroptions/).
 
@@ -47,7 +58,7 @@ await card.write("card.png");
 
 ### Colors as strings
 
-Strings are parsed as CSS colors, so named colors and `rgb()`/`rgba()` work as well as hex:
+Strings are parsed as CSS colors with [`cssColorToHex`](/jimp/methods/css-color-to-hex/), so named colors and `rgb()`/`rgba()` work as well as hex:
 
 ```ts title="example.ts"
 const red = new Jimp({ width: 10, height: 10, color: "red" });
@@ -57,10 +68,33 @@ const transparent = new Jimp({ width: 10, height: 10 });
 red.getPixelColor(0, 0).toString(16); // "ff0000ff"
 ```
 
+A string that isn't a valid color throws:
+
+```ts title="example.ts"
+new Jimp({ width: 10, height: 10, color: "nope" }); // Error: Invalid color "nope"
+```
+
+### A Display P3 canvas
+
+Pass `colorSpace: "display-p3"` to create an image in Display P3, for example to draw on an iPhone photo without converting it.
+CSS colors are sRGB, as in a browser, so they're converted to the image's space; `color(display-p3 r g b)` gives a Display P3 color directly:
+
+```ts title="example.ts"
+const red = new Jimp({
+  width: 256,
+  height: 256,
+  color: "color(display-p3 1 0 0)", // the most saturated red Display P3 can show
+  colorSpace: "display-p3",
+});
+
+await red.write("red.png"); // with a Display P3 profile
+```
+
 ### From an existing bitmap
 
-You can also pass a bitmap object with a `Buffer` of RGBA bytes. The image uses that `Buffer` as is, without copying it.
-To convert other array types, or to work on a copy, use [`Jimp.fromBitmap`](/jimp/methods/from-bitmap/).
+You can also pass a bitmap object with RGBA data, as for [`Jimp.fromBitmap`](/jimp/methods/from-bitmap/).
+A `Buffer` is used as is, without copying it, so the image and your code share it. Any other type of `data` is copied.
+To always work on a copy, use `Jimp.fromBitmap`.
 
 ```ts title="example.ts"
 const data = Buffer.alloc(16 * 16 * 4, 0xff); // white, opaque
@@ -70,12 +104,15 @@ const image = new Jimp({ width: 16, height: 16, data });
 ## Notes
 
 - **Colors are RGBA numbers.** A number is read as `0xRRGGBBAA`, so `0xff0000` is a fully transparent color, not red. Write the alpha byte too: `0xff0000ff`. See [Colors and pixels](/jimp/concepts/colors-and-pixels/).
+- **Numbers aren't converted.** A number is a pixel value in the image's own color space, so on a Display P3 image `0xff0000ff` is Display P3's red. Only CSS strings are converted.
 - **`color` also sets the background.** The fill color is stored in [`image.background`](/jimp/concepts/reading-and-writing/#image-properties). [`rotate`](/jimp/methods/rotate/) and [`contain`](/jimp/methods/contain/) fill new space with it, and formats without transparency, like JPEG, are drawn over it when you encode.
-- **Unknown color names become opaque black.** A string that isn't a valid CSS color doesn't throw; it gives `0x000000ff`.
+- **Bitmap data is checked.** With `data`, its length must be exactly `width * height * 4` bytes, or the constructor throws, as [`Jimp.fromBitmap`](/jimp/methods/from-bitmap/#notes) does.
 - **Sizes aren't validated.** Use positive whole numbers. A negative size throws a `RangeError` from `Buffer.alloc`, and a fractional one produces a broken image.
 - **No format.** A new image has no `mime`. Choose the output format when you call [`write`](/jimp/methods/write/) or [`getBuffer`](/jimp/methods/get-buffer/).
-- **v0 difference.** Jimp v0 took positional arguments, `new Jimp(256, 256, 0xffffffff)`, and callbacks. v1 only takes an options object.
+- **Added in 2.0:** the `colorSpace` option, and `Uint8Array`, `Uint8ClampedArray` and `ImageData` as `data`.
+- **Changed in 2.0:** an invalid color string throws `Invalid color "<color>"`. Before, it became opaque black.
+- **v0 difference.** Jimp v0 took positional arguments, `new Jimp(256, 256, 0xffffffff)`, and callbacks. v1 and later only take an options object.
 
 ## Related
 
-<Related methods={["Jimp.fromBitmap", "Jimp.read", "composite", "print", "setPixelColor", "clone"]} />
+<Related methods={["Jimp.fromBitmap", "Jimp.read", "composite", "print", "cssColorToHex", "toColorSpace"]} />
