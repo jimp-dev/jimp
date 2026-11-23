@@ -9,7 +9,8 @@ const jimp = createJimp({ formats: [bmp, png] });
 
 /**
  * Build a BMP with a BITMAPINFOHEADER, optional color masks (for
- * BI_BITFIELDS and BI_ALPHA_BITFIELDS) and an optional palette
+ * BI_BITFIELDS and BI_ALPHA_BITFIELDS), an optional palette and optional
+ * bytes between the palette and the pixel data
  */
 function createBmp({
   width,
@@ -18,6 +19,7 @@ function createBmp({
   compression = 0,
   masks = [],
   palette = [],
+  gap = [],
   pixels,
 }: {
   width: number;
@@ -26,10 +28,11 @@ function createBmp({
   compression?: number;
   masks?: number[];
   palette?: number[];
+  gap?: number[];
   pixels: number[];
 }) {
   const paletteOffset = 14 + 40 + masks.length * 4;
-  const offset = paletteOffset + palette.length * 4;
+  const offset = paletteOffset + palette.length * 4 + gap.length;
   const buffer = Buffer.alloc(offset + pixels.length);
 
   buffer.write("BM", 0);
@@ -47,6 +50,7 @@ function createBmp({
   palette.forEach((color, i) =>
     buffer.writeUInt32LE(color, paletteOffset + i * 4)
   );
+  buffer.set(gap, offset - gap.length);
   buffer.set(pixels, offset);
 
   return buffer;
@@ -136,6 +140,37 @@ describe("BMP", () => {
     expect(image.getPixelColor(3, 0)).toBe(0x000000ff);
     expect(image.getPixelColor(3, 1)).toBe(0xff0000ff);
   });
+
+  test.each([
+    [
+      "an uncompressed",
+      { bitDepth: 24, pixels: [0, 0, 0xff, 0, 0, 0xff, 0, 0, 0xff, 0, 0, 0] },
+    ],
+    [
+      "an RLE8",
+      // 3 x color 1, end of line, end of bitmap
+      { bitDepth: 8, compression: 1, pixels: [3, 1, 0, 0, 0, 1] },
+    ],
+  ])(
+    "reads the pixel data of %s BMP from the offset in the header",
+    async (_, image) => {
+      const decoded = await jimp.read(
+        createBmp({
+          width: 3,
+          height: 1,
+          palette: [0x000000, 0xff0000],
+          // Not red when read as 24 bit pixels, and the end of the bitmap
+          // when read as RLE8
+          gap: [0, 1, 0xff, 0, 0, 0xff, 0, 0],
+          ...image,
+        })
+      );
+
+      expect(decoded.getPixelColor(0, 0)).toBe(0xff0000ff);
+      expect(decoded.getPixelColor(1, 0)).toBe(0xff0000ff);
+      expect(decoded.getPixelColor(2, 0)).toBe(0xff0000ff);
+    }
+  );
 
   test("rejects an RLE8 BMP whose dimensions don't fit its data", async () => {
     // The header claims 10000x10000 but there is no pixel data at all
