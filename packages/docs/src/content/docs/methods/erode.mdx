@@ -1,0 +1,98 @@
+---
+title: "erode()"
+description: "Grow dark areas by taking the darkest pixel in each neighborhood."
+category: effects
+method: "erode"
+plugin: "@jimp/plugin-morphology"
+---
+
+import Playground from "../../../components/playground/Playground";
+import Related from "../../../components/Related.astro";
+
+`erode` sets each pixel to the darkest value within `radius` pixels of it.
+Dark areas grow, and bright details smaller than the neighborhood disappear. Use it to thicken dark text and lines, or to shrink the white area of a mask.
+
+## Signature
+
+```ts title="erode.d.ts"
+image.erode(options: { radius: number; shape?: "square" | "disk" }): this
+```
+
+`erode` changes the image in place and returns it, so you can chain more calls after it.
+The options type is exported from `jimp` as `MorphologyOptions`.
+
+## Options
+
+| Option   | Type                   | Default    | Description                                                                                                                  |
+| -------- | ---------------------- | ---------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| `radius` | `number`               | required   | How far the neighborhood reaches from each pixel, in pixels. It's rounded to a whole number, and `0` or less does nothing. |
+| `shape`  | `"square" \| "disk"`   | `"square"` | `"square"` is the (2 × `radius` + 1) pixel square around each pixel. `"disk"` is the pixels within `radius` of it, which gives rounder results. |
+
+## Example
+
+```ts title="example.ts"
+import { Jimp } from "jimp";
+
+const image = await Jimp.read("photo.png");
+
+image.erode({ radius: 3, shape: "disk" });
+
+await image.write("photo-eroded.png");
+```
+
+### Thicken text on a scan
+
+On dark ink on a light page, `erode` makes the strokes heavier.
+Clean up the page first with [`threshold`](/jimp/methods/threshold/) and [`close`](/jimp/methods/close/), then erode by one pixel:
+
+```ts title="example.ts"
+import { Jimp } from "jimp";
+
+const scan = await Jimp.read("scan.png");
+
+scan
+  .threshold({ max: "otsu" }) // the paper becomes pure white
+  .close({ radius: 1 }) // remove dark specks
+  .erode({ radius: 1 }); // thicken the text
+
+await scan.write("scan-bold.png");
+```
+
+### Shrink a mask
+
+A mask cut from a photo often keeps a thin rim of the old background along its edge.
+Eroding the mask pulls its white area in, so the cut-out stops just inside the shape:
+
+```ts title="example.ts"
+import { Jimp } from "jimp";
+
+const image = await Jimp.read("photo.png");
+const mask = await Jimp.read("mask.png"); // white where the shape is
+
+mask.erode({ radius: 2, shape: "disk" });
+
+image.mask(mask);
+```
+
+To build the mask itself from a photo, see [Fill holes in a mask](/jimp/methods/close/#fill-holes-in-a-mask).
+
+## Try it
+
+Drag `radius` and switch `shape`. On the dice, the white pips shrink and vanish and the dice get darker. The dice sit on a transparent background, so their outlines shrink too.
+
+<Playground method="erode" client:visible />
+
+## Notes
+
+- **Light and dark.** `erode` is "dark grows". On a light background, dark shapes get bigger; on a dark background, light shapes get smaller. [`dilate`](/jimp/methods/dilate/) does the opposite.
+- **Each channel on its own.** Red, green, blue and alpha are each eroded separately. On a grayscale or black-and-white image this is the usual erosion. On a color image, a pixel can end up with channels taken from different neighbors, which can produce colors that weren't in the image.
+- **Transparency.** Alpha is eroded too, so on a transparent background opaque shapes shrink by `radius`.
+- **Edges don't wrap.** The neighborhood is clipped to the image: pixels near an edge only look at the pixels inside it. Pixels outside the image don't count as black or white, and nothing wraps around from the other side.
+- **Radius.** `radius` is rounded to the nearest whole number, so `1.5` is `2` and `0.4` is `0`. A radius of `0` or less leaves the image unchanged, without an error. Radii larger than the image's width plus height are capped, since that already covers the whole image.
+- **Speed.** A `"square"` costs the same for any radius. A `"disk"` gets slower as the radius grows, so prefer a square for large radii.
+- **Errors.** Calling `erode()` with no options, a `radius` that isn't a number or a `shape` other than `"square"` or `"disk"` throws a `ZodError`.
+- Added in 2.0.
+
+## Related
+
+<Related methods={["dilate", "open", "close", "threshold", "mask", "blur"]} />

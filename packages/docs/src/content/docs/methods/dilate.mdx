@@ -1,0 +1,99 @@
+---
+title: "dilate()"
+description: "Grow bright areas by taking the brightest pixel in each neighborhood."
+category: effects
+method: "dilate"
+plugin: "@jimp/plugin-morphology"
+---
+
+import Playground from "../../../components/playground/Playground";
+import Related from "../../../components/Related.astro";
+
+`dilate` sets each pixel to the brightest value within `radius` pixels of it.
+Bright areas grow, and dark details smaller than the neighborhood disappear. Use it to grow the white area of a mask, to outline a shape on a transparent background or to thin dark lines.
+
+## Signature
+
+```ts title="dilate.d.ts"
+image.dilate(options: { radius: number; shape?: "square" | "disk" }): this
+```
+
+`dilate` changes the image in place and returns it, so you can chain more calls after it.
+The options type is exported from `jimp` as `MorphologyOptions`.
+
+## Options
+
+| Option   | Type                   | Default    | Description                                                                                                                  |
+| -------- | ---------------------- | ---------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| `radius` | `number`               | required   | How far the neighborhood reaches from each pixel, in pixels. It's rounded to a whole number, and `0` or less does nothing. |
+| `shape`  | `"square" \| "disk"`   | `"square"` | `"square"` is the (2 × `radius` + 1) pixel square around each pixel. `"disk"` is the pixels within `radius` of it, which gives rounder results. |
+
+## Example
+
+```ts title="example.ts"
+import { Jimp } from "jimp";
+
+const image = await Jimp.read("photo.png");
+
+image.dilate({ radius: 3, shape: "disk" });
+
+await image.write("photo-dilated.png");
+```
+
+### Outline a shape
+
+Because alpha is dilated too, `dilate` grows an opaque shape on a transparent background.
+Turn a copy of the image white, grow it and draw the original on top to give it a sticker-style outline:
+
+```ts title="example.ts"
+import { Jimp } from "jimp";
+
+const image = await Jimp.read("sticker.png"); // a shape on a transparent background
+
+const outline = image
+  .clone()
+  .color([{ apply: "mix", params: ["#ffffff", 100] }])
+  .dilate({ radius: 6, shape: "disk" });
+
+outline.composite(image);
+
+await outline.write("sticker-outlined.png");
+```
+
+Leave at least `radius` pixels of transparent space around the shape, or the outline is cut off at the image's edge.
+
+### Grow a mask
+
+On a mask, white is the part that's kept. Dilate it to keep a margin around the shape, for example so a soft edge isn't cut off:
+
+```ts title="example.ts"
+import { Jimp } from "jimp";
+
+const image = await Jimp.read("photo.png");
+const mask = await Jimp.read("mask.png"); // white where the shape is
+
+mask.dilate({ radius: 4, shape: "disk" });
+
+image.mask(mask);
+```
+
+## Try it
+
+Drag `radius` and switch `shape`. On the dice, the white pips grow and the darker shading inside each die fades. The dice sit on a transparent background, so their outlines grow too.
+
+<Playground method="dilate" client:visible />
+
+## Notes
+
+- **Light and dark.** `dilate` is "bright grows". On a dark background, light shapes get bigger; on a light background, dark shapes get smaller, so on dark ink on a light page it thins the strokes. [`erode`](/jimp/methods/erode/) does the opposite.
+- **Each channel on its own.** Red, green, blue and alpha are each dilated separately. On a grayscale or black-and-white image this is the usual dilation. On a color image, a pixel can end up with channels taken from different neighbors, which can produce colors that weren't in the image.
+- **Transparency.** Alpha is dilated too, so on a transparent background opaque shapes grow by `radius`. The pixels they grow into take the brightest color nearby, including the color stored in transparent pixels. Transparent black (the usual case) keeps the shape's colors; transparent white turns the new rim white.
+- **Edges don't wrap.** The neighborhood is clipped to the image: pixels near an edge only look at the pixels inside it. Pixels outside the image don't count as black or white, and nothing wraps around from the other side.
+- **Radius.** `radius` is rounded to the nearest whole number, so `1.5` is `2` and `0.4` is `0`. A radius of `0` or less leaves the image unchanged, without an error. Radii larger than the image's width plus height are capped, since that already covers the whole image.
+- **Speed.** A `"square"` costs the same for any radius. A `"disk"` gets slower as the radius grows, so prefer a square for large radii.
+- **Errors.** Calling `dilate()` with no options, a `radius` that isn't a number or a `shape` other than `"square"` or `"disk"` throws a `ZodError`.
+- Added in 2.0.
+
+## Related
+
+<Related methods={["erode", "open", "close", "mask", "color", "composite"]} />

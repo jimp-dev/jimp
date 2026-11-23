@@ -104,6 +104,16 @@ image.scan((x, y, idx) => {
 
 For a black and white image that keeps shading with patterns of dots, use [`dither`](/jimp/methods/dither/) instead.
 
+### Clean up the result
+
+A thresholded scan or mask often has specks and small holes. [`close`](/jimp/methods/close/) removes dark specks and fills dark holes, and [`open`](/jimp/methods/open/) removes light specks:
+
+```ts title="example.ts"
+image.threshold({ max: "otsu" }).close({ radius: 1 });
+```
+
+See [Clean up a scanned document](/jimp/methods/close/#clean-up-a-scanned-document) and [Fill holes in a mask](/jimp/methods/close/#fill-holes-in-a-mask).
+
 ## Try it
 
 Drag `max` to move the cut-off and `replace` to change the value that light pixels get, or turn on `otsu` to let Jimp pick the cut-off.
@@ -122,4 +132,4 @@ Drag `max` to move the cut-off and `replace` to change the value that light pixe
 
 ## Related
 
-<Related methods={["otsuThreshold", "greyscale", "dither", "posterize", "contrast", "mask", "scan"]} />
+<Related methods={["otsuThreshold", "greyscale", "dither", "posterize", "contrast", "close", "open", "mask", "scan"]} />

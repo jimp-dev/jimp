@@ -232,7 +232,7 @@ await image.write("out.bmp", { bitPP: 1, palette: ["black", "white"] });
 - `divisor` and `bias` for [`convolution`](/jimp/methods/convolution/) and [`convolute`](/jimp/methods/convolute/), `preserveAlpha` for `convolute`, and even-sized and non-square kernels.
 - [`roundCorners`](/jimp/methods/round-corners/), [`border`](/jimp/methods/border/) and [`boxShadow`](/jimp/methods/box-shadow/), modeled on the CSS properties.
 - [`displace`](/jimp/methods/displace/) along both axes with `offset: { x, y }`.
-- `erode`, `dilate`, `open` and `close` morphology operations, from the new default plugin `@jimp/plugin-morphology`: `image.erode({ radius: 2, shape: "disk" })`.
+- [`erode`](/jimp/methods/erode/), [`dilate`](/jimp/methods/dilate/), [`open`](/jimp/methods/open/) and [`close`](/jimp/methods/close/) morphology operations, from the new default plugin `@jimp/plugin-morphology`: `image.erode({ radius: 2, shape: "disk" })`.
 - [`diff`](/jimp/methods/diff/) takes pixelmatch's options, including `diffMask` for a transparent diff and custom diff colors.
 
 ### Shape
