@@ -1,6 +1,7 @@
 import { describe, expect, test } from "vitest";
 import { createJimp } from "@jimp/core";
 import { makeTestImage } from "@jimp/test-utils";
+import { ResizeStrategy } from "@jimp/plugin-resize";
 
 import { methods } from "./index.js";
 
@@ -147,5 +148,29 @@ describe("Rotate without resizing does not sample the wrong pixel", () => {
     });
 
     expect(() => image.rotate({ deg: -315, mode: false })).not.toThrow();
+  });
+});
+
+describe("Rotate with a resize mode", () => {
+  // the mode only resizes the canvas, which is filled with the background
+  // colour, so every mode gives the same result as the default
+  const modes = ["BICUBIC", "LANCZOS", "LANCZOS2", "MITCHELL"] as const;
+
+  modes.forEach((modeType) => {
+    [0x00000000, 0x336699ff].forEach((background) => {
+      test(`${modeType} with background ${background.toString(16)}`, () => {
+        const image = () => {
+          const img = jimp.fromBitmap(
+            makeTestImage("▴▴▴▪▪", "▴▴▴▪▪", "▪▪▪▴▴", "▪▪▪▴▴"),
+          );
+          img.background = background;
+          return img;
+        };
+
+        expect(
+          image().rotate({ deg: 30, mode: ResizeStrategy[modeType] }).bitmap,
+        ).toEqual(image().rotate({ deg: 30 }).bitmap);
+      });
+    });
   });
 });

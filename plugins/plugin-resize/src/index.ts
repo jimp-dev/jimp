@@ -68,14 +68,24 @@ export type ScaleOptions = number | ScaleComplexOptions;
 
 export const methods = {
   /**
-   * Resizes the image to a set width and height using a 2-pass bilinear algorithm
+   * Resizes the image to a set width and height using a 2-pass bilinear algorithm,
+   * or the `ResizeStrategy` given as `mode`. For the best quality use
+   * `ResizeStrategy.LANCZOS`, or `ResizeStrategy.MITCHELL` for a smoother result
+   * with less ringing.
+   * @param options the size to resize the image to, and the scaling method
+   * @param options.w the width to resize the image to
+   * @param options.h the height to resize the image to
+   * @param options.mode (optional) a scaling method (e.g. ResizeStrategy.LANCZOS)
    * @example
    * ```ts
-   * import { Jimp } from "jimp";
+   * import { Jimp, ResizeStrategy } from "jimp";
    *
    * const image = await Jimp.read("test/image.png");
    *
    * image.resize({ w: 150 });
+   *
+   * // or pick the scaling method
+   * image.resize({ w: 150, mode: ResizeStrategy.LANCZOS });
    * ```
    */
   resize<I extends JimpClass>(image: I, options: ResizeOptions) {

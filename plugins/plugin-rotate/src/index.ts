@@ -11,7 +11,10 @@ const RotateOptionsSchema = z.union([
   z.object({
     /** the number of degrees to rotate the image by */
     deg: z.number(),
-    /** resize mode or a boolean, if false then the width and height of the image will not be changed */
+    /**
+     * resize mode or a boolean, if false then the width and height of the image will not be changed.
+     * The mode is used to resize the canvas, the rotation itself always takes the nearest pixel.
+     */
     mode: z.union([z.boolean(), z.nativeEnum(ResizeStrategy)]).optional(),
   }),
 ]);
