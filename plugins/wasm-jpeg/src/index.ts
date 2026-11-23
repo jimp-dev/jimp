@@ -35,6 +35,13 @@ const JpegOptionsSchema = z.object({
   trellisMultipass: z.boolean().optional().default(false),
   trellisOptTable: z.boolean().optional().default(false),
   trellisOptZero: z.boolean().optional().default(false),
+  /**
+   * Write the EXIF data of the JPEG the image was read from. Jimp core adds
+   * it after encoding. Off by default, as EXIF can contain private data such
+   * as the location.
+   * @default false
+   */
+  exif: z.boolean().optional(),
 });
 
 type JpegOptions = z.infer<typeof JpegOptionsSchema>;

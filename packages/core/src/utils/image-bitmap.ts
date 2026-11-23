@@ -1,6 +1,7 @@
 import { Buffer } from "buffer";
 import EXIFParser, { ExifData } from "exif-parser";
 import { JimpClass } from "@jimp/types";
+import { storeJpegExif } from "./exif.js";
 
 /**
  * Obtains image orientation from EXIF metadata.
@@ -147,6 +148,7 @@ export async function attemptExifRotate<I extends JimpClass>(
     (image as unknown as { _exif: ExifData })._exif =
       EXIFParser.create(buffer).parse();
 
+    storeJpegExif(image, buffer);
     exifRotate(image); // EXIF data
   } catch {
     // do nothing

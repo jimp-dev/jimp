@@ -246,6 +246,9 @@ describe("format options are still checked", () => {
     image.getBuffer("image/tiff");
     image.getBuffer("image/gif");
     image.getBase64("image/jpeg", { quality: 50 });
+    image.getBuffer("image/jpeg", { quality: 50, exif: true });
+    // @ts-expect-error png can't write EXIF data
+    image.getBuffer("image/png", { exif: true });
     // @ts-expect-error unsupported mime type
     image.getBuffer("image/webp");
     // @ts-expect-error png has no quality option
@@ -258,6 +261,7 @@ describe("format options are still checked", () => {
     image.write("out.jpg", { quality: 50 });
     image.write("out.jpeg", { quality: 50 });
     image.write("out.png", { deflateLevel: 1 });
+    image.write("out.jpg", { exif: true });
     image.write("out.bmp");
     image.write("dir/out.gif");
     // @ts-expect-error png has no quality option

@@ -4,10 +4,15 @@ import { cssColorToHex, scan, scanIterator } from "@jimp/utils";
 import { to } from "await-to-js";
 import { existsSync, readFile, writeFile } from "@jimp/file-ops";
 import mime from "mime/lite.js";
+import type { ExifData } from "exif-parser";
 
 import { composite } from "./utils/composite.js";
 import { BlendMode } from "./index.js";
-import { attemptExifRotate } from "./utils/image-bitmap.js";
+import {
+  attemptExifRotate,
+  getExifOrientation,
+} from "./utils/image-bitmap.js";
+import { copyExif, writeJpegExif } from "./utils/exif.js";
 
 const emptyBitmap: Bitmap = {
   data: Buffer.alloc(0),
@@ -430,6 +435,10 @@ export function createJimp<
      * await image.getBuffer("image/jpeg", {
      *   quality: 50,
      * });
+     *
+     * // Copy the EXIF data of a JPEG that was read, see JPEGOptions.exif
+     * const photo = await Jimp.read("photo.jpg");
+     * await photo.getBuffer("image/jpeg", { exif: true });
      * ```
      */
     async getBuffer<
@@ -466,9 +475,20 @@ export function createJimp<
       );
 
       // Some encoders (e.g. jpeg-js outside of CommonJS) return a plain Uint8Array
-      return Buffer.isBuffer(data)
+      const buffer = Buffer.isBuffer(data)
         ? data
         : Buffer.from(data.buffer, data.byteOffset, data.byteLength);
+
+      if (mime === "image/jpeg" && (options as { exif?: boolean } | undefined)?.exif) {
+        return writeJpegExif(this, buffer, {
+          width: this.bitmap.width,
+          height: this.bitmap.height,
+          // 1 once the pixels have been auto-rotated on read
+          orientation: getExifOrientation(this),
+        });
+      }
+
+      return buffer;
     }
 
     /**
@@ -564,10 +584,22 @@ export function createJimp<
      * ```
      */
     clone<S extends JimpClass>(this: S) {
-      return new CustomJimp({
+      const clone = new CustomJimp({
         ...this.bitmap,
         data: Buffer.from(this.bitmap.data),
-      }) as unknown as S;
+      });
+      const { _exif } = this as unknown as { _exif?: ExifData };
+
+      if (_exif) {
+        (clone as unknown as { _exif: ExifData })._exif = {
+          ..._exif,
+          tags: { ..._exif.tags },
+        };
+      }
+
+      copyExif(this, clone);
+
+      return clone as unknown as S;
     }
 
     /**

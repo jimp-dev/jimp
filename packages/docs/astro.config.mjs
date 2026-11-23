@@ -44,6 +44,7 @@ export default defineConfig({
               label: "Reading Large Images",
               link: "/guides/reading-large-images/",
             },
+            { label: "EXIF", link: "/guides/exif/" },
             { label: "Writing Plugins", link: "/guides/writing-plugins/" },
             { label: "Custom Jimp", link: "/guides/custom-jimp/" },
             { label: "Migrate to v1", link: "/guides/migrate-to-v1/" },
