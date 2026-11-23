@@ -10,11 +10,18 @@ const CoverOptionsSchema = z.object({
   /** the height to resize the image to */
   h: z.number(),
   /**
-   * A bitmask of at most one `HorizontalAlign` and one `VerticalAlign` flag
-   * (default `HorizontalAlign.CENTER | VerticalAlign.MIDDLE`). An axis with no
-   * flag is centered.
+   * Where to place the image (default `HorizontalAlign.CENTER |
+   * VerticalAlign.MIDDLE`). Either a bitmask of at most one `HorizontalAlign`
+   * and one `VerticalAlign` flag, or `{ x, y }` fractions from 0 (left/top)
+   * to 1 (right/bottom), like CSS `object-position` percentages. An axis with
+   * no flag or fraction is centered, and fractions are clamped to 0-1.
    */
-  align: z.number().optional(),
+  align: z
+    .union([
+      z.number(),
+      z.object({ x: z.number().optional(), y: z.number().optional() }),
+    ])
+    .optional(),
   /** a scaling method (e.g. ResizeStrategy.BEZIER) */
   mode: z.nativeEnum(ResizeStrategy).optional(),
   /**
@@ -28,11 +35,15 @@ const CoverOptionsSchema = z.object({
 export type CoverOptions = z.infer<typeof CoverOptionsSchema>;
 
 /**
- * Split an `align` bitmask into how far along each axis to place the image:
- * 0 for left/top, 1 for center/middle and 2 for right/bottom. An axis with no
- * flag is centered.
+ * Turn `align` into how far along each axis to place the image, from 0
+ * (left/top) to 1 (right/bottom). An axis with no flag or fraction is centered.
  */
-function parseAlign(align: number) {
+function parseAlign(align: number | { x?: number; y?: number }) {
+  if (typeof align === "object") {
+    const clamp = (v = 0.5) => Math.min(1, Math.max(0, v));
+    return { alignX: clamp(align.x), alignY: clamp(align.y) };
+  }
+
   const hbits = align & 0b111;
   const vbits = (align >> 3) & 0b111;
 
@@ -47,9 +58,10 @@ function parseAlign(align: number) {
     );
   }
 
+  // LEFT/TOP is 1, CENTER/MIDDLE 2 and RIGHT/BOTTOM 4
   return {
-    alignH: hbits ? hbits >> 1 : 1,
-    alignV: vbits ? vbits >> 1 : 1,
+    alignX: hbits ? (hbits >> 1) / 2 : 0.5,
+    alignY: vbits ? (vbits >> 1) / 2 : 0.5,
   };
 }
 
@@ -59,7 +71,7 @@ export const methods = {
    * @param options the size to cover
    * @param options.w the width to resize the image to
    * @param options.h the height to resize the image to
-   * @param options.align A bitmask for horizontal and vertical alignment
+   * @param options.align A bitmask of `HorizontalAlign` and `VerticalAlign` flags, or `{ x, y }` fractions from 0 (left/top) to 1 (right/bottom)
    * @param options.mode a scaling method (e.g. ResizeStrategy.BEZIER)
    * @param options.premultiplyAlpha (optional) whether to treat alpha as opacity (default `true`). With `false` the colour of transparent pixels is kept
    * @example
@@ -69,6 +81,9 @@ export const methods = {
    * const image = await Jimp.read("test/image.png");
    *
    * image.cover({ w: 150, h: 100 });
+   *
+   * // like CSS `object-position: center 20%`
+   * image.cover({ w: 150, h: 100, align: { x: 0.5, y: 0.2 } });
    * ```
    */
   cover<I extends JimpClass>(image: I, options: CoverOptions) {
@@ -79,7 +94,7 @@ export const methods = {
       mode,
       premultiplyAlpha,
     } = CoverOptionsSchema.parse(options);
-    const { alignH, alignV } = parseAlign(align);
+    const { alignX, alignY } = parseAlign(align);
 
     const f =
       w / h > image.bitmap.width / image.bitmap.height
@@ -92,8 +107,8 @@ export const methods = {
       premultiplyAlpha,
     });
     image = cropMethods.crop(image, {
-      x: ((image.bitmap.width - w) / 2) * alignH,
-      y: ((image.bitmap.height - h) / 2) * alignV,
+      x: (image.bitmap.width - w) * alignX,
+      y: (image.bitmap.height - h) * alignY,
       w,
       h,
     });

@@ -121,6 +121,54 @@ describe("cover align", () => {
   });
 });
 
+describe("fractional align", () => {
+  const image = jimp.fromBitmap(
+    makeTestImage(
+      "▴▴▴▴▸▸▸▸",
+      "▴▴▴▴▸▸▸▸",
+      "▴▴▴▴▸▸▸▸",
+      "▴▴▴▴▸▸▸▸",
+      "▾▾▾▾◆◆◆◆",
+      "▾▾▾▾◆◆◆◆",
+      "▾▾▾▾◆◆◆◆",
+      "▾▾▾▾◆◆◆◆",
+    ),
+  );
+
+  test.each([
+    [{ x: 0, y: 0 }, HorizontalAlign.LEFT | VerticalAlign.TOP],
+    [{ x: 0.5, y: 0.5 }, HorizontalAlign.CENTER | VerticalAlign.MIDDLE],
+    [{ x: 1, y: 1 }, HorizontalAlign.RIGHT | VerticalAlign.BOTTOM],
+    [{ y: 0 }, VerticalAlign.TOP],
+    [{ x: 1 }, HorizontalAlign.RIGHT],
+    [{}, HorizontalAlign.CENTER | VerticalAlign.MIDDLE],
+    [{ x: -1, y: 2 }, HorizontalAlign.LEFT | VerticalAlign.BOTTOM],
+  ])("%o matches the bitmask %i", (align, bits) => {
+    for (const size of [
+      { w: 2, h: 4 },
+      { w: 4, h: 2 },
+    ]) {
+      expect(image.clone().cover({ ...size, align }).bitmap.data).toEqual(
+        image.clone().cover({ ...size, align: bits }).bitmap.data,
+      );
+    }
+  });
+
+  test("places the image part of the way along each axis", () => {
+    const row = jimp.fromBitmap(makeTestImage("01234567"));
+    const column = jimp.fromBitmap(
+      makeTestImage("0", "1", "2", "3", "4", "5", "6", "7"),
+    );
+
+    expect(row.cover({ w: 4, h: 1, align: { x: 0.25 } }).bitmap).toEqual(
+      makeTestImage("1234"),
+    );
+    expect(column.cover({ w: 1, h: 4, align: { y: 0.75 } }).bitmap).toEqual(
+      makeTestImage("3", "4", "5", "6"),
+    );
+  });
+});
+
 describe("premultiplyAlpha", () => {
   // alpha 0 on the left, 255 on the right and partial in between, with the
   // same colour everywhere
