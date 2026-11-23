@@ -150,6 +150,12 @@ describe("border", () => {
     ).toEqual([0, 255, 0, 255]);
   });
 
+  test("throws for an invalid CSS color", () => {
+    expect(() => makeImage(2, 2).border({ width: 1, color: "nope" })).toThrow(
+      'Invalid color "nope"',
+    );
+  });
+
   test("rounds the outer corners and the image's corners to match", () => {
     const image = makeImage(4, 4, 0xffffffff).border({
       width: 2,
@@ -210,6 +216,12 @@ describe("border", () => {
 
 describe("boxShadow", () => {
   const black = 0x000000ff;
+
+  test("throws for an invalid CSS color", () => {
+    expect(() => makeImage(2, 2).boxShadow({ color: "nope" })).toThrow(
+      'Invalid color "nope"',
+    );
+  });
 
   test("grows the image to fit an offset shadow and draws it under the image", () => {
     const image = makeImage(4, 4, 0xffffffff).boxShadow({

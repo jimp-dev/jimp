@@ -157,3 +157,18 @@ describe("static readers", () => {
     }
   });
 });
+
+describe("constructor", () => {
+  test("fills the image with a CSS color and uses it as the background", () => {
+    const image = new Jimp({ width: 1, height: 1, color: "red" });
+
+    expect(image.getPixelColor(0, 0)).toBe(red);
+    expect(image.background).toBe(red);
+  });
+
+  test("throws for an invalid CSS color", () => {
+    expect(() => new Jimp({ width: 1, height: 1, color: "nope" })).toThrow(
+      'Invalid color "nope"',
+    );
+  });
+});
