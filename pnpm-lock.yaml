@@ -1789,8 +1789,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/test-utils
       '@vitest/browser':
-        specifier: ^2.0.5
-        version: 2.0.5(playwright@1.46.1)(typescript@5.5.4)(vitest@2.0.5)
+        specifier: ^4.1.12
+        version: 4.1.12(vite@8.3.8(@types/node@22.20.5)(esbuild@0.28.2)(terser@5.51.4)(yaml@2.5.0))(vitest@4.1.12)
       eslint:
         specifier: ^9.9.1
         version: 9.9.1(supports-color@7.2.0)
@@ -1801,11 +1801,11 @@ importers:
         specifier: ^5.5.4
         version: 5.5.4
       vite-plugin-node-polyfills:
-        specifier: ^0.22.0
-        version: 0.22.0(rollup@4.21.2)(vite@5.4.2(@types/node@22.20.5)(terser@5.30.3))
+        specifier: ^0.28.0
+        version: 0.28.0(rollup@4.68.8)(vite@8.3.8(@types/node@22.20.5)(esbuild@0.28.2)(terser@5.51.4)(yaml@2.5.0))
       vitest:
-        specifier: ^2.0.5
-        version: 2.0.5(@types/node@22.20.5)(@vitest/browser@2.0.5)(supports-color@7.2.0)(terser@5.30.3)
+        specifier: ^4.1.12
+        version: 4.1.12(@types/node@22.20.5)(@vitest/browser-playwright@4.1.12)(vite@8.3.8(@types/node@22.20.5)(esbuild@0.28.2)(terser@5.51.4)(yaml@2.5.0))
 
   plugins/plugin-print:
     dependencies:
