@@ -119,6 +119,11 @@ export const methods = {
    * reaches to the right and bottom edges of the image.
    *
    * - Text wraps at `maxWidth`. Without it the text only breaks at newlines.
+   * - Every newline (`\n`, `\r\n` or `\r`) starts a new line, so `"a\n\nb"`
+   *   is three lines with an empty one in the middle. Leading and trailing
+   *   newlines add empty lines too.
+   * - Spaces are printed as they are, including runs of spaces. Spaces where
+   *   the text wraps at `maxWidth` are dropped.
    * - `alignmentX` and `alignmentY` align the text within the box.
    * - `maxHeight` is only used for `alignmentY`. Text taller than it isn't
    *   clipped, use `measureTextHeight` to check whether it fits.
@@ -135,7 +140,7 @@ export const methods = {
    * @param options.text the text to draw (string or object with `text`, `alignmentX`, and/or `alignmentY`)
    * @param options.maxWidth the width to wrap the text at and to align it within. Defaults to the width of the image right of `x`, but text only wraps when it is set.
    * @param options.maxHeight the height to align the text within. Defaults to the height of the image below `y`. Text taller than it is not clipped.
-   * @param options.cb a callback for when complete that has the end co-ordinates of the text
+   * @param options.cb a callback for when complete that has the end co-ordinates of the text: `x` is the left edge of the box plus the width of the widest line, `y` the bottom of the last line
    * @example
    * ```ts
    * import { HorizontalAlign, Jimp, VerticalAlign, loadFont } from "jimp";
