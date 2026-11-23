@@ -67,11 +67,13 @@ Click the image to pick a pixel. The swatch in the top-left corner is painted wi
 
 ## Notes
 
-- **Coordinates are rounded** to the nearest whole pixel, so `getPixelColor(10.4, 19.6)` reads pixel `(10, 20)`.
-- **Out-of-range coordinates don't throw.** They're clamped to the nearest edge pixel (the [`Edge.EXTEND`](/jimp/methods/get-pixel-index/#edge-handling) behavior of `getPixelIndex`), so `getPixelColor(-5, 0)` returns the color of `(0, 0)`. Check `x` and `y` against `image.width` and `image.height` yourself if that matters.
-- **Arguments must be numbers.** Anything else throws `x and y must be numbers`.
+- **Coordinates are rounded** to the nearest whole pixel, so `getPixelColor(10.4, 19.6)` reads pixel `(10, 20)`. [`setPixelColor`](/jimp/methods/set-pixel-color/) rounds the same way, so both always reach the same pixel.
+- **Coordinates outside the image read the nearest edge pixel.** They're clamped (the [`Edge.EXTEND`](/jimp/methods/get-pixel-index/#edge-handling) behavior of `getPixelIndex`), so `getPixelColor(-5, 0)` returns the color of `(0, 0)`. This keeps code that samples around a pixel, such as a blur, working at the borders. To find out whether a point is inside the image, check `image.getPixelIndex(x, y, Edge.CROP) !== -1`, or compare `x` and `y` with `image.width` and `image.height`.
+- **Arguments must be numbers.** Anything else, including `NaN`, throws `x and y must be numbers`.
 - **Reading many pixels.** Each call computes an index and reads four bytes. To process a whole image, [`scan`](/jimp/methods/scan/) and reading `image.bitmap.data` directly avoids the extra work. See [Colors and pixels](/jimp/concepts/colors-and-pixels/).
+- **Raw values.** The number is the pixel as stored, in the image's [color space](/jimp/concepts/colors-and-pixels/#color-spaces). Writing it back with `setPixelColor` never changes the pixel.
 - **Changes from v0.** The optional callback argument and the `getPixelColour` alias are gone; `getPixelColor` returns the value directly.
+- Changed in 2.0: `NaN` coordinates throw; before, they read pixel `(0, 0)`.
 
 ## Related
 

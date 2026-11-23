@@ -3,7 +3,6 @@ title: "TypeScript"
 description: "Jimp is written in TypeScript. Learn the image and option types, and how to type your own plugins and custom Jimp."
 ---
 
-import { Aside } from "@astrojs/starlight/components";
 
 Jimp is written in TypeScript and ships its own type definitions, so there's nothing extra to install.
 Every method is typed from the plugins that provide it, option objects are checked, and the formats you can write are known at compile time.
@@ -48,19 +47,26 @@ image.resize(small).color(warm);
 | `ResizeOptions`, `ScaleOptions`, `ScaleToFitOptions`                         | [`resize`](/jimp/methods/resize/), [`scale`](/jimp/methods/scale/), [`scaleToFit`](/jimp/methods/scale-to-fit/) |
 | `CropOptions`, `AutocropOptions`                                             | [`crop`](/jimp/methods/crop/), [`autocrop`](/jimp/methods/autocrop/) |
 | `ContainOptions`, `CoverOptions`                                             | [`contain`](/jimp/methods/contain/), [`cover`](/jimp/methods/cover/) |
+| `AffineOptions`, `SkewOptions`                                               | [`affine`](/jimp/methods/affine/), [`skew`](/jimp/methods/skew/) |
 | `FlipOptions`, `CircleOptions`, `FisheyeOptions`, `DisplaceOptions`          | [`flip`](/jimp/methods/flip/), [`circle`](/jimp/methods/circle/), [`fisheye`](/jimp/methods/fisheye/), [`displace`](/jimp/methods/displace/) |
 | `BorderOptions`, `RoundCornersOptions`, `CornerRadius`, `BoxShadowOptions`   | [`border`](/jimp/methods/border/), [`roundCorners`](/jimp/methods/round-corners/), [`boxShadow`](/jimp/methods/box-shadow/) |
-| `ColorAction`, and one type per action such as `HueAction` or `MixAction`    | [`color`](/jimp/methods/color/)                         |
-| `ThresholdOptions`                                                           | [`threshold`](/jimp/methods/threshold/)                 |
+| `ColorAction`, and types for single actions such as `HueAction` or `MixAction` | [`color`](/jimp/methods/color/)                       |
+| `ThresholdOptions`, `OtsuThresholdOptions`                                   | [`threshold`](/jimp/methods/threshold/), [`otsuThreshold`](/jimp/methods/otsu-threshold/) |
+| `DitherOptions`, `DitherPalette`                                             | [`dither`](/jimp/methods/dither/)                       |
 | `PHashOptions`                                                               | [`pHash`](/jimp/methods/phash/)                         |
-| `JPEGOptions`, `EncodeOptions` (BMP), `BmpColor`                             | Writing JPEG and BMP                                    |
+| `DiffOptions`, `DiffColor`                                                   | [`diff`](/jimp/methods/diff/)                           |
+| `ReadOptions`                                                                | [`Jimp.read`](/jimp/methods/read/), [`Jimp.fromBuffer`](/jimp/methods/from-buffer/) |
+| `JPEGOptions`, `EncodeOptions` (BMP)                                         | Writing JPEG and BMP                                    |
 | `JimpConstructorOptions`, `JimpSimpleConstructorOptions`, `RawImageData`     | [`new Jimp()`](/jimp/methods/new-jimp/), [`Jimp.fromBitmap`](/jimp/methods/from-bitmap/) |
+| `ColorSpaceName`                                                             | `image.colorSpace`, [`toColorSpace`](/jimp/methods/to-color-space/), the `colorSpace` option of `new Jimp()` |
+
+`ReadOptions` covers the options every format shares, such as `exifRotate`. The read options of a particular `Jimp` class, with each format's decode options added, are `CreateReadOptions<...>` from `@jimp/core`; in most code, `Parameters<typeof Jimp.read>[1]` is simpler.
 
 The full list, with every property, is in the [type reference](/jimp/api/readme/).
 
 ### Types that aren't exported
 
-A few option types, such as those of [`blit`](/jimp/methods/blit/), [`mask`](/jimp/methods/mask/) and [`print`](/jimp/methods/print/), aren't exported by name.
+A few option types, such as those of [`blit`](/jimp/methods/blit/), [`mask`](/jimp/methods/mask/), [`print`](/jimp/methods/print/) and [`quantize`](/jimp/methods/quantize/), aren't exported by `jimp`.
 Get them from the method with `Parameters`:
 
 ```ts title="example.ts"
@@ -78,8 +84,8 @@ These types describe the image data and the color helpers. See [Colors and pixel
 | ----------- | --------------------------------------------- | ------------------------------------------------------------------------ |
 | `Bitmap`    | `{ data: Buffer; width: number; height: number }` | `image.bitmap`                                                     |
 | `RGBAColor` | `{ r: number; g: number; b: number; a: number }`  | [`intToRGBA`](/jimp/methods/int-to-rgba/), [`colorDiff`](/jimp/methods/color-diff/) |
-| `RGBColor`  | `{ r: number; g: number; b: number }`         | [`colorDiff`](/jimp/methods/color-diff/), the `mix` and `xor` color actions |
-| `Edge`      | `1 \| 2 \| 3` (an enum)                      | [`getPixelIndex`](/jimp/methods/get-pixel-index/), [`convolution`](/jimp/methods/convolution/) |
+| `RGBColor`  | `{ r: number; g: number; b: number }`         | [`colorDiff`](/jimp/methods/color-diff/), the `mix`, `multiply` and `xor` color actions |
+| `Edge`      | an enum: `EXTEND` (`1`), `WRAP` (`2`), `CROP` (`3`) | [`getPixelIndex`](/jimp/methods/get-pixel-index/), [`convolution`](/jimp/methods/convolution/) |
 
 ```ts title="example.ts"
 import { intToRGBA, type JimpInstance, type RGBAColor } from "jimp";
@@ -100,7 +106,7 @@ function averageColor(image: JimpInstance): RGBAColor {
 }
 ```
 
-`Edge` is exported from `jimp` as a type only. Use the numbers as values, or import the enum from `@jimp/types` (see [Constants and enums](/jimp/concepts/constants/#edge)).
+`Edge` is both a type and a value, so `import { Edge } from "jimp"` gives you `Edge.WRAP` at run time too. See [Constants and enums](/jimp/concepts/constants/#edge).
 
 ## MIME types and format options
 
@@ -118,15 +124,11 @@ await image.getBuffer("image/jpeg", { deflateLevel: 9 });
 // Error: 'deflateLevel' does not exist in type 'JPEGOptions'.
 ```
 
-[`write`](/jimp/methods/write/) works the format out from the file extension, so `image.write("photo.png", { quality: 80 })` is an error too: `quality` is a JPEG option.
-The options are checked for paths ending in `.png`, `.jpeg` and `.bmp`.
+[`write`](/jimp/methods/write/) works the format out from the path's last extension, so `image.write("photo.png", { quality: 80 })` is an error too: `quality` is a JPEG option.
+The extension can be in any case and can follow directories and other dots, so `"./out/photo.v2.JPG"` takes JPEG options.
+GIF and TIFF have no encode options, so `write` and `getBuffer` accept none for them.
 
-<Aside type="note" title="When write can't check options">
-  For paths ending in `.jpg`, `.gif`, `.tif` or `.tiff`, and for paths held in
-  a `string` variable, `write` accepts any options object without checking it.
-  For full checking, use `getBuffer` with the MIME type and write the buffer
-  yourself.
-</Aside>
+For a path held in a `string` variable, or an unknown extension, `write` can't tell the format. It accepts the options of any supported format and rejects keys that no format has.
 
 ## How createJimp builds the types
 

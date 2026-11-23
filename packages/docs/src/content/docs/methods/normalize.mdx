@@ -6,7 +6,6 @@ method: "normalize"
 plugin: "@jimp/plugin-color"
 ---
 
-import { Aside } from "@astrojs/starlight/components";
 import Playground from "../../../components/playground/Playground";
 import Related from "../../../components/Related.astro";
 
@@ -49,17 +48,12 @@ Run the playground to see the result. Hold the compare button to see the origina
 
 ## Notes
 
-- **How it's computed.** For each channel, `normalize` finds the lowest value `min` and the highest value `max` used anywhere in the image, then maps each value `c` to `(c − min) × 255 / (max − min)`.
+- **How it's computed.** For each channel, `normalize` finds the lowest value `min` and the highest value `max` used anywhere in the image, then maps each value `c` to `(c − min) × 255 / (max − min)`. Fractions are dropped when the value is stored.
 - **Per channel.** Red, green and blue are stretched independently, which can shift the colors. If you want only the brightness stretched, call [`greyscale`](/jimp/methods/greyscale/) first or use [`contrast`](/jimp/methods/contrast/).
+- **Flat channels are left alone.** If a channel has the same value in every pixel, there's no range to stretch and that channel isn't changed. A solid-color image stays the same.
 - **Outliers limit the effect.** A single pure black and a single pure white pixel are enough to make `normalize` do nothing. There's no option to ignore a percentage of extreme pixels.
 - **Transparent pixels count.** The color stored in fully transparent pixels is included when finding `min` and `max`. Alpha itself is unchanged.
-
-<Aside type="caution" title="Single-value channels turn black">
-  If a channel has the same value in every pixel, `max − min` is `0` and the
-  channel is set to `0` everywhere. A solid-color image becomes black, and an
-  image whose blue channel is `128` in every pixel loses its blue entirely.
-  Watch for this with generated images and flat graphics.
-</Aside>
+- Changed in 2.0: a channel with a single value is left unchanged; before, it was set to `0`, so a solid-color image turned black.
 
 ## Related
 

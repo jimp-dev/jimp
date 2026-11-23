@@ -94,7 +94,8 @@ import { intToRGBA, rgbaToInt, cssColorToHex, limit255, colorDiff } from "jimp";
 
 ### CSS color strings
 
-A few APIs accept a CSS color string as well as a number: the `color` of `new Jimp({ width, height, color })` and the `color` options of [`border`](/jimp/methods/border/) and [`boxShadow`](/jimp/methods/box-shadow/) are converted with [`cssColorToHex`](/jimp/methods/css-color-to-hex/).
+A few APIs accept a CSS color string as well as a number: the `color` of `new Jimp({ width, height, color })`, the `color` options of [`border`](/jimp/methods/border/) and [`boxShadow`](/jimp/methods/box-shadow/), and the `mix`, `multiply` and `xor` actions of [`color`](/jimp/methods/color/).
+They're converted with [`cssColorToHex`](/jimp/methods/css-color-to-hex/).
 The pixel methods don't: [`setPixelColor`](/jimp/methods/set-pixel-color/) only takes a number, so convert strings first.
 
 ```ts title="example.ts"
@@ -105,7 +106,7 @@ const image = new Jimp({ width: 100, height: 100, color: "#ffeedd" }); // a stri
 image.setPixelColor(cssColorToHex("tomato"), 10, 10); // but not here
 ```
 
-Invalid CSS strings don't throw; they become opaque black.
+A string that isn't a color throws, for example `Invalid color "nope"`.
 
 ### Building numbers yourself
 
@@ -151,9 +152,12 @@ Try both: click the image to pick a pixel for `getPixelColor`, or to place a dot
 
 ### Coordinates outside the image
 
-Coordinates are rounded to whole pixels.
-Coordinates outside the image don't throw: `getPixelColor` and `setPixelColor` clamp them to the nearest edge pixel, so `getPixelColor(-5, 0)` reads `(0, 0)` and `setPixelColor(color, 500, 0)` on a 100-pixel-wide image paints `(99, 0)`.
-Check the bounds yourself when that matters.
+Coordinates are rounded to whole pixels, and coordinates outside the image don't throw:
+
+- `getPixelColor` reads the nearest edge pixel, so `getPixelColor(-5, 0)` returns the color of `(0, 0)`.
+- `setPixelColor` does nothing, like drawing outside a canvas, so `setPixelColor(color, 500, 0)` on a 100-pixel-wide image leaves the image unchanged. Shapes drawn across the border are clipped.
+
+`NaN` coordinates throw, so a bad calculation doesn't silently change pixel `(0, 0)`.
 
 ## Edge handling
 
@@ -166,7 +170,9 @@ Check the bounds yourself when that matters.
 | `3`   | `Edge.CROP`   | Return `-1`.                                |
 
 ```ts title="example.ts"
-const idx = image.getPixelIndex(x - 10, y, 3); // Edge.CROP
+import { Edge } from "jimp";
+
+const idx = image.getPixelIndex(x - 10, y, Edge.CROP);
 
 if (idx !== -1) {
   // the pixel exists
@@ -174,7 +180,6 @@ if (idx !== -1) {
 ```
 
 The same enum is used by the `edgeHandling` option of [`convolution`](/jimp/methods/convolution/).
-`jimp` exports `Edge` only as a type, so pass the numbers, or install `@jimp/types` and `import { Edge } from "@jimp/types"`.
 See [Constants and enums](/jimp/concepts/constants/#edge).
 
 ## Looping over pixels
@@ -220,7 +225,7 @@ Choose an effect, turn on a region, and compare the two loops in the code panel:
   steps={[{ op: "scan" }]}
 />
 
-Neither method clips the region to the image, so keep `x + w` and `y + h` within the image's size.
+Both clamp the region to the image, so a region that reaches past an edge only visits the pixels inside the image.
 
 ### Performance
 
@@ -239,6 +244,28 @@ for (let idx = 0; idx < data.length; idx += 4) {
 }
 ```
 
+## Color spaces
+
+Pixel values are stored in the image's own color space.
+Most images are sRGB, but a photo from a phone is often Display P3, and Jimp keeps it that way: `image.colorSpace` tells you which, and the ICC profile is written back when you save.
+See [Color spaces](/jimp/guides/color-spaces/) for the full picture.
+
+That affects colors in two ways:
+
+- **Numbers are raw pixel values.** `0xff0000ff`, `setPixelColor`, `getPixelColor`, `image.background` and the `{ r, g, b }` colors of `color()` are used as they are, in the image's color space. Reading a pixel and writing it back never changes it.
+- **CSS strings are sRGB**, as in a browser, and are converted to the image's color space. On a Display P3 image, `"#ff0000"` becomes `rgb(234, 51, 35)`, the same red you'd see in a browser. Use `color(display-p3 r g b)` for a Display P3 color.
+
+```ts title="example.ts"
+import { Jimp } from "jimp";
+
+const image = new Jimp({ width: 10, height: 10, color: "#ff0000", colorSpace: "display-p3" });
+
+image.getPixelColor(0, 0).toString(16); // "ea3323ff": sRGB red, converted to Display P3
+```
+
+Methods that change pixels, such as [`greyscale`](/jimp/methods/greyscale/), [`brightness`](/jimp/methods/brightness/) and the `color()` actions, work on the stored values. [`exposure`](/jimp/methods/exposure/) is the exception: it uses the image's tone curves to work in linear light.
+To convert the pixels to another space, use [`toColorSpace`](/jimp/methods/to-color-space/).
+
 ## Transparency
 
 The alpha byte says how opaque each pixel is.
@@ -248,7 +275,7 @@ The alpha byte says how opaque each pixel is.
 await image.write(image.hasAlpha() ? "out.png" : "out.jpeg");
 ```
 
-PNG and TIFF keep the alpha channel when written, GIF keeps fully transparent pixels, and JPEG and BMP drop it.
+PNG, TIFF and ICO keep the alpha channel when written, GIF keeps fully transparent pixels, and JPEG and BMP drop it.
 Before writing JPEG or BMP, Jimp draws the image over `image.background`, a color number that is transparent black (`0x00000000`) for images you read and the fill color for images made with `new Jimp({ color })`.
 Set it to choose what transparent areas turn into:
 
@@ -269,5 +296,6 @@ To change alpha across a whole image, use [`opacity`](/jimp/methods/opacity/), [
 - [Compositing](/jimp/concepts/compositing/): combining images with blend modes instead of copying pixels.
 - [Constants and enums](/jimp/concepts/constants/): `Edge` and the other enums.
 - [TypeScript](/jimp/concepts/typescript/): the `Bitmap`, `RGBAColor` and `RGBColor` types.
+- [Color spaces](/jimp/guides/color-spaces/): Display P3, ICC profiles and converting between spaces.
 - [Writing Plugins](/jimp/guides/writing-plugins/): package a pixel effect as a reusable method.
 - [Using in Browser](/jimp/guides/browser/): moving pixels between Jimp and a canvas.

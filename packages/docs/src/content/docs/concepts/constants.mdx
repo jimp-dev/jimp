@@ -1,9 +1,8 @@
 ---
 title: "Constants and enums"
-description: "The enums and constants exported by jimp: resize strategies, blend modes, text alignment, MIME types and format options."
+description: "The enums and constants exported by jimp: resize strategies, blend modes, alignment, edge handling, color actions, MIME types and format options."
 ---
 
-import { Aside } from "@astrojs/starlight/components";
 import Playground from "../../../components/playground/Playground";
 
 `jimp` exports a handful of enums and constants for options that take one of a fixed set of values.
@@ -20,6 +19,8 @@ import {
   PNGColorType,
   PNGFilterType,
   BmpCompression,
+  Edge,
+  ColorActionName,
   defaultPlugins,
   defaultFormats,
 } from "jimp";
@@ -27,23 +28,26 @@ import {
 
 | Export                                | Used by                                                      |
 | ------------------------------------- | ------------------------------------------------------------ |
-| [`ResizeStrategy`](#resizestrategy)   | `mode` of `resize`, `scale`, `scaleToFit`, `contain`, `cover`, `rotate` |
+| [`ResizeStrategy`](#resizestrategy)   | `mode` of `resize`, `scale`, `scaleToFit`, `contain`, `cover`, `rotate`, `affine`, `skew` |
 | [`BlendMode`](#blendmode)             | `mode` of `composite`                                        |
 | [`HorizontalAlign`](#horizontalalign-and-verticalalign), [`VerticalAlign`](#horizontalalign-and-verticalalign) | `align` of `contain` and `cover`; `alignmentX` and `alignmentY` of `print` |
 | [`JimpMime`](#jimpmime)               | `getBuffer`, `getBase64`                                     |
 | [`PNGColorType`](#pngcolortype)       | `colorType` when writing PNG                                 |
 | [`PNGFilterType`](#pngfiltertype)     | `filterType` when writing PNG                                |
 | [`BmpCompression`](#bmpcompression)   | Not used by any Jimp option                                  |
-| [`Edge`](#edge) (type only)           | `getPixelIndex`, `edgeHandling` of `convolution`             |
+| [`Edge`](#edge)                       | `getPixelIndex`, `edgeHandling` of `convolution`             |
+| [`ColorActionName`](#coloractionname) | `apply` of the `color` actions                               |
 | [`defaultPlugins`](#defaultplugins-and-defaultformats), [`defaultFormats`](#defaultplugins-and-defaultformats) | `createJimp` from `@jimp/core` |
 
-Most enums are TypeScript `enum`s, so in plain JavaScript you can also pass the underlying value (for example `"bilinearInterpolation"` instead of `ResizeStrategy.BILINEAR`). Using the names is clearer and lets TypeScript check them.
+Every one of them is a value you can use at run time, in TypeScript and plain JavaScript alike.
+Most are TypeScript `enum`s, so you can also pass the underlying value (for example `"bilinearInterpolation"` instead of `ResizeStrategy.BILINEAR`). Using the names is clearer and lets TypeScript check them.
 
 ## ResizeStrategy
 
 The resampling algorithm for methods that change an image's size.
-Pass it as the `mode` option of [`resize`](/jimp/methods/resize/), [`scale`](/jimp/methods/scale/), [`scaleToFit`](/jimp/methods/scale-to-fit/), [`contain`](/jimp/methods/contain/), [`cover`](/jimp/methods/cover/) and [`rotate`](/jimp/methods/rotate/).
+Pass it as the `mode` option of [`resize`](/jimp/methods/resize/), [`scale`](/jimp/methods/scale/), [`scaleToFit`](/jimp/methods/scale-to-fit/), [`contain`](/jimp/methods/contain/) and [`cover`](/jimp/methods/cover/).
 Without a `mode`, these methods use Jimp's default resampler.
+[`rotate`](/jimp/methods/rotate/), [`affine`](/jimp/methods/affine/) and [`skew`](/jimp/methods/skew/) also take it as `mode`, to interpolate the pixels they move instead of taking the nearest one.
 
 | Member             | Value                     | Meaning                                                                                       |
 | ------------------ | ------------------------- | --------------------------------------------------------------------------------------------- |
@@ -52,14 +56,19 @@ Without a `mode`, these methods use Jimp's default resampler.
 | `BICUBIC`          | `"bicubicInterpolation"`  | Uses the 16 nearest pixels. Smoother and sharper than bilinear, and slower. A good choice for photos. |
 | `HERMITE`          | `"hermiteInterpolation"`  | Hermite interpolation. Similar quality to bicubic with less blurring.                         |
 | `BEZIER`           | `"bezierInterpolation"`   | Bézier interpolation.                                                                         |
+| `LANCZOS`          | `"lanczosInterpolation"`  | Lanczos with a 3-pixel window, as in Pillow and ImageMagick. Keeps the most detail when enlarging or shrinking; the slowest, with slight ringing next to hard edges. |
+| `LANCZOS2`         | `"lanczos2Interpolation"` | Lanczos with a 2-pixel window. A little softer than `LANCZOS`, with less ringing, and faster. |
+| `MITCHELL`         | `"mitchellInterpolation"` | The Mitchell–Netravali cubic filter. A balance of sharpness and smoothness with almost no ringing; faster than `LANCZOS`. |
 
 ```ts title="example.ts"
 import { Jimp, ResizeStrategy } from "jimp";
 
 const image = await Jimp.read("photo.jpeg");
 
-image.resize({ w: 200, mode: ResizeStrategy.BICUBIC });
+image.resize({ w: 200, mode: ResizeStrategy.LANCZOS });
 ```
+
+Added in 2.0: `LANCZOS`, `LANCZOS2` and `MITCHELL`.
 
 Try each one: pick a strategy from the `mode` list and change the width. The difference is easiest to see with `NEAREST_NEIGHBOR`.
 
@@ -118,7 +127,7 @@ const image = await Jimp.read("photo.jpeg");
 image.cover({ w: 300, h: 300, align: HorizontalAlign.LEFT | VerticalAlign.TOP });
 ```
 
-[`print`](/jimp/methods/print/) takes them separately, as `alignmentX` and `alignmentY` of the `text` object. The defaults are `LEFT` and `TOP`. Set `maxWidth` when you use `alignmentX`, and `maxHeight` when you use `alignmentY`: they define the area the text is aligned in. See [Text and fonts](/jimp/concepts/text-and-fonts/).
+[`print`](/jimp/methods/print/) takes them separately, as `alignmentX` and `alignmentY` of the `text` object. The defaults are `LEFT` and `TOP`. The text is aligned in a box that starts at `x`, `y` and is `maxWidth` by `maxHeight`; without them, the box reaches the right and bottom edges of the image. See [Text and fonts](/jimp/concepts/text-and-fonts/).
 
 ```ts title="example.ts"
 image.print({
@@ -135,13 +144,8 @@ image.print({
 });
 ```
 
-<Aside type="caution" title="Give both directions">
-  If the `align` value for `contain` or `cover` has only a horizontal flag, the
-  vertical position falls back to the top, not the middle (and a vertical flag
-  alone aligns to the left). Write `HorizontalAlign.RIGHT | VerticalAlign.MIDDLE`
-  rather than just `HorizontalAlign.RIGHT`. Don't combine two flags for the same
-  direction.
-</Aside>
+Each direction takes at most one flag. A direction you leave out is centered, so `HorizontalAlign.RIGHT` alone means right and middle. Two flags for the same direction throw `align must combine at most one HorizontalAlign and one VerticalAlign flag`.
+`contain` and `cover` also accept `align: { x, y }` with fractions from `0` (left or top) to `1` (right or bottom), like CSS `object-position`.
 
 ## JimpMime
 
@@ -151,6 +155,7 @@ An object with the MIME type of each default format. Pass its values to [`getBuf
 | ------ | -------------- |
 | `bmp`  | `"image/bmp"`  |
 | `gif`  | `"image/gif"`  |
+| `ico`  | `"image/x-icon"` |
 | `jpeg` | `"image/jpeg"` |
 | `png`  | `"image/png"`  |
 | `tiff` | `"image/tiff"` |
@@ -163,7 +168,8 @@ const image = await Jimp.read("photo.png");
 const buffer = await image.getBuffer(JimpMime.jpeg, { quality: 80 });
 ```
 
-The default formats also include `"image/x-ms-bmp"`, which isn't in `JimpMime`.
+The default formats also include `"image/x-ms-bmp"` and `"image/vnd.microsoft.icon"`, which aren't in `JimpMime`.
+Added in 2.0: `JimpMime.ico`.
 Formats added with plugins, such as WEBP, aren't either; use their MIME string directly. See [Formats](/jimp/concepts/formats/).
 
 ## PNGColorType
@@ -215,7 +221,7 @@ const buffer = await image.getBuffer(JimpMime.png, { filterType: PNGFilterType.N
 ## BmpCompression
 
 The compression methods of the BMP format, re-exported from the [`bmp-ts`](https://www.npmjs.com/package/bmp-ts) library.
-No Jimp option takes this enum: Jimp always writes uncompressed 24-bit BMP files. It's exported for code that works with BMP headers directly.
+No Jimp option takes this enum: Jimp always writes uncompressed BMP files. It's exported for code that works with BMP headers directly.
 
 | Member                | Value |
 | --------------------- | ----- |
@@ -235,11 +241,10 @@ How [`getPixelIndex`](/jimp/methods/get-pixel-index/) and the `edgeHandling` opt
 | `WRAP`   | `2`   | Wrap around to the opposite side.              |
 | `CROP`   | `3`   | Treat as missing. `getPixelIndex` returns `-1`. |
 
-`jimp` exports `Edge` as a TypeScript type only, so there's no `Edge` object to read `Edge.WRAP` from at run time.
-Pass the number, or install `@jimp/types` and import the enum from there:
-
 ```ts title="example.ts"
-import { Edge } from "@jimp/types";
+import { Jimp, Edge } from "jimp";
+
+const image = await Jimp.read("photo.png");
 
 image.convolution({
   kernel: [
@@ -247,11 +252,50 @@ image.convolution({
     [-1, 5, -1],
     [0, -1, 0],
   ],
-  edgeHandling: Edge.WRAP, // or 2
+  edgeHandling: Edge.WRAP,
 });
 ```
 
+`Edge` replaces v0's `Jimp.EDGE_EXTEND`, `Jimp.EDGE_WRAP` and `Jimp.EDGE_CROP`.
+Changed in 2.0: `jimp` exports `Edge` as a value; before, it was a type-only export, so `Edge.WRAP` was `undefined` at run time.
 See [Colors and pixels](/jimp/concepts/colors-and-pixels/#edge-handling).
+
+## ColorActionName
+
+The names of the actions of [`color`](/jimp/methods/color/), for its `apply` field.
+Each member is the action name as a string, so `ColorActionName.HUE` is `"hue"`, and plain strings work just as well.
+
+| Member       | Value          |
+| ------------ | -------------- |
+| `HUE`        | `"hue"`        |
+| `SPIN`       | `"spin"`       |
+| `SATURATE`   | `"saturate"`   |
+| `DESATURATE` | `"desaturate"` |
+| `GREYSCALE`  | `"greyscale"`  |
+| `LIGHTEN`    | `"lighten"`    |
+| `DARKEN`     | `"darken"`     |
+| `BRIGHTEN`   | `"brighten"`   |
+| `TINT`       | `"tint"`       |
+| `SHADE`      | `"shade"`      |
+| `MIX`        | `"mix"`        |
+| `MULTIPLY`   | `"multiply"`   |
+| `XOR`        | `"xor"`        |
+| `RED`        | `"red"`        |
+| `GREEN`      | `"green"`      |
+| `BLUE`       | `"blue"`       |
+
+```ts title="example.ts"
+import { Jimp, ColorActionName } from "jimp";
+
+const image = await Jimp.read("photo.png");
+
+image.color([
+  { apply: ColorActionName.HUE, params: [30] },
+  { apply: ColorActionName.MULTIPLY, params: [1.1, 1, 0.9] },
+]);
+```
+
+Changed in 2.0: `ColorActionName` is exported from `jimp`, and has a `MULTIPLY` member for the new `multiply` action. Before, it was only exported by `@jimp/plugin-color`.
 
 ## defaultPlugins and defaultFormats
 
@@ -259,7 +303,7 @@ The building blocks of the `Jimp` class.
 `jimp` creates it with `createJimp({ plugins: defaultPlugins, formats: defaultFormats })`, and you can do the same to add your own plugins or formats on top.
 
 - `defaultPlugins` is an array of the method objects of the 19 built-in plugins: blit, blur, border, circle, color, contain, cover, crop, displace, dither, fisheye, flip, hash, mask, print, resize, rotate, threshold and quantize.
-- `defaultFormats` is an array of format factories, one each for `image/bmp`, `image/x-ms-bmp`, `image/gif`, `image/jpeg`, `image/png` and `image/tiff`.
+- `defaultFormats` is an array of format factories, one each for `image/bmp`, `image/x-ms-bmp`, `image/gif`, `image/x-icon`, `image/vnd.microsoft.icon`, `image/jpeg`, `image/png` and `image/tiff`.
 
 ```ts title="example.ts"
 import { createJimp } from "@jimp/core";
@@ -280,3 +324,4 @@ See [Custom Jimp](/jimp/guides/custom-jimp/) and [WEBP / WASM](/jimp/guides/webp
 - [Formats](/jimp/concepts/formats/): the options of each format.
 - [Compositing](/jimp/concepts/compositing/): blend modes in action.
 - [Migrate to v1](/jimp/guides/migrate-to-v1/): mapping v0 constants to these exports.
+- [Migrate to v2](/jimp/guides/migrate-to-v2/): what changed in 2.0.

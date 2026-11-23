@@ -6,7 +6,6 @@ method: "getPixelIndex"
 plugin: "@jimp/core"
 ---
 
-import { Aside } from "@astrojs/starlight/components";
 import Playground from "../../../components/playground/Playground";
 import Related from "../../../components/Related.astro";
 
@@ -27,7 +26,7 @@ image.getPixelIndex(x: number, y: number, edgeHandling?: Edge): number
 | -------------- | -------- | ------------- | ----------------------------------------------------------------------------------- |
 | `x`            | `number` | required      | Column, counted from `0` at the left edge.                                          |
 | `y`            | `number` | required      | Row, counted from `0` at the top edge.                                              |
-| `edgeHandling` | `Edge`   | `1` (EXTEND)  | What to do with coordinates outside the image. See [Edge handling](#edge-handling). |
+| `edgeHandling` | `Edge`   | `Edge.EXTEND` | What to do with coordinates outside the image. See [Edge handling](#edge-handling). |
 
 The pixel's red, green, blue and alpha bytes are at the returned index and the three after it.
 Inside the image the index is always `(y * image.width + x) * 4`.
@@ -53,46 +52,52 @@ data[idx + 3] = 128; // make the pixel half transparent
 ## Edge handling
 
 The third argument says what to do when `x` or `y` is outside the image.
-It takes a value of the [`Edge`](/jimp/concepts/constants/#edge) enum:
+It takes a value of the [`Edge`](/jimp/concepts/constants/#edge) enum, which you import from `jimp`:
 
-| Value | Name          | Coordinates outside the image                                                            |
-| ----- | ------------- | ---------------------------------------------------------------------------------------- |
-| `1`   | `Edge.EXTEND` | Clamped to the nearest edge pixel. The default.                                          |
-| `2`   | `Edge.WRAP`   | Wrapped around to the other side, as if the image were tiled.                           |
-| `3`   | `Edge.CROP`   | Not clamped: the result is `-1`, so you can skip the pixel or treat it as transparent. |
+| Member        | Value | Coordinates outside the image                                                            |
+| ------------- | ----- | ---------------------------------------------------------------------------------------- |
+| `Edge.EXTEND` | `1`   | Clamped to the nearest edge pixel. The default.                                          |
+| `Edge.WRAP`   | `2`   | Wrapped around to the other side, as if the image were tiled.                           |
+| `Edge.CROP`   | `3`   | Not clamped: the result is `-1`, so you can skip the pixel or treat it as transparent. |
 
 ```ts title="example.ts"
+import { Jimp, Edge } from "jimp";
+
 const image = new Jimp({ width: 3, height: 2 });
 
 image.getPixelIndex(1, 1); // 16
 image.getPixelIndex(-1, 0); // 0, clamped to (0, 0)
-image.getPixelIndex(-1, 0, 2); // 8, wrapped to (2, 0)
-image.getPixelIndex(-1, 0, 3); // -1, outside the image
+image.getPixelIndex(-1, 0, Edge.WRAP); // 8, wrapped to (2, 0)
+image.getPixelIndex(-1, 0, Edge.CROP); // -1, outside the image
 ```
 
-<Aside type="note" title="Edge is a type-only export">
-  `jimp` exports `Edge` as a TypeScript type, not a value, so
-  `import { Edge } from "jimp"` gives you nothing to call `Edge.WRAP` on at
-  run time. Pass the numbers `1`, `2` or `3`, or install `@jimp/types` and
-  import the enum from there: `import { Edge } from "@jimp/types"`.
-</Aside>
+### Check whether a point is inside the image
+
+`Edge.CROP` is a quick bounds check:
+
+```ts title="example.ts"
+const inside = image.getPixelIndex(x, y, Edge.CROP) !== -1;
+```
 
 ## Try it
 
 Every pixel is read from `(x - shift x, y - shift y)` with `getPixelIndex`.
-Switch `edgeHandling` to see how each mode fills the pixels that come from outside the image.
+Switch `edgeHandling` to see how each mode fills the pixels that come from outside the image: `EXTEND` repeats the edge, `WRAP` tiles the image and `CROP` leaves them transparent.
 
 <Playground method="getPixelIndex" client:visible />
 
 ## Notes
 
 - **Coordinates are rounded** to the nearest whole pixel before the index is computed.
-- **`-1` means outside.** Only `Edge.CROP` and `Edge.WRAP` can return `-1`. With the default `Edge.EXTEND` the index is always inside the image (unless the image is empty).
-- **`Edge.WRAP` wraps once to the left and top.** A coordinate past the right or bottom edge wraps any distance, but a negative one only wraps if it's no further out than one image width or height; beyond that the result is `-1`.
+- **`-1` means outside.** Only `Edge.CROP` returns `-1`. `Edge.EXTEND` and `Edge.WRAP` always return an index inside the image (unless the image is empty).
+- **`Edge.WRAP` wraps any distance**, in every direction: on an image 3 pixels wide, `-4` and `5` both wrap to column `2`.
 - **`0` or no value means `Edge.EXTEND`.**
-- **Arguments must be numbers.** Anything else throws `x and y must be numbers`.
-- [`getPixelColor`](/jimp/methods/get-pixel-color/) and [`setPixelColor`](/jimp/methods/set-pixel-color/) both use `getPixelIndex` with `Edge.EXTEND`, which is why they clamp out-of-range coordinates.
+- **Arguments must be numbers.** Anything else, including `NaN`, throws `x and y must be numbers`.
+- [`getPixelColor`](/jimp/methods/get-pixel-color/) uses `Edge.EXTEND`, so it reads the nearest edge pixel for coordinates outside the image. [`setPixelColor`](/jimp/methods/set-pixel-color/) uses `Edge.CROP` and skips them.
 - [`scan`](/jimp/methods/scan/) and [`scanIterator`](/jimp/methods/scan-iterator/) already pass each pixel's index to you, so you rarely need `getPixelIndex` inside them.
+- Changed in 2.0: `Edge` is exported from `jimp` as a value, so `Edge.WRAP` works at run time; before, it was a type-only export.
+- Changed in 2.0: `Edge.WRAP` wraps coordinates any distance outside the image; before, a coordinate more than one image width or height to the left or top returned `-1`.
+- Changed in 2.0: `NaN` coordinates throw; before, they returned index `0`.
 
 ## Related
 
