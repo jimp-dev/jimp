@@ -3,7 +3,7 @@ import { expect, test, describe } from "vitest";
 import { makeTestImage } from "@jimp/test-utils";
 import { createJimp } from "@jimp/core";
 
-import { methods, ResizeStrategy } from "./index.js";
+import { methods, ResizeOptions, ResizeStrategy } from "./index.js";
 
 const jimp = createJimp({ plugins: [methods], formats: [] });
 
@@ -504,5 +504,156 @@ describe("Resize images", () => {
         });
       });
     });
+  });
+});
+
+describe("premultiplyAlpha", () => {
+  const modes = [undefined, ...Object.values(ResizeStrategy)];
+  // down, up, one side only, only h given and fractional sizes
+  const sizes: ResizeOptions[] = [
+    { w: 4, h: 4 },
+    { w: 6, h: 6 },
+    { w: 3, h: 5 },
+    { w: 12, h: 12 },
+    { w: 20, h: 17 },
+    { w: 12, h: 8 },
+    { w: 8, h: 5 },
+    { h: 5 },
+    { w: 5.4, h: 10.6 },
+  ];
+  const describeSize = ({ w, h }: ResizeOptions) =>
+    `${w ?? "auto"}x${h ?? "auto"}`;
+
+  /** An 8x8 image of noise, with alpha from `alpha(x, y)` */
+  function noise(alpha: (x: number, y: number) => number) {
+    const data = Buffer.alloc(8 * 8 * 4);
+    let seed = 1;
+
+    for (let i = 0; i < data.length; i++) {
+      seed = (seed * 16807) % 2147483647;
+      data[i] = seed & 255;
+    }
+
+    for (let i = 0; i < 64; i++) {
+      data[i * 4 + 3] = alpha(i % 8, Math.floor(i / 8));
+    }
+
+    return jimp.fromBitmap({ data, width: 8, height: 8 });
+  }
+
+  /**
+   * A texture with alpha used as data: alpha 0 on the left, 255 on the right
+   * and partial in between, and the same colour everywhere
+   */
+  function texture() {
+    const data = Buffer.alloc(16 * 16 * 4);
+
+    for (let i = 0; i < 256; i++) {
+      const x = i % 16;
+      data.set([200, 100, 50, Math.max(0, Math.min(255, (x - 6) * 64))], i * 4);
+    }
+
+    return jimp.fromBitmap({ data, width: 16, height: 16 });
+  }
+
+  for (const mode of modes) {
+    describe(mode ?? "default", () => {
+      for (const size of sizes) {
+        test(`${describeSize(size)} doesn't change opaque images`, () => {
+          const opaque = noise(() => 255);
+          const straight = opaque
+            .clone()
+            .resize({ ...size, mode, premultiplyAlpha: false }).bitmap;
+          const premultiplied = opaque.clone().resize({ ...size, mode }).bitmap;
+
+          expect(straight.width).toBe(premultiplied.width);
+          expect(straight.height).toBe(premultiplied.height);
+          expect(straight.data).toEqual(premultiplied.data);
+        });
+
+        test(`${describeSize(size)} gives the colour of an opaque image and the alpha it always had`, () => {
+          const alpha = (x: number, y: number) =>
+            [0, 255, 128, 0, 30][(x + y) % 5]!;
+          const straight = noise(alpha).resize({
+            ...size,
+            mode,
+            premultiplyAlpha: false,
+          }).bitmap;
+          const colour = noise(() => 255).resize({ ...size, mode }).bitmap.data;
+          const together = noise(alpha).resize({ ...size, mode }).bitmap.data;
+
+          for (let i = 0; i < straight.data.length; i += 4) {
+            expect([...straight.data.subarray(i, i + 4)]).toEqual([
+              ...colour.subarray(i, i + 3),
+              together[i + 3],
+            ]);
+          }
+        });
+
+        test(`${describeSize(size)} keeps the colour of transparent pixels`, () => {
+          const straight = texture().resize({
+            ...size,
+            mode,
+            premultiplyAlpha: false,
+          }).bitmap.data;
+          const premultiplied = texture().resize({ ...size, mode }).bitmap.data;
+          let transparent = 0;
+
+          for (let i = 0; i < straight.length; i += 4) {
+            expect([...straight.subarray(i, i + 3)]).toEqual([200, 100, 50]);
+            expect(straight[i + 3]).toBe(premultiplied[i + 3]);
+
+            if (premultiplied[i + 3] === 0) {
+              transparent++;
+              // by default transparent pixels have no colour, unless the mode
+              // copies pixels
+              expect([...premultiplied.subarray(i, i + 3)]).toEqual(
+                mode === ResizeStrategy.NEAREST_NEIGHBOR
+                  ? [200, 100, 50]
+                  : [0, 0, 0],
+              );
+            }
+          }
+
+          expect(transparent).toBeGreaterThan(0);
+        });
+      }
+    });
+  }
+
+  test("by default transparent pixels don't bleed into their neighbours", () => {
+    // red with alpha 0 next to opaque green
+    const data = Buffer.alloc(8 * 1 * 4);
+
+    for (let x = 0; x < 8; x++) {
+      data.set(x < 4 ? [255, 0, 0, 0] : [0, 255, 0, 255], x * 4);
+    }
+
+    const image = jimp.fromBitmap({ data, width: 8, height: 1 });
+    const premultiplied = image.clone().resize({ w: 3, h: 1 }).bitmap.data;
+    const straight = image
+      .clone()
+      .resize({ w: 3, h: 1, premultiplyAlpha: false }).bitmap.data;
+
+    // the middle pixel is half red, half green
+    expect(premultiplied[5]).toBe(255);
+    expect(premultiplied[4]).toBe(0);
+    expect(straight[4]).toBeGreaterThan(0);
+    expect(straight[5]).toBeLessThan(255);
+  });
+
+  test("scale and scaleToFit pass it on", () => {
+    const straight = texture().resize({ w: 6, h: 6, premultiplyAlpha: false });
+
+    expect(
+      texture().scale({ f: 6 / 16, premultiplyAlpha: false }).bitmap.data,
+    ).toEqual(straight.bitmap.data);
+    expect(
+      texture().scaleToFit({ w: 6, h: 10, premultiplyAlpha: false }).bitmap
+        .data,
+    ).toEqual(straight.bitmap.data);
+    expect(texture().scale({ f: 6 / 16 }).bitmap.data).not.toEqual(
+      straight.bitmap.data,
+    );
   });
 });

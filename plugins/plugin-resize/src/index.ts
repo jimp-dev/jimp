@@ -32,6 +32,12 @@ const ResizeOptionsSchema = z.union([
     h: z.number().min(0).optional(),
     /** a scaling method (e.g. ResizeStrategy.BEZIER) */
     mode: z.nativeEnum(ResizeStrategy).optional(),
+    /**
+     * Whether to treat alpha as opacity and weight the colour by it (default
+     * `true`). With `false` every channel is resampled on its own, which keeps
+     * the colour of transparent pixels, for alpha that holds other data
+     */
+    premultiplyAlpha: z.boolean().optional(),
   }),
   z.object({
     /** the width to resize the image to */
@@ -40,6 +46,12 @@ const ResizeOptionsSchema = z.union([
     h: z.number().min(0),
     /** a scaling method (e.g. ResizeStrategy.BEZIER) */
     mode: z.nativeEnum(ResizeStrategy).optional(),
+    /**
+     * Whether to treat alpha as opacity and weight the colour by it (default
+     * `true`). With `false` every channel is resampled on its own, which keeps
+     * the colour of transparent pixels, for alpha that holds other data
+     */
+    premultiplyAlpha: z.boolean().optional(),
   }),
 ]);
 
@@ -52,6 +64,12 @@ const ScaleToFitOptionsSchema = z.object({
   h: z.number().min(0),
   /** a scaling method (e.g. ResizeStrategy.BEZIER) */
   mode: z.nativeEnum(ResizeStrategy).optional(),
+  /**
+   * Whether to treat alpha as opacity and weight the colour by it (default
+   * `true`). With `false` every channel is resampled on its own, which keeps
+   * the colour of transparent pixels, for alpha that holds other data
+   */
+  premultiplyAlpha: z.boolean().optional(),
 });
 
 export type ScaleToFitOptions = z.infer<typeof ScaleToFitOptionsSchema>;
@@ -61,13 +79,19 @@ const ScaleComplexOptionsSchema = z.object({
   f: z.number().min(0),
   /** a scaling method (e.g. ResizeStrategy.BEZIER) */
   mode: z.nativeEnum(ResizeStrategy).optional(),
+  /**
+   * Whether to treat alpha as opacity and weight the colour by it (default
+   * `true`). With `false` every channel is resampled on its own, which keeps
+   * the colour of transparent pixels, for alpha that holds other data
+   */
+  premultiplyAlpha: z.boolean().optional(),
 });
 
 export type ScaleComplexOptions = z.infer<typeof ScaleComplexOptionsSchema>;
 export type ScaleOptions = number | ScaleComplexOptions;
 
 /** Copy RGBA data with each color multiplied by its pixel's alpha */
-function premultiplyAlpha(data: ArrayLike<number>) {
+function toPremultiplied(data: ArrayLike<number>) {
   const result = new Float32Array(data.length);
 
   for (let i = 0; i < data.length; i += 4) {
@@ -77,6 +101,21 @@ function premultiplyAlpha(data: ArrayLike<number>) {
     result[i + 1] = (data[i + 1]! * a) / 255;
     result[i + 2] = (data[i + 2]! * a) / 255;
     result[i + 3] = a;
+  }
+
+  return result;
+}
+
+/** Round resized RGBA into bytes */
+function roundToBytes(data: ArrayLike<number>) {
+  if (data instanceof Uint8Array) {
+    return Buffer.from(data);
+  }
+
+  const result = Buffer.alloc(data.length);
+
+  for (let i = 0; i < data.length; i++) {
+    result[i] = Math.round(data[i]!);
   }
 
   return result;
@@ -101,7 +140,7 @@ function unpremultiplyAlpha(data: ArrayLike<number>) {
     for (let k = 0; k < 3; k++) {
       result[i + k] = Math.min(
         255,
-        Math.max(0, Math.round((data[i + k]! * 255) / data[i + 3]!))
+        Math.max(0, Math.round((data[i + k]! * 255) / data[i + 3]!)),
       );
     }
   }
@@ -119,6 +158,7 @@ export const methods = {
    * @param options.w the width to resize the image to
    * @param options.h the height to resize the image to
    * @param options.mode (optional) a scaling method (e.g. ResizeStrategy.LANCZOS)
+   * @param options.premultiplyAlpha (optional) whether to treat alpha as opacity (default `true`), so transparent pixels don't darken their neighbours. Pass `false` when alpha holds other data (e.g. a texture mask): every channel is then resampled on its own and transparent pixels keep their colour
    * @example
    * ```ts
    * import { Jimp, ResizeStrategy } from "jimp";
@@ -129,10 +169,14 @@ export const methods = {
    *
    * // or pick the scaling method
    * image.resize({ w: 150, mode: ResizeStrategy.LANCZOS });
+   *
+   * // keep the colour of transparent pixels, e.g. for a texture whose alpha is a mask
+   * image.resize({ w: 150, premultiplyAlpha: false });
    * ```
    */
   resize<I extends JimpClass>(image: I, options: ResizeOptions) {
-    const { mode } = ResizeOptionsSchema.parse(options);
+    const { mode, premultiplyAlpha = true } =
+      ResizeOptionsSchema.parse(options);
 
     let w: number;
     let h: number;
@@ -157,13 +201,15 @@ export const methods = {
         width: w,
         height: h,
       };
-      Resize2[mode](image.bitmap, dst);
+      Resize2[mode](image.bitmap, dst, premultiplyAlpha);
       image.bitmap = dst;
     } else {
       const { data } = image.bitmap;
       // Images with transparency are resized with their colors premultiplied
       // by alpha, so transparent pixels don't darken their neighbors
-      const hasAlpha = data.some((value, i) => (i & 3) === 3 && value !== 255);
+      const premultiply =
+        premultiplyAlpha &&
+        data.some((value, i) => (i & 3) === 3 && value !== 255);
       const resize = new (Resize as unknown as Constructable<ResizeClass>)(
         image.bitmap.width,
         image.bitmap.height,
@@ -172,15 +218,15 @@ export const methods = {
         true,
         true,
         (buffer: ArrayLike<number>) => {
-          image.bitmap.data = hasAlpha
+          image.bitmap.data = premultiply
             ? unpremultiplyAlpha(buffer)
-            : Buffer.from(buffer as Uint8Array);
+            : roundToBytes(buffer);
           image.bitmap.width = w;
           image.bitmap.height = h;
-        }
+        },
       );
 
-      resize.resize(hasAlpha ? premultiplyAlpha(data) : data);
+      resize.resize(premultiply ? toPremultiplied(data) : data);
     }
 
     return image;
@@ -191,6 +237,7 @@ export const methods = {
    * @param options the factor to scale the image by, or an object with the factor and scaling method
    * @param options.f the factor to scale the image by
    * @param options.mode (optional) a scaling method (e.g. ResizeStrategy.BEZIER)
+   * @param options.premultiplyAlpha (optional) whether to treat alpha as opacity (default `true`). See `resize`
    * @example
    * ```ts
    * import { Jimp, ResizeStrategy } from "jimp";
@@ -204,14 +251,14 @@ export const methods = {
    * ```
    */
   scale<I extends JimpClass>(image: I, options: ScaleOptions) {
-    const { f, mode } =
+    const { f, mode, premultiplyAlpha } =
       typeof options === "number"
         ? ({ f: options } as ScaleComplexOptions)
         : ScaleComplexOptionsSchema.parse(options);
     const w = image.bitmap.width * f;
     const h = image.bitmap.height * f;
 
-    return this.resize(image, { w, h, mode: mode });
+    return this.resize(image, { w, h, mode, premultiplyAlpha });
   },
 
   /**
@@ -220,6 +267,7 @@ export const methods = {
    * @param options.w the width to resize the image to
    * @param options.h the height to resize the image to
    * @param options.mode a scaling method (e.g. ResizeStrategy.BEZIER)
+   * @param options.premultiplyAlpha (optional) whether to treat alpha as opacity (default `true`). See `resize`
    * @example
    * ```ts
    * import { Jimp } from "jimp";
@@ -230,12 +278,13 @@ export const methods = {
    * ```
    */
   scaleToFit<I extends JimpClass>(image: I, options: ScaleToFitOptions) {
-    const { h, w, mode } = ScaleToFitOptionsSchema.parse(options);
+    const { h, w, mode, premultiplyAlpha } =
+      ScaleToFitOptionsSchema.parse(options);
     const f =
       w / h > image.bitmap.width / image.bitmap.height
         ? h / image.bitmap.height
         : w / image.bitmap.width;
 
-    return this.scale(image, { f, mode: mode });
+    return this.scale(image, { f, mode, premultiplyAlpha });
   },
 };

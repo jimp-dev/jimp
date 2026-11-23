@@ -120,3 +120,35 @@ describe("cover align", () => {
     ).not.toEqual(withCenter.bitmap.data);
   });
 });
+
+describe("premultiplyAlpha", () => {
+  // alpha 0 on the left, 255 on the right and partial in between, with the
+  // same colour everywhere
+  function texture() {
+    const data = Buffer.alloc(16 * 16 * 4);
+
+    for (let i = 0; i < 256; i++) {
+      const x = i % 16;
+      data.set([200, 100, 50, Math.max(0, Math.min(255, (x - 6) * 64))], i * 4);
+    }
+
+    return jimp.fromBitmap({ data, width: 16, height: 16 });
+  }
+
+  test("false keeps the colour of transparent pixels", () => {
+    const { data } = texture().cover({
+      w: 6,
+      h: 4,
+      premultiplyAlpha: false,
+    }).bitmap;
+    const premultiplied = texture().cover({ w: 6, h: 4 }).bitmap.data;
+
+    for (let i = 0; i < data.length; i += 4) {
+      expect([...data.subarray(i, i + 3)]).toEqual([200, 100, 50]);
+      expect(data[i + 3]).toBe(premultiplied[i + 3]);
+    }
+
+    // by default transparent pixels have no colour
+    expect([...premultiplied.subarray(0, 4)]).toEqual([0, 0, 0, 0]);
+  });
+});

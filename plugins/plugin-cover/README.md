@@ -7,4 +7,6 @@
 
 - [cover](https://jimp-dev.github.io/jimp/api/jimp/classes/jimp/#cover)
 
+Takes the same `mode` and `premultiplyAlpha` options as [resize](https://github.com/jimp-dev/jimp/tree/main/plugins/plugin-resize#keeping-the-colour-of-transparent-pixels).
+
 See [Getting Started](https://jimp-dev.github.io/jimp/guides/getting-started/) to read an image, change it and save the result with `write` or `getBuffer`.
