@@ -46,7 +46,7 @@ Older versions of `@jimp/core` and the format plugins use the global `Buffer`, w
 If you see `ReferenceError: Buffer is not defined`, update your Jimp packages.
 If you can't update, set `globalThis.Buffer` from the [`buffer`](https://www.npmjs.com/package/buffer) package before you import Jimp.
 
-`@jimp/js-gif` depends on `gifwrap`, which imports `fs` for file helpers that Jimp doesn't use.
+Older versions of `@jimp/js-gif` depend on `gifwrap`, which imports `fs` for file helpers that Jimp doesn't use.
 Vite logs `Module "fs" has been externalized for browser compatibility` for it, and that warning is safe to ignore.
 
 ### Cloudflare Workers

@@ -1,7 +1,8 @@
 import { Buffer } from "buffer";
 import GIF from "omggif";
-import { GifUtil, GifFrame, BitmapImage, GifCodec } from "gifwrap";
 import { Format } from "@jimp/types";
+import { indexImage } from "./quantize.js";
+import { writeGif } from "./writer.js";
 
 export interface JPEGOptions {
   quality?: number;
@@ -61,16 +62,28 @@ function validateGif(gif: GIF.GifReader, maxResolutionInMP: number) {
   }
 }
 
+/** The logical screen and frame sizes are 16 bit fields */
+const MAX_GIF_DIMENSION = 65535;
+
 export default function gif() {
   return {
     mime: "image/gif",
-    encode: async (bitmap) => {
-      const gif = new BitmapImage(bitmap);
-      GifUtil.quantizeDekker(gif, 256);
-      const newFrame = new GifFrame(bitmap);
-      const gifCodec = new GifCodec();
-      const newGif = await gifCodec.encodeGif([newFrame], {});
-      return newGif.buffer;
+    encode: (bitmap) => {
+      const { width, height, data } = bitmap;
+
+      if (width <= 0 || height <= 0) {
+        throw new Error(`Invalid GIF dimensions ${width}x${height}`);
+      }
+
+      if (width > MAX_GIF_DIMENSION || height > MAX_GIF_DIMENSION) {
+        throw new Error(
+          `GIF dimensions ${width}x${height} exceed the maximum of ${MAX_GIF_DIMENSION}x${MAX_GIF_DIMENSION}`
+        );
+      }
+
+      const gif = writeGif(width, height, indexImage(data, width, height));
+
+      return Buffer.from(gif.buffer, gif.byteOffset, gif.byteLength);
     },
     decode: (data, { maxResolutionInMP = 100 }: DecodeGifOptions = {}) => {
       const gifObj = new GIF.GifReader(data);
