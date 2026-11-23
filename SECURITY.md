@@ -24,17 +24,9 @@ Please include:
 
 ## Scope
 
-Jimp is often used to process images uploaded by untrusted users, so crafted images that make Jimp crash, hang or exhaust memory are in scope. That includes problems in the bundled decoders and their dependencies.
+Crafted images that make Jimp crash, hang or exhaust memory are in scope, including in the bundled decoders and their dependencies.
 
-Recent hardening of this kind: the JPEG, BMP, GIF and TIFF decoders reject images larger than a `maxResolutionInMP` limit (100 megapixels by default) before allocating memory for them ([#1415](https://github.com/jimp-dev/jimp/issues/1415), [#1435](https://github.com/jimp-dev/jimp/pull/1435), [#1451](https://github.com/jimp-dev/jimp/pull/1451)). You can lower or raise it per format:
-
-```js
-const image = await Jimp.read(buffer, {
-  "image/jpeg": { maxResolutionInMP: 50 },
-});
-```
-
-A large image that stays within the limit and uses the memory you'd expect for its size is not a vulnerability. If your application handles untrusted input, set limits that suit it.
+The JPEG, BMP, GIF and TIFF decoders already reject images over the `maxResolutionInMP` decode limit (100 megapixels by default), so a large image within that limit isn't a vulnerability on its own.
 
 ## What to expect
 
