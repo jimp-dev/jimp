@@ -13,7 +13,7 @@ import { z } from "zod";
 
 const ConvolutionMatrixSchema = z
   .array(z.number())
-  .min(1)
+  .min(1, "kernel rows must not be empty")
   .array()
   .min(1, "kernel must be a matrix")
   .refine(
@@ -58,6 +58,11 @@ const ConvoluteComplexOptionsSchema = z.object({
   divisor: ConvolutionDivisorSchema.optional(),
   /** add this to each color channel after dividing (default 0) */
   bias: z.number().optional(),
+  /**
+   * leave alpha as is instead of convolving it, like `preserveAlpha` in the
+   * CSS `feConvolveMatrix` (default false)
+   */
+  preserveAlpha: z.boolean().optional(),
 });
 const ConvoluteOptionsSchema = z.union([
   ConvolutionMatrixSchema,
@@ -530,6 +535,11 @@ function histogram<I extends JimpClass>(image: I) {
  * @param  max   Maximum value for channel
  */
 const normalizeValue = function (value: number, min: number, max: number) {
+  // A channel with a single value has no range to stretch
+  if (min === max) {
+    return value;
+  }
+
   return ((value - min) * 255) / (max - min);
 };
 
@@ -546,7 +556,9 @@ const getBounds = function (histogramChannel: number[]) {
 
 export const methods = {
   /**
-   * Normalizes the image.
+   * Normalizes the image: stretches each color channel so its lowest value
+   * becomes 0 and its highest 255. A channel that has the same value in
+   * every pixel is left unchanged.
    * @example
    * ```ts
    * import { Jimp } from "jimp";
@@ -652,7 +664,12 @@ export const methods = {
   },
 
   /**
-   * Adjusts the contrast of the image
+   * Adjusts the contrast of the image by scaling each color channel's
+   * distance from the midpoint, 127.5, by `(1 + val) / (1 - val)`.
+   *
+   * - `0` leaves the image unchanged
+   * - `-1` turns every pixel mid grey (128)
+   * - `1` sets channels up to 127 to 0 and channels from 128 up to 255
    * @param val the amount to adjust the contrast, a number between -1 and +1
    * @example
    * ```ts
@@ -675,8 +692,17 @@ export const methods = {
     const factor = (val + 1) / (1 - val);
 
     function adjust(value: number) {
-      value = Math.floor(factor * (value - 127) + 127);
-      return value < 0 ? 0 : value > 255 ? 255 : value;
+      // 127.5 is never a channel value, so with val = 1 (an infinite
+      // factor) every channel goes to 0 or 255 rather than 0 * Infinity
+      const offset = factor * (value - 127.5);
+
+      // Round halves away from the midpoint, so dark and light channels
+      // are treated alike: contrast(invert(image)) is invert(contrast(image))
+      return limit255(
+        offset < 0
+          ? 255 - Math.round(127.5 - offset)
+          : Math.round(127.5 + offset),
+      );
     }
 
     image.scan((_, __, idx) => {
@@ -689,8 +715,10 @@ export const methods = {
   },
 
   /**
-   * Apply a posterize effect
-   * @param  n the amount to adjust the contrast, minimum threshold is two
+   * Apply a posterize effect: rounds each color channel to the nearest of
+   * `n` evenly spaced levels from 0 to 255. For example `n = 2` gives 0 and
+   * 255, and `n = 4` gives 0, 85, 170 and 255.
+   * @param  n the number of levels per channel, at least 2
    * @example
    * ```ts
    * import { Jimp } from "jimp";
@@ -705,22 +733,19 @@ export const methods = {
       throw new Error("n must be numbers");
     }
 
-    // minimum of 2 levels
-    if (n < 2) {
-      n = 2;
+    // a whole number of levels from 2 to 256 (256 leaves the image as is)
+    n = Math.min(256, Math.max(2, Math.round(n)));
+
+    const step = 255 / (n - 1);
+
+    function level(value: number) {
+      return Math.round(Math.round(value / step) * step);
     }
 
     image.scan((_, __, idx) => {
-      const r = image.bitmap.data[idx]!;
-      const g = image.bitmap.data[idx + 1]!;
-      const b = image.bitmap.data[idx + 2]!;
-
-      image.bitmap.data[idx] =
-        (Math.floor((r / 255) * (n - 1)) / (n - 1)) * 255;
-      image.bitmap.data[idx + 1] =
-        (Math.floor((g / 255) * (n - 1)) / (n - 1)) * 255;
-      image.bitmap.data[idx + 2] =
-        (Math.floor((b / 255) * (n - 1)) / (n - 1)) * 255;
+      image.bitmap.data[idx] = level(image.bitmap.data[idx]!);
+      image.bitmap.data[idx + 1] = level(image.bitmap.data[idx + 1]!);
+      image.bitmap.data[idx + 2] = level(image.bitmap.data[idx + 2]!);
     });
 
     return image;
@@ -1056,13 +1081,15 @@ export const methods = {
 
   /**
    * Applies a convolution kernel to the image or a region. Unlike
-   * `convolution`, the kernel is applied to the alpha channel too.
+   * `convolution`, the kernel is applied to the alpha channel too, unless
+   * `preserveAlpha` is true (like the CSS `feConvolveMatrix`).
    *
    * Each color channel becomes `sum / divisor + bias` and alpha becomes
    * `sum / divisor`, clamped to 0-255. The kernel isn't normalized, so pass
    * the sum of its weights as the `divisor` to keep the brightness of the
    * image, and a `bias` to shift results that can be negative into the
-   * visible range.
+   * visible range. Kernels whose weights sum to 0, like edge detection, make
+   * the image transparent unless `preserveAlpha` is true.
    *
    * The kernel is laid out and anchored the same way as in `convolution`.
    *
@@ -1103,6 +1130,16 @@ export const methods = {
    *   ],
    *   divisor: 16,
    * });
+   *
+   * // edge detection that keeps the image's alpha
+   * image.convolute({
+   *   kernel: [
+   *     [-1, -1, -1],
+   *     [-1, 8, -1],
+   *     [-1, -1, -1],
+   *   ],
+   *   preserveAlpha: true,
+   * });
    * ```
    */
   convolute<I extends JimpClass>(image: I, options: ConvoluteOptions) {
@@ -1115,6 +1152,7 @@ export const methods = {
       h = image.bitmap.height - y,
       divisor = 1,
       bias = 0,
+      preserveAlpha = false,
     } = "kernel" in parsed
       ? parsed
       : ({ kernel: parsed } as ConvoluteComplexOptions);
@@ -1127,7 +1165,10 @@ export const methods = {
       image.bitmap.data[idx] = limit255(value[0]! / divisor + bias);
       image.bitmap.data[idx + 1] = limit255(value[1]! / divisor + bias);
       image.bitmap.data[idx + 2] = limit255(value[2]! / divisor + bias);
-      image.bitmap.data[idx + 3] = limit255(value[3]! / divisor);
+
+      if (!preserveAlpha) {
+        image.bitmap.data[idx + 3] = limit255(value[3]! / divisor);
+      }
     });
 
     return image;

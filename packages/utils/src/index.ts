@@ -260,12 +260,12 @@ export function rgbaToInt(r: number, g: number, b: number, a: number) {
  * colorDiff(
  *  { r: 255, g: 0, b: 0, a: 0 },
  *  { r: 0, g: 255, b: 0, a: 0 },
- * ); // 0.5
+ * ); // 0.6666666666666666
  *
  * colorDiff(
  *  { r: 0, g: 0, b: 0, },
  *  { r: 255, g: 255, b: 255, }
- * ); // 0.7
+ * ); // 1
  * ```
  */
 export function colorDiff(

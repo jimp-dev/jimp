@@ -2,13 +2,17 @@ import { expect, test, describe } from "vitest";
 import "@jimp/test-utils";
 
 import jpeg from "@jimp/js-jpeg";
+import { methods as color } from "@jimp/plugin-color";
 import { methods as hash } from "@jimp/plugin-hash";
 import { createJimp } from "@jimp/core";
 
 import { methods as threshold, otsuThreshold } from "./index.js";
 import { getTestImagePath } from "@jimp/test-utils";
 
-const jimp = createJimp({ formats: [jpeg], plugins: [threshold, hash] });
+const jimp = createJimp({
+  formats: [jpeg],
+  plugins: [threshold, hash, color],
+});
 
 /** An image with one pixel per grey value, each with the given alpha */
 function greyImage(values: number[], alpha: number | number[] = 255) {
@@ -66,6 +70,33 @@ describe("Threshold", () => {
     const output = testImage.threshold({ max: 200, replace: 255 }).hash();
 
     expect(output).toStrictEqual(expectedImage.hash());
+  });
+
+  test("thresholds each channel when autoGreyscale is false", () => {
+    // A red, a green and a dark blue pixel
+    const data = Buffer.from([
+      200, 10, 10, 255, 10, 200, 10, 255, 10, 10, 90, 128,
+    ]);
+    const image = jimp
+      .fromBitmap({ data, width: 3, height: 1 })
+      .threshold({ max: 100, replace: 0, autoGreyscale: false });
+
+    // Channels from 100 up are replaced, the rest and alpha are kept
+    expect([...image.bitmap.data]).toEqual([
+      0, 10, 10, 255, 10, 0, 10, 255, 10, 10, 90, 128,
+    ]);
+  });
+
+  test("autoGreyscale false on a greyscaled image matches true", async () => {
+    const image = await jimp.read(getTestImagePath("hands.jpg"));
+
+    const auto = image.clone().threshold({ max: 120 });
+    const manual = image
+      .clone()
+      .greyscale()
+      .threshold({ max: 120, autoGreyscale: false });
+
+    expect(Buffer.compare(auto.bitmap.data, manual.bitmap.data)).toBe(0);
   });
 });
 

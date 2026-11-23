@@ -31,4 +31,31 @@ describe("Quantize", () => {
     expect(image.bitmap.data.length).toBe(16);
     expect(image.getPixelColor(0, 0)).toBe(0xffffffff);
   });
+
+  test.each([0, -1, 0.5])("rejects %d colors", (colors) => {
+    const image = new jimp({ width: 2, height: 2, color: 0xff0000ff });
+
+    expect(() => image.quantize({ colors })).toThrow(
+      "colors must be at least 1",
+    );
+  });
+
+  test("rejects fewer than 2 colors for rgbquant", () => {
+    const image = new jimp({ width: 2, height: 2, color: 0xff0000ff });
+
+    expect(() =>
+      image.quantize({ colors: 1, paletteQuantization: "rgbquant" }),
+    ).toThrow("colors must be at least 2 for rgbquant");
+    expect(() =>
+      image.quantize({ colors: 2, paletteQuantization: "rgbquant" }),
+    ).not.toThrow();
+  });
+
+  test("reduces the image to a single color", () => {
+    const image = new jimp({ width: 2, height: 1, color: 0xff0000ff });
+    image.setPixelColor(0x0000ffff, 1, 0);
+    image.quantize({ colors: 1 });
+
+    expect(image.getPixelColor(0, 0)).toBe(image.getPixelColor(1, 0));
+  });
 });

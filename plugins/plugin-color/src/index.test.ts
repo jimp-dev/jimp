@@ -201,3 +201,101 @@ describe("brightness", () => {
     expect(image.brightness(0.2).bitmap).toMatchSnapshot();
   });
 });
+
+describe("contrast", () => {
+  const values = [0, 1, 64, 126, 127, 128, 129, 200, 254, 255];
+  const makeImage = () =>
+    jimp.fromBitmap({
+      width: values.length,
+      height: 1,
+      data: Buffer.from(values.flatMap((v) => [v, v, 255 - v, 100])),
+    });
+  const reds = (image: ReturnType<typeof makeImage>) =>
+    values.map((_, i) => image.bitmap.data[i * 4]!);
+
+  test("0 leaves the image unchanged", () => {
+    expect([...makeImage().contrast(0).bitmap.data]).toEqual([
+      ...makeImage().bitmap.data,
+    ]);
+  });
+
+  test("1 splits the channels at the midpoint", () => {
+    const image = makeImage().contrast(1);
+
+    expect(reds(image)).toEqual([0, 0, 0, 0, 0, 255, 255, 255, 255, 255]);
+    // Blue is the inverse of red, so it's split the same way, inverted
+    expect(values.map((_, i) => image.bitmap.data[i * 4 + 2])).toEqual([
+      255, 255, 255, 255, 255, 0, 0, 0, 0, 0,
+    ]);
+    // Alpha is left alone
+    expect(values.every((_, i) => image.bitmap.data[i * 4 + 3] === 100)).toBe(
+      true,
+    );
+  });
+
+  test("-1 turns the image mid grey", () => {
+    expect(reds(makeImage().contrast(-1))).toEqual(values.map(() => 128));
+  });
+
+  test("scales the distance from the midpoint", () => {
+    // 0.5 triples it: 127 is 0.5 below the midpoint, so it becomes 126
+    expect(reds(makeImage().contrast(0.5))).toEqual([
+      0, 0, 0, 123, 126, 129, 132, 255, 255, 255,
+    ]);
+    // -0.5 divides it by 3: 0 becomes 127.5 - 127.5 / 3 = 85
+    expect(reds(makeImage().contrast(-0.5))).toEqual([
+      85, 85, 106, 127, 127, 128, 128, 152, 170, 170,
+    ]);
+  });
+
+  test("treats dark and light channels symmetrically", () => {
+    for (const val of [-0.75, -0.3, 1 / 3, 0.5, 0.6, 0.9]) {
+      const image = makeImage().contrast(val);
+
+      values.forEach((_, i) => {
+        expect(image.bitmap.data[i * 4]! + image.bitmap.data[i * 4 + 2]!).toBe(
+          255,
+        );
+      });
+    }
+  });
+});
+
+describe("posterize", () => {
+  const values = [0, 42, 43, 64, 127, 128, 170, 200, 212, 213, 254, 255];
+  const posterize = (n: number) =>
+    [
+      ...jimp
+        .fromBitmap({
+          width: values.length,
+          height: 1,
+          data: Buffer.from(values.flatMap((v) => [v, v, v, 77])),
+        })
+        .posterize(n).bitmap.data,
+    ].filter((_, i) => i % 4 === 0);
+
+  test("rounds to the nearest of n levels", () => {
+    expect(posterize(2)).toEqual([
+      0, 0, 0, 0, 0, 255, 255, 255, 255, 255, 255, 255,
+    ]);
+    // 0, 85, 170 and 255
+    expect(posterize(4)).toEqual([
+      0, 0, 85, 85, 85, 170, 170, 170, 170, 255, 255, 255,
+    ]);
+  });
+
+  test("keeps alpha", () => {
+    const image = jimp
+      .fromBitmap({ width: 1, height: 1, data: Buffer.from([10, 20, 30, 77]) })
+      .posterize(3);
+
+    expect([...image.bitmap.data]).toEqual([0, 0, 0, 77]);
+  });
+
+  test("uses at least 2 and a whole number of levels", () => {
+    expect(posterize(1)).toEqual(posterize(2));
+    expect(posterize(2.4)).toEqual(posterize(2));
+    expect(posterize(256)).toEqual(values);
+    expect(posterize(1000)).toEqual(values);
+  });
+});

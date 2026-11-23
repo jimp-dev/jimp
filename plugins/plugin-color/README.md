@@ -20,7 +20,7 @@
 - [normalize](https://jimp-dev.github.io/jimp/api/jimp/classes/jimp/#normalize)
 - [invert](https://jimp-dev.github.io/jimp/api/jimp/classes/jimp/#invert)
 
-`convolution` and `convolute` don't normalize the kernel. Pass a `divisor` (like ImageMagick's `-define convolve:scale` or the CSS `feConvolveMatrix` divisor) to write kernels with integer weights, and a `bias` to shift results that can be negative into the visible range:
+`convolution` only changes the color channels. `convolute` convolves alpha too, unless you pass `preserveAlpha: true` (like the CSS `feConvolveMatrix`). Without it, kernels whose weights sum to 0, like edge detection, make the image transparent. Neither method normalizes the kernel. Pass a `divisor` (like ImageMagick's `-define convolve:scale` or the CSS `feConvolveMatrix` divisor) to write kernels with integer weights, and a `bias` to shift results that can be negative into the visible range:
 
 ```ts
 image.convolution({

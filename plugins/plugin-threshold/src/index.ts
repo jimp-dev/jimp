@@ -26,9 +26,11 @@ export type OtsuThresholdOptions = z.infer<typeof OtsuThresholdOptionsSchema>;
 /**
  * Computes the `max` that Otsu's method picks for `threshold`.
  *
- * Builds a 256-bin histogram of the luminance `threshold` compares (Rec. 709
- * greyscale when `autoGreyscale` is true, otherwise the red channel) and
- * picks the split that maximises the between-class variance.
+ * Builds a 256-bin histogram of the image's grey values and picks the split
+ * that maximises the between-class variance. The grey value is the Rec. 709
+ * luminance when `autoGreyscale` is true. Otherwise the image should already
+ * be grey (like OpenCV, which only runs Otsu on single-channel images), and
+ * the red channel is used.
  *
  * - Each pixel counts in proportion to its alpha: fully transparent pixels
  *   are ignored and a pixel at alpha 128 counts about half as much as an
@@ -121,8 +123,11 @@ export const methods = {
    * Converts image to grayscale by default.
    *
    * Pixels with a value below `max` are kept and the rest are set to
-   * `replace`. Pass `max: "otsu"` to choose `max` from the image's histogram
-   * with Otsu's method; see `otsuThreshold` for how it is computed.
+   * `replace`. With `autoGreyscale: false` the image isn't converted, and
+   * each color channel is compared with `max` and replaced on its own (like
+   * OpenCV's `threshold` on a color image). Pass `max: "otsu"` to choose
+   * `max` from the image's histogram with Otsu's method; see
+   * `otsuThreshold` for how it is computed.
    * @example
    * ```ts
    * import { Jimp } from "jimp";
@@ -149,13 +154,14 @@ export const methods = {
         ? otsuThreshold(image, { autoGreyscale: false })
         : limit255(parsed.max);
 
+    // After greyscale() the channels are equal, so this is the same as
+    // thresholding the grey value
     image.scan((_, __, idx) => {
-      const grey =
-        image.bitmap.data[idx]! < max ? image.bitmap.data[idx]! : replace;
-
-      image.bitmap.data[idx] = grey;
-      image.bitmap.data[idx + 1] = grey;
-      image.bitmap.data[idx + 2] = grey;
+      for (let i = idx; i < idx + 3; i++) {
+        if (image.bitmap.data[i]! >= max) {
+          image.bitmap.data[i] = replace;
+        }
+      }
     });
 
     return image;
