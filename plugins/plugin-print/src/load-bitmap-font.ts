@@ -124,6 +124,13 @@ export async function loadBitmapFontData(
   bufferOrUrl: string | Buffer
 ): Promise<LoadedFont> {
   if (typeof bufferOrUrl === "string") {
+    // Some Node.js-like runtimes (e.g. Raycast) don't provide fetch
+    if (typeof globalThis.fetch !== "function") {
+      throw new Error(
+        `loadFont: can't load ${JSON.stringify(bufferOrUrl)} because this runtime has no global fetch. Pass a path to the .fnt file instead (it and its pages are read from disk), or install a fetch polyfill.`,
+      );
+    }
+
     const res = await fetch(bufferOrUrl);
     const text = await res.text();
 

@@ -267,6 +267,82 @@ describe("Write text over image", function () {
     );
   });
 
+  describe("loadFont errors (#1339)", () => {
+    async function withoutFetch<T>(fn: () => Promise<T>) {
+      const { fetch } = globalThis;
+      // @ts-expect-error Simulate runtimes without fetch
+      delete globalThis.fetch;
+
+      try {
+        return await fn();
+      } finally {
+        globalThis.fetch = fetch;
+      }
+    }
+
+    test("throws a clear error when given the contents of a font", async () => {
+      const xml = await fs.readFile(fonts.SANS_16_BLACK, "utf-8");
+      const ascii = createFontFile("page.png");
+      const message =
+        "loadFont expects a path or URL to a font file, but received the contents of one";
+
+      await expect(loadFont(xml)).rejects.toThrow(message);
+      await expect(loadFont(ascii)).rejects.toThrow(message);
+      await expect(loadFont(ascii.split("\n")[0]!)).rejects.toThrow(message);
+      await expect(
+        loadFont('<?xml version="1.0"?><font></font>'),
+      ).rejects.toThrow(message);
+      await withoutFetch(() => expect(loadFont(xml)).rejects.toThrow(message));
+    });
+
+    test("throws a clear error when the font file doesn't exist", async () => {
+      const error =
+        'loadFont: font file not found: "fonts/open-sans-16-blak.fnt". Pass a path to a .fnt file, a URL, or a SANS_* constant from jimp/fonts.';
+
+      await expect(loadFont("fonts/open-sans-16-blak.fnt")).rejects.toThrow(
+        error,
+      );
+      await withoutFetch(() =>
+        expect(loadFont("fonts/open-sans-16-blak.fnt")).rejects.toThrow(error),
+      );
+    });
+
+    test("throws a clear error when a page of a font on disk doesn't exist", async () => {
+      const dir = await fs.mkdtemp(path.join(os.tmpdir(), "jimp-font-"));
+      const fontFile = path.join(dir, "font.fnt");
+
+      try {
+        await fs.writeFile(fontFile, createFontFile("missing.png"));
+
+        await expect(loadFont(fontFile)).rejects.toThrow(
+          `loadFont: font page not found: ${JSON.stringify(path.join(dir, "missing.png"))}`,
+        );
+      } finally {
+        await fs.rm(dir, { recursive: true, force: true });
+      }
+    });
+
+    test("loads fonts and their pages from disk without fetch", async () => {
+      await withoutFetch(async () => {
+        const font = await loadFont(fonts.SANS_16_BLACK);
+        expect(font.pages[0]!.bitmap.width).toBeGreaterThan(0);
+
+        const fromUrl = await loadFont(
+          new URL(`file://${path.resolve(fonts.SANS_8_BLACK)}`).href,
+        );
+        expect(fromUrl.pages[0]!.bitmap.width).toBeGreaterThan(0);
+      });
+    });
+
+    test("throws a clear error when loading a URL without fetch", async () => {
+      await withoutFetch(() =>
+        expect(loadFont("https://example.com/font.fnt")).rejects.toThrow(
+          'loadFont: can\'t load "https://example.com/font.fnt" because this runtime has no global fetch.',
+        ),
+      );
+    });
+  });
+
   test("Jimp does not load font pages outside of a remote font's directory", async () => {
     const page = await new Jimp({
       width: 4,
