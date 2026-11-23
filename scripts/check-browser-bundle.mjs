@@ -36,8 +36,23 @@ if (size < MIN_BYTES) {
 
 const code = readFileSync(bundle, "utf8");
 
-if (!/export\s*\{[^}]*\bas Jimp\b/.test(code)) {
-  fail("it does not export Jimp");
+// Enums options take have to be values, not type-only exports
+for (const name of [
+  "Jimp",
+  "Edge",
+  "ResizeStrategy",
+  "HorizontalAlign",
+  "VerticalAlign",
+  "BlendMode",
+  "PNGColorType",
+  "PNGFilterType",
+  "BmpCompression",
+  "ColorActionName",
+  "JimpMime",
+]) {
+  if (!new RegExp(`export\\s*\\{[^}]*\\bas ${name}\\b`).test(code)) {
+    fail(`it does not export ${name}`);
+  }
 }
 
 try {
