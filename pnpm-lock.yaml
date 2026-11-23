@@ -2311,6 +2311,67 @@ importers:
         specifier: ^2.0.5
         version: 2.0.5(@types/node@22.20.5)(@vitest/browser@2.0.5)(supports-color@7.2.0)(terser@5.30.3)
 
+  plugins/wasm-svg:
+    dependencies:
+      '@jimp/types':
+        specifier: workspace:*
+        version: link:../../packages/types
+      '@jimp/utils':
+        specifier: workspace:*
+        version: link:../../packages/utils
+      '@resvg/resvg-wasm':
+        specifier: 2.6.2
+        version: 2.6.2
+      buffer:
+        specifier: ^6.0.3
+        version: 6.0.3
+      zod:
+        specifier: ^4.6.7
+        version: 4.6.7
+    devDependencies:
+      '@jimp/config-eslint':
+        specifier: workspace:*
+        version: link:../../packages/config-eslint
+      '@jimp/config-typescript':
+        specifier: workspace:*
+        version: link:../../packages/config-typescript
+      '@jimp/config-vitest':
+        specifier: workspace:*
+        version: link:../../packages/config-vitest
+      '@jimp/core':
+        specifier: workspace:*
+        version: link:../../packages/core
+      '@jimp/js-jpeg':
+        specifier: workspace:*
+        version: link:../js-jpeg
+      '@jimp/js-png':
+        specifier: workspace:*
+        version: link:../js-png
+      '@jimp/test-utils':
+        specifier: workspace:*
+        version: link:../../packages/test-utils
+      '@types/node':
+        specifier: ^22.20.5
+        version: 22.20.5
+      '@vitest/browser':
+        specifier: ^2.0.5
+        version: 2.0.5(playwright@1.46.1)(typescript@5.5.4)(vitest@2.0.5)
+      eslint:
+        specifier: ^9.9.1
+        version: 9.9.1(supports-color@7.2.0)
+      tshy:
+        specifier: ^3.0.2
+        version: 3.0.2
+      typescript:
+        specifier: ^5.5.4
+        version: 5.5.4
+      vite-plugin-node-polyfills:
+        specifier: ^0.22.0
+        version: 0.22.0(rollup@4.21.2)(vite@5.4.2(@types/node@22.20.5)(terser@5.30.3))
+      vitest:
+        specifier: ^2.0.5
+        version: 2.0.5(@types/node@22.20.5)(@vitest/browser@2.0.5)(supports-color@7.2.0)(terser@5.30.3)
+
   plugins/wasm-webp:
     dependencies:
       '@jsquash/webp':
@@ -3635,6 +3696,10 @@ packages:
 
   '@polka/url@1.0.0-next.25':
     resolution: {integrity: sha512-j7P6Rgr3mmtdkeDGTe0E/aYyWEWVtc5yFXtHCRHs28/jptDEWfaVOc5T7cblqy1XKPPfCxJc/8DwQ5YgLOZOVQ==}
+
+  '@resvg/resvg-wasm@2.6.2':
+    resolution: {integrity: sha512-FqALmHI8D4o6lk/LRWDnhw95z5eO+eAa6ORjVg09YRR7BkcM6oPHU9uyC0gtQG5vpFLvgpeU4+zEAz2H8APHNw==}
+    engines: {node: '>= 10'}
 
   '@rollup/plugin-alias@5.1.0':
     resolution: {integrity: sha512-lpA3RZ9PdIG7qqhEfv79tBffNaoDuukFDrmhLqg9ifv99u/ehn+lOg30x2zmhf8AQqQUZaMk/B9fZraQ6/acDQ==}
@@ -9802,6 +9867,8 @@ snapshots:
     optional: true
 
   '@polka/url@1.0.0-next.25': {}
+
+  '@resvg/resvg-wasm@2.6.2': {}
 
   '@rollup/plugin-alias@5.1.0(rollup@4.21.2)':
     dependencies:
