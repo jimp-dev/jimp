@@ -337,15 +337,27 @@ export const methods = {
   },
 
   /**
-   * Adjusts the brightness of the image
-   * @param val the amount to adjust the brightness.
+   * Adjusts the brightness of the image by multiplying each color channel
+   * by `val` and clamping the result to 0-255. Alpha is not changed.
+   *
+   * - `1` leaves the image unchanged
+   * - greater than `1` brightens it (`1.5` is 50% brighter)
+   * - between `0` and `1` darkens it (`0.5` is 50% darker)
+   * - `0` or below makes it black
+   *
+   * In v0 `val` was a number between -1 and +1 where 0 left the image
+   * unchanged. See the
+   * [migration guide](https://jimp-dev.github.io/jimp/guides/migrate-to-v1/#brightness)
+   * for how to convert old values.
+   * @param val the factor to multiply each color channel by
    * @example
    * ```ts
    * import { Jimp } from "jimp";
    *
    * const image = await Jimp.read("test/image.png");
    *
-   * image.brightness(0.5);
+   * image.brightness(1.5); // brighten
+   * image.brightness(0.5); // darken
    * ```
    */
   brightness<I extends JimpClass>(image: I, val: number) {

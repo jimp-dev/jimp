@@ -26,6 +26,28 @@ To use it simply import `jimp` instead.
 ## Usage
 
 There are a few main ways to use Jimp in the browser.
+### From a CDN
+
+The browser build at `dist/browser/index.js` is a self-contained ES module, so you can import it straight from a CDN without a bundler.
+
+```html
+<script type="module">
+  import { Jimp } from "https://cdn.jsdelivr.net/npm/jimp@1/dist/browser/index.js";
+
+  const image = await Jimp.read("/some/url");
+
+  image.greyscale();
+
+  document.querySelector("img").src = await image.getBase64("image/png");
+</script>
+```
+
+The same file is on unpkg at `https://unpkg.com/jimp@1/dist/browser/index.js`.
+`jimp@1` always loads the latest v1 release. Pin an exact version such as `jimp@1.7.0` to make sure an update never changes your page.
+
+The `jimp/fonts` export isn't self-contained, so it can't be imported from a CDN.
+Load your fonts by URL with `loadFont` instead (see [Using Fonts](#using-fonts)).
+
 
 ### With hosted file
 

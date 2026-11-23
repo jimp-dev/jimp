@@ -1,0 +1,68 @@
+---
+title: Reading Large Images
+description: How to pass decode options to Jimp, including the size limits for each format.
+---
+
+Jimp decodes images with JavaScript implementations of each format.
+To avoid running out of memory on huge or malicious files, most decoders refuse images above a size limit.
+If you need to read an image larger than the defaults, pass decode options to `Jimp.read` or `Jimp.fromBuffer`.
+
+## Passing decode options
+
+The second argument to `Jimp.read` and `Jimp.fromBuffer` is an object keyed by MIME type.
+Jimp detects the image's type and passes only the matching options to its decoder, so you can set options for several formats at once.
+
+```ts
+import { Jimp } from "jimp";
+
+const image = await Jimp.read("huge-photo.jpg", {
+  "image/jpeg": { maxResolutionInMP: 200, maxMemoryUsageInMB: 1024 },
+  "image/gif": { maxResolutionInMP: 200 },
+  "image/tiff": { maxResolutionInMP: 200 },
+  "image/bmp": { maxResolutionInMP: 200 },
+});
+```
+
+When an image is over a limit, decoding throws an error instead of allocating memory for it.
+
+## Options by format
+
+Resolution limits are in megapixels (width × height ÷ 1,000,000).
+A 100 megapixel limit allows a 10,000 × 10,000 image.
+
+### JPEG (`image/jpeg`)
+
+| Option               | Default | Description                                                                                   |
+| -------------------- | ------- | --------------------------------------------------------------------------------------------- |
+| `maxResolutionInMP`  | `100`   | Largest image, in megapixels, that will be decoded.                                           |
+| `maxMemoryUsageInMB` | `512`   | Largest amount of memory, in megabytes, the decoder may allocate.                             |
+| `tolerantDecoding`   | `true`  | Decode corrupt or truncated files as far as possible instead of throwing.                     |
+| `colorTransform`     | auto    | Whether to convert from YCbCr to RGB. By default this is chosen from the image's color model. |
+
+A large JPEG can hit `maxMemoryUsageInMB` before `maxResolutionInMP`, so raise both when needed.
+
+### GIF (`image/gif`)
+
+| Option              | Default | Description                                                                     |
+| ------------------- | ------- | ------------------------------------------------------------------------------- |
+| `maxResolutionInMP` | `100`   | Largest image, in megapixels, that will be decoded. Each frame is also checked. |
+
+### TIFF (`image/tiff`)
+
+| Option              | Default | Description                                                                    |
+| ------------------- | ------- | ------------------------------------------------------------------------------ |
+| `maxResolutionInMP` | `100`   | Largest image, in megapixels, that will be decoded. Each tile is also checked. |
+
+### BMP (`image/bmp`)
+
+| Option              | Default | Description                                         |
+| ------------------- | ------- | --------------------------------------------------- |
+| `maxResolutionInMP` | `100`   | Largest image, in megapixels, that will be decoded. |
+
+### PNG (`image/png`)
+
+PNG has no size limit.
+
+| Option     | Default | Description                                |
+| ---------- | ------- | ------------------------------------------ |
+| `checkCRC` | `true`  | Throw if a chunk's checksum doesn't match. |
