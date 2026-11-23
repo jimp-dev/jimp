@@ -52,6 +52,57 @@ describe("crop", () => {
     ).toMatchSnapshot();
   });
 
+  test("copies the right pixels for every region of odd sized images", () => {
+    for (const [width, height] of [
+      [1, 1],
+      [1, 7],
+      [7, 1],
+      [5, 3],
+      [3, 5],
+    ] as const) {
+      const image = jimp.fromBitmap({
+        width,
+        height,
+        data: Buffer.from(
+          Array.from({ length: width * height * 4 }, (_, i) => i % 251),
+        ),
+      });
+
+      for (let x = -1; x <= width; x++) {
+        for (let y = -1; y <= height; y++) {
+          for (let w = 1; w <= width + 1; w++) {
+            for (let h = 1; h <= height + 1; h++) {
+              const x0 = Math.max(x, 0);
+              const y0 = Math.max(y, 0);
+              const x1 = Math.min(x + w, width);
+              const y1 = Math.min(y + h, height);
+
+              if (x1 <= x0 || y1 <= y0) {
+                continue;
+              }
+
+              const cropped = image.clone().crop({ x, y, w, h });
+
+              expect(cropped.bitmap.width).toBe(x1 - x0);
+              expect(cropped.bitmap.height).toBe(y1 - y0);
+              expect(cropped.bitmap.data.length).toBe(
+                (x1 - x0) * (y1 - y0) * 4,
+              );
+
+              for (let cy = 0; cy < y1 - y0; cy++) {
+                for (let cx = 0; cx < x1 - x0; cx++) {
+                  expect(cropped.getPixelColor(cx, cy)).toBe(
+                    image.getPixelColor(x0 + cx, y0 + cy),
+                  );
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  });
+
   describe("out of bounds", () => {
     const crop = (x: number, y: number, w: number, h: number) =>
       jimp.fromBitmap(testImage).crop({ x, y, w, h });
