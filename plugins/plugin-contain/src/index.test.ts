@@ -3,6 +3,8 @@ import { expect, test, describe } from "vitest";
 import { makeTestImage } from "@jimp/test-utils";
 import { HorizontalAlign, VerticalAlign, createJimp } from "@jimp/core";
 
+import { methods as resizeMethods } from "@jimp/plugin-resize";
+
 import { methods } from "./index.js";
 
 const jimp = createJimp({ plugins: [methods] });
@@ -121,5 +123,52 @@ describe("contain align", () => {
     expect(
       image.clone().contain({ ...size, align: 0b001001 }).bitmap.data,
     ).not.toEqual(withCenter.bitmap.data);
+  });
+});
+
+describe("premultiplyAlpha", () => {
+  // 16x8: alpha 0 on the left, 255 on the right and partial in between, with
+  // the same colour everywhere, letter boxed in opaque blue
+  function texture() {
+    const data = Buffer.alloc(16 * 8 * 4);
+
+    for (let i = 0; i < 128; i++) {
+      const x = i % 16;
+      data.set([200, 100, 50, Math.max(0, Math.min(255, (x - 6) * 64))], i * 4);
+    }
+
+    const image = jimp.fromBitmap({ data, width: 16, height: 8 });
+    image.background = 0x0000ffff;
+
+    return image;
+  }
+
+  test("false keeps the colour of transparent pixels and copies them into the letter box", () => {
+    const image = texture().contain({ w: 8, h: 8, premultiplyAlpha: false });
+    const scaled = resizeMethods.scale(texture(), {
+      f: 0.5,
+      premultiplyAlpha: false,
+    });
+
+    // rows 2 to 5 are the image as it is, the rest is the background
+    expect(image.bitmap.data.subarray(2 * 8 * 4, 6 * 8 * 4)).toEqual(
+      scaled.bitmap.data,
+    );
+
+    for (const y of [0, 1, 6, 7]) {
+      expect(image.getPixelColor(0, y)).toBe(0x0000ffff);
+      expect(image.getPixelColor(7, y)).toBe(0x0000ffff);
+    }
+
+    for (let i = 2 * 8 * 4; i < 6 * 8 * 4; i += 4) {
+      expect([...image.bitmap.data.subarray(i, i + 3)]).toEqual([200, 100, 50]);
+    }
+  });
+
+  test("by default the image is drawn over the background", () => {
+    const image = texture().contain({ w: 8, h: 8 });
+
+    // the transparent left side shows the background
+    expect(image.getPixelColor(0, 3)).toBe(0x0000ffff);
   });
 });

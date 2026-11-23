@@ -17,6 +17,12 @@ const CoverOptionsSchema = z.object({
   align: z.number().optional(),
   /** a scaling method (e.g. ResizeStrategy.BEZIER) */
   mode: z.nativeEnum(ResizeStrategy).optional(),
+  /**
+   * Whether to treat alpha as opacity (default `true`). With `false` every
+   * channel is resampled on its own, which keeps the colour of transparent
+   * pixels, for alpha that holds other data
+   */
+  premultiplyAlpha: z.boolean().optional(),
 });
 
 export type CoverOptions = z.infer<typeof CoverOptionsSchema>;
@@ -50,6 +56,12 @@ function parseAlign(align: number) {
 export const methods = {
   /**
    * Scale the image so the given width and height keeping the aspect ratio. Some parts of the image may be clipped.
+   * @param options the size to cover
+   * @param options.w the width to resize the image to
+   * @param options.h the height to resize the image to
+   * @param options.align A bitmask for horizontal and vertical alignment
+   * @param options.mode a scaling method (e.g. ResizeStrategy.BEZIER)
+   * @param options.premultiplyAlpha (optional) whether to treat alpha as opacity (default `true`). With `false` the colour of transparent pixels is kept
    * @example
    * ```ts
    * import { Jimp } from "jimp";
@@ -65,6 +77,7 @@ export const methods = {
       h,
       align = HorizontalAlign.CENTER | VerticalAlign.MIDDLE,
       mode,
+      premultiplyAlpha,
     } = CoverOptionsSchema.parse(options);
     const { alignH, alignV } = parseAlign(align);
 
@@ -76,6 +89,7 @@ export const methods = {
     image = resizeMethods.scale(image, {
       f,
       mode,
+      premultiplyAlpha,
     });
     image = cropMethods.crop(image, {
       x: ((image.bitmap.width - w) / 2) * alignH,

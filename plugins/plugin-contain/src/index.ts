@@ -18,6 +18,12 @@ const ContainOptionsSchema = z.object({
   align: z.number().optional(),
   /** a scaling method (e.g. ResizeStrategy.BEZIER) */
   mode: z.nativeEnum(ResizeStrategy).optional(),
+  /**
+   * Whether to treat alpha as opacity (default `true`). With `false` every
+   * channel is resampled on its own, which keeps the colour of transparent
+   * pixels, for alpha that holds other data
+   */
+  premultiplyAlpha: z.boolean().optional(),
 });
 
 export type ContainOptions = z.infer<typeof ContainOptionsSchema>;
@@ -56,6 +62,7 @@ export const methods = {
    * @param options.h the height to resize the image to
    * @param options.align A bitmask for horizontal and vertical alignment
    * @param options.mode a scaling method (e.g. ResizeStrategy.BEZIER)
+   * @param options.premultiplyAlpha (optional) whether to treat alpha as opacity (default `true`). With `false` the colour of transparent pixels is kept, and the image is copied into the letter box rather than drawn over the background
    * @example
    * ```ts
    * import { Jimp } from "jimp";
@@ -71,6 +78,7 @@ export const methods = {
       h,
       align = HorizontalAlign.CENTER | VerticalAlign.MIDDLE,
       mode,
+      premultiplyAlpha,
     } = ContainOptionsSchema.parse(options);
 
     const { alignH, alignV } = parseAlign(align);
@@ -80,7 +88,7 @@ export const methods = {
         ? h / image.bitmap.height
         : w / image.bitmap.width;
 
-    const c = resizeMethods.scale(clone(image), { f, mode });
+    const c = resizeMethods.scale(clone(image), { f, mode, premultiplyAlpha });
 
     image = resizeMethods.resize(image, { w, h, mode });
 
@@ -88,12 +96,28 @@ export const methods = {
       image.bitmap.data.writeUInt32BE(image.background, idx);
     });
 
-    image = blitMethods.blit(image, {
-      src: c,
-      x: ((image.bitmap.width - c.bitmap.width) / 2) * alignH,
-      y: ((image.bitmap.height - c.bitmap.height) / 2) * alignV,
-    });
+    const x = Math.round(((image.bitmap.width - c.bitmap.width) / 2) * alignH);
+    const y = Math.round(
+      ((image.bitmap.height - c.bitmap.height) / 2) * alignV,
+    );
 
-    return image;
+    if (premultiplyAlpha === false) {
+      // alpha isn't opacity, so copy the pixels rather than draw them over
+      // the background
+      const rowLength = c.bitmap.width * 4;
+
+      for (let row = 0; row < c.bitmap.height; row++) {
+        c.bitmap.data.copy(
+          image.bitmap.data,
+          ((y + row) * image.bitmap.width + x) * 4,
+          row * rowLength,
+          (row + 1) * rowLength,
+        );
+      }
+
+      return image;
+    }
+
+    return blitMethods.blit(image, { src: c, x, y });
   },
 };
