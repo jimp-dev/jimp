@@ -83,7 +83,8 @@ function referenceColor(data: Buffer, actions: ColorAction[]) {
         );
 
         clr = { r: grey, g: grey, b: grey };
-      } else {
+      } else if (action.apply !== "multiply") {
+        // multiply isn't a tinycolor method and isn't compared here
         const name = action.apply === "hue" ? "spin" : action.apply;
         const tnyClr = tinyColor(clr);
         const fn = tnyClr[name].bind(tnyClr);

@@ -299,6 +299,19 @@ const MixActionSchema = z.object({
 });
 export type MixAction = z.infer<typeof MixActionSchema>;
 
+/**
+ * Three factors to multiply red, green and blue by, or a color to multiply
+ * with (each channel divided by 255), like the multiply blend mode
+ */
+const MultiplyActionSchema = z.object({
+  apply: z.literal("multiply"),
+  params: z.union([
+    z.tuple([z.number(), z.number(), z.number()]),
+    z.tuple([MixColorSchema]),
+  ]),
+});
+export type MultiplyAction = z.infer<typeof MultiplyActionSchema>;
+
 const TintActionSchema = z.object({
   apply: z.literal("tint"),
   params: z.tuple([z.number().min(0).max(100)]).optional(),
@@ -370,6 +383,7 @@ const ColorActionNameSchema = z.union([
   SpinActionSchema,
   LightenActionSchema,
   MixActionSchema,
+  MultiplyActionSchema,
   TintActionSchema,
   ShadeActionSchema,
   XorActionSchema,
@@ -394,6 +408,7 @@ export const ColorActionName = Object.freeze({
   SPIN: "spin",
   HUE: "hue",
   MIX: "mix",
+  MULTIPLY: "multiply",
   TINT: "tint",
   SHADE: "shade",
   XOR: "xor",
@@ -413,13 +428,14 @@ const ColorOp = {
   Greyscale: 7,
   Spin: 8,
   Brighten: 9,
+  Multiply: 10,
 } as const;
 type ColorOp = (typeof ColorOp)[keyof typeof ColorOp];
 
 /** A color action with everything that doesn't depend on the pixel worked out */
 interface ColorStep {
   op: ColorOp;
-  /** The color to mix toward or xor with */
+  /** The color to mix toward or xor with, or the factors to multiply by */
   r: number;
   g: number;
   b: number;
@@ -466,6 +482,20 @@ function compileColorAction(
         (action.params[1] ?? 50) / 100,
         toRGBColor(action.params[0], colorSpace),
       );
+    case "multiply": {
+      if (action.params.length === 3) {
+        const [r, g, b] = action.params;
+        return colorStep(ColorOp.Multiply, 0, { r, g, b });
+      }
+
+      const { r, g, b } = toRGBColor(action.params[0], colorSpace);
+
+      return colorStep(ColorOp.Multiply, 0, {
+        r: r / 255,
+        g: g / 255,
+        b: b / 255,
+      });
+    }
     case "tint":
       return colorStep(ColorOp.Mix, (action.params?.[0] ?? 50) / 100, WHITE);
     case "shade":
@@ -822,7 +852,10 @@ export const methods = {
   },
 
   /**
-   * Applies a sepia tone to the image.
+   * Applies a sepia tone to the image. `amount` blends between the original
+   * image (`0`) and full sepia (`1`, the default), like CSS's
+   * `sepia(amount)` filter. Values outside 0-1 are clamped.
+   * @param amount how much sepia to apply, from 0 to 1 (default 1)
    * @example
    * ```ts
    * import { Jimp } from "jimp";
@@ -830,9 +863,12 @@ export const methods = {
    * const image = await Jimp.read("test/image.png");
    *
    * image.sepia();
+   * image.sepia(0.5); // half way between the original and full sepia
    * ```
    */
-  sepia<I extends JimpClass>(image: I) {
+  sepia<I extends JimpClass>(image: I, amount = 1) {
+    const t = Math.min(1, Math.max(0, z.number().parse(amount)));
+
     image.scan((_, __, idx) => {
       const r = image.bitmap.data[idx]!;
       const g = image.bitmap.data[idx + 1]!;
@@ -842,9 +878,10 @@ export const methods = {
       const green = r * 0.349 + g * 0.686 + b * 0.168;
       const blue = r * 0.272 + g * 0.534 + b * 0.131;
 
-      image.bitmap.data[idx] = red < 255 ? red : 255;
-      image.bitmap.data[idx + 1] = green < 255 ? green : 255;
-      image.bitmap.data[idx + 2] = blue < 255 ? blue : 255;
+      image.bitmap.data[idx] = (red < 255 ? red : 255) * t + r * (1 - t);
+      image.bitmap.data[idx + 1] =
+        (green < 255 ? green : 255) * t + g * (1 - t);
+      image.bitmap.data[idx + 2] = (blue < 255 ? blue : 255) * t + b * (1 - t);
     });
 
     return image;
@@ -1187,6 +1224,9 @@ export const methods = {
    * Apply multiple color modification rules
    *
    * `greyscale` gives the same result as `greyscale()` (Rec. 709 luminance).
+   * `multiply` takes three factors to multiply red, green and blue by, or a
+   * color to multiply with (each channel divided by 255, like the multiply
+   * blend mode). Results are rounded and clamped to 0-255.
    * `desaturate` scales HSL saturation, so `desaturate` 100 gives a different
    * grey: the HSL lightness, `(max(r, g, b) + min(r, g, b)) / 2`.
    * @param  actions list of color modification rules, in following format: { apply: '<rule-name>', params: [ <rule-parameters> ]  }
@@ -1201,6 +1241,11 @@ export const methods = {
    *   { apply: "lighten", params: [50] },
    *   { apply: "xor", params: ["#06D"] },
    * ]);
+   *
+   * // multiply red by 1.2, green by 1.1 and leave blue as is
+   * image.color([{ apply: "multiply", params: [1.2, 1.1, 1] }]);
+   * // multiply with a color, like the multiply blend mode
+   * image.color([{ apply: "multiply", params: ["#ffcc99"] }]);
    * ```
    */
   color<I extends JimpClass>(image: I, actions: ColorAction[]) {
@@ -1244,6 +1289,13 @@ export const methods = {
             r = Math.round((step.r - r) * step.amount + r);
             g = Math.round((step.g - g) * step.amount + g);
             b = Math.round((step.b - b) * step.amount + b);
+            break;
+          }
+
+          case ColorOp.Multiply: {
+            r = Math.round(limit255(r * step.r));
+            g = Math.round(limit255(g * step.g));
+            b = Math.round(limit255(b * step.b));
             break;
           }
 
