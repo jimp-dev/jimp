@@ -5,17 +5,27 @@ import { Edge, JimpClass, RGBColor } from "@jimp/types";
 import { z } from "zod";
 
 const ConvolutionMatrixSchema = z.array(z.number()).min(1).array();
+const ConvolutionDivisorSchema = z
+  .number()
+  .refine((divisor) => divisor !== 0, "divisor must not be 0");
 const ConvolutionComplexOptionsSchema = z.object({
   /** a matrix to weight the neighbors sum */
   kernel: ConvolutionMatrixSchema,
   /**define how to sum pixels from outside the border */
   edgeHandling: z.nativeEnum(Edge).optional(),
+  /** divide the weighted sum by this before clamping it to 0-255 (default 1) */
+  divisor: ConvolutionDivisorSchema.optional(),
+  /** add this to each color channel after dividing (default 0) */
+  bias: z.number().optional(),
 });
 const ConvolutionOptionsSchema = z.union([
   ConvolutionMatrixSchema,
   ConvolutionComplexOptionsSchema,
 ]);
 
+type ConvolutionComplexOptions = z.infer<
+  typeof ConvolutionComplexOptionsSchema
+>;
 type ConvolutionOptions = z.infer<typeof ConvolutionOptionsSchema>;
 
 const ConvoluteComplexOptionsSchema = z.object({
@@ -29,6 +39,10 @@ const ConvoluteComplexOptionsSchema = z.object({
   w: z.number().optional(),
   /** the height of the region to apply convolution to */
   h: z.number().optional(),
+  /** divide the weighted sum by this before clamping it to 0-255 (default 1) */
+  divisor: ConvolutionDivisorSchema.optional(),
+  /** add this to each color channel after dividing (default 0) */
+  bias: z.number().optional(),
 });
 const ConvoluteOptionsSchema = z.union([
   ConvolutionMatrixSchema,
@@ -565,24 +579,47 @@ export const methods = {
   },
 
   /**
-   * Adds each element of the image to its local neighbors, weighted by the kernel
+   * Adds each element of the image to its local neighbors, weighted by the kernel.
+   * Only the color channels are changed, alpha is left as is.
+   *
+   * Each channel becomes `sum / divisor + bias`, clamped to 0-255. The kernel
+   * isn't normalized, so pass the sum of its weights as the `divisor` to keep
+   * the brightness of the image (like ImageMagick's `-define convolve:scale`
+   * or the CSS `feConvolveMatrix` divisor), and a `bias` to shift results that
+   * can be negative, like edge detection, into the visible range.
    * @example
    * ```ts
    * import { Jimp } from "jimp";
    *
    * const image = await Jimp.read("test/image.png");
    *
-   * image.convolute([
+   * image.convolution([
    *   [-1, -1, 0],
    *   [-1, 1, 1],
    *   [0, 1, 1],
    * ]);
+   *
+   * // a 3x3 Gaussian blur written with integer weights
+   * image.convolution({
+   *   kernel: [
+   *     [1, 2, 1],
+   *     [2, 4, 2],
+   *     [1, 2, 1],
+   *   ],
+   *   divisor: 16,
+   * });
    * ```
    */
   convolution<I extends JimpClass>(image: I, options: ConvolutionOptions) {
     const parsed = ConvolutionOptionsSchema.parse(options);
-    const { kernel, edgeHandling = Edge.EXTEND } =
-      "kernel" in parsed ? parsed : { kernel: parsed, edgeHandling: undefined };
+    const {
+      kernel,
+      edgeHandling = Edge.EXTEND,
+      divisor = 1,
+      bias = 0,
+    } = "kernel" in parsed
+      ? parsed
+      : ({ kernel: parsed } as ConvolutionComplexOptions);
 
     if (!kernel[0]) {
       throw new Error("kernel must be a matrix");
@@ -634,6 +671,10 @@ export const methods = {
           bSum += weight * bi;
         }
       }
+
+      rSum = rSum / divisor + bias;
+      gSum = gSum / divisor + bias;
+      bSum = bSum / divisor + bias;
 
       if (rSum < 0) {
         rSum = 0;
@@ -739,7 +780,14 @@ export const methods = {
   },
 
   /**
-   * Applies a convolution kernel to the image or a region
+   * Applies a convolution kernel to the image or a region. Unlike
+   * `convolution`, the kernel is applied to the alpha channel too.
+   *
+   * Each color channel becomes `sum / divisor + bias` and alpha becomes
+   * `sum / divisor`, clamped to 0-255. The kernel isn't normalized, so pass
+   * the sum of its weights as the `divisor` to keep the brightness of the
+   * image, and a `bias` to shift results that can be negative into the
+   * visible range.
    * @example
    * ```ts
    * import { Jimp } from "jimp";
@@ -747,18 +795,34 @@ export const methods = {
    * const image = await Jimp.read("test/image.png");
    *
    * // apply a convolution kernel to the whole image
-   * image.convolution([
+   * image.convolute([
    *   [-1, -1, 0],
    *   [-1, 1, 1],
    *   [0, 1, 1],
    * ]);
    *
    * // apply a convolution kernel to a region
-   * image.convolution([
-   *   [-1, -1, 0],
-   *   [-1, 1, 1],
-   *   [0, 1, 1],
-   * ], 10, 10, 10, 20);
+   * image.convolute({
+   *   kernel: [
+   *     [-1, -1, 0],
+   *     [-1, 1, 1],
+   *     [0, 1, 1],
+   *   ],
+   *   x: 10,
+   *   y: 10,
+   *   w: 10,
+   *   h: 20,
+   * });
+   *
+   * // a 3x3 Gaussian blur written with integer weights
+   * image.convolute({
+   *   kernel: [
+   *     [1, 2, 1],
+   *     [2, 4, 2],
+   *     [1, 2, 1],
+   *   ],
+   *   divisor: 16,
+   * });
    * ```
    */
   convolute<I extends JimpClass>(image: I, options: ConvoluteOptions) {
@@ -769,6 +833,8 @@ export const methods = {
       y = 0,
       w = image.bitmap.width - x,
       h = image.bitmap.height - y,
+      divisor = 1,
+      bias = 0,
     } = "kernel" in parsed
       ? parsed
       : ({ kernel: parsed } as ConvoluteComplexOptions);
@@ -778,10 +844,10 @@ export const methods = {
     scan(source, x, y, w, h, (xx, yx, idx) => {
       const value = applyKernel(source, kernel, xx, yx);
 
-      image.bitmap.data[idx] = limit255(value[0]!);
-      image.bitmap.data[idx + 1] = limit255(value[1]!);
-      image.bitmap.data[idx + 2] = limit255(value[2]!);
-      image.bitmap.data[idx + 3] = limit255(value[3]!);
+      image.bitmap.data[idx] = limit255(value[0]! / divisor + bias);
+      image.bitmap.data[idx + 1] = limit255(value[1]! / divisor + bias);
+      image.bitmap.data[idx + 2] = limit255(value[2]! / divisor + bias);
+      image.bitmap.data[idx + 3] = limit255(value[3]! / divisor);
     });
 
     return image;

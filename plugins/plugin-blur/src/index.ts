@@ -1,6 +1,21 @@
 import { mulTable, shgTable } from "./blur-tables.js";
 import { JimpClass } from "@jimp/types";
 import { limit255 } from "@jimp/utils";
+import { z } from "zod";
+
+const SharpenOptionsSchema = z.object({
+  /** how much to boost the difference from the blurred image, 0 does nothing */
+  amount: z.number().min(0),
+  /** the standard deviation of the gaussian blur, in pixels (default 1) */
+  radius: z.number().gt(0).optional(),
+  /**
+   * leave a channel unchanged when it differs from the blurred image by
+   * less than this, 0-255 (default 0)
+   */
+  threshold: z.number().min(0).max(255).optional(),
+});
+
+export type SharpenOptions = z.infer<typeof SharpenOptionsSchema>;
 
 /*
     Superfast Blur (0.5)
@@ -69,6 +84,101 @@ function unpremultiplyAlpha(data: Uint8Array) {
     data[idx] = limit255(Math.round((data[idx]! * 255) / a));
     data[idx + 1] = limit255(Math.round((data[idx + 1]! * 255) / a));
     data[idx + 2] = limit255(Math.round((data[idx + 2]! * 255) / a));
+  }
+}
+
+/**
+ * Gaussian blur the image with a standard deviation of `r`, weighting colors
+ * by alpha (see `premultiplyAlpha`). The image isn't changed. Instead `write`
+ * is called once per pixel, row by row, with the blurred colors still
+ * multiplied by the blurred alpha, so callers can decide how to divide them
+ * out. It may change the pixel at `idx`, which isn't read again.
+ */
+function gaussianBlur(
+  image: JimpClass,
+  r: number,
+  write: (
+    idx: number,
+    red: number,
+    green: number,
+    blue: number,
+    alpha: number,
+  ) => void,
+) {
+  const { width, height, data } = image.bitmap;
+  const rs = Math.ceil(r * 2.57); // significant radius
+  const range = rs * 2 + 1;
+  const rr2 = r * r * 2;
+
+  // A 2D Gaussian is the product of two 1D Gaussians, so blur the rows and
+  // then the columns. Clamping at the edges is per axis, so this gives the
+  // same result as the full 2D kernel.
+  const weights = new Float64Array(range);
+  let wsum = 0;
+
+  for (let i = 0; i < range; i++) {
+    weights[i] = Math.exp(-((i - rs) ** 2) / rr2);
+    wsum += weights[i]!;
+  }
+
+  for (let i = 0; i < range; i++) {
+    weights[i] = weights[i]! / wsum;
+  }
+
+  // Each pass reads from one buffer and writes to another, so no pixel is
+  // sampled after it has been blurred. The intermediate buffer is floating
+  // point so the rows aren't rounded before the columns are blurred, and it
+  // holds colors premultiplied by alpha (see `premultiplyAlpha`) without
+  // losing precision to 8-bit rounding.
+  const rows = new Float32Array(data.length);
+
+  for (let y = 0; y < height; y++) {
+    for (let x = 0; x < width; x++) {
+      let red = 0;
+      let green = 0;
+      let blue = 0;
+      let alpha = 0;
+
+      for (let i = 0; i < range; i++) {
+        const x1 = Math.min(width - 1, Math.max(0, x + i - rs));
+        const idx = (y * width + x1) << 2;
+        const a = data[idx + 3]! * weights[i]!;
+
+        red += data[idx]! * a;
+        green += data[idx + 1]! * a;
+        blue += data[idx + 2]! * a;
+        alpha += a;
+      }
+
+      const idx = (y * width + x) << 2;
+
+      rows[idx] = red;
+      rows[idx + 1] = green;
+      rows[idx + 2] = blue;
+      rows[idx + 3] = alpha;
+    }
+  }
+
+  for (let y = 0; y < height; y++) {
+    for (let x = 0; x < width; x++) {
+      let red = 0;
+      let green = 0;
+      let blue = 0;
+      let alpha = 0;
+
+      for (let i = 0; i < range; i++) {
+        const y1 = Math.min(height - 1, Math.max(0, y + i - rs));
+        const idx = (y1 * width + x) << 2;
+        const weight = weights[i]!;
+
+        red += rows[idx]! * weight;
+        green += rows[idx + 1]! * weight;
+        blue += rows[idx + 2]! * weight;
+        alpha += rows[idx + 3]! * weight;
+      }
+
+      write((y * width + x) << 2, red, green, blue, alpha);
+    }
   }
 }
 
@@ -239,96 +349,86 @@ export const methods = {
       throw new Error("r must be greater than 0");
     }
 
-    const { width, height, data } = image.bitmap;
-    const rs = Math.ceil(r * 2.57); // significant radius
-    const range = rs * 2 + 1;
-    const rr2 = r * r * 2;
+    const { data } = image.bitmap;
 
-    // A 2D Gaussian is the product of two 1D Gaussians, so blur the rows and
-    // then the columns. Clamping at the edges is per axis, so this gives the
-    // same result as the full 2D kernel.
-    const weights = new Float64Array(range);
-    let wsum = 0;
+    gaussianBlur(image, r, (idx, red, green, blue, alpha) => {
+      const a = limit255(Math.round(alpha));
 
-    for (let i = 0; i < range; i++) {
-      weights[i] = Math.exp(-((i - rs) ** 2) / rr2);
-      wsum += weights[i]!;
-    }
+      data[idx + 3] = a;
 
-    for (let i = 0; i < range; i++) {
-      weights[i] = weights[i]! / wsum;
-    }
-
-    // Each pass reads from one buffer and writes to another, so no pixel is
-    // sampled after it has been blurred. The intermediate buffer is floating
-    // point so the rows aren't rounded before the columns are blurred, and it
-    // holds colors premultiplied by alpha (see `premultiplyAlpha`) without
-    // losing precision to 8-bit rounding.
-    const rows = new Float32Array(data.length);
-
-    for (let y = 0; y < height; y++) {
-      for (let x = 0; x < width; x++) {
-        let red = 0;
-        let green = 0;
-        let blue = 0;
-        let alpha = 0;
-
-        for (let i = 0; i < range; i++) {
-          const x1 = Math.min(width - 1, Math.max(0, x + i - rs));
-          const idx = (y * width + x1) << 2;
-          const a = data[idx + 3]! * weights[i]!;
-
-          red += data[idx]! * a;
-          green += data[idx + 1]! * a;
-          blue += data[idx + 2]! * a;
-          alpha += a;
-        }
-
-        const idx = (y * width + x) << 2;
-
-        rows[idx] = red;
-        rows[idx + 1] = green;
-        rows[idx + 2] = blue;
-        rows[idx + 3] = alpha;
+      // Fully transparent pixels become transparent black
+      if (a === 0) {
+        data[idx] = 0;
+        data[idx + 1] = 0;
+        data[idx + 2] = 0;
+        return;
       }
-    }
 
-    for (let y = 0; y < height; y++) {
-      for (let x = 0; x < width; x++) {
-        let red = 0;
-        let green = 0;
-        let blue = 0;
-        let alpha = 0;
+      data[idx] = limit255(Math.round(red / alpha));
+      data[idx + 1] = limit255(Math.round(green / alpha));
+      data[idx + 2] = limit255(Math.round(blue / alpha));
+    });
 
-        for (let i = 0; i < range; i++) {
-          const y1 = Math.min(height - 1, Math.max(0, y + i - rs));
-          const idx = (y1 * width + x) << 2;
-          const weight = weights[i]!;
+    return image;
+  },
 
-          red += rows[idx]! * weight;
-          green += rows[idx + 1]! * weight;
-          blue += rows[idx + 2]! * weight;
-          alpha += rows[idx + 3]! * weight;
-        }
+  /**
+   * Sharpens the image with an unsharp mask. Each color channel becomes
+   * `original + amount * (original - blurred)`, where `blurred` is a Gaussian
+   * blur of the image, so edges get more contrast and flat areas are left
+   * alone.
+   *
+   * - `amount` is the strength. `0.5` to `1.5` suits most photos.
+   * - `radius` is the standard deviation of the blur, like `gaussian`. Small
+   *   values sharpen fine detail, large ones add local contrast.
+   * - `threshold` skips channels that differ from the blurred image by less
+   *   than this (0-255), so noise and smooth gradients aren't sharpened.
+   *
+   * Colors are weighted by alpha, so the transparent pixels around a shape
+   * don't darken its edges, and alpha itself is left unchanged.
+   *
+   * This matches ImageMagick's `-unsharp 0x{radius}+{amount}+{threshold}`
+   * with its threshold given as `2 * threshold / 255`.
+   *
+   * To smooth an image instead, use `gaussian` or `blur`.
+   * @example
+   * ```ts
+   * import { Jimp } from "jimp";
+   *
+   * const image = await Jimp.read("test/image.png");
+   *
+   * image.sharpen({ amount: 1 });
+   * image.sharpen({ amount: 0.8, radius: 2, threshold: 4 });
+   * ```
+   */
+  sharpen<I extends JimpClass>(image: I, options: SharpenOptions) {
+    const {
+      amount,
+      radius = 1,
+      threshold = 0,
+    } = SharpenOptionsSchema.parse(options);
+    const { data } = image.bitmap;
 
-        const idx = (y * width + x) << 2;
-        const a = limit255(Math.round(alpha));
+    gaussianBlur(image, radius, (idx, red, green, blue, alpha) => {
+      // A transparent pixel's color can't be seen, and without any opaque
+      // neighbors there's no blurred color to compare it with
+      if (data[idx + 3] === 0 || alpha === 0) {
+        return;
+      }
 
-        data[idx + 3] = a;
+      const blurred = [red / alpha, green / alpha, blue / alpha];
 
-        // Fully transparent pixels become transparent black
-        if (a === 0) {
-          data[idx] = 0;
-          data[idx + 1] = 0;
-          data[idx + 2] = 0;
+      for (let c = 0; c < 3; c++) {
+        const original = data[idx + c]!;
+        const difference = original - blurred[c]!;
+
+        if (Math.abs(difference) < threshold) {
           continue;
         }
 
-        data[idx] = limit255(Math.round(red / alpha));
-        data[idx + 1] = limit255(Math.round(green / alpha));
-        data[idx + 2] = limit255(Math.round(blue / alpha));
+        data[idx + c] = limit255(Math.round(original + amount * difference));
       }
-    }
+    });
 
     return image;
   },
