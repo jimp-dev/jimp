@@ -25,3 +25,15 @@ const buffer = await image.getBuffer(JimpMime.png, {
 - `deflateStrategy` - the deflate strategy used when saving (default is 3)
 - `filterType` - a [`PNGFilterType`](https://jimp-dev.github.io/jimp/api/jimp/enumerations/pngfiltertype/) (default is `PNGFilterType.AUTO`)
 - `colorType` - a [`PNGColorType`](https://jimp-dev.github.io/jimp/api/jimp/enumerations/pngcolortype/) (default is `PNGColorType.COLOR_ALPHA`)
+
+### Removing the alpha channel
+
+To write a PNG without an alpha channel (`image.rgba(false)` in Jimp v0), set `colorType` to `PNGColorType.COLOR`:
+
+```js
+const buffer = await image.getBuffer(JimpMime.png, {
+  colorType: PNGColorType.COLOR,
+});
+```
+
+Transparent pixels are blended onto a white background. `inputHasAlpha: false` still works but is deprecated. Use `colorType` instead.

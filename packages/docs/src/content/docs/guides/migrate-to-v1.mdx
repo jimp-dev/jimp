@@ -179,6 +179,23 @@ const resized = await image
   .getBuffer('image/jpeg', { quality: 80 });
 ```
 
+### `rgba`
+
+`image.rgba(false)` has been removed.
+To write a PNG without an alpha channel, pass `colorType` when you encode it:
+
+```js
+import { Jimp, JimpMime, PNGColorType } from "jimp";
+
+const image = await Jimp.read("icon.png");
+
+await image.write("result.png", { colorType: PNGColorType.COLOR });
+// or
+const buffer = await image.getBuffer(JimpMime.png, {
+  colorType: PNGColorType.COLOR,
+});
+```
+
 ## Removed Constants
 
 Most constants have been moved to named exports.
