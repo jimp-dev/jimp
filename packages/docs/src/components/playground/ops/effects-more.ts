@@ -2,9 +2,9 @@
  * More effects ops: convolute, convolution, boxShadow. See ops/shape.ts for
  * how to add an op.
  */
-import type { Edge } from "jimp";
+import { Edge } from "jimp";
 import { centeredRect, hexToInt, intToHexLiteral, js, raw } from "../code";
-import { defineOp, type ImageSize } from "../types";
+import { defineOp, type ImageSize, type Rect } from "../types";
 
 const INK = "#1b1840";
 const S = `stroke="${INK}" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"`;
@@ -20,75 +20,148 @@ const convolutionIcon = kernelIcon(
 const boxShadowIcon = `<rect x="9" y="10" width="19" height="17" rx="3" fill="${INK}" opacity=".35"/><rect x="4" y="5" width="19" height="17" rx="3" fill="#ffd83a" ${S}/>`;
 
 /** A kernel as it would be written in code, one row per line. */
-function kernelCode(rows: string[][]) {
-  return `[\n${rows.map((row) => `  [${row.join(", ")}],`).join("\n")}\n]`;
+function kernelCode(kernel: number[][]) {
+  return `[\n${kernel.map((row) => `  [${row.join(", ")}],`).join("\n")}\n]`;
 }
 
 interface Kernel {
   label: string;
   kernel: number[][];
-  /** The kernel as source code, so fractions print as `1 / 9` rather than 0.11. */
-  code: string[][];
+  /** Passed as `divisor` so the kernel can be written with whole numbers. */
+  divisor?: number;
 }
 
-/** "1 / 9" → 0.111…, "-2" → -2 */
-const cellValue = (cell: string) => {
-  const [a, b] = cell.split("/").map(Number);
-  return b === undefined ? a! : a! / b;
-};
-
-const k = (label: string, code: string[][]): Kernel => ({
-  label,
-  code,
-  kernel: code.map((row) => row.map(cellValue)),
-});
-
-/**
- * Kernels that look the same whether they're read row by row (`convolution`)
- * or column by column (`convolute`), so each one does what its name says in
- * both ops.
- */
 const kernels = {
-  sharpen: k("sharpen", [
-    ["0", "-1", "0"],
-    ["-1", "5", "-1"],
-    ["0", "-1", "0"],
-  ]),
-  emboss: k("emboss", [
-    ["-2", "-1", "0"],
-    ["-1", "1", "1"],
-    ["0", "1", "2"],
-  ]),
-  boxBlur: k("box blur", [
-    ["1 / 9", "1 / 9", "1 / 9"],
-    ["1 / 9", "1 / 9", "1 / 9"],
-    ["1 / 9", "1 / 9", "1 / 9"],
-  ]),
-  edges: k("edge detect", [
-    ["-1", "-1", "-1"],
-    ["-1", "8", "-1"],
-    ["-1", "-1", "-1"],
-  ]),
-  sobelY: k("horizontal edges (Sobel)", [
-    ["-1", "-2", "-1"],
-    ["0", "0", "0"],
-    ["1", "2", "1"],
-  ]),
+  sharpen: {
+    label: "sharpen",
+    kernel: [
+      [0, -1, 0],
+      [-1, 5, -1],
+      [0, -1, 0],
+    ],
+  },
+  emboss: {
+    label: "emboss",
+    kernel: [
+      [-2, -1, 0],
+      [-1, 1, 1],
+      [0, 1, 2],
+    ],
+  },
+  boxBlur: {
+    label: "box blur (divisor 9)",
+    kernel: [
+      [1, 1, 1],
+      [1, 1, 1],
+      [1, 1, 1],
+    ],
+    divisor: 9,
+  },
+  gaussian: {
+    label: "Gaussian blur (divisor 16)",
+    kernel: [
+      [1, 2, 1],
+      [2, 4, 2],
+      [1, 2, 1],
+    ],
+    divisor: 16,
+  },
+  box4: {
+    label: "4×4 box blur (even size)",
+    kernel: [
+      [1, 1, 1, 1],
+      [1, 1, 1, 1],
+      [1, 1, 1, 1],
+      [1, 1, 1, 1],
+    ],
+    divisor: 16,
+  },
+  edges: {
+    label: "edge detect",
+    kernel: [
+      [-1, -1, -1],
+      [-1, 8, -1],
+      [-1, -1, -1],
+    ],
+  },
+  sobelX: {
+    label: "vertical edges (Sobel x)",
+    kernel: [
+      [-1, 0, 1],
+      [-2, 0, 2],
+      [-1, 0, 1],
+    ],
+  },
+  sobelY: {
+    label: "horizontal edges (Sobel y)",
+    kernel: [
+      [-1, -2, -1],
+      [0, 0, 0],
+      [1, 2, 1],
+    ],
+  },
+  roberts: {
+    label: "2×2 Roberts cross (even size)",
+    kernel: [
+      [1, 0],
+      [0, -1],
+    ],
+  },
 } satisfies Record<string, Kernel>;
 
 type KernelId = keyof typeof kernels;
 
-/** convolute() also runs the kernel over alpha, so kernels that sum to 0 erase the image. */
-const convoluteKernels: KernelId[] = ["sharpen", "emboss", "boxBlur"];
-const convolutionKernels: KernelId[] = ["sharpen", "emboss", "boxBlur", "edges", "sobelY"];
+const kernelOptions = (Object.keys(kernels) as KernelId[]).map((id) => ({
+  value: id,
+  label: kernels[id].label,
+}));
 
-/** `Edge` is only exported as a type from "jimp", so the code uses its numeric values. */
+/**
+ * The call for `method` with `kernel` and `extra` options: the kernel on its
+ * own when there are no options, otherwise an options object.
+ */
+function kernelCall(method: string, kernel: number[][], extra: Record<string, unknown>) {
+  const entries = Object.entries(extra).filter(([, v]) => v !== undefined);
+  const matrix = kernelCode(kernel);
+  if (!entries.length) return `image.${method}(${matrix});`;
+  const rows = matrix.split("\n").map((line, i) => (i === 0 ? line : `  ${line}`));
+  const lines = entries.map(([key, value]) => `  ${key}: ${js(value)},`);
+  return `image.${method}({\n  kernel: ${rows.join("\n")},\n${lines.join("\n")}\n});`;
+}
+
 const edgeModes = [
-  { value: "1", label: "1 (Edge.EXTEND, default)" },
-  { value: "2", label: "2 (Edge.WRAP)" },
-  { value: "3", label: "3 (Edge.CROP)" },
+  { value: "EXTEND", label: "Edge.EXTEND (default)" },
+  { value: "WRAP", label: "Edge.WRAP" },
+  { value: "CROP", label: "Edge.CROP" },
 ];
-const edgeNames: Record<string, string> = { "1": "EXTEND", "2": "WRAP", "3": "CROP" };
+type EdgeName = keyof typeof Edge;
+
+/** convolute's options besides the kernel, leaving out defaults. */
+function convoluteExtra(o: {
+  kernel: string;
+  bias: number;
+  preserveAlpha: boolean;
+  useRegion: boolean;
+  region: Rect;
+}) {
+  const extra: { divisor?: number; bias?: number; preserveAlpha?: boolean } & Partial<Rect> = {};
+  const { divisor } = kernels[o.kernel as KernelId] as Kernel;
+  if (divisor) extra.divisor = divisor;
+  if (o.bias) extra.bias = o.bias;
+  if (o.preserveAlpha) extra.preserveAlpha = true;
+  if (o.useRegion) Object.assign(extra, o.region);
+  return extra;
+}
+
+/** convolution's options besides the kernel, leaving out defaults. */
+function convolutionExtra(o: { kernel: string; bias: number; edgeHandling: string }) {
+  const extra: { divisor?: number; bias?: number; edgeHandling?: EdgeName } = {};
+  const { divisor } = kernels[o.kernel as KernelId] as Kernel;
+  if (divisor) extra.divisor = divisor;
+  if (o.bias) extra.bias = o.bias;
+  if (o.edgeHandling !== "EXTEND") extra.edgeHandling = o.edgeHandling as EdgeName;
+  return extra;
+}
 
 const BOX_SHADOW_DEFAULTS = { x: 0, y: 4, blur: 12, spread: 0 };
 
@@ -99,31 +172,27 @@ export default [
     icon: convoluteIcon,
     group: "effects",
     description:
-      "Run a 3×3 kernel over every channel, alpha included, of the image or a region of it.",
+      "Run a kernel over every channel, alpha included unless preserveAlpha is on, of the image or a region of it. Kernels that sum to 0 erase alpha.",
     controls: [
-      {
-        type: "select",
-        key: "kernel",
-        options: convoluteKernels.map((id) => ({ value: id, label: kernels[id].label })),
-      },
+      { type: "select", key: "kernel", options: kernelOptions },
+      { type: "slider", key: "bias", min: 0, max: 255, step: 1 },
+      { type: "toggle", key: "preserveAlpha", label: "preserveAlpha" },
       { type: "toggle", key: "useRegion", label: "region only" },
       { type: "rect", key: "region", when: (o) => o.useRegion },
     ],
     defaults: ({ width, height }: ImageSize) => ({
       kernel: "emboss",
+      bias: 0,
+      preserveAlpha: false,
       useRegion: false,
       region: centeredRect(width, height, 0.5),
     }),
-    apply: (image, { kernel, useRegion, region }) => {
-      const { kernel: matrix } = kernels[kernel as KernelId];
-      image.convolute(useRegion ? { kernel: matrix, ...region } : matrix);
+    apply: (image, opts) => {
+      const { kernel } = kernels[opts.kernel as KernelId];
+      const extra = convoluteExtra(opts);
+      image.convolute(Object.keys(extra).length ? { kernel, ...extra } : kernel);
     },
-    code: ({ kernel, useRegion, region }) => {
-      const matrix = kernelCode(kernels[kernel as KernelId].code);
-      if (!useRegion) return `image.convolute(${matrix});`;
-      const rows = matrix.split("\n").map((line, i) => (i === 0 ? line : `  ${line}`));
-      return `image.convolute({\n  kernel: ${rows.join("\n")},\n  ${js(region).slice(2, -2)},\n});`;
-    },
+    code: (opts) => kernelCall("convolute", kernels[opts.kernel as KernelId].kernel, convoluteExtra(opts)),
   }),
 
   defineOp({
@@ -134,25 +203,32 @@ export default [
     description:
       "Run a kernel over the red, green and blue channels. Alpha is left alone, and edgeHandling picks what lies past the border.",
     controls: [
-      {
-        type: "select",
-        key: "kernel",
-        options: convolutionKernels.map((id) => ({ value: id, label: kernels[id].label })),
-      },
+      { type: "select", key: "kernel", options: kernelOptions },
+      { type: "slider", key: "bias", min: 0, max: 255, step: 1 },
       { type: "select", key: "edgeHandling", label: "edgeHandling", options: edgeModes },
     ],
-    defaults: { kernel: "edges", edgeHandling: "1" },
-    apply: (image, { kernel, edgeHandling }) => {
-      const { kernel: matrix } = kernels[kernel as KernelId];
-      if (edgeHandling === "1") image.convolution(matrix);
-      else image.convolution({ kernel: matrix, edgeHandling: Number(edgeHandling) as Edge });
+    defaults: { kernel: "edges", bias: 0, edgeHandling: "EXTEND" },
+    apply: (image, opts) => {
+      const { kernel } = kernels[opts.kernel as KernelId];
+      const { edgeHandling, ...extra } = convolutionExtra(opts);
+      if (!edgeHandling && !Object.keys(extra).length) {
+        image.convolution(kernel);
+      } else {
+        image.convolution({
+          kernel,
+          ...extra,
+          edgeHandling: edgeHandling ? Edge[edgeHandling] : undefined,
+        });
+      }
     },
-    code: ({ kernel, edgeHandling }) => {
-      const matrix = kernelCode(kernels[kernel as KernelId].code);
-      if (edgeHandling === "1") return `image.convolution(${matrix});`;
-      const rows = matrix.split("\n").map((line, i) => (i === 0 ? line : `  ${line}`));
-      return `image.convolution({\n  kernel: ${rows.join("\n")},\n  edgeHandling: ${edgeHandling}, // Edge.${edgeNames[edgeHandling]}\n});`;
+    code: (opts) => {
+      const { edgeHandling, ...extra } = convolutionExtra(opts);
+      return kernelCall("convolution", kernels[opts.kernel as KernelId].kernel, {
+        ...extra,
+        edgeHandling: edgeHandling ? raw(`Edge.${edgeHandling}`) : undefined,
+      });
     },
+    imports: ({ edgeHandling }) => (edgeHandling === "EXTEND" ? {} : { jimp: ["Edge"] }),
     thumbnail: { kernel: "emboss" },
   }),
 

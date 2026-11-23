@@ -100,7 +100,9 @@ Move the sliders to change the shadow. Raise `radius` to round the image's corne
 - **The shadow is a box.** It's the shape of the whole image (with rounded corners if you give `radius`), not of its opaque pixels, so it shows through transparent areas. For a shadow shaped like the image's content, use [`shadow`](/jimp/methods/shadow/) from `@jimp/plugin-shadow`.
 - **Corner radii.** Radii too large for the image are scaled down, as with CSS `border-radius`. `spread` grows rounded corners along with the box, but square corners stay square.
 - **Transparent background.** The new area outside the shadow is transparent. Save as PNG to keep it, or composite onto an opaque background before saving as JPEG.
-- **Validation.** `blur` and `radius` must be `0` or more; negative values throw a validation error.
+- **CSS colors and color profiles.** A CSS color string is sRGB, as in CSS. On an image with a Display P3 or other [color profile](/jimp/guides/color-spaces/), it's converted to the image's color space. A number is used as raw pixel values.
+- **Validation.** `blur` and `radius` must be `0` or more; negative values throw a validation error. A `color` string that isn't a CSS color throws `Invalid color "nope"` (with your string in the quotes).
+- **Changed in 2.0:** an invalid color string used to draw a black shadow without an error.
 
 <Aside type="tip">
   Apply `boxShadow` last. Effects applied afterwards, such as a blur, also

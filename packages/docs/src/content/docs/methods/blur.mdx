@@ -6,7 +6,6 @@ method: "blur"
 plugin: "@jimp/plugin-blur"
 ---
 
-import { Aside } from "@astrojs/starlight/components";
 import Playground from "../../../components/playground/Playground";
 import Related from "../../../components/Related.astro";
 
@@ -25,7 +24,7 @@ image.blur(r: number): this
 
 | Parameter | Type     | Default  | Description                                                   |
 | --------- | -------- | -------- | ------------------------------------------------------------- |
-| `r`       | `number` | required | The blur radius in pixels. A whole number from `1` to `256`. |
+| `r`       | `number` | required | The blur radius in pixels, greater than `0`. It's rounded to a whole number and clamped to `1`–`256`. |
 
 ## Example
 
@@ -62,15 +61,11 @@ Drag the slider to change `r`. The code panel shows the call that produced the i
 
 - **Transparency is handled.** Colors are weighted by their alpha while blurring, so transparent pixels don't leave a dark fringe around the edges of a shape.
 - **Edges are extended.** Near the border, pixels outside the image count as copies of the nearest edge pixel, so the edges don't fade to black.
-- **Invalid radii.** `r` values below `1` throw `r must be greater than 0`, and values that aren't numbers throw `r must be a number`.
+- **Whole-pixel radii.** `r` is rounded to the nearest whole number and clamped to `1`–`256`, so `blur(2.5)` is `blur(3)`, `blur(0.2)` is `blur(1)` and `blur(1000)` is `blur(256)`. For a fractional radius, use [`gaussian`](/jimp/methods/gaussian/).
+- **Invalid radii.** `r` values of `0` or less throw `r must be greater than 0`, and values that aren't numbers throw `r must be a number`.
 - **`blur` or `gaussian`?** [`gaussian`](/jimp/methods/gaussian/) computes a true Gaussian blur. It's a little smoother, but it gets much slower as the radius grows. For most images the difference isn't visible.
-
-<Aside type="caution" title="Use whole numbers">
-  The radius is used to look up precomputed tables. A fractional radius such as
-  `2.5`, or one above `256`, doesn't throw: it makes the whole image transparent
-  black. Round computed values first, for example `image.blur(Math.round(r))`.
-</Aside>
+- **Changed in 2.0:** a fractional radius or one above `256` used to make the whole image transparent black, and radii from about `145` to `256` could leave the result partly transparent. `r` is now rounded and clamped, and large radii blur correctly.
 
 ## Related
 
-<Related methods={["gaussian", "pixelate", "convolute", "boxShadow", "clone"]} />
+<Related methods={["gaussian", "sharpen", "pixelate", "convolute", "boxShadow", "clone"]} />

@@ -35,7 +35,7 @@ It's built into `@jimp/core`, so every Jimp class has it, including [custom ones
 
 | Parameter | Type     | Default  | Description                                                                                |
 | --------- | -------- | -------- | ------------------------------------------------------------------------------------------ |
-| `src`     | `Jimp`   | required | The image to draw on top.                                                                  |
+| `src`     | `Jimp`   | required | The image to draw on top. Any Jimp image, from any Jimp class.                             |
 | `x`       | `number` | `0`      | Where the left edge of `src` goes, in pixels. Can be negative or fractional (it's rounded). |
 | `y`       | `number` | `0`      | Where the top edge of `src` goes.                                                          |
 | `options` | `object` | `{}`     | See [Options](#options).                                                                   |
@@ -45,8 +45,8 @@ It's built into `@jimp/core`, so every Jimp class has it, including [custom ones
 | Option          | Type        | Default              | Description                                                                                   |
 | --------------- | ----------- | -------------------- | --------------------------------------------------------------------------------------------- |
 | `mode`          | `BlendMode` | `BlendMode.SRC_OVER` | How the source's colors combine with the image's. See [blend modes](/jimp/concepts/compositing/#blend-modes). |
-| `opacitySource` | `number`    | `1`                  | Multiplies the source's alpha, from `0` (invisible) to `1`.                                   |
-| `opacityDest`   | `number`    | `1`                  | Multiplies the alpha of every pixel of this image before drawing, from `0` to `1`.            |
+| `opacitySource` | `number`    | `1`                  | Multiplies the source's alpha, from `0` (invisible) to `1`. Clamped to that range.            |
+| `opacityDest`   | `number`    | `1`                  | Multiplies the alpha of every pixel of this image before drawing, from `0` to `1`. Clamped.   |
 
 `BlendMode` is a named export of `jimp`:
 
@@ -131,11 +131,13 @@ Click the image to move the sticker, choose a `mode` and fade either layer with 
 
 - **Out-of-bounds parts are skipped.** Pixels of `src` that land outside the image are ignored, so a negative or large `x`, `y` crops the source at the edges. The image never grows.
 - **Transparency.** In every mode the result's alpha is `src + dst - src × dst`, the standard "over" formula, so fully transparent source pixels leave the image unchanged.
-- **Same class only.** `src` must be made by the same Jimp class as the image, or `composite` throws `The source must be a Jimp image`. This matters when you use a [custom Jimp](/jimp/guides/custom-jimp/) alongside the `jimp` package: read every image with the same class.
-- **Opacity values are not validated.** An `opacitySource` or `opacityDest` outside `0`–`1`, or one that isn't a number, is silently treated as `1`.
-- **Unknown modes.** A `mode` that isn't a `BlendMode` value throws a `TypeError`: `blendmode is not a function`.
+- **Any Jimp class.** `src` can come from a different Jimp class than the image, such as a [custom Jimp](/jimp/guides/custom-jimp/) and the `jimp` package's `Jimp`. Anything that isn't an image throws `The source must be a Jimp image: an object with a bitmap of width, height and data`.
+- **Color profiles.** If `src` is in a different color space from the image, for example an sRGB logo on a Display P3 photo, a copy of it is converted to the image's color space first, so its colors look the same. See [Color spaces](/jimp/guides/color-spaces/).
+- **Opacity values are clamped.** `opacitySource` and `opacityDest` are clamped to `0`–`1`. A value that isn't a number is treated as `1`.
+- **Unknown modes.** A `mode` that isn't a `BlendMode` value throws `Unknown blend mode "nope", expected one of: srcOver, dstOver, multiply, add, screen, overlay, darken, lighten, hardLight, difference, exclusion` (with your value in the quotes).
 - **Non-number positions** throw `x and y must be numbers`.
 - **`composite` or `blit`?** [`blit`](/jimp/methods/blit/) can copy just part of the source image, and always blends like `SRC_OVER` at full opacity.
+- **Changed in 2.0:** `src` had to come from the same Jimp class as the image, or `composite` threw `The source must be a Jimp image`. An unknown `mode` threw `TypeError: blendmode is not a function`, and an opacity outside `0`–`1` was treated as `1`, so a negative opacity drew the source at full strength. Sources in a different color space were drawn without conversion.
 
 ## Related
 

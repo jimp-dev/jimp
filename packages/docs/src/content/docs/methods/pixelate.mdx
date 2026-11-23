@@ -70,7 +70,8 @@ Drag the slider to change `size`. Turn on **region only** and drag on the image 
 - **How each block gets its color.** A block isn't the average of all its pixels. Jimp samples a small 3×3 weighted average around the block's top-left pixel and fills the block with it. Small details elsewhere in a block don't affect its color, which is what makes pixelating useful for hiding them.
 - **Blocks line up with the image, not the region.** Blocks start at multiples of `size` from the image's top-left corner. A region that doesn't start on a multiple of `size` gets partial blocks at its top and left edges.
 - **Alpha is pixelated too**, so transparent areas form blocks like everything else.
-- **Keep regions inside the image.** `w` and `h` aren't clamped to the image. A region that runs past the right edge spills over onto the start of the next rows, so compute `w` as at most `image.width - x`.
+- **Regions are clamped to the image.** The part of a region outside the image is ignored, so `x`, `y`, `w` and `h` can run past the edges or be negative.
+- **Changed in 2.0:** a region that ran past the right edge used to spill over onto the start of the next rows. It's now clamped to the image.
 - **Validation.** `size` is checked with zod: a value below `1` throws a validation error ("Too small: expected number to be >=1"), and calling `pixelate()` with no argument throws too. Fractional sizes are accepted, but whole numbers give even blocks.
 
 ## Related

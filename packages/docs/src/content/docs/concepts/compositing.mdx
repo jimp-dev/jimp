@@ -3,7 +3,6 @@ title: "Compositing"
 description: "Layer images on top of each other with composite, blit and mask, and control how they blend."
 ---
 
-import { Aside } from "@astrojs/starlight/components";
 import Playground from "../../../components/playground/Playground";
 import StickerSheet from "../../../components/StickerSheet.astro";
 
@@ -94,13 +93,7 @@ canvas
   .composite(caption, 40, 360);
 ```
 
-<Aside type="caution" title="Use one Jimp class">
-  `composite` requires the source to come from the same Jimp class as the
-  destination, and throws `The source must be a Jimp image` otherwise. This
-  only matters if you mix the `jimp` package's `Jimp` with a
-  [custom Jimp](/jimp/guides/custom-jimp/): read and create every image with
-  the same one. `blit` and `mask` don't have this restriction.
-</Aside>
+Sources can come from any Jimp class, so images read with a [custom Jimp](/jimp/guides/custom-jimp/) and with the `jimp` package's `Jimp` can be layered onto each other.
 
 ## Opacity
 
@@ -113,7 +106,7 @@ canvas
 photo.composite(logo, 20, 20, { opacitySource: 0.4 });
 ```
 
-Values outside `0`–`1` aren't rejected; they're treated as `1`.
+Values outside `0`–`1` are clamped to that range, and a value that isn't a number counts as `1`.
 To fade an image without compositing it, use [`opacity`](/jimp/methods/opacity/) or [`fade`](/jimp/methods/fade/).
 
 ## Blend modes
@@ -179,13 +172,13 @@ To move part of an image within itself, blit from a [`clone`](/jimp/methods/clon
 image.blit({ src: image.clone(), x: 10, y: 10, srcX: 120, srcY: 80, srcW: 100, srcH: 60 });
 ```
 
-Keep the source rectangle inside the source image: `blit` doesn't clamp it, and a rectangle that runs past the right edge picks up pixels from the following rows.
+The source rectangle is clamped to the source image, so a rectangle that runs past its edges copies only the part inside it.
 
 <Playground method="blit" src="dice-on-paper.png" client:visible />
 
 ## Cutting shapes with mask
 
-[`mask`](/jimp/methods/mask/) uses a second image as a stencil. For every pixel it covers, the mask's brightness (the average of red, green and blue) scales the image's alpha: white keeps the pixel, black makes it transparent and gray makes it partly transparent.
+[`mask`](/jimp/methods/mask/) uses a second image as a stencil. For every pixel it covers, the mask's gray value scales the image's alpha: white keeps the pixel, black makes it transparent and gray makes it partly transparent. The mask's own alpha counts too, so transparent parts of a mask hide the image, and colored pixels count by their luminance.
 
 ```ts title="example.ts"
 const photo = await Jimp.read("photo.png");
@@ -202,6 +195,10 @@ Masks only lower alpha, and only where they cover the image, so make them at lea
 
 For circles and rounded rectangles you don't need a mask image: use [`circle`](/jimp/methods/circle/) and [`roundCorners`](/jimp/methods/round-corners/).
 
+## Color profiles
+
+Most images are sRGB, but photos from phones are often Display P3. When a source's color space differs from the destination's, `composite` and `blit` convert a copy of the source to the destination's space first, so an sRGB logo keeps its colors on a P3 photo. The source itself isn't changed. `mask` only reads gray values, so it doesn't convert. See [Color spaces](/jimp/guides/color-spaces/) for more.
+
 ## Which one to use
 
 | You want to…                                         | Use                                                                      |
@@ -217,5 +214,6 @@ For circles and rounded rectangles you don't need a mask image: use [`circle`](/
 - [`composite`](/jimp/methods/composite/), [`blit`](/jimp/methods/blit/) and [`mask`](/jimp/methods/mask/): the full reference for each method
 - [`new Jimp()`](/jimp/methods/new-jimp/): create blank canvases
 - [Colors and pixels](/jimp/concepts/colors-and-pixels/): color numbers, alpha and reading pixels
+- [Color spaces](/jimp/guides/color-spaces/): Display P3, ICC profiles and converting between them
 - [Constants](/jimp/concepts/constants/): `BlendMode` and the other named exports
 - [`boxShadow`](/jimp/methods/box-shadow/), [`opacity`](/jimp/methods/opacity/) and [`crop`](/jimp/methods/crop/): methods that pair well with compositing

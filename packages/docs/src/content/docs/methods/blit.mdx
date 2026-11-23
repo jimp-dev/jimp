@@ -6,7 +6,6 @@ method: "blit"
 plugin: "@jimp/plugin-blit"
 ---
 
-import { Aside } from "@astrojs/starlight/components";
 import Playground from "../../../components/playground/Playground";
 import Related from "../../../components/Related.astro";
 
@@ -90,18 +89,14 @@ Drag on the image to pick the source region, and click to choose where it goes. 
 
 ## Notes
 
-<Aside type="caution" title="Keep the source area inside the source">
-  `srcW` and `srcH` aren't clamped to the source image. An area that runs
-  past the source's right edge picks up pixels from the start of its next
-  rows instead of stopping. Clamp the area yourself, for example
-  `srcW: Math.min(w, src.width - srcX)`.
-</Aside>
-
 - **Transparency is respected.** Source pixels are drawn over the image with the same "over" blending as [`composite`](/jimp/methods/composite/)'s default mode. Fully transparent source pixels leave the image unchanged, and partly transparent ones mix with it.
 - **Out-of-bounds parts are skipped.** Pixels that would land outside the image are ignored, so the image never grows.
-- **Any Jimp image works.** `blit` accepts any object with a `bitmap` of `data`, `width` and `height`, so unlike `composite` it doesn't care which Jimp class made the source.
+- **The source area is clamped to the source.** The part of `srcX`, `srcY`, `srcW`, `srcH` outside the source image is skipped. The pixels that are copied keep their position, so with `srcX: -1` the first column at `x` is left as it was.
+- **Color profiles.** A source in a different color space from the image, for example an sRGB sprite on a Display P3 image, is converted to the image's color space first. See [Color spaces](/jimp/guides/color-spaces/).
+- **Any Jimp image works.** `blit` accepts any object with a `bitmap` of `data`, `width` and `height`, so it doesn't matter which Jimp class made the source.
 - **Validation.** The options are checked with zod. Calling `blit()` without an image, or with an object without `src`, throws a validation error.
 - **No blend modes or opacity.** For those, use [`composite`](/jimp/methods/composite/). To copy part of a source with `composite`, [`crop`](/jimp/methods/crop/) a clone of it first.
+- **Changed in 2.0:** a source area that ran past the source's right edge used to pick up pixels from the start of its next rows. Sources in a different color space were copied without conversion.
 
 ## Related
 

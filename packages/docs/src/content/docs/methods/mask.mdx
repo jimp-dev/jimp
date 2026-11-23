@@ -82,18 +82,21 @@ image.mask({
 
 ## Try it
 
-Click the image to move the spotlight mask.
+Click the image to move the mask. Switch the mask to `sticker.png`, a colored star on a transparent background, to see a mask's alpha and colors at work.
 
 <Playground method="mask" src="dice-on-paper.png" client:visible />
 
 ## Notes
 
-- **How the mask is read.** For every pixel the mask covers, Jimp averages the mask's red, green and blue values and multiplies the image's alpha by that average divided by 255. White keeps the pixel, black hides it, and 50% gray halves its alpha.
-- **The mask's own alpha is ignored.** A transparent pixel counts by its color, so a transparent white pixel keeps the image. Flatten masks with transparency onto black first, for example with [`composite`](/jimp/methods/composite/) onto `new Jimp({ width, height, color: 0x000000ff })`.
-- **Colored masks work, by brightness.** Pure red averages to `85`, so it leaves about a third of the alpha. Call [`greyscale`](/jimp/methods/greyscale/) on a mask first if you want perceived brightness instead.
+- **How the mask is read.** For every pixel the mask covers, Jimp multiplies the image's alpha by the mask pixel's gray value and by the mask pixel's alpha, both out of 255, and rounds the result. White keeps the pixel, black hides it, and a gray of `128` halves its alpha.
+- **The mask's own alpha counts.** A transparent mask pixel hides the image, as if the mask were flattened onto black. So a shape with a transparent background, such as a logo, works as a mask on its own: the image shows only where the shape is.
+- **Colored masks use luminance.** A gray pixel (equal red, green and blue) is used as it is. A colored pixel is turned into gray the way GIMP converts sRGB to grayscale: its linear-light luminance, encoded back to sRGB. Pure red becomes `130`, green `220` and blue `70`.
+- **Gray values aren't linearized.** GIMP stores layer masks as linear light, so a mask that looks 50% gray in GIMP keeps about 22% of the layer, while Jimp keeps 50%. To match GIMP, convert the mask's gray values from sRGB to linear first.
 - **Only the covered area changes.** Pixels outside the mask's area keep their alpha. Make the mask at least as large as the image, or [`resize`](/jimp/methods/resize/) it to `{ w: image.width, h: image.height }`, to mask everything.
 - **It only removes opacity.** The image's alpha is multiplied, never raised, so masking twice compounds and an already transparent pixel can't be brought back.
+- **Positions are rounded.** Fractional `x` and `y` are rounded to whole pixels.
 - **Validation.** The options are checked with zod, so calling `mask()` without an image, or with an object without `src`, throws a validation error.
+- **Changed in 2.0:** colored mask pixels used to count by the average of red, green and blue (pure red was `85`), the mask's alpha was ignored (a transparent white pixel kept the image), and results were truncated instead of rounded. Opaque gray masks on opaque images give the same result as before.
 
 ## Related
 

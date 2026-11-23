@@ -138,20 +138,50 @@ export default [
     icon: maskIcon,
     group: "compose",
     description:
-      "Use spotlight.png's brightness as the image's alpha: white keeps a pixel, black hides it. Click to move the spot.",
-    controls: [{ type: "xy", key: "at", label: "spot center" }],
+      "Use a mask's gray values and alpha to set the image's alpha: white keeps a pixel, black or transparent hides it. Click to move the mask.",
+    controls: [
+      {
+        type: "select",
+        key: "source",
+        label: "mask",
+        options: [
+          { value: "spotlight", label: "spotlight.png" },
+          { value: "sticker", label: "sticker.png on a transparent canvas" },
+        ],
+      },
+      { type: "xy", key: "at", label: "mask center" },
+    ],
     defaults: ({ width, height }: ImageSize) => ({
+      source: "spotlight",
       at: { x: Math.round(width / 2), y: Math.round(height / 2) },
     }),
-    apply: async (image, { at }, ctx) => {
+    apply: async (image, { source, at }, ctx) => {
+      if (source === "sticker") {
+        // A transparent canvas the size of the image, so everything outside
+        // the star is hidden by the mask's alpha
+        const stencil = new ctx.Jimp({ width: image.width, height: image.height });
+        stencil.composite(
+          await ctx.loadImage(STICKER),
+          at.x - STICKER_SIZE / 2,
+          at.y - STICKER_SIZE / 2,
+        );
+        image.mask(stencil);
+        return;
+      }
       const spotlight = await ctx.loadImage(SPOTLIGHT);
       image.mask({ src: spotlight, x: at.x - SPOTLIGHT_W / 2, y: at.y - SPOTLIGHT_H / 2 });
     },
-    code: ({ at }) =>
-      `image.mask(${js({
-        src: raw(`await Jimp.read(${js(SPOTLIGHT)})`),
-        x: at.x - SPOTLIGHT_W / 2,
-        y: at.y - SPOTLIGHT_H / 2,
-      })});`,
+    code: ({ source, at }) =>
+      source === "sticker"
+        ? [
+            `const stencil = new Jimp({ width: image.width, height: image.height });`,
+            `stencil.composite(await Jimp.read(${js(STICKER)}), ${js(at.x - STICKER_SIZE / 2)}, ${js(at.y - STICKER_SIZE / 2)});`,
+            `image.mask(stencil);`,
+          ].join("\n")
+        : `image.mask(${js({
+            src: raw(`await Jimp.read(${js(SPOTLIGHT)})`),
+            x: at.x - SPOTLIGHT_W / 2,
+            y: at.y - SPOTLIGHT_H / 2,
+          })});`,
   }),
 ];
