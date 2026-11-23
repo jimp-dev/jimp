@@ -2,6 +2,7 @@ import { expect, test, describe } from "vitest";
 import { createJimp } from "@jimp/core";
 
 import png, { PNGColorType } from "./index.js";
+import { PNG } from "./pngjs.js";
 import { getTestImagePath } from "@jimp/test-utils";
 
 const jimp = createJimp({ formats: [png] });
@@ -12,6 +13,21 @@ describe("PNG", () => {
     expect(image.getPixelColor(10, 10)).toBe(0x00000000);
     expect(image.getPixelColor(160, 80)).toBe(0x1c1cd4ff);
     expect(image.getPixelColor(400, 250)).toBe(0x7e0c0cda);
+  });
+
+  test("decodes 16-bit PNGs to 8 bits", async () => {
+    const source = new PNG({ width: 1, height: 1 });
+    source.data = Buffer.from(new Uint16Array(4).fill(0x8000).buffer);
+    const buffer = PNG.sync.write(source, {
+      bitDepth: 16,
+      colorType: PNGColorType.COLOR_ALPHA,
+    });
+    expect(buffer[24]).toBe(16);
+
+    for (const options of [{}, { skipRescale: true } as object]) {
+      const image = await jimp.fromBuffer(buffer, { "image/png": options });
+      expect(image.getPixelColor(0, 0)).toBe(0x80808080);
+    }
   });
 
   test("export PNG", async () => {

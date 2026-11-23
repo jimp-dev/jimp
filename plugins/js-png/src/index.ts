@@ -32,7 +32,6 @@ export type PNGOptions = Pick<
 
 export interface DecodePngOptions {
   checkCRC?: boolean | undefined;
-  skipRescale?: boolean | undefined;
 }
 
 export * from "./constants.js";
@@ -153,7 +152,10 @@ export default function png() {
       });
     },
     decode: (data, options?: DecodePngOptions) => {
-      const result = PNG.sync.read(trimTrailingData(data), options);
+      // Jimp bitmaps are 8-bit, so samples are always rescaled to 8 bits
+      const result = PNG.sync.read(trimTrailingData(data), {
+        checkCRC: options?.checkCRC,
+      });
 
       return {
         data: result.data,
