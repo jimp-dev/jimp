@@ -115,7 +115,7 @@ describe("saturation", () => {
     ]);
   });
 
-  test("desaturate 100 is greyscale", () => {
+  test("desaturate 100 gives the HSL lightness, not greyscale()", () => {
     const image = makeImage().color([{ apply: "desaturate", params: [100] }]);
 
     expect([...image.bitmap.data]).toStrictEqual([
@@ -297,5 +297,57 @@ describe("posterize", () => {
     expect(posterize(2.4)).toEqual(posterize(2));
     expect(posterize(256)).toEqual(values);
     expect(posterize(1000)).toEqual(values);
+  });
+});
+
+describe("greyscale", () => {
+  // Pure red, green and blue, an orange, and a pixel at alpha 128
+  const makeImage = () =>
+    jimp.fromBitmap({
+      width: 5,
+      height: 1,
+      data: Buffer.from([
+        255, 0, 0, 255, 0, 255, 0, 255, 0, 0, 255, 255, 255, 128, 0, 255, 10,
+        200, 90, 128,
+      ]),
+    });
+
+  test("uses the rounded Rec. 709 luminance and keeps alpha", () => {
+    // 0.2126 * 255 = 54.213, 0.7152 * 255 = 182.376, 0.0722 * 255 = 18.411,
+    // 54.213 + 0.7152 * 128 = 145.7586, 2.126 + 143.04 + 6.498 = 151.664
+    expect([...makeImage().greyscale().bitmap.data]).toStrictEqual([
+      54, 54, 54, 255, 182, 182, 182, 255, 18, 18, 18, 255, 146, 146, 146, 255,
+      152, 152, 152, 128,
+    ]);
+  });
+
+  test("leaves grey pixels unchanged", () => {
+    const data = Buffer.alloc(256 * 4);
+
+    for (let v = 0; v < 256; v++) {
+      data.set([v, v, v, 255], v * 4);
+    }
+
+    const image = jimp.fromBitmap({ width: 256, height: 1, data });
+
+    expect([...image.clone().greyscale().bitmap.data]).toStrictEqual([...data]);
+  });
+
+  test("the greyscale color action matches greyscale()", () => {
+    const data = Buffer.alloc(4096 * 4);
+
+    // 16 levels per channel, with varied alpha
+    for (let i = 0; i < 4096; i++) {
+      data.set(
+        [(i >> 8) * 17, ((i >> 4) & 15) * 17, (i & 15) * 17, i & 255],
+        i * 4,
+      );
+    }
+
+    const image = jimp.fromBitmap({ width: 4096, height: 1, data });
+
+    expect([
+      ...image.clone().color([{ apply: "greyscale" }]).bitmap.data,
+    ]).toStrictEqual([...image.clone().greyscale().bitmap.data]);
   });
 });

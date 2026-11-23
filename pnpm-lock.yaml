@@ -1595,9 +1595,6 @@ importers:
       '@jimp/js-tiff':
         specifier: workspace:*
         version: link:../js-tiff
-      '@jimp/plugin-color':
-        specifier: workspace:*
-        version: link:../plugin-color
       '@jimp/plugin-resize':
         specifier: workspace:*
         version: link:../plugin-resize

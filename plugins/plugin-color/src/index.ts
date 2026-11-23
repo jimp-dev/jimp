@@ -243,6 +243,15 @@ function fromHsl(hue: number, saturation: number, lightness: number) {
 }
 
 /**
+ * The grey value `greyscale()` gives a pixel: its Rec. 709 luminance, rounded
+ * to the nearest integer. Rounding (rather than truncating) keeps grey pixels
+ * the same, since the weights' floating point sum is a little under 1.
+ */
+function luminance(r: number, g: number, b: number) {
+  return Math.round(0.2126 * r + 0.7152 * g + 0.0722 * b);
+}
+
+/**
  * One channel of `tinycolor(clr).brighten(amount).toRgb()`, where
  * `delta` is `Math.round(255 * -(amount / 100))`.
  */
@@ -752,7 +761,12 @@ export const methods = {
   },
 
   /**
-   * Removes colour from the image using ITU Rec 709 luminance values
+   * Removes colour from the image. Each pixel's red, green and blue are set to
+   * its ITU Rec. 709 luminance, `0.2126 * r + 0.7152 * g + 0.0722 * b`,
+   * rounded to the nearest integer. Alpha is left alone, and pixels that are
+   * already grey don't change, so greyscaling twice is the same as once.
+   *
+   * `color([{ apply: "greyscale" }])` gives the same result.
    * @example
    * ```ts
    * import { Jimp } from "jimp";
@@ -764,16 +778,11 @@ export const methods = {
    */
   greyscale<I extends JimpClass>(image: I) {
     image.scan((_, __, idx) => {
-      // const grey = parseInt(
-      //   0.2126 * image.bitmap.data[idx]! +
-      //     0.7152 * image.bitmap.data[idx + 1]! +
-      //     0.0722 * image.bitmap.data[idx + 2]!,
-      //   10
-      // );
-      const grey =
-        0.2126 * image.bitmap.data[idx]! +
-        0.7152 * image.bitmap.data[idx + 1]! +
-        0.0722 * image.bitmap.data[idx + 2]!;
+      const grey = luminance(
+        image.bitmap.data[idx]!,
+        image.bitmap.data[idx + 1]!,
+        image.bitmap.data[idx + 2]!,
+      );
 
       image.bitmap.data[idx] = grey;
       image.bitmap.data[idx + 1] = grey;
@@ -1176,6 +1185,10 @@ export const methods = {
 
   /**
    * Apply multiple color modification rules
+   *
+   * `greyscale` gives the same result as `greyscale()` (Rec. 709 luminance).
+   * `desaturate` scales HSL saturation, so `desaturate` 100 gives a different
+   * grey: the HSL lightness, `(max(r, g, b) + min(r, g, b)) / 2`.
    * @param  actions list of color modification rules, in following format: { apply: '<rule-name>', params: [ <rule-parameters> ]  }
    * @example
    * ```ts
@@ -1268,12 +1281,10 @@ export const methods = {
           }
 
           case ColorOp.Greyscale: {
-            // tinycolor's greyscale is desaturate(100)
-            toHsl(r, g, b);
-            fromHsl(hsl[0]!, Math.min(1, Math.max(0, hsl[1]! - 1)), hsl[2]!);
-            r = rgb[0]!;
-            g = rgb[1]!;
-            b = rgb[2]!;
+            // The same as greyscale(), rather than tinycolor's greyscale
+            // (HSL lightness, like desaturate 100). Clamped like the HSL
+            // steps, since earlier steps in a chain can leave any value.
+            r = g = b = limit255(luminance(r, g, b));
             break;
           }
 

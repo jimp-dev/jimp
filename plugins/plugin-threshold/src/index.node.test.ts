@@ -13,8 +13,8 @@ describe("Otsu", () => {
   test("thresholds a photo at the level Otsu picks", async () => {
     const image = await Jimp.read(getTestImagePath("cops.jpg"));
 
-    // scikit-image's threshold_otsu gives 92 on this image's greyscale values
-    expect(otsuThreshold(image)).toBe(93);
+    // scikit-image's threshold_otsu gives 93 on this image's greyscale values
+    expect(otsuThreshold(image)).toBe(94);
 
     const output = await image
       .threshold({ max: "otsu", replace: 255 })
