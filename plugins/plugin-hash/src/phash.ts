@@ -59,13 +59,23 @@ class ImagePHash {
    * Returns a 'binary string' (like. 001010111011100010) which is easy to do a hamming distance on.
    */
   getHash(img: JimpClass) {
+    /* 0. Flatten transparency.
+     * Composite the image onto opaque mid-grey so alpha is handled the same
+     * way for every image, rather than only incidentally by the resize below
+     * (which turns fully transparent pixels black, ignores partial alpha, and
+     * is skipped for images that are already the right size). Grey rather
+     * than white or black keeps both light and dark shapes on a transparent
+     * background visible. Opaque pixels are left untouched.
+     */
+    img = flatten(clone(img), FLATTEN_BACKGROUND);
+
     /* 1. Reduce size.
      * Like Average Hash, pHash starts with a small image.
      * However, the image is larger than 8x8; 32x32 is a good size.
      * This is really done to simplify the DCT computation and not
      * because it is needed to reduce the high frequencies.
      */
-    img = methods.resize(clone(img), { w: this.size, h: this.size });
+    img = methods.resize(img, { w: this.size, h: this.size });
 
     /* 2. Reduce color.
      * The image is reduced to a grayscale just to further simplify
@@ -152,6 +162,33 @@ function intToRGBA(i: number) {
   const r = i & 0xff;
 
   return { r, g, b, a };
+}
+
+/** Grey level transparent pixels are composited onto before hashing. */
+const FLATTEN_BACKGROUND = 128;
+
+/**
+ Composite an image onto an opaque grey background in place.
+ */
+function flatten<I extends JimpClass>(img: I, background: number) {
+  const data = img.bitmap.data;
+
+  for (let i = 0; i < data.length; i += 4) {
+    const a = data[i + 3]!;
+
+    if (a === 255) {
+      continue;
+    }
+
+    const alpha = a / 255;
+
+    data[i] = Math.round(background + (data[i]! - background) * alpha);
+    data[i + 1] = Math.round(background + (data[i + 1]! - background) * alpha);
+    data[i + 2] = Math.round(background + (data[i + 2]! - background) * alpha);
+    data[i + 3] = 255;
+  }
+
+  return img;
 }
 
 const c: number[] = [];
