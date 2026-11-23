@@ -149,15 +149,15 @@ FF-00-FFᶠᶠ 00-FF-FFᶠᶠ FF-FF-00ᶠᶠ
 exports[`Callbacks > with gaussian 1`] = `
 Visualization:
 
-61F
-▦7▾
-D!◇
+67◆
+2◇ 
+▿▴▥
 
 Data:
 
-70-A2-2Cᶠ⁸ 4E-71-96ᶠ⁵ 5A-51-BDᶠ³
-6C-8C-5Bᵈ⁴ 74-65-85ᶜᶠ 4F-5A-A6ᶜᶜ
-5A-90-5Cᶜ³ 52-66-8Dᵇᵉ 59-63-98ᶜᶠ
+B6-6A-1Eᶠ⁸ 60-79-66ᶠ⁸ 3B-41-C2ᶠ⁸
+B9-92-2Cᵈ⁹ 71-8A-7Cᵈ⁹ 63-45-CFᵈ⁹
+B8-80-26ᵃ⁵ 69-82-73ᵃ⁵ 51-43-C9ᵃ⁵
 `;
 
 exports[`Callbacks > with greyscale 1`] = `
