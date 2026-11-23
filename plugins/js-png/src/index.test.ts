@@ -26,4 +26,56 @@ describe("PNG", () => {
     const buffer = await testImage.getBuffer("image/png");
     expect(buffer.toString()).toMatch(/^.PNG\r\n/);
   });
+
+  describe("data after IEND", () => {
+    async function getDice() {
+      const image = await jimp.read(getTestImagePath("dice.png"));
+      return {
+        bitmap: image.bitmap,
+        buffer: await image.getBuffer("image/png"),
+      };
+    }
+
+    test.each([
+      ["junk", () => Buffer.from("junk")],
+      ["zeros", () => Buffer.alloc(1024)],
+      [
+        "a second PNG",
+        () =>
+          jimp
+            .fromBitmap({ width: 1, height: 1, data: [0xff0000ff] })
+            .getBuffer("image/png"),
+      ],
+    ])("ignores %s after IEND", async (_, getTrailingData) => {
+      const dice = await getDice();
+      const image = await jimp.read(
+        Buffer.concat([dice.buffer, await getTrailingData()]),
+      );
+
+      expect(image.bitmap.width).toBe(dice.bitmap.width);
+      expect(image.bitmap.height).toBe(dice.bitmap.height);
+      expect(Buffer.compare(image.bitmap.data, dice.bitmap.data)).toBe(0);
+    });
+
+    test("still rejects truncated PNGs", async () => {
+      const { buffer } = await getDice();
+
+      await expect(
+        jimp.read(buffer.subarray(0, buffer.length / 2)),
+      ).rejects.toThrow();
+      // Cut inside the IEND chunk
+      await expect(
+        jimp.read(buffer.subarray(0, buffer.length - 2)),
+      ).rejects.toThrow();
+    });
+
+    test("still rejects a chunk length past the end of the data", async () => {
+      const { buffer } = await getDice();
+      const corrupt = Buffer.from(buffer);
+      // Length of the IHDR chunk
+      corrupt.writeUInt32BE(0xffffffff, 8);
+
+      await expect(jimp.read(corrupt)).rejects.toThrow();
+    });
+  });
 });
