@@ -85,13 +85,14 @@ The first argument is a MIME type string. The default `jimp` package can encode 
 | GIF    | `"image/gif"`                     | `JimpMime.gif`      |
 | BMP    | `"image/bmp"`, `"image/x-ms-bmp"` | `JimpMime.bmp`      |
 | TIFF   | `"image/tiff"`                    | `JimpMime.tiff`     |
+| ICO    | `"image/x-icon"`, `"image/vnd.microsoft.icon"` | `JimpMime.ico` |
 
 An image read from a file remembers its format in `image.mime`, in case you want to encode it the same way.
-WebP and AVIF need a [custom Jimp](/jimp/guides/webp/) with the WASM format plugins; see [Formats](/jimp/concepts/formats/).
+WebP, AVIF and JPEG 2000 need a [custom Jimp](/jimp/guides/webp/) with the WASM format plugins; see [Formats](/jimp/concepts/formats/).
 
 ## Options
 
-The options depend on the format. With TypeScript, the type of `options` follows the `mime` you pass, so options for the wrong format are a type error.
+The options depend on the format. With TypeScript, the type of `options` follows the `mime` you pass, so options for the wrong format are a type error. GIF and TIFF take no options at all.
 
 ### JPEG
 
@@ -101,6 +102,7 @@ Type: [`JPEGOptions`](/jimp/api/jimp/interfaces/jpegoptions/).
 | --------- | --------- | ------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `quality` | `number`  | `100`   | Compression quality from `1` (smallest file, most artifacts) to `100` (largest, best). Values below `1` count as `1` and values above `100` as `100`. |
 | `exif`    | `boolean` | `false` | Write the EXIF data of the JPEG the image was read from, with the orientation and size updated. See [EXIF](/jimp/guides/exif/#writing-exif-data).    |
+| `icc`     | `boolean` | `true`  | Write the image's ICC profile, such as Display P3. `false` writes sRGB without a profile, converting the colors first. See [Color Spaces](/jimp/guides/color-spaces/#reading-and-writing). |
 
 ```ts title="example.ts"
 const photo = await Jimp.read("camera.jpg");
@@ -126,8 +128,9 @@ Type: `PNGOptions`. The encoder is [pngjs](https://www.npmjs.com/package/pngjs);
 | `filterType`      | `PNGFilterType` | `PNGFilterType.AUTO` | The row filter applied before compression. `AUTO` tries each filter on every row and keeps the best.                                                |
 | `deflateLevel`    | `number`        | `9`                  | zlib compression level, `0` (none) to `9` (smallest).                                                                                               |
 | `deflateStrategy` | `number`        | `3`                  | zlib strategy: `0` default, `1` filtered, `2` Huffman only, `3` run-length, `4` fixed.                                                              |
-| `bitDepth`        | `8 \| 16`       | `8`                  | Bits per channel. Jimp's pixels have 8 bits per channel, so `16` only makes the file bigger.                                                        |
+| `bitDepth`        | `8 \| 16`       | `8`                  | Bits per channel. Leave it at `8`: Jimp's pixels have 8 bits per channel, and `16` writes the wrong colors.                                        |
 | `bgColor`         | `object`        | white                | `{ red, green, blue }`, 0 to 255. When `colorType` has no alpha channel, transparent pixels are blended onto this color.                             |
+| `icc`             | `boolean`       | `true`               | Write the image's ICC profile, as for JPEG.                                                                                                         |
 | `inputHasAlpha`   | `boolean`       |                      | Deprecated. `false` is the same as `colorType: PNGColorType.COLOR`; `true` does nothing.                                                           |
 
 The values of `colorType` and `filterType` are the [`PNGColorType`](/jimp/api/jimp/enumerations/pngcolortype/) and [`PNGFilterType`](/jimp/api/jimp/enumerations/pngfiltertype/) enums, exported from `jimp`.
@@ -146,15 +149,36 @@ For the smallest PNGs, set `deflateStrategy: 1` with `deflateLevel: 9`. The file
 
 ### BMP
 
-Type: [`EncodeOptions`](/jimp/api/jimp/type-aliases/encodeoptions/). Jimp always writes uncompressed 24-bit BMPs.
+Type: `EncodeOptions`. Jimp writes uncompressed BMPs without a palette.
 
-| Option                      | Type     | Default | Description                                                        |
-| --------------------------- | -------- | ------- | ------------------------------------------------------------------ |
-| `hr`                        | `number` | `0`     | Horizontal resolution, in pixels per meter (2835 is about 72 DPI). |
-| `vr`                        | `number` | `0`     | Vertical resolution, in pixels per meter.                          |
-| `reserved1`, `reserved2`    | `number` | `0`     | Values for the header's two reserved fields.                       |
+| Option                   | Type               | Default | Description                                                                                                         |
+| ------------------------ | ------------------ | ------- | ------------------------------------------------------------------------------------------------------------------- |
+| `bitPP`                  | `16 \| 24 \| 32`   | `24`    | Bits per pixel. `24` stores 8 bits each of red, green and blue. `16` stores 5 bits each, for a smaller file with less color precision. `32` adds an alpha byte, which is always opaque because BMPs are drawn over the background. |
+| `hr`                     | `number`           | `0`     | Horizontal resolution, in pixels per meter (2835 is about 72 DPI).                                                  |
+| `vr`                     | `number`           | `0`     | Vertical resolution, in pixels per meter.                                                                           |
+| `reserved1`, `reserved2` | `number`           | `0`     | Values for the header's two reserved fields, which readers ignore.                                                  |
 
-`palette`, `colors` and `importantColors` are also accepted, but they only apply to BMPs with 8 or fewer bits per pixel, so they have no effect.
+```ts title="example.ts"
+const small = await image.getBuffer("image/bmp", { bitPP: 16 });
+```
+
+Any other `bitPP` throws `Unsupported BMP bit depth 8, use 16, 24, 32`.
+
+### ICO
+
+Type: `EncodeIcoOptions`. Jimp writes each image in the icon as a 32-bit PNG, so transparency is kept.
+
+| Option  | Type       | Default | Description                                                                                                                                                                       |
+| ------- | ---------- | ------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `sizes` | `number[]` | none    | Write one image per size, each scaled to fit in a square of that size with the aspect ratio kept, for example `[16, 32, 48, 256]`. Sizes are clamped to `1` to `256`. Without it, the icon holds the image itself, scaled down to fit in 256 × 256 if it's larger. |
+
+```ts title="example.ts"
+const logo = await Jimp.read("logo.png"); // square images make square icons
+
+const icon = await logo.getBuffer("image/x-icon", { sizes: [16, 32, 48] });
+```
+
+The image itself isn't resized; each size is scaled from a copy.
 
 ### GIF and TIFF
 
@@ -163,7 +187,7 @@ GIF output is a single frame with at most 256 colors. TIFF output is uncompresse
 
 ### WASM formats
 
-The WASM format plugins have their own options, such as `quality` and `lossless` for WebP. See [Formats](/jimp/concepts/formats/#wasm-format-plugins).
+The WASM format plugins have their own options, such as `quality` and `lossless` for WebP (which also takes `icc`), or `compressionRatio` for JPEG 2000. See [Formats](/jimp/concepts/formats/#wasm-format-plugins).
 
 ## Try it
 
@@ -173,10 +197,13 @@ Pick a format to see what encoding does to the image: JPEG's artifacts as you lo
 
 ## Notes
 
-- **Transparency in formats without it.** Before encoding JPEG, BMP, GIF or TIFF, Jimp draws the image over [`image.background`](/jimp/concepts/reading-and-writing/#image-properties). The default background is transparent black, so fully transparent pixels come out black in a JPEG or BMP. Set `image.background = 0xffffffff` first to put them on white instead. PNG and the WASM formats skip this step and keep the alpha channel.
+- **Transparency in formats without it.** Before encoding JPEG, BMP, GIF or TIFF, Jimp draws the image over [`image.background`](/jimp/concepts/reading-and-writing/#image-properties). The default background is transparent black, so fully transparent pixels come out black in a JPEG or BMP. Set `image.background = 0xffffffff` first to put them on white instead. PNG, ICO and most WASM formats skip this step and keep the alpha channel.
+- **Color profiles.** JPEG, PNG and WebP output keeps the image's ICC profile. Other formats can't carry one, so for an image in another color space, such as Display P3, Jimp encodes a copy converted to sRGB. Images without a profile are written as they are. See [Color Spaces](/jimp/guides/color-spaces/).
 - **Errors.** A MIME type the image can't encode throws `Unsupported MIME type: image/webp`. That includes typos and MIME types of formats you haven't added.
 - **Only JPEG output can carry EXIF.** Other formats never include it, and the `exif` option is a type error for them.
-- **The image isn't modified.** Even when the image is drawn over its background, that happens on a copy.
+- **The image isn't modified.** Even when the image is drawn over its background or converted to sRGB, that happens on a copy.
+- **Added in 2.0:** the `icc` option for JPEG, PNG and WebP, BMP's `bitPP` option, and the ICO format.
+- **Changed in 2.0:** BMP's `palette`, `colors` and `importantColors` options are removed, as Jimp never wrote a palette and they had no effect. PNG's `width`, `height`, `fill`, `checkCRC`, `skipRescale`, `deflateFactory` and `deflateChunkSize` encode options are removed too. In TypeScript, GIF and TIFF take no options.
 
 ## Related
 

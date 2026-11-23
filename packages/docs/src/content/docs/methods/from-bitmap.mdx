@@ -19,18 +19,21 @@ Jimp.fromBitmap(bitmap: {
   width: number;
   height: number;
   data: Buffer | Uint8Array | Uint8ClampedArray | number[];
+  colorSpace?: "srgb" | "display-p3";
 }): Jimp
 ```
 
 `Jimp.fromBitmap` is a static method. Unlike [`Jimp.read`](/jimp/methods/read/) it's synchronous and returns the new image directly.
+It always copies `data`, so changing the image never changes the object you passed in.
 
 ## Parameters
 
-| Option   | Type                                                  | Default  | Description                                                                                                                       |
-| -------- | ----------------------------------------------------- | -------- | --------------------------------------------------------------------------------------------------------------------------------- |
-| `width`  | `number`                                              | required | Width in pixels.                                                                                                                  |
-| `height` | `number`                                              | required | Height in pixels.                                                                                                                 |
-| `data`   | `Buffer \| Uint8Array \| Uint8ClampedArray \| number[]` | required | The pixels, row by row from the top left. Byte arrays hold 4 bytes per pixel (red, green, blue, alpha); a `number[]` holds one `0xRRGGBBAA` number per pixel. |
+| Option       | Type                                                  | Default  | Description                                                                                                                       |
+| ------------ | ----------------------------------------------------- | -------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| `width`      | `number`                                              | required | Width in pixels.                                                                                                                  |
+| `height`     | `number`                                              | required | Height in pixels.                                                                                                                 |
+| `data`       | `Buffer \| Uint8Array \| Uint8ClampedArray \| number[]` | required | The pixels, row by row from the top left. Byte arrays hold exactly 4 bytes per pixel (red, green, blue, alpha); a `number[]` holds one `0xRRGGBBAA` number per pixel. |
+| `colorSpace` | `"srgb" \| "display-p3"`                              | `"srgb"` | The color space the pixels are in. A Display P3 image is written with a Display P3 profile. See [Color Spaces](/jimp/guides/color-spaces/). |
 
 The type of `bitmap` is [`RawImageData`](/jimp/api/jimp/interfaces/rawimagedata/).
 
@@ -51,7 +54,8 @@ await image.write("pixels.png");
 
 ### From a canvas
 
-`ImageData` already has `width`, `height` and a `Uint8ClampedArray` of RGBA bytes, so you can pass it straight in:
+`ImageData` already has `width`, `height` and a `Uint8ClampedArray` of RGBA bytes, so you can pass it straight in.
+Jimp copies the pixels, so editing the image leaves the canvas's `ImageData` as it was:
 
 ```ts title="main.ts"
 import { Jimp } from "jimp";
@@ -97,11 +101,13 @@ const gradient = Jimp.fromBitmap({ width, height, data });
 
 ## Notes
 
-- **Pixels are RGBA, 8 bits per channel.** Data with 3 channels (RGB), premultiplied alpha or a different channel order has to be converted first; Jimp doesn't check.
-- **The size isn't checked.** Jimp doesn't compare `data.length` with `width * height * 4`. Data that's too short fails later, when a method reads past the end, with an error such as `The value of "offset" is out of range`.
-- **`Uint8Array` and `Uint8ClampedArray` data is shared, not copied.** The image uses the same memory as your array, so changing the image changes the array and the other way round. A `Buffer` is copied. Call [`clone()`](/jimp/methods/clone/) if you need an independent copy.
+- **Pixels are RGBA, 8 bits per channel.** Data with 3 channels (RGB), premultiplied alpha or a different channel order has to be converted first.
+- **The size is checked.** `data` must hold exactly `width * height * 4` bytes (or `width * height` numbers), like the `ImageData` constructor. Anything else throws, for example `bitmap data is 70 bytes, but a 50x50 RGBA image needs exactly 10000 (width * height * 4)`. A wrong length usually means a wrong width or height, RGB data or padded rows.
+- **The data is always copied**, whatever its type, including a `Buffer`. For a typed array only the view's own bytes are copied, not the whole `ArrayBuffer` behind it. [`new Jimp({ width, height, data })`](/jimp/methods/new-jimp/#from-an-existing-bitmap) is the one way to wrap a `Buffer` without copying it.
 - **No format.** The image has no `mime` and no EXIF data, since it wasn't decoded from a file.
-- **Errors.** A missing or unsupported `data` throws `data must be a Buffer`, and a missing `width` or `height` throws `bitmap must have width and height`.
+- **Errors.** Data of another type, such as a `Float32Array`, throws `data must be a Buffer, Uint8Array, Uint8ClampedArray or an array of numbers`. A missing `width` or `height` throws `bitmap must have width and height`, and an unknown `colorSpace` throws `Unknown color space "rec2020", expected "srgb" or "display-p3"`.
+- **Added in 2.0:** the `colorSpace` option.
+- **Changed in 2.0:** `Uint8Array` and `Uint8ClampedArray` data is copied, and its length is checked. Before, it was shared with the caller, and data that was too short only failed later, when a method read past its end.
 
 <Aside type="tip" title="Encoded bytes go to fromBuffer">
   `fromBitmap` expects decoded pixels. If you have the bytes of a PNG or JPEG

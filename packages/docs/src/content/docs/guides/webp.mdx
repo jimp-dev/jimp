@@ -1,6 +1,6 @@
 ---
 title: Using WEBP (And other WASM plugins)
-description: Add WebP, AVIF and faster JPEG and PNG codecs to Jimp with WASM format plugins.
+description: Add WebP, AVIF, JPEG 2000, SVG and faster JPEG and PNG codecs to Jimp with WASM format plugins.
 ---
 
 import { Aside, Steps } from "@astrojs/starlight/components";
@@ -8,7 +8,7 @@ import InstallCommand from "../../../components/InstallCommand.astro";
 import { WebpExample } from "../../../components/webp-example";
 
 The default build of Jimp only includes image formats written in JavaScript.
-WebP, AVIF and other formats that have no JavaScript implementation come as **WASM format plugins**: codecs compiled to WebAssembly from C and Rust libraries, wrapped as Jimp [format plugins](/jimp/guides/writing-plugins/#write-a-format-plugin).
+WebP, AVIF, JPEG 2000, SVG and other formats that have no JavaScript implementation come as **WASM format plugins**: codecs compiled to WebAssembly from C, C++ and Rust libraries, wrapped as Jimp [format plugins](/jimp/guides/writing-plugins/#write-a-format-plugin).
 They aren't part of `jimp`, so you add them to a [custom Jimp](/jimp/guides/custom-jimp/).
 
 | Package           | MIME type    | What it does                                                                                           |
@@ -17,6 +17,8 @@ They aren't part of `jimp`, so you add them to a [custom Jimp](/jimp/guides/cust
 | `@jimp/wasm-avif` | `image/avif` | Reads and writes AVIF.                                                                                 |
 | `@jimp/wasm-jpeg` | `image/jpeg` | Reads and writes JPEG with [MozJPEG](https://github.com/mozilla/mozjpeg). Replaces `@jimp/js-jpeg`.   |
 | `@jimp/wasm-png`  | `image/png`  | Reads and writes PNG, and can shrink files with [oxipng](https://github.com/shssoichiro/oxipng). Replaces `@jimp/js-png`. |
+| `@jimp/wasm-jpeg2000` | `image/jp2`, `image/j2c`, `image/jpx` | Reads and writes JPEG 2000 with [OpenJPEG](https://www.openjpeg.org). See [JPEG 2000](#jpeg-2000). |
+| `@jimp/wasm-svg`  | `image/svg+xml` | Reads SVG by rendering it with [resvg](https://github.com/linebender/resvg). See [SVG](#svg).   |
 
 The WASM plugins are ES modules only: import them with `import`, not `require`.
 
@@ -91,7 +93,8 @@ await image.write("small.webp", { quality: 60, method: 6 });
 const buffer = await image.getBuffer("image/webp", { lossless: 1 });
 ```
 
-The plugin accepts every option of [libwebp's `WebPConfig`](https://developers.google.com/speed/webp/docs/api#advanced_encoding_api), in camelCase. Invalid values throw a `ZodError`, for example `quality: 150` fails with `Too big: expected number to be <=100`.
+The plugin accepts the options of [libwebp's `WebPConfig`](https://developers.google.com/speed/webp/docs/api#advanced_encoding_api) that change the output, in camelCase; [Formats](/jimp/concepts/formats/#encode-options) lists them all. Invalid values throw a `ZodError`, for example `quality: 150` fails with `Too big: expected number to be <=100`, and so do options the plugin doesn't know.
+It also takes `icc`: an image with an ICC profile, such as a Display P3 photo, keeps it in the WebP unless you pass `icc: false`. See [Color Spaces](/jimp/guides/color-spaces/).
 WebP keeps transparency, and has no decode options.
 
 ## The other WASM plugins
@@ -115,6 +118,7 @@ await image.write("photo.avif", { speed: 6 });
 ```
 
 The encode options are `cqLevel`, `cqAlphaLevel`, `speed` (default `6`), `subsample`, `tune`, `sharpness`, `denoiseLevel`, `chromaDeltaQ`, `tileColsLog2` and `tileRowsLog2`, from [libavif](https://github.com/AOMediaCodec/libavif).
+AVIF output has no ICC profile, so images in another color space are converted to sRGB first.
 In the browser, the AVIF encoder runs in a worker; see the [Vite](#vite) notes.
 
 ### JPEG and PNG
@@ -139,14 +143,124 @@ await image.write("icon.png", {
 });
 ```
 
-- `@jimp/wasm-jpeg` takes MozJPEG's options, such as `quality` (default `75`), `progressive` (default `true`) and `optimizeCoding` (default `true`). It also supports [`exif: true`](/jimp/guides/exif/#writing-exif-data).
-- `@jimp/wasm-png` takes an `optimize` object to run the output through oxipng: `level` (`0` to `6`, default `2`), `interlace` (default `false`) and `optimiseAlpha` (default `false`). Without `optimize`, the PNG isn't optimized. At runtime each field of `optimize` is optional, but the TypeScript types currently require all three, so pass them all in TypeScript code.
+- `@jimp/wasm-jpeg` takes MozJPEG's options, such as `quality` (default `75`), `progressive` (default `true`) and `optimizeCoding` (default `true`). It also supports [`exif: true`](/jimp/guides/exif/#writing-exif-data) and `icc`, as the built-in JPEG format does.
+- `@jimp/wasm-png` takes an `optimize` object to run the output through oxipng: `level` (`0` to `6`, default `2`), `interlace` (default `false`) and `optimiseAlpha` (default `false`). Without `optimize`, the PNG isn't optimized. At runtime each field of `optimize` is optional, but the TypeScript types currently require all three, so pass them all in TypeScript code. It also takes `icc`, as the built-in PNG format does.
 
 Each plugin's [source](https://github.com/jimp-dev/jimp/tree/main/plugins) lists every option with its range and default.
 
+### JPEG 2000
+
+`@jimp/wasm-jpeg2000` reads and writes JPEG 2000 with [OpenJPEG](https://www.openjpeg.org), the format's reference implementation. JPEG 2000 is common in scanning, archiving, medical imaging and PDF files.
+It has three exports, one per MIME type. Add the ones you need:
+
+| Export     | MIME type   | Files              | Read | Write |
+| ---------- | ----------- | ------------------ | ---- | ----- |
+| `jpeg2000` | `image/jp2` | `.jp2`             | yes  | yes   |
+| `j2c`      | `image/j2c` | `.j2c`, `.j2k`     | yes  | yes   |
+| `jpx`      | `image/jpx` | `.jpx`, `.jpf`     | yes  | no    |
+
+```ts title="jimp.ts"
+import { createJimp } from "@jimp/core";
+import { defaultFormats, defaultPlugins } from "jimp";
+import jpeg2000, { j2c, jpx } from "@jimp/wasm-jpeg2000";
+
+export const Jimp = createJimp({
+  formats: [...defaultFormats, jpeg2000, j2c, jpx],
+  plugins: defaultPlugins,
+});
+
+const image = await Jimp.read("scan.jp2");
+
+await image.write("lossless.jp2");
+await image.write("smaller.jp2", { compressionRatio: 20 });
+
+// Raw codestreams have no extension write() knows, so use getBuffer
+const codestream = await image.getBuffer("image/j2c");
+```
+
+| Option              | Used when | Default | Description                                                                                                                     |
+| ------------------- | --------- | ------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| `reduce`            | reading   | `0`     | Decode at a lower resolution. Each step halves the width and height, without decoding the full image.                           |
+| `layers`            | reading   | `0`     | Decode only the first quality layers, for a lower-quality preview. `0` decodes all of them.                                     |
+| `maxResolutionInMP` | reading   | `100`   | Reject images larger than this many megapixels, after `reduce`, before decoding them.                                           |
+| `compressionRatio`  | writing   | `1`     | Target size as a ratio of the uncompressed RGB pixels, for example `20` for 20:1. `1` is lossless.                              |
+| `decompositions`    | writing   | `5`     | Wavelet levels, which is how many times decoders can halve the image with `reduce`. Limited to what the image's size allows.     |
+
+Decode options go under the MIME type, for example `Jimp.read("scan.jp2", { "image/jp2": { reduce: 2 } })`. Out-of-range numbers are clamped or rounded rather than rejected.
+
+- **Reading:** grayscale and RGB images, including YCbCr with 4:2:0 or 4:2:2 chroma subsampling, with 1 to 16 bits per sample, scaled to 8 bits. An ICC profile in a JP2 or JPX file is read, so a Display P3 file reads as `colorSpace: "display-p3"`.
+- **No alpha:** images with an alpha channel can't be decoded, and throw `Unsupported JPEG 2000 image with 4 components: only grayscale and RGB images can be decoded, without alpha`.
+- **Writing:** 8-bit RGB without alpha or an ICC profile. Transparent pixels are drawn over [`image.background`](/jimp/concepts/reading-and-writing/#image-properties), and images in another color space are converted to sRGB. Writing JPX throws; write JP2 instead, which JPX readers can read too.
+- **Size:** the wasm is about 373 KB (131 KB gzipped), loaded the first time an image is read or written.
+
+The codec's JavaScript refers to Node's `fs` and `path`, which webpack 5 tries to bundle for the browser. Turn them off:
+
+```js title="webpack.config.js"
+export default {
+  resolve: { fallback: { fs: false, path: false } },
+};
+```
+
+Vite 8 needs no config. For Vite 7 and earlier, see [Vite](#vite).
+
+### SVG
+
+`@jimp/wasm-svg` reads SVG files by rendering them to pixels with [resvg](https://github.com/linebender/resvg). It can't write SVG: `write("image.svg")` and `getBuffer("image/svg+xml")` throw `Jimp can read SVG but can't write it. Write a raster format like PNG (image/png) instead.`
+
+```ts title="jimp.ts"
+import { createJimp } from "@jimp/core";
+import { defaultFormats, defaultPlugins } from "jimp";
+import svg from "@jimp/wasm-svg";
+
+export const Jimp = createJimp({
+  formats: [...defaultFormats, svg],
+  plugins: defaultPlugins,
+});
+
+// At the size the SVG sets
+const logo = await Jimp.read("logo.svg");
+
+// 512 pixels wide, keeping the aspect ratio, on white
+const icon = await Jimp.read("logo.svg", {
+  "image/svg+xml": { width: 512, background: "white" },
+});
+
+await icon.write("icon.png");
+```
+
+SVG is recognized by its content, not its file name, so buffers, files, URLs and `data:` URLs all work.
+The image is sRGB and has an alpha channel: whatever the SVG doesn't paint is transparent.
+
+| Option              | Default          | Description                                                                                                         |
+| ------------------- | ---------------- | ------------------------------------------------------------------------------------------------------------------- |
+| `width`             | the SVG's width  | Width in pixels. The height keeps the aspect ratio.                                                                 |
+| `height`            | the SVG's height | Height in pixels. The width keeps the aspect ratio. With `width` too, the image fits inside both.                  |
+| `scale`             | `1`              | A multiple of the SVG's size, for example `2` for twice the width and height. Can't be combined with `width` or `height`. |
+| `background`        | transparent      | A CSS color or `0xRRGGBBAA` number to fill the image with behind the SVG.                                          |
+| `fonts`             | `[]`             | Font files (TTF, OTF, TTC or WOFF2) as `Uint8Array`s or `Buffer`s, to draw `<text>` with.                           |
+| `defaultFontFamily` | none             | The family for text without a `font-family`, and for the generic `serif`, `sans-serif` and `monospace` families.  |
+| `maxResolutionInMP` | `100`            | Reject SVGs that would render larger than this many megapixels, before rendering them.                             |
+| `resolveImage`      | none             | Loads the `http:` and `https:` images an SVG links to. Off by default; see the caution below.                     |
+
+The SVG's size comes from its `width` and `height` attributes, or from its `viewBox` when it has neither. An SVG with neither is 100 × 100.
+
+- **Text needs fonts.** The plugin can't use the system's fonts, so `<text>` isn't drawn unless you pass `fonts`. SVGs made for display usually convert text to paths, so this only matters for SVGs that keep it as text.
+- **Nothing is fetched or read from disk.** Images, stylesheets and fonts the SVG links to aren't loaded. Images in `data:` URLs are drawn. That makes it safe to render SVGs you don't trust, apart from the time a very complex SVG can take to render; render those in a worker you can stop.
+- **Size:** the wasm is about 2.5 MB (0.95 MB gzipped), loaded the first time an SVG is read. resvg is under the Mozilla Public License 2.0; the plugin itself is MIT.
+
+<Aside type="caution" title="resolveImage and untrusted SVGs">
+  `resolveImage` is called with each `http:` or `https:` URL in an `<image>`
+  element. Return the image's bytes to draw it, or nothing to skip it. With an
+  SVG you don't trust, it lets the SVG make your server request any URL,
+  including ones on your internal network, so check each URL against a list of
+  hosts you allow before fetching it.
+</Aside>
+
+Vite 8 and webpack 5 need no config. For Vite 7 and earlier, see [Vite](#vite).
+
 ## Node.js
 
-The plugins work in Node.js 18 and later without any setup: they read their `.wasm` files from `node_modules`.
+The plugins work in Node.js 22 and later, like the rest of Jimp, without any setup: they read their `.wasm` files from `node_modules`.
 Use ES modules (`"type": "module"` in `package.json`, or `.mjs` files), as the plugins can't be loaded with `require`.
 
 ## Browser usage
@@ -154,6 +268,7 @@ Use ES modules (`"type": "module"` in `package.json`, or `.mjs` files), as the p
 Since you're no longer using the pre-bundled version of jimp, your bundler has to handle the code written for Node.js.
 Jimp's packages import `Buffer` from the `buffer` package, so you don't need a `Buffer` polyfill (see [Custom Jimp](/jimp/guides/custom-jimp/#using-a-custom-jimp-outside-of-nodejs)).
 In the browser the codecs fetch their `.wasm` files with `new URL("*.wasm", import.meta.url)`, which webpack 5 and Vite's production build handle without extra config.
+The one exception is `@jimp/wasm-jpeg2000` with webpack 5, which needs the [`resolve.fallback`](#jpeg-2000) setting.
 
 ### Vite
 
@@ -184,7 +299,24 @@ export default defineConfig({
 - `worker.format`: only needed for `@jimp/wasm-avif`.
   Its encoder runs in a worker and Vite's default `iife` worker format can't code-split, so `vite build` fails with `Invalid value "iife" for option "worker.format"` (`"output.format"` on Vite 5).
 
-Vite 8 handles both of these on its own, so it doesn't need any config.
+`@jimp/wasm-jpeg2000` and `@jimp/wasm-svg` load their wasm the same way but have to be excluded themselves, with their CommonJS dependencies pre-bundled instead. Without this, the dev server fails with `Failed to load the JPEG 2000 codec's wasm` or `Failed to load resvg's wasm`:
+
+```js title="vite.config.js"
+import { defineConfig } from "vite";
+
+export default defineConfig({
+  optimizeDeps: {
+    exclude: ["@jimp/wasm-jpeg2000", "@jimp/wasm-svg"],
+    include: [
+      "@jimp/wasm-jpeg2000 > @cornerstonejs/codec-openjpeg/wasmjs",
+      "@jimp/wasm-jpeg2000 > buffer",
+      "@jimp/wasm-svg > buffer",
+    ],
+  },
+});
+```
+
+List only the plugins you use. Vite 8 handles all of this on its own, so it doesn't need any config.
 
 ## Cloudflare Workers
 
@@ -234,6 +366,8 @@ For example, if a worker only decodes WebP, you can leave out the encoder.
 
 Each codec is set up once, by the first image that uses it, so pass the same modules everywhere you create the plugin.
 
+`@jimp/wasm-jpeg2000` and `@jimp/wasm-svg` take a precompiled module the same way: `jpeg2000({ wasm: { codec } })` with `@cornerstonejs/codec-openjpeg/wasm`, and `svg({ wasm: { resvg } })` with `@resvg/resvg-wasm/index_bg.wasm`. Use that wherever they can't load their own `.wasm` file, such as with esbuild.
+
 With TypeScript, declare the `.wasm` imports.
 `@jsquash/png` and `@jsquash/oxipng` ship their own types for their `.wasm` files, so those two need declarations of their own:
 
@@ -269,5 +403,7 @@ AVIF is the largest, at about 1.2 MB gzipped for the decoder and encoder togethe
 - [@jimp/wasm-jpeg](https://github.com/jimp-dev/jimp/tree/main/plugins/wasm-jpeg)
 - [@jimp/wasm-png](https://github.com/jimp-dev/jimp/tree/main/plugins/wasm-png)
 - [@jimp/wasm-webp](https://github.com/jimp-dev/jimp/tree/main/plugins/wasm-webp)
+- [@jimp/wasm-jpeg2000](https://github.com/jimp-dev/jimp/tree/main/plugins/wasm-jpeg2000)
+- [@jimp/wasm-svg](https://github.com/jimp-dev/jimp/tree/main/plugins/wasm-svg)
 
-See [Formats](/jimp/concepts/formats/) for how the WASM formats compare with the built-in ones.
+See [Formats](/jimp/concepts/formats/) for how the WASM formats compare with the built-in ones, and for community format plugins such as HEIC.

@@ -3,7 +3,6 @@ title: "Reading and writing"
 description: "Load images from files, URLs, buffers and raw pixels, and encode them again in any supported format."
 ---
 
-import { Aside } from "@astrojs/starlight/components";
 import Playground from "../../../components/playground/Playground";
 
 Every Jimp program has the same shape: get an image into memory, change its pixels, then encode it into a file format again.
@@ -26,24 +25,26 @@ There are four ways to create an image. Pick by what you have:
 | You have                                   | Use                                                      | Async |
 | ------------------------------------------ | -------------------------------------------------------- | ----- |
 | A file path or a URL                       | [`Jimp.read(pathOrUrl)`](/jimp/methods/read/)            | yes   |
-| The bytes of an image file                 | [`Jimp.fromBuffer(buffer)`](/jimp/methods/from-buffer/)  | yes   |
+| The bytes of an image file, or a `Blob`    | [`Jimp.fromBuffer(buffer)`](/jimp/methods/from-buffer/)  | yes   |
 | Raw RGBA pixels, such as canvas `ImageData` | [`Jimp.fromBitmap({ width, height, data })`](/jimp/methods/from-bitmap/) | no    |
 | Nothing yet: you want a blank canvas       | [`new Jimp({ width, height, color })`](/jimp/methods/new-jimp/) | no    |
 
 ### From a path or URL
 
-`Jimp.read` takes a file path in Node, or any URL `fetch` can load, including `data:` URLs:
+`Jimp.read` fetches `http:`, `https:`, `data:` and `blob:` URLs. In Node, any other string is a file path, relative to the current working directory:
 
 ```ts title="example.ts"
 const local = await Jimp.read("images/photo.jpg");
 const remote = await Jimp.read("https://example.com/photo.jpg");
 ```
 
-It also accepts a `Buffer` or an `ArrayBuffer`, in which case it does the same as `Jimp.fromBuffer`.
+A missing file throws Node's own error, such as `ENOENT: no such file or directory, open 'images/photo.jpg'`.
+`Jimp.read` also accepts the bytes of an image, in which case it does the same as `Jimp.fromBuffer`.
 
 ### From bytes in memory
 
-When the file is already in memory (an upload, a database blob, a response body), decode it with `Jimp.fromBuffer`:
+When the file is already in memory (an upload, a database blob, a response body), decode it with `Jimp.fromBuffer`.
+It takes a `Buffer`, an `ArrayBuffer`, a `Uint8Array` (or any other `ArrayBufferView`) or a `Blob`:
 
 ```ts title="example.ts"
 const response = await fetch("https://example.com/photo.jpg");
@@ -81,8 +82,10 @@ Whichever way you create it, an image has the same properties:
 | `image.width`           | `number`                                     | Width in pixels. Read-only; use [`resize`](/jimp/methods/resize/) or [`crop`](/jimp/methods/crop/) to change it.                                                                                 |
 | `image.height`          | `number`                                     | Height in pixels.                                                                                                                                                                                |
 | `image.bitmap`          | `{ width: number; height: number; data: Buffer }` | The pixels: `data` holds 4 bytes (R, G, B, A) per pixel, row by row. See [Colors and pixels](/jimp/concepts/colors-and-pixels/).                                                            |
-| `image.mime`            | `string \| undefined`                        | The MIME type the image was decoded from, such as `"image/jpeg"`. `undefined` for images from `new Jimp`, `fromBitmap` or `clone`.                                                              |
+| `image.mime`            | `string \| undefined`                        | The MIME type the image was decoded from, such as `"image/jpeg"`. `undefined` for images from `new Jimp` or `fromBitmap`. [`clone`](/jimp/methods/clone/) copies it.                          |
 | `image.background`      | `number`                                     | An RGBA color, `0x00000000` (transparent) unless you set it. Used to fill new space in [`rotate`](/jimp/methods/rotate/) and [`contain`](/jimp/methods/contain/), and behind formats without alpha. |
+| `image.colorSpace`      | `"srgb" \| "display-p3" \| "custom"`         | The color space of the pixels, from the image's ICC profile. `"srgb"` for images without one. Read-only; convert with [`toColorSpace`](/jimp/methods/to-color-space/).                          |
+| `image.iccProfile`      | `Buffer \| undefined`                        | The ICC profile read from a JPEG, PNG, WebP or JPEG 2000 file, written back to JPEG, PNG and WebP output. See [Color Spaces](/jimp/guides/color-spaces/).                                    |
 
 ```ts title="example.ts"
 const image = await Jimp.read("photo.jpg");
@@ -131,6 +134,7 @@ JimpMime.jpeg; // "image/jpeg"
 JimpMime.gif; // "image/gif"
 JimpMime.bmp; // "image/bmp"
 JimpMime.tiff; // "image/tiff"
+JimpMime.ico; // "image/x-icon"
 ```
 
 `write` doesn't need one: it looks up the MIME type from the file extension.
@@ -151,8 +155,11 @@ await image.write("small.jpg", { quality: 75, exif: true });
 // PNG: drop the alpha channel
 await image.write("flat.png", { colorType: PNGColorType.COLOR });
 
-// BMP: store 72 DPI (in pixels per meter)
-await image.write("print.bmp", { hr: 2835, vr: 2835 });
+// BMP: 16 bits per pixel, and 72 DPI (in pixels per meter)
+await image.write("print.bmp", { bitPP: 16, hr: 2835, vr: 2835 });
+
+// ICO: one image per icon size
+await image.write("favicon.ico", { sizes: [16, 32, 48] });
 ```
 
 GIF and TIFF take no options. The full lists are on the [`getBuffer`](/jimp/methods/get-buffer/#options) page, and [Formats](/jimp/concepts/formats/) covers what each format can store.
@@ -161,7 +168,7 @@ GIF and TIFF take no options. The full lists are on the [`getBuffer`](/jimp/meth
 
 Before encoding JPEG, BMP, GIF or TIFF, Jimp draws the image over `image.background`.
 JPEG and BMP have no alpha channel at all, so with the default transparent background, transparent areas come out black.
-PNG and the WASM formats skip this step and keep the alpha channel as it is.
+PNG, ICO and the WASM formats other than JPEG 2000 skip this step and keep the alpha channel as it is.
 Set a background color to control what they become:
 
 ```ts title="example.ts"
@@ -176,18 +183,26 @@ Try it below: the dice image has a transparent background. Switch to JPEG or BMP
 
 <Playground method="encode" client:visible />
 
-## Decode options
+### Color profiles
+
+A JPEG, PNG or WebP with an ICC color profile, such as an iPhone photo in Display P3, keeps its profile when you write JPEG, PNG or WebP again.
+For formats that can't carry a profile, Jimp encodes a copy converted to sRGB, so the colors look the same everywhere.
+Pass `icc: false` to write sRGB without a profile. See [Color Spaces](/jimp/guides/color-spaces/).
+
+## Read options
 
 `Jimp.read` and `Jimp.fromBuffer` take a second argument with options for the decoders, keyed by MIME type.
 They're mostly used to raise the size limits that protect against huge or malicious files:
 
 ```ts title="example.ts"
 const image = await Jimp.read("panorama.jpg", {
-  "image/jpeg": { maxResolutionInMP: 250, maxMemoryUsageInMB: 2048 },
+  "image/jpeg": { maxResolutionInMP: 150, maxMemoryUsageInMB: 4096 },
 });
 ```
 
 See [Reading Large Images](/jimp/guides/reading-large-images/) for every format's options and defaults.
+
+The same object takes `exifRotate`, which applies to every format. Pass `false` to keep a JPEG's pixels as stored instead of rotating them to match its EXIF orientation; see [EXIF](/jimp/guides/exif/#turning-auto-rotation-off).
 
 ## Node and the browser
 
@@ -195,27 +210,21 @@ The same API works in both, with a few differences:
 
 | Task                  | Node                                          | Browser                                                                |
 | --------------------- | --------------------------------------------- | ---------------------------------------------------------------------- |
-| Read a file path      | `Jimp.read("photo.jpg")`                      | Not available: there's no file system. Strings are fetched as URLs.     |
+| Read a file path      | `Jimp.read("photo.jpg")`                      | Not available: there's no file system. Every string is fetched as a URL. |
 | Read a URL            | `Jimp.read(url)`, using the global `fetch`    | `Jimp.read(url)`. Other origins need CORS headers.                      |
-| Read an upload        | `Jimp.fromBuffer(buffer)`                     | `Jimp.fromBuffer(await file.arrayBuffer())`                            |
+| Read an upload        | `Jimp.fromBuffer(buffer)`                     | `Jimp.fromBuffer(file)`: a `File` is a `Blob`                           |
 | Save a file           | `image.write("out.png")`                      | Not available: `write` throws. Use `getBuffer` and a `Blob` download. |
 | Show the result       | Write a file, or send the bytes from `getBuffer` | `img.src = await image.getBase64("image/png")`                         |
 | Pass the bytes on     | `getBuffer` returns a Node `Buffer`           | `getBuffer` returns a `Buffer` from the `buffer` package, a `Uint8Array` subclass |
 
-`Jimp.read` and `Jimp.fromBuffer` only accept a `Buffer` or an `ArrayBuffer` as data. Convert a `Blob` or `File` with `await blob.arrayBuffer()` first.
 The [browser guide](/jimp/guides/browser/) covers uploads, canvas and web workers in more detail.
-
-<Aside type="caution" title="A missing file looks like a failed fetch">
-  `Jimp.read` treats any string that isn't an existing file as a URL. A wrong
-  path therefore fails with `Could not load Buffer from URL: <path>`. Check
-  the path relative to the current working directory.
-</Aside>
 
 ## See also
 
 - [Formats](/jimp/concepts/formats/): what each format supports, and adding WebP and AVIF
 - [Chaining and async](/jimp/concepts/chaining-and-async/): which calls need `await`
 - [EXIF](/jimp/guides/exif/): orientation on read and the `exif` option on write
+- [Color Spaces](/jimp/guides/color-spaces/): ICC profiles, Display P3 and `toColorSpace`
 - [Reading Large Images](/jimp/guides/reading-large-images/): decode options and size limits
 - [Using in Browser](/jimp/guides/browser/)
 - Methods: [`Jimp.read`](/jimp/methods/read/), [`Jimp.fromBuffer`](/jimp/methods/from-buffer/), [`Jimp.fromBitmap`](/jimp/methods/from-bitmap/), [`new Jimp`](/jimp/methods/new-jimp/), [`getBuffer`](/jimp/methods/get-buffer/), [`getBase64`](/jimp/methods/get-base64/), [`write`](/jimp/methods/write/), [`clone`](/jimp/methods/clone/)

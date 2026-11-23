@@ -53,27 +53,43 @@ await image.write(path.join("output", `${name}.png`));
 ```
 
 The directory must already exist; `write` doesn't create it.
-With a literal path, TypeScript checks the options against the format: `image.write("out.png", { quality: 80 })` is a type error, since PNG has no `quality`. With a `string` variable it accepts the options of any format.
+
+### Options are typed by extension
+
+With a literal path, TypeScript checks the options against the format of its last extension, ignoring case.
+That works with directories and dots in the path too, so `"./out/photo.v2.JPG"` takes JPEG options:
+
+```ts title="example.ts"
+await image.write("./out/photo.v2.JPG", { quality: 80 }); // JPEG options
+await image.write("out.png", { quality: 80 }); // type error: PNG has no quality
+await image.write("out.gif", { quality: 80 }); // type error: GIF takes no options
+```
+
+With a `string` variable, or an extension no format handles, `write` accepts the options of any of your formats, and rejects keys that none of them take.
 
 ## Extensions and formats
 
 The extension is looked up with the [mime](https://www.npmjs.com/package/mime) package and isn't case sensitive. With the default `jimp` package:
 
-| Extensions      | Format | Options                                                  |
-| --------------- | ------ | -------------------------------------------------------- |
-| `.png`          | PNG    | [PNG options](/jimp/methods/get-buffer/#png)             |
-| `.jpg`, `.jpeg` | JPEG   | [`quality`, `exif`](/jimp/methods/get-buffer/#jpeg)      |
-| `.gif`          | GIF    | none                                                     |
-| `.bmp`          | BMP    | [BMP options](/jimp/methods/get-buffer/#bmp)             |
-| `.tif`, `.tiff` | TIFF   | none                                                     |
+| Extensions               | Format | Options                                                       |
+| ------------------------ | ------ | ------------------------------------------------------------- |
+| `.png`                   | PNG    | [PNG options](/jimp/methods/get-buffer/#png)                  |
+| `.jpg`, `.jpeg`, `.jpe`  | JPEG   | [`quality`, `exif`, `icc`](/jimp/methods/get-buffer/#jpeg)    |
+| `.gif`                   | GIF    | none                                                          |
+| `.bmp`                   | BMP    | [`bitPP` and header options](/jimp/methods/get-buffer/#bmp)   |
+| `.tif`, `.tiff`          | TIFF   | none                                                          |
+| `.ico`                   | ICO    | [`sizes`](/jimp/methods/get-buffer/#ico)                      |
 
-`.webp` and `.avif` work once you add their [WASM format plugins](/jimp/concepts/formats/#wasm-format-plugins).
+`.webp`, `.avif` and `.jp2` work once you add their [WASM format plugins](/jimp/concepts/formats/#wasm-format-plugins).
+Some formats have no extension `write` can map, such as JPEG 2000 codestreams (`.j2c`, `.j2k`); encode those with [`getBuffer`](/jimp/methods/get-buffer/) and write the bytes yourself.
 
 ## Notes
 
 - **The original format isn't kept automatically.** An image read from a JPEG and written to `out.png` becomes a PNG. Jimp goes by the extension only.
 - **Writing replaces existing files** without asking.
-- **Errors.** A path with no extension throws `Cannot write "<path>": the path has no recognisable file extension to determine the image format`. An extension whose format isn't available throws `Unsupported MIME type`, for example `Unsupported MIME type: image/webp` for `.webp` or `Unsupported MIME type: text/plain` for `.txt`.
+- **Errors.** A path with no extension throws `Cannot write "<path>": the path has no recognisable file extension to determine the image format`. An extension whose format isn't available throws `Unsupported MIME type`, for example `Unsupported MIME type: image/webp` for `.webp` or `Unsupported MIME type: text/plain` for `.txt`. A directory that doesn't exist throws Node's `ENOENT: no such file or directory` error.
+- **Added in 2.0:** `.ico` files.
+- **Changed in 2.0:** the options are typed by the path's extension, including `.jpg`, `.jpe` and `.tif`, paths with directories, and upper-case extensions. Before, `.jpg` paths weren't matched to JPEG's options, and `.gif`, `.tif` and `string` paths accepted any options.
 - **v0 difference.** Jimp v0 had `writeAsync`, and `write` took a callback. In v1, `write` returns a promise.
 
 <Aside type="caution" title="Node only">

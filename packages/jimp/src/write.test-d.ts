@@ -1,7 +1,9 @@
 import { describe, expectTypeOf, test } from "vitest";
 import path from "node:path";
+import { createJimp } from "@jimp/core";
+import { Format } from "@jimp/types";
 
-import { Jimp } from "./index.js";
+import { defaultFormats, Jimp } from "./index.js";
 
 const image = new Jimp({ width: 1, height: 1 });
 
@@ -53,6 +55,21 @@ describe("write", () => {
     image.write("output.ico", { sizes: [16, 32] });
     // @ts-expect-error ICO doesn't take a JPEG quality
     image.write("output.ico", { quality: 50 });
+  });
+
+  test("maps .svg to image/svg+xml", () => {
+    const svg = () =>
+      ({
+        mime: "image/svg+xml",
+        encode: () => Buffer.alloc(0),
+        decode: () => ({ data: Buffer.alloc(0), width: 0, height: 0 }),
+      }) satisfies Format<"image/svg+xml">;
+    const WithSvg = createJimp({ formats: [...defaultFormats, svg] });
+    const svgImage = new WithSvg({ width: 1, height: 1 });
+
+    svgImage.write("output.svg");
+    // @ts-expect-error SVG has no options
+    svgImage.write("output.svg", { quality: 50 });
   });
 
   test("uses the last extension of paths with directories and dots", () => {

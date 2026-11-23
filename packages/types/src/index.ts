@@ -28,6 +28,13 @@ export interface Format<
 > {
   mime: Mime;
   hasAlpha?: boolean;
+  /**
+   * Recognises the format's encoded data, for formats `file-type` can't
+   * identify, like text-based ones. Only called when `file-type` finds no
+   * format that can decode the data, in the order the formats were given.
+   * Keep it cheap: look at the start of the data instead of parsing all of it.
+   */
+  detect?: (data: Buffer) => boolean;
   encode: (image: Bitmap, options?: ExportOptions) => Promise<Buffer> | Buffer;
   decode: (data: Buffer, options?: DecodeOptions) => Promise<Bitmap> | Bitmap;
 }
