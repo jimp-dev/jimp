@@ -19,8 +19,9 @@ The result is always exactly `w` × `h` and nothing is cropped, like CSS `object
 image.contain(options: {
   w: number;
   h: number;
-  align?: number;
+  align?: number | { x?: number; y?: number };
   mode?: ResizeStrategy;
+  premultiplyAlpha?: boolean;
 }): this
 ```
 
@@ -28,12 +29,13 @@ image.contain(options: {
 
 ## Options
 
-| Option  | Type                                         | Default                                          | Description                                                                               |
-| ------- | -------------------------------------------- | ------------------------------------------------ | ----------------------------------------------------------------------------------------- |
-| `w`     | `number`                                     | required                                         | The output width in pixels.                                                               |
-| `h`     | `number`                                     | required                                         | The output height in pixels.                                                              |
-| `align` | `number` | centered | Where to place the image in the box. Defaults to `HorizontalAlign.CENTER \| VerticalAlign.MIDDLE`. See [Alignment](#alignment). |
-| `mode`  | [`ResizeStrategy`](/jimp/concepts/constants/) | built-in resizer                                 | The resampling algorithm. See [resize strategies](/jimp/methods/resize/#resize-strategies). |
+| Option             | Type                                          | Default          | Description                                                                                                                                                                           |
+| ------------------ | --------------------------------------------- | ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `w`                | `number`                                      | required         | The output width in pixels.                                                                                                                                                           |
+| `h`                | `number`                                      | required         | The output height in pixels.                                                                                                                                                          |
+| `align`            | `number` or `{ x?, y? }`                      | centered         | Where to place the image in the box: `HorizontalAlign` and `VerticalAlign` flags, or `{ x, y }` fractions from `0` to `1`. See [Alignment](#alignment).                              |
+| `mode`             | [`ResizeStrategy`](/jimp/concepts/constants/) | built-in resizer | The resampling algorithm. See [resize strategies](/jimp/methods/resize/#resize-strategies).                                                                                           |
+| `premultiplyAlpha` | `boolean`                                     | `true`           | Treat alpha as opacity. Pass `false` when alpha holds other data, to keep the color of transparent pixels. See [Alpha that isn't opacity](/jimp/methods/resize/#alpha-that-isnt-opacity). |
 
 ## Example
 
@@ -63,7 +65,11 @@ await image.write("square.jpg");
 ## Alignment
 
 `align` places the scaled image inside the box.
-Combine one [`HorizontalAlign`](/jimp/concepts/constants/) value and one [`VerticalAlign`](/jimp/concepts/constants/) value with `|`:
+Only the direction with padding matters. A wide image in a square box fills the width, so only the vertical value has an effect.
+
+### With flags
+
+Combine at most one [`HorizontalAlign`](/jimp/concepts/constants/) value and one [`VerticalAlign`](/jimp/concepts/constants/) value with `|`:
 
 ```ts title="example.ts"
 import { Jimp, HorizontalAlign, VerticalAlign } from "jimp";
@@ -78,21 +84,36 @@ image.contain({
 });
 ```
 
-| Value                    | Places the image          |
-| ------------------------ | ------------------------- |
-| `HorizontalAlign.LEFT`   | against the left edge     |
-| `HorizontalAlign.CENTER` | in the middle (default)   |
-| `HorizontalAlign.RIGHT`  | against the right edge    |
-| `VerticalAlign.TOP`      | against the top edge      |
-| `VerticalAlign.MIDDLE`   | in the middle (default)   |
-| `VerticalAlign.BOTTOM`   | against the bottom edge   |
+| Value                    | Places the image        |
+| ------------------------ | ----------------------- |
+| `HorizontalAlign.LEFT`   | against the left edge   |
+| `HorizontalAlign.CENTER` | in the middle (default) |
+| `HorizontalAlign.RIGHT`  | against the right edge  |
+| `VerticalAlign.TOP`      | against the top edge    |
+| `VerticalAlign.MIDDLE`   | in the middle (default) |
+| `VerticalAlign.BOTTOM`   | against the bottom edge |
 
-Only the direction with padding matters. A wide image in a square box fills the width, so only the vertical value has an effect.
+A direction you leave out is centered, so `VerticalAlign.BOTTOM` is the same as `HorizontalAlign.CENTER | VerticalAlign.BOTTOM`.
+
+### With fractions
+
+Pass `{ x, y }` to place the image anywhere between the edges, like the percentages of CSS `object-position`.
+`0` is against the left or top edge, `0.5` the middle and `1` the right or bottom edge:
+
+```ts title="example.ts"
+// Like CSS object-position: 20% 80%
+image.contain({ w: 300, h: 300, align: { x: 0.2, y: 0.8 } });
+
+// Against the bottom edge; x is left out, so it's centered
+image.contain({ w: 300, h: 300, align: { y: 1 } });
+```
+
+A missing `x` or `y` is centered (`0.5`), and values outside `0` to `1` are clamped.
 
 ## Try it
 
 Set the box with `w` and `h`, change the alignment, and pick a background color for the padding.
-Turn off `set background` to see the default transparent padding.
+Switch `align with` to `{ x, y } fractions` to use sliders instead of flags, and turn off `set background` to see the default transparent padding.
 
 <Playground method="contain" client:visible />
 
@@ -100,9 +121,11 @@ Turn off `set background` to see the default transparent padding.
 
 - **It enlarges too.** An image smaller than the box is scaled up until it touches two of its sides.
 - **JPEG output.** JPEG has no transparency, so the default transparent padding is written as black. Set `image.background` to the color you want first.
-- **`clone()` doesn't copy `background`.** A [clone](/jimp/methods/clone/) starts with a transparent background, so set it on the image you call `contain` on.
-- **Include both directions in `align`.** A direction you leave out isn't centered: it aligns to the left or top. `align: VerticalAlign.BOTTOM` puts the image in the bottom-left corner.
-- **Invalid alignment.** `align: 0`, or a value with more than one flag in both directions, throws `only use one flag per alignment direction`. The check only throws when both directions are invalid, so always pass exactly one flag from each enum.
+- **Translucent pixels.** The scaled image is drawn over the padding color, so pixels that are partly transparent blend with `image.background`.
+- **`premultiplyAlpha: false`** copies the scaled image into the box instead of drawing it over the background, so its alpha and the color of its transparent pixels are kept exactly.
+- **Invalid flags.** Two flags for one direction (such as `VerticalAlign.TOP | VerticalAlign.BOTTOM`), unknown bits or a fractional number throw `align must combine at most one HorizontalAlign and one VerticalAlign flag`. `align: 0` has no flags, so it's centered.
+- **Added in 2.0:** `{ x, y }` fractions for `align`, the `premultiplyAlpha` option, and the `LANCZOS`, `LANCZOS2` and `MITCHELL` strategies.
+- **Changed in 2.0:** a direction left out of `align` is centered, and any invalid combination of flags throws. Before, a missing direction aligned to the left or top, and two flags in one direction were accepted unless both directions were invalid.
 
 <Aside type="tip" title="Fill the box instead">
   To fill the whole box with no padding, use [`cover`](/jimp/methods/cover/). It

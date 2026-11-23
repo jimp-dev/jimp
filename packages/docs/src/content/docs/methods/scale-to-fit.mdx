@@ -16,7 +16,12 @@ One side ends up matching the box and the other is the same size or smaller, so 
 ## Signature
 
 ```ts title="scaleToFit.d.ts"
-image.scaleToFit(options: { w: number; h: number; mode?: ResizeStrategy }): this
+image.scaleToFit(options: {
+  w: number;
+  h: number;
+  mode?: ResizeStrategy;
+  premultiplyAlpha?: boolean;
+}): this
 ```
 
 `scaleToFit` changes the image in place and returns it, so you can chain more calls after it.
@@ -28,6 +33,7 @@ image.scaleToFit(options: { w: number; h: number; mode?: ResizeStrategy }): this
 | `w`    | `number`                                     | required         | The width of the box in pixels. Must be `0` or more.                                      |
 | `h`    | `number`                                     | required         | The height of the box in pixels. Must be `0` or more.                                     |
 | `mode` | [`ResizeStrategy`](/jimp/concepts/constants/) | built-in resizer | The resampling algorithm. See [resize strategies](/jimp/methods/resize/#resize-strategies). |
+| `premultiplyAlpha` | `boolean` | `true` | Treat alpha as opacity. Pass `false` when alpha holds other data, to keep the color of transparent pixels. See [Alpha that isn't opacity](/jimp/methods/resize/#alpha-that-isnt-opacity). |
 
 ## Example
 
@@ -60,6 +66,7 @@ Change the box with `w` and `h`. The output keeps the dice image's 4:3 ratio, so
 
 - **Both sides are required.** Leaving one out fails validation with `Invalid input: expected number, received undefined`. To fix only one side, use [`resize`](/jimp/methods/resize/) with just `w` or `h`.
 - **Rounding.** The factor is applied with [`scale`](/jimp/methods/scale/), and the new size is rounded to whole pixels.
+- **Added in 2.0:** the `premultiplyAlpha` option, and the `LANCZOS`, `LANCZOS2` and `MITCHELL` strategies.
 
 <Aside type="tip" title="Need an exact size?">
   [`contain`](/jimp/methods/contain/) does the same fit and then pads the image to

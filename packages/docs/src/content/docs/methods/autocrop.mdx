@@ -6,7 +6,6 @@ method: "autocrop"
 plugin: "@jimp/plugin-crop"
 ---
 
-import { Aside } from "@astrojs/starlight/components";
 import Playground from "../../../components/playground/Playground";
 import Related from "../../../components/Related.astro";
 
@@ -33,10 +32,10 @@ image.autocrop(tolerance: number): this
 | Option           | Type      | Default  | Description                                                                                                                       |
 | ---------------- | --------- | -------- | --------------------------------------------------------------------------------------------------------------------------------- |
 | `tolerance`      | `number`  | `0.0002` | How different from the top-left pixel a pixel can be and still count as border, from `0` (exact match) to `1`. See [Tolerance](#tolerance). |
-| `cropOnlyFrames` | `boolean` | `true`   | Only crop if the border goes all the way around. When `false`, any side with a border is trimmed.                               |
+| `cropOnlyFrames` | `boolean` | `true`   | Only crop if every side that isn't in `ignoreSides` has a border. When `false`, any side with a border is trimmed.              |
 | `cropSymmetric`  | `boolean` | `false`  | Trim the same amount from opposite sides: the smaller of left and right, and the smaller of top and bottom.                      |
 | `leaveBorder`    | `number`  | `0`      | Pixels of border to keep on every side.                                                                                           |
-| `ignoreSides`    | `object`  | none     | Sides to leave alone: `{ north, south, east, west }`, where north is the top. Only useful with `cropOnlyFrames: false`.           |
+| `ignoreSides`    | `object`  | none     | Sides to leave alone: `{ north, south, east, west }`, where north is the top.                                                    |
 
 Passing a number, as in `autocrop(0.01)`, is the same as `autocrop({ tolerance: 0.01 })`.
 
@@ -58,21 +57,21 @@ await image.write("logo.png");
 image.autocrop({ leaveBorder: 10 });
 ```
 
-`leaveBorder` is taken off what would be trimmed on each side. With the default `cropOnlyFrames: true`, a side whose border is `10` pixels or thinner then has nothing left to trim, and the image isn't cropped at all. Add `cropOnlyFrames: false` if the border can be thinner than `leaveBorder` on some sides.
+`leaveBorder` is taken off what would be trimmed on each side. A side whose border is `10` pixels or thinner is left as it is, and the other sides are still trimmed.
 
 ### Trim only some sides
 
 ```ts title="example.ts"
 // Trim the bottom and sides of a screenshot, but keep the top
-image.autocrop({ cropOnlyFrames: false, ignoreSides: { north: true } });
+image.autocrop({ ignoreSides: { north: true } });
 ```
 
 ## How it works
 
 1. The color of the pixel at `(0, 0)` is the border color.
 2. Starting from each edge, `autocrop` counts the rows (top and bottom) and columns (left and right) whose pixels are all within `tolerance` of that color. It scans the top first, then the left, bottom and right.
-3. `leaveBorder` is subtracted from each count, then `cropSymmetric` evens out opposite sides. Negative counts become `0`.
-4. With `cropOnlyFrames: true` the image is cropped only if all four counts are above `0`. Otherwise it's cropped if any count is.
+3. With `cropOnlyFrames: true`, the image is cropped only if every side that isn't in `ignoreSides` has a count above `0`. This is checked before `leaveBorder` is applied.
+4. `leaveBorder` is subtracted from each count, then `cropSymmetric` evens out opposite sides. Negative counts become `0`.
 
 At least one row and one column are always left, so a single-color image is never cropped away completely.
 
@@ -90,22 +89,17 @@ Raise it when a border isn't fully removed:
 
 ## Try it
 
-The dice image has a transparent border to trim. Raise `leaveBorder` to 9 or more to see `cropOnlyFrames` stop the crop, then turn `cropOnlyFrames` off.
+The dice image has a transparent border to trim. Raise `leaveBorder` to keep some of it, and turn on `cropSymmetric` to trim the same amount from opposite sides.
 
 <Playground method="autocrop" client:visible />
 
 ## Notes
 
 - **Different border colors.** Only the top-left pixel's color is trimmed. If the corners or sides differ, crop with an explicit rectangle using [`crop`](/jimp/methods/crop/).
-- **Transparent borders.** The comparison includes the color channels of transparent pixels. Fully transparent pixels with different hidden colors (for example `0x00000000` and `0xff000000`) don't count as the same border, which can stop the trim early on images exported by some editors.
+- **Transparent borders.** Fully transparent pixels all count as the same color, whatever color they hide, so `0x00000000` and `0xff000000` are both part of a transparent border.
 - **Measure without cropping.** [`autocropRect`](/jimp/methods/autocrop-rect/) takes the same options and returns the rectangle instead of cropping.
 - **Validation.** `tolerance` must be between `0` and `1` when passed in the options object; a larger value fails with `Too big: expected number to be <=1`. A bare number isn't checked. Unknown keys in `ignoreSides`, such as `top`, are ignored.
-
-<Aside type="caution" title="ignoreSides needs cropOnlyFrames: false">
-  An ignored side counts as having nothing to trim. With the default
-  `cropOnlyFrames: true` that means the border doesn't go all the way around, so
-  nothing is cropped. Always pair `ignoreSides` with `cropOnlyFrames: false`.
-</Aside>
+- **Changed in 2.0:** `ignoreSides` and a large `leaveBorder` work with the default `cropOnlyFrames: true`, and fully transparent pixels match each other. Before, `ignoreSides` never cropped anything unless `cropOnlyFrames` was `false`, a `leaveBorder` as wide as any side's border cancelled the whole crop, and transparent pixels hiding different colors stopped the trim.
 
 ## Related
 

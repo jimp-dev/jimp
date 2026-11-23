@@ -83,8 +83,9 @@ Change `width`, pick a `color`, and drag `radius` to round the corners.
 - **Semi-transparent borders.** The alpha of `color` is respected, so `0x00000080` draws a 50% black border.
 - **Oversized radii are scaled like CSS.** If two corners on one side add up to more than that side, all radii are scaled down by the same factor.
 - **Use `border` instead of `roundCorners` + `border`.** Rounding the image first and then adding a border leaves the border's outer corners square, with transparent gaps between the border and the image's rounded corners. Pass `radius` to `border` and both are rounded to match.
-- **Unrecognized CSS colors** don't throw; they're drawn as black.
+- **Invalid colors throw.** A string that isn't a CSS color throws `Invalid color "nope"` (with your string in the quotes).
 - **Validation.** `width` must be a whole number: `2.5` fails with `Invalid input: expected int, received number`, and negative values with `Too small: expected number to be >=0`.
+- **Added in 2.0.**
 
 ## Related
 
