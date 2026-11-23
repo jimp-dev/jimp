@@ -120,4 +120,83 @@ describe("PNG", () => {
       await expectRgbCopyOfSource(buffer);
     });
   });
+
+  describe("automatic colour type", () => {
+    const width = 16;
+    const height = 16;
+
+    function createImage(
+      getPixel: (i: number) => [number, number, number, number],
+    ) {
+      const data = Buffer.alloc(width * height * 4);
+
+      for (let i = 0; i < width * height; i++) {
+        data.set(getPixel(i), i * 4);
+      }
+
+      return jimp.fromBitmap({ width, height, data });
+    }
+
+    const images = {
+      "opaque grey": createImage((i) => [i, i, i, 0xff]),
+      "opaque colour": createImage((i) => [
+        (i * 7) % 256,
+        (i * 13) % 256,
+        (i * 29) % 256,
+        0xff,
+      ]),
+      "grey with alpha": createImage((i) => [i, i, i, 255 - i]),
+      "colour with alpha": createImage((i) => [
+        (i * 7) % 256,
+        (i * 13) % 256,
+        (i * 29) % 256,
+        255 - i,
+      ]),
+      // The pixel's RGB has to survive even though it is invisible
+      "grey but for one transparent pixel": createImage((i) =>
+        i === 100 ? [1, 2, 3, 0] : [i, i, i, 0xff],
+      ),
+    };
+
+    test.each([
+      ["opaque grey", PNGColorType.GRAYSCALE],
+      ["opaque colour", PNGColorType.COLOR],
+      ["grey with alpha", PNGColorType.GRAYSCALE_ALPHA],
+      ["colour with alpha", PNGColorType.COLOR_ALPHA],
+      ["grey but for one transparent pixel", PNGColorType.COLOR_ALPHA],
+    ] as const)("%s", async (name, colorType) => {
+      const source = images[name];
+      const buffer = await source.getBuffer("image/png");
+
+      // The colour type is the byte after the IHDR width, height and bit depth
+      expect(buffer[25]).toBe(colorType);
+
+      const decoded = await jimp.read(buffer);
+
+      expect(decoded.width).toBe(width);
+      expect(decoded.height).toBe(height);
+      expect([...decoded.bitmap.data]).toEqual([...source.bitmap.data]);
+    });
+
+    test.each([
+      PNGColorType.GRAYSCALE,
+      PNGColorType.COLOR,
+      PNGColorType.GRAYSCALE_ALPHA,
+      PNGColorType.COLOR_ALPHA,
+    ])("colorType %s overrides it", async (colorType) => {
+      const buffer = await images["opaque grey"].getBuffer("image/png", {
+        colorType,
+      });
+
+      expect(buffer[25]).toBe(colorType);
+    });
+
+    test("inputHasAlpha: false overrides it", async () => {
+      const buffer = await images["opaque grey"].getBuffer("image/png", {
+        inputHasAlpha: false,
+      });
+
+      expect(buffer[25]).toBe(PNGColorType.COLOR);
+    });
+  });
 });

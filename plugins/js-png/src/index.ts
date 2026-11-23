@@ -15,6 +15,7 @@ export type PNGOptions = Omit<
    * Jimp bitmaps always have an alpha channel, so this no longer describes the
    * input. Passing `false` only makes `colorType` default to
    * `PNGColorType.COLOR`, so the PNG is written without an alpha channel.
+   * Passing `true` does nothing.
    *
    * @deprecated Use `colorType: PNGColorType.COLOR` instead.
    */
@@ -67,6 +68,40 @@ function trimTrailingData(data: Buffer) {
   return data;
 }
 
+/**
+ * Pick the smallest colour type that stores the RGBA bitmap without loss:
+ * drop the alpha channel if every pixel is opaque, and the colour channels if
+ * every pixel has R = G = B.
+ */
+function getLosslessColorType(data: Buffer) {
+  let hasAlpha = false;
+  let hasColor = false;
+
+  for (let i = 0; i < data.length; i += 4) {
+    if (!hasAlpha && data[i + 3] !== 255) {
+      hasAlpha = true;
+
+      if (hasColor) {
+        break;
+      }
+    }
+
+    if (!hasColor && (data[i] !== data[i + 1] || data[i] !== data[i + 2])) {
+      hasColor = true;
+
+      if (hasAlpha) {
+        break;
+      }
+    }
+  }
+
+  if (hasColor) {
+    return hasAlpha ? PNGColorType.COLOR_ALPHA : PNGColorType.COLOR;
+  }
+
+  return hasAlpha ? PNGColorType.GRAYSCALE_ALPHA : PNGColorType.GRAYSCALE;
+}
+
 export default function png() {
   return {
     mime: "image/png",
@@ -78,7 +113,7 @@ export default function png() {
         deflateStrategy = 3,
         filterType = PNGFilterType.AUTO,
         colorType,
-        inputHasAlpha = true,
+        inputHasAlpha,
         ...options
       }: PNGOptions = {}
     ) => {
@@ -97,9 +132,9 @@ export default function png() {
         colorType:
           typeof colorType !== "undefined"
             ? colorType
-            : inputHasAlpha
-              ? PNGColorType.COLOR_ALPHA
-              : PNGColorType.COLOR,
+            : inputHasAlpha === false
+              ? PNGColorType.COLOR
+              : getLosslessColorType(bitmap.data),
         // The bitmap is always RGBA. Telling pngjs otherwise makes it read the
         // data as RGB, which garbles the image.
         inputHasAlpha: true,
