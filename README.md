@@ -31,6 +31,10 @@ If you want to extend jimp or omit types or functions, create a custom Jimp with
 
 Please read the [CONTRIBUTING documentation](CONTRIBUTING.md).
 
+## Security
+
+To report a vulnerability, please follow the [security policy](SECURITY.md). Don't open a public issue.
+
 ## Contributors ✨
 
 Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/docs/en/emoji-key)):
