@@ -9,13 +9,43 @@ const CoverOptionsSchema = z.object({
   w: z.number(),
   /** the height to resize the image to */
   h: z.number(),
-  /** A bitmask for horizontal and vertical alignment */
+  /**
+   * A bitmask of at most one `HorizontalAlign` and one `VerticalAlign` flag
+   * (default `HorizontalAlign.CENTER | VerticalAlign.MIDDLE`). An axis with no
+   * flag is centered.
+   */
   align: z.number().optional(),
   /** a scaling method (e.g. ResizeStrategy.BEZIER) */
   mode: z.nativeEnum(ResizeStrategy).optional(),
 });
 
 export type CoverOptions = z.infer<typeof CoverOptionsSchema>;
+
+/**
+ * Split an `align` bitmask into how far along each axis to place the image:
+ * 0 for left/top, 1 for center/middle and 2 for right/bottom. An axis with no
+ * flag is centered.
+ */
+function parseAlign(align: number) {
+  const hbits = align & 0b111;
+  const vbits = (align >> 3) & 0b111;
+
+  if (
+    !Number.isInteger(align) ||
+    align !== (hbits | (vbits << 3)) ||
+    hbits & (hbits - 1) ||
+    vbits & (vbits - 1)
+  ) {
+    throw new Error(
+      "align must combine at most one HorizontalAlign and one VerticalAlign flag",
+    );
+  }
+
+  return {
+    alignH: hbits ? hbits >> 1 : 1,
+    alignV: vbits ? vbits >> 1 : 1,
+  };
+}
 
 export const methods = {
   /**
@@ -36,21 +66,7 @@ export const methods = {
       align = HorizontalAlign.CENTER | VerticalAlign.MIDDLE,
       mode,
     } = CoverOptionsSchema.parse(options);
-    const hbits = align & ((1 << 3) - 1);
-    const vbits = align >> 3;
-
-    // check if more flags than one is in the bit sets
-    if (
-      !(
-        (hbits !== 0 && !(hbits & (hbits - 1))) ||
-        (vbits !== 0 && !(vbits & (vbits - 1)))
-      )
-    ) {
-      throw new Error("only use one flag per alignment direction");
-    }
-
-    const alignH = hbits >> 1; // 0, 1, 2
-    const alignV = vbits >> 1; // 0, 1, 2
+    const { alignH, alignV } = parseAlign(align);
 
     const f =
       w / h > image.bitmap.width / image.bitmap.height

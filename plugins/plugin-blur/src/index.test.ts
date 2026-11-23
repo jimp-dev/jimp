@@ -48,6 +48,65 @@ describe.each([
   });
 });
 
+describe("blur radius", () => {
+  test.each([2.5, 2.4, 0.5, 300, 1000])(
+    "blurs instead of making the image transparent for %d",
+    (r) => {
+      // a big square, so it still shows when the radius is clamped to 256
+      const image = new Jimp({ width: 40, height: 40, color: 0x00000000 });
+
+      image.scan(0, 0, 30, 40, (_, __, idx) => {
+        image.bitmap.data.set([0xff, 0xcc, 0x00, 0xff], idx);
+      });
+      image.blur(r);
+
+      const [red, , , alpha] = pixelAt(image, 20, 20);
+
+      expect(red).toBe(0xff);
+      expect(alpha).toBeGreaterThan(0);
+    },
+  );
+
+  test.each([145, 200, 255, 256])(
+    "keeps an opaque image opaque with a radius of %d",
+    (r) => {
+      const image = new Jimp({ width: 20, height: 20, color: 0xffcc00ff });
+
+      expect(pixelAt(image.blur(r), 10, 10)).toEqual([0xff, 0xcc, 0x00, 0xff]);
+    },
+  );
+
+  test("rounds the radius", () => {
+    expect(makeSquare().blur(2.5).bitmap.data).toEqual(
+      makeSquare().blur(3).bitmap.data,
+    );
+    expect(makeSquare().blur(0.2).bitmap.data).toEqual(
+      makeSquare().blur(1).bitmap.data,
+    );
+    expect(makeSquare().blur(1000).bitmap.data).toEqual(
+      makeSquare().blur(256).bitmap.data,
+    );
+  });
+
+  test.each(["blur", "gaussian"] as const)(
+    "%s throws for a radius of 0 or less",
+    (method) => {
+      expect(() => makeSquare()[method](0)).toThrow("r must be greater than 0");
+      expect(() => makeSquare()[method](-1)).toThrow(
+        "r must be greater than 0",
+      );
+    },
+  );
+
+  test("gaussian accepts a fractional radius below 1", () => {
+    const [red, , , alpha] = pixelAt(makeSquare().gaussian(0.5), 15, 20);
+
+    expect(red).toBe(0xff);
+    expect(alpha).toBeGreaterThan(0);
+    expect(alpha).toBeLessThan(0xff);
+  });
+});
+
 describe("gaussian", () => {
   test("blurs a single pixel symmetrically", () => {
     const size = 21;

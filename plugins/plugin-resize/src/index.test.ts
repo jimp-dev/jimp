@@ -214,6 +214,44 @@ describe("Resize images", () => {
         });
       });
     });
+
+    [
+      [15, 15],
+      [25, 25],
+      [60, 60],
+      [60, 15],
+      [15, 60],
+    ].forEach(([w, h]) => {
+      test(`default resizer 40x40 to ${w}x${h}`, () => {
+        const resized = square().resize({ w: w!, h: h! });
+        const { data } = resized.bitmap;
+        const alphas = new Set<number>();
+
+        for (let i = 3; i < data.length; i += 4) {
+          alphas.add(data[i]!);
+        }
+
+        expect(alphas.size).toBeGreaterThan(2);
+        expect(visibleColors(resized)).toEqual(["255,255,255"]);
+      });
+    });
+
+    test("default resizer keeps the color of partly transparent pixels", () => {
+      // half transparent white next to transparent black
+      const data = Buffer.alloc(8 * 8 * 4);
+
+      for (let i = 0; i < data.length; i += 8) {
+        data.set([255, 255, 255, 128], i);
+      }
+
+      const image = jimp.fromBitmap({ width: 8, height: 8, data });
+
+      for (const w of [3, 16]) {
+        const resized = image.clone().resize({ w, h: w });
+
+        expect(visibleColors(resized)).toEqual(["255,255,255"]);
+      }
+    });
   });
 
   describe("convolution filters", () => {

@@ -64,4 +64,11 @@ describe("Circle", () => {
 
     expect(imgSrc.circle({ radius: 5, x: 5, y: 5 })).toMatchSnapshot();
   });
+
+  test("a radius of 0 makes the whole image transparent", () => {
+    const imgSrc = Jimp.fromBitmap(makeTestImage("▦▦▦▦", "▦▦▦▦", "▦▦▦▦"));
+    const { data } = imgSrc.circle({ radius: 0 }).bitmap;
+
+    expect(data.filter((_, i) => i % 4 === 3).every((a) => a === 0)).toBe(true);
+  });
 });

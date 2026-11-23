@@ -6,7 +6,10 @@ const CircleOptionsSchema = z.object({
   x: z.number().optional(),
   /** the y position to draw the circle */
   y: z.number().optional(),
-  /** the radius of the circle */
+  /**
+   * the radius of the circle (default half the shorter side). 0 makes the
+   * whole image transparent.
+   */
   radius: z.number().min(0).optional(),
 });
 
@@ -29,7 +32,7 @@ export const methods = {
   circle<I extends JimpClass>(image: I, options: CircleOptions = {}) {
     const parsed = CircleOptionsSchema.parse(options);
     const radius =
-      parsed.radius ||
+      parsed.radius ??
       (image.bitmap.width > image.bitmap.height
         ? image.bitmap.height
         : image.bitmap.width) / 2;

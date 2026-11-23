@@ -17,9 +17,9 @@ interface ResizeClass {
     targetHeight: number,
     blendAlpha: boolean,
     interpolationPass: boolean,
-    resizeCallback: (buffer: Buffer) => void
+    resizeCallback: (buffer: ArrayLike<number>) => void
   ): ResizeClass;
-  resize(buffer: Buffer): void;
+  resize(buffer: ArrayLike<number>): void;
 }
 
 type Constructable<T> = new (...args: unknown[]) => T;
@@ -65,6 +65,49 @@ const ScaleComplexOptionsSchema = z.object({
 
 export type ScaleComplexOptions = z.infer<typeof ScaleComplexOptionsSchema>;
 export type ScaleOptions = number | ScaleComplexOptions;
+
+/** Copy RGBA data with each color multiplied by its pixel's alpha */
+function premultiplyAlpha(data: ArrayLike<number>) {
+  const result = new Float32Array(data.length);
+
+  for (let i = 0; i < data.length; i += 4) {
+    const a = data[i + 3]!;
+
+    result[i] = (data[i]! * a) / 255;
+    result[i + 1] = (data[i + 1]! * a) / 255;
+    result[i + 2] = (data[i + 2]! * a) / 255;
+    result[i + 3] = a;
+  }
+
+  return result;
+}
+
+/**
+ * Turn premultiplied RGBA back into straight RGBA. Fully transparent pixels
+ * become transparent black.
+ */
+function unpremultiplyAlpha(data: ArrayLike<number>) {
+  const result = Buffer.alloc(data.length);
+
+  for (let i = 0; i < data.length; i += 4) {
+    const a = Math.min(255, Math.max(0, Math.round(data[i + 3]!)));
+
+    result[i + 3] = a;
+
+    if (a === 0) {
+      continue;
+    }
+
+    for (let k = 0; k < 3; k++) {
+      result[i + k] = Math.min(
+        255,
+        Math.max(0, Math.round((data[i + k]! * 255) / data[i + 3]!))
+      );
+    }
+  }
+
+  return result;
+}
 
 export const methods = {
   /**
@@ -117,6 +160,10 @@ export const methods = {
       Resize2[mode](image.bitmap, dst);
       image.bitmap = dst;
     } else {
+      const { data } = image.bitmap;
+      // Images with transparency are resized with their colors premultiplied
+      // by alpha, so transparent pixels don't darken their neighbors
+      const hasAlpha = data.some((value, i) => (i & 3) === 3 && value !== 255);
       const resize = new (Resize as unknown as Constructable<ResizeClass>)(
         image.bitmap.width,
         image.bitmap.height,
@@ -124,14 +171,16 @@ export const methods = {
         h,
         true,
         true,
-        (buffer: Buffer) => {
-          image.bitmap.data = Buffer.from(buffer);
+        (buffer: ArrayLike<number>) => {
+          image.bitmap.data = hasAlpha
+            ? unpremultiplyAlpha(buffer)
+            : Buffer.from(buffer as Uint8Array);
           image.bitmap.width = w;
           image.bitmap.height = h;
         }
       );
 
-      resize.resize(image.bitmap.data);
+      resize.resize(hasAlpha ? premultiplyAlpha(data) : data);
     }
 
     return image;

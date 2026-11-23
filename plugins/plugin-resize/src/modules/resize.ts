@@ -192,7 +192,6 @@ Resize.prototype._resizeWidthRGBChannels = function (buffer, fourthChannel) {
     this.targetWidthMultipliedByChannels - channelsNum + 1;
   const output = this.outputWidthWorkBench;
   const outputBuffer = this.widthBuffer;
-  const trustworthyColorsCount = this.outputWidthWorkBenchOpaquePixelsCount;
 
   let weight = 0;
   let amountToNext = 0;
@@ -214,7 +213,6 @@ Resize.prototype._resizeWidthRGBChannels = function (buffer, fourthChannel) {
       output[line++] = 0;
       if (fourthChannel) {
         output[line++] = 0;
-        trustworthyColorsCount[line / channelsNum - 1] = 0;
       }
     }
 
@@ -231,14 +229,14 @@ Resize.prototype._resizeWidthRGBChannels = function (buffer, fourthChannel) {
         r = buffer[pixelOffset];
         g = buffer[++pixelOffset];
         b = buffer[++pixelOffset];
-        a = fourthChannel ? buffer[++pixelOffset] : 255;
-        // Ignore RGB values if pixel is completely transparent
-        output[line++] += (a ? r : 0) * multiplier;
-        output[line++] += (a ? g : 0) * multiplier;
-        output[line++] += (a ? b : 0) * multiplier;
+        // RGB is premultiplied by alpha (see `resize` in ../index.ts), so
+        // all channels are a plain weighted average
+        output[line++] += r * multiplier;
+        output[line++] += g * multiplier;
+        output[line++] += b * multiplier;
         if (fourthChannel) {
+          a = buffer[++pixelOffset];
           output[line++] += a * multiplier;
-          trustworthyColorsCount[line / channelsNum - 1] += a ? multiplier : 0;
         }
       }
 
@@ -260,15 +258,9 @@ Resize.prototype._resizeWidthRGBChannels = function (buffer, fourthChannel) {
       line < this.originalHeightMultipliedByChannels;
       pixelOffset += nextLineOffsetTargetWidth
     ) {
-      weight = fourthChannel ? trustworthyColorsCount[line / channelsNum] : 1;
-      multiplier = fourthChannel
-        ? weight
-          ? 1 / weight
-          : 0
-        : ratioWeightDivisor;
-      outputBuffer[pixelOffset] = output[line++] * multiplier;
-      outputBuffer[++pixelOffset] = output[line++] * multiplier;
-      outputBuffer[++pixelOffset] = output[line++] * multiplier;
+      outputBuffer[pixelOffset] = output[line++] * ratioWeightDivisor;
+      outputBuffer[++pixelOffset] = output[line++] * ratioWeightDivisor;
+      outputBuffer[++pixelOffset] = output[line++] * ratioWeightDivisor;
       if (fourthChannel)
         outputBuffer[++pixelOffset] = output[line++] * ratioWeightDivisor;
     }
@@ -284,7 +276,6 @@ Resize.prototype._resizeHeightRGBChannels = function (buffer, fourthChannel) {
   const ratioWeightDivisor = 1 / ratioWeight;
   const output = this.outputHeightWorkBench;
   const outputBuffer = this.heightBuffer;
-  const trustworthyColorsCount = this.outputHeightWorkBenchOpaquePixelsCount;
 
   let weight = 0;
   let amountToNext = 0;
@@ -311,7 +302,6 @@ Resize.prototype._resizeHeightRGBChannels = function (buffer, fourthChannel) {
 
       if (fourthChannel) {
         output[pixelOffset++] = 0;
-        trustworthyColorsCount[pixelOffset / 4 - 1] = 0;
       }
     }
 
@@ -330,15 +320,14 @@ Resize.prototype._resizeHeightRGBChannels = function (buffer, fourthChannel) {
         r = buffer[caret++];
         g = buffer[caret++];
         b = buffer[caret++];
-        a = fourthChannel ? buffer[caret++] : 255;
-        // Ignore RGB values if pixel is completely transparent
-        output[pixelOffset++] += (a ? r : 0) * multiplier;
-        output[pixelOffset++] += (a ? g : 0) * multiplier;
-        output[pixelOffset++] += (a ? b : 0) * multiplier;
+        // RGB is premultiplied by alpha, so this is a plain weighted average
+        output[pixelOffset++] += r * multiplier;
+        output[pixelOffset++] += g * multiplier;
+        output[pixelOffset++] += b * multiplier;
 
         if (fourthChannel) {
+          a = buffer[caret++];
           output[pixelOffset++] += a * multiplier;
-          trustworthyColorsCount[pixelOffset / 4 - 1] += a ? multiplier : 0;
         }
       }
 
@@ -357,20 +346,14 @@ Resize.prototype._resizeHeightRGBChannels = function (buffer, fourthChannel) {
       pixelOffset < this.targetWidthMultipliedByChannels;
 
     ) {
-      weight = fourthChannel ? trustworthyColorsCount[pixelOffset / 4] : 1;
-      multiplier = fourthChannel
-        ? weight
-          ? 1 / weight
-          : 0
-        : ratioWeightDivisor;
       outputBuffer[outputOffset++] = Math.round(
-        output[pixelOffset++] * multiplier
+        output[pixelOffset++] * ratioWeightDivisor
       );
       outputBuffer[outputOffset++] = Math.round(
-        output[pixelOffset++] * multiplier
+        output[pixelOffset++] * ratioWeightDivisor
       );
       outputBuffer[outputOffset++] = Math.round(
-        output[pixelOffset++] * multiplier
+        output[pixelOffset++] * ratioWeightDivisor
       );
 
       if (fourthChannel) {
@@ -497,11 +480,6 @@ Resize.prototype.initializeFirstPassBuffers = function (BILINEARAlgo) {
       this.originalHeightMultipliedByChannels
     );
 
-    if (this.colorChannels > 3) {
-      this.outputWidthWorkBenchOpaquePixelsCount = this.generateFloat64Buffer(
-        this.heightOriginal
-      );
-    }
   }
 };
 
@@ -514,11 +492,6 @@ Resize.prototype.initializeSecondPassBuffers = function (BILINEARAlgo) {
       this.targetWidthMultipliedByChannels
     );
 
-    if (this.colorChannels > 3) {
-      this.outputHeightWorkBenchOpaquePixelsCount = this.generateFloat64Buffer(
-        this.targetWidth
-      );
-    }
   }
 };
 
@@ -526,16 +499,6 @@ Resize.prototype.generateFloatBuffer = function (bufferLength) {
   // Generate a float32 typed array buffer:
   try {
     return new Float32Array(bufferLength);
-  } catch (error) {
-    console.error(error);
-    return [];
-  }
-};
-
-Resize.prototype.generateFloat64Buffer = function (bufferLength) {
-  // Generate a float64 typed array buffer:
-  try {
-    return new Float64Array(bufferLength);
   } catch (error) {
     console.error(error);
     return [];

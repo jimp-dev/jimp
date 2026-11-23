@@ -5,7 +5,7 @@
   <p>Displace an image.</p>
 </div>
 
-Displaces the image based on the provided displacement map
+Displaces the image based on the provided displacement map. Each pixel moves right by up to `offset` pixels, depending on the red channel of the map, which is stretched to the size of the image.
 
 - [displace](https://jimp-dev.github.io/jimp/api/jimp/classes/jimp/#displace)
 
