@@ -17,11 +17,11 @@ import {
   SRGB,
 } from "@jimp/utils";
 import { to } from "await-to-js";
-import { existsSync, readFile, writeFile } from "@jimp/file-ops";
+import { hasFileSystem, readFile, writeFile } from "@jimp/file-ops";
 import mime from "mime/lite.js";
 import type { ExifData } from "exif-parser";
 
-import { composite } from "./utils/composite.js";
+import { composite, CompositeSource } from "./utils/composite.js";
 import { BlendMode } from "./index.js";
 import {
   attemptExifRotate,
@@ -54,6 +54,36 @@ function bufferFromArrayBuffer(arrayBuffer: ArrayBuffer) {
   return buffer;
 }
 
+/** Encoded image data that `Jimp.read` and `Jimp.fromBuffer` accept */
+export type ImageInput = Buffer | ArrayBuffer | ArrayBufferView | Blob;
+
+/** Get a Buffer of encoded image data, without copying it where possible */
+async function toBuffer(input: ImageInput) {
+  if (Buffer.isBuffer(input)) {
+    return input;
+  }
+
+  if (input instanceof ArrayBuffer) {
+    return bufferFromArrayBuffer(input);
+  }
+
+  // Uint8Array, DataView, a Node Buffer when a Buffer polyfill is used, ...
+  if (ArrayBuffer.isView(input)) {
+    return Buffer.from(input.buffer, input.byteOffset, input.byteLength);
+  }
+
+  if (typeof Blob !== "undefined" && input instanceof Blob) {
+    return bufferFromArrayBuffer(await input.arrayBuffer());
+  }
+
+  throw new Error(
+    "Expected image data as a Buffer, ArrayBuffer, Uint8Array (or other ArrayBuffer view) or Blob"
+  );
+}
+
+/** Strings that are fetched rather than read from the file system */
+const URL_PATTERN = /^(https?|data|blob):/i;
+
 async function detectFileTypeFromBuffer(buffer: Buffer | ArrayBuffer) {
   const { fileTypeFromBuffer } = await import("file-type");
   return fileTypeFromBuffer(
@@ -65,6 +95,7 @@ async function detectFileTypeFromBuffer(buffer: Buffer | ArrayBuffer) {
 
 export { getExifOrientation } from "./utils/image-bitmap.js";
 export { composite } from "./utils/composite.js";
+export type { CompositeSource } from "./utils/composite.js";
 export type { ColorSpaceName } from "@jimp/types";
 export * from "./utils/constants.js";
 
@@ -236,7 +267,13 @@ type JimpFormat<
 // it expands them into a separate copy for each place the class type is
 // repeated, and TypeScript treats those copies as unrelated types.
 export type CreateMimeTypeToExportOptions<T extends Format<string, any>> =
-  T extends Format<infer M, infer O> ? Record<M, O> : never;
+  T extends Format<infer M, infer O> ? Record<M, DeclaredOptions<O>> : never;
+/**
+ * The encode options of a format. Formats whose encode doesn't take options
+ * (GIF, TIFF, BMP) are inferred as `Record<string, any>`, which would accept
+ * anything, so they take none.
+ */
+type DeclaredOptions<O> = string extends keyof NonNullable<O> ? undefined : O;
 export type CreateMimeTypeToDecodeOptions<T extends Format<string, any>> =
   T extends Format<infer M, any, infer O> ? Record<M, O> : never;
 export type GetOptionsForMimeType<Mime extends string, MimeTypeMap> =
@@ -244,12 +281,46 @@ export type GetOptionsForMimeType<Mime extends string, MimeTypeMap> =
 type ExportOptions<MimeTypeMap> =
   MimeTypeMap extends Record<string, infer O> ? O : never;
 
-type PathWithExtension<E extends string> = `${string}.${E}`;
 type MimeToExtension<M extends string> = `${string}/${M}`;
 export type CreateExtensionToMimeType<M extends string> =
   M extends MimeToExtension<infer E> ? Record<E, M> : never;
 export type GetMimeTypeForExtension<Mime extends string, MimeTypeMap> =
   MimeTypeMap extends Record<Mime, infer M> ? M : never;
+
+/** The file extension of a path, e.g. "png" for "./output/image.png" */
+export type PathExtension<Path extends string> =
+  Path extends `${string}.${infer Rest}`
+    ? [PathExtension<Rest>] extends [never]
+      ? Rest
+      : PathExtension<Rest>
+    : never;
+/** Extensions `mime` maps to a type with a differently spelled subtype */
+type ExtensionAliases =
+  | Record<"jpg" | "jpe", "image/jpeg">
+  | Record<"tif", "image/tiff">;
+type OrIfNever<T, Fallback> = [T] extends [never] ? Fallback : T;
+/**
+ * The options `write` takes for a path: those of the format its extension
+ * maps to, or those of every format when that isn't known, e.g. for a
+ * `string` from `path.join` or an extension no format handles.
+ */
+export type GetOptionsForPath<
+  Path extends string,
+  ExtensionToMimeType,
+  MimeTypeToExportOptions,
+> = string extends Path
+  ? ExportOptions<MimeTypeToExportOptions>
+  : OrIfNever<
+      GetOptionsForMimeType<
+        GetMimeTypeForExtension<
+          Lowercase<PathExtension<Path>>,
+          ExtensionToMimeType | ExtensionAliases
+        > &
+          string,
+        MimeTypeToExportOptions
+      >,
+      ExportOptions<MimeTypeToExportOptions>
+    >;
 
 /**
  * Create a Jimp class that support the given image formats and methods
@@ -362,7 +433,12 @@ export function createJimp<
     }
 
     /**
-     * Create a Jimp instance from a URL, a file path, or a Buffer
+     * Create a Jimp instance from a URL, a file path, or encoded image data
+     * (a Buffer, ArrayBuffer, Uint8Array or other ArrayBuffer view, or Blob).
+     *
+     * In Node, strings that aren't `http:`, `https:`, `data:` or `blob:` URLs
+     * are read as file paths, so a missing file throws Node's `ENOENT` error.
+     * In browsers, strings are always fetched.
      * @example
      * ```ts
      * import { Jimp } from "jimp";
@@ -372,17 +448,20 @@ export function createJimp<
      *
      * // Read from a URL
      * const image = await Jimp.read("https://upload.wikimedia.org/wikipedia/commons/0/01/Bot-Test.jpg");
+     *
+     * // Read a file picked in the browser
+     * const image = await Jimp.read(input.files[0]);
      * ```
      */
     static async read(
-      url: string | Buffer | ArrayBuffer,
+      url: string | ImageInput,
       options?: MimeTypeToDecodeOptions
     ): Promise<Instance> {
-      if (Buffer.isBuffer(url) || url instanceof ArrayBuffer) {
+      if (typeof url !== "string") {
         return this.fromBuffer(url, options);
       }
 
-      if (existsSync(url)) {
+      if (hasFileSystem && !URL_PATTERN.test(url)) {
         return this.fromBuffer(await readFile(url), options);
       }
 
@@ -444,7 +523,8 @@ export function createJimp<
     /**
      * Parse a bitmap with the loaded image types.
      *
-     * @param buffer Raw image data
+     * @param buffer Encoded image data: a Buffer, ArrayBuffer, Uint8Array (or
+     * other ArrayBuffer view) or Blob
      * @example
      * ```ts
      * import { Jimp } from "jimp";
@@ -455,11 +535,10 @@ export function createJimp<
      * ```
      */
     static async fromBuffer(
-      buffer: Buffer | ArrayBuffer,
+      buffer: ImageInput,
       options?: MimeTypeToDecodeOptions
     ): Promise<Instance> {
-      const actualBuffer =
-        buffer instanceof ArrayBuffer ? bufferFromArrayBuffer(buffer) : buffer;
+      const actualBuffer = await toBuffer(buffer);
 
       const mime = await detectFileTypeFromBuffer(actualBuffer);
 
@@ -714,9 +793,11 @@ export function createJimp<
     }
 
     /**
-     * Write the image to a file
+     * Write the image to a file. The format is picked from the path's extension.
      * @param path the path to write the image to
-     * @param options the options to use when writing the image
+     * @param options the options to use when writing the image. For a literal
+     * path they're checked against its format's options (`.jpg` takes JPEG
+     * options, `.gif` none, ...); for a `string` against those of every format.
      * @example
      * ```ts
      * import { Jimp } from "jimp";
@@ -724,25 +805,17 @@ export function createJimp<
      * const image = await Jimp.read("test/image.png");
      *
      * await image.write("test/output.png");
+     * await image.write("test/output.jpg", { quality: 80 });
      * ```
      */
-    async write<
-      Extension extends string,
-      Mime extends GetMimeTypeForExtension<Extension, ExtensionToMimeType>,
-      Options extends GetOptionsForMimeType<Mime, MimeTypeToExportOptions>,
-    >(path: PathWithExtension<Extension>, options?: Options): Promise<void>;
-    // Non-literal paths (path.join, user input) can't be narrowed to a format.
-    // The guard keeps literal paths with mismatched options from landing here.
     async write<Path extends string>(
-      path: string extends Path ? Path : never,
-      options?: ExportOptions<MimeTypeToExportOptions>
-    ): Promise<void>;
-    async write<
-      Options extends GetOptionsForMimeType<
-        SupportedMimeTypes,
+      path: Path,
+      options?: GetOptionsForPath<
+        Path,
+        ExtensionToMimeType,
         MimeTypeToExportOptions
-      >,
-    >(path: string, options?: Options) {
+      >
+    ) {
       const mimeType = mime.getType(path);
 
       if (!mimeType) {
@@ -753,7 +826,13 @@ export function createJimp<
 
       await writeFile(
         path,
-        await this.getBuffer(mimeType as SupportedMimeTypes, options)
+        await this.getBuffer(
+          mimeType as SupportedMimeTypes,
+          options as GetOptionsForMimeType<
+            SupportedMimeTypes,
+            MimeTypeToExportOptions
+          >
+        )
       );
     }
 
@@ -786,6 +865,8 @@ export function createJimp<
 
       copyExif(this, clone);
       clone.iccProfile = this.iccProfile;
+      clone.background = this.background;
+      clone.mime = (this as { mime?: string }).mime;
 
       return clone as unknown as S;
     }
@@ -967,7 +1048,7 @@ export function createJimp<
      */
     composite<S extends JimpClass>(
       this: S,
-      src: JimpClass,
+      src: CompositeSource,
       x = 0,
       y = 0,
       options: {

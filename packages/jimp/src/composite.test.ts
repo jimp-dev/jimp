@@ -51,6 +51,36 @@ describe("composite", () => {
     expect(base.getPixelColor(0, 0)).toBe(0x764e00ff);
   });
 
+  test("rejects unknown blend modes", () => {
+    expect(() =>
+      pixel(0xff0000ff).composite(pixel(0x0000ffff), 0, 0, {
+        mode: "nope" as BlendMode,
+      }),
+    ).toThrow(
+      'Unknown blend mode "nope", expected one of: srcOver, dstOver, multiply,',
+    );
+  });
+
+  test("clamps opacities to 0..1", () => {
+    const transparentSource = pixel(0x000000ff);
+    transparentSource.composite(pixel(0xffffffff), 0, 0, {
+      opacitySource: -1,
+    });
+    expect(transparentSource.getPixelColor(0, 0)).toBe(0x000000ff);
+
+    const opaqueSource = pixel(0x000000ff);
+    opaqueSource.composite(pixel(0xffffffff), 0, 0, { opacitySource: 2 });
+    expect(opaqueSource.getPixelColor(0, 0)).toBe(0xffffffff);
+
+    const transparentDest = pixel(0xff0000ff);
+    transparentDest.composite(pixel(0x00000000), 0, 0, { opacityDest: -1 });
+    expect(transparentDest.getPixelColor(0, 0) & 0xff).toBe(0);
+
+    const opaqueDest = pixel(0xff0000ff);
+    opaqueDest.composite(pixel(0x00000000), 0, 0, { opacityDest: 2 });
+    expect(opaqueDest.getPixelColor(0, 0)).toBe(0xff0000ff);
+  });
+
   test("rounds the background alpha scaled by opacityDest", () => {
     const base = pixel(0xff0000ff);
     base.composite(pixel(0x00000000), 0, 0, { opacityDest: 0.5 });
