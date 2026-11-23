@@ -3,6 +3,16 @@ import { Format } from "@jimp/types";
 
 export interface JPEGOptions {
   quality?: number;
+  /**
+   * Write the EXIF data of the JPEG the image was read from (camera make and
+   * model, resolution, date, GPS location, ...). Orientation is set to 1, as
+   * the pixels were already rotated on read, and the pixel dimensions are
+   * updated to the image's current size. The embedded thumbnail is dropped.
+   *
+   * Off by default, as EXIF can contain private data such as the location.
+   * @default false
+   */
+  exif?: boolean;
 }
 
 export interface DecodeJpegOptions {

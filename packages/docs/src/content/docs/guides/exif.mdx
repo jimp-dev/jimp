@@ -1,0 +1,90 @@
+---
+title: EXIF
+description: How Jimp reads, rotates and writes EXIF metadata.
+---
+
+Cameras and phones store metadata in JPEG files as EXIF: the camera make and model, the resolution (DPI), the date, the orientation and often the GPS location.
+Jimp reads EXIF from JPEG images. Other formats are read without it.
+
+## Auto-rotation on read
+
+Cameras often store the pixels sideways and record how to turn them in the EXIF `Orientation` tag.
+When `Jimp.read` or `Jimp.fromBuffer` loads a JPEG with an orientation other than 1, Jimp rotates and flips the pixels so the image is upright, then sets the orientation to 1.
+`image.width` and `image.height` are the size after rotation.
+
+```ts
+import { Jimp } from "jimp";
+
+// Stored as 3000x4000 with orientation 6 (rotate 90° clockwise)
+const image = await Jimp.read("photo.jpg");
+
+image.width; // 4000
+image.height; // 3000
+```
+
+There's no option to turn this off yet, see [#214](https://github.com/jimp-dev/jimp/issues/214).
+Until then you can:
+
+- **Find the original orientation** by parsing the EXIF yourself, for example with [exif-parser](https://www.npmjs.com/package/exif-parser), which Jimp uses. Jimp resets the tag to 1 once it has rotated the image, so it can't tell you.
+
+  ```ts
+  import { readFile } from "node:fs/promises";
+  import ExifParser from "exif-parser";
+
+  const buffer = await readFile("photo.jpg");
+  const { Orientation = 1 } = ExifParser.create(buffer).parse().tags;
+  ```
+
+- **Get the pixels as stored** by decoding with the JPEG format directly instead of `Jimp.read`. The image has no EXIF data.
+
+  ```ts
+  import { Jimp } from "jimp";
+  import jpeg from "@jimp/js-jpeg";
+
+  const image = Jimp.fromBitmap(await jpeg().decode(buffer));
+  ```
+
+## Reading EXIF data
+
+The parsed EXIF is on `image._exif`, in the format [exif-parser](https://www.npmjs.com/package/exif-parser) returns.
+It isn't part of Jimp's typed API, so TypeScript needs a cast.
+
+```ts
+const image = await Jimp.read("photo.jpg");
+const { tags } = (image as any)._exif;
+
+tags.Make; // "Canon"
+tags.XResolution; // 240
+tags.Orientation; // 1, as the pixels were rotated
+```
+
+`_exif` is only set for JPEG images. `image.clone()` copies it.
+Changing `_exif` doesn't change what Jimp writes.
+
+## Writing EXIF data
+
+By default Jimp writes no EXIF: the output has none of the original metadata, and its resolution is the encoder's default.
+To keep the metadata of a JPEG you read, pass `exif: true` when writing a JPEG:
+
+```ts
+const image = await Jimp.read("photo.jpg");
+
+image.resize({ w: 800 });
+
+await image.write("small.jpg", { quality: 90, exif: true });
+// or
+const buffer = await image.getBuffer("image/jpeg", { exif: true });
+```
+
+Jimp writes the original EXIF block with these changes:
+
+- `Orientation` is set to 1, as the pixels were already rotated on read. Otherwise viewers would rotate the image a second time.
+- `PixelXDimension` and `PixelYDimension` (and `ImageWidth`/`ImageLength` if present) are set to the image's current size.
+- The embedded thumbnail is removed, as it would show the original image, including parts you cropped out.
+- The JFIF resolution is set to match the EXIF one, so readers agree on the DPI.
+
+Everything else, including maker notes and **GPS location**, is copied unchanged.
+Leave the option off when publishing images whose location or camera details shouldn't be shared.
+
+The option does nothing for images without EXIF, such as ones read from a PNG or created with `new Jimp()`.
+Only JPEG output can carry EXIF. PNG, WebP, TIFF, GIF and BMP output never includes it.
