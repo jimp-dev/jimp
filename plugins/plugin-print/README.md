@@ -39,6 +39,8 @@ const font = await loadFont("fonts/noto-sans-jp.fnt");
 image.print({ font, x: 10, y: 10, text: "こんにちは世界" });
 ```
 
+Pass `loadFont` the path to the `.fnt` file, not its contents. The pages are found relative to it. In Node.js the font and its pages are read from disk, so this works in runtimes without a global `fetch`. URLs (`http:`, `https:`, `data:`) are loaded with `fetch`, and in the browser everything is.
+
 - Glyphs are copied onto the image as they are, so set the text color when you generate the font, and use a generator that renders plain bitmaps. Signed distance field (SDF or MSDF) fonts won't look right.
 - CJK fonts have thousands of glyphs. Include only the characters you need to keep the pages small.
 - Characters outside the Basic Multilingual Plane, like emoji and rare kanji, work too, as long as the font has glyphs for them.
