@@ -35,6 +35,12 @@ pnpm i # install and link all packages in monorepo
 pnpm run build
 ```
 
+### Windows
+
+The repo builds and tests on Windows as well as macOS and Linux (CI runs a Windows job). You need Node.js 22 or newer and pnpm (`corepack enable` installs the version in `package.json`). Run the same commands as above from PowerShell or Command Prompt; WSL isn't required.
+
+Package scripts only use cross-platform tools (`rimraf`, node scripts), so keep it that way when you add or change one: no `rm`/`cp`/`mv`, and quote globs with double quotes (`"**/*.ts"`), since `cmd.exe` doesn't strip single quotes. Text files are checked out with LF line endings (see `.gitattributes`), so snapshots and fixtures match on every platform.
+
 ### Testing
 
 We use vitest to test the code.

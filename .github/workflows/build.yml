@@ -80,3 +80,16 @@ jobs:
       - run: pnpm exec playwright install --with-deps chromium
         working-directory: ./packages/config-vitest
       - run: pnpm test:browser
+
+  # Builds and tests on Windows so the repo keeps working there (#1197)
+  test-windows:
+    runs-on: windows-latest
+    needs: install
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ./.github/actions/install-deps
+        with:
+          node-version: 22
+      - uses: ./.github/actions/turbo-cache
+      - run: pnpm build
+      - run: pnpm test

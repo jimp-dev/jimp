@@ -1,0 +1,19 @@
+# Check out text files with LF on every platform, so snapshots, fixtures
+# (like the .fnt fonts) and formatting are the same on Windows.
+* text=auto eol=lf
+
+# Image and color profile fixtures
+*.bmp binary
+*.gif binary
+*.icc binary
+*.ico binary
+*.j2k binary
+*.jp2 binary
+*.jpeg binary
+*.jpg binary
+*.png binary
+*.tif binary
+*.tiff binary
+*.webp binary
+*.avif binary
+*.wasm binary
