@@ -126,13 +126,15 @@ describe("BMP", () => {
         bitDepth: 8,
         compression: 1,
         palette: [0x000000, 0xff0000],
-        // 4 x color 1, end of line, 4 x color 0, end of bitmap
+        // Bottom row first: 4 x color 1, end of line, 4 x color 0, end of bitmap
         pixels: [4, 1, 0, 0, 4, 0, 0, 1],
       })
     );
 
     expect(image.width).toBe(4);
     expect(image.height).toBe(2);
+    expect(image.getPixelColor(3, 0)).toBe(0x000000ff);
+    expect(image.getPixelColor(3, 1)).toBe(0xff0000ff);
   });
 
   test("rejects an RLE8 BMP whose dimensions don't fit its data", async () => {

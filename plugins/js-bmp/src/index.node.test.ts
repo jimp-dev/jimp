@@ -23,4 +23,15 @@ describe("BMP", () => {
 
     expect(image.bitmap.data).toEqual(expectedImg.bitmap.data);
   });
+
+  // ImageMagick encodings of the same 115x37, 16 color image
+  test.each([
+    ["a 4 bit BMP with an odd width", "palette-4bit.bmp" as const],
+    ["an RLE8 BMP", "palette-rle8.bmp" as const],
+  ])("decodes %s", async (_, file) => {
+    const expectedImg = await jimp.read(getTestImagePath("palette.png"));
+    const image = await jimp.read(getTestImagePath(file));
+
+    expect(image.bitmap.data).toEqual(expectedImg.bitmap.data);
+  });
 });
