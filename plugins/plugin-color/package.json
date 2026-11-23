@@ -29,6 +29,7 @@
     "@types/tinycolor2": "^1.4.6",
     "@vitest/browser": "^2.0.5",
     "eslint": "^9.9.1",
+    "tinycolor2": "^1.6.0",
     "tshy": "^3.0.2",
     "typescript": "^5.5.4",
     "vite-plugin-node-polyfills": "^0.22.0",
@@ -39,7 +40,6 @@
     "@jimp/types": "workspace:*",
     "@jimp/utils": "workspace:*",
     "buffer": "^6.0.3",
-    "tinycolor2": "^1.6.0",
     "zod": "^4.6.7"
   },
   "tshy": {
