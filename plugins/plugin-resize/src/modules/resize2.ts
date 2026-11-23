@@ -23,6 +23,34 @@
 
 import { Buffer } from "buffer";
 
+/**
+ * Read channel `i` of an RGBA buffer with RGB premultiplied by alpha, so the
+ * colour of transparent pixels doesn't bleed into their neighbours. Opaque
+ * pixels read back unchanged.
+ */
+function premultiplied(buf: any, i: number) {
+  const k = i & 3;
+  return k === 3 ? buf[i] : (buf[i] * buf[i - k + 3]) / 255;
+}
+
+/**
+ * Turn a buffer of premultiplied RGBA back into straight RGBA, in place.
+ * Pixels with no alpha get black, since they have no colour left.
+ */
+function unpremultiply(buf: any) {
+  for (let i = 0; i < buf.length; i += 4) {
+    const a = buf[i + 3];
+
+    if (a === 255) {
+      continue;
+    }
+
+    for (let k = 0; k < 3; k++) {
+      buf[i + k] = a ? Math.min(255, Math.round((buf[i + k] * 255) / a)) : 0;
+    }
+  }
+}
+
 export const operations = {
   nearestNeighbor(src: any, dst: any) {
     const wSrc = src.width;
@@ -69,7 +97,7 @@ export const operations = {
     ) {
       // special case - k is integer
       if (kMin === kMax) {
-        return vMin;
+        return Math.round(vMin);
       }
 
       return Math.round((k - kMin) * vMax + (kMax - k) * vMin);
@@ -87,7 +115,13 @@ export const operations = {
     ) {
       let posMin = (yMin * wSrc + xMin) * 4 + offset;
       let posMax = (yMin * wSrc + xMax) * 4 + offset;
-      const vMin = interpolate(x, xMin, bufSrc[posMin], xMax, bufSrc[posMax]);
+      const vMin = interpolate(
+        x,
+        xMin,
+        premultiplied(bufSrc, posMin),
+        xMax,
+        premultiplied(bufSrc, posMax),
+      );
 
       // special case, y is integer
       if (yMax === yMin) {
@@ -95,7 +129,13 @@ export const operations = {
       } else {
         posMin = (yMax * wSrc + xMin) * 4 + offset;
         posMax = (yMax * wSrc + xMax) * 4 + offset;
-        const vMax = interpolate(x, xMin, bufSrc[posMin], xMax, bufSrc[posMax]);
+        const vMax = interpolate(
+          x,
+          xMin,
+          premultiplied(bufSrc, posMin),
+          xMax,
+          premultiplied(bufSrc, posMax),
+        );
 
         bufDst[pos + offset] = interpolate(y, yMin, vMin, yMax, vMax);
       }
@@ -119,6 +159,8 @@ export const operations = {
         assign(posDst, 3, x, xMin, xMax, y, yMin, yMax);
       }
     }
+
+    unpremultiply(bufDst);
   },
 
   _interpolate2D(src: any, dst: any, options?: any, interpolate?: any) {
@@ -136,6 +178,9 @@ export const operations = {
     const wDst2 = wDst * wM;
     const hM = Math.max(1, Math.floor(hSrc / hDst));
     const hDst2 = hDst * hM;
+
+    // buf1 and buf2 hold RGB premultiplied by alpha, so transparent pixels
+    // don't darken the edges of what they surround
 
     // ===========================================================
     // Pass 1 - interpolate rows
@@ -159,10 +204,11 @@ export const operations = {
 
         for (let k = 0; k < 4; k++) {
           const kPos = srcPos + k;
-          const x1 = bufSrc[kPos];
-          const x2 = bufSrc[kPos + next];
-          const x0 = xPos > 0 ? bufSrc[kPos - 4] : 2 * x1 - x2;
-          const x3 = xPos < wSrc - 2 ? bufSrc[kPos + 8] : 2 * x2 - x1;
+          const x1 = premultiplied(bufSrc, kPos);
+          const x2 = premultiplied(bufSrc, kPos + next);
+          const x0 = xPos > 0 ? premultiplied(bufSrc, kPos - 4) : 2 * x1 - x2;
+          const x3 =
+            xPos < wSrc - 2 ? premultiplied(bufSrc, kPos + 8) : 2 * x2 - x1;
           buf1[buf1Pos + k] = interpolate(x0, x1, x2, x3, t);
         }
       }
@@ -212,7 +258,6 @@ export const operations = {
           let g = 0;
           let b = 0;
           let a = 0;
-          let realColors = 0;
 
           for (let y = 0; y < hM; y++) {
             const yPos = i * hM + y;
@@ -220,28 +265,25 @@ export const operations = {
             for (let x = 0; x < wM; x++) {
               const xPos = j * wM + x;
               const xyPos = (yPos * wDst2 + xPos) * 4;
-              const pixelAlpha = buf2[xyPos + 3]!;
 
-              if (pixelAlpha) {
-                r += buf2[xyPos]!;
-                g += buf2[xyPos + 1]!;
-                b += buf2[xyPos + 2]!;
-                realColors++;
-              }
-
-              a += pixelAlpha;
+              r += buf2[xyPos]!;
+              g += buf2[xyPos + 1]!;
+              b += buf2[xyPos + 2]!;
+              a += buf2[xyPos + 3]!;
             }
           }
 
+          // un-premultiply: the colour is the alpha weighted average
           const pos = (i * wDst + j) * 4;
-          bufDst[pos] = realColors ? Math.round(r / realColors) : 0;
-          bufDst[pos + 1] = realColors ? Math.round(g / realColors) : 0;
-          bufDst[pos + 2] = realColors ? Math.round(b / realColors) : 0;
+          bufDst[pos] = a ? Math.min(255, Math.round((r * 255) / a)) : 0;
+          bufDst[pos + 1] = a ? Math.min(255, Math.round((g * 255) / a)) : 0;
+          bufDst[pos + 2] = a ? Math.min(255, Math.round((b * 255) / a)) : 0;
           bufDst[pos + 3] = Math.round(a / m);
         }
       }
     } else {
       // replace dst buffer with buf2
+      unpremultiply(buf2);
       dst.data = buf2;
     }
   },
