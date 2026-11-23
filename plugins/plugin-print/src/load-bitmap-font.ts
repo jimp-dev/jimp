@@ -237,9 +237,41 @@ export async function processBitmapFont(file: string, font: LoadedFont) {
     chars,
     kernings,
     pages: await Promise.all(
-      font.pages.map(async (page) =>
-        CharacterJimp.read(resolvePagePath(file, page))
-      )
+      font.pages.map((page) => readPage(resolvePagePath(file, page)))
     ),
   };
+}
+
+const PNG_ONLY =
+  "Jimp fonts need PNG pages. In BMFont, set the texture format to png when exporting.";
+
+/** Read a font page, explaining why pages in other formats can't be decoded */
+async function readPage(pagePath: string) {
+  try {
+    return await CharacterJimp.read(pagePath);
+  } catch (error) {
+    const { message } = error as Error;
+
+    if (
+      !message.startsWith("Could not find MIME") &&
+      !message.endsWith("does not support decoding")
+    ) {
+      throw error;
+    }
+
+    // BMFont exports TGA pages by default, which look like icons to Jimp
+    const extension = path
+      .extname(pagePath.replace(/[?#].*$/, ""))
+      .slice(1)
+      .toUpperCase();
+    const kind =
+      extension && extension !== "PNG"
+        ? `is a ${extension} image`
+        : "isn't a PNG image";
+
+    throw new Error(
+      `loadFont: font page ${JSON.stringify(pagePath)} ${kind}; ${PNG_ONLY}`,
+      { cause: error },
+    );
+  }
 }

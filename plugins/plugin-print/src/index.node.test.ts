@@ -338,6 +338,49 @@ describe("Write text over image", function () {
       }
     });
 
+    test("throws a clear error when a page isn't a PNG (#1024)", async () => {
+      const dir = await fs.mkdtemp(path.join(os.tmpdir(), "jimp-font-"));
+      const fontFile = path.join(dir, "font.fnt");
+      // An uncompressed 32-bit 4x4 TGA, BMFont's default page format
+      const tgaHeader = Buffer.alloc(18);
+      tgaHeader[2] = 2;
+      tgaHeader.writeUInt16LE(4, 12);
+      tgaHeader.writeUInt16LE(4, 14);
+      tgaHeader[16] = 32;
+      tgaHeader[17] = 0x28;
+      const tga = Buffer.concat([tgaHeader, Buffer.alloc(4 * 4 * 4, 0xff)]);
+      const advice =
+        "Jimp fonts need PNG pages. In BMFont, set the texture format to png when exporting.";
+
+      try {
+        await fs.writeFile(path.join(dir, "font_0.tga"), tga);
+        await fs.writeFile(fontFile, createFontFile("font_0.tga"));
+
+        await expect(loadFont(fontFile)).rejects.toThrow(
+          `loadFont: font page ${JSON.stringify(path.join(dir, "font_0.tga"))} is a TGA image; ${advice}`,
+        );
+
+        // A page that isn't a PNG whatever its name says
+        await fs.writeFile(path.join(dir, "font_0.png"), tga);
+        await fs.writeFile(fontFile, createFontFile("font_0.png"));
+
+        await expect(loadFont(fontFile)).rejects.toThrow(
+          `loadFont: font page ${JSON.stringify(path.join(dir, "font_0.png"))} isn't a PNG image; ${advice}`,
+        );
+
+        await fs.writeFile(
+          path.join(dir, "font_0.png"),
+          await new Jimp({ width: 4, height: 4 }).getBuffer("image/jpeg"),
+        );
+
+        await expect(loadFont(fontFile)).rejects.toThrow(
+          `loadFont: font page ${JSON.stringify(path.join(dir, "font_0.png"))} isn't a PNG image; ${advice}`,
+        );
+      } finally {
+        await fs.rm(dir, { recursive: true, force: true });
+      }
+    });
+
     test("loads fonts and their pages from disk without fetch", async () => {
       await withoutFetch(async () => {
         const font = await loadFont(fonts.SANS_16_BLACK);
