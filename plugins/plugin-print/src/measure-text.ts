@@ -12,24 +12,50 @@ function lastCharacter(text: string) {
     : text.slice(-1) || undefined;
 }
 
+/**
+ * The character `print` draws for `char`: `char` itself if the font has a
+ * glyph for it, and `?` if it doesn't. Undefined for whitespace the font has
+ * no glyph for, and when the font has no `?` either.
+ */
+export function glyphCharacter(font: BmFont, char: string) {
+  if (font.chars[char]) {
+    return char;
+  }
+
+  if (!/\s/.test(char) && font.chars["?"]) {
+    return "?";
+  }
+
+  return undefined;
+}
+
+/**
+ * The kerning between the glyphs drawn for `char` and `nextChar`. Like
+ * `print`, it uses the kerning to `?` if `nextChar` is drawn as one.
+ */
+export function kerning(
+  font: BmFont,
+  char: string | undefined,
+  nextChar: string | undefined,
+) {
+  const first = char && glyphCharacter(font, char);
+  const second = nextChar && (glyphCharacter(font, nextChar) ?? nextChar);
+
+  return (first && second && font.kernings[first]?.[second]) || 0;
+}
+
 export function measureText(font: BmFont, text: string) {
   // Glyphs are keyed by code point, so walk the text by code point too
   const characters = Array.from(text);
   let x = 0;
 
   for (let i = 0; i < characters.length; i++) {
-    const char = characters[i]!;
-    const fontChar = font.chars[char];
+    const char = glyphCharacter(font, characters[i]!);
 
-    if (fontChar) {
-      const fontKerning = font.kernings[char];
-      const nextChar = characters[i + 1];
-      const kerning =
-        fontKerning && nextChar && fontKerning[nextChar]
-          ? fontKerning[nextChar] || 0
-          : 0;
-
-      x += (fontChar.xadvance || 0) + kerning;
+    if (char) {
+      x +=
+        (font.chars[char]!.xadvance || 0) +
+        kerning(font, char, characters[i + 1]);
     }
   }
 
@@ -47,17 +73,9 @@ function measureAppendedText(
   lastChar: string | undefined,
   text: string,
 ) {
-  if (lastChar && font.chars[lastChar]) {
-    const fontKerning = font.kernings[lastChar];
-    const [nextChar] = text;
+  const [nextChar] = text;
 
-    width +=
-      fontKerning && nextChar && fontKerning[nextChar]
-        ? fontKerning[nextChar] || 0
-        : 0;
-  }
-
-  return width + measureText(font, text);
+  return width + kerning(font, lastChar, nextChar) + measureText(font, text);
 }
 
 export function splitLines(font: BmFont, text: string, maxWidth: number) {

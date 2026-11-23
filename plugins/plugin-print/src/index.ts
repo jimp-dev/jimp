@@ -3,7 +3,13 @@ import { JimpClass } from "@jimp/types";
 import { methods as blitMethods } from "@jimp/plugin-blit";
 import { z } from "zod";
 
-import { measureText, measureTextHeight, splitLines } from "./measure-text.js";
+import {
+  glyphCharacter,
+  kerning,
+  measureText,
+  measureTextHeight,
+  splitLines,
+} from "./measure-text.js";
 import { BmCharacter, BmFont } from "./types.js";
 
 export { measureText, measureTextHeight } from "./measure-text.js";
@@ -91,32 +97,16 @@ function printText<I extends JimpClass>(
   const characters = Array.from(text);
 
   for (let i = 0; i < characters.length; i++) {
-    const stringChar = characters[i]!;
-
-    let char;
-
-    if (font.chars[stringChar]) {
-      char = stringChar;
-    } else if (/\s/.test(stringChar)) {
-      char = "";
-    } else {
-      char = "?";
-    }
-
-    const fontChar = font.chars[char] || { xadvance: undefined };
-    const fontKerning = font.kernings[char];
+    const char = glyphCharacter(font, characters[i]!);
+    const fontChar = char ? font.chars[char] : undefined;
 
     if (fontChar) {
-      drawCharacter(image, font, x, y, fontChar as BmCharacter);
+      drawCharacter(image, font, x, y, fontChar);
     }
 
-    const nextChar = characters[i + 1];
-    const kerning =
-      fontKerning && nextChar && fontKerning[nextChar]
-        ? fontKerning[nextChar] || 0
-        : 0;
-
-    x += kerning + (fontChar.xadvance || defaultCharWidth);
+    x +=
+      kerning(font, char, characters[i + 1]) +
+      (fontChar?.xadvance || defaultCharWidth);
   }
 }
 
