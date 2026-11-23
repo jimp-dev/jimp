@@ -3,7 +3,15 @@ import { clone, limit255, scan } from "@jimp/utils";
 import { Edge, JimpClass, RGBColor } from "@jimp/types";
 import { z } from "zod";
 
-const ConvolutionMatrixSchema = z.array(z.number()).min(1).array();
+const ConvolutionMatrixSchema = z
+  .array(z.number())
+  .min(1)
+  .array()
+  .min(1, "kernel must be a matrix")
+  .refine(
+    (kernel) => kernel.every((row) => row.length === kernel[0]!.length),
+    "kernel rows must all have the same length",
+  );
 const ConvolutionDivisorSchema = z
   .number()
   .refine((divisor) => divisor !== 0, "divisor must not be 0");
@@ -79,16 +87,23 @@ function applyKernel(
   y: number,
 ) {
   const value = [0, 0, 0, 0] as [number, number, number, number];
-  const size = (kernel.length - 1) / 2;
+  const rows = kernel.length;
+  const cols = kernel[0]!.length;
+  const originY = Math.floor((rows - 1) / 2);
+  const originX = Math.floor((cols - 1) / 2);
 
-  for (let kx = 0; kx < kernel.length; kx += 1) {
-    for (let ky = 0; ky < kernel[kx]!.length; ky += 1) {
-      const idx = image.getPixelIndex(x + kx - size, y + ky - size);
+  // kernel[ky][kx] weights the pixel kx - originX across and ky - originY
+  // down, the same as `convolution`. The x-outer loop order keeps the sums
+  // bit-identical to before for symmetric kernels.
+  for (let kx = 0; kx < cols; kx += 1) {
+    for (let ky = 0; ky < rows; ky += 1) {
+      const idx = image.getPixelIndex(x + kx - originX, y + ky - originY);
+      const weight = kernel[ky]![kx]!;
 
-      value[0] += image.bitmap.data[idx]! * kernel[kx]![ky]!;
-      value[1] += image.bitmap.data[idx + 1]! * kernel[kx]![ky]!;
-      value[2] += image.bitmap.data[idx + 2]! * kernel[kx]![ky]!;
-      value[3] += image.bitmap.data[idx + 3]! * kernel[kx]![ky]!;
+      value[0] += image.bitmap.data[idx]! * weight;
+      value[1] += image.bitmap.data[idx + 1]! * weight;
+      value[2] += image.bitmap.data[idx + 2]! * weight;
+      value[3] += image.bitmap.data[idx + 3]! * weight;
     }
   }
 
@@ -802,6 +817,19 @@ export const methods = {
    * the brightness of the image (like ImageMagick's `-define convolve:scale`
    * or the CSS `feConvolveMatrix` divisor), and a `bias` to shift results that
    * can be negative, like edge detection, into the visible range.
+   *
+   * The kernel is laid out like the image: `kernel[row][col]` weights the
+   * pixel `col - originX` to the right and `row - originY` below, where the
+   * origin is `floor((size - 1) / 2)` along each axis. Kernels can be any
+   * size, including even-sized and non-square ones. An even-sized axis has one
+   * more entry after the origin than before it, so a 4x4 kernel covers
+   * offsets -1 to 2. All rows must be the same length.
+   *
+   * The kernel isn't flipped (strictly this is correlation), like
+   * ImageMagick's `-convolve` and `-morphology Correlate`, GIMP's convolution
+   * matrix and Matlab's `imfilter`, which also share this origin. For a true
+   * convolution (ImageMagick's `-morphology Convolve`, Matlab's `conv2`),
+   * reverse the order of the rows and of each row.
    * @example
    * ```ts
    * import { Jimp } from "jimp";
@@ -836,17 +864,15 @@ export const methods = {
       ? parsed
       : ({ kernel: parsed } as ConvolutionComplexOptions);
 
-    if (!kernel[0]) {
-      throw new Error("kernel must be a matrix");
-    }
-
     const newData = Buffer.from(image.bitmap.data);
     const kRows = kernel.length;
-    const kCols = kernel[0].length;
-    const rowEnd = Math.floor(kRows / 2);
-    const colEnd = Math.floor(kCols / 2);
-    const rowIni = -rowEnd;
-    const colIni = -colEnd;
+    const kCols = kernel[0]!.length;
+    // The origin is at floor((size - 1) / 2), so an even-sized kernel has one
+    // more row/column after the origin than before it
+    const rowIni = -Math.floor((kRows - 1) / 2);
+    const colIni = -Math.floor((kCols - 1) / 2);
+    const rowEnd = kRows - 1 + rowIni;
+    const colEnd = kCols - 1 + colIni;
 
     let weight;
     let rSum;
@@ -868,7 +894,7 @@ export const methods = {
         for (let col = colIni; col <= colEnd; col++) {
           xi = x + col;
           yi = y + row;
-          weight = kernel[row + rowEnd]![col + colEnd]!;
+          weight = kernel[row - rowIni]![col - colIni]!;
           idxi = image.getPixelIndex(xi, yi, edgeHandling);
 
           if (idxi === -1) {
@@ -1003,6 +1029,8 @@ export const methods = {
    * the sum of its weights as the `divisor` to keep the brightness of the
    * image, and a `bias` to shift results that can be negative into the
    * visible range.
+   *
+   * The kernel is laid out and anchored the same way as in `convolution`.
    * @example
    * ```ts
    * import { Jimp } from "jimp";
