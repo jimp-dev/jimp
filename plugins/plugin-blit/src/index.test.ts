@@ -70,3 +70,51 @@ describe("Blit over image", function () {
     ).toMatchSnapshot();
   });
 });
+
+describe("Blit alpha compositing", () => {
+  const pixel = (color: number) => new Jimp({ width: 1, height: 1, color });
+
+  test("keeps the source color over a transparent destination", () => {
+    const image = pixel(0x00000000).blit(pixel(0xffffff80));
+
+    expect([...image.bitmap.data]).toEqual([255, 255, 255, 128]);
+  });
+
+  test("combines alpha when blitting twice", () => {
+    const src = pixel(0xffffff80);
+    const image = pixel(0x00000000).blit(src).blit(src);
+
+    // 128/255 + 128/255 * (1 - 128/255) = 0.7520..., which is 192 out of 255
+    expect([...image.bitmap.data]).toEqual([255, 255, 255, 192]);
+  });
+
+  test("blends a semi-transparent source over an opaque destination", () => {
+    const image = pixel(0x000000ff).blit(pixel(0xffffff80));
+
+    expect([...image.bitmap.data]).toEqual([128, 128, 128, 255]);
+  });
+
+  test("an opaque source replaces the destination", () => {
+    const image = pixel(0x11223380).blit(pixel(0xaabbccff));
+
+    expect([...image.bitmap.data]).toEqual([0xaa, 0xbb, 0xcc, 0xff]);
+  });
+
+  test("a fully transparent source leaves the destination unchanged", () => {
+    const opaque = pixel(0x11223344).blit(pixel(0xffffff00));
+    const transparent = pixel(0x11223300).blit(pixel(0xffffff00));
+
+    expect([...opaque.bitmap.data]).toEqual([0x11, 0x22, 0x33, 0x44]);
+    expect([...transparent.bitmap.data]).toEqual([0x11, 0x22, 0x33, 0x00]);
+  });
+
+  test("matches composite", () => {
+    const src = pixel(0xff800040);
+
+    for (const color of [0x00000000, 0x0000ff80, 0x0000ffff, 0x123456c0]) {
+      expect([...pixel(color).blit(src).bitmap.data]).toEqual([
+        ...pixel(color).composite(src).bitmap.data,
+      ]);
+    }
+  });
+});
