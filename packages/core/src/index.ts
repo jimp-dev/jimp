@@ -980,7 +980,9 @@ export function createJimp<
     }
 
     /**
-     * Scan through the image and call the callback for each pixel
+     * Scan through the image and call the callback for each pixel.
+     * A region is clamped to the image, so the callback is only called for
+     * pixels inside the image.
      *
      * @example
      * ```ts
@@ -1022,18 +1024,20 @@ export function createJimp<
     }
 
     /**
-     * Iterate scan through a region of the bitmap
+     * Iterate scan through a region of the bitmap.
+     * The region is clamped to the image, so only pixels inside the image are
+     * yielded.
      * @param x the x coordinate to begin the scan at
      * @param y the y coordinate to begin the scan at
-     * @param w the width of the scan region
-     * @param h the height of the scan region
+     * @param w the width of the scan region, defaults to the rest of the width
+     * @param h the height of the scan region, defaults to the rest of the height
      * @example
      * ```ts
      * import { Jimp } from "jimp";
      *
      * const image = new Jimp({ width: 3, height: 3, color: 0xffffffff });
      *
-     * for (const { x, y, idx, image } of j.scanIterator()) {
+     * for (const { x, y, idx } of image.scanIterator()) {
      *   // do something with the pixel
      * }
      * ```
@@ -1042,8 +1046,8 @@ export function createJimp<
       this: S,
       x = 0,
       y = 0,
-      w = this.bitmap.width,
-      h = this.bitmap.height
+      w = this.bitmap.width - x,
+      h = this.bitmap.height - y
     ) {
       if (typeof x !== "number" || typeof y !== "number") {
         throw new Error("x and y must be numbers");

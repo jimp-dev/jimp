@@ -1004,7 +1004,8 @@ export const methods = {
   },
 
   /**
-   * Pixelates the image or a region
+   * Pixelates the image or a region. The region is clamped to the image, and
+   * its width and height default to the rest of the image.
    * @example
    * ```ts
    * import { Jimp } from "jimp";
@@ -1064,6 +1065,9 @@ export const methods = {
    * visible range.
    *
    * The kernel is laid out and anchored the same way as in `convolution`.
+   *
+   * The region is clamped to the image, and its width and height default to
+   * the rest of the image.
    * @example
    * ```ts
    * import { Jimp } from "jimp";
