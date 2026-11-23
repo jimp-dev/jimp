@@ -43,6 +43,7 @@
     "@jimp/js-tiff": "workspace:*",
     "@jimp/plugin-blit": "workspace:*",
     "@jimp/plugin-blur": "workspace:*",
+    "@jimp/plugin-border": "workspace:*",
     "@jimp/plugin-circle": "workspace:*",
     "@jimp/plugin-color": "workspace:*",
     "@jimp/plugin-contain": "workspace:*",

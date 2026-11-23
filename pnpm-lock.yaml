@@ -485,6 +485,9 @@ importers:
       '@jimp/plugin-blur':
         specifier: workspace:*
         version: link:../../plugins/plugin-blur
+      '@jimp/plugin-border':
+        specifier: workspace:*
+        version: link:../../plugins/plugin-border
       '@jimp/plugin-circle':
         specifier: workspace:*
         version: link:../../plugins/plugin-circle
@@ -1060,6 +1063,64 @@ importers:
       vitest:
         specifier: ^2.0.5
         version: 2.0.5(@types/node@22.5.2)(@vitest/browser@2.0.5)(supports-color@7.2.0)(terser@5.30.3)
+
+  plugins/plugin-border:
+    dependencies:
+      '@jimp/types':
+        specifier: workspace:*
+        version: link:../../packages/types
+      '@jimp/utils':
+        specifier: workspace:*
+        version: link:../../packages/utils
+      buffer:
+        specifier: ^6.0.3
+        version: 6.0.3
+      zod:
+        specifier: ^4.6.7
+        version: 4.6.7
+    devDependencies:
+      '@jimp/config-eslint':
+        specifier: workspace:*
+        version: link:../../packages/config-eslint
+      '@jimp/config-typescript':
+        specifier: workspace:*
+        version: link:../../packages/config-typescript
+      '@jimp/config-vitest':
+        specifier: workspace:*
+        version: link:../../packages/config-vitest
+      '@jimp/core':
+        specifier: workspace:*
+        version: link:../../packages/core
+      '@jimp/js-jpeg':
+        specifier: workspace:*
+        version: link:../js-jpeg
+      '@jimp/js-png':
+        specifier: workspace:*
+        version: link:../js-png
+      '@jimp/test-utils':
+        specifier: workspace:*
+        version: link:../../packages/test-utils
+      '@types/node':
+        specifier: ^18.19.48
+        version: 18.19.48
+      '@vitest/browser':
+        specifier: ^2.0.5
+        version: 2.0.5(@types/node@18.19.48)(playwright@1.46.1)(typescript@5.5.4)(vitest@2.0.5)
+      eslint:
+        specifier: ^9.9.1
+        version: 9.9.1(supports-color@7.2.0)
+      tshy:
+        specifier: ^3.0.2
+        version: 3.0.2
+      typescript:
+        specifier: ^5.5.4
+        version: 5.5.4
+      vite-plugin-node-polyfills:
+        specifier: ^0.22.0
+        version: 0.22.0(rollup@4.21.2)(vite@5.4.2(@types/node@18.19.48)(terser@5.30.3))
+      vitest:
+        specifier: ^2.0.5
+        version: 2.0.5(@types/node@18.19.48)(@vitest/browser@2.0.5)(supports-color@7.2.0)(terser@5.30.3)
 
   plugins/plugin-circle:
     dependencies:
