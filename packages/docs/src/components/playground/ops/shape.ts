@@ -43,6 +43,51 @@ import { centeredRect, js, raw } from "../code";
 import { defineOp, type ImageSize } from "../types";
 
 const strategies = Object.keys(ResizeStrategy) as (keyof typeof ResizeStrategy)[];
+type Strategy = keyof typeof ResizeStrategy;
+
+/* ---------- skew and affine ---------- */
+
+/** `mode` for skew and affine: the nearest pixel by default, or a strategy that interpolates. */
+const transformModeControl = {
+  type: "select" as const,
+  key: "mode" as const,
+  options: [
+    { value: "", label: "nearest pixel (default)" },
+    ...strategies
+      .filter((s) => s !== "NEAREST_NEIGHBOR")
+      .map((s) => ({ value: s, label: `ResizeStrategy.${s}` })),
+  ],
+};
+
+const toMode = (mode: string) => (mode ? ResizeStrategy[mode as Strategy] : undefined);
+const modeCode = (mode: string) => (mode ? raw(`ResizeStrategy.${mode}`) : undefined);
+
+type Matrix = [number, number, number, number, number, number];
+
+/** Matrices with short decimals, so the code panel shows exactly what is applied. */
+const affinePresets: Record<string, { label: string; matrix: Matrix }> = {
+  shear: { label: "shear", matrix: [1, 0, 0.5, 1, 0, 0] },
+  tilt: { label: "tilt (shear and squash)", matrix: [1, 0.2, -0.3, 0.8, 0, 0] },
+  flipScale: { label: "flip and squash", matrix: [-1, 0, 0, 0.6, 0, 0] },
+  rotate30: { label: "rotate 30°", matrix: [0.866, -0.5, 0.5, 0.866, 0, 0] },
+};
+
+const affineMatrix = (o: {
+  preset: string;
+  a: number;
+  b: number;
+  c: number;
+  d: number;
+  e: number;
+  f: number;
+}): Matrix =>
+  affinePresets[o.preset]?.matrix ?? [o.a, o.b, o.c, o.d, o.e, o.f];
+
+const S = `stroke="#1b1840" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"`;
+const icons = {
+  skew: `<path d="M4 6h24" fill="none" ${S} stroke-dasharray="3 3.4"/><path d="M10 6h18l-6 20H4z" fill="#7aa7ff" ${S}/>`,
+  affine: `<path d="M4 4h16v16H4z" fill="none" ${S} stroke-dasharray="3 3.4"/><path d="M10 12l16-4-2 18-16 2z" fill="#ffb35c" ${S}/><path d="M17 11l-1 16M9 20l16-3" fill="none" ${S} stroke-width="1.6"/>`,
+};
 
 export default [
   defineOp({
@@ -105,7 +150,7 @@ export default [
     icon: "rotate",
     group: "shape",
     description:
-      "Rotate counter-clockwise by any angle. With mode true the canvas grows to fit; with false it keeps its size and clips the corners.",
+      "Rotate counter-clockwise by any angle. true grows the canvas to fit, false keeps its size, and a ResizeStrategy grows it and smooths the edges.",
     controls: [
       { type: "slider", key: "deg", min: -180, max: 180, step: 5, unit: "°" },
       {
@@ -114,19 +159,99 @@ export default [
         options: [
           { value: "true", label: "true (grow canvas)" },
           { value: "false", label: "false (keep size)" },
+          ...strategies.map((s) => ({ value: s, label: `ResizeStrategy.${s}` })),
         ],
       },
     ],
     defaults: { deg: 45, mode: "true" },
     apply: (image, { deg, mode }) => {
       if (mode === "true") image.rotate(deg);
-      else image.rotate({ deg, mode: false });
+      else if (mode === "false") image.rotate({ deg, mode: false });
+      else image.rotate({ deg, mode: ResizeStrategy[mode as Strategy] });
     },
     code: ({ deg, mode }) =>
       mode === "true"
         ? `image.rotate(${js(deg)});`
-        : `image.rotate(${js({ deg, mode: raw("false") })});`,
-    thumbnail: { deg: 30 },
+        : `image.rotate(${js({ deg, mode: raw(mode === "false" ? "false" : `ResizeStrategy.${mode}`) })});`,
+    imports: ({ mode }) => (mode === "true" || mode === "false" ? {} : { jimp: ["ResizeStrategy"] }),
+    thumbnail: { deg: 30, mode: "BILINEAR" },
+  }),
+
+  defineOp({
+    id: "skew",
+    label: "skew",
+    icon: icons.skew,
+    group: "shape",
+    description:
+      "Slant the image by an angle along x and/or y, like CSS skew(). The canvas grows to fit unless fit is off.",
+    controls: [
+      { type: "slider", key: "x", min: -60, max: 60, step: 1, unit: "°" },
+      { type: "slider", key: "y", min: -60, max: 60, step: 1, unit: "°" },
+      transformModeControl,
+      { type: "toggle", key: "fit" },
+    ],
+    defaults: { x: 20, y: 0, mode: "", fit: true as boolean },
+    apply: (image, { x, y, mode, fit }) => {
+      image.skew({ x, y, mode: toMode(mode), fit });
+    },
+    code: ({ x, y, mode, fit }) =>
+      `image.skew(${js({
+        x: x || undefined,
+        y: y || undefined,
+        mode: modeCode(mode),
+        fit: fit ? undefined : false,
+      })});`,
+    imports: ({ mode }) => (mode ? { jimp: ["ResizeStrategy"] } : {}),
+    thumbnail: { x: 20, y: -10, mode: "BILINEAR" },
+  }),
+
+  defineOp({
+    id: "affine",
+    label: "affine",
+    icon: icons.affine,
+    group: "shape",
+    description:
+      "Transform the image with a 2D matrix [a, b, c, d, e, f] in CSS matrix() order. Pick a preset or enter your own.",
+    controls: [
+      {
+        type: "select",
+        key: "preset",
+        options: [
+          ...Object.entries(affinePresets).map(([value, { label }]) => ({ value, label })),
+          { value: "custom", label: "custom matrix" },
+        ],
+      },
+      ...(["a", "b", "c", "d", "e", "f"] as const).map((key) => ({
+        type: "number" as const,
+        key,
+        step: 0.1,
+        when: (o: { preset: string }) => o.preset === "custom",
+      })),
+      transformModeControl,
+      { type: "toggle", key: "fit" },
+    ],
+    defaults: {
+      preset: "shear",
+      a: 1,
+      b: 0.2,
+      c: -0.3,
+      d: 0.8,
+      e: 0,
+      f: 0,
+      mode: "",
+      fit: true as boolean,
+    },
+    apply: (image, opts) => {
+      image.affine({ matrix: affineMatrix(opts), mode: toMode(opts.mode), fit: opts.fit });
+    },
+    code: (opts) =>
+      `image.affine(${js({
+        matrix: raw(`[${affineMatrix(opts).join(", ")}]`),
+        mode: modeCode(opts.mode),
+        fit: opts.fit ? undefined : false,
+      })});`,
+    imports: ({ mode }) => (mode ? { jimp: ["ResizeStrategy"] } : {}),
+    thumbnail: { preset: "tilt", mode: "BILINEAR" },
   }),
 
   defineOp({

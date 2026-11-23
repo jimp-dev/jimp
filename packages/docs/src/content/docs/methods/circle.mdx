@@ -25,7 +25,7 @@ image.circle(options?: { radius?: number; x?: number; y?: number }): this
 
 | Option   | Type     | Default                                     | Description                                         |
 | -------- | -------- | ------------------------------------------- | --------------------------------------------------- |
-| `radius` | `number` | half the shorter side                       | The radius of the circle in pixels. Must be `0` or more. |
+| `radius` | `number` | half the shorter side                       | The radius of the circle in pixels. Must be `0` or more. `0` makes the whole image transparent. |
 | `x`      | `number` | `image.width / 2`                           | The x position of the center.                       |
 | `y`      | `number` | `image.height / 2`                          | The y position of the center.                       |
 
@@ -60,7 +60,7 @@ Click the image to move the center and drag `radius` to resize the circle.
 ## Notes
 
 - **The size doesn't change.** On a non-square image the default circle touches the top and bottom (or the sides), and the rest is transparent. Use [`cover`](/jimp/methods/cover/) or [`crop`](/jimp/methods/crop/) first to get a square.
-- **`radius: 0` means the default.** A radius of `0` is treated as "not set" and gives the largest circle that fits, not an empty image.
+- **Changed in 2.0:** `radius: 0` makes the whole image transparent. Before, it was treated as "not set" and gave the largest circle that fits. Leave `radius` out to get the default.
 - **Only alpha changes.** Pixels outside the circle keep their color values with an alpha of `0`.
 - **Rounded rectangles.** For rounded corners instead of a full circle, use [`roundCorners`](/jimp/methods/round-corners/).
 

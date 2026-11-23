@@ -3,7 +3,7 @@
  * roundCorners, border, displace. See ops/shape.ts for how to add an op.
  */
 import { HorizontalAlign, ResizeStrategy, VerticalAlign } from "jimp";
-import { hexToInt, intToHexLiteral, js, raw } from "../code";
+import { hexToInt, intToHexLiteral, js, num, raw } from "../code";
 import { defineOp, type ImageSize } from "../types";
 
 const strategies = Object.keys(ResizeStrategy) as (keyof typeof ResizeStrategy)[];
@@ -26,36 +26,92 @@ const modeCode = (mode: string) => (mode ? raw(`ResizeStrategy.${mode}`) : undef
 const hAligns = ["LEFT", "CENTER", "RIGHT"] as const;
 const vAligns = ["TOP", "MIDDLE", "BOTTOM"] as const;
 
+/**
+ * `align` is either one flag from each enum, or `{ x, y }` fractions from 0
+ * (left/top) to 1 (right/bottom), like CSS `object-position`.
+ */
 const alignControls = [
+  {
+    type: "select" as const,
+    key: "alignBy" as const,
+    label: "align with",
+    options: [
+      { value: "flags", label: "flags" },
+      { value: "fractions", label: "{ x, y } fractions" },
+    ],
+  },
   {
     type: "select" as const,
     key: "alignH" as const,
     label: "horizontal",
     options: hAligns.map((a) => ({ value: a, label: `HorizontalAlign.${a}` })),
+    when: (o: AlignOptions) => o.alignBy === "flags",
   },
   {
     type: "select" as const,
     key: "alignV" as const,
     label: "vertical",
     options: vAligns.map((a) => ({ value: a, label: `VerticalAlign.${a}` })),
+    when: (o: AlignOptions) => o.alignBy === "flags",
+  },
+  {
+    type: "slider" as const,
+    key: "alignX" as const,
+    label: "x",
+    min: 0,
+    max: 1,
+    step: 0.05,
+    when: (o: AlignOptions) => o.alignBy === "fractions",
+  },
+  {
+    type: "slider" as const,
+    key: "alignY" as const,
+    label: "y",
+    min: 0,
+    max: 1,
+    step: 0.05,
+    when: (o: AlignOptions) => o.alignBy === "fractions",
   },
 ];
 
-const isDefaultAlign = (h: string, v: string) => h === "CENTER" && v === "MIDDLE";
+interface AlignOptions {
+  alignBy: string;
+  alignH: string;
+  alignV: string;
+  alignX: number;
+  alignY: number;
+}
 
-const alignValue = (h: string, v: string) =>
-  isDefaultAlign(h, v)
-    ? undefined
-    : HorizontalAlign[h as keyof typeof HorizontalAlign] |
-      VerticalAlign[v as keyof typeof VerticalAlign];
+const alignDefaults = {
+  alignBy: "flags",
+  alignH: "CENTER",
+  alignV: "MIDDLE",
+  alignX: 0.5,
+  alignY: 0.2,
+};
 
-const alignCode = (h: string, v: string) =>
-  isDefaultAlign(h, v) ? undefined : raw(`HorizontalAlign.${h} | VerticalAlign.${v}`);
+const isDefaultAlign = (o: AlignOptions) =>
+  o.alignBy === "flags" && o.alignH === "CENTER" && o.alignV === "MIDDLE";
 
-const boxImports = (mode: string, h: string, v: string) => {
+const alignValue = (o: AlignOptions) => {
+  if (isDefaultAlign(o)) return undefined;
+  if (o.alignBy === "fractions") return { x: num(o.alignX), y: num(o.alignY) };
+  return (
+    HorizontalAlign[o.alignH as keyof typeof HorizontalAlign] |
+    VerticalAlign[o.alignV as keyof typeof VerticalAlign]
+  );
+};
+
+const alignCode = (o: AlignOptions) => {
+  if (isDefaultAlign(o)) return undefined;
+  if (o.alignBy === "fractions") return { x: o.alignX, y: o.alignY };
+  return raw(`HorizontalAlign.${o.alignH} | VerticalAlign.${o.alignV}`);
+};
+
+const boxImports = (mode: string, o: AlignOptions) => {
   const names: string[] = [];
   if (mode) names.push("ResizeStrategy");
-  if (!isDefaultAlign(h, v)) names.push("HorizontalAlign", "VerticalAlign");
+  if (o.alignBy === "flags" && !isDefaultAlign(o)) names.push("HorizontalAlign", "VerticalAlign");
   return names.length ? { jimp: names } : {};
 };
 
@@ -129,13 +185,13 @@ export default [
       ...alignControls,
       modeControl,
     ],
-    defaults: { w: 160, h: 240, alignH: "CENTER", alignV: "MIDDLE", mode: "" },
-    apply: (image, { w, h, alignH, alignV, mode }) => {
-      image.cover({ w, h, align: alignValue(alignH, alignV), mode: toMode(mode) });
+    defaults: { w: 160, h: 240, ...alignDefaults, mode: "" },
+    apply: (image, o) => {
+      image.cover({ w: o.w, h: o.h, align: alignValue(o), mode: toMode(o.mode) });
     },
-    code: ({ w, h, alignH, alignV, mode }) =>
-      `image.cover(${js({ w, h, align: alignCode(alignH, alignV), mode: modeCode(mode) })});`,
-    imports: ({ mode, alignH, alignV }) => boxImports(mode, alignH, alignV),
+    code: (o) =>
+      `image.cover(${js({ w: o.w, h: o.h, align: alignCode(o), mode: modeCode(o.mode) })});`,
+    imports: (o) => boxImports(o.mode, o),
   }),
 
   defineOp({
@@ -156,21 +212,20 @@ export default [
     defaults: {
       w: 240,
       h: 240,
-      alignH: "CENTER",
-      alignV: "MIDDLE",
+      ...alignDefaults,
       fill: true as boolean,
       background: "#ffd83a",
       mode: "",
     },
-    apply: (image, { w, h, alignH, alignV, fill, background, mode }) => {
-      if (fill) image.background = hexToInt(background);
-      image.contain({ w, h, align: alignValue(alignH, alignV), mode: toMode(mode) });
+    apply: (image, o) => {
+      if (o.fill) image.background = hexToInt(o.background);
+      image.contain({ w: o.w, h: o.h, align: alignValue(o), mode: toMode(o.mode) });
     },
-    code: ({ w, h, alignH, alignV, fill, background, mode }) => {
-      const call = `image.contain(${js({ w, h, align: alignCode(alignH, alignV), mode: modeCode(mode) })});`;
-      return fill ? `image.background = ${intToHexLiteral(hexToInt(background))};\n${call}` : call;
+    code: (o) => {
+      const call = `image.contain(${js({ w: o.w, h: o.h, align: alignCode(o), mode: modeCode(o.mode) })});`;
+      return o.fill ? `image.background = ${intToHexLiteral(hexToInt(o.background))};\n${call}` : call;
     },
-    imports: ({ mode, alignH, alignV }) => boxImports(mode, alignH, alignV),
+    imports: (o) => boxImports(o.mode, o),
   }),
 
   defineOp({
@@ -268,19 +323,20 @@ export default [
     icon: icons.displace,
     group: "shape",
     description:
-      "Shift each pixel to the right by up to offset pixels, using the red channel of a wavy map image.",
-    controls: [{ type: "slider", key: "offset", min: 0, max: 60, step: 1, unit: "px" }],
-    defaults: { offset: 20 },
-    apply: async (image, { offset }, ctx) => {
+      "Move each pixel right by up to x pixels (the map's red channel) and down by up to y pixels (its green channel), using a wavy gray map image.",
+    controls: [
+      { type: "slider", key: "x", min: -60, max: 60, step: 1, unit: "px" },
+      { type: "slider", key: "y", min: -60, max: 60, step: 1, unit: "px" },
+    ],
+    defaults: { x: 20, y: 0 },
+    apply: async (image, { x, y }, ctx) => {
       const map = await ctx.loadImage("displace-waves.png");
-      map.resize({ w: image.width, h: image.height });
-      image.displace({ map, offset });
+      image.displace({ map, offset: y ? { x: x || undefined, y } : x });
     },
-    code: ({ offset }) =>
+    code: ({ x, y }) =>
       [
         `const map = await Jimp.read("displace-waves.png");`,
-        `map.resize({ w: image.width, h: image.height });`,
-        `image.displace({ map, offset: ${js(offset)} });`,
+        `image.displace(${js({ map: raw("map"), offset: y ? { x: x || undefined, y } : x })});`,
       ].join("\n"),
   }),
 ];
