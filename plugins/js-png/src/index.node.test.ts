@@ -9,8 +9,8 @@ const jimp = createJimp({ formats: [png] });
 describe("PNG", () => {
   test("should use png options", async () => {
     const testImage = jimp.fromBitmap({
-      width: 20,
-      height: 20,
+      width: 6,
+      height: 6,
       data: [
         0xff0000ff, 0xff0080ff, 0xff00ffff, 0xff0080ff, 0xff00ffff, 0x8000ffff,
         0xff00ffff, 0x8000ffff, 0x0000ffff, 0xff0000ff, 0xff0080ff, 0xff00ffff,
