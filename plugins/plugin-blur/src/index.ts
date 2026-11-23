@@ -30,6 +30,48 @@ import { limit255 } from "@jimp/utils";
     OTHER DEALINGS IN THE SOFTWARE.
 */
 
+/**
+ * Scale each pixel's color by its alpha, so that a blur averages colors
+ * weighted by how opaque they are. Without this, transparent pixels (which
+ * are usually transparent black) pull the colors at an edge toward black.
+ * Opaque pixels are left unchanged.
+ */
+function premultiplyAlpha(data: Uint8Array) {
+  for (let idx = 0; idx < data.length; idx += 4) {
+    const a = data[idx + 3]!;
+
+    if (a === 255) {
+      continue;
+    }
+
+    data[idx] = Math.round((data[idx]! * a) / 255);
+    data[idx + 1] = Math.round((data[idx + 1]! * a) / 255);
+    data[idx + 2] = Math.round((data[idx + 2]! * a) / 255);
+  }
+}
+
+/** Undo `premultiplyAlpha`. Fully transparent pixels become transparent black. */
+function unpremultiplyAlpha(data: Uint8Array) {
+  for (let idx = 0; idx < data.length; idx += 4) {
+    const a = data[idx + 3]!;
+
+    if (a === 255) {
+      continue;
+    }
+
+    if (a === 0) {
+      data[idx] = 0;
+      data[idx + 1] = 0;
+      data[idx + 2] = 0;
+      continue;
+    }
+
+    data[idx] = limit255(Math.round((data[idx]! * 255) / a));
+    data[idx + 1] = limit255(Math.round((data[idx + 1]! * 255) / a));
+    data[idx + 2] = limit255(Math.round((data[idx + 2]! * 255) / a));
+  }
+}
+
 export const methods = {
   /**
    * A fast blur algorithm that produces similar effect to a Gaussian blur - but MUCH quicker
@@ -81,6 +123,8 @@ export const methods = {
 
     const vmin = [];
     const vmax = [];
+
+    premultiplyAlpha(image.bitmap.data);
 
     let iterations = 2;
 
@@ -168,6 +212,8 @@ export const methods = {
       }
     }
 
+    unpremultiplyAlpha(image.bitmap.data);
+
     return image;
   },
   // http://blog.ivank.net/fastest-gaussian-blur.html
@@ -208,6 +254,8 @@ export const methods = {
       weights.push(weightsRow);
     }
 
+    premultiplyAlpha(image.bitmap.data);
+
     for (let y = 0; y < image.bitmap.height; y++) {
       for (let x = 0; x < image.bitmap.width; x++) {
         let red = 0;
@@ -245,6 +293,8 @@ export const methods = {
         }
       }
     }
+
+    unpremultiplyAlpha(image.bitmap.data);
 
     return image;
   },
