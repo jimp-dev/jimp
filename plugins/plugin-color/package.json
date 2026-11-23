@@ -27,13 +27,13 @@
     "@jimp/test-utils": "workspace:*",
     "@types/node": "^22.20.5",
     "@types/tinycolor2": "^1.4.6",
-    "@vitest/browser": "^2.0.5",
+    "@vitest/browser": "^4.1.12",
     "eslint": "^9.9.1",
     "tinycolor2": "^1.6.0",
     "tshy": "^3.0.2",
     "typescript": "^5.5.4",
-    "vite-plugin-node-polyfills": "^0.22.0",
-    "vitest": "^2.0.5"
+    "vite-plugin-node-polyfills": "^0.28.0",
+    "vitest": "^4.1.12"
   },
   "dependencies": {
     "@jimp/core": "workspace:*",

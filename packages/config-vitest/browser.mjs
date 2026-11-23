@@ -1,6 +1,8 @@
 import { defineConfig } from "vitest/config";
+import { playwright } from "@vitest/browser-playwright";
 import { createRequire } from "module";
 import path from "path";
+import { fileURLToPath } from "url";
 import { nodePolyfills } from "vite-plugin-node-polyfills";
 
 const require = createRequire(import.meta.url);
@@ -11,8 +13,22 @@ const imagesFolder = path.join(
 
 export default defineConfig({
   resolve: {
-    // Exact match, so imports of "pngjs/browser.js" itself aren't rewritten.
-    alias: [{ find: /^pngjs$/, replacement: "pngjs/browser.js" }],
+    alias: [
+      // Exact match, so imports of "pngjs/browser.js" itself aren't rewritten.
+      { find: /^pngjs$/, replacement: "pngjs/browser.js" },
+      // nodePolyfills injects this import into every module that uses Buffer,
+      // including built deps like @jimp/test-utils that can't resolve it under pnpm.
+      {
+        find: /^vite-plugin-node-polyfills\/shims\/buffer$/,
+        replacement: fileURLToPath(
+          import.meta.resolve("vite-plugin-node-polyfills/shims/buffer"),
+        ),
+      },
+    ],
+  },
+  // Pre-bundle the shim so Vite doesn't discover it mid-run and reload tests.
+  optimizeDeps: {
+    include: ["vite-plugin-node-polyfills/shims/buffer"],
   },
   test: {
     exclude: [
@@ -27,8 +43,8 @@ export default defineConfig({
     ],
     browser: {
       enabled: true,
-      provider: "playwright",
-      name: "chromium",
+      provider: playwright(),
+      instances: [{ browser: "chromium" }],
       headless: true,
     },
   },
