@@ -8,3 +8,5 @@
 This is useful as a simplified method for processing scanned drawings, signatures, etc
 
 - [threshold](https://jimp-dev.github.io/jimp/api/jimp/classes/jimp/#threshold)
+
+See [Getting Started](https://jimp-dev.github.io/jimp/guides/getting-started/) to read an image, change it and save the result with `write` or `getBuffer`.

@@ -11,6 +11,8 @@ Resizes the image to a set width and height. By default it uses a 2-pass bilinea
 - [scale](https://jimp-dev.github.io/jimp/api/jimp/classes/jimp/#scale)
 - [scaleToFit](https://jimp-dev.github.io/jimp/api/jimp/classes/jimp/#scaletofit)
 
+See [Getting Started](https://jimp-dev.github.io/jimp/guides/getting-started/) to read an image, change it and save the result with `write` or `getBuffer`.
+
 ## Resize strategies
 
 ```ts

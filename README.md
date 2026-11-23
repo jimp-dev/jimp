@@ -18,6 +18,8 @@ image.resize({ w: 256 });
 await image.write("test-small.png");
 ```
 
+Methods like `resize` only change the image in memory, so call `write` (or `getBuffer`) to save the result. To start from a blank image, use `new Jimp({ width, height, color })`. To load an image you already have in memory, use `await Jimp.fromBuffer(buffer)`. See [Getting Started](https://jimp-dev.github.io/jimp/guides/getting-started/).
+
 [Read the full docs](https://jimp-dev.github.io/jimp/), or the [v1 migration guide](https://jimp-dev.github.io/jimp/guides/migrate-to-v1/) if you're upgrading from v0.
 
 ## Custom Jimp

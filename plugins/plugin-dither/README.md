@@ -8,3 +8,5 @@
 > Dither - is an intentionally applied form of noise used to randomize quantization error, preventing large-scale patterns such as color banding in images. Dither is routinely used in processing of both digital audio and video data, and is often one of the last stages of mastering audio to a CD.
 
 - [dither](https://jimp-dev.github.io/jimp/api/jimp/classes/jimp/#dither)
+
+See [Getting Started](https://jimp-dev.github.io/jimp/guides/getting-started/) to read an image, change it and save the result with `write` or `getBuffer`.

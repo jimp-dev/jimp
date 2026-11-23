@@ -6,3 +6,5 @@
 </div>
 
 - [contain](https://jimp-dev.github.io/jimp/api/jimp/classes/jimp/#contain)
+
+See [Getting Started](https://jimp-dev.github.io/jimp/guides/getting-started/) to read an image, change it and save the result with `write` or `getBuffer`.

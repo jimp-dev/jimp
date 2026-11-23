@@ -8,3 +8,5 @@
 Displaces the image based on the provided displacement map
 
 - [displace](https://jimp-dev.github.io/jimp/api/jimp/classes/jimp/#displace)
+
+See [Getting Started](https://jimp-dev.github.io/jimp/guides/getting-started/) to read an image, change it and save the result with `write` or `getBuffer`.

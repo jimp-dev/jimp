@@ -59,3 +59,55 @@ The workflow for using jimp
    ```
 
 </Steps>
+
+Methods like `resize` only change the image in memory.
+Nothing is saved until you call `write` or `getBuffer`.
+
+## Creating an image
+
+v1 has no callbacks.
+Every way to create an image either returns the image or a promise you `await`.
+
+`Jimp.read` loads an image from a file path or a URL:
+
+```ts
+const image = await Jimp.read("test/image.png");
+```
+
+If you already have the encoded image in memory, use `Jimp.fromBuffer`:
+
+```ts
+import { readFile } from "node:fs/promises";
+
+const image = await Jimp.fromBuffer(await readFile("test/image.png"));
+```
+
+To start from a blank image, pass a width and height to the constructor.
+It's synchronous.
+`color` is optional and defaults to transparent (`0x00000000`):
+
+```ts
+const image = new Jimp({ width: 256, height: 256, color: 0xffffffff });
+```
+
+If you're upgrading from v0, see the [migration guide](/jimp/guides/migrate-to-v1/).
+
+## Saving an image
+
+`write` encodes the image and saves it to a file.
+The file extension picks the format:
+
+```ts
+await image.write("test/output.jpg");
+```
+
+`getBuffer` encodes the image in memory instead, for example to send it in an HTTP response:
+
+```ts
+import { JimpMime } from "jimp";
+
+const buffer = await image.getBuffer(JimpMime.png);
+```
+
+`write` needs a file system, so in the browser use `getBuffer` or `getBase64`.
+See [Using in Browser](/jimp/guides/browser/).
