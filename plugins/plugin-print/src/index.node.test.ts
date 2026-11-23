@@ -122,6 +122,22 @@ function inkedColumns(image: InstanceType<typeof Jimp>) {
   return columns;
 }
 
+/** The rows of `image` that have anything drawn on them */
+function inkedRows(image: InstanceType<typeof Jimp>) {
+  const rows: number[] = [];
+
+  for (let y = 0; y < image.bitmap.height; y++) {
+    for (let x = 0; x < image.bitmap.width; x++) {
+      if (image.getPixelColor(x, y) !== 0xffffffff) {
+        rows.push(y);
+        break;
+      }
+    }
+  }
+
+  return rows;
+}
+
 async function createTextImage(
   width: number,
   height: number,
@@ -856,6 +872,136 @@ describe("Write text over image", function () {
     expect(textImage).toMatchImageSnapshot();
   });
 
+  test("text with blank lines", async () => {
+    const textImage = await createTextImage(100, 240, fonts.SANS_16_BLACK, {
+      text: "One\n\nTwo\r\n\r\n\r\nThree",
+    });
+
+    expect(textImage).toMatchImageSnapshot();
+  });
+
+  describe("blank lines and spaces", () => {
+    let dir: string;
+    let font: Awaited<ReturnType<typeof loadFont>>;
+
+    beforeAll(async () => {
+      dir = await fs.mkdtemp(path.join(os.tmpdir(), "jimp-font-"));
+      // A is 4x4, a space is 2 wide and lines are 4 high
+      font = await createQuestionMarkFont(dir, true);
+    });
+
+    afterAll(async () => {
+      await fs.rm(dir, { recursive: true, force: true });
+    });
+
+    test("every line break starts a new line", () => {
+      expect(splitLines(font, "A\n\nA", Infinity).lines).toEqual([
+        ["A"],
+        [""],
+        ["A"],
+      ]);
+      expect(splitLines(font, "\n\nA", Infinity).lines).toEqual([
+        [""],
+        [""],
+        ["A"],
+      ]);
+      expect(splitLines(font, "A\n\n", Infinity).lines).toEqual([
+        ["A"],
+        [""],
+        [""],
+      ]);
+      expect(splitLines(font, "A\r\n\r\nA\r\rA", Infinity).lines).toEqual([
+        ["A"],
+        [""],
+        ["A"],
+        [""],
+        ["A"],
+      ]);
+      expect(splitLines(font, "", Infinity).lines).toEqual([[""]]);
+    });
+
+    test("measureTextHeight counts empty lines", () => {
+      expect(measureTextHeight(font, "A\n\nA")).toBe(12);
+      expect(measureTextHeight(font, "A\r\n\r\nA")).toBe(12);
+      expect(measureTextHeight(font, "\nA\n")).toBe(12);
+      expect(measureTextHeight(font, "\n")).toBe(8);
+      expect(measureTextHeight(font, "A A\n\nA", 5)).toBe(16);
+    });
+
+    test("measureText measures empty lines as 0 wide", () => {
+      expect(measureText(font, "\n\nA A\n\n")).toBe(10);
+      expect(measureText(font, "\n\n")).toBe(0);
+    });
+
+    test("print leaves empty lines blank", () => {
+      const image = new Jimp({ width: 4, height: 20, color: 0xffffffff });
+      image.print({ font, x: 0, y: 0, text: "\nA\r\n\r\nA" });
+
+      expect(inkedRows(image)).toEqual([4, 5, 6, 7, 12, 13, 14, 15]);
+    });
+
+    test("empty lines count when aligning vertically", () => {
+      const image = new Jimp({ width: 4, height: 20, color: 0xffffffff });
+      image.print({
+        font,
+        x: 0,
+        y: 0,
+        text: { text: "A\n\n", alignmentY: VerticalAlign.BOTTOM },
+      });
+
+      expect(inkedRows(image)).toEqual([8, 9, 10, 11]);
+    });
+
+    test("cb gets the bottom of the last line, even if it's empty", () => {
+      const ends: { x: number; y: number }[] = [];
+
+      for (const text of ["A\n\n", "\n\nA", "A\r\n\r\nA A"]) {
+        new Jimp({ width: 20, height: 20, color: 0xffffffff }).print({
+          font,
+          x: 2,
+          y: 1,
+          text,
+          cb: (end) => ends.push(end),
+        });
+      }
+
+      expect(ends).toEqual([
+        { x: 6, y: 13 },
+        { x: 6, y: 13 },
+        { x: 12, y: 13 },
+      ]);
+    });
+
+    test("runs of spaces and lines of only spaces are kept", () => {
+      expect(splitLines(font, "A  A\n   \nA", Infinity).lines).toEqual([
+        ["A", "", "A"],
+        ["", "", "", ""],
+        ["A"],
+      ]);
+
+      const image = new Jimp({ width: 20, height: 4, color: 0xffffffff });
+      image.print({ font, x: 0, y: 0, text: "  A  A" });
+
+      expect(inkedColumns(image)).toEqual([4, 5, 6, 7, 12, 13, 14, 15]);
+    });
+
+    test("spaces where a line wraps don't make a line of their own", () => {
+      expect(splitLines(font, "A   A", 5).lines).toEqual([["A"], ["A"]]);
+      expect(splitLines(font, "   A A", 5).lines).toEqual([["A"], ["A"]]);
+      expect(splitLines(font, "A A   ", 5).lines).toEqual([["A"], ["A"]]);
+      expect(measureTextHeight(font, "A   A", 5)).toBe(8);
+    });
+
+    test("words after a line break are split at maxWidth too", () => {
+      expect(splitLines(font, "A\nAAAAA", 9).lines).toEqual([
+        ["A"],
+        ["AA"],
+        ["AA"],
+        ["A"],
+      ]);
+    });
+  });
+
   describe("alignment without maxWidth or maxHeight", () => {
     let dir: string;
     let font: Awaited<ReturnType<typeof loadFont>>;
@@ -868,22 +1014,6 @@ describe("Write text over image", function () {
     afterAll(async () => {
       await fs.rm(dir, { recursive: true, force: true });
     });
-
-    /** The rows of `image` that have anything drawn on them */
-    function inkedRows(image: InstanceType<typeof Jimp>) {
-      const rows: number[] = [];
-
-      for (let y = 0; y < image.bitmap.height; y++) {
-        for (let x = 0; x < image.bitmap.width; x++) {
-          if (image.getPixelColor(x, y) !== 0xffffffff) {
-            rows.push(y);
-            break;
-          }
-        }
-      }
-
-      return rows;
-    }
 
     test("center-aligns within the image right of x", () => {
       const image = new Jimp({ width: 20, height: 4, color: 0xffffffff });
