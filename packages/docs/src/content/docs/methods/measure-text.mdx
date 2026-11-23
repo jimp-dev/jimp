@@ -8,7 +8,7 @@ plugin: "@jimp/plugin-print"
 
 import Related from "../../../components/Related.astro";
 
-`measureText` returns how many pixels wide a string is when printed in a font, as a single line.
+`measureText` returns how many pixels wide text is when printed in a font without wrapping: the width of its widest line.
 Use it to size a canvas or a label before you [`print`](/jimp/methods/print/), or to pick a font size that fits.
 
 ## Signature
@@ -26,7 +26,7 @@ measureText(font: BmFont, text: string): number
 | Parameter | Type     | Default  | Description                                       |
 | --------- | -------- | -------- | ------------------------------------------------- |
 | `font`    | `BmFont` | required | A font from [`loadFont`](/jimp/methods/load-font/). |
-| `text`    | `string` | required | The text to measure.                              |
+| `text`    | `string` | required | The text to measure. `\n`, `\r\n` and `\r` start a new line. |
 
 ## Example
 
@@ -40,7 +40,7 @@ const font = await loadFont(SANS_32_BLACK);
 const text = "Sale";
 
 const width = measureText(font, text); // 64
-const height = measureTextHeight(font, text, Infinity); // 36
+const height = measureTextHeight(font, text); // 36
 
 const label = new Jimp({ width: width + 20, height: height + 10, color: 0xffd83aff });
 label.print({ font, x: 10, y: 5, text });
@@ -69,9 +69,10 @@ for (const path of [SANS_128_BLACK, SANS_64_BLACK, SANS_32_BLACK, SANS_16_BLACK]
 
 ## Notes
 
-- **One line only.** `measureText` doesn't wrap and doesn't treat `\n` as a line break: the newline is skipped and the text is measured as if it were on one line. For wrapped or multi-line text, measure the height with [`measureTextHeight`](/jimp/methods/measure-text-height/).
+- **Widest line.** Line breaks (`\n`, `\r\n` or `\r`) split the text into lines as they do in `print`, and the result is the width of the widest one. Empty lines are `0` wide. `measureText` doesn't wrap; for the height of wrapped or multi-line text, use [`measureTextHeight`](/jimp/methods/measure-text-height/).
 - **It matches `print`.** The width is the sum of each glyph's advance plus the font's kerning, the same spacing `print` uses. Characters the font doesn't have are measured as `?`, which is how `print` draws them.
 - **Trailing spaces count.** `"Hi "` is wider than `"Hi"`, because a space has an advance width.
+- **Changed in 2.0:** line breaks used to be skipped, so `"Hello\nHello"` measured as one line twice as wide. Characters without a glyph used to count as `0` wide, so text with them measured narrower than it printed.
 
 ## Related
 

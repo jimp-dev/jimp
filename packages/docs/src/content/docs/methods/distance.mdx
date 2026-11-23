@@ -61,7 +61,9 @@ distance(photo, smaller, { smallerSize: 16 }); // e.g. 0.04296875: 11 of 256 bit
 - **What it computes.** `distance(a, b)` is `compareHashes(a.pHash(), b.pHash())`: the share of hash bits that differ (the normalized Hamming distance).
 - **Picking a threshold.** Values below about `0.15` usually mean the same picture. Test with your own images to choose a cutoff.
 - **What it ignores, and what it doesn't.** Resizing, JPEG compression and brightness or contrast changes move the distance very little. Flips, rotations, crops and large edits change the structure the hash is built from, so they look like different images.
-- **Compare many images?** Hash each image once with [`pHash`](/jimp/methods/phash/) and compare the strings with [`compareHashes`](/jimp/methods/compare-hashes/), instead of calling `distance` for every pair.
+- **Compare many images?** Hash each image once with [`pHash`](/jimp/methods/phash/) or [`hash`](/jimp/methods/hash/) and compare the strings with [`compareHashes`](/jimp/methods/compare-hashes/), instead of calling `distance` for every pair.
+- **Added in 2.0:** the `options` argument.
+- **Changed in 2.0:** the hash is computed differently (see [`pHash`](/jimp/methods/phash/#notes)), so distances can differ from 1.x.
 - **Pixel-exact comparisons.** To find out which pixels changed, for example in visual tests, use [`diff`](/jimp/methods/diff/).
 
 ## Related

@@ -60,7 +60,9 @@ image.distanceFromHash(stored, { smallerSize: 16 });
 
 - **Reading the result.** `0` means the hashes are identical. Unrelated images land around `0.5`, because about half their bits match by chance. Where to draw the line depends on your images; values below about `0.15` usually mean the same picture.
 - **Same as `compareHashes`.** `image.distanceFromHash(hash)` gives the same result as [`compareHashes(image.pHash(), hash)`](/jimp/methods/compare-hashes/).
-- **Mismatched hashes throw.** If `compareHash` has a different length from the image's hash, because it came from `hash()` in another base or used other options, `distanceFromHash` throws `Can't compare hashes of different lengths (64 and 11). Both hashes must be made with the same size and smallerSize options (and, for hash(), the same base).`
+- **Mismatched hashes throw.** If `compareHash` has a different length from the image's hash, because it came from `hash()` in another base or used other options, `distanceFromHash` throws `Can't compare hashes of different lengths (64 and 11). Both hashes must be made with the same size and smallerSize options (and, for hash(), the same base).` To compare with a stored `hash()` string, use [`compareHashes(image.hash(), stored)`](/jimp/methods/compare-hashes/).
+- **Added in 2.0:** the `options` argument.
+- **Changed in 2.0:** hashes of different lengths used to give a meaningless distance instead of throwing, and hashes stored with 1.x don't match 2.0's (see [`pHash`](/jimp/methods/phash/#notes)).
 
 ## Related
 

@@ -67,8 +67,9 @@ Because only the coarse structure survives, the hash ignores small changes. It i
 - **Doesn't modify the image.** The hash is computed from a copy.
 - **Same as `hash(2)`.** [`hash`](/jimp/methods/hash/) returns the same bits in a shorter base, 64 by default.
 - **Validation.** Options are checked with zod. `{ size: 1 }` fails with `Too small: expected number to be >=2`, a fraction fails with `Invalid input: expected int, received number`, and a `smallerSize` above `size` fails with `smallerSize must not be larger than size`.
-- **Speed.** Larger options cost more. On an 800 × 600 image the default hash took about 3 ms in our tests, and `{ size: 256, smallerSize: 64 }` about 180 ms.
-- **The options are new.** `size` and `smallerSize` were added after v1.7.0. Earlier versions always use `size: 32` and `smallerSize: 8`, and hashes made with the defaults are the same in every version.
+- **Speed.** Larger options cost more. On an 800 × 600 image the default hash took about 12 ms in our tests, and `{ size: 256, smallerSize: 64 }` about 200 ms.
+- **Added in 2.0:** the `size` and `smallerSize` options. Earlier versions always use `size: 32` and `smallerSize: 8`.
+- **Changed in 2.0:** the average used to include the first, overall-brightness term, which made bright, low-contrast images such as sketches all hash alike, and transparent pixels were hashed by whatever color was hidden under them. Every hash, opaque images' included, differs from 1.x, so hash stored images again. [`greyscale`](/jimp/methods/greyscale/)'s rounding change in 2.0 doesn't affect the hash.
 
 ## Related
 

@@ -6,7 +6,6 @@ method: "hash"
 plugin: "@jimp/plugin-hash"
 ---
 
-import { Aside } from "@astrojs/starlight/components";
 import Related from "../../../components/Related.astro";
 
 `hash` returns the image's perceptual hash, the same bits as [`pHash`](/jimp/methods/phash/), written in a more compact base.
@@ -60,7 +59,7 @@ for (const file of files) {
 }
 ```
 
-For "close enough" matches rather than identical hashes, compare [`pHash`](/jimp/methods/phash/) strings with [`compareHashes`](/jimp/methods/compare-hashes/).
+For "close enough" matches rather than identical hashes, compare the hashes with [`compareHashes`](/jimp/methods/compare-hashes/). It decodes them back to bits, so `compareHashes(a.hash(), b.hash())` gives the same result as comparing their `pHash()` strings.
 
 ### A longer hash
 
@@ -73,17 +72,11 @@ image.hash(16, { smallerSize: 16 }); // 64 hex digits
 ## Notes
 
 - **Digits.** Bases above 10 use `0-9`, then `a-z`, then `A-Z`, then `$` and `_`. Base 64 output is therefore not the standard Base64 encoding.
+- **Comparing hashes.** [`compareHashes`](/jimp/methods/compare-hashes/) assumes base 64 for strings that aren't binary. For other bases, pass the base: `compareHashes(a.hash(16), b.hash(16), 16)`.
 - **Invalid bases.** A `base` below `2` or above `64` throws `base must be a number between 2 and 64`.
 - **Invalid options.** `options` are validated like `pHash`'s; see its [notes](/jimp/methods/phash/#notes).
-
-<Aside type="caution" title="Compare bits, not characters">
-  [`compareHashes`](/jimp/methods/compare-hashes/) counts the positions where
-  two strings differ. In base 64, one character holds six bits, so a single
-  changed bit changes a whole character and the distances come out larger and
-  coarser than for the binary hash. Two images that are `0.03` apart by
-  `pHash` came out `0.18` apart by `hash()`. To measure how similar images
-  are, compare `pHash()` strings (or `hash(2)`).
-</Aside>
+- **Added in 2.0:** the `options` argument.
+- **Changed in 2.0:** the hash is computed differently (see [`pHash`](/jimp/methods/phash/#notes)), so hashes stored with 1.x don't match hashes from 2.0. Hash the images again.
 
 ## Related
 
