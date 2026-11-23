@@ -8,3 +8,5 @@
 Masks a source image on to this image using average pixel colour. A completely black pixel on the mask will turn a pixel in the image completely transparent.
 
 - [mask](https://jimp-dev.github.io/jimp/api/jimp/classes/jimp/#mask)
+
+See [Getting Started](https://jimp-dev.github.io/jimp/guides/getting-started/) to read an image, change it and save the result with `write` or `getBuffer`.

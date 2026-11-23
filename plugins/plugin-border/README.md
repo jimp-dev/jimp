@@ -23,6 +23,8 @@ image.roundCorners({ radius: 20 });
 image.roundCorners({ radius: { topLeft: 40, bottomRight: 40 } });
 ```
 
+See [Getting Started](https://jimp-dev.github.io/jimp/guides/getting-started/) to read an image, change it and save the result with `write` or `getBuffer`.
+
 ## Borders
 
 `border` draws the border outside the image: the image grows by `width` on every side, and none of it is covered. `color` is a hex number (`0xRRGGBBAA`) or a CSS color, and defaults to black.

@@ -9,3 +9,5 @@ A fast blur algorithm that produces similar effect to a Gaussian blur - but MUCH
 
 - [blur](https://jimp-dev.github.io/jimp/api/jimp/classes/jimp/#blur)
 - [gaussian](https://jimp-dev.github.io/jimp/api/jimp/classes/jimp/#gaussian)
+
+See [Getting Started](https://jimp-dev.github.io/jimp/guides/getting-started/) to read an image, change it and save the result with `write` or `getBuffer`.

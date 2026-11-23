@@ -346,8 +346,9 @@ export function createJimp<
      * @example
      * ```ts
      * import { Jimp } from "jimp";
+     * import { readFile } from "node:fs/promises";
      *
-     * const buffer = await fs.readFile("test/image.png");
+     * const buffer = await readFile("test/image.png");
      * const image = await Jimp.fromBuffer(buffer);
      * ```
      */
@@ -428,11 +429,10 @@ export function createJimp<
      * @example
      * ```ts
      * import { Jimp } from "jimp";
-     * import { promises as fs } from "fs";
      *
      * const image = new Jimp({ width: 3, height: 3, color: 0xffffffff });
      *
-     * await image.getBuffer("image/jpeg", {
+     * const buffer = await image.getBuffer("image/jpeg", {
      *   quality: 50,
      * });
      *
@@ -500,13 +500,9 @@ export function createJimp<
      * ```ts
      * import { Jimp } from "jimp";
      *
-     * const image = Jimp.fromBuffer(Buffer.from([
-     *   0xff, 0x00, 0x00, 0x00, 0xff, 0x00, 0x00, 0x00,
-     *   0xff, 0x00, 0x00, 0x00, 0xff, 0x00, 0x00, 0x00,
-     *   0xff, 0x00, 0x00, 0x00, 0xff, 0x00, 0x00, 0x00,
-     * ]));
+     * const image = await Jimp.read("test/image.png");
      *
-     * const base64 = image.getBase64("image/jpeg", {
+     * const base64 = await image.getBase64("image/jpeg", {
      *   quality: 50,
      * });
      * ```
@@ -530,11 +526,7 @@ export function createJimp<
      * ```ts
      * import { Jimp } from "jimp";
      *
-     * const image = Jimp.fromBuffer(Buffer.from([
-     *   0xff, 0x00, 0x00, 0x00, 0xff, 0x00, 0x00, 0x00,
-     *   0xff, 0x00, 0x00, 0x00, 0xff, 0x00, 0x00, 0x00,
-     *   0xff, 0x00, 0x00, 0x00, 0xff, 0x00, 0x00, 0x00,
-     * ]));
+     * const image = await Jimp.read("test/image.png");
      *
      * await image.write("test/output.png");
      * ```
