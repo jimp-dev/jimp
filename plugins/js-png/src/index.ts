@@ -6,11 +6,19 @@ import { PNG } from "./pngjs.js";
 export type { PNGOptions as PNGJSOptions } from "pngjs";
 export type PNGOptions = Omit<
   PNGJSOptions,
-  "filterType" | "colorType" | "inputColorType"
+  "filterType" | "colorType" | "inputColorType" | "inputHasAlpha"
 > & {
   filterType?: PNGFilterType;
   colorType?: PNGColorType;
   inputColorType?: PNGColorType;
+  /**
+   * Jimp bitmaps always have an alpha channel, so this no longer describes the
+   * input. Passing `false` only makes `colorType` default to
+   * `PNGColorType.COLOR`, so the PNG is written without an alpha channel.
+   *
+   * @deprecated Use `colorType: PNGColorType.COLOR` instead.
+   */
+  inputHasAlpha?: boolean;
 };
 
 export interface DecodePngOptions {
@@ -92,7 +100,9 @@ export default function png() {
             : inputHasAlpha
               ? PNGColorType.COLOR_ALPHA
               : PNGColorType.COLOR,
-        inputHasAlpha,
+        // The bitmap is always RGBA. Telling pngjs otherwise makes it read the
+        // data as RGB, which garbles the image.
+        inputHasAlpha: true,
       });
     },
     decode: (data, options?: DecodePngOptions) => {

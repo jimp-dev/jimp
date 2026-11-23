@@ -1,7 +1,7 @@
 import { expect, test, describe } from "vitest";
 import { createJimp } from "@jimp/core";
 
-import png from "./index.js";
+import png, { PNGColorType } from "./index.js";
 import { getTestImagePath } from "@jimp/test-utils";
 
 const jimp = createJimp({ formats: [png] });
@@ -76,6 +76,48 @@ describe("PNG", () => {
       corrupt.writeUInt32BE(0xffffffff, 8);
 
       await expect(jimp.read(corrupt)).rejects.toThrow();
+    });
+  });
+
+  describe("export PNG without alpha", () => {
+    const width = 16;
+    const height = 16;
+    const data = Buffer.alloc(width * height * 4);
+
+    for (let i = 0; i < width * height; i++) {
+      data[i * 4] = (i * 7) % 256;
+      data[i * 4 + 1] = (i * 13) % 256;
+      data[i * 4 + 2] = (i * 29) % 256;
+      data[i * 4 + 3] = 0xff;
+    }
+
+    const source = jimp.fromBitmap({ width, height, data });
+
+    async function expectRgbCopyOfSource(buffer: Buffer) {
+      // The colour type is the byte after the IHDR width, height and bit depth
+      expect(buffer[25]).toBe(PNGColorType.COLOR);
+
+      const decoded = await jimp.read(buffer);
+
+      expect(decoded.width).toBe(width);
+      expect(decoded.height).toBe(height);
+      expect([...decoded.bitmap.data]).toEqual([...source.bitmap.data]);
+    }
+
+    test("colorType: COLOR", async () => {
+      const buffer = await source.getBuffer("image/png", {
+        colorType: PNGColorType.COLOR,
+      });
+
+      await expectRgbCopyOfSource(buffer);
+    });
+
+    test("inputHasAlpha: false", async () => {
+      const buffer = await source.getBuffer("image/png", {
+        inputHasAlpha: false,
+      });
+
+      await expectRgbCopyOfSource(buffer);
     });
   });
 });
