@@ -12,6 +12,7 @@ import tiff from "@jimp/js-tiff";
 
 import * as blit from "@jimp/plugin-blit";
 import * as blur from "@jimp/plugin-blur";
+import * as border from "@jimp/plugin-border";
 import * as circle from "@jimp/plugin-circle";
 import * as color from "@jimp/plugin-color";
 import * as contain from "@jimp/plugin-contain";
@@ -34,6 +35,7 @@ import { createJimp } from "@jimp/core";
 export const defaultPlugins = [
   blit.methods,
   blur.methods,
+  border.methods,
   circle.methods,
   color.methods,
   contain.methods,
@@ -162,6 +164,12 @@ export type {
   DesaturateAction,
 } from "@jimp/plugin-color";
 export type { CircleOptions } from "@jimp/plugin-circle";
+export type {
+  BorderOptions,
+  BoxShadowOptions,
+  CornerRadius,
+  RoundCornersOptions,
+} from "@jimp/plugin-border";
 export type { AutocropOptions, CropOptions } from "@jimp/plugin-crop";
 export { ResizeStrategy } from "@jimp/plugin-resize";
 export type {
