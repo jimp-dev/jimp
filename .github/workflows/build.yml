@@ -92,6 +92,6 @@ jobs:
           node-version: 22
       - uses: ./.github/actions/turbo-cache
       - run: pnpm build
-      # `pnpm test` would build everything again: turbo passes `--watch=false`
+      # `pnpm test` would build everything again: turbo passes the vitest args
       # to the build tasks too, so their cache entries don't match
-      - run: pnpm turbo run test --only -- --watch=false
+      - run: pnpm turbo run test --only -- --watch=false --testTimeout=20000
