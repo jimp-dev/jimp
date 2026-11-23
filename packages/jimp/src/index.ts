@@ -172,6 +172,7 @@ export type {
   RoundCornersOptions,
 } from "@jimp/plugin-border";
 export type { AutocropOptions, CropOptions } from "@jimp/plugin-crop";
+export type { DitherOptions, DitherPalette } from "@jimp/plugin-dither";
 export { ResizeStrategy } from "@jimp/plugin-resize";
 export type {
   ScaleOptions,
