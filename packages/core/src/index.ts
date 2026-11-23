@@ -128,6 +128,8 @@ export type GetOptionsForMimeType<Mime extends string, MimeTypeMap> =
   MimeTypeMap extends Record<Mime, infer O> ? O : never;
 
 type PathWithExtension<E extends string> = `${string}.${E}`;
+export type ExtensionOf<Path extends string> =
+  Path extends PathWithExtension<infer E> ? E : never;
 type MimeToExtension<M extends string> = `${string}/${M}`;
 export type CreateExtensionToMimeType<M extends string> =
   M extends MimeToExtension<infer E> ? Record<E, M> : never;
@@ -509,16 +511,18 @@ export function createJimp<
      * ```
      */
     async write<
-      Extension extends string,
-      // Don't add a type parameter no argument uses (like a `Mime`) here. The
-      // emitted .d.ts repeats this class in several places and TypeScript
-      // can't relate those copies when a method has one, which makes images
-      // from `new Jimp()`, `Jimp.read()` and chained methods incompatible.
+      // The emitted .d.ts repeats this class in several places, and TypeScript
+      // has to relate those copies' `write` for images from `new Jimp()`,
+      // `Jimp.read()` and chained methods to be compatible. That only works
+      // when every type parameter is inferred directly from an argument:
+      // don't add one no argument uses (like a `Mime`), and take the whole
+      // path rather than inferring an `Extension` out of a template literal.
+      Path extends PathWithExtension<string>,
       Options extends GetOptionsForMimeType<
-        GetMimeTypeForExtension<Extension, ExtensionToMimeType>,
+        GetMimeTypeForExtension<ExtensionOf<Path>, ExtensionToMimeType>,
         MimeTypeToExportOptions
       >,
-    >(path: PathWithExtension<Extension>, options?: Options) {
+    >(path: Path, options?: Options) {
       const mimeType = mime.getType(path);
       await writeFile(
         path,
