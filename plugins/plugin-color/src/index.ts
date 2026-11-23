@@ -835,6 +835,20 @@ export const methods = {
           clr.g = colorModifier("g", action.params[0]);
         } else if (action.apply === "blue") {
           clr.b = colorModifier("b", action.params[0]);
+        } else if (
+          action.apply === "saturate" ||
+          action.apply === "desaturate"
+        ) {
+          // Scale saturation (like GIMP) rather than offsetting it like
+          // tinycolor does, which flattens muted colors to grey.
+          const amount = (action.params?.[0] ?? 10) / 100;
+          const hsl = tinyColor(clr).toHsl();
+
+          hsl.s = Math.min(
+            1,
+            hsl.s * (action.apply === "saturate" ? 1 + amount : 1 - amount),
+          );
+          clr = tinyColor(hsl).toRgb();
         } else {
           if (action.apply === "hue") {
             // eslint-disable-next-line @typescript-eslint/ban-ts-comment
