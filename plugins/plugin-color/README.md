@@ -8,6 +8,8 @@
 - [color](https://jimp-dev.github.io/jimp/api/jimp/classes/jimp/#color)
 - [brightness](https://jimp-dev.github.io/jimp/api/jimp/classes/jimp/#brightness)
 - [contrast](https://jimp-dev.github.io/jimp/api/jimp/classes/jimp/#contrast)
+- [exposure](https://jimp-dev.github.io/jimp/api/jimp/classes/jimp/#exposure)
+- [vibrance](https://jimp-dev.github.io/jimp/api/jimp/classes/jimp/#vibrance)
 - [posterize](https://jimp-dev.github.io/jimp/api/jimp/classes/jimp/#posterize)
 - [greyscale](https://jimp-dev.github.io/jimp/api/jimp/classes/jimp/#greyscale)
 - [opacity](https://jimp-dev.github.io/jimp/api/jimp/classes/jimp/#opacity)
@@ -19,6 +21,13 @@
 - [convolute](https://jimp-dev.github.io/jimp/api/jimp/classes/jimp/#convolute)
 - [normalize](https://jimp-dev.github.io/jimp/api/jimp/classes/jimp/#normalize)
 - [invert](https://jimp-dev.github.io/jimp/api/jimp/classes/jimp/#invert)
+
+`exposure(stops)` changes the exposure in linear light: each channel is decoded with the image's tone curve (sRGB unless it has another ICC profile), multiplied by `2 ** stops` and encoded again, so `1` is one stop brighter and `-1` one stop darker. `brightness(factor)` multiplies the encoded 8 bit values instead, which brightens shadows less and clips highlights sooner. `vibrance(amount)`, from -1 to +1, scales saturation like `color([{ apply: "saturate" }])`, but more for muted colors than for vivid ones, so saturated colors don't clip:
+
+```ts
+image.exposure(1); // one stop brighter
+image.vibrance(0.5);
+```
 
 `convolution` only changes the color channels. `convolute` convolves alpha too, unless you pass `preserveAlpha: true` (like the CSS `feConvolveMatrix`). Without it, kernels whose weights sum to 0, like edge detection, make the image transparent. Neither method normalizes the kernel. Pass a `divisor` (like ImageMagick's `-define convolve:scale` or the CSS `feConvolveMatrix` divisor) to write kernels with integer weights, and a `bias` to shift results that can be negative into the visible range:
 
