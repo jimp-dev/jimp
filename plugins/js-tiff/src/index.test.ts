@@ -72,6 +72,45 @@ function createRgbTiff({
   );
 }
 
+/**
+ * Build an uncompressed CMYK TIFF, with unassociated alpha if there are 5
+ * samples. 16 bit samples are little endian.
+ */
+function createCmykTiff({
+  width,
+  height,
+  pixels,
+  bitsPerSample = 8,
+  samplesPerPixel = 4,
+}: {
+  width: number;
+  height: number;
+  pixels: number[];
+  bitsPerSample?: number;
+  samplesPerPixel?: number;
+}) {
+  return createTiff(
+    (pixelOffset) => [
+      [256, LONG, 1, width],
+      [257, LONG, 1, height],
+      [258, SHORT, 1, bitsPerSample],
+      [259, SHORT, 1, 1],
+      [262, SHORT, 1, 5],
+      [273, LONG, 1, pixelOffset],
+      [277, SHORT, 1, samplesPerPixel],
+      [278, LONG, 1, height],
+      [279, LONG, 1, pixels.length],
+      ...(samplesPerPixel > 4 ? ([[338, SHORT, 1, 2]] as Entry[]) : []),
+    ],
+    { pixels }
+  );
+}
+
+/** Split 16 bit samples into little endian bytes */
+function toUint16LE(samples: number[]) {
+  return samples.flatMap((sample) => [sample & 0xff, sample >> 8]);
+}
+
 describe("TIFF", () => {
   test("load TIFF", async () => {
     const image = await jimp.read(getTestImagePath("rgb.tiff"));
@@ -118,6 +157,73 @@ describe("TIFF", () => {
     expect(image.height).toBe(1);
     expect(image.getPixelColor(0, 0)).toBe(0xff0000ff);
     expect(image.getPixelColor(1, 0)).toBe(0x0000ffff);
+  });
+
+  // Expected colors match `magick x.tiff -colorspace sRGB rgba:-`
+  test("decodes an 8 bit CMYK TIFF", async () => {
+    const image = await jimp.read(
+      createCmykTiff({
+        width: 5,
+        height: 1,
+        pixels: [
+          0, 255, 255, 0, 255, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 255, 51, 102, 153,
+          64,
+        ],
+      })
+    );
+
+    expect(image.width).toBe(5);
+    expect(image.height).toBe(1);
+    expect(image.getPixelColor(0, 0)).toBe(0xff0000ff);
+    expect(image.getPixelColor(1, 0)).toBe(0x00ffffff);
+    expect(image.getPixelColor(2, 0)).toBe(0xffffffff);
+    expect(image.getPixelColor(3, 0)).toBe(0x000000ff);
+    expect(image.getPixelColor(4, 0)).toBe(0x99734cff);
+  });
+
+  test("decodes an 8 bit CMYK TIFF with alpha", async () => {
+    const image = await jimp.read(
+      createCmykTiff({
+        width: 3,
+        height: 1,
+        samplesPerPixel: 5,
+        pixels: [0, 255, 255, 0, 255, 51, 102, 153, 64, 128, 0, 0, 0, 0, 0],
+      })
+    );
+
+    expect(image.getPixelColor(0, 0)).toBe(0xff0000ff);
+    expect(image.getPixelColor(1, 0)).toBe(0x99734c80);
+    expect(image.getPixelColor(2, 0)).toBe(0xffffff00);
+  });
+
+  test("decodes a 16 bit CMYK TIFF with alpha", async () => {
+    const image = await jimp.read(
+      createCmykTiff({
+        width: 2,
+        height: 1,
+        bitsPerSample: 16,
+        samplesPerPixel: 5,
+        pixels: toUint16LE([
+          0, 0xffff, 0xffff, 0, 0xffff, 0x3333, 0x6666, 0x9999, 0x4040, 0x8080,
+        ]),
+      })
+    );
+
+    expect(image.getPixelColor(0, 0)).toBe(0xff0000ff);
+    expect(image.getPixelColor(1, 0)).toBe(0x99734c80);
+  });
+
+  test("rejects CMYK TIFFs with unsupported bits per sample", async () => {
+    const crafted = createCmykTiff({
+      width: 2,
+      height: 1,
+      bitsPerSample: 4,
+      pixels: [0, 0, 0, 0],
+    });
+
+    await expect(jimp.read(crafted)).rejects.toThrow(
+      "Unsupported CMYK TIFF bits per sample 4, only 8 and 16 are supported"
+    );
   });
 
   test("rejects TIFFs larger than the maximum resolution", async () => {
