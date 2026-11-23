@@ -1,9 +1,8 @@
 import { Buffer } from "buffer";
-import { ResizeStrategy, methods as resizeMethods } from "@jimp/plugin-resize";
+import { ResizeStrategy } from "@jimp/plugin-resize";
 import { JimpClass } from "@jimp/types";
 import { clone } from "@jimp/utils";
 import { composite } from "@jimp/core";
-import { methods as cropMethods } from "@jimp/plugin-crop";
 import { z } from "zod";
 
 const RotateOptionsSchema = z.union([
@@ -13,7 +12,7 @@ const RotateOptionsSchema = z.union([
     deg: z.number(),
     /**
      * resize mode or a boolean, if false then the width and height of the image will not be changed.
-     * The mode is used to resize the canvas, the rotation itself always takes the nearest pixel.
+     * Any resize mode grows the canvas like true does: the rotation itself always takes the nearest pixel.
      */
     mode: z.union([z.boolean(), z.nativeEnum(ResizeStrategy)]).optional(),
   }),
@@ -116,13 +115,15 @@ function snapToInteger(value: number, tolerance: number) {
   return Math.abs(value - rounded) < tolerance ? rounded : value;
 }
 
-function createTranslationFunction(deltaX: number, deltaY: number) {
-  return function (x: number, y: number) {
-    return {
-      x: x + deltaX,
-      y: y + deltaY,
-    };
-  };
+/**
+ * The size of one side of the canvas that holds the rotated image: the side of
+ * its bounding box, rounded up to whole pixels and to the same parity as the
+ * side of the image that lies along it, so the image is centred on whole
+ * pixels when it is rotated by a small angle (or by nearly 90 degrees).
+ */
+function rotatedSide(extent: number, alongSide: number, tolerance: number) {
+  const size = Math.ceil(extent - tolerance);
+  return (size - alongSide) % 2 === 0 ? size : size + 1;
 }
 
 /**
@@ -132,89 +133,67 @@ function createTranslationFunction(deltaX: number, deltaY: number) {
 function advancedRotate<I extends JimpClass>(
   image: I,
   deg: number,
-  mode: boolean | ResizeStrategy
+  mode: boolean | ResizeStrategy,
 ) {
   const rad = (deg * Math.PI) / 180;
   const cosine = Math.cos(rad);
   const sine = Math.sin(rad);
+  const srcW = image.bitmap.width;
+  const srcH = image.bitmap.height;
+  // the rounding error of the coordinates grows with the image size
+  const tolerance = (srcW + srcH) * Number.EPSILON * 4;
 
   // the final width and height will change if resize == true
-  let w = image.bitmap.width;
-  let h = image.bitmap.height;
+  let w = srcW;
+  let h = srcH;
 
   if (mode === true || typeof mode === "string") {
-    // resize the image to it maximum dimension and blit the existing image
-    // onto the center so that when it is rotated the image is kept in bounds
-
     // http://stackoverflow.com/questions/3231176/how-to-get-size-of-a-rotated-rectangle
-    // Plus 1 border pixel to ensure to show all rotated result for some cases.
-    w =
-      Math.ceil(
-        Math.abs(image.bitmap.width * cosine) +
-          Math.abs(image.bitmap.height * sine)
-      ) + 1;
-    h =
-      Math.ceil(
-        Math.abs(image.bitmap.width * sine) +
-          Math.abs(image.bitmap.height * cosine)
-      ) + 1;
-    // Ensure destination to have even size to a better result.
-    if (w % 2 !== 0) {
-      w++;
-    }
+    const upright = Math.abs(cosine) >= Math.abs(sine);
 
-    if (h % 2 !== 0) {
-      h++;
-    }
+    w = rotatedSide(
+      Math.abs(srcW * cosine) + Math.abs(srcH * sine),
+      upright ? srcW : srcH,
+      tolerance,
+    );
+    h = rotatedSide(
+      Math.abs(srcW * sine) + Math.abs(srcH * cosine),
+      upright ? srcH : srcW,
+      tolerance,
+    );
 
+    // the image is drawn over the background, as if onto a larger canvas
     const c = clone(image);
 
     image.scan((_, __, idx) => {
       image.bitmap.data.writeUInt32BE(image.background, idx);
     });
 
-    const max = Math.max(w, h, image.bitmap.width, image.bitmap.height);
-    image = resizeMethods.resize(image, {
-      h: max,
-      w: max,
-      mode: mode === true ? undefined : mode,
-    });
-
-    image = composite(
-      image,
-      c,
-      image.bitmap.width / 2 - c.bitmap.width / 2,
-      image.bitmap.height / 2 - c.bitmap.height / 2
-    );
+    composite(image, c);
   }
 
-  const bW = image.bitmap.width;
-  const bH = image.bitmap.height;
-  const dstBuffer = Buffer.alloc(image.bitmap.data.length);
-  // the rounding error of the coordinates grows with the image size
-  const tolerance = (bW + bH) * Number.EPSILON * 4;
+  const src = image.bitmap.data;
+  const dstBuffer = Buffer.alloc(w * h * 4);
 
-  const translate2Cartesian = createTranslationFunction(-(bW / 2), -(bH / 2));
-  const translate2Screen = createTranslationFunction(
-    bW / 2 + 0.5,
-    bH / 2 + 0.5
-  );
-
-  for (let y = 1; y <= bH; y++) {
-    for (let x = 1; x <= bW; x++) {
-      const cartesian = translate2Cartesian(x, y);
-      const source = translate2Screen(
-        cosine * cartesian.x - sine * cartesian.y,
-        cosine * cartesian.y + sine * cartesian.x
+  for (let y = 0; y < h; y++) {
+    for (let x = 0; x < w; x++) {
+      // rotate the centre of the destination pixel back onto the source,
+      // about the centres of the two images
+      const cx = x + 0.5 - w / 2;
+      const cy = y + 0.5 - h / 2;
+      const sourceX = snapToInteger(
+        cosine * cx - sine * cy + srcW / 2,
+        tolerance,
       );
-      const sourceX = snapToInteger(source.x, tolerance);
-      const sourceY = snapToInteger(source.y, tolerance);
-      const dstIdx = (bW * (y - 1) + x - 1) << 2;
+      const sourceY = snapToInteger(
+        cosine * cy + sine * cx + srcH / 2,
+        tolerance,
+      );
+      const dstIdx = (w * y + x) << 2;
 
-      if (sourceX >= 0 && sourceX < bW && sourceY >= 0 && sourceY < bH) {
-        const srcIdx = (bW * (sourceY | 0) + (sourceX | 0)) << 2;
-        const pixelRGBA = image.bitmap.data.readUInt32BE(srcIdx);
-        dstBuffer.writeUInt32BE(pixelRGBA, dstIdx);
+      if (sourceX >= 0 && sourceX < srcW && sourceY >= 0 && sourceY < srcH) {
+        const srcIdx = (srcW * (sourceY | 0) + (sourceX | 0)) << 2;
+        dstBuffer.writeUInt32BE(src.readUInt32BE(srcIdx), dstIdx);
       } else {
         // reset off-image pixels
         dstBuffer.writeUInt32BE(image.background, dstIdx);
@@ -223,13 +202,8 @@ function advancedRotate<I extends JimpClass>(
   }
 
   image.bitmap.data = dstBuffer;
-
-  if (mode === true || typeof mode === "string") {
-    // now crop the image to the final size
-    const x = Math.max(bW / 2 - w / 2, 0);
-    const y = Math.max(bH / 2 - h / 2, 0);
-    image = cropMethods.crop(image, { x, y, w, h });
-  }
+  image.bitmap.width = w;
+  image.bitmap.height = h;
 }
 
 export const methods = {

@@ -1822,9 +1822,6 @@ importers:
       '@jimp/core':
         specifier: workspace:*
         version: link:../../packages/core
-      '@jimp/plugin-crop':
-        specifier: workspace:*
-        version: link:../plugin-crop
       '@jimp/plugin-resize':
         specifier: workspace:*
         version: link:../plugin-resize
