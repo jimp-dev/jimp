@@ -43,3 +43,13 @@ They take about as long as `BICUBIC`, or less (median of 7 runs on random RGBA d
 | 2000×1500 → 500×375   | 286 ms    | 94 ms     | 69 ms      | 82 ms      |
 | 2000×1500 → 1500×1125 | 155 ms    | 166 ms    | 160 ms     | 152 ms     |
 | 500×375 → 2000×1500   | 419 ms    | 212 ms    | 193 ms     | 171 ms     |
+
+## Keeping the colour of transparent pixels
+
+Resizing treats alpha as opacity: every mode except `NEAREST_NEIGHBOR` drops the colour of pixels with alpha 0 or weights colour by alpha. When alpha holds something else, such as a texture that stores brightness in it, pass `separateAlpha` to resize the colour and the alpha on their own:
+
+```ts
+image.resize({ w: 300, separateAlpha: true });
+```
+
+The colour comes out as if the image were opaque, and the alpha as it does without the option. It runs the resize twice, so it takes about twice as long.

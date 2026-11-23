@@ -468,3 +468,60 @@ describe("Resize images", () => {
     });
   });
 });
+
+describe("separateAlpha", () => {
+  const modes = [undefined, ...Object.values(ResizeStrategy)];
+
+  // red on the left and green on the right, with alpha 0 in the middle
+  function texture() {
+    const data = Buffer.alloc(8 * 8 * 4);
+
+    for (let i = 0; i < 64; i++) {
+      const x = i % 8;
+      data.writeUInt32BE(x < 4 ? 0xff000000 : 0x00ff0000, i * 4);
+      data[i * 4 + 3] = x < 2 || x > 5 ? 255 : 0;
+    }
+
+    return jimp.fromBitmap({ data, width: 8, height: 8 });
+  }
+
+  for (const mode of modes) {
+    for (const size of [4, 6, 8, 12]) {
+      test(`${mode ?? "default"} to ${size}x${size} keeps the colour of transparent pixels`, () => {
+        const separate = texture().resize({
+          w: size,
+          h: size,
+          mode,
+          separateAlpha: true,
+        }).bitmap;
+        const opaque = texture();
+
+        for (let i = 3; i < opaque.bitmap.data.length; i += 4) {
+          opaque.bitmap.data[i] = 255;
+        }
+
+        // the colour is what an opaque image gives, the alpha what it always was
+        const colour = opaque.resize({ w: size, h: size, mode }).bitmap.data;
+        const together = texture().resize({ w: size, h: size, mode }).bitmap;
+
+        expect(separate.width).toBe(size);
+        expect(separate.height).toBe(size);
+
+        for (let i = 0; i < separate.data.length; i += 4) {
+          expect([...separate.data.subarray(i, i + 4)]).toEqual([
+            ...colour.subarray(i, i + 3),
+            together.data[i + 3],
+          ]);
+        }
+      });
+    }
+  }
+
+  test("drops the colour of transparent pixels by default", () => {
+    const { data } = texture().resize({ w: 4 }).bitmap;
+    const kept = texture().resize({ w: 4, separateAlpha: true }).bitmap.data;
+
+    expect([...data.subarray(4, 8)]).toEqual([0, 0, 0, 0]);
+    expect([...kept.subarray(4, 8)]).toEqual([255, 0, 0, 0]);
+  });
+});
