@@ -1,5 +1,21 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
+exports[`Compare image difference > draws only the differences on a transparent background with diffMask 1`] = `
+Visualization:
+
+ ▴▴▴
+▴ ▴▴
+▴▴ ▴
+▴▴▴ 
+
+Data:
+
+00-00-00⁰⁰ FF-00-00ᶠᶠ FF-00-00ᶠᶠ FF-00-00ᶠᶠ
+FF-00-00ᶠᶠ 00-00-00⁰⁰ FF-00-00ᶠᶠ FF-00-00ᶠᶠ
+FF-00-00ᶠᶠ FF-00-00ᶠᶠ 00-00-00⁰⁰ FF-00-00ᶠᶠ
+FF-00-00ᶠᶠ FF-00-00ᶠᶠ FF-00-00ᶠᶠ 00-00-00⁰⁰
+`;
+
 exports[`Compare image difference > images 0 and 1 1`] = `
 Visualization:
 
@@ -46,4 +62,20 @@ E8-E8-E8ᶠᶠ E8-E8-E8ᶠᶠ E8-E8-E8ᶠᶠ E8-E8-E8ᶠᶠ
 EC-EC-ECᶠᶠ EC-EC-ECᶠᶠ EC-EC-ECᶠᶠ EC-EC-ECᶠᶠ
 EF-EF-EFᶠᶠ EF-EF-EFᶠᶠ EF-EF-EFᶠᶠ EF-EF-EFᶠᶠ
 F3-F3-F3ᶠᶠ F3-F3-F3ᶠᶠ F3-F3-F3ᶠᶠ F3-F3-F3ᶠᶠ
+`;
+
+exports[`Compare image difference > uses custom diff colors 1`] = `
+Visualization:
+
+D▸▸▸
+▸3▸▸
+▸▸◇▸
+▸▸▸▩
+
+Data:
+
+E8-E8-E8ᶠᶠ 00-FF-00ᶠᶠ 00-FF-00ᶠᶠ 00-FF-00ᶠᶠ
+00-FF-00ᶠᶠ EC-EC-ECᶠᶠ 00-FF-00ᶠᶠ 00-FF-00ᶠᶠ
+00-FF-00ᶠᶠ 00-FF-00ᶠᶠ EF-EF-EFᶠᶠ 00-FF-00ᶠᶠ
+00-FF-00ᶠᶠ 00-FF-00ᶠᶠ 00-FF-00ᶠᶠ F3-F3-F3ᶠᶠ
 `;
