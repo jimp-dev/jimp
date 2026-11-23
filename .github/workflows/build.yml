@@ -92,4 +92,6 @@ jobs:
           node-version: 22
       - uses: ./.github/actions/turbo-cache
       - run: pnpm build
-      - run: pnpm test
+      # `pnpm test` would build everything again: turbo passes `--watch=false`
+      # to the build tasks too, so their cache entries don't match
+      - run: pnpm turbo run test --only -- --watch=false
