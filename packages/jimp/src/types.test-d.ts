@@ -160,6 +160,13 @@ describe("chainable methods return the instance type", () => {
       scaleToFit: image.scaleToFit({ w: 1, h: 1 }),
       rotate: image.rotate(90),
       rotateSmooth: image.rotate({ deg: 30, mode: ResizeStrategy.BILINEAR }),
+      affine: image.affine({ matrix: [1, 0, 0.5, 1, 0, 0] }),
+      affineConst: image.affine({
+        matrix: [2, 0, 0, 2, 0, 0] as const,
+        mode: ResizeStrategy.BILINEAR,
+        fit: false,
+      }),
+      skew: image.skew({ x: 20, y: -10, mode: ResizeStrategy.BICUBIC }),
       threshold: image.threshold({ max: 100 }),
       quantize: image.quantize({ colors: 4 }),
     };
