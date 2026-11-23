@@ -42,6 +42,14 @@ const JpegOptionsSchema = z.object({
    * @default false
    */
   exif: z.boolean().optional(),
+  /**
+   * Write the ICC colour profile of the image that was read, e.g. Display P3
+   * on iPhone photos. Jimp core adds it after encoding. Jimp doesn't convert
+   * colours, so without the profile viewers would show the pixels as sRGB.
+   * Pass `false` to leave it out.
+   * @default true
+   */
+  icc: z.boolean().optional(),
 });
 
 type JpegOptions = z.infer<typeof JpegOptionsSchema>;

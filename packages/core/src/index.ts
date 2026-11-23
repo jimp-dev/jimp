@@ -13,6 +13,11 @@ import {
   getExifOrientation,
 } from "./utils/image-bitmap.js";
 import { copyExif, writeJpegExif } from "./utils/exif.js";
+import {
+  copyIccProfile,
+  storeIccProfile,
+  writeIccProfile,
+} from "./utils/icc.js";
 
 const emptyBitmap: Bitmap = {
   data: Buffer.alloc(0),
@@ -420,6 +425,7 @@ export function createJimp<
       image.mime = mime.mime;
 
       attemptExifRotate(image, actualBuffer);
+      storeIccProfile(image, actualBuffer);
 
       return image;
     }
@@ -481,6 +487,9 @@ export function createJimp<
      * // Copy the EXIF data of a JPEG that was read, see JPEGOptions.exif
      * const photo = await Jimp.read("photo.jpg");
      * await photo.getBuffer("image/jpeg", { exif: true });
+     *
+     * // Leave out the ICC colour profile of the image that was read
+     * await photo.getBuffer("image/jpeg", { icc: false });
      * ```
      */
     async getBuffer<
@@ -517,17 +526,26 @@ export function createJimp<
       );
 
       // Some encoders (e.g. jpeg-js outside of CommonJS) return a plain Uint8Array
-      const buffer = Buffer.isBuffer(data)
+      let buffer = Buffer.isBuffer(data)
         ? data
         : Buffer.from(data.buffer, data.byteOffset, data.byteLength);
 
-      if (mime === "image/jpeg" && (options as { exif?: boolean } | undefined)?.exif) {
-        return writeJpegExif(this, buffer, {
+      const { exif, icc } = (options ?? {}) as {
+        exif?: boolean;
+        icc?: boolean;
+      };
+
+      if (mime === "image/jpeg" && exif) {
+        buffer = writeJpegExif(this, buffer, {
           width: this.bitmap.width,
           height: this.bitmap.height,
           // 1 once the pixels have been auto-rotated on read
           orientation: getExifOrientation(this),
         });
+      }
+
+      if (icc !== false) {
+        buffer = writeIccProfile(this, mime, buffer);
       }
 
       return buffer;
@@ -632,6 +650,7 @@ export function createJimp<
       }
 
       copyExif(this, clone);
+      copyIccProfile(this, clone);
 
       return clone as unknown as S;
     }

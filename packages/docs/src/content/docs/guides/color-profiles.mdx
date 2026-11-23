@@ -1,0 +1,56 @@
+---
+title: Colour Profiles
+description: How Jimp keeps the ICC colour profile of JPEG and PNG images.
+---
+
+An ICC colour profile says which colour space an image's pixel values are in.
+Most images are sRGB, which viewers assume when there's no profile.
+iPhones and many other cameras save photos in Display P3, which has more saturated reds and greens, and embed a Display P3 profile so viewers show them correctly.
+
+## Profiles are kept
+
+Jimp never converts colours: the pixels it reads stay in the colour space they were stored in, and so does everything it writes.
+When `Jimp.read` or `Jimp.fromBuffer` loads a JPEG or PNG with an RGB or grayscale profile, Jimp keeps the profile and writes it, byte for byte, to JPEG and PNG output.
+
+```ts
+import { Jimp } from "jimp";
+
+const image = await Jimp.read("iphone-photo.jpg"); // Display P3
+
+image.resize({ w: 2000 });
+
+await image.write("small.jpg"); // still Display P3
+await image.write("small.png"); // also Display P3
+```
+
+Older versions of Jimp dropped the profile, so viewers showed Display P3 pixels as sRGB and the output looked duller than the original.
+
+`image.clone()` copies the profile.
+It works with both the default JPEG and PNG encoders and with `@jimp/wasm-jpeg` and `@jimp/wasm-png`.
+
+The profile isn't written when it can't describe the output, for example an RGB profile and a PNG that Jimp saves as grayscale because every pixel is gray.
+WebP, AVIF, TIFF, GIF and BMP output never includes a profile.
+
+## Leaving the profile out
+
+Pass `icc: false` when writing a JPEG or PNG to leave the profile out:
+
+```ts
+await image.write("small.jpg", { icc: false });
+// or
+const buffer = await image.getBuffer("image/png", { icc: false });
+```
+
+Only do this if the pixels are sRGB, or the reader ignores profiles anyway (some image recognition pipelines do).
+Jimp doesn't convert the pixels to sRGB first, so a Display P3 image written without its profile looks duller.
+
+## Images in different colour spaces
+
+Jimp's colour operations, such as `color()`, `brightness()` and `greyscale()`, work on the stored values, in whatever colour space the image is in.
+The same goes for `composite()` and `blit()`: if the two images have different profiles, the source's pixel values are copied into the destination as they are, and end up shown in the destination's colour space.
+CSS colours and hex values passed to Jimp are used as values in the image's colour space too, so `#ff0000` on a Display P3 image is a more saturated red than in an sRGB one.
+
+A new image from `new Jimp()` has no profile, so drawing a Display P3 photo onto it gives an image viewers show as sRGB.
+Composite onto a clone of the photo, or a copy read from the same file, to keep the profile.
+
+Jimp can't convert between colour spaces (for example Display P3 to sRGB), and doesn't keep CMYK profiles.

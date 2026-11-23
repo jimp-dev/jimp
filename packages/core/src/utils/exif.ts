@@ -16,8 +16,8 @@ const MAX_EXIF_LENGTH = 0xffff - 2 - EXIF_HEADER.length;
 const SOI = 0xd8;
 const SOS = 0xda;
 const EOI = 0xd9;
-const APP0 = 0xe0;
-const APP1 = 0xe1;
+export const APP0 = 0xe0;
+export const APP1 = 0xe1;
 
 const TYPE_SHORT = 3;
 const TYPE_LONG = 4;
@@ -47,7 +47,7 @@ interface JpegSegment {
 }
 
 /** Lists the segments between SOI and the start of scan */
-function readJpegSegments(data: Buffer) {
+export function readJpegSegments(data: Buffer) {
   const segments: JpegSegment[] = [];
 
   if (data[0] !== 0xff || data[1] !== SOI) {
