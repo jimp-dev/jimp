@@ -18,7 +18,7 @@ const JpegOptionsSchema = z.object({
    * For lossless, this parameter is the amount of effort put
    * into the compression: 0 is the fastest but gives larger
    * files compared to the slowest, but best, 100.
-   * @default 100
+   * @default 75
    */
   quality: z.number().min(0).max(100).optional().default(75),
   arithmetic: z.boolean().optional().default(false),

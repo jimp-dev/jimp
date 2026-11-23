@@ -1,8 +1,36 @@
-import JPEG from "jpeg-js";
+import decodeJpeg from "jpeg-js/lib/decoder.js";
 import { Format } from "@jimp/types";
 
+import { ChromaSubsampling, encode } from "./encoder.js";
+
+export type { ChromaSubsampling };
+
+/** The quality used when none is passed, the same as sharp's. */
+const DEFAULT_QUALITY = 80;
+
+/** Quality from which color is kept at full resolution by default. */
+const FULL_CHROMA_QUALITY = 90;
+
 export interface JPEGOptions {
+  /**
+   * Quality from 1 to 100. Lower values give smaller files with more
+   * compression artifacts. The scale is libjpeg's, so a quality gives about
+   * the same result as in sharp, Pillow or ImageMagick.
+   * @default 80
+   */
   quality?: number;
+  /**
+   * The resolution color (chroma) is stored at.
+   *
+   * - `"4:2:0"`: half the width and height of the image. The eye is much less
+   *   sensitive to color detail than to brightness, so this makes files 10 to
+   *   20% smaller with little visible difference. Sharp edges between
+   *   saturated colors, like red text, can bleed a little.
+   * - `"4:4:4"`: full resolution.
+   *
+   * Defaults to `"4:2:0"`, or `"4:4:4"` when `quality` is 90 or more.
+   */
+  chromaSubsampling?: ChromaSubsampling;
   /**
    * Write the EXIF data of the JPEG the image was read from (camera make and
    * model, resolution, date, GPS location, ...). Orientation is set to 1, as
@@ -129,9 +157,18 @@ function skipJunkBeforeMarkers(data: Buffer) {
 export default function jpeg() {
   return {
     mime: "image/jpeg",
-    encode: (bitmap, { quality = 100 }: JPEGOptions = {}) =>
-      JPEG.encode(bitmap, quality).data,
+    encode: (
+      bitmap,
+      {
+        quality = DEFAULT_QUALITY,
+        chromaSubsampling = quality >= FULL_CHROMA_QUALITY ? "4:4:4" : "4:2:0",
+      }: JPEGOptions = {},
+    ) => {
+      const data = encode(bitmap, { quality, chromaSubsampling });
+
+      return Buffer.from(data.buffer, data.byteOffset, data.byteLength);
+    },
     decode: (data, options?: DecodeJpegOptions) =>
-      JPEG.decode(ensureEoiMarker(skipJunkBeforeMarkers(data)), options),
+      decodeJpeg(ensureEoiMarker(skipJunkBeforeMarkers(data)), options),
   } satisfies Format<"image/jpeg">;
 }

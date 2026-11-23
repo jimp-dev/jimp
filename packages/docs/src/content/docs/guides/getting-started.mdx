@@ -111,3 +111,19 @@ const buffer = await image.getBuffer(JimpMime.png);
 
 `write` needs a file system, so in the browser use `getBuffer` or `getBase64`.
 See [Using in Browser](/jimp/guides/browser/).
+
+### JPEG file size
+
+JPEG is lossy, so decoding a JPEG and encoding it again can't make it look better, and the new file can be larger than the one you read.
+This happens most when the original was written by an optimizing encoder like mozjpeg, or at a lower quality than you save at.
+To keep files small:
+
+- Set `quality` explicitly. It goes from 1 to 100 and defaults to 80; 75 to 85 suits most photos.
+  Saving at a higher quality than the original was saved at only makes the file bigger.
+- Below quality 90, color is stored at half resolution (4:2:0 chroma subsampling), which makes files 10 to 20% smaller.
+  Pass `chromaSubsampling: "4:4:4"` to keep full color resolution, for example for red text or thin colored lines.
+- For the smallest files, use [`@jimp/wasm-jpeg`](/jimp/guides/webp/), which encodes with mozjpeg.
+
+```ts
+await image.write("test/output.jpg", { quality: 75 });
+```

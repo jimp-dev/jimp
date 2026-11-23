@@ -56,6 +56,16 @@ describe("JPEG", () => {
     await expect(jimp.read(garbage)).rejects.toThrow();
   });
 
+  test("re-encoding a JPG at the default quality doesn't make it larger (#1018)", async () => {
+    for (const name of ["cops.jpg", "fillbytes.jpg", "hands.jpg"] as const) {
+      const original = await fs.readFile(getTestImagePath(name));
+      const image = await jimp.read(original);
+      const buffer = await image.getBuffer("image/jpeg");
+
+      expect(buffer.length).toBeLessThan(original.length);
+    }
+  });
+
   test("truncated JPG still fails to load", async () => {
     const original = await fs.readFile(getTestImagePath("cops.jpg"));
     const truncated = original.subarray(0, original.length / 2);
