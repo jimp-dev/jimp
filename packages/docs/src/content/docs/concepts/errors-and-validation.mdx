@@ -109,27 +109,61 @@ Read it as "either `w` or `h` is missing".
 | `Invalid input: expected int, received number`       | The option must be a whole number. Round it first.              |
 | `Too small: expected number to be >=0`               | The value is below the allowed minimum.                         |
 | `Too big: expected number to be <=64`                | The value is above the allowed maximum.                         |
-| `Invalid option: expected one of 1\|2\|4`            | The value isn't one of an enum's values. Use the named constant, such as `HorizontalAlign.CENTER`. |
+| `Invalid option: expected one of "nearestNeighbor"\|"bilinearInterpolation"\|…` | The value isn't one of an enum's values. Use the named constant, such as `ResizeStrategy.BICUBIC`. |
+| `Unrecognized key: "algorithm"`                      | The method has no option with that name. Some methods reject options they don't know; check the spelling against the method's page. |
 | `Invalid input: expected object, received number`    | A method that takes an options object got a number, often v0-style positional arguments such as `resize(100, 100)`. See [Migrate to v1](/jimp/guides/migrate-to-v1/#positional-arguments-to-options-objects). |
 
-Some schemas add their own rules with their own messages, for example [`pHash`](/jimp/methods/phash/)'s `smallerSize must not be larger than size`.
+Some schemas add their own rules with their own messages, for example [`pHash`](/jimp/methods/phash/)'s `smallerSize must not be larger than size`, [`quantize`](/jimp/methods/quantize/)'s `colors must be at least 2 for rgbquant` and [`diff`](/jimp/methods/diff/)'s `threshold must be a number between 0 and 1`.
+These are still `ZodError`s; the custom text is the issue's `message`.
 
-## Argument checks
+## Other checks
 
-Methods that take plain arguments rather than an options object check them by hand and throw an ordinary `Error` with a short message:
+Methods that take plain arguments rather than an options object check them by hand, and some rules can't be written as a schema.
+These throw an ordinary `Error` with a short message:
 
 | Method                                                    | Message                                         |
 | --------------------------------------------------------- | ----------------------------------------------- |
 | [`blur`](/jimp/methods/blur/), [`gaussian`](/jimp/methods/gaussian/) | `r must be a number`, `r must be greater than 0` |
-| [`composite`](/jimp/methods/composite/)                   | `The source must be a Jimp image`, `x and y must be numbers` |
-| [`getPixelColor`](/jimp/methods/get-pixel-color/), [`getPixelIndex`](/jimp/methods/get-pixel-index/) | `x and y must be numbers` |
-| [`setPixelColor`](/jimp/methods/set-pixel-color/)         | `hex, x and y must be numbers`                  |
-| [`scan`](/jimp/methods/scan/)                             | `x and y must be numbers`, `w and h must be numbers` |
+| [`composite`](/jimp/methods/composite/)                   | `The source must be a Jimp image: an object with a bitmap of width, height and data`, `x and y must be numbers` |
+| [`composite`](/jimp/methods/composite/)                   | `Unknown blend mode "nope", expected one of: srcOver, dstOver, multiply, add, screen, overlay, darken, lighten, hardLight, difference, exclusion` |
+| [`crop`](/jimp/methods/crop/)                             | `The crop region (x: 10, y: 10, w: 2, h: 2) doesn't overlap the 4x3 image, so the result would be empty` |
+| [`cover`](/jimp/methods/cover/), [`contain`](/jimp/methods/contain/) | `align must combine at most one HorizontalAlign and one VerticalAlign flag` |
+| [`getPixelColor`](/jimp/methods/get-pixel-color/), [`getPixelIndex`](/jimp/methods/get-pixel-index/) | `x and y must be numbers` (also for `NaN`) |
+| [`setPixelColor`](/jimp/methods/set-pixel-color/)         | `hex, x and y must be numbers` (also for `NaN`) |
+| [`scan`](/jimp/methods/scan/)                             | `y must be a number`, `w must be a number`, `h must be a number`, `cb must be a function` |
+| [`scanIterator`](/jimp/methods/scan-iterator/)            | `x and y must be numbers`, `w and h must be numbers` |
 | [`hash`](/jimp/methods/hash/)                             | `base must be a number between 2 and 64`        |
-| [`diff`](/jimp/methods/diff/)                             | `threshold must be a number between 0 and 1`    |
+| [`compareHashes`](/jimp/methods/compare-hashes/)          | `"be1fcbe0e0601e92" isn't a base 64 hash. Pass the base the hashes were made with to compareHashes, e.g. compareHashes(hash1, hash2, 16).`, `base must be a number between 2 and 64` |
 | [`compareHashes`](/jimp/methods/compare-hashes/), [`distanceFromHash`](/jimp/methods/distance-from-hash/) | `Can't compare hashes of different lengths (64 and 11). …` |
+| [`new Jimp`](/jimp/methods/new-jimp/)                  | `Unknown color space "nope", expected "srgb" or "display-p3"` |
 
 Each method page lists the errors it throws in its **Notes**.
+
+## Colors
+
+Options that take a CSS color string, such as `new Jimp({ color })`, [`border`](/jimp/methods/border/), [`boxShadow`](/jimp/methods/box-shadow/), [`color`](/jimp/methods/color/)'s `mix` and `xor` and [`diff`](/jimp/methods/diff/)'s colors, throw for a string that isn't a color:
+
+```ts title="example.ts"
+new Jimp({ width: 100, height: 100, color: "nope" });
+// Error: Invalid color "nope"
+
+new Jimp({ width: 100, height: 100, color: "color(display-p3 foo 0 0)" });
+// Error: Invalid color "color(display-p3 foo 0 0)": bad channel "foo"
+```
+
+The same goes for [`cssColorToHex`](/jimp/methods/css-color-to-hex/).
+**Changed in 2.0:** invalid color strings used to become opaque black without an error.
+
+## Regions and coordinates
+
+Regions that reach past the edge of the image don't throw: they're clamped to the image.
+[`crop`](/jimp/methods/crop/), [`scan`](/jimp/methods/scan/), [`blit`](/jimp/methods/blit/), [`pixelate`](/jimp/methods/pixelate/) and [`convolute`](/jimp/methods/convolute/) only touch the part of the region inside the image.
+`crop` throws only when nothing would be left: the region is entirely outside the image, or `w` or `h` is `0` or less.
+
+[`setPixelColor`](/jimp/methods/set-pixel-color/) outside the image does nothing, and [`getPixelColor`](/jimp/methods/get-pixel-color/) outside the image returns the nearest edge pixel.
+Both round fractional coordinates and throw for `NaN`.
+
+**Changed in 2.0:** out-of-bounds regions used to wrap onto the next row, throw `RangeError`s or grow the image. `setPixelColor` outside the image used to paint the nearest edge pixel, and `NaN` coordinates used to read or write pixel `(0, 0)`.
 
 ## Reading images
 
@@ -137,11 +171,16 @@ Each method page lists the errors it throws in its **Notes**.
 
 | Message                                                    | Cause and fix                                                                                                                                 |
 | ---------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
-| `Could not find MIME for Buffer`                           | The data isn't an image format Jimp recognizes: an empty or truncated file, an HTML error page, or a format such as SVG.                       |
+| `ENOENT: no such file or directory, open './typo.png'`     | In Node.js: the file doesn't exist. This is Node's own error, with `error.code` set to `"ENOENT"`. Check the path; relative paths start from the working directory. |
+| `Could not find MIME for Buffer`                           | The data isn't an image format Jimp recognizes: an empty or truncated file, an HTML error page, or a format no installed plugin reads, such as SVG without `@jimp/wasm-svg`. |
 | `Mime type image/webp does not support decoding`           | The format was recognized, but no plugin for it is installed. Add one of the [WASM formats](/jimp/guides/webp/) with a [custom Jimp](/jimp/guides/custom-jimp/). |
-| `Could not load Buffer from URL: photo.jpg`                | In Node.js: the file doesn't exist, so Jimp tried to fetch it as a URL and failed. Check the path; relative paths start from the working directory. In the browser: a network or CORS error. |
+| `Expected image data as a Buffer, ArrayBuffer, Uint8Array (or other ArrayBuffer view) or Blob` | `Jimp.read` or `Jimp.fromBuffer` got something that isn't image data, such as a number or a plain object. |
+| `Could not load Buffer from URL: https://…`                | `fetch` failed: the host can't be reached, or, in the browser, a CORS error.                                                                  |
 | `HTTP Status 404 for url https://…`                        | The server answered with an error status.                                                                                                     |
 | `Could not load Buffer from https://…`                     | The server answered, but reading the response body failed.                                                                                    |
+
+In Node.js, `Jimp.read` only fetches `http:`, `https:`, `data:` and `blob:` URLs; any other string is read as a file path. In the browser, every string is fetched.
+**Changed in 2.0:** in Node.js, a path that didn't exist used to be fetched as a URL, failing with `Could not load Buffer from URL: ./typo.png`.
 
 ### HTTP and CORS errors
 
@@ -154,7 +193,7 @@ Serve the image from your own origin, enable CORS on its server, or load it thro
 
 ### Size limits
 
-To protect against huge or malicious files, the JPEG, GIF, TIFF and BMP decoders refuse images over 100 megapixels by default:
+To protect against huge or malicious files, the JPEG, GIF, TIFF and BMP decoders refuse images over 100 megapixels by default, and so does the `@jimp/wasm-svg` plugin for the size it would render:
 
 | Format | Message                                                                       |
 | ------ | ----------------------------------------------------------------------------- |
@@ -162,6 +201,7 @@ To protect against huge or malicious files, the JPEG, GIF, TIFF and BMP decoders
 | GIF    | `GIF dimensions 800x600 exceed the maximum resolution of 0.1 megapixels`       |
 | TIFF   | `TIFF dimensions 800x600 exceed the maximum resolution of 0.1 megapixels`      |
 | BMP    | `BMP dimensions 800x600 exceed the maximum resolution of 0.1 megapixels`       |
+| SVG    | `SVG dimensions 100000x100000 exceed the maximum resolution of 100 megapixels. Use the width, height or scale option to render it smaller.` |
 
 If you trust the file, raise the limit with decode options, as described in [Reading Large Images](/jimp/guides/reading-large-images/):
 
@@ -171,7 +211,8 @@ const image = await Jimp.read("huge-photo.jpg", {
 });
 ```
 
-Corrupt files fail with the decoder's own message, such as `Invalid GIF dimensions 0x0` or `Invalid TIFF file: header is truncated`.
+Corrupt files fail with the decoder's own message, such as `Invalid GIF dimensions 0x0` or `Invalid ICO file: it contains no images`.
+Asking for an ICO entry that doesn't exist throws `ICO image index 5 is out of range, the file has 1 images`.
 
 ## Writing images
 
@@ -179,6 +220,9 @@ Corrupt files fail with the decoder's own message, such as `Invalid GIF dimensio
 
 - `Cannot write "output": the path has no recognisable file extension to determine the image format`: add an extension such as `.png`.
 - `Unsupported MIME type: image/webp`: no installed format can encode that type. Use a [built-in format](/jimp/concepts/formats/) or add a [WASM format](/jimp/guides/webp/).
+- `Unsupported BMP bit depth 7, use 1, 4, 8, 16, 24, 32`: the BMP `bitPP` option must be one of those values.
+- `A 4-bit BMP palette needs 1 to 16 colours, got 20`: a BMP `palette` has more colors than the bit depth can index.
+- `Jimp can read SVG but can't write it. Write a raster format like PNG (image/png) instead.`: `@jimp/wasm-svg` only decodes SVG.
 
 ## Fonts
 
@@ -188,15 +232,15 @@ Corrupt files fail with the decoder's own message, such as `Invalid GIF dimensio
 - `loadFont expects a path or URL to a font file, but received the contents of one: …`: the file's text was passed instead of its path.
 - `loadFont: font file not found: "…"`: the path doesn't exist.
 - `loadFont: font page not found: "…"`: a `.png` page listed in the font isn't next to the `.fnt` file.
+- `loadFont: font page "…/font_0.tga" is a TGA image; Jimp fonts need PNG pages. …`: export the font with PNG pages.
+- `loadFont: couldn't load "https://…": HTTP 404 Not Found` and `loadFont: couldn't fetch "https://…": …`: the font's URL returned an error status, or the request failed.
 
 The [`loadFont`](/jimp/methods/load-font/#errors) page lists them all.
 
 <Aside type="caution" title="Errors from inside a method">
   A few mistakes get past validation and fail later with a less helpful
   message. Calling `print` without a `font` throws
-  `Cannot read properties of undefined (reading 'chars')`, and `print` with
-  `HorizontalAlign.CENTER` but no `maxWidth` fails inside the drawing code
-  with `Invalid input: expected number, received Infinity`. When an error
+  `Cannot read properties of undefined (reading 'chars')`. When an error
   doesn't make sense, check the method's page for known pitfalls.
 </Aside>
 

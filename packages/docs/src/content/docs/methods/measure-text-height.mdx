@@ -6,7 +6,6 @@ method: "measureTextHeight"
 plugin: "@jimp/plugin-print"
 ---
 
-import { Aside } from "@astrojs/starlight/components";
 import Related from "../../../components/Related.astro";
 
 `measureTextHeight` returns how many pixels tall text is when [`print`](/jimp/methods/print/) wraps it at a given width.
@@ -17,18 +16,18 @@ Use it to make room for a caption, or to check that text fits in a box before pr
 ```ts title="measureTextHeight.d.ts"
 import { measureTextHeight } from "jimp";
 
-measureTextHeight(font: BmFont, text: string, maxWidth: number): number
+measureTextHeight(font: BmFont, text: string, maxWidth?: number): number
 ```
 
 `measureTextHeight` is a function, not an image method. It returns the number of lines times the font's line height.
 
 ## Parameters
 
-| Parameter  | Type     | Default  | Description                                                              |
-| ---------- | -------- | -------- | ------------------------------------------------------------------------ |
-| `font`     | `BmFont` | required | A font from [`loadFont`](/jimp/methods/load-font/).                      |
-| `text`     | `string` | required | The text to measure. `\n` starts a new line.                             |
-| `maxWidth` | `number` | required | The width to wrap at, as `print`'s `maxWidth`. Pass `Infinity` to only break at `\n`. |
+| Parameter  | Type     | Default    | Description                                                              |
+| ---------- | -------- | ---------- | ------------------------------------------------------------------------ |
+| `font`     | `BmFont` | required   | A font from [`loadFont`](/jimp/methods/load-font/).                      |
+| `text`     | `string` | required   | The text to measure. `\n`, `\r\n` and `\r` start a new line.             |
+| `maxWidth` | `number` | `Infinity` | The width to wrap at, as `print`'s `maxWidth`. Leave it out to only break at line breaks. |
 
 ## Example
 
@@ -68,16 +67,12 @@ With `SANS_32_BLACK` (36px line height) that caption wrapped at 200px takes four
 
 ## Notes
 
-- **Same wrapping as `print`.** The lines are split exactly as `print` splits them for the same `maxWidth`: at spaces, at `\n`, and between characters for words wider than `maxWidth`.
-- **Line height.** Each line counts as `font.common.lineHeight` pixels, which includes the space between lines. Text with no characters still counts as one line.
-- **For the width,** use [`measureText`](/jimp/methods/measure-text/) on a single line.
-
-<Aside type="caution" title="Always pass maxWidth">
-  `maxWidth` has no default. If you leave it out (possible in plain
-  JavaScript), the result is counted as an empty line followed by one line per
-  word, so it comes out too large: `measureTextHeight(font, "Hello")` returns
-  `72` with a 36px font instead of `36`. Pass `Infinity` when the text doesn't wrap.
-</Aside>
+- **Same wrapping as `print`.** The lines are split exactly as `print` splits them for the same `maxWidth`: at line breaks, at spaces, and between characters for words wider than `maxWidth`.
+- **Empty lines count.** Every line break starts a line, so `"a\n\nb"` is three lines tall, and leading or trailing line breaks add a line each. Text with no characters is one line.
+- **Line height.** Each line counts as `font.common.lineHeight` pixels, which includes the space between lines.
+- **For the width,** use [`measureText`](/jimp/methods/measure-text/), which returns the width of the widest line.
+- **Changed in 2.0:** `maxWidth` is optional. Leaving it out in plain JavaScript used to count an empty line plus one line per word, so `measureTextHeight(font, "Hello")` returned `72` with a 36px font instead of `36`.
+- **Changed in 2.0:** blank lines used to be collapsed, so `"a\n\nb"` measured two lines. Empty lines now count, matching what `print` draws.
 
 ## Related
 

@@ -6,12 +6,11 @@ method: "print"
 plugin: "@jimp/plugin-print"
 ---
 
-import { Aside } from "@astrojs/starlight/components";
 import Playground from "../../../components/playground/Playground";
 import Related from "../../../components/Related.astro";
 
 `print` draws text onto the image with a bitmap font from [`loadFont`](/jimp/methods/load-font/).
-Give it a `maxWidth` to wrap the text into lines, and a box to align it in.
+The text is laid out in a box that starts at `x`, `y`: set `maxWidth` to wrap lines, and align the text inside the box.
 
 ## Signature
 
@@ -39,17 +38,17 @@ image.print(options: {
 
 ## Options
 
-| Option      | Type                                     | Default    | Description                                                                                                       |
-| ----------- | ---------------------------------------- | ---------- | ----------------------------------------------------------------------------------------------------------------- |
-| `font`      | `BmFont`                                 | required   | A font loaded with `loadFont`.                                                                                    |
-| `x`         | `number`                                 | required   | Left edge of the text, or of the text box when `maxWidth` is set.                                                |
-| `y`         | `number`                                 | required   | Top edge of the text, or of the text box when `maxHeight` is set.                                                |
-| `text`      | `string \| number \| object`             | required   | The text to draw. Pass `{ text, alignmentX, alignmentY }` to align it.                                            |
-| `text.alignmentX` | `HorizontalAlign`                  | `LEFT`     | `HorizontalAlign.LEFT`, `CENTER` or `RIGHT`, within `maxWidth`.                                    |
-| `text.alignmentY` | `VerticalAlign`                    | `TOP`      | `VerticalAlign.TOP`, `MIDDLE` or `BOTTOM`, within `maxHeight`.                                     |
-| `maxWidth`  | `number`                                 | `Infinity` | Width of the text box. Lines longer than this wrap.                                                               |
-| `maxHeight` | `number`                                 | `Infinity` | Height of the text box. Only used to align the text vertically; it doesn't clip.                                  |
-| `cb`        | `function`                               | none       | Called after drawing with `{ x, y }`: the right edge of the longest line and the bottom of the last line. `this` is the image. |
+| Option            | Type                         | Default            | Description                                                                                                         |
+| ----------------- | ---------------------------- | ------------------ | ------------------------------------------------------------------------------------------------------------------- |
+| `font`            | `BmFont`                     | required           | A font loaded with `loadFont`.                                                                                      |
+| `x`               | `number`                     | required           | Left edge of the text box.                                                                                          |
+| `y`               | `number`                     | required           | Top edge of the text box.                                                                                           |
+| `text`            | `string \| number \| object` | required           | The text to draw. Pass `{ text, alignmentX, alignmentY }` to align it.                                              |
+| `text.alignmentX` | `HorizontalAlign`            | `LEFT`             | `HorizontalAlign.LEFT`, `CENTER` or `RIGHT`: where each line sits across the width of the box.                      |
+| `text.alignmentY` | `VerticalAlign`              | `TOP`              | `VerticalAlign.TOP`, `MIDDLE` or `BOTTOM`: where the block of lines sits in the height of the box.                  |
+| `maxWidth`        | `number`                     | to the right edge  | Width of the text box. Lines wider than this wrap. Without it the box reaches the right edge of the image, and the text only breaks at line breaks. |
+| `maxHeight`       | `number`                     | to the bottom edge | Height of the text box, used only for `alignmentY`. Without it the box reaches the bottom edge of the image. It doesn't clip. |
+| `cb`              | `function`                   | none               | Called after drawing with `{ x, y }`: `x` plus the width of the widest line, and the bottom of the last line. `this` is the image. |
 
 ## Example
 
@@ -65,10 +64,34 @@ image.print({ font, x: 10, y: 10, text: "Hello, world" });
 await image.write("hello.png");
 ```
 
+### Center text on the image
+
+Without `maxWidth` and `maxHeight`, the box reaches from `x`, `y` to the right and bottom edges of the image.
+Start at `0, 0` to align the text on the whole image:
+
+```ts title="example.ts"
+import { Jimp, loadFont, HorizontalAlign, VerticalAlign } from "jimp";
+import { SANS_32_BLACK } from "jimp/fonts";
+
+const image = new Jimp({ width: 400, height: 200, color: 0xffffffff });
+const font = await loadFont(SANS_32_BLACK);
+
+image.print({
+  font,
+  x: 0,
+  y: 0,
+  text: {
+    text: "Centered",
+    alignmentX: HorizontalAlign.CENTER,
+    alignmentY: VerticalAlign.MIDDLE,
+  },
+});
+```
+
 ### Wrap and align text in a box
 
-Set `maxWidth` to wrap the text at word boundaries, and pass an object as `text` to align each line.
-Vertical alignment needs `maxHeight` too, since it positions the block of lines inside that height.
+Set `maxWidth` to wrap the text at spaces, and `maxHeight` to give the box a height to align in.
+Here the caption sits at the bottom of the photo with a 20px margin:
 
 ```ts title="example.ts"
 import { Jimp, loadFont, HorizontalAlign, VerticalAlign } from "jimp";
@@ -93,7 +116,7 @@ image.print({
 
 ### Find where the text ended
 
-`cb` receives the point just past the text: `x` is the starting `x` plus the width of the longest line, and `y` is the bottom of the last line.
+`cb` receives the point just past the text: `x` is the starting `x` plus the width of the widest line, and `y` is the bottom of the last line.
 Use it to place the next element below the text.
 
 ```ts title="example.ts"
@@ -116,27 +139,25 @@ To know the size before drawing, use [`measureText`](/jimp/methods/measure-text/
 
 ## Try it
 
-Pick a font and some text, click the image to move the starting point, and turn on the text box to wrap and align.
+Pick a font, some text and an alignment, and click the image to move the box's top left corner. Turn on the text box to set `maxWidth` and `maxHeight`.
 The code shows the `jimp/fonts` constant you'd use in Node.js; this page loads the same fonts by URL.
 
 <Playground method="print" client:visible />
 
 ## Notes
 
-- **Line breaks.** `\n` and `\r\n` in the text start a new line. Lines are `font.common.lineHeight` pixels apart (36 for the 32px fonts).
-- **Wrapping.** Lines break at spaces. A single word wider than `maxWidth` is split between characters.
+- **Line breaks.** Every `\n`, `\r\n` or `\r` starts a new line, so `"a\n\nb"` prints three lines with an empty one in the middle. Leading and trailing line breaks add empty lines too. Lines are `font.common.lineHeight` pixels apart (36 for the 32px fonts).
+- **Wrapping.** With `maxWidth`, lines break at spaces and words move to the next line whole. Only a word wider than `maxWidth` on its own is split between characters. The spaces where a line wraps are dropped; other spaces, including runs of spaces and leading spaces, are printed as they are.
 - **`maxHeight` doesn't clip.** Text that doesn't fit runs past the bottom of the box. Measure first with [`measureTextHeight`](/jimp/methods/measure-text-height/) if it has to fit.
-- **Missing characters.** A character the font has no glyph for is drawn as `?`. Whitespace with no glyph is left blank. The 8, 16, 32, 64 and 128 px bundled fonts cover printable ASCII (except `` ` ``), Latin-1 letters and symbols such as `é` and `£`, and `€`. The 10, 12 and 14 px fonts cover ASCII only. For other scripts, [make your own font](/jimp/concepts/text-and-fonts/#making-your-own-fonts).
+- **Text can overflow the box.** Without `maxWidth`, a long line isn't wrapped: left-aligned text runs past the right edge of the image, and centered or right-aligned text can start left of `x`.
+- **Missing characters.** A character the font has no glyph for is drawn as `?`. Whitespace with no glyph is left blank. The 8, 16, 32, 64 and 128 px bundled fonts cover printable ASCII (except `` ` ``), Latin-1 letters and symbols such as `é` and `£`, and `€`. The 10, 12 and 14 px fonts cover printable ASCII only. For other scripts, [make your own font](/jimp/concepts/text-and-fonts/#making-your-own-fonts).
 - **Text color comes from the font.** Glyphs are copied from the font's image pages as they are, so a `_BLACK` font prints black and a `_WHITE` font prints white. See [Coloring text](/jimp/concepts/text-and-fonts/#coloring-text) for other colors.
 - **Validation.** `x`, `y`, `maxWidth` and `maxHeight` must be numbers, and `alignmentX` and `alignmentY` must be enum values. Anything else throws a `ZodError`, for example `Invalid input: expected number, received undefined` at path `x`. A missing `font` throws `Cannot read properties of undefined (reading 'chars')`.
 - **v0 signature.** In v0 the call was `image.print(font, x, y, text, maxWidth, maxHeight, cb)`. Passing the font first in v1 fails validation because `x` and `y` are missing. See [Migrate to v1](/jimp/guides/migrate-to-v1/#fonts).
-
-<Aside type="caution" title="Horizontal alignment needs maxWidth">
-  `CENTER` and `RIGHT` align each line inside `maxWidth`. Without a `maxWidth`
-  the box is infinitely wide and `print` throws a validation error from drawing
-  at `x: Infinity` (`Invalid input: expected number, received Infinity`). Set
-  `maxWidth`, for example to `image.width`, whenever you set `alignmentX`.
-</Aside>
+- **Changed in 2.0:** `alignmentX` without `maxWidth` used to throw (`Invalid input: expected number, received Infinity`). It now aligns the text within the image, to the right of `x`.
+- **Changed in 2.0:** `alignmentY` without `maxHeight` used to be ignored. It now aligns the text within the image, below `y`, so `BOTTOM` moves the text to the bottom edge of the image.
+- **Changed in 2.0:** blank lines used to be collapsed, so `"a\n\nb"` printed two lines. Every line break now starts a line, and vertical alignment and `cb` count the empty lines.
+- **Changed in 2.0:** a word that fit on a line of its own but not after the text already on the line could be split mid-word. It now moves to the next line whole. `cb`'s `x` also used to miss the widest line when that line started after a wrap or a line break.
 
 ## Related
 

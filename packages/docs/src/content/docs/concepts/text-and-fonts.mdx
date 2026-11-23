@@ -38,15 +38,15 @@ Jimp includes Open Sans in these sizes. The number is the font size in pixels; t
 | Size  | Black            | White            | Characters                       |
 | ----- | ---------------- | ---------------- | -------------------------------- |
 | 8px   | `SANS_8_BLACK`   | `SANS_8_WHITE`   | ASCII, Latin-1 and `€`           |
-| 10px  | `SANS_10_BLACK`  |                  | ASCII                            |
-| 12px  | `SANS_12_BLACK`  |                  | ASCII                            |
-| 14px  | `SANS_14_BLACK`  |                  | ASCII                            |
+| 10px  | `SANS_10_BLACK`  |                  | ASCII only                       |
+| 12px  | `SANS_12_BLACK`  |                  | ASCII only                       |
+| 14px  | `SANS_14_BLACK`  |                  | ASCII only                       |
 | 16px  | `SANS_16_BLACK`  | `SANS_16_WHITE`  | ASCII, Latin-1 and `€`           |
 | 32px  | `SANS_32_BLACK`  | `SANS_32_WHITE`  | ASCII, Latin-1 and `€`           |
 | 64px  | `SANS_64_BLACK`  | `SANS_64_WHITE`  | ASCII, Latin-1 and `€`           |
 | 128px | `SANS_128_BLACK` | `SANS_128_WHITE` | ASCII, Latin-1 and `€`           |
 
-"Latin-1" covers accented letters such as `é`, `ñ` and `ü`, and symbols such as `£`, `©` and `°`. The Latin-1 fonts don't have a glyph for the backtick (`` ` ``).
+"ASCII" means the printable ASCII characters. "Latin-1" covers accented letters such as `é`, `ñ` and `ü`, and symbols such as `£`, `©` and `°`. The fonts with Latin-1 don't have a glyph for the backtick (`` ` ``).
 
 ### Fonts in the browser
 
@@ -76,11 +76,13 @@ Print on top of other edits. Click **print** to add text, then click the image t
 
 ## Wrapping and alignment
 
-Give `print` a `maxWidth` and it wraps the text at spaces so that no line is wider.
-`\n` in the text always starts a new line.
+`print` lays the text out in a box whose top left corner is at `x`, `y`.
+`maxWidth` and `maxHeight` set the size of the box. Without them, the box reaches the right and bottom edges of the image.
 
-To align the text, pass an object as `text` with `alignmentX` from `HorizontalAlign` and `alignmentY` from `VerticalAlign`.
-The text is aligned inside the box that starts at `x`, `y` and is `maxWidth` wide and `maxHeight` tall.
+Give `print` a `maxWidth` and it wraps the text at spaces so that no line is wider. Words move to the next line whole; only a word wider than `maxWidth` is split.
+Without `maxWidth`, text only breaks at line breaks. Every `\n`, `\r\n` or `\r` starts a new line, and blank lines are kept, so `"Title\n\nBody"` leaves an empty line between the two.
+
+To align the text, pass an object as `text` with `alignmentX` from `HorizontalAlign` and `alignmentY` from `VerticalAlign`:
 
 ```ts title="example.ts"
 import { Jimp, loadFont, HorizontalAlign, VerticalAlign } from "jimp";
@@ -104,26 +106,30 @@ image.print({
 });
 ```
 
-| Constant                   | Aligns text                          | Needs       |
-| -------------------------- | ------------------------------------ | ----------- |
-| `HorizontalAlign.LEFT`     | to the left edge of the box (default) |             |
-| `HorizontalAlign.CENTER`   | centered in the box                  | `maxWidth`  |
-| `HorizontalAlign.RIGHT`    | to the right edge of the box         | `maxWidth`  |
-| `VerticalAlign.TOP`        | to the top of the box (default)      |             |
-| `VerticalAlign.MIDDLE`     | centered vertically                  | `maxHeight` |
-| `VerticalAlign.BOTTOM`     | to the bottom of the box             | `maxHeight` |
+To center text on the whole image, start the box at `0, 0` and leave out `maxWidth` and `maxHeight`.
 
-<Aside type="caution">
-  Always set `maxWidth` when you use `CENTER` or `RIGHT`. Without it, the box is
-  infinitely wide and `print` throws a validation error. Without `maxHeight`,
-  `MIDDLE` and `BOTTOM` have no effect.
-</Aside>
+| Constant                 | Aligns text                           |
+| ------------------------ | ------------------------------------- |
+| `HorizontalAlign.LEFT`   | to the left edge of the box (default) |
+| `HorizontalAlign.CENTER` | centered in the box                   |
+| `HorizontalAlign.RIGHT`  | to the right edge of the box          |
+| `VerticalAlign.TOP`      | to the top of the box (default)       |
+| `VerticalAlign.MIDDLE`   | centered vertically                   |
+| `VerticalAlign.BOTTOM`   | to the bottom of the box              |
 
 `maxHeight` positions the text but doesn't cut it off: lines that don't fit continue below the box.
 
+<Aside type="note" title="Changed in 2.0">
+  Alignment without a box size used to fail: `CENTER` and `RIGHT` without
+  `maxWidth` threw, and `MIDDLE` and `BOTTOM` without `maxHeight` were ignored.
+  They now align within the image, so `VerticalAlign.BOTTOM` with no
+  `maxHeight` moves the text to the bottom edge of the image. Blank lines used
+  to be collapsed into one line break; they're now printed and measured.
+</Aside>
+
 ## Measuring text
 
-[`measureText`](/jimp/methods/measure-text/) returns the width of one line, and [`measureTextHeight`](/jimp/methods/measure-text-height/) returns the height of text wrapped at a given width.
+[`measureText`](/jimp/methods/measure-text/) returns the width of the widest line, and [`measureTextHeight`](/jimp/methods/measure-text-height/) returns the height of the text, wrapped at `maxWidth` if you pass one.
 Both use the same spacing and line breaking as `print`, so you can size things before drawing:
 
 ```ts title="example.ts"
@@ -136,7 +142,7 @@ const text = "Sale";
 // A badge that fits the text with 10px of padding on each side
 const badge = new Jimp({
   width: measureText(font, text) + 20,
-  height: measureTextHeight(font, text, Infinity) + 20,
+  height: measureTextHeight(font, text) + 20,
   color: 0xffd83aff,
 });
 
@@ -160,7 +166,7 @@ const text = "Jimp";
 
 const layer = new Jimp({
   width: measureText(font, text),
-  height: measureTextHeight(font, text, Infinity),
+  height: measureTextHeight(font, text),
   color: 0x00000000,
 });
 layer.print({ font, x: 0, y: 0, text });
@@ -187,7 +193,7 @@ The only fix is a font that does.
 ## Making your own fonts
 
 Fonts are in the [BMFont](https://www.angelcode.com/products/bmfont/) format: a `.fnt` file that describes each glyph, and one or more `.png` pages that hold the glyph images.
-Text, XML, JSON and binary `.fnt` files all work.
+Text, XML, JSON and binary `.fnt` files all work, but the pages must be PNG images.
 
 Any BMFont generator can make one from a TrueType or OpenType font. For example, with [fontbm](https://github.com/vladimirgamalyan/fontbm) and [Noto Sans JP](https://fonts.google.com/noto/specimen/Noto+Sans+JP):
 
@@ -205,6 +211,7 @@ const font = await loadFont("fonts/noto-sans-jp.fnt");
 image.print({ font, x: 10, y: 10, text: "こんにちは世界" });
 ```
 
+- **Export PNG pages.** AngelCode's BMFont writes TGA pages by default; set its texture format to `png`. A TGA page makes `loadFont` throw `loadFont: font page "…/font_0.tga" is a TGA image; Jimp fonts need PNG pages. …`.
 - **Set the color and size when generating.** Jimp doesn't scale or tint glyphs.
 - **Use plain bitmaps.** Signed distance field (SDF or MSDF) fonts are meant to be rendered by a shader and won't look right.
 - **Include only what you need.** CJK fonts have thousands of glyphs; limiting the characters keeps the pages small.

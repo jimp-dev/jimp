@@ -50,6 +50,7 @@ const texts = [
   "Jimp",
   "The quick brown fox jumps over the lazy dog",
   "First line\nSecond line",
+  "Title\n\nA blank line above",
   "Café crème, 4,50 €",
   "こんにちは",
 ];
@@ -67,6 +68,17 @@ const edits = [
 ];
 
 const SQUARE = 60;
+const DEFAULT_DIFF_COLOR = "#ff0000";
+
+/** diff's options, leaving out the ones at their defaults */
+function diffOptions(o: { threshold: number; diffMask: boolean; diffColor: string; alpha: number }) {
+  return {
+    threshold: o.threshold,
+    ...(o.diffMask && { diffMask: true }),
+    ...(o.diffColor !== DEFAULT_DIFF_COLOR && { diffColor: o.diffColor }),
+    ...(!o.diffMask && o.alpha !== 0.1 && { alpha: o.alpha }),
+  };
+}
 
 function editCode(edit: string, at: { x: number; y: number }) {
   switch (edit) {
@@ -91,9 +103,9 @@ export default [
     icon: "text",
     group: "text",
     description:
-      "Draw text with a bitmap font. Turn on the text box to wrap lines and align them.",
+      "Draw text with a bitmap font, aligned in a box from x, y to the image's edges. Turn on the text box to set its size and wrap lines.",
     controls: [
-      { type: "select", key: "text", options: texts.map((t) => ({ value: t, label: t.replace("\n", " ⏎ ") })) },
+      { type: "select", key: "text", options: texts.map((t) => ({ value: t, label: t.replace(/\n/g, " ⏎ ") })) },
       { type: "select", key: "font", options: [...fontNames] },
       { type: "xy", key: "at", label: "x, y" },
       { type: "toggle", key: "box", label: "text box" },
@@ -103,13 +115,11 @@ export default [
         type: "select",
         key: "alignmentX",
         options: alignX.map((a) => ({ value: a, label: `HorizontalAlign.${a}` })),
-        when: (o) => o.box,
       },
       {
         type: "select",
         key: "alignmentY",
         options: alignY.map((a) => ({ value: a, label: `VerticalAlign.${a}` })),
-        when: (o) => o.box,
       },
     ],
     defaults: ({ width, height }: ImageSize) => ({
@@ -124,46 +134,47 @@ export default [
     }),
     apply: async (image, { text, font: fontName, at, box, maxWidth, maxHeight, alignmentX, alignmentY }) => {
       const font = await getFont(fontName);
-      if (!box) {
-        image.print({ font, x: at.x, y: at.y, text });
-        return;
-      }
+      const aligned = alignmentX !== "LEFT" || alignmentY !== "TOP";
       image.print({
         font,
         x: at.x,
         y: at.y,
-        text: {
-          text,
-          alignmentX: HorizontalAlign[alignmentX as keyof typeof HorizontalAlign],
-          alignmentY: VerticalAlign[alignmentY as keyof typeof VerticalAlign],
-        },
-        maxWidth,
-        maxHeight,
+        text: aligned
+          ? {
+              text,
+              alignmentX: HorizontalAlign[alignmentX as keyof typeof HorizontalAlign],
+              alignmentY: VerticalAlign[alignmentY as keyof typeof VerticalAlign],
+            }
+          : text,
+        // Without a box, the text is aligned within the image right of x and below y
+        ...(box && { maxWidth, maxHeight }),
       });
     },
     code: ({ text, font, at, box, maxWidth, maxHeight, alignmentX, alignmentY }) => {
       const load = `const font = await loadFont(${font});`;
       // js() has no shorthand properties, so turn `font: font` into `font`
       const call = (options: string) => `image.print(${options.replace(/^\{ font: font,/, "{ font,")});`;
-      if (!box) {
-        return `${load}\n${call(js({ font: raw("font"), x: at.x, y: at.y, text }))}`;
-      }
+      const aligned = alignmentX !== "LEFT" || alignmentY !== "TOP";
       const options = js({
         font: raw("font"),
         x: at.x,
         y: at.y,
-        text: {
-          text,
-          alignmentX: raw(`HorizontalAlign.${alignmentX}`),
-          alignmentY: raw(`VerticalAlign.${alignmentY}`),
-        },
-        maxWidth,
-        maxHeight,
+        text: aligned
+          ? {
+              text,
+              alignmentX: raw(`HorizontalAlign.${alignmentX}`),
+              alignmentY: raw(`VerticalAlign.${alignmentY}`),
+            }
+          : text,
+        ...(box && { maxWidth, maxHeight }),
       });
       return `${load}\n${call(options)}`;
     },
-    imports: ({ font, box }) => ({
-      jimp: box ? ["loadFont", "HorizontalAlign", "VerticalAlign"] : ["loadFont"],
+    imports: ({ font, alignmentX, alignmentY }) => ({
+      jimp:
+        alignmentX !== "LEFT" || alignmentY !== "TOP"
+          ? ["loadFont", "HorizontalAlign", "VerticalAlign"]
+          : ["loadFont"],
       "jimp/fonts": [font],
     }),
     thumbnail: { text: "Jimp", font: "SANS_64_BLACK", alignmentY: "MIDDLE" },
@@ -175,11 +186,14 @@ export default [
     icon: "compare",
     group: "compare",
     description:
-      "Compare the image with an edited copy. Changed pixels are red; the rest is a faded copy.",
+      "Compare the image with an edited copy. Changed pixels are drawn in diffColor; the rest is a faded copy, or the original with diffMask.",
     controls: [
       { type: "select", key: "edit", label: "edit the copy", options: edits },
       { type: "xy", key: "at", label: "square at", when: (o) => o.edit === "square" },
       { type: "slider", key: "threshold", min: 0, max: 1, step: 0.05 },
+      { type: "toggle", key: "diffMask" },
+      { type: "color", key: "diffColor" },
+      { type: "slider", key: "alpha", min: 0, max: 1, step: 0.05, when: (o) => !o.diffMask },
     ],
     defaults: ({ width, height }: ImageSize) => ({
       edit: "square",
@@ -188,8 +202,11 @@ export default [
         y: Math.max(0, Math.round(height / 2 - SQUARE / 2)),
       },
       threshold: 0.1,
+      diffMask: false,
+      diffColor: DEFAULT_DIFF_COLOR,
+      alpha: 0.1,
     }),
-    apply: (image, { edit, at, threshold }, { Jimp }) => {
+    apply: (image, { edit, at, threshold, diffMask, diffColor, alpha }, { Jimp }) => {
       const edited = image.clone();
       if (edit === "brightness") edited.brightness(1.3);
       else if (edit === "blur") edited.blur(2);
@@ -198,13 +215,15 @@ export default [
         const square = new Jimp({ width: SQUARE, height: SQUARE, color: 0xff0000ff });
         edited.composite(square, at.x, at.y);
       }
-      image.composite(diff(image, edited, threshold).image);
+      image.composite(diff(image, edited, diffOptions({ threshold, diffMask, diffColor, alpha })).image);
     },
-    code: ({ edit, at, threshold }) =>
+    code: ({ edit, at, threshold, diffMask, diffColor, alpha }) =>
       [
         editCode(edit, at),
-        "// diff returns { percent, image }. Draw the diff image over the original:",
-        `image.composite(diff(image, edited, ${js(threshold)}).image);`,
+        diffMask
+          ? "// diff returns { percent, image }. Draw the changes over the original:"
+          : "// diff returns { percent, image }. Draw the diff image over the original:",
+        `image.composite(diff(image, edited, ${js(diffOptions({ threshold, diffMask, diffColor, alpha }))}).image);`,
       ].join("\n"),
     imports: () => ({ jimp: ["diff"] }),
   }),
