@@ -111,6 +111,13 @@ export const guides: DocPage[] = [
     icon: "exif",
   },
   {
+    slug: "guides/color-spaces",
+    title: "Color Spaces",
+    blurb: "Display P3, sRGB and ICC profiles: what Jimp keeps and converts.",
+    color: "#ff5fb0",
+    icon: "colorSpace",
+  },
+  {
     slug: "guides/writing-plugins",
     title: "Writing Plugins",
     blurb: "Add new image formats or manipulation methods.",

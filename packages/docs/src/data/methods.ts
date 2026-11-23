@@ -61,6 +61,7 @@ export const methods: MethodEntry[] = [
   // Blur & effects
   m("blur", "blur", "effects", "@jimp/plugin-blur"),
   m("gaussian", "gaussian", "effects", "@jimp/plugin-blur"),
+  m("sharpen", "sharpen", "effects", "@jimp/plugin-blur"),
   m("pixelate", "pixelate", "effects", "@jimp/plugin-color"),
   m("dither", "dither", "effects", "@jimp/plugin-dither"),
   m("convolute", "convolute", "effects", "@jimp/plugin-color"),
@@ -70,6 +71,7 @@ export const methods: MethodEntry[] = [
 
   // Color
   m("color", "color", "color", "@jimp/plugin-color"),
+  m("to-color-space", "toColorSpace", "color", "@jimp/core"),
   m("brightness", "brightness", "color", "@jimp/plugin-color"),
   m("contrast", "contrast", "color", "@jimp/plugin-color"),
   m("greyscale", "greyscale", "color", "@jimp/plugin-color"),
@@ -78,6 +80,7 @@ export const methods: MethodEntry[] = [
   m("posterize", "posterize", "color", "@jimp/plugin-color"),
   m("normalize", "normalize", "color", "@jimp/plugin-color"),
   m("threshold", "threshold", "color", "@jimp/plugin-threshold"),
+  m("otsu-threshold", "otsuThreshold", "color", "@jimp/plugin-threshold"),
   m("quantize", "quantize", "color", "@jimp/plugin-quantize"),
   m("opacity", "opacity", "color", "@jimp/plugin-color"),
   m("fade", "fade", "color", "@jimp/plugin-color"),
