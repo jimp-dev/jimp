@@ -266,6 +266,58 @@ function validatePage(
   }
 }
 
+const PHOTOMETRIC_CMYK = 5;
+
+/**
+ * utif2's toRGBA8 reads `window.UDOC` for CMYK images, which throws in Node.
+ * Convert them here instead, with the same naive formula ImageMagick uses when
+ * there's no color profile. utif2 has already decoded 16 bit samples to
+ * little endian.
+ */
+function cmykToRGBA8(page: IFD) {
+  const bitsPerSample = getTagValue(page, 258) ?? 1;
+  const samplesPerPixel = getTagValue(page, 277) ?? 1;
+
+  if (bitsPerSample !== 8 && bitsPerSample !== 16) {
+    throw new Error(
+      `Unsupported CMYK TIFF bits per sample ${bitsPerSample}, only 8 and 16 are supported`
+    );
+  }
+
+  if (samplesPerPixel < 4) {
+    throw new Error(
+      `Invalid CMYK TIFF: expected at least 4 samples per pixel, got ${samplesPerPixel}`
+    );
+  }
+
+  const data = page.data;
+  const bytesPerSample = bitsPerSample / 8;
+  const max = 2 ** bitsPerSample - 1;
+  const scale = 255 / (max * max);
+  const hasAlpha = samplesPerPixel > 4;
+  const area = page.width * page.height;
+  const rgba = new Uint8Array(area * 4);
+
+  const sample = (index: number) =>
+    bytesPerSample === 1
+      ? data[index]!
+      : data[index * 2]! | (data[index * 2 + 1]! << 8);
+
+  for (let i = 0; i < area; i++) {
+    const offset = i * samplesPerPixel;
+    const k = max - sample(offset + 3);
+
+    rgba[i * 4] = Math.round((max - sample(offset)) * k * scale);
+    rgba[i * 4 + 1] = Math.round((max - sample(offset + 1)) * k * scale);
+    rgba[i * 4 + 2] = Math.round((max - sample(offset + 2)) * k * scale);
+    rgba[i * 4 + 3] = hasAlpha
+      ? Math.round((sample(offset + 4) * 255) / max)
+      : 255;
+  }
+
+  return rgba;
+}
+
 export default function tiff() {
   return {
     mime: "image/tiff",
@@ -305,7 +357,10 @@ export default function tiff() {
       // Only the first page is returned, so only decode that one
       utif.decodeImage(data, page);
 
-      const rgba = utif.toRGBA8(page);
+      const rgba =
+        getTagValue(page, 262) === PHOTOMETRIC_CMYK
+          ? cmykToRGBA8(page)
+          : utif.toRGBA8(page);
 
       return {
         data: Buffer.from(rgba),
