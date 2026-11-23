@@ -278,6 +278,33 @@ describe("Write text over image", function () {
     expect(output).toMatchImageSnapshot();
   });
 
+  test("text printed on a transparent image keeps its color at the edges", async () => {
+    const font = await loadFont(fonts.SANS_32_WHITE);
+    const image = new Jimp({ width: 200, height: 60, color: 0x00000000 });
+    image.print({ font, x: 10, y: 10, text: "Hello" });
+
+    let edgePixels = 0;
+    const darkened: number[][] = [];
+
+    image.scan((_, __, idx) => {
+      const [r, g, b, a] = image.bitmap.data.subarray(idx, idx + 4);
+
+      if (a! > 0 && a! < 255) {
+        edgePixels++;
+      }
+
+      // Anti-aliased edges used to be darkened towards the transparent black
+      // background, e.g. (190, 190, 190, 191). The font page itself has some
+      // 254s in it.
+      if (a! > 0 && Math.min(r!, g!, b!) < 254) {
+        darkened.push([r!, g!, b!, a!]);
+      }
+    });
+
+    expect(edgePixels).toBeGreaterThan(0);
+    expect(darkened).toEqual([]);
+  });
+
   test("left-align text by default", async () => {
     const textImage = await createTextImage(320, 240, fonts.SANS_16_BLACK, {
       text: "This is only a test.",
