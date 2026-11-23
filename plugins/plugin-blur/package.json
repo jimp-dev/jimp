@@ -19,12 +19,14 @@
   "license": "MIT",
   "dependencies": {
     "@jimp/core": "workspace:*",
-    "@jimp/utils": "workspace:*"
+    "@jimp/utils": "workspace:*",
+    "zod": "^4.6.7"
   },
   "devDependencies": {
     "@jimp/config-eslint": "workspace:*",
     "@jimp/config-typescript": "workspace:*",
     "@jimp/config-vitest": "workspace:*",
+    "@jimp/js-jpeg": "workspace:*",
     "@jimp/js-png": "workspace:*",
     "@jimp/test-utils": "workspace:*",
     "@jimp/types": "workspace:*",

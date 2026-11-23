@@ -1023,6 +1023,9 @@ importers:
       '@jimp/utils':
         specifier: workspace:*
         version: link:../../packages/utils
+      zod:
+        specifier: ^4.6.7
+        version: 4.6.7
     devDependencies:
       '@jimp/config-eslint':
         specifier: workspace:*
@@ -1033,6 +1036,9 @@ importers:
       '@jimp/config-vitest':
         specifier: workspace:*
         version: link:../../packages/config-vitest
+      '@jimp/js-jpeg':
+        specifier: workspace:*
+        version: link:../js-jpeg
       '@jimp/js-png':
         specifier: workspace:*
         version: link:../js-png
