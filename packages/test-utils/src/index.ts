@@ -224,7 +224,10 @@ export function getTestImagePath(
     | "palette-rle8.bmp"
     | "fillbytes.jpg"
     | "hands.jpg"
-    | "hands_mx200_rp255.jpg",
+    | "hands_mx200_rp255.jpg"
+    | "icon.ico"
+    | "icon-24.png"
+    | "icon-16.png",
 ) {
   if (typeof window !== "undefined") {
     return `/${name}`;

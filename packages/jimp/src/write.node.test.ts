@@ -28,6 +28,18 @@ describe("write", () => {
     expect(written.height).toBe(3);
   });
 
+  test("writes an ICO", async () => {
+    const image = new Jimp({ width: 64, height: 64, color: 0xff000080 });
+    const output = path.join(dir, "favicon.ico");
+
+    await image.write(output, { sizes: [16, 32] });
+
+    const written = await Jimp.read(output);
+    expect(written.mime).toBe("image/x-icon");
+    expect(written.width).toBe(32);
+    expect(written.getPixelColor(0, 0)).toBe(0xff000080);
+  });
+
   test("explains when the path has no extension", async () => {
     const image = new Jimp({ width: 1, height: 1 });
     const output: string = path.join(dir, "67f63be03de2e62bccbab3400");

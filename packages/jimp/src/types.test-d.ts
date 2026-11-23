@@ -317,6 +317,7 @@ describe("format options are still checked", () => {
   test("decode options", () => {
     Jimp.read("image.jpg", { "image/jpeg": { maxMemoryUsageInMB: 1024 } });
     Jimp.fromBuffer(buffer, { "image/png": { checkCRC: false } });
+    Jimp.fromBuffer(buffer, { "image/x-icon": { index: 0, size: 32 } });
     // @ts-expect-error unknown mime types are rejected
     Jimp.read("image.webp", { "image/webp": {} });
     Jimp.read("image.jpg", {
