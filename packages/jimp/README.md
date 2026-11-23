@@ -88,7 +88,7 @@ const font = await loadFont(SANS_32_BLACK);
 image.print({ font, x: 10, y: 10, text: "Hello world!" });
 ```
 
-The bundled fonts only cover printable ASCII, and characters a font has no glyph for are printed as `?`. To print other text, such as Japanese, generate a BMFont that includes those characters. See [custom fonts](https://github.com/jimp-dev/jimp/tree/main/plugins/plugin-print#custom-fonts).
+The bundled fonts cover printable ASCII (the 8, 16, 32, 64 and 128px ones also Latin-1 and `€`, but not the backtick), and characters a font has no glyph for are printed as `?`. To print other text, such as Japanese, generate a BMFont that includes those characters. See [custom fonts](https://github.com/jimp-dev/jimp/tree/main/plugins/plugin-print#custom-fonts).
 
 ## Supported formats
 

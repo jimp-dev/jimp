@@ -44,7 +44,8 @@ export function kerning(
   return (first && second && font.kernings[first]?.[second]) || 0;
 }
 
-export function measureText(font: BmFont, text: string) {
+/** The width of a single line of text */
+function measureLine(font: BmFont, text: string) {
   // Glyphs are keyed by code point, so walk the text by code point too
   const characters = Array.from(text);
   let x = 0;
@@ -63,6 +64,20 @@ export function measureText(font: BmFont, text: string) {
 }
 
 /**
+ * Measures the width of `text` when printed with `font`. Line breaks
+ * (`\n`, `\r\n` or `\r`) start a new line like they do in `print`, so this
+ * is the width of the widest line.
+ * @param font a bitmap font loaded with `loadFont`
+ * @param text the text to measure
+ * @returns the width in pixels
+ */
+export function measureText(font: BmFont, text: string) {
+  return text
+    .split(/\r\n?|\n/)
+    .reduce((width, line) => Math.max(width, measureLine(font, line)), 0);
+}
+
+/**
  * Measures `text` appended to a string that is `width` wide and ends with
  * `lastChar`. Same result as measuring the joined string, without walking
  * the part that was already measured.
@@ -75,7 +90,7 @@ function measureAppendedText(
 ) {
   const [nextChar] = text;
 
-  return width + kerning(font, lastChar, nextChar) + measureText(font, text);
+  return width + kerning(font, lastChar, nextChar) + measureLine(font, text);
 }
 
 export function splitLines(font: BmFont, text: string, maxWidth: number) {
@@ -83,14 +98,13 @@ export function splitLines(font: BmFont, text: string, maxWidth: number) {
 
   const lines: string[][] = [];
   let currentLine: string[] = [];
-  let longestLine = 0;
   // Width and last character of currentLine.join(" "), kept up to date so
   // the whole line is not re-measured for every word.
   let lineWidth = 0;
   let lineLastChar: string | undefined;
 
   words.forEach((word) => {
-    const wordWidth = measureText(font, word + (words.length > 1 ? " " : ""));
+    const wordWidth = measureLine(font, word);
 
     // If a word is longer than the allowable width we need to split it across lines.
     if (wordWidth > maxWidth) {
@@ -122,7 +136,7 @@ export function splitLines(font: BmFont, text: string, maxWidth: number) {
           lines.push([...currentLine, current]);
           currentLine = [];
           current = char;
-          currentWidth = measureText(font, char);
+          currentWidth = measureLine(font, char);
           currentLastChar = char;
         } else {
           lines.push([...currentLine, current + char]);
@@ -150,10 +164,6 @@ export function splitLines(font: BmFont, text: string, maxWidth: number) {
     const length = measureAppendedText(font, lineWidth, lineLastChar, appended);
 
     if (length <= maxWidth && !word.includes("\n")) {
-      if (length > longestLine) {
-        longestLine = length;
-      }
-
       currentLine.push(word);
       lineWidth = length;
       lineLastChar = lastCharacter(appended);
@@ -162,12 +172,18 @@ export function splitLines(font: BmFont, text: string, maxWidth: number) {
 
       lines.push(currentLine);
       currentLine = [nextLine];
-      lineWidth = measureText(font, nextLine);
+      lineWidth = measureLine(font, nextLine);
       lineLastChar = lastCharacter(nextLine);
     }
   });
 
   lines.push(currentLine);
+
+  // Measured once at the end so lines started by a wrap or a newline count too
+  const longestLine = lines.reduce(
+    (width, line) => Math.max(width, measureLine(font, line.join(" "))),
+    0,
+  );
 
   return {
     lines,
@@ -175,10 +191,20 @@ export function splitLines(font: BmFont, text: string, maxWidth: number) {
   };
 }
 
+/**
+ * Measures the height of `text` when printed with `font`, wrapped at
+ * `maxWidth` like `print` does.
+ * @param font a bitmap font loaded with `loadFont`
+ * @param text the text to measure
+ * @param maxWidth the width to wrap the text at. Without it the text only
+ * breaks at newlines.
+ * @returns the height in pixels: the number of lines times the font's line
+ * height
+ */
 export function measureTextHeight(
   font: BmFont,
   text: string,
-  maxWidth: number,
+  maxWidth = Infinity,
 ) {
   const { lines } = splitLines(font, text, maxWidth);
 

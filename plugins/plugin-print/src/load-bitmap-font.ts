@@ -131,7 +131,24 @@ export async function loadBitmapFontData(
       );
     }
 
-    const res = await fetch(bufferOrUrl);
+    let res: Response;
+
+    try {
+      res = await fetch(bufferOrUrl);
+    } catch (error) {
+      throw new Error(
+        `loadFont: couldn't fetch ${JSON.stringify(bufferOrUrl)}: ${(error as Error).message}`,
+        { cause: error },
+      );
+    }
+
+    // Otherwise the error page is parsed as a font
+    if (!res.ok) {
+      throw new Error(
+        `loadFont: couldn't load ${JSON.stringify(bufferOrUrl)}: HTTP ${res.status}${res.statusText ? ` ${res.statusText}` : ""}`,
+      );
+    }
+
     const text = await res.text();
 
     return parseFont(bufferOrUrl, text);

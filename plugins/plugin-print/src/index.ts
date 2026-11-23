@@ -29,9 +29,9 @@ const PrintOptionsSchema = z.object({
       alignmentY: z.nativeEnum(VerticalAlign).optional(),
     }),
   ]),
-  /** the boundary width to draw in */
+  /** the width to wrap the text at and to align it within horizontally */
   maxWidth: z.number().optional(),
-  /** the boundary height to draw in */
+  /** the height to align the text within vertically. It doesn't clip the text. */
   maxHeight: z.number().optional(),
   /** a callback for when complete that has the end co-ordinates of the text */
   cb: z
@@ -45,7 +45,7 @@ function xOffsetBasedOnAlignment<I extends JimpClass>(
   font: BmFont<I>,
   line: string,
   maxWidth: number,
-  alignment: HorizontalAlign
+  alignment: HorizontalAlign,
 ) {
   if (alignment === HorizontalAlign.LEFT) {
     return 0;
@@ -63,7 +63,7 @@ function drawCharacter<I extends JimpClass>(
   font: BmFont<I>,
   x: number,
   y: number,
-  char: BmCharacter
+  char: BmCharacter,
 ) {
   if (char.width > 0 && char.height > 0) {
     const characterPage = font.pages[char.page];
@@ -90,7 +90,7 @@ function printText<I extends JimpClass>(
   x: number,
   y: number,
   text: string,
-  defaultCharWidth: number
+  defaultCharWidth: number,
 ) {
   // Split by code point so characters outside the BMP (emoji, rare CJK)
   // aren't broken into their surrogate halves
@@ -114,27 +114,49 @@ export const methods = {
   /**
    * Draws a text on a image on a given boundary
    *
+   * The text is laid out in a box whose top left corner is at `x`, `y`.
+   * `maxWidth` and `maxHeight` set the size of the box. Without them the box
+   * reaches to the right and bottom edges of the image.
+   *
+   * - Text wraps at `maxWidth`. Without it the text only breaks at newlines.
+   * - `alignmentX` and `alignmentY` align the text within the box.
+   * - `maxHeight` is only used for `alignmentY`. Text taller than it isn't
+   *   clipped, use `measureTextHeight` to check whether it fits.
+   *
    * The font must include a glyph for every character you print. Characters
-   * it has no glyph for are drawn as `?`. The bundled fonts only cover
-   * printable ASCII, so for other text (e.g. Japanese) generate a BMFont
-   * that includes those characters.
+   * it has no glyph for are drawn as `?`. The bundled fonts cover printable
+   * ASCII, and the 8, 16, 32, 64 and 128px ones also Latin-1 and `€`. For
+   * other text (e.g. Japanese) generate a BMFont that includes those
+   * characters.
    * @param options the font, position and text to print
    * @param options.font a bitmap font loaded with `loadFont`
-   * @param options.x the x position to start drawing the text
-   * @param options.y the y position to start drawing the text
+   * @param options.x the x position of the left edge of the text box
+   * @param options.y the y position of the top edge of the text box
    * @param options.text the text to draw (string or object with `text`, `alignmentX`, and/or `alignmentY`)
-   * @param options.maxWidth the boundary width to draw in
-   * @param options.maxHeight the boundary height to draw in
+   * @param options.maxWidth the width to wrap the text at and to align it within. Defaults to the width of the image right of `x`, but text only wraps when it is set.
+   * @param options.maxHeight the height to align the text within. Defaults to the height of the image below `y`. Text taller than it is not clipped.
    * @param options.cb a callback for when complete that has the end co-ordinates of the text
    * @example
    * ```ts
-   * import { Jimp, loadFont } from "jimp";
+   * import { HorizontalAlign, Jimp, VerticalAlign, loadFont } from "jimp";
    * import { SANS_32_BLACK } from "jimp/fonts";
    *
    * const image = await Jimp.read("test/image.png");
    * const font = await loadFont(SANS_32_BLACK);
    *
    * image.print({ font, x: 10, y: 10, text: "Hello world!" });
+   *
+   * // Centered on the image
+   * image.print({
+   *   font,
+   *   x: 0,
+   *   y: 0,
+   *   text: {
+   *     text: "Hello world!",
+   *     alignmentX: HorizontalAlign.CENTER,
+   *     alignmentY: VerticalAlign.MIDDLE,
+   *   },
+   * });
    * ```
    */
   print<I extends JimpClass>(
@@ -142,7 +164,7 @@ export const methods = {
     options: PrintOptions & {
       /** the BMFont instance */
       font: BmFont<I>;
-    }
+    },
   ) {
     const { font, ...printOptions } = options;
     let {
@@ -179,14 +201,21 @@ export const methods = {
       text = text.toString();
     }
 
-    if (maxHeight !== Infinity && alignmentY === VerticalAlign.BOTTOM) {
-      y += maxHeight - measureTextHeight(font, text, maxWidth);
-    } else if (maxHeight !== Infinity && alignmentY === VerticalAlign.MIDDLE) {
-      y += maxHeight / 2 - measureTextHeight(font, text, maxWidth) / 2;
+    // The box to align the text in. Without a size it reaches to the edges of
+    // the image, but text only wraps at an explicit maxWidth.
+    const boxWidth =
+      maxWidth === Infinity ? Math.max(0, image.bitmap.width - x) : maxWidth;
+    const boxHeight =
+      maxHeight === Infinity ? Math.max(0, image.bitmap.height - y) : maxHeight;
+
+    if (alignmentY === VerticalAlign.BOTTOM) {
+      y += boxHeight - measureTextHeight(font, text, maxWidth);
+    } else if (alignmentY === VerticalAlign.MIDDLE) {
+      y += boxHeight / 2 - measureTextHeight(font, text, maxWidth) / 2;
     }
 
     const defaultCharWidth = Object.entries(font.chars).find(
-      (c) => c[1].xadvance
+      (c) => c[1].xadvance,
     )?.[1].xadvance;
 
     if (typeof defaultCharWidth !== "number") {
@@ -200,8 +229,8 @@ export const methods = {
       const alignmentWidth = xOffsetBasedOnAlignment(
         font,
         lineString,
-        maxWidth,
-        alignmentX
+        boxWidth,
+        alignmentX,
       );
 
       printText(
@@ -210,7 +239,7 @@ export const methods = {
         x + alignmentWidth,
         y,
         lineString,
-        defaultCharWidth
+        defaultCharWidth,
       );
       y += font.common.lineHeight;
     });
