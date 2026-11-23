@@ -8,6 +8,7 @@ allowBuilds:
   sharp: true
 minimumReleaseAgeExclude:
   - bmp-ts@1.1.3
+  - bmp-ts@1.2.0
 # pnpm 12 defaults this to "install": every `pnpm run` checks node_modules and
 # can start a full workspace install. Turbo runs many `pnpm run` tasks at once,
 # and that install relinks node_modules under the tasks that are still running.
