@@ -7,7 +7,7 @@
     "node": ">=22"
   },
   "scripts": {
-    "clean": "rm -rf node_modules .tshy .tshy-build dist .turbo"
+    "clean": "rimraf node_modules .tshy .tshy-build dist .turbo"
   },
   "author": "Andrew Lisowski <lisowski54@gmail.com>",
   "license": "MIT",

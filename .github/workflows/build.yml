@@ -80,3 +80,18 @@ jobs:
       - run: pnpm exec playwright install --with-deps chromium
         working-directory: ./packages/config-vitest
       - run: pnpm test:browser
+
+  # Builds and tests on Windows so the repo keeps working there (#1197)
+  test-windows:
+    runs-on: windows-latest
+    needs: install
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ./.github/actions/install-deps
+        with:
+          node-version: 22
+      - uses: ./.github/actions/turbo-cache
+      - run: pnpm build
+      # `pnpm test` would build everything again: turbo passes the vitest args
+      # to the build tasks too, so their cache entries don't match
+      - run: pnpm turbo run test --only -- --watch=false --testTimeout=20000

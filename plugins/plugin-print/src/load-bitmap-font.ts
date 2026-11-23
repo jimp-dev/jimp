@@ -207,8 +207,12 @@ export function resolvePagePath(file: string, page: string) {
   const pagePath = path.join(path.dirname(file), page);
 
   // With no directory in front of it a page like "http://host/x.png" would
-  // survive the join and be fetched by Jimp.read
-  if (URL_SCHEME.test(pagePath)) {
+  // survive the join and be fetched by Jimp.read. On Windows the join returns
+  // ".\http:\host\x.png" instead, so check the page itself too.
+  if (
+    URL_SCHEME.test(pagePath) ||
+    (path.dirname(file) === "." && URL_SCHEME.test(page))
+  ) {
     throw outside;
   }
 

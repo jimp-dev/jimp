@@ -14,12 +14,12 @@
     "lint": "turbo run lint",
     "test": "turbo run test -- --watch=false --testTimeout=20000",
     "test:browser": "turbo run test:browser -- --watch=false",
-    "clean": "turbo run clean && rm -rf node_modules .turbo",
+    "clean": "turbo run clean && rimraf node_modules .turbo",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "release": "pnpm build && auto shipit",
     "generate-package": "turbo gen package",
     "generate-plugin": "turbo gen plugin",
-    "check-updates": "ncu --packageFile '{,*/**/}package.json'"
+    "check-updates": "ncu --packageFile \"{,*/**/}package.json\""
   },
   "devDependencies": {
     "@auto-it/all-contributors": "^11.2.1",
@@ -33,6 +33,7 @@
     "auto": "^11.2.1",
     "npm-check-updates": "^17.1.1",
     "prettier": "^3.3.3",
+    "rimraf": "^6.0.1",
     "turbo": "^2.11.13"
   }
 }

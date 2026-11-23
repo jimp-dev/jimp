@@ -12,11 +12,11 @@
   },
   "scripts": {
     "lint": "eslint .",
-    "test": "vitest --typecheck --typecheck.ignoreSourceErrors --exclude '**/*.browser.test.ts'",
+    "test": "vitest --typecheck --typecheck.ignoreSourceErrors --exclude \"**/*.browser.test.ts\"",
     "test:browser": "vitest --config vitest.config.browser.mjs",
     "build": "tshy && rollup -c",
     "dev": "tshy --watch",
-    "clean": "rm -rf node_modules .tshy .tshy-build dist .turbo"
+    "clean": "rimraf node_modules .tshy .tshy-build dist .turbo"
   },
   "keywords": [
     "image",

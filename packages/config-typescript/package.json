@@ -8,6 +8,6 @@
   },
   "sideEffects": false,
   "scripts": {
-    "clean": "rm -rf node_modules .tshy .tshy-build dist .turbo"
+    "clean": "rimraf node_modules .tshy .tshy-build dist .turbo"
   }
 }
