@@ -146,6 +146,56 @@ describe("Resize images", () => {
     });
   });
 
+  describe("doesn't darken the edges of transparent images", () => {
+    // a white 20x20 square on transparent black
+    function square() {
+      const data = Buffer.alloc(40 * 40 * 4);
+
+      for (let y = 10; y < 30; y++) {
+        for (let x = 10; x < 30; x++) {
+          data.fill(255, (y * 40 + x) * 4, (y * 40 + x + 1) * 4);
+        }
+      }
+
+      return jimp.fromBitmap({ width: 40, height: 40, data });
+    }
+
+    function visibleColors(image: ReturnType<typeof square>) {
+      const colors = new Set<string>();
+      const { data } = image.bitmap;
+
+      for (let i = 0; i < data.length; i += 4) {
+        if (data[i + 3]) {
+          colors.add(`${data[i]},${data[i + 1]},${data[i + 2]}`);
+        }
+      }
+
+      return [...colors];
+    }
+
+    const modes = ["BILINEAR", "BICUBIC", "HERMITE", "BEZIER"] as const;
+
+    modes.forEach((modeType) => {
+      const mode = ResizeStrategy[modeType];
+
+      [15, 25, 60].forEach((w) => {
+        test(`${modeType} 40x40 to ${w}x${w}`, () => {
+          const resized = square().resize({ w, mode });
+          const { data } = resized.bitmap;
+          const alphas = new Set<number>();
+
+          for (let i = 3; i < data.length; i += 4) {
+            alphas.add(data[i]!);
+          }
+
+          // the edges are blended
+          expect(alphas.size).toBeGreaterThan(2);
+          expect(visibleColors(resized)).toEqual(["255,255,255"]);
+        });
+      });
+    });
+  });
+
   testImages.forEach((image) => {
     describe(image.title, () => {
       image.tests.forEach(({ mode: modeType, size }) => {
