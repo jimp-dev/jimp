@@ -40,6 +40,10 @@ export default defineConfig({
             // Each item here is one entry in the navigation menu.
             { label: "Getting Started", link: "/guides/getting-started/" },
             { label: "Using in Browser", link: "/guides/browser/" },
+            {
+              label: "Reading Large Images",
+              link: "/guides/reading-large-images/",
+            },
             { label: "Writing Plugins", link: "/guides/writing-plugins/" },
             { label: "Custom Jimp", link: "/guides/custom-jimp/" },
             { label: "Migrate to v1", link: "/guides/migrate-to-v1/" },

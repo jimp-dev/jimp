@@ -241,6 +241,52 @@ image.print({ font, x: 10, y: 10, text: "Hello world!" });
 
 For example `Jimp.FONT_SANS_128_WHITE` is now `SANS_128_WHITE` and `Jimp.FONT_SANS_16_BLACK` is now `SANS_16_BLACK`.
 
+## Behavior Changes
+
+### `brightness`
+
+In v0, `brightness` took a number between -1 and +1, where 0 left the image unchanged.
+Since v1.1.2, `brightness` multiplies each color channel by the value and clamps the result:
+
+- `1` leaves the image unchanged
+- greater than `1` brightens it
+- between `0` and `1` darkens it
+- `0` or below makes it black
+
+For darkening, `1 + v0Value` gives the same result as v0.
+v0 multiplied each channel by `1 + val` for negative values, which is what v1 does.
+
+```js
+// v0
+image.brightness(-0.25);
+
+// v1
+image.brightness(0.75);
+```
+
+For lightening, `1 + v0Value` is only an approximation.
+v0 moved each channel toward white (`c + (255 - c) * val`), while v1 scales it, so dark pixels brighten less and black stays black.
+To reproduce v0's lightening exactly, use the `tint` color action with the v0 value as a percentage:
+
+```js
+// v0
+image.brightness(0.25);
+
+// v1, close
+image.brightness(1.25);
+
+// v1, identical to v0
+image.color([{ apply: "tint", params: [25] }]);
+```
+
+| v0                 | v1                                                      |
+| ------------------ | ------------------------------------------------------- |
+| `brightness(-1)`   | `brightness(0)`                                         |
+| `brightness(-0.5)` | `brightness(0.5)`                                       |
+| `brightness(0)`    | `brightness(1)` (no change)                             |
+| `brightness(0.5)`  | `color([{ apply: "tint", params: [50] }])`              |
+| `brightness(1)`    | `color([{ apply: "tint", params: [100] }])` (all white) |
+
 ## Moved Functions
 
 - `Jimp.intToRGBA` was moved `import { intToRGBA } from "jimp";`
