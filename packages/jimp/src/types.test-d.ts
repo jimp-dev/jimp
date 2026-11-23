@@ -226,6 +226,15 @@ describe("other methods keep their return types", () => {
     expectTypeOf(image.hash()).toEqualTypeOf<string>();
     expectTypeOf(image.hash(2)).toEqualTypeOf<string>();
     expectTypeOf(image.distanceFromHash("abc")).toEqualTypeOf<number>();
+    expectTypeOf(
+      image.pHash({ size: 64, smallerSize: 16 }),
+    ).toEqualTypeOf<string>();
+    expectTypeOf(image.hash(16, { smallerSize: 16 })).toEqualTypeOf<string>();
+    expectTypeOf(
+      image.distanceFromHash("abc", { smallerSize: 16 }),
+    ).toEqualTypeOf<number>();
+    // @ts-expect-error size must be a number
+    image.pHash({ size: "64" });
   });
 });
 

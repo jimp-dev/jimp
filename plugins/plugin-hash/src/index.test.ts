@@ -161,3 +161,111 @@ describe("transparency", () => {
     expect(image.bitmap.data.equals(before)).toBe(true);
   });
 });
+
+// https://github.com/jimp-dev/jimp/issues/1359
+describe("size options", () => {
+  test("should default to size 32 and smallerSize 8", async () => {
+    const image = await Jimp.read(getTestImagePath("cops.jpg"));
+    const options = { size: 32, smallerSize: 8 };
+
+    expect(image.pHash(options)).toBe(image.pHash());
+    expect(image.pHash({})).toBe(image.pHash());
+    expect(image.hash(10, options)).toBe("13730553271407496929");
+  });
+
+  test.each([
+    [{ smallerSize: 4 }, 16],
+    [{ size: 16, smallerSize: 16 }, 256],
+    [{ size: 64, smallerSize: 16 }, 256],
+    [{ size: 64 }, 64],
+  ])("should make a smallerSize² bit hash (%o)", async (options, bits) => {
+    const image = await Jimp.read(getTestImagePath("cops.jpg"));
+
+    expect(image.pHash(options)).toMatch(new RegExp(`^[01]{${bits}}$`));
+    expect(image.hash(2, options)).toBe(image.pHash(options));
+  });
+
+  test("should hash with custom sizes", async () => {
+    const image = await Jimp.read(getTestImagePath("dice.png"));
+
+    expect(image.hash(16, { size: 64, smallerSize: 16 })).toBe(
+      "bee41f9dcb11e062e00e61191e3392e6c9cc2f1136329ac409c965139e32384d",
+    );
+  });
+
+  test("should pad hashes to the same length for any number of bits", async () => {
+    const image = await Jimp.read(getTestImagePath("dice.png"));
+    const blank = new Jimp({ width: 64, height: 64, color: 0xffffffff });
+    const options = { smallerSize: 16 };
+
+    for (const base of [2, 10, 16, 64]) {
+      expect(blank.hash(base, options)).toHaveLength(
+        image.hash(base, options).length,
+      );
+    }
+
+    expect(image.hash(16, options)).toHaveLength(64);
+  });
+
+  test("should compare images and hashes made with the same options", async () => {
+    const image1 = await Jimp.read(getTestImagePath("dice.png"));
+    const image2 = await Jimp.read(getTestImagePath("mask.png"));
+    const options = { size: 64, smallerSize: 16 };
+
+    const d = distance(image1, image2, options);
+
+    expect(d).toBeGreaterThan(0);
+    expect(d).toBeLessThan(1);
+    expect(image2.distanceFromHash(image1.pHash(options), options)).toBe(d);
+    expect(compareHashes(image1.pHash(options), image2.pHash(options))).toBe(d);
+    expect(distance(image1, image1, options)).toBe(0);
+  });
+
+  test("should throw when comparing hashes made with different sizes", async () => {
+    const image1 = await Jimp.read(getTestImagePath("dice.png"));
+    const image2 = await Jimp.read(getTestImagePath("mask.png"));
+    const hash = image1.pHash({ smallerSize: 16 });
+
+    expect(() => image2.distanceFromHash(hash)).toThrow(
+      /different lengths \(64 and 256\)/,
+    );
+    expect(() => compareHashes(image2.pHash(), hash)).toThrow(
+      /different lengths/,
+    );
+    expect(() =>
+      compareHashes(image1.hash(64), image1.hash(64, { smallerSize: 16 })),
+    ).toThrow(/different lengths/);
+    // A base 64 hash() isn't a pHash().
+    expect(() => image2.distanceFromHash(image1.hash())).toThrow(
+      /different lengths/,
+    );
+  });
+
+  test.each([
+    { size: 0 },
+    { size: -32 },
+    { size: 32.5 },
+    { size: 512 },
+    { size: Number.NaN },
+    { smallerSize: 1 },
+    { smallerSize: 8.5 },
+    { smallerSize: 128 },
+    { size: 8, smallerSize: 16 },
+    { size: 4 },
+  ])("should reject invalid options (%o)", async (options) => {
+    const image = await Jimp.read(getTestImagePath("dice.png"));
+
+    expect(() => image.pHash(options)).toThrow();
+    expect(() => image.hash(64, options)).toThrow();
+    expect(() => image.distanceFromHash(image.pHash(), options)).toThrow();
+    expect(() => distance(image, image, options)).toThrow();
+  });
+
+  test("should explain why smallerSize can't be larger than size", async () => {
+    const image = await Jimp.read(getTestImagePath("dice.png"));
+
+    expect(() => image.pHash({ size: 8, smallerSize: 16 })).toThrow(
+      /smallerSize must not be larger than size/,
+    );
+  });
+});

@@ -179,6 +179,7 @@ export type {
 } from "@jimp/plugin-resize";
 export type { ThresholdOptions } from "@jimp/plugin-threshold";
 export { distance, compareHashes } from "@jimp/plugin-hash";
+export type { PHashOptions } from "@jimp/plugin-hash";
 export type { JPEGOptions } from "@jimp/js-jpeg";
 export { PNGColorType, PNGFilterType } from "@jimp/js-png";
 export { BmpCompression } from "@jimp/js-bmp";
