@@ -26,9 +26,10 @@ export type OtsuThresholdOptions = z.infer<typeof OtsuThresholdOptionsSchema>;
 /**
  * Computes the `max` that Otsu's method picks for `threshold`.
  *
- * Builds a 256-bin histogram of the luminance `threshold` compares (Rec. 709
- * greyscale when `autoGreyscale` is true, otherwise the red channel) and
- * picks the split that maximises the between-class variance.
+ * Builds a 256-bin histogram of the values `threshold` compares (Rec. 709
+ * luminance when `autoGreyscale` is true, otherwise the red, green and blue
+ * channels together) and picks the split that maximises the between-class
+ * variance.
  *
  * - Each pixel counts in proportion to its alpha: fully transparent pixels
  *   are ignored and a pixel at alpha 128 counts about half as much as an
@@ -67,16 +68,18 @@ export function otsuThreshold<I extends JimpClass>(
       return;
     }
 
-    // Flooring matches what greyscale() leaves when it writes into the Buffer
-    const grey = autoGreyscale
-      ? Math.floor(
-          0.2126 * data[idx]! +
-            0.7152 * data[idx + 1]! +
-            0.0722 * data[idx + 2]!,
-        )
-      : data[idx]!;
+    if (autoGreyscale) {
+      // Flooring matches what greyscale() leaves when it writes into the Buffer
+      const grey = Math.floor(
+        0.2126 * data[idx]! + 0.7152 * data[idx + 1]! + 0.0722 * data[idx + 2]!,
+      );
 
-    histogram[limit255(grey)]! += alpha;
+      histogram[limit255(grey)]! += alpha;
+    } else {
+      histogram[data[idx]!]! += alpha;
+      histogram[data[idx + 1]!]! += alpha;
+      histogram[data[idx + 2]!]! += alpha;
+    }
   });
 
   let total = 0;
@@ -121,7 +124,8 @@ export const methods = {
    * Converts image to grayscale by default.
    *
    * Pixels with a value below `max` are kept and the rest are set to
-   * `replace`. Pass `max: "otsu"` to choose `max` from the image's histogram
+   * `replace`. With `autoGreyscale: false` the image isn't converted, and
+   * each color channel is compared with `max` and replaced on its own. Pass `max: "otsu"` to choose `max` from the image's histogram
    * with Otsu's method; see `otsuThreshold` for how it is computed.
    * @example
    * ```ts
@@ -149,13 +153,14 @@ export const methods = {
         ? otsuThreshold(image, { autoGreyscale: false })
         : limit255(parsed.max);
 
+    // After greyscale() the channels are equal, so this is the same as
+    // thresholding the grey value
     image.scan((_, __, idx) => {
-      const grey =
-        image.bitmap.data[idx]! < max ? image.bitmap.data[idx]! : replace;
-
-      image.bitmap.data[idx] = grey;
-      image.bitmap.data[idx + 1] = grey;
-      image.bitmap.data[idx + 2] = grey;
+      for (let i = idx; i < idx + 3; i++) {
+        if (image.bitmap.data[i]! >= max) {
+          image.bitmap.data[i] = replace;
+        }
+      }
     });
 
     return image;

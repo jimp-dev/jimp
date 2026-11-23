@@ -802,7 +802,7 @@ export function createJimp<
      *
      * const image = new Jimp({ width: 3, height: 3, color: 0xffffffff });
      *
-     * image.getPixelIndex(1, 1); // 2
+     * image.getPixelIndex(1, 1); // 16
      * ```
      */
     getPixelIndex(x: number, y: number, edgeHandling?: Edge) {
@@ -922,7 +922,8 @@ export function createJimp<
     }
 
     /**
-     * Determine if the image contains opaque pixels.
+     * Determine if the image contains any pixels that aren't fully opaque
+     * (alpha below 255).
      *
      * @example
      * ```ts
@@ -931,8 +932,8 @@ export function createJimp<
      * const image = new Jimp({ width: 3, height: 3, color: 0xffffffaa });
      * const image2 = new Jimp({ width: 3, height: 3, color: 0xff0000ff });
      *
-     * image.hasAlpha(); // false
-     * image2.hasAlpha(); // true
+     * image.hasAlpha(); // true
+     * image2.hasAlpha(); // false
      * ```
      */
     hasAlpha() {
@@ -1033,7 +1034,7 @@ export function createJimp<
      *
      * const image = new Jimp({ width: 3, height: 3, color: 0xffffffff });
      *
-     * for (const { x, y, idx, image } of j.scanIterator()) {
+     * for (const { x, y, idx } of image.scanIterator()) {
      *   // do something with the pixel
      * }
      * ```

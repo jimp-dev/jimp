@@ -14,11 +14,8 @@ const JpegOptionsSchema = z.object({
     .default("ycbcr"),
   /**
    * Image quality, between 0 and 100.
-   * For lossy, 0 gives the smallest size and 100 the largest.
-   * For lossless, this parameter is the amount of effort put
-   * into the compression: 0 is the fastest but gives larger
-   * files compared to the slowest, but best, 100.
-   * @default 100
+   * 0 gives the smallest size and 100 the largest.
+   * @default 75
    */
   quality: z.number().min(0).max(100).optional().default(75),
   arithmetic: z.boolean().optional().default(false),
