@@ -196,6 +196,7 @@ export type {
   JimpConstructorOptions,
   JimpSimpleConstructorOptions,
   ColorSpaceName,
+  ReadOptions,
 } from "@jimp/core";
 export { Edge } from "@jimp/types";
 export type { Bitmap, RGBAColor, RGBColor } from "@jimp/types";
