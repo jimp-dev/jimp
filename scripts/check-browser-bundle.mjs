@@ -1,7 +1,7 @@
 // Fails if jimp's browser bundle is tshy's stub instead of rollup's output.
-// tshy writes a tiny `export {}` placeholder to dist/browser/index.js and
-// rollup replaces it. If they run in the wrong order (or a cache restore
-// misses the bundle) the stub ships. See #1402.
+// tshy writes a tiny placeholder to dist/browser/index.js and rollup replaces
+// it, both in jimp's `build` script. If something runs tshy on its own (like
+// `tshy --watch`) the stub ships. See #1402.
 //
 // Also fails if the bundle stops parsing once Babel's preset-env has
 // transformed it, which many apps do to their dependencies. See #1405.
@@ -17,7 +17,7 @@ const MIN_BYTES = 100 * 1024;
 function fail(reason) {
   console.error(`Invalid jimp browser bundle (${bundle}): ${reason}`);
   console.error(
-    "Rebuild with `pnpm build`. The bundle comes from rollup (build:browser), which must run after tshy (build).",
+    "Rebuild with `pnpm build`. The bundle comes from rollup, which jimp's build script runs after tshy.",
   );
   process.exit(1);
 }

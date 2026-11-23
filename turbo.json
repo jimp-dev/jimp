@@ -5,10 +5,6 @@
       "outputs": ["dist/**"],
       "dependsOn": ["^build"]
     },
-    "build:browser": {
-      "outputs": ["dist/browser/**"],
-      "dependsOn": ["build", "^build:browser"]
-    },
     "lint": {
       "dependsOn": ["^lint"]
     },
