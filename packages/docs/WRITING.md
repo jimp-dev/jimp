@@ -80,13 +80,11 @@ filled in, and the sidebar already lists it. Replace the `{/* TODO */}` body.
   node scratch.mjs && rm scratch.mjs
   ```
 
-Known gotchas found while building the site:
-
-- `color()`'s `mix` and `xor` actions take an `{ r, g, b }` object. A CSS
-  string such as `"#06D"` fails validation, even though an old doc comment
-  shows one.
-- `blur(r)` needs a whole number from 1 to 256. Fractional or larger radii
-  don't throw; they produce a transparent image.
+Version notes: when an API or option is new in a release, add a **Notes**
+bullet "Added in 2.0." (with the version it shipped in). When behaviour
+changed, add "Changed in 2.0: …" and say in one clause what it did before.
+Don't document library bugs as intended behaviour; if you find one, note it in
+an `<Aside type="caution">` and open an issue.
 
 ## Frontmatter
 
