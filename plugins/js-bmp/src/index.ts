@@ -5,11 +5,27 @@ import { Bitmap, Format } from "@jimp/types";
 
 export { BmpCompression } from "bmp-ts";
 
+/** The bit depths Jimp can write */
+const BIT_DEPTHS = [16, 24, 32];
+
 /**
- * Header fields of the BMP that is written. Jimp always writes uncompressed
- * 24-bit BMPs, which have no palette.
+ * Options for the BMP that is written. Jimp writes uncompressed BMPs without
+ * a palette.
  */
 export interface EncodeOptions {
+  /**
+   * Bits per pixel:
+   * - 24 writes 8 bits each of red, green and blue.
+   * - 16 writes 5 bits each of red, green and blue, for a smaller file with
+   *   less colour precision.
+   * - 32 writes 8 bits each of red, green, blue and alpha. BMPs are written
+   *   over the image's background, so the alpha is always opaque.
+   *
+   * 1, 4 and 8-bit BMPs, which need a palette, aren't supported yet, see
+   * https://github.com/jimp-dev/jimp/issues/633.
+   * @default 24
+   */
+  bitPP?: 16 | 24 | 32;
   /** Horizontal resolution, in pixels per metre */
   hr?: number;
   /** Vertical resolution, in pixels per metre */
@@ -32,8 +48,14 @@ export interface DecodeBmpOptions {
 
 function encode(
   image: Bitmap,
-  { hr, vr, reserved1, reserved2 }: EncodeOptions = {}
+  { bitPP = 24, hr, vr, reserved1, reserved2 }: EncodeOptions = {}
 ) {
+  if (!BIT_DEPTHS.includes(bitPP)) {
+    throw new Error(
+      `Unsupported BMP bit depth ${bitPP}, use ${BIT_DEPTHS.join(", ")}`
+    );
+  }
+
   scan(
     { bitmap: image },
     0,
@@ -53,12 +75,12 @@ function encode(
     }
   );
 
-  // Only pass the supported header fields, so a stray bitPP or palette can't
-  // change the bit depth
+  // Only pass the supported options, so a stray palette can't reach bmp-ts
   return BMP.encode({
     data: image.data,
     width: image.width,
     height: image.height,
+    bitPP,
     hr,
     vr,
     reserved1,

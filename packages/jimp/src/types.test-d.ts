@@ -282,6 +282,9 @@ describe("format options are still checked", () => {
     image.getBuffer("image/jpeg", { icc: false });
     image.getBuffer("image/png", { icc: false });
     image.getBuffer("image/bmp", { hr: 2835, vr: 2835 });
+    image.getBuffer("image/bmp", { bitPP: 16 });
+    // @ts-expect-error 8-bit BMPs need a palette, which isn't supported
+    image.getBuffer("image/bmp", { bitPP: 8 });
     // @ts-expect-error bmp is always written without a palette
     image.getBuffer("image/bmp", { palette: [] });
     // @ts-expect-error bmp can't write an ICC profile
@@ -300,6 +303,7 @@ describe("format options are still checked", () => {
     image.write("out.jpg", { quality: 50 });
     image.write("out.jpeg", { quality: 50 });
     image.write("out.png", { deflateLevel: 1 });
+    image.write("out.bmp", { bitPP: 16 });
     image.write("out.jpg", { exif: true });
     image.write("out.png", { icc: false });
     image.write("out.bmp");
