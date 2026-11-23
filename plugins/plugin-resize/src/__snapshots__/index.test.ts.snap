@@ -136,6 +136,108 @@ FF-FF-FFᶠᶠ FF-FF-FFᶠᶠ 00-00-00ᶠᶠ 00-00-00ᶠᶠ
 FF-FF-FFᶠᶠ FF-FF-FFᶠᶠ 00-00-00ᶠᶠ 00-00-00ᶠᶠ
 `;
 
+exports[`Resize images > max contrast 8x8 > to LANCZOS 2x5 1`] = `
+Visualization:
+
+3◇
+◇3
+▦▦
+3◇
+◇3
+
+Data:
+
+1A-1A-1Aᶠᶠ E5-E5-E5ᶠᶠ
+04-04-04ᶠᶠ FB-FB-FBᶠᶠ
+80-80-80ᶠᶠ 80-80-80ᶠᶠ
+FB-FB-FBᶠᶠ 04-04-04ᶠᶠ
+E5-E5-E5ᶠᶠ 1A-1A-1Aᶠᶠ
+`;
+
+exports[`Resize images > max contrast 8x8 > to LANCZOS 4x4 1`] = `
+Visualization:
+
+■◇3□
+◇◇33
+33◇◇
+□3◇■
+
+Data:
+
+00-00-00ᶠᶠ 09-09-09ᶠᶠ F6-F6-F6ᶠᶠ FF-FF-FFᶠᶠ
+09-09-09ᶠᶠ 18-18-18ᶠᶠ E7-E7-E7ᶠᶠ F6-F6-F6ᶠᶠ
+F6-F6-F6ᶠᶠ E7-E7-E7ᶠᶠ 18-18-18ᶠᶠ 09-09-09ᶠᶠ
+FF-FF-FFᶠᶠ F6-F6-F6ᶠᶠ 09-09-09ᶠᶠ 00-00-00ᶠᶠ
+`;
+
+exports[`Resize images > max contrast 8x8 > to LANCZOS2 2x5 1`] = `
+Visualization:
+
+◇3
+▩D
+DD
+D▩
+3◇
+
+Data:
+
+18-18-18ᶠᶠ E7-E7-E7ᶠᶠ
+0D-0D-0Dᶠᶠ F2-F2-F2ᶠᶠ
+7F-7F-7Fᶠᶠ 7F-7F-7Fᶠᶠ
+F2-F2-F2ᶠᶠ 0D-0D-0Dᶠᶠ
+E7-E7-E7ᶠᶠ 18-18-18ᶠᶠ
+`;
+
+exports[`Resize images > max contrast 8x8 > to LANCZOS2 4x4 1`] = `
+Visualization:
+
+■▴▴□
+▴3◇▴
+▴◇3▴
+□▴▴■
+
+Data:
+
+00-00-00ᶠᶠ 0F-0F-0Fᶠᶠ F0-F0-F0ᶠᶠ FF-FF-FFᶠᶠ
+0F-0F-0Fᶠᶠ 1F-1F-1Fᶠᶠ E0-E0-E0ᶠᶠ F0-F0-F0ᶠᶠ
+F0-F0-F0ᶠᶠ E0-E0-E0ᶠᶠ 1F-1F-1Fᶠᶠ 0F-0F-0Fᶠᶠ
+FF-FF-FFᶠᶠ F0-F0-F0ᶠᶠ 0F-0F-0Fᶠᶠ 00-00-00ᶠᶠ
+`;
+
+exports[`Resize images > max contrast 8x8 > to MITCHELL 2x5 1`] = `
+Visualization:
+
+3◇
+D▩
+DD
+▩D
+◇3
+
+Data:
+
+24-24-24ᶠᶠ DB-DB-DBᶠᶠ
+20-20-20ᶠᶠ DF-DF-DFᶠᶠ
+7F-7F-7Fᶠᶠ 7F-7F-7Fᶠᶠ
+DF-DF-DFᶠᶠ 20-20-20ᶠᶠ
+DB-DB-DBᶠᶠ 24-24-24ᶠᶠ
+`;
+
+exports[`Resize images > max contrast 8x8 > to MITCHELL 4x4 1`] = `
+Visualization:
+
+■3◇□
+3◇3◇
+◇3◇3
+□◇3■
+
+Data:
+
+00-00-00ᶠᶠ 1A-1A-1Aᶠᶠ E5-E5-E5ᶠᶠ FF-FF-FFᶠᶠ
+1A-1A-1Aᶠᶠ 31-31-31ᶠᶠ CE-CE-CEᶠᶠ E5-E5-E5ᶠᶠ
+E5-E5-E5ᶠᶠ CE-CE-CEᶠᶠ 31-31-31ᶠᶠ 1A-1A-1Aᶠᶠ
+FF-FF-FFᶠᶠ E5-E5-E5ᶠᶠ 1A-1A-1Aᶠᶠ 00-00-00ᶠᶠ
+`;
+
 exports[`Resize images > max contrast 8x8 > to NEAREST_NEIGHBOR 2x5 1`] = `
 Visualization:
 
@@ -284,6 +386,66 @@ FF-FF-FFᶠᶠ BF-BF-BFᶠᶠ FF-FF-FFᶠᶠ 00-00-00ᶠᶠ 40-40-40ᶠᶠ 00-00
 FF-FF-FFᶠᶠ FF-FF-FFᶠᶠ FF-FF-FFᶠᶠ 00-00-00ᶠᶠ 00-00-00ᶠᶠ 00-00-00ᶠᶠ
 `;
 
+exports[`Resize images > max contrast 12x12 with dots > to LANCZOS 6x6 1`] = `
+Visualization:
+
+■▩3◇D□
+■3◇3◇□
+33D▩◇◇
+◇◇▩D33
+□◇3◇3■
+□D◇3▩■
+
+Data:
+
+00-00-00ᶠᶠ 0D-0D-0Dᶠᶠ 15-15-15ᶠᶠ EA-EA-EAᶠᶠ F2-F2-F2ᶠᶠ FF-FF-FFᶠᶠ
+00-00-00ᶠᶠ 29-29-29ᶠᶠ 1D-1D-1Dᶠᶠ E2-E2-E2ᶠᶠ D6-D6-D6ᶠᶠ FF-FF-FFᶠᶠ
+10-10-10ᶠᶠ 01-01-01ᶠᶠ 16-16-16ᶠᶠ E9-E9-E9ᶠᶠ FE-FE-FEᶠᶠ EF-EF-EFᶠᶠ
+EF-EF-EFᶠᶠ FE-FE-FEᶠᶠ E9-E9-E9ᶠᶠ 16-16-16ᶠᶠ 01-01-01ᶠᶠ 10-10-10ᶠᶠ
+FF-FF-FFᶠᶠ D6-D6-D6ᶠᶠ E2-E2-E2ᶠᶠ 1D-1D-1Dᶠᶠ 29-29-29ᶠᶠ 00-00-00ᶠᶠ
+FF-FF-FFᶠᶠ F2-F2-F2ᶠᶠ EA-EA-EAᶠᶠ 15-15-15ᶠᶠ 0D-0D-0Dᶠᶠ 00-00-00ᶠᶠ
+`;
+
+exports[`Resize images > max contrast 12x12 with dots > to LANCZOS2 6x6 1`] = `
+Visualization:
+
+■33◇◇□
+■▩◇3D□
+1▴▴▴▴E
+E▴▴▴▴1
+□D3◇▩■
+□◇◇33■
+
+Data:
+
+00-00-00ᶠᶠ 0B-0B-0Bᶠᶠ 15-15-15ᶠᶠ EA-EA-EAᶠᶠ F4-F4-F4ᶠᶠ FF-FF-FFᶠᶠ
+00-00-00ᶠᶠ 2B-2B-2Bᶠᶠ 1D-1D-1Dᶠᶠ E2-E2-E2ᶠᶠ D4-D4-D4ᶠᶠ FF-FF-FFᶠᶠ
+11-11-11ᶠᶠ 0A-0A-0Aᶠᶠ 1E-1E-1Eᶠᶠ E1-E1-E1ᶠᶠ F5-F5-F5ᶠᶠ EE-EE-EEᶠᶠ
+EE-EE-EEᶠᶠ F5-F5-F5ᶠᶠ E1-E1-E1ᶠᶠ 1E-1E-1Eᶠᶠ 0A-0A-0Aᶠᶠ 11-11-11ᶠᶠ
+FF-FF-FFᶠᶠ D4-D4-D4ᶠᶠ E2-E2-E2ᶠᶠ 1D-1D-1Dᶠᶠ 2B-2B-2Bᶠᶠ 00-00-00ᶠᶠ
+FF-FF-FFᶠᶠ F4-F4-F4ᶠᶠ EA-EA-EAᶠᶠ 15-15-15ᶠᶠ 0B-0B-0Bᶠᶠ 00-00-00ᶠᶠ
+`;
+
+exports[`Resize images > max contrast 12x12 with dots > to MITCHELL 6x6 1`] = `
+Visualization:
+
+■D▩D▩□
+■▴▴▴▴□
+▩▴◇3▴D
+D▴3◇▴▩
+□▴▴▴▴■
+□▩D▩D■
+
+Data:
+
+00-00-00ᶠᶠ 0C-0C-0Cᶠᶠ 21-21-21ᶠᶠ DE-DE-DEᶠᶠ F3-F3-F3ᶠᶠ FF-FF-FFᶠᶠ
+00-00-00ᶠᶠ 23-23-23ᶠᶠ 28-28-28ᶠᶠ D7-D7-D7ᶠᶠ DC-DC-DCᶠᶠ FF-FF-FFᶠᶠ
+1C-1C-1Cᶠᶠ 19-19-19ᶠᶠ 31-31-31ᶠᶠ CE-CE-CEᶠᶠ E6-E6-E6ᶠᶠ E3-E3-E3ᶠᶠ
+E3-E3-E3ᶠᶠ E6-E6-E6ᶠᶠ CE-CE-CEᶠᶠ 31-31-31ᶠᶠ 19-19-19ᶠᶠ 1C-1C-1Cᶠᶠ
+FF-FF-FFᶠᶠ DC-DC-DCᶠᶠ D7-D7-D7ᶠᶠ 28-28-28ᶠᶠ 23-23-23ᶠᶠ 00-00-00ᶠᶠ
+FF-FF-FFᶠᶠ F3-F3-F3ᶠᶠ DE-DE-DEᶠᶠ 21-21-21ᶠᶠ 0C-0C-0Cᶠᶠ 00-00-00ᶠᶠ
+`;
+
 exports[`Resize images > max contrast 12x12 with dots > to NEAREST_NEIGHBOR 6x6 1`] = `
 Visualization:
 
@@ -402,6 +564,66 @@ Data:
 BF-BF-BFᶠᶠ C8-C8-C8ᶠᶠ 99-99-99ᶠᶠ 40-40-40ᶠᶠ 3B-3B-3Bᶠᶠ 40-40-40ᶠᶠ
 C4-C4-C4ᶠᶠ CD-CD-CDᶠᶠ 9B-9B-9Bᶠᶠ 3B-3B-3Bᶠᶠ 36-36-36ᶠᶠ 3B-3B-3Bᶠᶠ
 BF-BF-BFᶠᶠ C8-C8-C8ᶠᶠ 99-99-99ᶠᶠ 40-40-40ᶠᶠ 3B-3B-3Bᶠᶠ 40-40-40ᶠᶠ
+`;
+
+exports[`Resize images > mutch contrast 4x4 > to LANCZOS 6x6 1`] = `
+Visualization:
+
+33▩D◇◇
+333◇◇◇
+▩3▩D◇D
+D◇D▩3▩
+◇◇◇333
+◇◇D▩33
+
+Data:
+
+47-47-47ᶠᶠ 38-38-38ᶠᶠ 53-53-53ᶠᶠ AC-AC-ACᶠᶠ C7-C7-C7ᶠᶠ B8-B8-B8ᶠᶠ
+38-38-38ᶠᶠ 24-24-24ᶠᶠ 47-47-47ᶠᶠ B8-B8-B8ᶠᶠ DB-DB-DBᶠᶠ C7-C7-C7ᶠᶠ
+53-53-53ᶠᶠ 47-47-47ᶠᶠ 5D-5D-5Dᶠᶠ A2-A2-A2ᶠᶠ B8-B8-B8ᶠᶠ AC-AC-ACᶠᶠ
+AC-AC-ACᶠᶠ B8-B8-B8ᶠᶠ A2-A2-A2ᶠᶠ 5D-5D-5Dᶠᶠ 47-47-47ᶠᶠ 53-53-53ᶠᶠ
+C7-C7-C7ᶠᶠ DB-DB-DBᶠᶠ B8-B8-B8ᶠᶠ 47-47-47ᶠᶠ 24-24-24ᶠᶠ 38-38-38ᶠᶠ
+B8-B8-B8ᶠᶠ C7-C7-C7ᶠᶠ AC-AC-ACᶠᶠ 53-53-53ᶠᶠ 38-38-38ᶠᶠ 47-47-47ᶠᶠ
+`;
+
+exports[`Resize images > mutch contrast 4x4 > to LANCZOS2 6x6 1`] = `
+Visualization:
+
+▩D3◇▩▥
+D▩▴▴D▩
+3▴▩D▴◇
+◇▴D▩▴3
+▩D▴▴▩D
+▥▩◇3D▩
+
+Data:
+
+40-40-40ᶠᶠ 39-39-39ᶠᶠ 51-51-51ᶠᶠ AE-AE-AEᶠᶠ C6-C6-C6ᶠᶠ BF-BF-BFᶠᶠ
+39-39-39ᶠᶠ 30-30-30ᶠᶠ 4B-4B-4Bᶠᶠ B4-B4-B4ᶠᶠ CF-CF-CFᶠᶠ C6-C6-C6ᶠᶠ
+51-51-51ᶠᶠ 4B-4B-4Bᶠᶠ 5D-5D-5Dᶠᶠ A2-A2-A2ᶠᶠ B4-B4-B4ᶠᶠ AE-AE-AEᶠᶠ
+AE-AE-AEᶠᶠ B4-B4-B4ᶠᶠ A2-A2-A2ᶠᶠ 5D-5D-5Dᶠᶠ 4B-4B-4Bᶠᶠ 51-51-51ᶠᶠ
+C6-C6-C6ᶠᶠ CF-CF-CFᶠᶠ B4-B4-B4ᶠᶠ 4B-4B-4Bᶠᶠ 30-30-30ᶠᶠ 39-39-39ᶠᶠ
+BF-BF-BFᶠᶠ C6-C6-C6ᶠᶠ AE-AE-AEᶠᶠ 51-51-51ᶠᶠ 39-39-39ᶠᶠ 40-40-40ᶠᶠ
+`;
+
+exports[`Resize images > mutch contrast 4x4 > to MITCHELL 6x6 1`] = `
+Visualization:
+
+▩▴5A▴▥
+▴▴D▩▴▴
+5D◇3▩A
+A▩3◇D5
+▴▴▩D▴▴
+▥▴A5▴▩
+
+Data:
+
+40-40-40ᶠᶠ 3C-3C-3Cᶠᶠ 55-55-55ᶠᶠ AA-AA-AAᶠᶠ C3-C3-C3ᶠᶠ BF-BF-BFᶠᶠ
+3C-3C-3Cᶠᶠ 37-37-37ᶠᶠ 52-52-52ᶠᶠ AD-AD-ADᶠᶠ C8-C8-C8ᶠᶠ C3-C3-C3ᶠᶠ
+55-55-55ᶠᶠ 52-52-52ᶠᶠ 63-63-63ᶠᶠ 9C-9C-9Cᶠᶠ AD-AD-ADᶠᶠ AA-AA-AAᶠᶠ
+AA-AA-AAᶠᶠ AD-AD-ADᶠᶠ 9C-9C-9Cᶠᶠ 63-63-63ᶠᶠ 52-52-52ᶠᶠ 55-55-55ᶠᶠ
+C3-C3-C3ᶠᶠ C8-C8-C8ᶠᶠ AD-AD-ADᶠᶠ 52-52-52ᶠᶠ 37-37-37ᶠᶠ 3C-3C-3Cᶠᶠ
+BF-BF-BFᶠᶠ C3-C3-C3ᶠᶠ AA-AA-AAᶠᶠ 55-55-55ᶠᶠ 3C-3C-3Cᶠᶠ 40-40-40ᶠᶠ
 `;
 
 exports[`Resize images > mutch contrast 4x4 > to NEAREST_NEIGHBOR 6x6 1`] = `

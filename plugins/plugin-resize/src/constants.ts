@@ -23,4 +23,20 @@ export enum ResizeStrategy {
    */
   HERMITE = "hermiteInterpolation",
   BEZIER = "bezierInterpolation",
+  /**
+   * Lanczos3 resampling convolves the image with a sinc function windowed to 3 pixels on each side, the same filter as Pillow's `LANCZOS` and ImageMagick's `-filter Lanczos`.
+   * It keeps the most detail of all the modes, both when upscaling and downscaling, at the cost of being the slowest and adding slight ringing next to hard edges.
+   */
+  LANCZOS = "lanczosInterpolation",
+  /**
+   * Lanczos2 resampling is Lanczos with a window of 2 pixels on each side.
+   * It is a little softer than Lanczos3 with less ringing, and faster.
+   */
+  LANCZOS2 = "lanczos2Interpolation",
+  /**
+   * Mitchell resampling uses the Mitchell–Netravali cubic filter (B = C = 1/3), the same filter as ImageMagick's `-filter Mitchell`.
+   * It is a good balance of sharpness and smoothness with almost no ringing, and is faster than Lanczos3.
+   * It is slightly softer than Lanczos3.
+   */
+  MITCHELL = "mitchellInterpolation",
 }
