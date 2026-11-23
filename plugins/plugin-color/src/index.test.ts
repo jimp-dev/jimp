@@ -3,7 +3,7 @@ import { expect, test, describe } from "vitest";
 import { makeDonutTestImage } from "@jimp/test-utils";
 import { createJimp } from "@jimp/core";
 
-import { ColorAction, methods as color } from "./index.js";
+import { ColorAction, MultiplyAction, methods as color } from "./index.js";
 
 const jimp = createJimp({ plugins: [color] });
 
@@ -91,6 +91,46 @@ describe("mix and xor colors", () => {
     expect(() =>
       pixel().color([{ apply: "mix", params: ["nope", 50] }]),
     ).toThrow('Invalid color "nope"');
+  });
+});
+
+describe("multiply", () => {
+  const pixel = () =>
+    jimp.fromBitmap({
+      data: Buffer.from([64, 128, 192, 200]),
+      width: 1,
+      height: 1,
+    });
+  const multiply = (params: MultiplyAction["params"]) => [
+    ...pixel().color([{ apply: "multiply", params }]).bitmap.data,
+  ];
+
+  test("multiplies each channel by a factor and keeps alpha", () => {
+    expect(multiply([1.5, 0.5, 2])).toStrictEqual([96, 64, 255, 200]);
+  });
+
+  test("rounds and clamps", () => {
+    expect(multiply([1.1, 1.1, 1.1])).toStrictEqual([70, 141, 211, 200]);
+    expect(multiply([-1, 0, 10])).toStrictEqual([0, 0, 255, 200]);
+  });
+
+  test("multiplies with a color like the multiply blend mode", () => {
+    expect(multiply(["#ff8000"])).toStrictEqual([64, 64, 0, 200]);
+    expect(multiply([{ r: 255, g: 128, b: 0 }])).toStrictEqual(
+      multiply(["#ff8000"]),
+    );
+    expect(multiply(["white"])).toStrictEqual([64, 128, 192, 200]);
+  });
+
+  test("throws for an invalid CSS color", () => {
+    expect(() => multiply(["nope"])).toThrow('Invalid color "nope"');
+  });
+
+  test("throws without three factors or a color", () => {
+    expect(() =>
+      // @ts-expect-error a single factor isn't allowed
+      pixel().color([{ apply: "multiply", params: [1.2] }]),
+    ).toThrow();
   });
 });
 

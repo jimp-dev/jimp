@@ -44,4 +44,16 @@ image.convolution({
 
 Both methods lay the kernel out like the image: `kernel[row][col]` weights the pixel `col - originX` to the right and `row - originY` below, where the origin is `floor((size - 1) / 2)` along each axis. Kernels can be any size, including even-sized and non-square ones (a 4×4 kernel covers offsets −1 to 2), but every row must be the same length. The kernel isn't flipped, so strictly this is correlation. That matches ImageMagick's `-convolve` and `-morphology Correlate`, GIMP's convolution matrix and Matlab's `imfilter`, which also use the same origin. For a true convolution (ImageMagick's `-morphology Convolve`, Matlab's `conv2`), reverse the order of the rows and of each row.
 
+`color()`'s `multiply` action multiplies each channel by a factor, or by a color like the multiply blend mode, and `sepia(amount)` blends between the original image (`0`) and full sepia (`1`, the default). With `mix`, which blends toward a color, they cover the building blocks of Instagram-style filters (e.g. filterous's `rgbAdjust` and `colorFilter`):
+
+```ts
+image
+  .color([
+    { apply: "multiply", params: [1.2, 1.05, 0.9] }, // rgbAdjust([1.2, 1.05, 0.9])
+    { apply: "multiply", params: ["#ffe0c0"] }, // a warm multiply blend
+    { apply: "mix", params: ["#ff9900", 20] }, // colorFilter([255, 153, 0, 0.2])
+  ])
+  .sepia(0.3);
+```
+
 See [Getting Started](https://jimp-dev.github.io/jimp/guides/getting-started/) to read an image, change it and save the result with `write` or `getBuffer`.
