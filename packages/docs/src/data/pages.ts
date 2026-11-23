@@ -139,6 +139,13 @@ export const guides: DocPage[] = [
     icon: "wasm",
   },
   {
+    slug: "guides/migrate-to-v2",
+    title: "Migrate to v2",
+    blurb: "Breaking changes in 2.0 and how to update your code.",
+    color: "#ff5c6c",
+    icon: "migrate",
+  },
+  {
     slug: "guides/migrate-to-v1",
     title: "Migrate to v1",
     blurb: "What changed from v0, and how to update your code.",
