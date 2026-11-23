@@ -17,15 +17,15 @@ FF-00-00⁷ᶠ 00-FF-00⁷ᶠ 00-00-FF⁷ᶠ
 exports[`Callbacks > with blur 1`] = `
 Visualization:
 
-▩▴4
-C◆▴
-1 ◆
+▹3B
+2A■
+▴▿▰
 
 Data:
 
-97-83-38ᶠ¹ 71-71-71ᶠ¹ 4B-5E-A9ᶠ¹
-97-83-38ᵈ⁴ 71-71-71ᵈ⁴ 4B-5E-A9ᵈ⁴
-97-83-38ᵇ⁷ 71-71-71ᵇ⁷ 4B-5E-A9ᵇ⁷
+97-86-39ᶠ¹ 72-72-72ᶠ¹ 4D-5E-ABᶠ¹
+99-8D-3Dᵈ⁴ 76-76-77ᵈ⁴ 54-60-B0ᵈ⁴
+9B-96-43ᵇ⁷ 7C-7C-7Cᵇ⁷ 5D-62-B5ᵇ⁷
 `;
 
 exports[`Callbacks > with brightness 1`] = `
@@ -149,15 +149,15 @@ FF-00-FFᶠᶠ 00-FF-FFᶠᶠ FF-FF-00ᶠᶠ
 exports[`Callbacks > with gaussian 1`] = `
 Visualization:
 
-0▸7
-▹▥7
-▥▱F
+61F
+▦7▾
+D!◇
 
 Data:
 
-72-A0-2Bᶠ⁸ 4F-70-92ᶠ⁵ 59-50-B9ᶠ³
-78-7F-4Fᵈ⁴ 6F-64-79ᶜᶠ 45-55-A4ᶜᶜ
-55-8F-51ᶜ³ 49-5A-8Fᵇᵉ 51-5D-93ᶜᶠ
+70-A2-2Cᶠ⁸ 4E-71-96ᶠ⁵ 5A-51-BDᶠ³
+6C-8C-5Bᵈ⁴ 74-65-85ᶜᶠ 4F-5A-A6ᶜᶜ
+5A-90-5Cᶜ³ 52-66-8Dᵇᵉ 59-63-98ᶜᶠ
 `;
 
 exports[`Callbacks > with greyscale 1`] = `
