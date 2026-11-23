@@ -1,17 +1,15 @@
 import * as BMP from "bmp-ts";
+import { buildPaletteSync, utils } from "image-q";
 
-import { scan } from "@jimp/utils";
+import { cssColorToHex, scan } from "@jimp/utils";
 import { Bitmap, Format } from "@jimp/types";
 
 export { BmpCompression } from "bmp-ts";
 
 /** The bit depths Jimp can write */
-const BIT_DEPTHS = [16, 24, 32];
+const BIT_DEPTHS = [1, 4, 8, 16, 24, 32];
 
-/**
- * Options for the BMP that is written. Jimp writes uncompressed BMPs without
- * a palette.
- */
+/** Options for the BMP that is written. Jimp writes uncompressed BMPs. */
 export interface EncodeOptions {
   /**
    * Bits per pixel:
@@ -20,12 +18,26 @@ export interface EncodeOptions {
    *   less colour precision.
    * - 32 writes 8 bits each of red, green, blue and alpha. BMPs are written
    *   over the image's background, so the alpha is always opaque.
-   *
-   * 1, 4 and 8-bit BMPs, which need a palette, aren't supported yet, see
-   * https://github.com/jimp-dev/jimp/issues/633.
+   * - 1, 4 and 8 write an index into a palette of up to 2, 16 or 256
+   *   colours, see `palette`.
    * @default 24
    */
-  bitPP?: 16 | 24 | 32;
+  bitPP?: 1 | 4 | 8 | 16 | 24 | 32;
+  /**
+   * The colours of a 1, 4 or 8-bit BMP, as RGBA hex numbers or CSS colours,
+   * up to 2, 16 or 256 of them. Each pixel is written as the nearest palette
+   * colour. Alpha is ignored. Not used for 16, 24 and 32-bit BMPs.
+   *
+   * Without a palette, an image that has few enough colours is written with
+   * exactly those colours. Otherwise:
+   * - 1-bit BMPs are black and white: pixels whose Rec. 709 luminance is
+   *   over half are white. `image.dither({ type: "floyd-steinberg" })`
+   *   before writing gives a better result.
+   * - 4 and 8-bit BMPs get a palette of the image's most important colours
+   *   (image-q's Wu quantizer) and pixels aren't dithered.
+   *   `image.quantize({ colors: 16 })` before writing dithers the image.
+   */
+  palette?: (number | string)[];
   /** Horizontal resolution, in pixels per metre */
   hr?: number;
   /** Vertical resolution, in pixels per metre */
@@ -46,15 +58,76 @@ export interface DecodeBmpOptions {
   maxResolutionInMP?: number;
 }
 
+function toBmpColor(color: number): BMP.BmpColor {
+  return {
+    red: (color >>> 16) & 0xff,
+    green: (color >>> 8) & 0xff,
+    blue: color & 0xff,
+    quad: 0,
+  };
+}
+
+/** The palette of a 1, 4 or 8-bit BMP, as 0xRRGGBB colours */
+function getPalette(
+  image: Bitmap,
+  bitPP: number,
+  palette?: EncodeOptions["palette"],
+) {
+  const maxColors = 2 ** bitPP;
+
+  if (palette) {
+    if (palette.length < 1 || palette.length > maxColors) {
+      throw new Error(
+        `A ${bitPP}-bit BMP palette needs 1 to ${maxColors} colours, got ${palette.length}`,
+      );
+    }
+
+    return palette.map((color) => cssColorToHex(color) >>> 8);
+  }
+
+  const colors = new Set<number>();
+
+  for (let i = 0; i < image.data.length && colors.size <= maxColors; i += 4) {
+    colors.add(
+      (image.data[i]! << 16) | (image.data[i + 1]! << 8) | image.data[i + 2]!,
+    );
+  }
+
+  if (colors.size <= maxColors) {
+    return [...colors].sort((a, b) => a - b);
+  }
+
+  if (bitPP === 1) {
+    return undefined;
+  }
+
+  // image-q reads the whole backing ArrayBuffer, so pass a copy that
+  // starts at offset 0 instead of a view into a possibly pooled Buffer
+  const points = utils.PointContainer.fromUint8Array(
+    new Uint8Array(image.data),
+    image.width,
+    image.height,
+  );
+
+  return buildPaletteSync([points], { colors: maxColors })
+    .getPointContainer()
+    .getPointArray()
+    .map(({ r, g, b }) => (r << 16) | (g << 8) | b);
+}
+
 function encode(
   image: Bitmap,
-  { bitPP = 24, hr, vr, reserved1, reserved2 }: EncodeOptions = {}
+  { bitPP = 24, palette, hr, vr, reserved1, reserved2 }: EncodeOptions = {},
 ) {
   if (!BIT_DEPTHS.includes(bitPP)) {
     throw new Error(
-      `Unsupported BMP bit depth ${bitPP}, use ${BIT_DEPTHS.join(", ")}`
+      `Unsupported BMP bit depth ${bitPP}, use ${BIT_DEPTHS.join(", ")}`,
     );
   }
+
+  const colors = bitPP <= 8 ? getPalette(image, bitPP, palette) : undefined;
+  // 1-bit images with more than 2 colours become black and white
+  const blackAndWhite = bitPP === 1 && !colors;
 
   scan(
     { bitmap: image },
@@ -63,24 +136,31 @@ function encode(
     image.width,
     image.height,
     function (_, __, index) {
-      const red = image.data[index + 0]!;
-      const green = image.data[index + 1]!;
-      const blue = image.data[index + 2]!;
+      let red = image.data[index + 0]!;
+      let green = image.data[index + 1]!;
+      let blue = image.data[index + 2]!;
       const alpha = image.data[index + 3]!;
+
+      if (blackAndWhite) {
+        const luminance = 0.2126 * red + 0.7152 * green + 0.0722 * blue;
+
+        red = green = blue = luminance > 127.5 ? 0xff : 0;
+      }
 
       image.data[index + 0] = alpha;
       image.data[index + 1] = blue;
       image.data[index + 2] = green;
       image.data[index + 3] = red;
-    }
+    },
   );
 
-  // Only pass the supported options, so a stray palette can't reach bmp-ts
+  // Only pass the supported options, so stray header fields can't reach bmp-ts
   return BMP.encode({
     data: image.data,
     width: image.width,
     height: image.height,
     bitPP,
+    palette: (blackAndWhite ? [0, 0xffffff] : colors)?.map(toBmpColor),
     hr,
     vr,
     reserved1,
@@ -111,7 +191,7 @@ function decode(data: Buffer, options?: DecodeBmpOptions) {
       result.data[index + 1] = green;
       result.data[index + 2] = blue;
       result.data[index + 3] = hasAlpha ? alpha : 0xff;
-    }
+    },
   );
 
   return result as Bitmap;

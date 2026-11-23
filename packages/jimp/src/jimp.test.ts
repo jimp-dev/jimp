@@ -85,3 +85,31 @@ describe("getBuffer", () => {
     );
   });
 });
+
+describe("palette BMPs", () => {
+  async function roundTrip(image: InstanceType<typeof Jimp>, bitPP: 1 | 4) {
+    const buffer = await image.getBuffer("image/bmp", { bitPP });
+
+    return Jimp.read(buffer);
+  }
+
+  test("a dithered image is written exactly as a 1-bit BMP", async () => {
+    const image = await Jimp.read(getTestImagePath("cops.jpg"));
+
+    image.dither({ type: "floyd-steinberg" });
+
+    const decoded = await roundTrip(image, 1);
+
+    expect(decoded.bitmap.data).toEqual(image.bitmap.data);
+  });
+
+  test("a quantized image is written exactly as a 4-bit BMP", async () => {
+    const image = await Jimp.read(getTestImagePath("cops.jpg"));
+
+    image.quantize({ colors: 16 });
+
+    const decoded = await roundTrip(image, 4);
+
+    expect(decoded.bitmap.data).toEqual(image.bitmap.data);
+  });
+});

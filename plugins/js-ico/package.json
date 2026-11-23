@@ -61,7 +61,7 @@
     "@jimp/js-png": "workspace:*",
     "@jimp/plugin-resize": "workspace:*",
     "@jimp/types": "workspace:*",
-    "bmp-ts": "^1.1.3",
+    "bmp-ts": "^1.2.0",
     "buffer": "^6.0.3"
   },
   "publishConfig": {
