@@ -22,6 +22,7 @@
  */
 
 import { Buffer } from "buffer";
+import { ResizeStrategy } from "../constants.js";
 
 /**
  * Read channel `i` of an RGBA buffer with RGB premultiplied by alpha, so the
@@ -55,7 +56,7 @@ function unpremultiply(buf: any) {
  * A resampling filter for `convolve`: the kernel, and how many source pixels
  * it reaches on each side when the image isn't shrunk.
  */
-interface Filter {
+export interface Filter {
   support: number;
   kernel: (x: number) => number;
 }
@@ -252,8 +253,75 @@ function convolve(src: any, dst: any, filter: Filter) {
   }
 }
 
+/** Keys cubic convolution with parameter `a` */
+function keys(a: number): Filter {
+  return {
+    support: 2,
+    kernel(x) {
+      x = Math.abs(x);
+
+      if (x < 1) {
+        return ((a + 2) * x - (a + 3)) * x * x + 1;
+      }
+
+      if (x < 2) {
+        return ((a * x - 5 * a) * x + 8 * a) * x - 4 * a;
+      }
+
+      return 0;
+    },
+  };
+}
+
+const triangle: Filter = {
+  support: 1,
+  kernel: (x) => Math.max(0, 1 - Math.abs(x)),
+};
+
+/**
+ * The cubic Bézier through each pair of pixels used by `bezierInterpolation`,
+ * written as a kernel. The control points are a quarter of the way along the
+ * slope from the pixels on either side.
+ */
+const bezier: Filter = {
+  support: 2,
+  kernel(x) {
+    x = Math.abs(x);
+
+    if (x < 1) {
+      const nx = 1 - x;
+      return nx * (nx * nx + 3 * nx * x + 0.75 * x * x);
+    }
+
+    if (x < 2) {
+      return -0.75 * (2 - x) * (2 - x) * (x - 1);
+    }
+
+    return 0;
+  },
+};
+
 const lanczos3 = lanczos(3);
 const lanczos2 = lanczos(2);
+
+/**
+ * The kernel each interpolating `ResizeStrategy` samples with, for resampling
+ * at arbitrary positions (as `rotate` does). `bicubicInterpolation` and
+ * `hermiteInterpolation` are the cubics their resize uses: Keys with
+ * a = -1 and a = -0.5 (Catmull–Rom).
+ */
+export const kernels: Record<
+  Exclude<ResizeStrategy, ResizeStrategy.NEAREST_NEIGHBOR>,
+  Filter
+> = {
+  [ResizeStrategy.BILINEAR]: triangle,
+  [ResizeStrategy.BICUBIC]: keys(-1),
+  [ResizeStrategy.HERMITE]: keys(-0.5),
+  [ResizeStrategy.BEZIER]: bezier,
+  [ResizeStrategy.LANCZOS]: lanczos3,
+  [ResizeStrategy.LANCZOS2]: lanczos2,
+  [ResizeStrategy.MITCHELL]: mitchell,
+};
 
 export const operations = {
   nearestNeighbor(src: any, dst: any) {

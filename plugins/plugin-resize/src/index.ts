@@ -7,6 +7,10 @@ import Resize from "./modules/resize.js";
 import { operations as Resize2 } from "./modules/resize2.js";
 
 export * from "./constants.js";
+export {
+  kernels as resampleKernels,
+  type Filter as ResampleFilter,
+} from "./modules/resize2.js";
 
 interface ResizeClass {
   // eslint-disable-next-line @typescript-eslint/no-misused-new

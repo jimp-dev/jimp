@@ -1844,6 +1844,9 @@ importers:
       '@jimp/config-vitest':
         specifier: workspace:*
         version: link:../../packages/config-vitest
+      '@jimp/js-png':
+        specifier: workspace:*
+        version: link:../js-png
       '@jimp/test-utils':
         specifier: workspace:*
         version: link:../../packages/test-utils

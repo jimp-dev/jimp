@@ -36,6 +36,8 @@ image.resize({ w: 300, mode: ResizeStrategy.LANCZOS });
 
 `LANCZOS`, `LANCZOS2` and `MITCHELL` are convolution filters. When shrinking, they widen to cover every source pixel, so fine detail doesn't alias. They premultiply alpha, so transparent pixels don't darken the edges of what they surround. Their results match ImageMagick's to within ±1. Like Pillow, they leave a side whose size doesn't change as it is. ImageMagick still filters it, which slightly blurs that side with `MITCHELL`. Pillow rounds to 8 bits between its row and column passes, so its results can differ more next to hard edges.
 
+`rotate` accepts the same strategies and samples the rotation with them, see [plugin-rotate](../plugin-rotate/README.md).
+
 They take about as long as `BICUBIC`, or less (median of 7 runs on random RGBA data, Node 24, Apple M5):
 
 | Resize                | `BICUBIC` | `LANCZOS` | `LANCZOS2` | `MITCHELL` |

@@ -3,7 +3,7 @@ import { expect, test, describe } from "vitest";
 import { makeTestImage } from "@jimp/test-utils";
 import { createJimp } from "@jimp/core";
 
-import { methods, ResizeStrategy } from "./index.js";
+import { methods, resampleKernels, ResizeStrategy } from "./index.js";
 
 const jimp = createJimp({ plugins: [methods], formats: [] });
 
@@ -20,8 +20,8 @@ describe("Resize images", () => {
           "□□□□■■■■",
           "□□□□■■■■",
           "□□□□■■■■",
-          "□□□□■■■■"
-        )
+          "□□□□■■■■",
+        ),
       ),
       tests: [
         { mode: "default", size: { height: 4, width: 4 } },
@@ -60,8 +60,8 @@ describe("Resize images", () => {
           "□□□□□□■■■■■■",
           "□□□■□□■■□■■■",
           "□□□□□□■■■■■■",
-          "□□□□□□■■■■■■"
-        )
+          "□□□□□□■■■■■■",
+        ),
       ),
       tests: [
         { mode: "default", size: { height: 6, width: 6 } },
@@ -461,10 +461,85 @@ describe("Resize images", () => {
               w: size.width,
               h: size.height,
               mode,
-            })
+            }),
           ).toMatchSnapshot();
         });
       });
+    });
+  });
+});
+
+describe("resampleKernels", () => {
+  // the 4-point interpolations of bicubic, hermite and bezier resizing
+  const interpolations = {
+    [ResizeStrategy.BICUBIC](
+      x0: number,
+      x1: number,
+      x2: number,
+      x3: number,
+      t: number,
+    ) {
+      const a0 = x3 - x2 - x0 + x1;
+      const a1 = x0 - x1 - a0;
+      return a0 * t * t * t + a1 * t * t + (x2 - x0) * t + x1;
+    },
+    [ResizeStrategy.HERMITE](
+      x0: number,
+      x1: number,
+      x2: number,
+      x3: number,
+      t: number,
+    ) {
+      const c2 = x0 - 2.5 * x1 + 2 * x2 - 0.5 * x3;
+      const c3 = 0.5 * (x3 - x0) + 1.5 * (x1 - x2);
+      return ((c3 * t + c2) * t + 0.5 * (x2 - x0)) * t + x1;
+    },
+    [ResizeStrategy.BEZIER](
+      x0: number,
+      x1: number,
+      x2: number,
+      x3: number,
+      t: number,
+    ) {
+      const cp1 = x1 + (x2 - x0) / 4;
+      const cp2 = x2 - (x3 - x1) / 4;
+      const nt = 1 - t;
+      return (
+        x1 * nt * nt * nt +
+        3 * cp1 * nt * nt * t +
+        3 * cp2 * nt * t * t +
+        x2 * t * t * t
+      );
+    },
+  };
+
+  Object.entries(interpolations).forEach(([mode, interpolate]) => {
+    test(`${mode} is the kernel of its resize interpolation`, () => {
+      const { kernel } = resampleKernels[mode as keyof typeof interpolations];
+      const xs = [3, -7, 11, 5] as const;
+
+      for (let t = 0; t < 1; t += 0.05) {
+        const convolved = xs.reduce(
+          (sum, x, n) => sum + x * kernel(n - 1 - t),
+          0,
+        );
+        expect(convolved).toBeCloseTo(interpolate(...xs, t), 10);
+      }
+    });
+  });
+
+  Object.entries(resampleKernels).forEach(([mode, { support, kernel }]) => {
+    test(`${mode} weights add up to 1`, () => {
+      for (let t = 0; t < 1; t += 0.05) {
+        let sum = 0;
+
+        for (let n = -Math.ceil(support); n <= Math.ceil(support); n++) {
+          sum += kernel(n - t);
+        }
+
+        // Lanczos is only close to 1
+        expect(sum).toBeCloseTo(1, mode.startsWith("lanczos") ? 1 : 10);
+      }
     });
   });
 });
