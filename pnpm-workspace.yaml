@@ -6,6 +6,9 @@ allowBuilds:
   esbuild: true
   msw: false
   sharp: true
+# external-editor (via auto's all-contributors prompts) pins a vulnerable tmp.
+overrides:
+  external-editor>tmp: ^0.2.6
 minimumReleaseAgeExclude:
   - bmp-ts@1.2.0
 # pnpm 12 defaults this to "install": every `pnpm run` checks node_modules and
