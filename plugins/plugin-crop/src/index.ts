@@ -1,6 +1,6 @@
 import { Buffer } from "buffer";
 import { JimpClass, RGBAColor } from "@jimp/types";
-import { clampRegion, colorDiff, intToRGBA, scan } from "@jimp/utils";
+import { clampRegion, colorDiff, intToRGBA } from "@jimp/utils";
 import { z } from "zod";
 
 export const CropOptionsSchema = z.object({
@@ -267,14 +267,15 @@ export const methods = {
 
       image.bitmap.data = image.bitmap.data.slice(start, end);
     } else {
-      const bitmap = Buffer.allocUnsafe(w * h * 4);
-      let offset = 0;
+      const { data, width } = image.bitmap;
+      const rowLength = w << 2;
+      const bitmap = Buffer.allocUnsafe(h * rowLength);
 
-      scan(image, x, y, w, h, function (_, __, idx) {
-        const data = image.bitmap.data.readUInt32BE(idx);
-        bitmap.writeUInt32BE(data, offset);
-        offset += 4;
-      });
+      // Copy whole rows, which is much faster than pixel by pixel
+      for (let row = 0; row < h; row++) {
+        const start = ((y + row) * width + x) << 2;
+        data.copy(bitmap, row * rowLength, start, start + rowLength);
+      }
 
       image.bitmap.data = bitmap;
     }
