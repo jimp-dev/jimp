@@ -1,29 +1,63 @@
 ---
 title: Migrating to v1
-description: How to migrate from v0 to v1
+description: What changed from Jimp v0 to v1, and how to update your code.
 ---
 
-The goals of v1 were to:
+import { Aside } from "@astrojs/starlight/components";
 
-1. Make jimp easier to use in any environment
-2. Make jimp's API more consistent and easier to use
-3. Many constants have been removed and are string value powered by TS
+Jimp v1 is a rewrite in TypeScript. The goals were to:
 
-## Async/Sync
+1. Make Jimp easier to use in any environment: Node.js, browsers, web workers, Deno, Bun and Cloudflare Workers.
+2. Make the API more consistent: every method takes either one simple value or one options object.
+3. Replace the `Jimp.*` constants with typed named exports.
 
-In v0 of jimp there were a mix of async and sync methods for export.
-In v1 all "export" methods are async.
+Most changes are mechanical. This page lists them, starting with a quick reference.
 
-They have also been renamed:
+## Quick reference
 
-- `getBufferAsync` -> `getBuffer`
-- `getBase64Async` -> `getBase64`
-- `writeAsync` -> `write`
+| v0                                               | v1                                                                    |
+| ------------------------------------------------ | --------------------------------------------------------------------- |
+| `import Jimp from "jimp"`                        | `import { Jimp } from "jimp"`                                         |
+| `Jimp.read(path, callback)`                      | `await Jimp.read(path)`                                               |
+| `new Jimp(path)` / `new Jimp(buffer)`            | `await Jimp.read(path)` / `await Jimp.fromBuffer(buffer)`             |
+| `new Jimp(w, h, color)`                          | `new Jimp({ width: w, height: h, color })`                            |
+| `image.getBufferAsync(mime)`                     | `await image.getBuffer(mime)`                                         |
+| `image.getBase64Async(mime)`                     | `await image.getBase64(mime)`                                         |
+| `image.writeAsync(path)`                         | `await image.write(path)`                                             |
+| `image.resize(w, h)`                             | `image.resize({ w, h })`                                              |
+| `image.quality(80)`                              | `image.write("out.jpg", { quality: 80 })`                             |
+| `image.background(color)`                        | `image.background = color`                                            |
+| `image.getWidth()`, `image.getHeight()`          | `image.width`, `image.height`                                         |
+| `image.getMIME()`                                | `image.mime`                                                          |
+| `Jimp.MIME_PNG`                                  | `JimpMime.png`                                                        |
+| `Jimp.RESIZE_BEZIER`                             | `ResizeStrategy.BEZIER`                                               |
+| `Jimp.loadFont(Jimp.FONT_SANS_32_BLACK)`         | `loadFont(SANS_32_BLACK)`, from `jimp` and `jimp/fonts`               |
+| `Jimp.intToRGBA(color)`                          | `intToRGBA(color)`, from `jimp`                                       |
+| `@jimp/custom`, `@jimp/plugins`                  | `createJimp` from `@jimp/core`                                        |
 
-Callbacks are no longer supported.
-Methods like `Jimp.read`, `write` and `getBuffer` return promises instead:
+## Importing
 
-```js
+`jimp` no longer has a default export. Import `Jimp` and everything else by name:
+
+```ts title="index.ts"
+import { Jimp, JimpMime, ResizeStrategy, intToRGBA } from "jimp";
+```
+
+`@jimp/custom` and `@jimp/plugins` are gone.
+To build a Jimp with only some plugins and formats, use `createJimp` from `@jimp/core`; see [Custom Jimp](/jimp/guides/custom-jimp/).
+
+## Promises instead of callbacks
+
+In v0 there was a mix of sync and async methods for encoding images, and most async APIs took callbacks.
+In v1 everything that reads or encodes an image returns a promise, and callbacks aren't supported.
+
+The async methods have also been renamed:
+
+- `getBufferAsync` → [`getBuffer`](/jimp/methods/get-buffer/)
+- `getBase64Async` → [`getBase64`](/jimp/methods/get-base64/)
+- `writeAsync` → [`write`](/jimp/methods/write/)
+
+```js title="index.js"
 // v0
 Jimp.read("image.png", (err, image) => {
   if (err) throw err;
@@ -35,24 +69,81 @@ const image = await Jimp.read("image.png");
 await image.write("output.png");
 ```
 
-## Importing
+Image methods such as `resize` or `blur` are synchronous, as they were in v0, and still change the image in place.
+See [Chaining and async](/jimp/concepts/chaining-and-async/) for which calls return promises.
 
-`Jimp` no longer uses a default export. Instead it uses named exports.
+## Creating images
 
-```js
+The v0 constructor did everything: it read files, decoded buffers and created blank images, sometimes asynchronously.
+In v1 each job has its own method.
+
+### Blank images: `new Jimp()`
+
+The [constructor](/jimp/methods/new-jimp/) takes an options object and only creates blank images:
+
+```js title="index.js"
 import { Jimp } from "jimp";
+
+const image = new Jimp({ width: 100, height: 100 });
+
+// With a background color, as a number or a CSS color string
+const red = new Jimp({ width: 100, height: 100, color: 0xff0000ff });
+const blue = new Jimp({ width: 100, height: 100, color: "#0000ff" });
 ```
 
-`@jimp/custom` and `@jimp/plugins` are gone.
-To build a Jimp with only some plugins and formats, use `createJimp` from `@jimp/core`.
-See [Custom Jimp](/jimp/guides/custom-jimp).
+### Files and URLs: `Jimp.read`
 
-## Positional Arguments to Options Objects
+In v0 the constructor could be async. That's an anti-pattern, so it had to go.
+Use [`Jimp.read`](/jimp/methods/read/) instead.
+In Node.js it reads a file from disk, or fetches a URL:
 
-In jimp v0 there were many ways to provide arguments to a method.
-Most methods used positional arguments, which leads to code thats harder to read and extend.
+```js title="index.js"
+import { Jimp } from "jimp";
 
-For example the resize method used to look like this:
+const image = await Jimp.read("test/image.png");
+```
+
+In the browser it fetches the URL:
+
+```js title="main.js"
+import { Jimp } from "jimp";
+
+const image = await Jimp.read("https://example.com/image.png");
+```
+
+It also reads a `Buffer` or `ArrayBuffer`.
+
+### Buffers: `Jimp.fromBuffer`
+
+In v0 you loaded an image from a buffer through the constructor.
+In v1 use [`Jimp.fromBuffer`](/jimp/methods/from-buffer/):
+
+```js title="index.js"
+import { Jimp } from "jimp";
+
+const image = await Jimp.fromBuffer(buffer);
+```
+
+### Raw pixels: `Jimp.fromBitmap`
+
+In v0 you passed raw pixel data, such as canvas `ImageData`, to the constructor.
+In v1 use [`Jimp.fromBitmap`](/jimp/methods/from-bitmap/). It's synchronous:
+
+```js title="main.js"
+import { Jimp } from "jimp";
+
+const canvas = document.getElementById("my-canvas");
+const ctx = canvas.getContext("2d");
+
+const image = Jimp.fromBitmap(ctx.getImageData(0, 0, canvas.width, canvas.height));
+```
+
+## Positional arguments to options objects
+
+In v0 many methods took several positional arguments, which made calls hard to read and hard to extend.
+In v1 a method takes either one simple value, such as `blur(5)`, or one options object.
+
+For example, `resize` used to look like this:
 
 ```js
 image.resize(100, 100);
@@ -64,9 +155,11 @@ Now it looks like this:
 image.resize({ w: 100, h: 100 });
 ```
 
+`Jimp.AUTO` is gone too: leave out `w` or `h` to keep the aspect ratio, as in `image.resize({ w: 100 })`.
+
 ### `blit`
 
-In v0, `blit` accepted the source image and coordinates as positional arguments:
+In v0, `blit` took the source image and coordinates as positional arguments:
 
 ```js
 image.blit(sourceImage, 10, 20, 0, 0, 100, 100);
@@ -86,117 +179,61 @@ image.blit({
 });
 ```
 
-## `Jimp` Constructor
+### Other methods
 
-The constructor for `Jimp` has changed.
-Much in the same vein as above, the constructor now takes an options object.
+| v0                                         | v1                                                                                   |
+| ------------------------------------------ | ------------------------------------------------------------------------------------ |
+| `resize(w, Jimp.AUTO, mode)`               | [`resize({ w, mode })`](/jimp/methods/resize/)                                       |
+| `scaleToFit(w, h)`                         | [`scaleToFit({ w, h })`](/jimp/methods/scale-to-fit/)                                |
+| `contain(w, h, align, mode)`               | [`contain({ w, h, align, mode })`](/jimp/methods/contain/)                           |
+| `cover(w, h, align, mode)`                 | [`cover({ w, h, align, mode })`](/jimp/methods/cover/)                               |
+| `crop(x, y, w, h)`                         | [`crop({ x, y, w, h })`](/jimp/methods/crop/)                                        |
+| `autocrop(tolerance)`                      | [`autocrop({ tolerance })`](/jimp/methods/autocrop/)                                 |
+| `rotate(deg, mode)`                        | [`rotate(deg)`](/jimp/methods/rotate/) or `rotate({ deg, mode })`                    |
+| `flip(horizontal, vertical)`, `mirror(…)`  | [`flip({ horizontal, vertical })`](/jimp/methods/flip/)                              |
+| `mask(src, x, y)`                          | [`mask({ src, x, y })`](/jimp/methods/mask/), or `mask(src)`                          |
+| `displace(map, offset)`                    | [`displace({ map, offset })`](/jimp/methods/displace/)                               |
+| `fisheye({ r })`                           | [`fisheye({ radius })`](/jimp/methods/fisheye/)                                      |
+| `print(font, x, y, text, maxWidth, maxHeight)` | [`print({ font, x, y, text, maxWidth, maxHeight })`](/jimp/methods/print/)       |
+| `dither565()`, `dither16()`                | [`dither()`](/jimp/methods/dither/)                                                  |
+| `grayscale()`                              | [`greyscale()`](/jimp/methods/greyscale/)                                            |
 
-To create and empty jimp image:
+[`composite`](/jimp/methods/composite/) still takes positional arguments, `composite(src, x, y, options)`, but the blend modes are now the `BlendMode` enum; see [other constants](#other-constants).
 
-```js
-import { Jimp } from "jimp";
+## Encoding options
 
-const image = new Jimp({ width: 100, height: 100 });
-```
+In v0, encoding options were set on the image with methods such as `quality()`, and it wasn't clear which format they applied to.
+In v1 you pass them when you encode, to [`write`](/jimp/methods/write/), [`getBuffer`](/jimp/methods/get-buffer/) or [`getBase64`](/jimp/methods/get-base64/), and they're typed for the format you're writing.
 
-Even give it a background color:
-
-```js
-const image = new Jimp({ width: 100, height: 100, color: 0xff0000ff });
-```
-
-### `Jimp.read`
-
-In v0 of jimp the constructor was async!
-This is a huge anti-pattern so it had to go.
-
-Now you should instead use the `Jimp.read` method.
-
-In node environments it will read a file from disk.
-
-```js
-import { Jimp } from "jimp";
-
-async function main() {
-  const image = await Jimp.read("test/image.png");
-}
-```
-
-In the browser it fetch the file from the url.
+For example, to export a JPEG at 80% quality in v0:
 
 ```js
-import { Jimp } from "jimp";
-
-async function main() {
-  const image = await Jimp.read("https://example.com/image.png");
-}
-```
-
-It will also read from a `Buffer` or `ArrayBuffer`.
-
-### `Jimp.fromBuffer`
-
-You can load an image from a buffer.
-In v0 this was done through the constructor.
-In v1 it is done through the `Jimp.fromBuffer` method.
-
-```js
-import { Jimp } from "jimp";
-
-async function main() {
-  const image = await Jimp.fromBuffer(buffer);
-}
-```
-
-### `Jimp.fromBitmap`
-
-You can load an image (or canvas data) from a bitmap.
-In v0 this was done through the constructor.
-In v1 it is done through the `Jimp.fromBitmap` method.
-
-```js
-import { Jimp } from "jimp";
-
-async function main() {
-  const canvas = document.getElementById("my-canvas");
-  const ctx = canvas.getContext("2d");
-
-  const image = await Jimp.fromBitmap(
-    ctx.getImageData(0, 0, canvas.width, canvas.height),
-  );
-}
-```
-
-## Encoding and Decoding Options
-
-Another area where the API has changed is the way that encodings and decoding are handled.
-
-Previously the options were global and it was confusing where they might be applied (unless you have experience with the underlying image codecs).
-
-For example in v0 if you wanted to export a JPEG with the quality set to 80% you would do this:
-
-```js
-import { Jimp } from "jimp";
-
-const image = new Jimp(...);
+import Jimp from "jimp";
 
 const resized = await image
   .resize(512, Jimp.AUTO)
   .quality(80)
-  .getBuffer(Jimp.MIME_JPEG);
+  .getBufferAsync(Jimp.MIME_JPEG);
 ```
 
-In v1 the options are passed when you get the encoded image:
+In v1:
 
 ```js
 import { Jimp } from "jimp";
 
-const image = new Jimp(...);
-
 const resized = await image
   .resize({ w: 512 })
-  .getBuffer('image/jpeg', { quality: 80 });
+  .getBuffer("image/jpeg", { quality: 80 });
 ```
+
+| v0                         | v1                                                                                         |
+| -------------------------- | ------------------------------------------------------------------------------------------ |
+| `image.quality(n)`         | `{ quality: n }` when writing a JPEG. The default is `100`.                                |
+| `image.deflateLevel(n)`    | `{ deflateLevel: n }` when writing a PNG                                                   |
+| `image.deflateStrategy(n)` | `{ deflateStrategy: n }` when writing a PNG                                                |
+| `image.filterType(n)`      | `{ filterType: PNGFilterType.* }` when writing a PNG                                       |
+| `image.rgba(false)`        | `{ colorType: PNGColorType.COLOR }` when writing a PNG; see below                         |
+| `image.background(color)`  | `image.background = color`. Used to fill transparent areas in formats other than PNG.      |
 
 ### `rgba`
 
@@ -215,22 +252,21 @@ const buffer = await image.getBuffer(JimpMime.png, {
 });
 ```
 
-## Removed Constants
+[Reading and writing](/jimp/concepts/reading-and-writing/) lists every encode option.
 
-Most constants have been moved to named exports.
+## Removed constants
 
-Other changes:
-
-- `Jimp.AUTO` - This constant was only needed for positional arguments. It is no longer needed with the new API.
+Most constants have moved to named exports.
+`Jimp.AUTO` was only needed for positional arguments, and is gone.
 
 ### `Jimp.MIME_*`
 
-These have moved to a named export `JimpMime`.
+These have moved to the named export `JimpMime`:
 
 ```js
 import { JimpMime } from "jimp";
 
-JimpMime.jpeg;
+JimpMime.jpeg; // "image/jpeg"
 ```
 
 ### Other constants
@@ -257,9 +293,11 @@ image.contain({
 });
 ```
 
+[Constants and enums](/jimp/concepts/constants/) lists every value.
+
 ## Fonts
 
-`Jimp.loadFont` has moved to a named export `loadFont`, and the `Jimp.FONT_*` constants have moved to named exports of `jimp/fonts` without the `FONT_` prefix.
+`Jimp.loadFont` has moved to the named export `loadFont`, and the `Jimp.FONT_*` constants have moved to named exports of `jimp/fonts` without the `FONT_` prefix.
 
 In v0 you would load and print with a font like this:
 
@@ -284,12 +322,21 @@ image.print({ font, x: 10, y: 10, text: "Hello world!" });
 
 For example `Jimp.FONT_SANS_128_WHITE` is now `SANS_128_WHITE` and `Jimp.FONT_SANS_16_BLACK` is now `SANS_16_BLACK`.
 
-## Behavior Changes
+<Aside type="caution" title="loadFont(undefined)">
+  `Jimp.FONT_SANS_32_BLACK` is `undefined` in v1, so leftover v0 code ends up
+  calling `loadFont(undefined)`. That throws `loadFont expects a path or URL to
+  a font file, but received undefined`, followed by a hint to import the font
+  from `jimp/fonts`.
+</Aside>
+
+See [Text and fonts](/jimp/concepts/text-and-fonts/) for printing and measuring text.
+
+## Behavior changes
 
 ### `brightness`
 
 In v0, `brightness` took a number between -1 and +1, where 0 left the image unchanged.
-Since v1.1.2, `brightness` multiplies each color channel by the value and clamps the result:
+Since v1.1.2, [`brightness`](/jimp/methods/brightness/) multiplies each color channel by the value and clamps the result:
 
 - `1` leaves the image unchanged
 - greater than `1` brightens it
@@ -309,7 +356,7 @@ image.brightness(0.75);
 
 For lightening, `1 + v0Value` is only an approximation.
 v0 moved each channel toward white (`c + (255 - c) * val`), while v1 scales it, so dark pixels brighten less and black stays black.
-To reproduce v0's lightening exactly, use the `tint` color action with the v0 value as a percentage:
+To reproduce v0's lightening exactly, use the `tint` [color](/jimp/methods/color/) action with the v0 value as a percentage:
 
 ```js
 // v0
@@ -330,12 +377,15 @@ image.color([{ apply: "tint", params: [25] }]);
 | `brightness(0.5)`  | `color([{ apply: "tint", params: [50] }])`              |
 | `brightness(1)`    | `color([{ apply: "tint", params: [100] }])` (all white) |
 
-## Moved Functions
+## Moved and removed functions
 
-- `Jimp.intToRGBA` was moved `import { intToRGBA } from "jimp";`
-- `image.getHeight()` was moved `image.height`
-- `image.getWidth()` was moved `image.width`
-- `image.getMIME()` was moved `image.mime`
+- `Jimp.intToRGBA` was moved: `import { intToRGBA } from "jimp";`. So were `rgbaToInt`, `cssColorToHex`, `colorDiff`, `limit255`, `diff`, `distance` and `compareHashes`.
+- `image.getHeight()` was moved to `image.height`
+- `image.getWidth()` was moved to `image.width`
+- `image.getMIME()` was moved to `image.mime`
+- `image.getExtension()` was removed. Use `image.mime`.
+- `image.getPixelColour()` and `image.setPixelColour()` were removed. Use [`getPixelColor`](/jimp/methods/get-pixel-color/) and [`setPixelColor`](/jimp/methods/set-pixel-color/).
+- `Jimp.create()` was removed. Use [`Jimp.read`](/jimp/methods/read/), [`Jimp.fromBuffer`](/jimp/methods/from-buffer/) or [`new Jimp()`](/jimp/methods/new-jimp/).
 
 ## Troubleshooting
 
@@ -356,8 +406,7 @@ Node.js and webpack's default settings find the v1 copies, but a bundler that on
 
 In webpack, the usual cause is a `resolve.modules` setting that has only an absolute path, or that lists an absolute path first:
 
-```js
-// webpack.config.js
+```js title="webpack.config.js"
 module.exports = {
   resolve: {
     // Only finds the top-level (v0) copies
@@ -370,3 +419,9 @@ To fix it, do one of the following:
 
 - List `"node_modules"` first, so nested packages are found before the top-level ones: `modules: ["node_modules", path.resolve(__dirname, "node_modules")]`
 - Remove or upgrade the dependencies that pull in v0 packages. Run `npm ls @jimp/core` (or `yarn why @jimp/core`) to find them.
+
+### `does not provide an export named 'default'` or `Jimp.read is not a function`
+
+You're importing the default export, which v1 doesn't have.
+In Node.js ES modules this fails with `The requested module 'jimp' does not provide an export named 'default'`. With `require` or a bundler, it fails later with errors such as `Jimp.read is not a function` or `Jimp is not a constructor`.
+Change `import Jimp from "jimp"` to `import { Jimp } from "jimp"`, or `const Jimp = require("jimp")` to `const { Jimp } = require("jimp")`.

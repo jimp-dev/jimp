@@ -1,0 +1,68 @@
+---
+title: "compareHashes()"
+description: "Compare two perceptual hashes from pHash()."
+category: compare
+method: "compareHashes"
+plugin: "@jimp/plugin-hash"
+---
+
+import Related from "../../../components/Related.astro";
+
+`compareHashes` compares two hash strings you already have and returns how different they are, from `0` to `1`.
+It's the fast way to compare many images: hash each one once with [`pHash`](/jimp/methods/phash/), then compare the strings.
+
+## Signature
+
+```ts title="compareHashes.d.ts"
+import { compareHashes } from "jimp";
+
+compareHashes(hash1: string, hash2: string): number
+```
+
+`compareHashes` is a function exported from `jimp`. It returns the share of positions at which the two strings differ.
+
+## Parameters
+
+| Parameter | Type     | Default  | Description                                                   |
+| --------- | -------- | -------- | ------------------------------------------------------------- |
+| `hash1`   | `string` | required | A hash from `pHash()`.                                        |
+| `hash2`   | `string` | required | A hash made the same way: same method, options and base.      |
+
+## Example
+
+Find near-duplicates in a folder of images:
+
+```ts title="example.ts"
+import { Jimp, compareHashes } from "jimp";
+
+const files = ["a.jpg", "b.jpg", "c.png", "d.png"];
+const hashes = [];
+
+for (const file of files) {
+  const image = await Jimp.read(file);
+  hashes.push({ file, hash: image.pHash() });
+}
+
+for (let i = 0; i < hashes.length; i++) {
+  for (let j = i + 1; j < hashes.length; j++) {
+    const d = compareHashes(hashes[i].hash, hashes[j].hash);
+
+    if (d < 0.15) {
+      console.log(`${hashes[i].file} and ${hashes[j].file} look alike (${d})`);
+    }
+  }
+}
+```
+
+Each image is decoded and hashed once, and the comparisons are just string checks.
+
+## Notes
+
+- **Reading the result.** `0` means identical hashes. Unrelated images land around `0.5`. Values below about `0.15` usually mean the same picture.
+- **Use `pHash` strings.** `compareHashes` counts differing characters, which for `pHash()` (or `hash(2)`) is the number of differing bits. With `hash()` in base 64 each character holds six bits, so the result is larger and coarser. See [`hash`](/jimp/methods/hash/#notes).
+- **Lengths must match.** Hashes of different lengths throw `Can't compare hashes of different lengths (64 and 256). Both hashes must be made with the same size and smallerSize options (and, for hash(), the same base).` Hashes of the same length made with different options don't throw, but comparing them is meaningless.
+- **Related helpers.** [`distance`](/jimp/methods/distance/) hashes two images and compares them in one call, and [`distanceFromHash`](/jimp/methods/distance-from-hash/) compares an image with a stored hash.
+
+## Related
+
+<Related methods={["pHash", "distance", "distanceFromHash", "hash"]} />

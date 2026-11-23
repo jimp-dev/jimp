@@ -1,18 +1,33 @@
 ---
 title: Reading Large Images
-description: How to pass decode options to Jimp, including the size limits for each format.
+description: Pass decode options to Jimp, including the size limits for each format.
 ---
 
-Jimp decodes images with JavaScript implementations of each format.
+import { Aside } from "@astrojs/starlight/components";
+
+Jimp decodes images with JavaScript implementations of each format and keeps every pixel in memory.
 To avoid running out of memory on huge or malicious files, most decoders refuse images above a size limit.
-If you need to read an image larger than the defaults, pass decode options to `Jimp.read` or `Jimp.fromBuffer`.
+If you need to read an image larger than the defaults, pass decode options to [`Jimp.read`](/jimp/methods/read/) or [`Jimp.fromBuffer`](/jimp/methods/from-buffer/).
+
+## How much memory an image needs
+
+A decoded image takes four bytes per pixel (red, green, blue and alpha), however small the file is.
+
+| Image                      | Megapixels | Decoded size |
+| -------------------------- | ---------- | ------------ |
+| 1920 × 1080                | 2.1        | 8 MB         |
+| 6000 × 4000 (a 24 MP photo) | 24        | 96 MB        |
+| 10,000 × 10,000            | 100        | 400 MB       |
+
+The decoder needs working memory on top of that, and every [`clone`](/jimp/methods/clone/) needs as much again.
+A small, highly compressed file can still describe an enormous image, which is why the limits exist.
 
 ## Passing decode options
 
 The second argument to `Jimp.read` and `Jimp.fromBuffer` is an object keyed by MIME type.
-Jimp detects the image's type and passes only the matching options to its decoder, so you can set options for several formats at once.
+Jimp detects the image's type and passes only the matching options to its decoder, so you can set options for several formats at once:
 
-```ts
+```ts title="example.ts"
 import { Jimp } from "jimp";
 
 const image = await Jimp.read("huge-photo.jpg", {
@@ -23,7 +38,7 @@ const image = await Jimp.read("huge-photo.jpg", {
 });
 ```
 
-When an image is over a limit, decoding throws an error instead of allocating memory for it.
+The keys and option names are typed: TypeScript only accepts options for the formats your `Jimp` class supports.
 
 ## Options by format
 
@@ -66,3 +81,59 @@ PNG has no size limit.
 | Option     | Default | Description                                |
 | ---------- | ------- | ------------------------------------------ |
 | `checkCRC` | `true`  | Throw if a chunk's checksum doesn't match. |
+
+### WASM formats
+
+The [WASM format plugins](/jimp/guides/webp/) (`@jimp/wasm-avif`, `@jimp/wasm-jpeg`, `@jimp/wasm-png` and `@jimp/wasm-webp`) take no decode options, and Jimp applies no size limit to them.
+
+## When an image is too large
+
+When an image is over a limit, decoding throws before any pixel memory is allocated, and the promise from `Jimp.read` or `Jimp.fromBuffer` rejects:
+
+| Format | Error message                                                                     |
+| ------ | --------------------------------------------------------------------------------- |
+| JPEG   | `maxResolutionInMP limit exceeded by <n>MP`                                       |
+| JPEG   | `maxMemoryUsageInMB limit exceeded by at least <n>MB`                             |
+| GIF    | `GIF dimensions <w>x<h> exceed the maximum resolution of <n> megapixels`          |
+| TIFF   | `TIFF dimensions <w>x<h> exceed the maximum resolution of <n> megapixels`         |
+| BMP    | `BMP dimensions <w>x<h> exceed the maximum resolution of <n> megapixels`          |
+
+If your app accepts uploads, keep the defaults (or lower them) and turn the error into a friendly message:
+
+```ts title="upload.ts"
+import { Jimp } from "jimp";
+
+async function readUpload(data: ArrayBuffer) {
+  try {
+    return await Jimp.fromBuffer(data, {
+      "image/jpeg": { maxResolutionInMP: 40 },
+      "image/gif": { maxResolutionInMP: 40 },
+      "image/tiff": { maxResolutionInMP: 40 },
+      "image/bmp": { maxResolutionInMP: 40 },
+    });
+  } catch (error) {
+    if (/maxResolutionInMP|maxMemoryUsageInMB|exceed/.test((error as Error).message)) {
+      throw new Error("That image is too large. Upload one under 40 megapixels.");
+    }
+
+    throw error;
+  }
+}
+```
+
+<Aside type="caution" title="PNG has no limit">
+  PNG decoding isn't limited, so a crafted PNG can still use a lot of memory.
+  If you accept untrusted uploads, check the file size before decoding, or read
+  the width and height from the PNG header (bytes 16 to 23) and reject images
+  that are too large.
+</Aside>
+
+## Working with large images
+
+Once a large image is loaded, a few habits keep memory and time down:
+
+- **Shrink early.** Call [`resize`](/jimp/methods/resize/) or [`scaleToFit`](/jimp/methods/scale-to-fit/) straight after reading, before any other method. Every later step then works on fewer pixels.
+- **Clone sparingly.** Each [`clone`](/jimp/methods/clone/) copies all the pixels. Clone the small version, not the original.
+- **Process one image at a time.** Running many large images through `Promise.all` holds all of them in memory at once.
+
+See also [Reading and writing](/jimp/concepts/reading-and-writing/) for the other ways to load images, and [Errors and validation](/jimp/concepts/errors-and-validation/) for Jimp's other error messages.

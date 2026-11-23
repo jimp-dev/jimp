@@ -1,0 +1,84 @@
+---
+title: "measureTextHeight()"
+description: "Measure the height of wrapped text in a font."
+category: text
+method: "measureTextHeight"
+plugin: "@jimp/plugin-print"
+---
+
+import { Aside } from "@astrojs/starlight/components";
+import Related from "../../../components/Related.astro";
+
+`measureTextHeight` returns how many pixels tall text is when [`print`](/jimp/methods/print/) wraps it at a given width.
+Use it to make room for a caption, or to check that text fits in a box before printing it.
+
+## Signature
+
+```ts title="measureTextHeight.d.ts"
+import { measureTextHeight } from "jimp";
+
+measureTextHeight(font: BmFont, text: string, maxWidth: number): number
+```
+
+`measureTextHeight` is a function, not an image method. It returns the number of lines times the font's line height.
+
+## Parameters
+
+| Parameter  | Type     | Default  | Description                                                              |
+| ---------- | -------- | -------- | ------------------------------------------------------------------------ |
+| `font`     | `BmFont` | required | A font from [`loadFont`](/jimp/methods/load-font/).                      |
+| `text`     | `string` | required | The text to measure. `\n` starts a new line.                             |
+| `maxWidth` | `number` | required | The width to wrap at, as `print`'s `maxWidth`. Pass `Infinity` to only break at `\n`. |
+
+## Example
+
+Add a caption strip under a photo that's tall enough for the wrapped text:
+
+```ts title="example.ts"
+import { Jimp, loadFont, measureTextHeight } from "jimp";
+import { SANS_32_BLACK } from "jimp/fonts";
+
+const photo = await Jimp.read("photo.jpg");
+const font = await loadFont(SANS_32_BLACK);
+
+const caption = "The quick brown fox jumps over the lazy dog";
+const padding = 16;
+const textWidth = photo.width - padding * 2;
+const textHeight = measureTextHeight(font, caption, textWidth);
+
+const card = new Jimp({
+  width: photo.width,
+  height: photo.height + textHeight + padding * 2,
+  color: 0xffffffff,
+});
+
+card.composite(photo, 0, 0);
+card.print({
+  font,
+  x: padding,
+  y: photo.height + padding,
+  text: caption,
+  maxWidth: textWidth,
+});
+
+await card.write("card.jpg");
+```
+
+With `SANS_32_BLACK` (36px line height) that caption wrapped at 200px takes four lines, so `measureTextHeight(font, caption, 200)` returns `144`.
+
+## Notes
+
+- **Same wrapping as `print`.** The lines are split exactly as `print` splits them for the same `maxWidth`: at spaces, at `\n`, and between characters for words wider than `maxWidth`.
+- **Line height.** Each line counts as `font.common.lineHeight` pixels, which includes the space between lines. Text with no characters still counts as one line.
+- **For the width,** use [`measureText`](/jimp/methods/measure-text/) on a single line.
+
+<Aside type="caution" title="Always pass maxWidth">
+  `maxWidth` has no default. If you leave it out (possible in plain
+  JavaScript), the result is counted as an empty line followed by one line per
+  word, so it comes out too large: `measureTextHeight(font, "Hello")` returns
+  `72` with a 36px font instead of `36`. Pass `Infinity` when the text doesn't wrap.
+</Aside>
+
+## Related
+
+<Related methods={["measureText", "print", "loadFont"]} />

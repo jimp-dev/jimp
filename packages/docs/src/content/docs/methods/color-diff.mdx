@@ -1,0 +1,77 @@
+---
+title: "colorDiff()"
+description: "Measure how different two colors are, from 0 to 1."
+category: utils
+method: "colorDiff"
+plugin: "@jimp/utils"
+---
+
+import Playground from "../../../components/playground/Playground";
+import Related from "../../../components/Related.astro";
+
+`colorDiff` compares two colors and returns a number from `0` (identical) to `1` (as different as possible).
+Use it to match colors with a tolerance: finding pixels close to a target color, keying out a background or checking whether two pixels look the same.
+
+## Signature
+
+```ts title="colorDiff.d.ts"
+import { colorDiff } from "jimp";
+
+colorDiff(rgba1: RGBAColor | RGBColor, rgba2: RGBAColor | RGBColor): number
+```
+
+Both colors are objects with `r`, `g` and `b` from `0` to `255`, and an optional `a`.
+Turn a color integer into one with [`intToRGBA`](/jimp/methods/int-to-rgba/).
+
+## Parameters
+
+| Parameter | Type                       | Default  | Description                                                  |
+| --------- | -------------------------- | -------- | ------------------------------------------------------------ |
+| `rgba1`   | `RGBAColor \| RGBColor`    | required | The first color, `{ r, g, b }` or `{ r, g, b, a }`.         |
+| `rgba2`   | `RGBAColor \| RGBColor`    | required | The second color. When `a` is missing it counts as `255`.   |
+
+## Example
+
+```ts title="example.ts"
+import { colorDiff } from "jimp";
+
+colorDiff({ r: 255, g: 0, b: 0 }, { r: 255, g: 0, b: 0 }); // 0
+colorDiff({ r: 255, g: 0, b: 0 }, { r: 250, g: 5, b: 0 }); // 0.00026
+colorDiff({ r: 255, g: 0, b: 0 }, { r: 0, g: 255, b: 0 }); // 0.67
+colorDiff({ r: 0, g: 0, b: 0 }, { r: 255, g: 255, b: 255 }); // 1
+```
+
+### Find pixels close to a color
+
+Make every pixel that differs from a target color by more than a tolerance transparent:
+
+```ts title="example.ts"
+import { Jimp, colorDiff, intToRGBA } from "jimp";
+
+const image = await Jimp.read("photo.png");
+const target = intToRGBA(image.getPixelColor(180, 150));
+
+image.scan((x, y, idx) => {
+  const pixel = intToRGBA(image.getPixelColor(x, y));
+  if (colorDiff(pixel, target) > 0.15) {
+    image.bitmap.data[idx + 3] = 0;
+  }
+});
+```
+
+## Try it
+
+Click the image to choose the target color, then move the tolerance. Pixels further from the target than the tolerance are hidden.
+
+<Playground method="colorDiff" client:visible />
+
+## Notes
+
+- **How it's computed.** For each of red, green and blue, it takes the larger of the squared channel difference and the squared difference adjusted for the change in alpha, adds the three, and divides by the largest possible total (`255² × 3`). It isn't a perceptual measure such as CIE ΔE: equal steps in the result don't always look equally different.
+- **Alpha matters.** Two colors with the same `r`, `g`, `b` but different alpha aren't identical: `{ r: 10, g: 10, b: 10, a: 255 }` and the same color with `a: 0` differ by `1`. Compare `{ r, g, b }` objects without `a` if you only care about the color.
+- **Changes from v0.** `colorDiff` used to be a static method, `Jimp.colorDiff`. It's now a named export of `jimp` (and of `@jimp/utils`).
+- To compare two whole images, use [`diff`](/jimp/methods/diff/) or [`distance`](/jimp/methods/distance/) instead.
+
+## Related
+
+<Related methods={["intToRGBA", "diff", "distance", "getPixelColor", "scan"]} />

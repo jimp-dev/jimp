@@ -1,0 +1,123 @@
+---
+import type { Props as StarlightProps } from "@astrojs/starlight/props";
+
+type Entry = StarlightProps["sidebar"][number];
+
+interface Props {
+  entries: Entry[];
+  depth?: number;
+}
+
+const { entries, depth = 0 } = Astro.props;
+const hasCurrent = (entry: Entry): boolean =>
+  entry.type === "link" ? entry.isCurrent : entry.entries.some(hasCurrent);
+---
+
+<ul class:list={["list", { nested: depth > 0 }]}>
+  {
+    entries.map((entry) => {
+      if (entry.type === "link") {
+        const { "data-dot": dot, "data-code": code, ...attrs } = entry.attrs as Record<
+          string,
+          unknown
+        >;
+        return (
+          <li>
+            <a
+              href={entry.href}
+              aria-current={entry.isCurrent ? "page" : undefined}
+              class:list={["link", { code: code !== undefined }]}
+              {...attrs}
+            >
+              {typeof dot === "string" && <span class="dot" style={`--c:${dot}`} />}
+              <span>{entry.label}</span>
+            </a>
+          </li>
+        );
+      }
+      if (entry.collapsed && !hasCurrent(entry)) {
+        return (
+          <li>
+            <details>
+              <summary class="sub">{entry.label}</summary>
+              <Astro.self entries={entry.entries} depth={depth + 1} />
+            </details>
+          </li>
+        );
+      }
+      return (
+        <li>
+          <div class="sub">{entry.label}</div>
+          <Astro.self entries={entry.entries} depth={depth + 1} />
+        </li>
+      );
+    })
+  }
+</ul>
+
+<style>
+  .list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .nested {
+    margin-bottom: 4px;
+  }
+  .sub {
+    font-family: var(--jp-ui);
+    font-weight: 600;
+    font-size: 12.5px;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--jp-text-2);
+    margin: 10px 0 2px 12px;
+  }
+  summary.sub {
+    cursor: pointer;
+  }
+  .link {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: var(--jp-ui);
+    font-weight: 500;
+    font-size: 15.5px;
+    line-height: 1.3;
+    color: var(--jp-text);
+    text-decoration: none;
+    padding: 5px 10px;
+    margin: 1px 0;
+    border-radius: 11px;
+    border: 2.5px solid transparent;
+    overflow-wrap: anywhere;
+  }
+  .link:hover {
+    color: var(--jp-text);
+    background: var(--jp-surface-2);
+  }
+  .code {
+    font-family: var(--jp-mono);
+    font-size: 13.5px;
+    font-weight: 400;
+    padding-block: 4px;
+  }
+  .link[aria-current="page"] {
+    color: var(--jp-ink);
+    background: var(--jp-yellow);
+    border-color: var(--jp-ink);
+    box-shadow: 0 3px 0 var(--jp-ink);
+    font-weight: 600;
+  }
+  .dot {
+    width: 9px;
+    height: 9px;
+    flex: none;
+    border-radius: 50%;
+    background: var(--c);
+    border: 2px solid var(--jp-ink);
+  }
+  :global([data-theme="dark"]) .dot {
+    border-color: var(--jp-line);
+  }
+</style>

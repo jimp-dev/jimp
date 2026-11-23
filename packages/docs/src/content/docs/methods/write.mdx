@@ -1,0 +1,89 @@
+---
+title: "write()"
+description: "Encode the image and save it to a file. The extension picks the format."
+category: io
+method: "write"
+plugin: "@jimp/core"
+---
+
+import { Aside } from "@astrojs/starlight/components";
+import Related from "../../../components/Related.astro";
+
+`write` encodes the image and saves it to a file in Node.
+The file extension decides the format, so `"out.png"` writes a PNG and `"out.jpg"` writes a JPEG.
+
+## Signature
+
+```ts title="write.d.ts"
+image.write(path: string, options?: EncodeOptions): Promise<void>
+```
+
+`write` returns a promise that resolves once the file is written. It doesn't change the image.
+
+## Parameters
+
+| Parameter | Type     | Default  | Description                                                                                                                                |
+| --------- | -------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| `path`    | `string` | required | Where to save the file, relative to the current working directory. Its extension picks the format.                                         |
+| `options` | `object` | none     | Encoder options for that format, the same as for [`getBuffer`](/jimp/methods/get-buffer/#options), for example `{ quality: 80 }` for JPEG. |
+
+## Example
+
+```ts title="example.ts"
+import { Jimp } from "jimp";
+
+const image = await Jimp.read("photo.png");
+
+image.resize({ w: 1200 });
+
+await image.write("photo-large.png");
+await image.write("photo-large.jpg", { quality: 85 });
+```
+
+### Paths built at runtime
+
+`write` accepts any string, including paths from `path.join` or user input:
+
+```ts title="example.ts"
+import path from "node:path";
+
+const name = "photo-small";
+
+await image.write(path.join("output", `${name}.png`));
+```
+
+The directory must already exist; `write` doesn't create it.
+With a literal path, TypeScript checks the options against the format: `image.write("out.png", { quality: 80 })` is a type error, since PNG has no `quality`. With a `string` variable it accepts the options of any format.
+
+## Extensions and formats
+
+The extension is looked up with the [mime](https://www.npmjs.com/package/mime) package and isn't case sensitive. With the default `jimp` package:
+
+| Extensions      | Format | Options                                                  |
+| --------------- | ------ | -------------------------------------------------------- |
+| `.png`          | PNG    | [PNG options](/jimp/methods/get-buffer/#png)             |
+| `.jpg`, `.jpeg` | JPEG   | [`quality`, `exif`](/jimp/methods/get-buffer/#jpeg)      |
+| `.gif`          | GIF    | none                                                     |
+| `.bmp`          | BMP    | [BMP options](/jimp/methods/get-buffer/#bmp)             |
+| `.tif`, `.tiff` | TIFF   | none                                                     |
+
+`.webp` and `.avif` work once you add their [WASM format plugins](/jimp/concepts/formats/#wasm-format-plugins).
+
+## Notes
+
+- **The original format isn't kept automatically.** An image read from a JPEG and written to `out.png` becomes a PNG. Jimp goes by the extension only.
+- **Writing replaces existing files** without asking.
+- **Errors.** A path with no extension throws `Cannot write "<path>": the path has no recognisable file extension to determine the image format`. An extension whose format isn't available throws `Unsupported MIME type`, for example `Unsupported MIME type: image/webp` for `.webp` or `Unsupported MIME type: text/plain` for `.txt`.
+- **v0 difference.** Jimp v0 had `writeAsync`, and `write` took a callback. In v1, `write` returns a promise.
+
+<Aside type="caution" title="Node only">
+  `write` uses the file system, so it only works in Node (and runtimes with
+  `node:fs`, like Bun and Deno). In the browser it throws `Jimp.write cannot
+  write directly to a local path in the browser. Use getBuffer to retrieve the
+  encoded image bytes.` Use [`getBuffer`](/jimp/methods/get-buffer/#download-in-the-browser)
+  or [`getBase64`](/jimp/methods/get-base64/) there instead.
+</Aside>
+
+## Related
+
+<Related methods={["getBuffer", "getBase64", "Jimp.read", "clone"]} />

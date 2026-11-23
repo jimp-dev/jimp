@@ -1,0 +1,96 @@
+---
+title: "threshold()"
+description: "Turn pixels at or above a cut-off into one gray value."
+category: color
+method: "threshold"
+plugin: "@jimp/plugin-threshold"
+---
+
+import { Aside } from "@astrojs/starlight/components";
+import Playground from "../../../components/playground/Playground";
+import Related from "../../../components/Related.astro";
+
+`threshold` converts the image to grayscale and then replaces every pixel at or above a cut-off with a single value, white by default.
+Darker pixels keep their gray level. Use it to clean up scans, wash out light backgrounds or prepare an image for a mask.
+
+## Signature
+
+```ts title="threshold.d.ts"
+image.threshold(options: {
+  max: number;
+  replace?: number;
+  autoGreyscale?: boolean;
+}): this
+```
+
+`threshold` changes the image in place and returns it, so you can chain more calls after it.
+The options type is exported from `jimp` as `ThresholdOptions`.
+
+## Options
+
+| Option          | Type      | Default  | Description                                                                                         |
+| --------------- | --------- | -------- | --------------------------------------------------------------------------------------------------- |
+| `max`           | `number`  | required | The cut-off, from `0` to `255`. Pixels whose gray value is `max` or more are replaced.              |
+| `replace`       | `number`  | `255`    | The gray value, from `0` to `255`, that replaced pixels get.                                        |
+| `autoGreyscale` | `boolean` | `true`   | Call [`greyscale`](/jimp/methods/greyscale/) first. Turn it off only if the image is already gray. |
+
+## Example
+
+```ts title="example.ts"
+import { Jimp } from "jimp";
+
+const image = await Jimp.read("scan.jpg");
+
+// Everything at least as light as 200 becomes pure white
+image.threshold({ max: 200 });
+
+await image.write("scan-clean.png");
+```
+
+### Replace light pixels with black
+
+Set `replace` to choose another value:
+
+```ts title="example.ts"
+image.threshold({ max: 180, replace: 0 });
+```
+
+### Pure black and white
+
+`threshold` only changes the pixels at or above `max`; darker pixels keep their gray.
+For a two-color result, set the remaining pixels yourself with [`scan`](/jimp/methods/scan/):
+
+```ts title="example.ts"
+image.threshold({ max: 128 });
+
+image.scan((x, y, idx) => {
+  const value = image.bitmap.data[idx] === 255 ? 255 : 0;
+
+  image.bitmap.data[idx] = value;
+  image.bitmap.data[idx + 1] = value;
+  image.bitmap.data[idx + 2] = value;
+});
+```
+
+## Try it
+
+Drag `max` to move the cut-off and `replace` to change the value that light pixels get.
+
+<Playground method="threshold" client:visible />
+
+## Notes
+
+- **At or above.** A pixel is replaced when its gray value is greater than or equal to `max`. `max: 0` replaces every pixel; `max: 255` replaces only pure white.
+- **Alpha is unchanged.** Transparent pixels are processed like any other, but stay transparent.
+- **Errors.** `options` is required: calling `threshold()` with no argument throws a `ZodError`. So do a missing `max` and values of `max` or `replace` outside `0`–`255`.
+
+<Aside type="caution" title="autoGreyscale: false reads only the red channel">
+  `threshold` compares and copies the red channel of each pixel. With
+  `autoGreyscale: false` on a color image, the result is still gray, but its
+  levels come from the red channel alone. Leave `autoGreyscale` on unless the
+  image is already grayscale.
+</Aside>
+
+## Related
+
+<Related methods={["greyscale", "posterize", "contrast", "normalize", "mask", "scan"]} />

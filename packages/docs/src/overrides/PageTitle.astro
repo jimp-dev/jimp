@@ -1,0 +1,180 @@
+---
+/**
+ * Notebook-paper page header: a category sticker, breadcrumbs, the title in
+ * the display font, the description and (for method pages) the source package.
+ */
+import type { Props } from "@astrojs/starlight/props";
+import { categories } from "../data/categories";
+import { pagesBySlug } from "../data/pages";
+
+const { entry, slug } = Astro.props;
+const { title, description, category, method, plugin } = entry.data;
+const base = import.meta.env.BASE_URL.replace(/\/$/, "");
+
+interface Crumb {
+  label: string;
+  href?: string;
+}
+
+let tab = "Docs";
+let color = "var(--jp-yellow)";
+const crumbs: Crumb[] = [{ label: "Docs", href: `${base}/` }];
+
+if (category) {
+  tab = categories[category].label;
+  color = categories[category].color;
+  crumbs.push({ label: "Methods", href: `${base}/methods/` }, { label: tab });
+} else if (slug === "methods") {
+  tab = "API";
+  color = "var(--jp-mint)";
+  crumbs.push({ label: "Methods" });
+} else if (slug.startsWith("guides/") || slug.startsWith("concepts/")) {
+  const isGuide = slug.startsWith("guides/");
+  tab = isGuide ? "Guide" : "Concept";
+  color = pagesBySlug.get(slug)?.color ?? color;
+  crumbs.push({ label: isGuide ? "Guides" : "Concepts" });
+} else if (slug.startsWith("api/")) {
+  tab = "Type reference";
+  color = "#c9a8ff";
+  crumbs.push({ label: "Type reference", href: `${base}/api/readme/` });
+} else if (slug === "playground") {
+  tab = "Playground";
+  color = "var(--jp-pink)";
+} else if (slug === "404") {
+  tab = "404";
+  color = "var(--jp-orange)";
+}
+
+const sourcePath = plugin?.replace(/^@jimp\//, "");
+const sourceDir =
+  sourcePath && (/^(core|utils|diff)$/.test(sourcePath) ? "packages" : "plugins");
+---
+
+<div class="head" style={`--c:${color}`}>
+  <span class="tab" data-pagefind-ignore>{tab}</span>
+  {
+    crumbs.length > 1 && (
+      <nav class="crumbs" aria-label="Breadcrumbs" data-pagefind-ignore>
+        {crumbs.map((crumb, i) => (
+          <>
+            {i > 0 && <span aria-hidden="true"> › </span>}
+            {crumb.href ? <a href={crumb.href}>{crumb.label}</a> : <span>{crumb.label}</span>}
+          </>
+        ))}
+      </nav>
+    )
+  }
+  <h1 id="_top" class:list={{ code: Boolean(method) }}>{title}</h1>
+  {description && <p class="desc">{description}</p>}
+  {
+    plugin && (
+      <p class="pkg" data-pagefind-ignore>
+        <span>From</span>
+        <a href={`https://github.com/jimp-dev/jimp/tree/main/${sourceDir}/${sourcePath}`}>
+          <code>{plugin}</code>
+        </a>
+      </p>
+    )
+  }
+</div>
+
+<style>
+  .tab {
+    position: absolute;
+    top: -19px;
+    left: 44px;
+    font-family: var(--jp-ui);
+    font-weight: 700;
+    font-size: 13px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--jp-ink);
+    background: var(--c);
+    border: 3px solid var(--jp-ink);
+    border-radius: 10px 10px 4px 4px;
+    padding: 1px 12px;
+    box-shadow: 2px 3px 0 var(--jp-ink);
+    transform: rotate(-2deg);
+  }
+  .crumbs {
+    font-family: var(--jp-ui);
+    font-weight: 500;
+    font-size: 14.5px;
+    color: var(--jp-text-2);
+    margin-bottom: 8px;
+  }
+  .crumbs a {
+    color: inherit;
+    text-decoration: none;
+  }
+  .crumbs a:hover {
+    text-decoration: underline;
+  }
+  h1 {
+    margin: 0 0 8px;
+    font-family: var(--jp-display);
+    font-weight: 400;
+    font-size: 46px;
+    line-height: 1.05;
+    letter-spacing: 1px;
+    color: var(--c);
+    -webkit-text-stroke: 2.5px var(--jp-ink);
+    paint-order: stroke fill;
+    text-shadow: 4px 4px 0 var(--jp-ink);
+    overflow-wrap: anywhere;
+  }
+  h1.code {
+    font-family: var(--jp-mono);
+    font-weight: 600;
+    letter-spacing: -1px;
+  }
+  :global([data-theme="dark"]) h1 {
+    text-shadow: 4px 4px 0 var(--jp-shadow);
+  }
+  .desc {
+    margin: 0;
+    max-width: 62ch;
+    font-size: 19px;
+    line-height: 1.5;
+    color: var(--jp-text-2);
+  }
+  .pkg {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 10px 0 0;
+    font-family: var(--jp-ui);
+    font-weight: 500;
+    font-size: 14px;
+    color: var(--jp-text-2);
+  }
+  .pkg a {
+    text-decoration: none;
+  }
+  .pkg code {
+    font-family: var(--jp-mono);
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--jp-ink);
+    background: var(--c);
+    border: 2px solid var(--jp-ink);
+    border-radius: 999px;
+    padding: 1px 10px;
+    box-shadow: 0 2px 0 var(--jp-ink);
+  }
+  .pkg a:hover code {
+    background: var(--jp-yellow);
+  }
+
+  @media (max-width: 49.99rem) {
+    .tab {
+      left: 30px;
+    }
+    h1 {
+      font-size: 36px;
+    }
+    .desc {
+      font-size: 17px;
+    }
+  }
+</style>

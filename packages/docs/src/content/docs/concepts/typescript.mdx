@@ -1,0 +1,248 @@
+---
+title: "TypeScript"
+description: "Jimp is written in TypeScript. Learn the image and option types, and how to type your own plugins and custom Jimp."
+---
+
+import { Aside } from "@astrojs/starlight/components";
+
+Jimp is written in TypeScript and ships its own type definitions, so there's nothing extra to install.
+Every method is typed from the plugins that provide it, option objects are checked, and the formats you can write are known at compile time.
+This page covers the types you'll use most, how a `Jimp` class gets its types, and how to type a plugin of your own.
+
+## The image type
+
+`Jimp.read`, `Jimp.fromBuffer`, `new Jimp()` and every chainable method all return the same type.
+To use it in your own code, such as a function parameter, import `JimpInstance`:
+
+```ts title="thumbnail.ts"
+import { Jimp, type JimpInstance } from "jimp";
+
+export async function makeThumbnail(path: string): Promise<JimpInstance> {
+  const image = await Jimp.read(path);
+  return image.resize({ w: 200 });
+}
+```
+
+`JimpInstance` is `InstanceType<typeof Jimp>`: the base class (`bitmap`, `width`, `getPixelColor`, `getBuffer`…) plus every method from the default plugins.
+Chains keep the type, so `image.resize({ w: 200 }).greyscale().blur(2)` is still a `JimpInstance`, and a method that doesn't exist is a compile error.
+
+## Option types
+
+The option objects of the built-in methods are exported as types, so you can build them ahead of time:
+
+```ts title="example.ts"
+import { Jimp, type ResizeOptions, type ColorAction } from "jimp";
+
+const small: ResizeOptions = { w: 200 };
+const warm: ColorAction[] = [
+  { apply: "hue", params: [-10] },
+  { apply: "saturate", params: [20] },
+];
+
+const image = await Jimp.read("photo.jpeg");
+image.resize(small).color(warm);
+```
+
+| Type                                                                         | For                                                     |
+| ---------------------------------------------------------------------------- | ------------------------------------------------------- |
+| `ResizeOptions`, `ScaleOptions`, `ScaleToFitOptions`                         | [`resize`](/jimp/methods/resize/), [`scale`](/jimp/methods/scale/), [`scaleToFit`](/jimp/methods/scale-to-fit/) |
+| `CropOptions`, `AutocropOptions`                                             | [`crop`](/jimp/methods/crop/), [`autocrop`](/jimp/methods/autocrop/) |
+| `ContainOptions`, `CoverOptions`                                             | [`contain`](/jimp/methods/contain/), [`cover`](/jimp/methods/cover/) |
+| `FlipOptions`, `CircleOptions`, `FisheyeOptions`, `DisplaceOptions`          | [`flip`](/jimp/methods/flip/), [`circle`](/jimp/methods/circle/), [`fisheye`](/jimp/methods/fisheye/), [`displace`](/jimp/methods/displace/) |
+| `BorderOptions`, `RoundCornersOptions`, `CornerRadius`, `BoxShadowOptions`   | [`border`](/jimp/methods/border/), [`roundCorners`](/jimp/methods/round-corners/), [`boxShadow`](/jimp/methods/box-shadow/) |
+| `ColorAction`, and one type per action such as `HueAction` or `MixAction`    | [`color`](/jimp/methods/color/)                         |
+| `ThresholdOptions`                                                           | [`threshold`](/jimp/methods/threshold/)                 |
+| `PHashOptions`                                                               | [`pHash`](/jimp/methods/phash/)                         |
+| `JPEGOptions`, `EncodeOptions` (BMP), `BmpColor`                             | Writing JPEG and BMP                                    |
+| `JimpConstructorOptions`, `JimpSimpleConstructorOptions`, `RawImageData`     | [`new Jimp()`](/jimp/methods/new-jimp/), [`Jimp.fromBitmap`](/jimp/methods/from-bitmap/) |
+
+The full list, with every property, is in the [type reference](/jimp/api/readme/).
+
+### Types that aren't exported
+
+A few option types, such as those of [`blit`](/jimp/methods/blit/), [`mask`](/jimp/methods/mask/) and [`print`](/jimp/methods/print/), aren't exported by name.
+Get them from the method with `Parameters`:
+
+```ts title="example.ts"
+import type { JimpInstance } from "jimp";
+
+type BlitOptions = Parameters<JimpInstance["blit"]>[0];
+type PrintOptions = Parameters<JimpInstance["print"]>[0];
+```
+
+## Pixels and colors
+
+These types describe the image data and the color helpers. See [Colors and pixels](/jimp/concepts/colors-and-pixels/) for how they're used.
+
+| Type        | Shape                                         | Used by                                                                  |
+| ----------- | --------------------------------------------- | ------------------------------------------------------------------------ |
+| `Bitmap`    | `{ data: Buffer; width: number; height: number }` | `image.bitmap`                                                     |
+| `RGBAColor` | `{ r: number; g: number; b: number; a: number }`  | [`intToRGBA`](/jimp/methods/int-to-rgba/), [`colorDiff`](/jimp/methods/color-diff/) |
+| `RGBColor`  | `{ r: number; g: number; b: number }`         | [`colorDiff`](/jimp/methods/color-diff/), the `mix` and `xor` color actions |
+| `Edge`      | `1 \| 2 \| 3` (an enum)                      | [`getPixelIndex`](/jimp/methods/get-pixel-index/), [`convolution`](/jimp/methods/convolution/) |
+
+```ts title="example.ts"
+import { intToRGBA, type JimpInstance, type RGBAColor } from "jimp";
+
+function averageColor(image: JimpInstance): RGBAColor {
+  const sum = { r: 0, g: 0, b: 0, a: 0 };
+
+  for (const { x, y } of image.scanIterator()) {
+    const color = intToRGBA(image.getPixelColor(x, y));
+    sum.r += color.r;
+    sum.g += color.g;
+    sum.b += color.b;
+    sum.a += color.a;
+  }
+
+  const n = image.width * image.height;
+  return { r: sum.r / n, g: sum.g / n, b: sum.b / n, a: sum.a / n };
+}
+```
+
+`Edge` is exported from `jimp` as a type only. Use the numbers as values, or import the enum from `@jimp/types` (see [Constants and enums](/jimp/concepts/constants/#edge)).
+
+## MIME types and format options
+
+The formats a `Jimp` class supports are part of its type.
+[`getBuffer`](/jimp/methods/get-buffer/) and [`getBase64`](/jimp/methods/get-base64/) only accept those MIME types, and the options object is checked against that format's options:
+
+```ts title="example.ts"
+await image.getBuffer("image/jpeg", { quality: 80 }); // OK
+
+await image.getBuffer("image/webp");
+// Error: Argument of type '"image/webp"' is not assignable to parameter
+// of type '"image/bmp" | "image/tiff" | "image/x-ms-bmp" | "image/gif" | ...'.
+
+await image.getBuffer("image/jpeg", { deflateLevel: 9 });
+// Error: 'deflateLevel' does not exist in type 'JPEGOptions'.
+```
+
+[`write`](/jimp/methods/write/) works the format out from the file extension, so `image.write("photo.png", { quality: 80 })` is an error too: `quality` is a JPEG option.
+The options are checked for paths ending in `.png`, `.jpeg` and `.bmp`.
+
+<Aside type="note" title="When write can't check options">
+  For paths ending in `.jpg`, `.gif`, `.tif` or `.tiff`, and for paths held in
+  a `string` variable, `write` accepts any options object without checking it.
+  For full checking, use `getBuffer` with the MIME type and write the buffer
+  yourself.
+</Aside>
+
+## How createJimp builds the types
+
+The `Jimp` class exported by `jimp` is made by `createJimp` from `@jimp/core`:
+
+```ts title="jimp/src/index.ts"
+export const Jimp = createJimp({
+  formats: defaultFormats,
+  plugins: defaultPlugins,
+});
+```
+
+`createJimp` infers the class's type from what you pass it:
+
+- **Methods come from `plugins`.** Each plugin is an object of functions that take the image as their first argument. Every function becomes a method without that first argument: `resize(image, options)` becomes `image.resize(options)`.
+- **Chainable or not is decided by the return type.** A function that returns the image becomes a method that returns the class instance, so the chain continues. A function that returns anything else, such as [`pHash`](/jimp/methods/phash/)'s `string`, returns that type and ends the chain.
+- **MIME types come from `formats`.** Each format declares its `mime` as a string literal, and the union of them is what `getBuffer` accepts. Each format's encode and decode option types are attached to its MIME type.
+
+So a [Custom Jimp](/jimp/guides/custom-jimp/) with fewer plugins and formats has a narrower type:
+
+```ts title="small-jimp.ts"
+import { createJimp } from "@jimp/core";
+import png from "@jimp/js-png";
+import * as resize from "@jimp/plugin-resize";
+
+const SmallJimp = createJimp({ plugins: [resize.methods], formats: [png] });
+
+const image = await SmallJimp.read("photo.png");
+
+image.resize({ w: 100 }); // OK
+image.blur(3); // Error: Property 'blur' does not exist
+await image.getBuffer("image/jpeg"); // Error: only "image/png" is supported
+```
+
+Use `InstanceType<typeof SmallJimp>` for the instance type of a custom class, the same way `JimpInstance` is defined.
+
+## Typing a plugin
+
+A plugin is an object of functions whose first parameter is the image.
+Type that parameter with a generic constrained to `JimpClass` from `@jimp/types`, and return it for a chainable method:
+
+```sh
+npm install @jimp/core @jimp/types
+```
+
+```ts title="channels.ts"
+import type { JimpClass } from "@jimp/types";
+
+export const methods = {
+  /** Swap the red and blue channels. Returns the image, so it chains. */
+  swapRedBlue<I extends JimpClass>(image: I) {
+    image.scan((x, y, idx) => {
+      const { data } = image.bitmap;
+      const red = data[idx];
+      data[idx] = data[idx + 2];
+      data[idx + 2] = red;
+    });
+
+    return image;
+  },
+
+  /** Count the pixels of one color. Returns a number, so it ends a chain. */
+  countColor<I extends JimpClass>(image: I, color: number) {
+    let count = 0;
+
+    image.scan((x, y) => {
+      if (image.getPixelColor(x, y) === color) count++;
+    });
+
+    return count;
+  },
+};
+```
+
+`JimpClass` describes what every Jimp image has: `bitmap`, `background`, `getPixelIndex`, `getPixelColor`, `setPixelColor` and `scan`.
+Using a generic `I` rather than `JimpClass` itself keeps the caller's full image type when the method returns the image.
+
+Add the plugin to a class with `createJimp`, next to the default plugins:
+
+```ts title="jimp.ts"
+import { createJimp } from "@jimp/core";
+import { defaultFormats, defaultPlugins } from "jimp";
+import * as channels from "./channels.js";
+
+export const Jimp = createJimp({
+  plugins: [...defaultPlugins, channels.methods],
+  formats: defaultFormats,
+});
+
+export type JimpInstance = InstanceType<typeof Jimp>;
+```
+
+The new methods are typed like the built-in ones:
+
+```ts title="example.ts"
+import { Jimp } from "./jimp.js";
+
+const image = await Jimp.read("photo.png");
+
+const count = image.swapRedBlue().resize({ w: 100 }).countColor(0x0000ffff); // number
+
+image.swapRedBlue(5); // Error: Expected 0 arguments, but got 1.
+```
+
+A few things to know when you write plugin methods:
+
+- **Return the image to chain.** If a method returns nothing, calling it returns `undefined` and the chain breaks.
+- **Returning a new image works too.** If a method returns a different object with a `bitmap`, Jimp copies that bitmap into the image the method was called on and returns the original image.
+- **Validate options at run time.** Types only help TypeScript callers. The built-in plugins validate their options with [zod](https://zod.dev) schemas and export the inferred types, for example `export type FlipOptions = z.infer<typeof FlipOptionsSchema>`.
+
+For format plugins, and more on how plugins are structured, see [Writing Plugins](/jimp/guides/writing-plugins/).
+
+## See also
+
+- [Custom Jimp](/jimp/guides/custom-jimp/): pick only the plugins and formats you need.
+- [Writing Plugins](/jimp/guides/writing-plugins/): methods and image formats.
+- [Constants and enums](/jimp/concepts/constants/): the enums used in option types.
+- [Colors and pixels](/jimp/concepts/colors-and-pixels/): working with `Bitmap` and colors.
+- [Type reference](/jimp/api/readme/): every exported type, generated from the source.

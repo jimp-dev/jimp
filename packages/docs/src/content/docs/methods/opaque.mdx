@@ -1,0 +1,73 @@
+---
+title: "opaque()"
+description: "Make every pixel fully opaque."
+category: color
+method: "opaque"
+plugin: "@jimp/plugin-color"
+---
+
+import { Aside } from "@astrojs/starlight/components";
+import Playground from "../../../components/playground/Playground";
+import Related from "../../../components/Related.astro";
+
+`opaque` removes all transparency by setting the alpha channel of every pixel to `255`.
+Use it when you need an image without transparency, or to see the colors hidden in transparent areas.
+
+## Signature
+
+```ts title="opaque.d.ts"
+image.opaque(): this
+```
+
+`opaque` takes no arguments. It changes the image in place and returns it, so you can chain more calls after it.
+
+## Example
+
+```ts title="example.ts"
+import { Jimp } from "jimp";
+
+const image = await Jimp.read("sticker.png");
+
+image.opaque();
+
+console.log(image.hasAlpha()); // false
+```
+
+### Put a transparent image on a solid background
+
+`opaque` reveals whatever color the transparent pixels store, which is often black.
+To flatten onto a chosen color instead, composite the image onto a new one:
+
+```ts title="example.ts"
+import { Jimp } from "jimp";
+
+const image = await Jimp.read("sticker.png");
+
+const flat = new Jimp({ width: image.width, height: image.height, color: 0xffffffff });
+flat.composite(image, 0, 0);
+
+await flat.write("sticker-on-white.jpg");
+```
+
+## Try it
+
+Run the playground to see the result. The dice image stores black in its transparent background, so it turns black.
+
+<Playground method="opaque" client:visible />
+
+## Notes
+
+- **Colors are unchanged.** Only alpha changes. Partly transparent pixels show their full stored color, so soft edges can look harsh.
+- **`opaque` and `hasAlpha`.** After `opaque`, [`hasAlpha`](/jimp/methods/has-alpha/) returns `false`, and encoders that check for transparency (such as PNG) write the image without an alpha channel.
+- **The opposite.** To make an image partly transparent, use [`opacity`](/jimp/methods/opacity/) or [`fade`](/jimp/methods/fade/).
+
+<Aside type="caution" title="Hidden colors appear">
+  Transparent pixels still store a color, and `opaque` shows it. Many images
+  store black there, but editors can leave any color behind. If you want a
+  specific background, composite onto a solid image as shown above instead of
+  calling `opaque`.
+</Aside>
+
+## Related
+
+<Related methods={["opacity", "fade", "hasAlpha", "composite"]} />

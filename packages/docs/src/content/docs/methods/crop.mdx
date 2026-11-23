@@ -1,0 +1,105 @@
+---
+title: "crop()"
+description: "Cut out a rectangle of the image."
+category: shape
+method: "crop"
+plugin: "@jimp/plugin-crop"
+---
+
+import { Aside } from "@astrojs/starlight/components";
+import Playground from "../../../components/playground/Playground";
+import Related from "../../../components/Related.astro";
+
+`crop` keeps a rectangle of the image and throws the rest away.
+The image becomes the size of the rectangle.
+
+## Signature
+
+```ts title="crop.d.ts"
+image.crop(options: { x: number; y: number; w: number; h: number }): this
+```
+
+`crop` changes the image in place and returns it, so you can chain more calls after it.
+
+## Options
+
+| Option | Type     | Default  | Description                                           |
+| ------ | -------- | -------- | ----------------------------------------------------- |
+| `x`    | `number` | required | The left edge of the rectangle, in pixels from the left. |
+| `y`    | `number` | required | The top edge of the rectangle, in pixels from the top.   |
+| `w`    | `number` | required | The width of the rectangle in pixels.                 |
+| `h`    | `number` | required | The height of the rectangle in pixels.                |
+
+All four values are rounded to whole pixels.
+
+## Example
+
+```ts title="example.ts"
+import { Jimp } from "jimp";
+
+const image = await Jimp.read("photo.jpg");
+
+image.crop({ x: 100, y: 50, w: 400, h: 300 });
+
+await image.write("photo-cropped.jpg");
+```
+
+### Crop the center
+
+Work out the offsets from the image size:
+
+```ts title="example.ts"
+const size = Math.min(image.width, image.height);
+
+image.crop({
+  x: (image.width - size) / 2,
+  y: (image.height - size) / 2,
+  w: size,
+  h: size,
+});
+```
+
+[`cover`](/jimp/methods/cover/) does the same and resizes in one call: `image.cover({ w: 200, h: 200 })`.
+
+### Keep the original
+
+`crop` changes the image it's called on. To cut out a piece and keep the full image, crop a [clone](/jimp/methods/clone/):
+
+```ts title="example.ts"
+const piece = image.clone().crop({ x: 0, y: 0, w: 100, h: 100 });
+```
+
+## Try it
+
+Drag on the image to choose the rectangle. The code panel shows the matching `crop` call.
+
+<Playground method="crop" client:visible />
+
+## Notes
+
+- **Removing borders.** To trim a plain border without measuring it yourself, use [`autocrop`](/jimp/methods/autocrop/), or [`autocropRect`](/jimp/methods/autocrop-rect/) to get the rectangle first.
+- **Missing values.** Every option is required. Leaving one out fails validation with `Invalid input: expected number, received undefined`.
+- **v0 differences.** v0 took positional arguments: `crop(x, y, w, h)`. In v1 pass an object.
+
+<Aside type="caution" title="Keep the rectangle inside the image">
+  `crop` doesn't clamp the rectangle to the image. A rectangle that starts at a
+  negative position or runs past the bottom usually throws a `RangeError` such
+  as `The value of "offset" is out of range` (or, if it spans the full width,
+  leaves the image with too little pixel data). One that runs past the right
+  edge doesn't throw, but wraps around and fills the overflow with pixels from
+  the start of the next row. Clamp the values first:
+
+```ts title="example.ts"
+const x = Math.max(0, left);
+const y = Math.max(0, top);
+const w = Math.min(width, image.width - x);
+const h = Math.min(height, image.height - y);
+
+image.crop({ x, y, w, h });
+```
+
+</Aside>
+
+## Related
+
+<Related methods={["autocrop", "autocropRect", "cover", "clone", "blit"]} />

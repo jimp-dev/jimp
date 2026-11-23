@@ -1,71 +1,449 @@
 ---
 title: Writing Plugins
-description: How to write plugins for Jimp
+description: Add your own image methods and image formats to Jimp, then test and publish them.
 ---
 
-There are two types of plugins you can write for Jimp:
+import { Aside, FileTree, Steps } from "@astrojs/starlight/components";
 
-1. Image format plugins
-2. Image manipulation plugins
+Everything Jimp can do comes from plugins.
+The `jimp` package is [`createJimp`](/jimp/guides/custom-jimp/) from `@jimp/core` called with a list of **method plugins**, such as `@jimp/plugin-blur`, and **format plugins**, such as `@jimp/js-png`.
+You can write both kinds yourself, and they work exactly like the built-in ones.
 
-You can combine plugins to create a [Custom Jimp](/jimp/guides/custom-jimp).
+This guide builds a method plugin with a `vignette` method step by step, then a format plugin, then covers typing, testing and publishing.
 
-## Image format plugins
+## How plugins work
 
-Image format plugins are responsible for loading and saving images in a specific format.
+A **method plugin** is a plain object of functions. Each function takes the image as its first argument, followed by the arguments the user passes:
 
-For example, the [bmp](https://github.com/jimp-dev/jimp/tree/main/packages/js-bmp) package is responsible for loading and saving [BMP](https://en.wikipedia.org/wiki/BMP_file_format) images.
+```ts title="plugin.ts"
+import type { JimpClass } from "@jimp/types";
 
-An image format plugins is composed of two functions: `encode` and `decode`.
+export const methods = {
+  myMethod<I extends JimpClass>(image: I, options: MyOptions) {
+    // Change image.bitmap...
+    return image;
+  },
+};
+```
 
-```ts
-import { Format } from "@jimp/types";
-import WEBP, { WEBPOptions } from "webp-js";
+When you pass it to `createJimp`, every image gets a `myMethod(options)` method that calls `methods.myMethod(image, options)`.
+What the method returns decides how it behaves:
 
-export default function webp() {
+- **An image**: Jimp copies that image's `bitmap` onto the image the method was called on, and returns the image it was called on. The method changes the image in place and can be chained, like [`resize`](/jimp/methods/resize/) or [`blur`](/jimp/methods/blur/).
+- **Anything else**: the value is returned as-is, like [`hash`](/jimp/methods/hash/) returning a string or [`getPixelColor`](/jimp/methods/get-pixel-color/) returning a number.
+
+A **format plugin** is a function that returns an object describing an image format: its MIME type, an `encode` function that turns pixels into file bytes, and a `decode` function that turns file bytes into pixels.
+
+```ts title="format.ts"
+import type { Format } from "@jimp/types";
+
+export default function myFormat() {
   return {
-    mime: "image/webp",
-    // Encode the bitmap as a WEBP image
-    encode: (bitmap, options: WEBPOptions = {}) =>
-      WEBP.encode(bitmap, quality).data,
-    // Decode a WEBP image into a bitmap
-    decode: (data) => WEBP.decode(data),
-  } satisfies Format<"image/webp">;
+    mime: "image/x-my-format",
+    encode: (bitmap, options) => {
+      /* return a Buffer */
+    },
+    decode: (data, options) => {
+      /* return { data, width, height } */
+    },
+  } satisfies Format<"image/x-my-format">;
 }
 ```
 
-## Image manipulation plugins
+Both kinds work with the image's `bitmap`: `{ data, width, height }`, where `data` is a `Buffer` with four bytes per pixel in RGBA order.
+[Colors and pixels](/jimp/concepts/colors-and-pixels/) explains the layout.
 
-Image manipulation plugins are responsible for manipulating images.
+## Write a method plugin
 
-For example, the [blur](https://github.com/jimp-dev/jimp/tree/main/packages/plugin-blur) package is responsible for applying a blur effect to an image.
+The `vignette` method darkens an image toward its edges.
 
-An image manipulation method takes an image as its first argument, does something to it, and returns a new image.
+<Steps>
 
-````ts
-import { JimpClass } from "@jimp/types";
-import { BlurOptions } from "blur-ts";
+1. **Set up the package.** A plugin needs `@jimp/types` for the image type and, if it takes options, [zod](https://zod.dev) to validate them. Use `@jimp/core` and `jimp` while developing and testing.
 
-export const methods = {
-  /**
-   * A blur effect
-   *
-   * @example
-   * ```ts
-   * import { Jimp } from "jimp";
-   *
-   * const image = await Jimp.read("test/image.png");
-   *
-   * image.blur(5);
-   * ```
-   */
-  blur<I extends JimpClass>(image: I, r: number) {
-    // Implementation
+   ```sh
+   npm install @jimp/types zod
+   npm install --save-dev @jimp/core jimp vitest typescript
+   ```
+
+2. **Describe the options with a zod schema.** Jimp's own methods validate their options with zod, so invalid input fails with a clear error instead of a broken image. Infer the TypeScript type from the schema so the two never disagree.
+
+   ```ts title="src/index.ts"
+   import type { JimpClass, RGBAColor } from "@jimp/types";
+   import { z } from "zod";
+
+   const VignetteOptionsSchema = z.object({
+     /** How dark the corners get, from 0 (unchanged) to 1 (black). */
+     strength: z.number().min(0).max(1).optional(),
+   });
+
+   export type VignetteOptions = z.infer<typeof VignetteOptionsSchema>;
+   ```
+
+3. **Write the method.** Parse the options, change the pixels in `image.bitmap`, and return the image. [`image.scan`](/jimp/methods/scan/) calls a function for every pixel with its coordinates and its index in `bitmap.data`.
+
+   ```ts title="src/index.ts"
+   export const methods = {
+     /**
+      * Darken the edges of the image.
+      * @example
+      * ```ts
+      * image.vignette({ strength: 0.8 });
+      * ```
+      */
+     vignette<I extends JimpClass>(image: I, options: VignetteOptions = {}) {
+       const { strength = 0.6 } = VignetteOptionsSchema.parse(options);
+       const { width, height, data } = image.bitmap;
+       const cx = (width - 1) / 2;
+       const cy = (height - 1) / 2;
+       const maxDistance = Math.hypot(cx, cy) || 1;
+
+       image.scan((x, y, idx) => {
+         const distance = Math.hypot(x - cx, y - cy) / maxDistance;
+         const factor = 1 - strength * distance ** 2;
+
+         data[idx] = Math.round(data[idx]! * factor);
+         data[idx + 1] = Math.round(data[idx + 1]! * factor);
+         data[idx + 2] = Math.round(data[idx + 2]! * factor);
+       });
+
+       return image;
+     },
+   };
+   ```
+
+4. **Add a method that returns a value.** A plugin can mix both kinds of method. `averageColor` returns an `RGBAColor`, so it ends a chain instead of continuing it. Add it to the same `methods` object:
+
+   ```ts title="src/index.ts"
+     /** Get the average color of the image. */
+     averageColor<I extends JimpClass>(image: I): RGBAColor {
+       const { data } = image.bitmap;
+       const pixels = data.length / 4;
+       const sum = { r: 0, g: 0, b: 0, a: 0 };
+
+       image.scan((_, __, idx) => {
+         sum.r += data[idx]!;
+         sum.g += data[idx + 1]!;
+         sum.b += data[idx + 2]!;
+         sum.a += data[idx + 3]!;
+       });
+
+       return {
+         r: Math.round(sum.r / pixels),
+         g: Math.round(sum.g / pixels),
+         b: Math.round(sum.b / pixels),
+         a: Math.round(sum.a / pixels),
+       };
+     },
+   ```
+
+5. **Use it.** Build a Jimp class with the default plugins and formats plus yours:
+
+   ```ts title="jimp.ts"
+   import { createJimp } from "@jimp/core";
+   import { defaultFormats, defaultPlugins } from "jimp";
+   import { methods as vignette } from "jimp-plugin-vignette";
+
+   export const Jimp = createJimp({
+     formats: defaultFormats,
+     plugins: [...defaultPlugins, vignette],
+   });
+
+   const image = await Jimp.read("photo.jpg");
+
+   image.resize({ w: 400 }).vignette({ strength: 0.8 }).greyscale();
+   console.log(image.averageColor()); // { r: 24, g: 24, b: 24, a: 75 }
+
+   await image.write("vignette.png");
+   ```
+
+</Steps>
+
+### Conventions
+
+The built-in plugins follow a few conventions. Following them makes your plugin feel like part of Jimp:
+
+- **Change the image and return it.** Methods are expected to mutate the image they're called on. If someone needs the original, they call [`clone`](/jimp/methods/clone/) first. See [Chaining and async](/jimp/concepts/chaining-and-async/).
+- **Take one primitive or an options object.** A method with a single, obvious argument takes it directly, like `blur(5)` or `opacity(0.5)`. Anything else takes one options object, like `resize({ w, h, mode })`.
+- **Validate with zod.** Parse options with a schema at the top of the method, and export the inferred type (for example `VignetteOptions`) so users can type their own code.
+- **Stay synchronous.** Image methods are synchronous in Jimp. Async work belongs in a separate function, as with [`loadFont`](/jimp/methods/load-font/).
+- **Add a JSDoc comment with an `@example`.** Editors show it when users hover over the method.
+
+### Changing the image's size
+
+When a method changes the size of the image, replace the whole bitmap, not just `data`:
+
+```ts title="src/index.ts"
+import { Buffer } from "buffer";
+
+// Inside a method: a copy with a transparent 10px border
+const pad = 10;
+const width = image.bitmap.width + pad * 2;
+const height = image.bitmap.height + pad * 2;
+const data = Buffer.alloc(width * height * 4);
+
+image.scan((x, y, idx) => {
+  image.bitmap.data.copy(data, ((y + pad) * width + x + pad) * 4, idx, idx + 4);
+});
+
+image.bitmap = { data, width, height };
+return image;
+```
+
+`Buffer` comes from the [`buffer`](https://www.npmjs.com/package/buffer) package, as in Jimp's own plugins, so the plugin works in browsers without a polyfill. In Node.js it resolves to the built-in `Buffer`.
+
+### Building on other methods and images
+
+To reuse another plugin's method, import its `methods` object and call the function directly with the image. This is how [`cover`](/jimp/methods/cover/) uses `resize` and `crop`:
+
+```ts title="src/index.ts"
+import { methods as resizeMethods } from "@jimp/plugin-resize";
+
+// Inside a method
+image = resizeMethods.resize(image, { w: 100 });
+```
+
+Calling `image.resize()` inside a plugin would only work when the user's Jimp happens to include `@jimp/plugin-resize`. Importing it makes the dependency explicit.
+
+To work on a copy, use `clone` from `@jimp/utils`. To make a new blank image of the same class, call the image's constructor:
+
+```ts title="src/index.ts"
+import { clone } from "@jimp/utils";
+
+const copy = clone(image);
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const canvas: I = new (image.constructor as any)({
+  width: image.bitmap.width,
+  height: image.bitmap.height,
+  color: 0x00000000,
+});
+```
+
+You can return a different image from a method, such as `canvas` after drawing on it. Jimp copies its bitmap onto the image the method was called on, so the user still sees their own image change.
+
+<Aside type="caution" title="Method names are shared">
+  Plugins are applied in order, and each method is set directly on every image.
+  A plugin method with the same name as another plugin's method, or as a
+  built-in method such as `composite` or `scan`, replaces it. Pick names that
+  won't clash.
+</Aside>
+
+## Write a format plugin
+
+A format plugin teaches Jimp to read and write one MIME type.
+It's a function, not an object, so `createJimp` can create it once per Jimp class:
+
+```ts
+createJimp({ formats: [png, jpeg] }); // not png(), jpeg()
+```
+
+| Property   | Type                                                        | Description                                                                                                                         |
+| ---------- | ----------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| `mime`     | `string`                                                    | The MIME type, such as `"image/png"`.                                                                                                |
+| `encode`   | `(bitmap: Bitmap, options?) => Buffer \| Promise<Buffer>`   | Turn RGBA pixels into file bytes. Receives the options passed to `getBuffer`, `getBase64` or `write`.                                |
+| `decode`   | `(data: Buffer, options?) => Bitmap \| Promise<Bitmap>`     | Turn file bytes into RGBA pixels. Receives this format's entry from the [decode options](/jimp/guides/reading-large-images/).         |
+| `hasAlpha` | `boolean`                                                   | Set to `true` if the format stores transparency. Otherwise Jimp flattens the image onto `image.background` before calling `encode`. |
+
+The `bitmap` returned by `decode` must have four bytes per pixel in RGBA order. Convert from the codec's layout if it differs.
+
+### Change a built-in format
+
+The simplest format plugin wraps an existing one.
+This one changes the default JPEG quality from 100 to 80, and leaves everything else to `@jimp/js-jpeg`:
+
+```ts title="jpeg80.ts"
+import jpeg, { type JPEGOptions } from "@jimp/js-jpeg";
+import type { Format } from "@jimp/types";
+
+export default function jpeg80() {
+  const base = jpeg();
+
+  return {
+    ...base,
+    encode: (bitmap, { quality = 80, ...options }: JPEGOptions = {}) =>
+      base.encode(bitmap, { quality, ...options }),
+  } satisfies Format<"image/jpeg">;
+}
+```
+
+When two formats have the same MIME type, Jimp uses the first one in the list, so put yours before the defaults:
+
+```ts title="jimp.ts"
+import { createJimp } from "@jimp/core";
+import { defaultFormats, defaultPlugins } from "jimp";
+import jpeg80 from "./jpeg80.js";
+
+const Jimp = createJimp({
+  formats: [jpeg80, ...defaultFormats],
+  plugins: defaultPlugins,
+});
+
+const image = await Jimp.read("photo.png");
+await image.write("photo.jpg"); // quality 80
+```
+
+The `exif` JPEG option keeps working, as Jimp handles it for any `image/jpeg` format.
+
+### Add a new format
+
+A new format usually wraps an existing codec library.
+This template shows the shape; replace `codec` with the library you use:
+
+```ts title="template.ts"
+import { Buffer } from "buffer";
+import type { Bitmap, Format } from "@jimp/types";
+import * as codec from "some-codec";
+
+export interface MyEncodeOptions {
+  quality?: number;
+}
+
+export interface MyDecodeOptions {
+  maxResolutionInMP?: number;
+}
+
+export default function myFormat() {
+  return {
+    mime: "image/heic",
+    hasAlpha: true,
+    encode: async (bitmap: Bitmap, { quality = 90 }: MyEncodeOptions = {}) => {
+      // Don't change bitmap.data: with hasAlpha it's the image's own pixels
+      const bytes = await codec.encode(bitmap.data, bitmap.width, bitmap.height, { quality });
+      return Buffer.from(bytes);
+    },
+    decode: async (data: Buffer, { maxResolutionInMP = 100 }: MyDecodeOptions = {}) => {
+      const { width, height, rgba } = await codec.decode(data);
+
+      if (width * height > maxResolutionInMP * 1_000_000) {
+        throw new Error(`Image exceeds ${maxResolutionInMP} megapixels`);
+      }
+
+      return { data: Buffer.from(rgba), width, height };
+    },
+  } satisfies Format<"image/heic", MyEncodeOptions, MyDecodeOptions>;
+}
+```
+
+Jimp finds the right format in two different ways, and both have to know your MIME type:
+
+- **Reading.** `Jimp.read` and `Jimp.fromBuffer` detect the MIME type from the file's first bytes with the [`file-type`](https://github.com/sindresorhus/file-type) package. If `file-type` can't recognize the format, Jimp can't pick your decoder. It recognizes most common image formats, such as AVIF, HEIC, JPEG XL, ICO and PSD.
+- **Writing.** [`write`](/jimp/methods/write/) looks up the MIME type from the file extension with the [`mime`](https://github.com/broofa/mime) package's standard types. For a type it doesn't list, use [`getBuffer`](/jimp/methods/get-buffer/) with the MIME type and write the bytes yourself.
+
+Format plugins that wrap WebAssembly codecs, such as `@jimp/wasm-webp`, are good references; see [WEBP / WASM](/jimp/guides/webp/) and the source in the [Jimp repository](https://github.com/jimp-dev/jimp/tree/main/plugins).
+
+## Typing
+
+`createJimp` infers everything from the plugins and formats you give it, so you don't write any types for the Jimp class yourself.
+
+- **Methods** get their parameter types from your functions, minus the first `image` argument.
+- A method whose return type is the image type parameter (`I`, from `<I extends JimpClass>(image: I, …)`) is typed as **chainable**: it returns the Jimp image, with all its methods. Any other return type is passed through, so `averageColor()` is typed as returning `RGBAColor`.
+- **Encode and decode options** are inferred from the parameter types of `encode` and `decode`, so `image.write("photo.jpg", { quality: 80 })` is checked against your options type. Use `satisfies Format<Mime>` rather than a type annotation, so the inferred types aren't widened.
+- The **MIME type** you give `Format` is used to type `getBuffer` and `write`: `getBuffer("image/heic")` only type-checks when the Jimp class includes a format for it.
+
+Use `JimpClass` from `@jimp/types` for the image parameter, not the `Jimp` class from `jimp`, so the plugin works with any Jimp class, including [custom ones](/jimp/guides/custom-jimp/).
+[TypeScript](/jimp/concepts/typescript/) has more on Jimp's types.
+
+## Testing
+
+Create a Jimp class with just your plugin and test it like any other code. This example uses [Vitest](https://vitest.dev):
+
+```ts title="src/index.test.ts"
+import { describe, expect, test } from "vitest";
+import { createJimp } from "@jimp/core";
+
+import { methods } from "./index.js";
+
+const Jimp = createJimp({ plugins: [methods] });
+
+describe("vignette", () => {
+  test("darkens the corners but not the center", () => {
+    const image = new Jimp({ width: 9, height: 9, color: 0xffffffff });
+
+    image.vignette({ strength: 1 });
+
+    expect(image.getPixelColor(0, 0)).toBe(0x000000ff);
+    expect(image.getPixelColor(4, 4)).toBe(0xffffffff);
+  });
+
+  test("rejects a strength above 1", () => {
+    const image = new Jimp({ width: 2, height: 2 });
+
+    expect(() => image.vignette({ strength: 2 })).toThrow(
+      "Too big: expected number to be <=1",
+    );
+  });
+});
+
+describe("averageColor", () => {
+  test("averages every pixel", () => {
+    const image = new Jimp({ width: 2, height: 1, color: 0xff0000ff });
+
+    image.setPixelColor(0x0000ffff, 1, 0);
+
+    expect(image.averageColor()).toEqual({ r: 128, g: 0, b: 128, a: 255 });
+  });
+});
+```
+
+Small images built with [`new Jimp()`](/jimp/methods/new-jimp/) and checked with [`getPixelColor`](/jimp/methods/get-pixel-color/) keep tests fast and readable.
+For bigger effects, compare against a snapshot: Jimp's own tests use `expect(image).toMatchSnapshot()` on small bitmaps, and [`diff`](/jimp/methods/diff/) can measure how far two images are apart.
+
+To test a format plugin, round-trip an image: encode it, decode the result and compare the pixels.
+
+## Publishing
+
+<FileTree>
+
+- jimp-plugin-vignette/
+  - src/
+    - index.ts
+    - index.test.ts
+  - package.json
+  - tsconfig.json
+  - README.md
+
+</FileTree>
+
+Publish the plugin as an ES module with its type declarations:
+
+```json title="package.json"
+{
+  "name": "jimp-plugin-vignette",
+  "version": "1.0.0",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
   },
-};
-````
+  "files": ["dist"],
+  "keywords": ["jimp", "jimp-plugin", "image"],
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest"
+  },
+  "dependencies": {
+    "@jimp/types": "^1.7.0",
+    "zod": "^4.0.0"
+  },
+  "devDependencies": {
+    "@jimp/core": "^1.7.0",
+    "jimp": "^1.7.0",
+    "typescript": "^5.5.0",
+    "vitest": "^2.0.0"
+  }
+}
+```
 
-Generally our method APIs follow the following pattern:
+- **Export `methods`** (for a method plugin) or a **default factory function** (for a format plugin), as Jimp's own packages do. Users can then add it the same way as any built-in plugin.
+- **Don't depend on `jimp`** at runtime. A plugin only needs `@jimp/types`, plus `@jimp/core`, `@jimp/utils` or other plugins if it imports from them. Users bring their own Jimp.
+- **Show the `createJimp` setup** in your README, as in step 5 above, since users have to build a custom Jimp to use your plugin.
 
-- They can take 1 primitive as an option (other than `image`)
-- Otherwise they take and options object defined and validated by `zod`.
+## See also
+
+- [Custom Jimp](/jimp/guides/custom-jimp/) to combine plugins and formats
+- [Colors and pixels](/jimp/concepts/colors-and-pixels/) for the bitmap layout
+- [TypeScript](/jimp/concepts/typescript/) for Jimp's types
+- [WEBP / WASM](/jimp/guides/webp/) for the WASM format plugins

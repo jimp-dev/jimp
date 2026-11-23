@@ -1,0 +1,142 @@
+---
+/**
+ * An install command with npm / pnpm / yarn tabs and a copy button.
+ * All install commands on the page switch together.
+ *
+ *   <InstallCommand />                       → npm install jimp
+ *   <InstallCommand pkg="@jimp/wasm-webp" />
+ */
+interface Props {
+  pkg?: string;
+}
+
+const { pkg = "jimp" } = Astro.props;
+const managers = [
+  ["npm", "install"],
+  ["pnpm", "add"],
+  ["yarn", "add"],
+] as const;
+---
+
+<jimp-install class="install not-content" data-pkg={pkg}>
+  <div class="pms" role="group" aria-label="Package manager">
+    {
+      managers.map(([pm, verb], i) => (
+        <button type="button" data-pm={pm} data-verb={verb} aria-pressed={i === 0 ? "true" : "false"}>
+          {pm}
+        </button>
+      ))
+    }
+  </div>
+  <code><b>npm</b> <span class="verb">install</span> {pkg}</code>
+  <button type="button" class="cp">Copy</button>
+</jimp-install>
+
+<script>
+  const storageKey = "jimp-package-manager";
+
+  class JimpInstall extends HTMLElement {
+    connectedCallback() {
+      this.querySelectorAll<HTMLButtonElement>("[data-pm]").forEach((button) =>
+        button.addEventListener("click", () => {
+          localStorage.setItem(storageKey, button.dataset.pm!);
+          document.querySelectorAll<JimpInstall>("jimp-install").forEach((el) => el.select(button.dataset.pm!));
+        }),
+      );
+      this.querySelector(".cp")!.addEventListener("click", () => this.copy());
+
+      const saved = localStorage.getItem(storageKey);
+      if (saved) this.select(saved);
+    }
+
+    select(pm: string) {
+      const button = this.querySelector<HTMLButtonElement>(`[data-pm="${pm}"]`);
+      if (!button) return;
+      this.querySelectorAll("[data-pm]").forEach((b) => b.setAttribute("aria-pressed", String(b === button)));
+      this.querySelector("code b")!.textContent = pm;
+      this.querySelector("code .verb")!.textContent = button.dataset.verb!;
+    }
+
+    copy() {
+      const text = this.querySelector("code")!.textContent!.replace(/\s+/g, " ").trim();
+      const cp = this.querySelector<HTMLButtonElement>(".cp")!;
+      navigator.clipboard?.writeText(text).then(() => {
+        cp.textContent = "Copied";
+        cp.classList.add("ok");
+        setTimeout(() => {
+          cp.textContent = "Copy";
+          cp.classList.remove("ok");
+        }, 1300);
+      });
+    }
+  }
+
+  customElements.define("jimp-install", JimpInstall);
+</script>
+
+<style>
+  .install {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    max-width: 100%;
+    padding: 5px 6px;
+    font-family: var(--jp-mono);
+    font-size: 15px;
+    color: #fff;
+    background: var(--jp-code-bg);
+    border: 3px solid var(--jp-code-line);
+    border-radius: 14px;
+    box-shadow: 0 4px 0 var(--jp-shadow);
+  }
+  .pms {
+    display: flex;
+    gap: 2px;
+    margin-right: 8px;
+  }
+  .pms button {
+    font-family: var(--jp-ui);
+    font-weight: 600;
+    font-size: 13px;
+    color: #cfc8ff;
+    background: none;
+    border: none;
+    border-radius: 8px;
+    padding: 2px 8px;
+    cursor: pointer;
+  }
+  .pms button[aria-pressed="true"] {
+    background: #3a3280;
+    color: #fff;
+  }
+  code {
+    padding: 0 8px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: 15px;
+    color: #fff;
+  }
+  code b {
+    color: #ff8fca;
+    font-weight: 600;
+  }
+  .cp {
+    flex: none;
+    margin-left: 4px;
+    padding: 1px 10px;
+    font-family: var(--jp-ui);
+    font-weight: 600;
+    font-size: 13px;
+    color: #fff;
+    background: transparent;
+    border: 2.5px solid #fff;
+    border-radius: 9px;
+    cursor: pointer;
+  }
+  .cp.ok {
+    color: var(--jp-ink);
+    background: var(--jp-mint);
+    border-color: var(--jp-ink);
+  }
+</style>

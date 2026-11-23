@@ -1,0 +1,2810 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Jimp docs</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' shape-rendering='crispEdges'%3E%3Cpath d='M4 1h7v1h2v1h1v3h-1v1h-2v2h3v3h-1v1h-2v1H7v1H4v-1H2v-1H1V4h1V2h2z' fill='%23f1d9b5' stroke='%23000' stroke-width='.6'/%3E%3Crect x='4' y='3' width='2' height='2' fill='%23e0242c'/%3E%3Crect x='8' y='3' width='2' height='2' fill='%23ffd23f'/%3E%3Crect x='3' y='7' width='2' height='2' fill='%232457e6'/%3E%3Crect x='4' y='11' width='2' height='2' fill='%231fa34a'/%3E%3Crect x='8' y='11' width='2' height='2' fill='%23ff4fb0'/%3E%3C/svg%3E" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&family=Pixelify+Sans:wght@400;500;600;700&family=Silkscreen&display=swap" rel="stylesheet" />
+<style>
+:root {
+  --face: #c3c3c3; --hi: #ffffff; --lt: #e4e4e4; --lo: #818181; --dk: #0a0a0a;
+  --desk: #008080; --title1: #08187e; --title2: #1c90d4; --ink: #1b1b1f; --sel: #08187e; --link: #0b3ad1;
+  --ui: Tahoma, Verdana, "Segoe UI", system-ui, sans-serif;
+  --body: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --pixel: "Pixelify Sans", Tahoma, sans-serif;
+  --tiny: "Silkscreen", "Pixelify Sans", monospace;
+  --mono: "IBM Plex Mono", ui-monospace, "Courier New", monospace;
+  --raised: inset -1px -1px var(--dk), inset 1px 1px var(--hi), inset -2px -2px var(--lo), inset 2px 2px var(--lt);
+  --sunken: inset 1px 1px var(--lo), inset -1px -1px var(--hi), inset 2px 2px var(--dk), inset -2px -2px var(--lt);
+  --pressed: inset 1px 1px var(--dk), inset -1px -1px var(--hi), inset 2px 2px var(--lo), inset -2px -2px var(--lt);
+  --thin: inset 1px 1px var(--lo), inset -1px -1px var(--hi);
+  --dither: conic-gradient(#fff 25%, #c3c3c3 0 50%, #fff 0 75%, #c3c3c3 0) 0 0 / 2px 2px;
+  --checker: conic-gradient(#d6d6d6 25%, #fff 0 50%, #d6d6d6 0 75%, #fff 0) 0 0 / 14px 14px;
+  --head-h: 70px;
+  --cur-arrow: auto; --cur-busy: progress; --cur-tool: crosshair;
+}
+* { box-sizing: border-box; }
+html { scroll-padding-top: calc(var(--head-h) + 16px); }
+body { margin: 0; background: var(--desk); color: var(--ink); font: 13px/1.4 var(--ui); cursor: var(--cur-arrow); overflow-x: hidden; }
+body.busy, body.busy * { cursor: var(--cur-busy) !important; }
+button, select, input { font: inherit; color: inherit; }
+a { color: var(--link); cursor: pointer; }
+.pix { display: block; image-rendering: pixelated; flex: none; }
+.hidden { display: none !important; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+/* ---------- 98 scrollbars ---------- */
+::-webkit-scrollbar { width: 16px; height: 16px; }
+::-webkit-scrollbar-track { background: var(--dither); }
+::-webkit-scrollbar-thumb { background: var(--face); box-shadow: var(--raised); }
+::-webkit-scrollbar-corner { background: var(--face); }
+::-webkit-scrollbar-button:single-button { background: var(--face); box-shadow: var(--raised); display: block; height: 16px; width: 16px; background-repeat: no-repeat; background-position: center; }
+::-webkit-scrollbar-button:single-button:vertical:decrement { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='7' height='4'%3E%3Cpath d='M3.5 0L7 4H0z'/%3E%3C/svg%3E"); }
+::-webkit-scrollbar-button:single-button:vertical:increment { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='7' height='4'%3E%3Cpath d='M0 0h7L3.5 4z'/%3E%3C/svg%3E"); }
+::-webkit-scrollbar-button:single-button:horizontal:decrement { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='4' height='7'%3E%3Cpath d='M0 3.5L4 0v7z'/%3E%3C/svg%3E"); }
+::-webkit-scrollbar-button:single-button:horizontal:increment { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='4' height='7'%3E%3Cpath d='M0 0l4 3.5L0 7z'/%3E%3C/svg%3E"); }
+
+/* ---------- 98 controls ---------- */
+.btn {
+  background: var(--face); border: 0; box-shadow: var(--raised); padding: 5px 14px; min-height: 28px; min-width: 76px;
+  font: 13px var(--ui); display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  text-decoration: none; color: var(--ink); white-space: nowrap; cursor: var(--cur-arrow);
+}
+.btn:active:not([disabled]), .btn.pressed { box-shadow: var(--pressed); padding: 6px 13px 4px 15px; }
+.btn:focus-visible { outline: 1px dotted #000; outline-offset: -5px; }
+.btn.default { box-shadow: 0 0 0 1px #000, var(--raised); }
+.btn.default:active { box-shadow: 0 0 0 1px #000, var(--pressed); }
+.btn.tiny { min-width: 0; min-height: 22px; padding: 2px 9px; font-size: 12px; }
+.btn.tiny:active:not([disabled]) { padding: 3px 8px 1px 10px; }
+.btn[disabled] { color: #808080; text-shadow: 1px 1px #fff; }
+.btn[disabled] .pix { opacity: .45; filter: grayscale(1); }
+.chk { appearance: none; width: 13px; height: 13px; background: #fff; box-shadow: var(--sunken); margin: 0; display: inline-grid; place-items: center; flex: none; }
+.chk:checked::after { content: ""; width: 7px; height: 7px; background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 7 7'%3E%3Cpath d='M0 2h1v1h1v1h1V3h1V2h1V1h1V0h1v3H6v1H5v1H4v1H3v1H2V6H1V5H0z'/%3E%3C/svg%3E") no-repeat; }
+.chk:disabled { background: var(--face); }
+.rad { appearance: none; width: 13px; height: 13px; border-radius: 50%; background: #fff; box-shadow: inset 1px 1px var(--lo), inset -1px -1px var(--hi), inset 2px 2px var(--dk), inset -2px -2px var(--lt); margin: 0; display: inline-grid; place-items: center; flex: none; }
+.rad:checked::after { content: ""; width: 5px; height: 5px; border-radius: 50%; background: #000; }
+.numin { width: 58px; font: 13px var(--ui); padding: 3px 4px; border: 0; box-shadow: var(--sunken); background: #fff; outline: none; }
+.numin:disabled { background: var(--face); color: #808080; }
+.field98 { font: 13px var(--ui); padding: 4px 6px; border: 0; background: #fff; box-shadow: var(--sunken); outline: none; width: 100%; }
+input[type=range].slider { -webkit-appearance: none; appearance: none; width: 100%; height: 22px; background: transparent; margin: 0; }
+input[type=range].slider::-webkit-slider-runnable-track { height: 4px; box-shadow: var(--sunken); background: #fff; }
+input[type=range].slider::-webkit-slider-thumb { -webkit-appearance: none; width: 11px; height: 21px; margin-top: -9px; background: var(--face); box-shadow: var(--raised); }
+input[type=range].slider:disabled { opacity: .5; }
+.sel98 { position: relative; display: inline-flex; background: #fff; box-shadow: var(--sunken); height: 24px; min-width: 0; }
+.sel98 select { appearance: none; -webkit-appearance: none; border: 0; background: transparent; font: 13px var(--ui); padding: 2px 24px 2px 6px; height: 100%; outline: none; cursor: var(--cur-arrow); width: 100%; }
+.sel98 select:focus-visible { background: var(--sel); color: #fff; }
+.sel98::after { content: ""; position: absolute; right: 2px; top: 2px; bottom: 2px; width: 17px; box-shadow: var(--raised); pointer-events: none;
+  background: var(--face) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='7' height='4'%3E%3Cpath d='M0 0h7L3.5 4z'/%3E%3C/svg%3E") no-repeat center; }
+.seg { display: flex; }
+.seg .btn { min-width: 0; padding: 2px 10px; min-height: 22px; font-size: 12px; }
+.seg .btn.pressed { padding: 3px 9px 1px 11px; background: var(--dither); font-weight: 700; }
+.tabs98 { display: flex; padding-left: 2px; position: relative; z-index: 1; }
+.tabs98 button { border: 0; background: var(--face); padding: 4px 12px 3px; font: 13px var(--ui); box-shadow: inset 1px 1px var(--hi), inset -1px 0 var(--dk), inset -2px 0 var(--lo), inset 2px 2px var(--lt); margin-top: 3px; border-radius: 3px 3px 0 0; cursor: var(--cur-arrow); }
+.tabs98 button.on { margin-top: 0; padding-bottom: 6px; margin-bottom: -2px; position: relative; z-index: 2; }
+.tabs98 button:focus-visible { outline: 1px dotted #000; outline-offset: -4px; }
+.tabpanel { background: var(--face); box-shadow: var(--raised); padding: 8px; }
+
+/* ---------- windows ---------- */
+.win { background: var(--face); box-shadow: var(--raised); padding: 3px; display: flex; flex-direction: column; position: relative; }
+.titlebar {
+  height: 24px; flex: none; display: flex; align-items: center; gap: 6px; padding: 0 3px 0 4px;
+  background: linear-gradient(90deg, var(--title1), var(--title2)); color: #fff;
+  font: 600 15px/1 var(--pixel); letter-spacing: .2px; user-select: none;
+}
+.titlebar .tb-title { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-top: 1px; min-width: 0; }
+.titlebar .tb-x { width: 18px; height: 16px; padding: 0; border: 0; background: var(--face); box-shadow: var(--raised); display: grid; place-items: center; color: #000; font: 700 12px/1 var(--ui); text-decoration: none; flex: none; }
+.titlebar .tb-x:active { box-shadow: var(--pressed); }
+.titlebar .tb-copy { height: 18px; padding: 0 8px; border: 0; background: var(--face); box-shadow: var(--raised); color: #000; font: 11.5px var(--ui); flex: none; cursor: var(--cur-arrow); }
+.titlebar .tb-copy:active { box-shadow: var(--pressed); }
+.statusbar { display: flex; gap: 2px; padding-top: 3px; flex: none; font-size: 12px; min-width: 0; }
+.statusbar > div { box-shadow: var(--thin); padding: 2px 7px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-height: 22px; display: flex; align-items: center; gap: 5px; min-width: 0; }
+.statusbar .grow { flex: 1; }
+.menu98 { position: absolute; z-index: 90; background: var(--face); box-shadow: var(--raised), 2px 2px 0 rgba(0,0,0,.35); padding: 3px; display: flex; flex-direction: column; }
+
+/* ---------- page frame ---------- */
+.frame { max-width: 1376px; margin: 0 auto; background: var(--face); box-shadow: var(--raised), 0 0 0 1px #004c4c; min-height: 100vh; display: flex; flex-direction: column; }
+.site-head { position: sticky; top: 0; z-index: 60; background: var(--face); padding: 3px 3px 0; box-shadow: 0 1px 0 var(--lo), 0 2px 0 var(--hi); }
+.head-title { height: 32px; padding: 0 6px; gap: 10px; }
+.brand { display: flex; align-items: center; gap: 8px; color: #fff; text-decoration: none; flex: none; }
+.brand-word { font: 700 22px/1 var(--pixel); letter-spacing: .5px; display: flex; }
+.brand-word span { text-shadow: 1px 1px 0 #000; }
+.brand-tag { font: 10px/1 var(--tiny); letter-spacing: 1px; padding: 3px 4px 2px; background: rgba(255,255,255,.16); box-shadow: inset 0 0 0 1px rgba(255,255,255,.35); }
+.head-doc { font: 500 15px/1 var(--pixel); color: #dfe6ff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; flex: 1; }
+.head-doc::before { content: "-  "; opacity: .7; }
+.head-doc:empty::before { content: ""; }
+.menu-btn { display: none; width: 26px; height: 22px; padding: 0; border: 0; background: var(--face); box-shadow: var(--raised); place-items: center; flex: none; cursor: var(--cur-arrow); }
+.menu-btn:active, body.nav-open .menu-btn { box-shadow: var(--pressed); }
+.head-menu { display: flex; align-items: center; gap: 6px; height: 38px; padding: 0 4px 0 2px; }
+.navlinks { display: flex; gap: 0; }
+.navlinks a { color: var(--ink); text-decoration: none; padding: 5px 10px; font: 13px var(--ui); }
+.navlinks a u { text-underline-offset: 2px; }
+.navlinks a:hover { box-shadow: var(--thin); }
+.navlinks a.on { box-shadow: inset 1px 1px var(--lo), inset -1px -1px var(--hi); background: var(--dither); }
+.head-menu .sp { flex: 1; }
+.head-sep { width: 2px; height: 24px; box-shadow: inset 1px 0 var(--lo), inset -1px 0 var(--hi); }
+.search { position: relative; width: 300px; display: flex; align-items: center; }
+.search .pix { position: absolute; left: 7px; top: 50%; transform: translateY(-50%); pointer-events: none; }
+.search input { height: 26px; padding-left: 28px; padding-right: 56px; font-size: 13px; }
+.search kbd { position: absolute; right: 6px; top: 50%; transform: translateY(-50%); font: 10px var(--tiny); color: #555; padding: 2px 4px 1px; box-shadow: var(--raised); background: var(--face); pointer-events: none; }
+.search-res { top: calc(100% + 3px); left: 0; right: -120px; min-width: 380px; max-height: 420px; overflow: auto; }
+.search-res a { display: grid; grid-template-columns: 18px 1fr; gap: 8px; align-items: start; padding: 6px 8px; color: var(--ink); text-decoration: none; }
+.search-res a b { font: 600 13.5px var(--ui); display: block; }
+.search-res a small { display: block; color: #555; font-size: 12px; line-height: 1.4; margin-top: 1px; }
+.search-res a.on, .search-res a:hover { background: var(--sel); color: #fff; }
+.search-res a.on small, .search-res a:hover small { color: #cfd6ff; }
+.search-res a.on .pix rect, .search-res a:hover .pix rect { }
+.search-res .none { padding: 10px; color: #444; }
+.search-res .grp { font: 10px var(--tiny); color: #08187e; padding: 6px 8px 2px; letter-spacing: .5px; }
+.ver { width: 138px; }
+.gh .pix { margin-left: -2px; }
+
+/* ---------- three-column layout ---------- */
+.layout { display: grid; grid-template-columns: 272px minmax(0, 1fr) 232px; align-items: start; flex: 1; }
+.layout.wide { grid-template-columns: minmax(0, 1fr); }
+.layout.wide .sidebar, .layout.wide .toc { display: none; }
+.sidebar { position: sticky; top: var(--head-h); height: calc(100vh - var(--head-h)); padding: 10px 4px 10px 8px; display: flex; flex-direction: column; }
+.side-panel { flex: 1; display: flex; flex-direction: column; min-height: 0; }
+.side-panel .tabpanel { flex: 1; display: flex; flex-direction: column; min-height: 0; }
+.tree-box { background: #fff; box-shadow: var(--sunken); padding: 8px 6px 14px; overflow: auto; flex: 1; min-height: 0; }
+.tree, .tree ul { list-style: none; margin: 0; padding: 0; }
+.tree ul { margin-left: 12px; padding-left: 10px; border-left: 1px dotted #808080; display: none; }
+.tree li.open > ul { display: block; }
+.tree li { position: relative; }
+.tree ul > li::before { content: ""; position: absolute; left: -10px; top: 13px; width: 8px; border-top: 1px dotted #808080; }
+.tree a, .tree button { border: 0; background: none; display: flex; align-items: center; gap: 6px; padding: 2px 2px; font: 13.5px/1.3 var(--ui); text-align: left; width: 100%; color: var(--ink); text-decoration: none; cursor: var(--cur-arrow); }
+.tree a span, .tree button span { padding: 2px 4px; }
+.tree a.mono span { font: 13px var(--mono); }
+.tree a:hover span { text-decoration: underline; }
+.tree a.on span { background: var(--sel); color: #fff; outline: 1px dotted #ffd23f; text-decoration: none; }
+.tree button.grp span { font-weight: 700; }
+.side-hint { font-size: 12px; margin: 2px 2px 6px; color: #222; }
+.idx-in { margin-bottom: 6px; }
+.idx-list { background: #fff; box-shadow: var(--sunken); overflow: auto; flex: 1; min-height: 0; padding: 3px; }
+.idx-list a { display: block; padding: 3px 6px; color: var(--ink); text-decoration: none; font: 13px var(--ui); }
+.idx-list a small { color: #666; }
+.idx-list a:hover { background: var(--sel); color: #fff; }
+.idx-list a:hover small { color: #cfd6ff; }
+
+.main { padding: 10px 6px 0; min-width: 0; }
+.doc { background: #fff; box-shadow: var(--sunken); padding: 34px 44px 30px; min-height: calc(100vh - var(--head-h) - 20px); }
+.layout.wide .doc { padding: 34px 40px 30px; }
+.toc { position: sticky; top: var(--head-h); padding: 10px 8px 10px 4px; max-height: calc(100vh - var(--head-h)); overflow: auto; }
+.toc-panel { background: var(--face); box-shadow: var(--raised); padding: 3px; }
+.toc-head { font: 10px/1 var(--tiny); letter-spacing: .6px; padding: 6px 6px 5px; color: #222; display: flex; align-items: center; gap: 6px; }
+.toc-list { list-style: none; margin: 0; padding: 6px 4px 8px; background: #fff; box-shadow: var(--sunken); font: 13px/1.35 var(--ui); }
+.toc-list li a { display: block; padding: 3px 6px 3px 14px; color: #1d1d1d; text-decoration: none; position: relative; }
+.toc-list li.lv3 a { padding-left: 26px; font-size: 12.5px; color: #3a3a3a; }
+.toc-list li a:hover { text-decoration: underline; }
+.toc-list li a.on { background: var(--sel); color: #fff; }
+.toc-list li a.on::before { content: ""; position: absolute; left: 4px; top: 50%; margin-top: -4px; border: 4px solid transparent; border-left-color: #fff; border-right: 0; }
+.toc-tools { display: flex; flex-direction: column; gap: 6px; margin-top: 10px; }
+.toc-tools .btn { justify-content: flex-start; }
+
+.site-foot { padding: 0 3px 3px; }
+.site-foot .statusbar { font-size: 12px; }
+.site-foot .statusbar a { color: var(--ink); }
+
+/* ---------- prose ---------- */
+.prose { max-width: 760px; margin: 0 auto; font: 16.5px/1.72 var(--body); color: #1d1d22; }
+.prose > :first-child { margin-top: 0; }
+.crumbs { font: 10.5px/1 var(--tiny); color: #5b5b66; margin-bottom: 14px; letter-spacing: .5px; display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+.crumbs a { color: #5b5b66; text-decoration: none; }
+.crumbs a:hover { color: var(--link); text-decoration: underline; }
+.prose h1 { font: 600 42px/1.08 var(--pixel); margin: 0 0 12px; color: var(--title1); letter-spacing: .3px; }
+.prose h1 code { font: inherit; background: none; border: 0; padding: 0; }
+.prose h1 .paren, .head-doc .paren { font-family: var(--mono); font-weight: 500; font-size: .78em; letter-spacing: -1px; margin-left: 2px; opacity: .8; }
+.prose .lead { font-size: 19px; line-height: 1.6; color: #34343c; margin-bottom: 20px; }
+.prose h2 { font: 600 27px/1.2 var(--pixel); margin: 44px 0 14px; padding-bottom: 6px; color: #101018; position: relative;
+  border-bottom: 3px solid; border-image: linear-gradient(90deg, var(--title1), var(--title2) 45%, transparent) 1; }
+.prose h3 { font: 700 19px/1.35 var(--body); margin: 30px 0 8px; color: #15151b; position: relative; }
+.prose h2 .anchor, .prose h3 .anchor { position: absolute; left: -26px; top: 50%; transform: translateY(-50%); font: 600 16px var(--mono); color: #9aa3c7; text-decoration: none; opacity: 0; }
+.prose h2:hover .anchor, .prose h3:hover .anchor { opacity: 1; }
+.prose h2 .anchor { transform: translateY(-60%); }
+.prose p { margin: 0 0 16px; }
+.prose ul, .prose ol { padding-left: 26px; margin: 0 0 18px; }
+.prose li { margin: 5px 0; }
+.prose li::marker { color: #1c6fb0; }
+.prose ul > li::marker { content: "■  "; font-size: 11px; }
+.prose code { font: 500 .86em var(--mono); background: #eef0ff; padding: 1px 5px; border: 1px solid #d6daf6; border-radius: 0; color: #121a5c; white-space: nowrap; }
+.prose a { color: var(--link); text-underline-offset: 3px; text-decoration-thickness: 1px; }
+.prose a:hover { background: #fffbd0; }
+.prose a code { color: inherit; }
+.prose strong, .prose b { font-weight: 650; color: #111; }
+.prose hr { border: 0; height: 2px; margin: 32px 0; box-shadow: inset 0 1px var(--lo), inset 0 -1px var(--hi); }
+
+/* tables (List View) */
+.tbl { margin: 18px 0 24px; box-shadow: var(--sunken); background: #fff; padding: 2px; overflow-x: auto; }
+.tbl table { border-collapse: collapse; width: 100%; font: 14.5px/1.5 var(--body); }
+.tbl th { background: var(--face); box-shadow: var(--raised); text-align: left; padding: 5px 10px; font: 12.5px var(--ui); font-weight: 400; white-space: nowrap; }
+.tbl td { padding: 8px 10px; vertical-align: top; border-bottom: 1px dotted #c7c7c7; }
+.tbl tr:last-child td { border-bottom: 0; }
+.tbl td code { white-space: nowrap; }
+.tbl td.nm code { font-weight: 600; }
+.req { font: 9.5px var(--tiny); color: #b30000; letter-spacing: .4px; margin-left: 4px; }
+
+/* callouts */
+.callout { display: grid; grid-template-columns: 34px minmax(0, 1fr); gap: 14px; padding: 14px 18px 14px 14px; margin: 24px 0; background: var(--face); box-shadow: var(--raised); font-size: 15.5px; line-height: 1.6; }
+.callout .co-t { font: 600 17px/1.2 var(--pixel); display: block; margin: 2px 0 4px; color: #101018; }
+.callout p { margin: 0 0 8px; } .callout p:last-child { margin: 0; }
+.callout code { background: rgba(255,255,255,.7); }
+.callout.tip { background: #ffffe1; box-shadow: 0 0 0 1px #000, 3px 3px 0 rgba(0,0,0,.22); }
+.callout.tip code { background: #fff; }
+.callout.note { background: #fff; box-shadow: 0 0 0 1px #000, inset 0 0 0 4px #e8ecff; }
+
+/* code: Notepad + Command Prompt */
+.np-code { margin: 18px 0 24px; background: var(--face); box-shadow: var(--raised); padding: 3px; }
+.np-code .titlebar { height: 22px; font-size: 14px; }
+.np-code pre { margin: 0; background: #fff; box-shadow: var(--sunken); padding: 12px 16px 13px; overflow: auto; font: 14px/1.65 var(--mono); color: #16161c; tab-size: 2; }
+.np-code pre code { font: inherit; background: none; border: 0; padding: 0; color: inherit; white-space: pre; }
+.np-code.dos pre { background: #000; color: #c8c8c8; }
+.np-code.dos .prompt { color: #8a8a8a; user-select: none; }
+.np-code.dos .t-f { color: #fff; } .np-code.dos .t-s { color: #ffd23f; }
+.t-k { color: #0b1f8f; font-weight: 600; } .t-s { color: #0a7a2f; } .t-n { color: #b5179e; }
+.t-f { color: #8a4300; } .t-c { color: #6f6f78; font-style: italic; } .t-g { color: #7a1fa2; } .t-t { color: #00707a; }
+.pm-tabs { margin: 16px 0 24px; }
+.pm-tabs .tabpanel { padding: 6px; }
+.pm-tabs .np-code { margin: 0; box-shadow: none; padding: 0; }
+
+/* steps */
+.steps { list-style: none; padding: 0 !important; margin: 20px 0 28px !important; counter-reset: st; }
+.steps > li { position: relative; padding: 0 0 6px 52px; margin: 0 !important; counter-increment: st; }
+.steps > li::marker { content: none; }
+.steps > li::before { content: counter(st); position: absolute; left: 0; top: 0; width: 32px; height: 32px; display: grid; place-items: center; background: var(--face); box-shadow: var(--raised); font: 700 18px/1 var(--pixel); color: var(--title1); }
+.steps > li::after { content: ""; position: absolute; left: 15px; top: 38px; bottom: 4px; border-left: 2px dotted #9a9a9a; }
+.steps > li:last-child::after { display: none; }
+.steps .step-t { font-weight: 650; margin: 4px 0 6px; }
+.steps .np-code { margin: 10px 0 18px; }
+
+/* link cards */
+.cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; margin: 18px 0 26px; }
+.card98 { display: grid; grid-template-columns: 34px 1fr; gap: 4px 12px; align-items: start; padding: 14px 14px 14px 12px; background: var(--face); box-shadow: var(--raised); color: var(--ink); text-decoration: none !important; line-height: 1.45; }
+.card98:hover { background: #d0d0d0 !important; }
+.card98:active { box-shadow: var(--pressed); }
+.card98:focus-visible { outline: 1px dotted #000; outline-offset: -6px; }
+.card98 b { font: 600 17px/1.2 var(--pixel); display: block; color: var(--title1); margin-bottom: 3px; }
+.card98 small { font: 14px/1.45 var(--body); color: #333; display: block; }
+.card98 .pix { grid-row: span 2; margin-top: 2px; }
+
+/* pager + doc footer */
+.doc-foot { display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; margin-top: 44px; padding-top: 12px; border-top: 1px dotted #9a9a9a; font: 13px var(--ui); color: #555; }
+.doc-foot a { color: #333; display: inline-flex; gap: 6px; align-items: center; }
+.pager { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 18px; }
+.pager .btn { flex-direction: column; align-items: flex-start; gap: 2px; padding: 10px 14px; min-height: 60px; white-space: normal; }
+.pager .btn:active { padding: 11px 13px 9px 15px; }
+.pager .btn small { font: 10px var(--tiny); color: #444; letter-spacing: .5px; }
+.pager .btn b { font: 600 17px/1.2 var(--pixel); color: var(--title1); }
+.pager .next { align-items: flex-end; text-align: right; grid-column: 2; }
+
+/* ---------- API page bits ---------- */
+.api-meta { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 18px; align-items: center; font: 12.5px var(--ui); }
+.chip { display: inline-flex; align-items: center; gap: 6px; padding: 3px 8px; background: var(--face); box-shadow: var(--raised); color: var(--ink); text-decoration: none; font: 12.5px var(--ui); }
+.chip code { background: none !important; border: 0 !important; padding: 0 !important; font-size: 12.5px !important; }
+a.chip:hover { text-decoration: underline; }
+.sigbox { margin: 8px 0 22px; background: var(--face); box-shadow: var(--raised); padding: 3px; }
+.sigbox .sig-label { font: 10px var(--tiny); letter-spacing: .5px; padding: 4px 6px 4px; color: #222; }
+.sigbox pre { margin: 0; background: #fff; box-shadow: var(--sunken); padding: 10px 14px; font: 15px/1.6 var(--mono); overflow: auto; }
+.api-list .tbl td:first-child { width: 170px; }
+.api-group-h { display: flex; align-items: center; gap: 8px; }
+
+/* ---------- home ---------- */
+.home { max-width: 1220px; margin: 0 auto; font: 16.5px/1.65 var(--body); }
+.hero { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.18fr); gap: 40px; align-items: start; padding: 10px 0 34px; }
+.hero-l { padding-top: 26px; }
+.hero-logo { display: flex; align-items: center; gap: 18px; margin-bottom: 18px; }
+.hero-logo .pix { animation: bob 2.6s steps(4) infinite; filter: drop-shadow(3px 3px 0 rgba(0,0,0,.18)); }
+@keyframes bob { 50% { transform: translateY(-5px) rotate(-4deg); } }
+.logo-word { font: 700 88px/0.9 var(--pixel); margin: 0; letter-spacing: 2px; display: flex; align-items: baseline; }
+.logo-word span { text-shadow: 3px 3px 0 #000, 5px 5px 0 rgba(0,0,0,.16); display: inline-block; }
+.logo-word span:hover { animation: jig .3s steps(2) 2; }
+@keyframes jig { 50% { transform: translateY(-6px) rotate(6deg); } }
+.logo-word .nn { font-size: 30px; margin-left: 14px; color: #fff; background: var(--title1); padding: 6px 8px 4px; text-shadow: none; align-self: center; transform: rotate(-6deg); box-shadow: 3px 3px 0 #000; letter-spacing: 0; }
+.hero-tag { font: 700 24px/1.3 var(--body); margin: 0 0 10px; color: #111; letter-spacing: -.2px; }
+.hero-lede { font-size: 18px; line-height: 1.6; margin: 0 0 22px; color: #34343c; max-width: 560px; }
+.install { display: flex; flex-wrap: wrap; gap: 6px; align-items: stretch; margin-bottom: 18px; }
+.install .seg { width: 100%; }
+.dosfield { background: #000; color: #c8c8c8; font: 15px/1 var(--mono); padding: 10px 12px; box-shadow: var(--sunken); min-width: 0; flex: 1; max-width: 360px; display: flex; align-items: center; white-space: nowrap; }
+.dosfield b { color: #8a8a8a; font-weight: 400; margin-right: 8px; }
+.dosfield i { display: inline-block; width: 9px; height: 2px; background: #c8c8c8; animation: blink 1s steps(1) infinite; margin: 8px 0 0 3px; align-self: center; }
+@keyframes blink { 50% { opacity: 0; } }
+.hero-cta { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 22px; }
+.hero-cta .btn { font-size: 14px; padding: 7px 16px; min-height: 34px; }
+.hero-cta .btn:active { padding: 8px 15px 6px 17px; }
+.facts { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 6px; font-size: 15px; color: #333; }
+.facts li { display: flex; gap: 8px; align-items: center; }
+.facts .ok { width: 13px; height: 13px; box-shadow: var(--sunken); background: #fff; display: grid; place-items: center; flex: none; }
+.hero-r .pg { margin: 0; }
+.tipwin { margin-top: 26px; max-width: 560px; }
+.tipwin .titlebar { height: 22px; font-size: 14.5px; }
+.tipwin .tip-in { margin-top: 3px; background: #fff; box-shadow: var(--sunken); padding: 14px 16px; display: grid; grid-template-columns: 40px 1fr; gap: 12px; }
+.tipwin .tip-h { font: 600 19px/1.2 var(--pixel); display: block; margin-bottom: 4px; }
+.tipwin p { margin: 0; font-size: 15px; line-height: 1.55; min-height: 3.1em; }
+.tipwin code { font: 500 .86em var(--mono); background: #eef0ff; padding: 1px 4px; border: 1px solid #d6daf6; color: #121a5c; }
+.tipwin .tip-foot { display: flex; justify-content: space-between; align-items: center; padding: 6px 2px 2px; font-size: 12px; color: #333; }
+.pg-caption { font: 13px/1.5 var(--ui); color: #444; margin: 8px 2px 0; display: flex; gap: 6px; align-items: center; }
+.sec { padding: 26px 0 10px; }
+.sec-h { font: 600 30px/1.2 var(--pixel); margin: 0 0 6px; color: #101018; display: flex; align-items: center; gap: 10px; }
+.sec-sub { margin: 0 0 20px; color: #444; font-size: 16.5px; max-width: 720px; }
+.feat { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+.fwin .titlebar { height: 26px; font-size: 15.5px; }
+.fwin .fbody { padding: 12px 14px 14px; font: 15px/1.55 var(--body); color: #1f1f25; flex: 1; }
+.fwin .fbody p { margin: 0; }
+.fwin code { font: 500 .88em var(--mono); background: #fff; padding: 0 4px; box-shadow: var(--thin); }
+.flow { display: grid; grid-template-columns: minmax(0,1fr) 28px minmax(0,1fr) 28px minmax(0,1fr); gap: 6px; align-items: stretch; }
+.flow-arrow { display: grid; place-items: center; font: 700 24px var(--pixel); color: var(--title1); }
+.flow .step { display: flex; flex-direction: column; }
+.flow .step-h { display: flex; gap: 10px; align-items: center; margin-bottom: 8px; }
+.flow .step-n { width: 32px; height: 32px; display: grid; place-items: center; background: var(--face); box-shadow: var(--raised); font: 700 18px/1 var(--pixel); color: var(--title1); flex: none; }
+.flow .step-h b { font: 600 20px var(--pixel); }
+.flow .np-code { margin: 0 0 8px; flex: 1; display: flex; flex-direction: column; }
+.flow .np-code pre { flex: 1; font-size: 13.5px; }
+.flow p { margin: 0; font-size: 15px; color: #333; line-height: 1.55; }
+.flow p code, .sec-sub code { font: 500 .86em var(--mono); background: #eef0ff; padding: 1px 5px; border: 1px solid #d6daf6; color: #121a5c; }
+.home .cards { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+
+/* ---------- playground ---------- */
+.pg { container-type: inline-size; margin: 22px 0 28px; font: 13px/1.35 var(--ui); }
+.pg-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 8px; }
+@container (min-width: 860px) {
+  .pg-grid { grid-template-columns: minmax(0, 1fr) 320px; }
+  .pg-np .np-text { contain: size; flex: 1 1 0; height: auto; }
+}
+.pg-toolbar { display: flex; gap: 3px; align-items: center; padding: 3px 1px 4px; flex-wrap: wrap; }
+.pg-toolbar .btn { min-width: 0; min-height: 24px; padding: 2px 8px; font-size: 12px; gap: 5px; }
+.pg-toolbar .btn:active:not([disabled]) { padding: 3px 7px 1px 9px; }
+.tb-sep { width: 2px; align-self: stretch; margin: 2px 3px; box-shadow: inset 1px 0 var(--lo), inset -1px 0 var(--hi); }
+.pg-toolbar .sp { flex: 1; }
+.pg-toolbar .note { font-size: 12px; color: #333; padding-right: 4px; }
+.pg-body { display: flex; gap: 3px; min-height: 0; }
+.pg-side.tb { width: 62px; flex: none; display: flex; flex-direction: column; align-items: center; padding: 2px 0; }
+.tools { display: grid; grid-template-columns: 27px 27px; }
+.tool { width: 27px; height: 27px; border: 0; padding: 0; background: var(--face); box-shadow: var(--raised); display: grid; place-items: center; cursor: var(--cur-arrow); }
+.tool svg { width: 19px; height: 19px; }
+.tool:active { box-shadow: var(--pressed); }
+.tool.on { box-shadow: var(--pressed); background: var(--dither); }
+.tool.on svg { transform: translate(1px, 1px); }
+.tool:focus-visible { outline: 1px dotted #000; outline-offset: -4px; }
+.tool-opts { margin-top: 6px; width: 56px; min-height: 70px; box-shadow: var(--thin); padding: 3px; display: flex; flex-direction: column; gap: 2px; }
+.tool-opts .opt { border: 0; background: none; font: 11.5px var(--ui); padding: 3px 0; text-align: center; cursor: var(--cur-arrow); }
+.tool-opts .opt.on { background: var(--sel); color: #fff; }
+.tool-opts .none { font: 9px/1.35 var(--tiny); color: #555; text-align: center; padding-top: 14px; }
+.tool-name { margin-top: 5px; font: 9px/1.2 var(--tiny); text-align: center; color: #222; width: 60px; }
+.pg-side.ctl { width: 232px; flex: none; display: flex; flex-direction: column; gap: 6px; padding: 2px 2px 2px 0; }
+.ctl-box { border: 0; margin: 0; padding: 12px 10px 8px; box-shadow: inset 1px 1px var(--lo), inset -1px -1px var(--hi), inset 2px 2px var(--hi), inset -2px -2px var(--lo); position: relative; display: flex; flex-direction: column; gap: 9px; }
+.ctl-box > legend { position: absolute; top: -8px; left: 8px; background: var(--face); padding: 0 4px; font: 12px var(--ui); }
+.ctl { display: flex; flex-direction: column; gap: 3px; }
+.ctl > label, .ctl > .lbl { font-size: 12px; display: flex; justify-content: space-between; gap: 6px; }
+.ctl > label code, .ctl > .lbl code { font: 600 12px var(--mono); color: #08187e; }
+.ctl > label small, .ctl > .lbl small { color: #555; }
+.ctl-row { display: flex; gap: 6px; align-items: center; }
+.ctl-row .numin { width: 56px; flex: none; }
+.ctl.chkl { flex-direction: row; align-items: center; gap: 7px; font-size: 12px; }
+.ctl.chkl code { font: 600 12px var(--mono); color: #08187e; }
+.ctl .rads { display: flex; flex-direction: column; gap: 4px; }
+.ctl .rads label { display: flex; gap: 7px; align-items: center; font-size: 12px; }
+.ctl .sel98 { width: 100%; }
+.ctl.off { opacity: .55; }
+.ctl-color { display: flex; gap: 8px; align-items: center; font: 12px var(--mono); }
+.ctl-color i { width: 22px; height: 22px; box-shadow: var(--sunken); display: block; position: relative; }
+.ctl-color i::after { content: ""; position: absolute; inset: 3px; background: inherit; }
+.ctl-btns { display: flex; gap: 4px; }
+.ctl-btns .btn { flex: 1; min-width: 0; font-size: 12px; padding: 3px 6px; min-height: 26px; }
+.ctl-tip { font-size: 11.5px; color: #333; line-height: 1.4; padding: 0 2px; }
+.pg-canvas { flex: 1; min-width: 0; background: #7b7b7b; box-shadow: var(--sunken); overflow: auto; position: relative; padding: 8px; min-height: 300px; }
+.pg.compact .pg-canvas { min-height: 290px; }
+.canvas-wrap { position: relative; display: inline-block; background: var(--checker); line-height: 0; box-shadow: 1px 1px 0 #3a3a3a; }
+.canvas-wrap img { display: block; user-select: none; -webkit-user-drag: none; cursor: var(--cur-tool); max-width: none; }
+.canvas-wrap .h { position: absolute; width: 5px; height: 5px; background: var(--sel); }
+.canvas-wrap .h.r { right: -7px; top: calc(50% - 2px); } .canvas-wrap .h.b { bottom: -7px; left: calc(50% - 2px); } .canvas-wrap .h.rb { right: -7px; bottom: -7px; }
+.marquee { position: absolute; display: none; pointer-events: none; outline: 1px dashed #000; box-shadow: 0 0 0 1px #fff; animation: ants .6s steps(2) infinite; }
+@keyframes ants { 50% { outline-color: #fff; box-shadow: 0 0 0 1px #000; } }
+.pg-loading { color: #fff; font: 15px/1.6 var(--pixel); padding: 22px; }
+.progress { width: 230px; height: 22px; box-shadow: var(--sunken); background: #fff; padding: 3px; display: flex; gap: 2px; margin-top: 10px; overflow: hidden; }
+.progress i { width: 10px; flex: none; background: var(--sel); animation: pgrow 1.4s steps(1) infinite; }
+.progress i:nth-child(n+5) { animation-delay: .2s; } .progress i:nth-child(n+9) { animation-delay: .4s; } .progress i:nth-child(n+13) { animation-delay: .6s; }
+@keyframes pgrow { 0% { opacity: 0; } 50% { opacity: 1; } }
+.drop-hint { position: absolute; inset: 0; display: none; place-items: center; background: rgba(8, 24, 126, .55); color: #fff; font: 600 20px var(--pixel); outline: 3px dashed #ffd23f; outline-offset: -10px; }
+.pg-canvas.drag .drop-hint { display: grid; }
+.palette { display: flex; gap: 6px; align-items: center; padding: 4px 2px 1px; flex: none; }
+.fgbg { width: 34px; height: 34px; box-shadow: var(--thin); position: relative; background: var(--dither); flex: none; }
+.fgbg i { position: absolute; width: 15px; height: 15px; box-shadow: var(--sunken); }
+.fgbg .fg { left: 5px; top: 5px; background: #000; z-index: 1; } .fgbg .bg { right: 4px; bottom: 4px; background: #fff; }
+.swatches { display: grid; grid-template-columns: repeat(15, 17px); grid-auto-rows: 17px; flex: none; }
+.sw { width: 17px; height: 17px; border: 0; padding: 0; box-shadow: var(--sunken); position: relative; cursor: var(--cur-arrow); }
+.sw::after { content: ""; position: absolute; inset: 2px; background: inherit; }
+.sw:hover { outline: 1px solid #000; z-index: 1; }
+.sw.rainbow { background: conic-gradient(red, yellow, lime, cyan, blue, magenta, red); height: 34px; }
+.pal-hint { font-size: 11.5px; color: #333; line-height: 1.35; margin-left: 4px; min-width: 0; }
+.pal-hint b { font: 9.5px var(--tiny); display: block; letter-spacing: .4px; }
+.pal-hint code { font: 11px var(--mono); }
+.st-xy { width: 92px; flex: none; } .st-dim { width: 92px; flex: none; }
+.st-last { flex: 0 1 auto; max-width: 44%; }
+.lastcall { font: 12px var(--mono); color: var(--sel); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.np-bar { display: flex; gap: 4px; align-items: center; padding: 3px 1px 4px; flex: none; }
+.np-bar .sp { flex: 1; }
+.np-text { background: #fff; box-shadow: var(--sunken); overflow: auto; padding: 8px 4px 8px 0; font: 13px/1.6 var(--mono); color: #111; counter-reset: ln; height: 230px; cursor: text; }
+.pg.compact .np-text { height: 188px; }
+.np-text .ln { white-space: pre-wrap; word-break: break-word; padding: 0 10px 0 40px; position: relative; min-height: 1.6em; }
+.np-text .ln::before { counter-increment: ln; content: counter(ln); position: absolute; left: 0; width: 28px; text-align: right; color: #a3a3a3; font-size: 11.5px; }
+.np-text .ln.step { background: #f2f4ff; }
+.np-text .ln.fresh { animation: fresh 1.6s steps(6) forwards; }
+@keyframes fresh { 0% { background: var(--sel); color: #fff; } 100% { background: #fff7b8; } }
+.np-text .ln.fresh * { animation: freshtok 1.6s steps(6) forwards; }
+@keyframes freshtok { 0% { color: #fff; } }
+.np-text .caret { display: inline-block; width: 2px; height: 1.15em; background: #000; vertical-align: -3px; animation: blink 1s steps(1) infinite; }
+.pg-np .titlebar, .pg-paint .titlebar { height: 22px; font-size: 14.5px; }
+.pg-paint .tb-x { text-decoration: none; }
+
+/* ---------- dialogs, tooltip ---------- */
+.veil { position: fixed; inset: 0; z-index: 1000; background: rgba(0, 40, 40, .18); }
+.dialog { position: fixed; z-index: 1001; left: 50%; top: 40%; transform: translate(-50%, -50%); width: min(480px, calc(100vw - 24px)); }
+.dialog .dlg-body { padding: 16px 16px 8px; display: grid; grid-template-columns: 38px minmax(0, 1fr); gap: 14px; font-size: 13.5px; line-height: 1.5; }
+.dialog .dlg-body p { margin: 0 0 8px; }
+.dialog pre { font: 12.5px/1.5 var(--mono); white-space: pre-wrap; margin: 6px 0 0; background: #fff; box-shadow: var(--sunken); padding: 6px 8px; max-height: 180px; overflow: auto; }
+.dialog .dlg-btns { display: flex; justify-content: center; gap: 8px; padding: 6px 12px 12px; }
+.tooltip { position: fixed; z-index: 3000; background: #ffffe1; border: 1px solid #000; padding: 3px 6px; font: 12px var(--ui); pointer-events: none; box-shadow: 2px 2px 0 rgba(0,0,0,.25); max-width: 280px; }
+.tooltip code { font: 11.5px var(--mono); color: var(--sel); }
+.nf { display: grid; grid-template-columns: 48px 1fr; gap: 18px; max-width: 560px; margin: 60px auto; }
+
+/* ---------- responsive ---------- */
+@media (max-width: 1240px) {
+  .hero { grid-template-columns: minmax(0, 1fr); gap: 20px; }
+  .hero-l { padding-top: 6px; }
+  .feat { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .home .cards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 1000px) {
+  .layout { grid-template-columns: 252px minmax(0, 1fr); }
+  .toc { display: none; }
+  .search { width: 220px; }
+  .flow { grid-template-columns: minmax(0, 1fr); }
+  .flow-arrow { transform: rotate(90deg); height: 22px; }
+}
+@media (max-width: 800px) {
+  :root { --head-h: 70px; }
+  .frame { box-shadow: none; }
+  .layout, .layout.wide { grid-template-columns: minmax(0, 1fr); }
+  .menu-btn { display: grid; }
+  .sidebar { position: fixed; z-index: 55; top: var(--head-h); left: 0; bottom: 0; height: auto; width: min(310px, 88vw); background: var(--face);
+    box-shadow: var(--raised), 4px 0 0 rgba(0,0,0,.28); transform: translateX(-110%); transition: transform .2s steps(4); padding: 8px; }
+  .layout.wide .sidebar { display: flex; }
+  body.nav-open .sidebar { transform: none; }
+  body.nav-open::after { content: ""; position: fixed; inset: var(--head-h) 0 0 0; background: rgba(0, 40, 40, .3); z-index: 50; }
+  .main { padding: 6px 4px 0; }
+  .doc, .layout.wide .doc { padding: 24px 20px 24px; }
+  .head-doc { display: none; }
+  .navlinks a { padding: 5px 7px; }
+  .navlinks .nl-pg { display: none; }
+  .search { width: auto; flex: 1; min-width: 120px; }
+  .search-res { right: 0; min-width: 0; }
+  .ver { width: 112px; }
+  .head-menu .sp { display: none; }
+  .logo-word { font-size: 64px; }
+  .feat { grid-template-columns: minmax(0, 1fr); }
+  .prose h1 { font-size: 34px; }
+  .prose h2 .anchor, .prose h3 .anchor { display: none; }
+}
+@media (max-width: 600px) {
+  .navlinks, .gh span, .head-sep { display: none; }
+  .home .cards { grid-template-columns: minmax(0, 1fr); }
+  .pager { grid-template-columns: 1fr; } .pager .next { grid-column: 1; }
+  .pg-side.ctl { width: 100%; }
+  .pg-body.api { flex-direction: column; }
+}
+</style>
+</head>
+<body>
+<div class="frame">
+  <header class="site-head" id="site-head">
+    <div class="titlebar head-title">
+      <button class="menu-btn" id="menu-btn" aria-label="Show navigation" aria-expanded="false"></button>
+      <a class="brand" href="#/" aria-label="Jimp docs home"><span id="brand-ico"></span><span class="brand-word" id="brand-word"></span><span class="brand-tag">DOCS</span></a>
+      <span class="head-doc" id="head-doc"></span>
+    </div>
+    <nav class="head-menu" aria-label="Main">
+      <div class="navlinks" id="navlinks">
+        <a href="#/guides/getting-started" data-sec="guides"><u>G</u>uides</a>
+        <a href="#/api" data-sec="api"><u>A</u>PI Reference</a>
+        <a href="#/#playground" data-sec="play" class="nl-pg"><u>P</u>layground</a>
+      </div>
+      <span class="sp"></span>
+      <div class="search" id="search">
+        <span id="search-ico"></span>
+        <input class="field98" id="search-in" type="search" placeholder="Search the docs" autocomplete="off" aria-label="Search the docs" />
+        <kbd>CTRL K</kbd>
+        <div class="menu98 search-res hidden" id="search-res" role="listbox"></div>
+      </div>
+      <span class="sel98 ver"><select id="ver" aria-label="Jimp version"><option value="v1">v1.x (latest)</option><option value="v0">v0.22 (legacy)</option></select></span>
+      <span class="head-sep"></span>
+      <a class="btn tiny gh" href="https://github.com/jimp-dev/jimp" target="_blank" rel="noopener"><span id="gh-ico"></span><span>GitHub</span></a>
+    </nav>
+  </header>
+
+  <div class="layout" id="layout">
+    <aside class="sidebar" id="sidebar" aria-label="Documentation">
+      <div class="side-panel">
+        <div class="tabs98" role="tablist">
+          <button class="on" data-tab="contents" role="tab">Contents</button>
+          <button data-tab="index" role="tab">Index</button>
+        </div>
+        <div class="tabpanel">
+          <div data-panel="contents" style="display:flex;flex-direction:column;flex:1;min-height:0">
+            <p class="side-hint">Click a book, and then click a topic.</p>
+            <div class="tree-box"><ul class="tree" id="tree"></ul></div>
+          </div>
+          <div data-panel="index" class="hidden" style="flex-direction:column;flex:1;min-height:0">
+            <p class="side-hint">Type the first few letters of the word you're looking for.</p>
+            <input class="field98 idx-in" id="idx-in" placeholder="e.g. resize" aria-label="Filter the index" />
+            <div class="idx-list" id="idx-list"></div>
+          </div>
+        </div>
+      </div>
+    </aside>
+    <main class="main" id="main">
+      <div class="doc" id="doc"></div>
+    </main>
+    <aside class="toc" id="toc" aria-label="On this page"></aside>
+  </div>
+
+  <footer class="site-foot">
+    <div class="statusbar">
+      <div class="grow">Jimp is MIT licensed. These docs are a design exploration.</div>
+      <div><a href="https://github.com/jimp-dev/jimp" target="_blank" rel="noopener">github.com/jimp-dev/jimp</a></div>
+      <div><a href="https://www.npmjs.com/package/jimp" target="_blank" rel="noopener">npm</a></div>
+      <div id="foot-ver">Docs for Jimp v1</div>
+    </div>
+  </footer>
+</div>
+
+<!-- ======================= GUIDE CONTENT (markdown) ======================= -->
+<script type="text/markdown" id="md-getting-started">
+Jimp (JavaScript Image Manipulation Program) is a package that makes it easy to load and manipulate images in the browser and Node.js. It aims to run anywhere that JavaScript is supported.
+
+## Installation
+
+[[install jimp]]
+
+Jimp reads and writes these formats out of the box:
+
+| Format | MIME type | Package |
+| --- | --- | --- |
+| [BMP](https://en.wikipedia.org/wiki/BMP_file_format) | `image/bmp` | `@jimp/js-bmp` |
+| [GIF](https://en.wikipedia.org/wiki/GIF) | `image/gif` | `@jimp/js-gif` |
+| [JPEG](https://en.wikipedia.org/wiki/JPEG) | `image/jpeg` | `@jimp/js-jpeg` |
+| [PNG](https://en.wikipedia.org/wiki/Portable_Network_Graphics) | `image/png` | `@jimp/js-png` |
+| [TIFF](https://en.wikipedia.org/wiki/TIFF) | `image/tiff` | `@jimp/js-tiff` |
+
+WEBP and AVIF are available as opt-in WASM plugins. See [WEBP / WASM](#/guides/webp).
+
+:::caution Watch out!
+Jimp is built on JavaScript implementations of image formats. These implementations are not optimized for performance and may allocate a lot of memory before using.
+:::
+
+By default JPEG, GIF, TIFF and BMP images larger than 100 megapixels are rejected. See [Reading Large Images](#/guides/reading-large-images) to raise the limits.
+
+## Usage
+
+Working with Jimp always follows the same three steps.
+
+:::steps
+1. Load an image.
+```ts
+import { Jimp } from "jimp";
+
+const image = await Jimp.read("test/image.png");
+```
+2. Manipulate the image.
+```ts
+image.resize({ w: 100 });
+```
+Manipulation methods change the image in place and return it, so you can chain them: `image.resize({ w: 100 }).greyscale()`.
+3. Save the image.
+```ts
+await image.write("test/output.png");
+```
+:::
+
+## Try it
+
+The playground below runs the real Jimp in your browser, on a 360px copy of a sample image. Pick a method from the toolbox and the Notepad pane writes the same three steps for you, ready to paste into a script.
+
+[[playground {"tools":["resize","blur","greyscale","invert","sepia","posterize","flipH","flipV","rotate","pixel","circle","contrast"],"tool":"resize","file":"getting-started.js"}]]
+
+:::tip
+`Jimp.read` takes a file path in Node.js and a URL in the browser. To load bytes you already have, such as an upload or a fetch response, use `Jimp.fromBuffer`.
+:::
+
+## Next steps
+
+[[cards /guides/browser|Using in Browser|Load Jimp from a CDN, read uploads and draw to a canvas.|globe; /api|API Reference|Every method with its options and a playground.|folder; /guides/migrate-to-v1|Migrate to v1|Coming from v0? What changed and how to update.|notepad]]
+</script>
+
+<script type="text/markdown" id="md-browser">
+Jimp can be used anywhere that JavaScript is supported. It can be used in the browser, in Node.js, or in a web worker.
+
+Jimp comes with a pre-bundled browser version. When you `import { Jimp } from "jimp"` with a bundler such as Vite or webpack, the browser build is picked up automatically.
+
+## Live example
+
+This page loads that browser build from a CDN. Open one of your own images (or drop it on the canvas) and turn it greyscale. The image is decoded by `Jimp.fromBuffer` right here, so it never leaves your computer.
+
+[[playground {"tools":["greyscale","invert","sepia","blur","pixel","circle","flipH","rotate"],"tool":"greyscale","target":"browser","file":"upload.js"}]]
+
+## Usage
+
+There are a few main ways to load images in the browser.
+
+### From a CDN
+
+The browser build at `dist/browser/index.js` is a self-contained ES module, so you can import it straight from a CDN without a bundler.
+
+```html
+<script type="module">
+  import { Jimp } from "https://cdn.jsdelivr.net/npm/jimp@1/dist/browser/index.js";
+
+  const image = await Jimp.read("/some/url");
+
+  image.greyscale();
+
+  document.querySelector("img").src = await image.getBase64("image/png");
+<\/script>
+```
+
+The same file is on unpkg at `https://unpkg.com/jimp@1/dist/browser/index.js`. `jimp@1` always loads the latest v1 release. Pin an exact version such as `jimp@1.7.0` to make sure an update never changes your page.
+
+The `jimp/fonts` export isn't self-contained, so it can't be imported from a CDN. Load your fonts by URL with `loadFont` instead (see [Using fonts](#/guides/browser#using-fonts)).
+
+### With a hosted file
+
+You can initialize a Jimp instance from a URL. Images on another domain must be served with CORS headers that allow your page to fetch them.
+
+```ts
+import { Jimp } from "jimp";
+
+// Read a file hosted on the same domain
+const image1 = await Jimp.read("/some/url");
+
+// Read a file hosted on a different domain
+const image2 = await Jimp.read("https://some.other.domain/some/url");
+```
+
+### With uploaded files
+
+Or you can use Jimp with an `ArrayBuffer`. Here we take a user's uploaded image and modify it to greyscale.
+
+```ts
+const input = document.querySelector("input[type=file]");
+const output = document.querySelector("img");
+
+input.addEventListener("change", async () => {
+  const file = input.files[0];
+  const image = await Jimp.fromBuffer(await file.arrayBuffer());
+
+  image.greyscale();
+
+  output.src = await image.getBase64("image/jpeg");
+});
+```
+
+### Using a canvas
+
+You can also use Jimp with a canvas. `Jimp.fromBitmap` accepts the `ImageData` you get from a 2D context.
+
+```ts
+const canvas = document.getElementById("my-canvas");
+const ctx = canvas.getContext("2d");
+
+// Load the canvas into a Jimp instance
+const image = Jimp.fromBitmap(
+  ctx.getImageData(0, 0, canvas.width, canvas.height)
+);
+
+// Manipulate the image
+image.greyscale();
+
+const imageData = new ImageData(
+  new Uint8ClampedArray(image.bitmap.data),
+  image.bitmap.width,
+  image.bitmap.height
+);
+
+// Write back to the canvas
+ctx.putImageData(imageData, 0, 0);
+```
+
+## Using fonts
+
+Jimp loads bitmap fonts from a URL or a file path. In the browser you must host the font files yourself: the fonts included with the Node.js build aren't available.
+
+```ts
+import { Jimp, loadFont } from "jimp";
+
+const font = await loadFont("/fonts/open-sans-32-black.fnt");
+const image = await Jimp.read("/some/url");
+
+image.print({ font, x: 10, y: 10, text: "Hello world!" });
+```
+
+## Web workers
+
+Jimp can be slow, and you don't want that running on the main thread. Moving the work into a web worker keeps your page responsive.
+
+First define a worker. This is where you import Jimp and do your image transformations.
+
+```ts title="jimp.worker.ts"
+import { Jimp } from "jimp";
+
+const ctx = self as unknown as Worker;
+
+ctx.addEventListener("message", async (e) => {
+  // Initialize Jimp
+  const image = await Jimp.fromBuffer(e.data.image);
+  const options = e.data.options;
+
+  // Manipulate the image
+  if (options.blur) {
+    image.blur(options.blur);
+  }
+
+  // Return the result
+  ctx.postMessage({ base64: await image.getBase64("image/png") });
+});
+```
+
+Then send it work from your page.
+
+```ts title="main.ts"
+const fileData: ArrayBuffer = await file.arrayBuffer(); // Your image data
+const worker = new Worker(new URL("./jimp.worker.ts", import.meta.url), {
+  type: "module",
+});
+
+worker.postMessage({
+  image: fileData,
+  options: { blur: 8 },
+});
+
+worker.addEventListener("message", (e) => {
+  output.src = e.data.base64;
+});
+```
+
+:::tip
+Pass the `ArrayBuffer` in the transfer list, `worker.postMessage(message, [fileData])`, to hand it to the worker without copying it.
+:::
+</script>
+
+<script type="text/markdown" id="md-reading-large-images">
+Jimp decodes images with JavaScript implementations of each format. To avoid running out of memory on huge or malicious files, most decoders refuse images above a size limit. If you need to read an image larger than the defaults, pass decode options to `Jimp.read` or `Jimp.fromBuffer`.
+
+## Passing decode options
+
+The second argument to `Jimp.read` and `Jimp.fromBuffer` is an object keyed by MIME type. Jimp detects the image's type and passes only the matching options to its decoder, so you can set options for several formats at once.
+
+```ts
+import { Jimp } from "jimp";
+
+const image = await Jimp.read("huge-photo.jpg", {
+  "image/jpeg": { maxResolutionInMP: 200, maxMemoryUsageInMB: 1024 },
+  "image/gif": { maxResolutionInMP: 200 },
+  "image/tiff": { maxResolutionInMP: 200 },
+  "image/bmp": { maxResolutionInMP: 200 },
+});
+```
+
+When an image is over a limit, decoding throws an error instead of allocating memory for it.
+
+## Options by format
+
+Resolution limits are in megapixels (width × height ÷ 1,000,000). A 100 megapixel limit allows a 10,000 × 10,000 image.
+
+### JPEG
+
+| Option | Default | Description |
+| --- | --- | --- |
+| `maxResolutionInMP` | `100` | Largest image, in megapixels, that will be decoded. |
+| `maxMemoryUsageInMB` | `512` | Largest amount of memory, in megabytes, the decoder may allocate. |
+| `tolerantDecoding` | `true` | Decode corrupt or truncated files as far as possible instead of throwing. |
+| `colorTransform` | auto | Whether to convert from YCbCr to RGB. By default this is chosen from the image's color model. |
+
+A large JPEG can hit `maxMemoryUsageInMB` before `maxResolutionInMP`, so raise both when needed.
+
+### GIF, TIFF and BMP
+
+| Option | Default | Description |
+| --- | --- | --- |
+| `maxResolutionInMP` | `100` | Largest image, in megapixels, that will be decoded. GIF also checks each frame, and TIFF each tile. |
+
+### PNG
+
+PNG has no size limit.
+
+| Option | Default | Description |
+| --- | --- | --- |
+| `checkCRC` | `true` | Throw if a chunk's checksum doesn't match. |
+</script>
+
+<script type="text/markdown" id="md-exif">
+Cameras and phones store metadata in JPEG files as EXIF: the camera make and model, the resolution (DPI), the date, the orientation and often the GPS location. Jimp reads EXIF from JPEG images. Other formats are read without it.
+
+## Auto-rotation on read
+
+Cameras often store the pixels sideways and record how to turn them in the EXIF `Orientation` tag. When `Jimp.read` or `Jimp.fromBuffer` loads a JPEG with an orientation other than 1, Jimp rotates and flips the pixels so the image is upright, then sets the orientation to 1. `image.width` and `image.height` are the size after rotation.
+
+```ts
+import { Jimp } from "jimp";
+
+// Stored as 3000x4000 with orientation 6 (rotate 90° clockwise)
+const image = await Jimp.read("photo.jpg");
+
+image.width; // 4000
+image.height; // 3000
+```
+
+There's no option to turn this off yet, see [#214](https://github.com/jimp-dev/jimp/issues/214). To get the pixels as stored, decode with the JPEG format directly instead of `Jimp.read`:
+
+```ts
+import { Jimp } from "jimp";
+import jpeg from "@jimp/js-jpeg";
+
+const image = Jimp.fromBitmap(await jpeg().decode(buffer));
+```
+
+## Reading EXIF data
+
+The parsed EXIF is on `image._exif`, in the format [exif-parser](https://www.npmjs.com/package/exif-parser) returns. It isn't part of Jimp's typed API, so TypeScript needs a cast.
+
+```ts
+const image = await Jimp.read("photo.jpg");
+const { tags } = (image as any)._exif;
+
+tags.Make; // "Canon"
+tags.XResolution; // 240
+tags.Orientation; // 1, as the pixels were rotated
+```
+
+`_exif` is only set for JPEG images. `image.clone()` copies it. Changing `_exif` doesn't change what Jimp writes.
+
+## Writing EXIF data
+
+By default Jimp writes no EXIF. To keep the metadata of a JPEG you read, pass `exif: true` when writing a JPEG:
+
+```ts
+const image = await Jimp.read("photo.jpg");
+
+image.resize({ w: 800 });
+
+await image.write("small.jpg", { quality: 90, exif: true });
+// or
+const buffer = await image.getBuffer("image/jpeg", { exif: true });
+```
+
+Jimp writes the original EXIF block with these changes:
+
+- `Orientation` is set to 1, as the pixels were already rotated on read.
+- `PixelXDimension` and `PixelYDimension` are set to the image's current size.
+- The embedded thumbnail is removed, as it would show the original image, including parts you cropped out.
+- The JFIF resolution is set to match the EXIF one, so readers agree on the DPI.
+
+:::caution Privacy
+Everything else, including maker notes and **GPS location**, is copied unchanged. Leave the option off when publishing images whose location or camera details shouldn't be shared.
+:::
+
+Only JPEG output can carry EXIF. PNG, WebP, TIFF, GIF and BMP output never includes it.
+</script>
+
+<script type="text/markdown" id="md-writing-plugins">
+There are two types of plugins you can write for Jimp: image format plugins and image manipulation plugins. You can combine plugins to create a [Custom Jimp](#/guides/custom-jimp).
+
+## Image format plugins
+
+Image format plugins are responsible for loading and saving images in a specific format. For example, the [bmp](https://github.com/jimp-dev/jimp/tree/main/plugins/js-bmp) package loads and saves [BMP](https://en.wikipedia.org/wiki/BMP_file_format) images. A format plugin is made of two functions: `encode` and `decode`.
+
+```ts
+import { Format } from "@jimp/types";
+import WEBP, { WEBPOptions } from "webp-js";
+
+export default function webp() {
+  return {
+    mime: "image/webp",
+    // Encode the bitmap as a WEBP image
+    encode: (bitmap, options: WEBPOptions = {}) =>
+      WEBP.encode(bitmap, options).data,
+    // Decode a WEBP image into a bitmap
+    decode: (data) => WEBP.decode(data),
+  } satisfies Format<"image/webp">;
+}
+```
+
+## Image manipulation plugins
+
+Image manipulation plugins change the pixels of an image. For example, the [blur](https://github.com/jimp-dev/jimp/tree/main/plugins/plugin-blur) package adds `blur()` and `gaussian()`. A manipulation method takes the image as its first argument, changes it, and returns it.
+
+```ts
+import { JimpClass } from "@jimp/types";
+
+export const methods = {
+  /**
+   * A blur effect
+   * @example
+   * image.blur(5);
+   */
+  blur<I extends JimpClass>(image: I, r: number) {
+    // Implementation
+    return image;
+  },
+};
+```
+
+Generally our method APIs follow this pattern:
+
+- They can take one primitive as an option (other than `image`).
+- Otherwise they take an options object, defined and validated with `zod`.
+
+:::tip
+Validating options with `zod` is what gives Jimp's built-in methods their clear error messages. Try a negative width on the [resize()](#/api/resize) page to see one.
+:::
+</script>
+
+<script type="text/markdown" id="md-custom-jimp">
+If you don't want all the default plugins included in the `jimp` package, you can create a custom Jimp with only what you need.
+
+## Creating a custom Jimp
+
+Use `createJimp` from `@jimp/core` and pass it the plugins and formats you want.
+
+```ts
+import { createJimp } from "@jimp/core";
+import png from "@jimp/js-png";
+import * as resize from "@jimp/plugin-resize";
+
+const MyJimp = createJimp({
+  plugins: [resize.methods],
+  formats: [png],
+});
+
+const image = await MyJimp.read("test/image.png");
+
+image.resize({ w: 100 });
+
+await image.write("test/output.png");
+```
+
+## Using a custom Jimp outside of Node.js
+
+Jimp's packages import `Buffer` from the [`buffer`](https://www.npmjs.com/package/buffer) package instead of relying on the Node.js global. In Node.js, Deno and Bun this resolves to the built-in module, and bundlers targeting the browser use the npm package. So a custom Jimp works in browsers and in Cloudflare Workers without a `Buffer` polyfill.
+
+### Browsers
+
+The `jimp` package ships a pre-bundled browser build with everything it needs. A custom Jimp is bundled by your own bundler instead, so there are a few things to know:
+
+- `@jimp/js-png` has a `browser` export condition that uses the browser build of `pngjs`. Bundlers that target the browser (Vite, webpack, esbuild) pick it up automatically.
+- If you see `ReferenceError: Buffer is not defined`, update your Jimp packages. If you can't, set `globalThis.Buffer` from the `buffer` package before you import Jimp.
+- Older versions of `@jimp/js-gif` import `fs` for helpers Jimp doesn't use. Vite's `Module "fs" has been externalized` warning about it is safe to ignore.
+
+### Cloudflare Workers
+
+A custom Jimp works in Workers without any extra configuration. If other dependencies in your worker need Node.js APIs, enable the `nodejs_compat` compatibility flag:
+
+```toml title="wrangler.toml"
+compatibility_flags = ["nodejs_compat"]
+```
+</script>
+
+<script type="text/markdown" id="md-migrate-to-v1">
+The goals of v1 were to make Jimp easier to use in any environment, make its API more consistent, and replace many constants with string values powered by TypeScript.
+
+## Async exports
+
+In v1 all "export" methods are async, and they have been renamed:
+
+- `getBufferAsync` → `getBuffer`
+- `getBase64Async` → `getBase64`
+- `writeAsync` → `write`
+
+Callbacks are no longer supported. Methods like `Jimp.read`, `write` and `getBuffer` return promises instead:
+
+```js
+// v0
+Jimp.read("image.png", (err, image) => {
+  if (err) throw err;
+  image.write("output.png");
+});
+
+// v1
+const image = await Jimp.read("image.png");
+await image.write("output.png");
+```
+
+## Importing
+
+`Jimp` no longer uses a default export. Instead it uses named exports.
+
+```js
+import { Jimp } from "jimp";
+```
+
+`@jimp/custom` and `@jimp/plugins` are gone. To build a Jimp with only some plugins and formats, use `createJimp` from `@jimp/core`. See [Custom Jimp](#/guides/custom-jimp).
+
+## Options objects instead of positional arguments
+
+Most v0 methods used positional arguments, which leads to code that's harder to read and extend.
+
+```js
+// v0
+image.resize(100, 100);
+
+// v1
+image.resize({ w: 100, h: 100 });
+```
+
+## Creating images
+
+The constructor now takes an options object, and it is no longer async.
+
+```js
+import { Jimp } from "jimp";
+
+const blank = new Jimp({ width: 100, height: 100 });
+const red = new Jimp({ width: 100, height: 100, color: 0xff0000ff });
+```
+
+To load an image, use one of the static methods:
+
+| Method | Reads from |
+| --- | --- |
+| `Jimp.read(pathOrUrl)` | A file path in Node.js, a URL in the browser |
+| `Jimp.fromBuffer(buffer)` | A `Buffer` or `ArrayBuffer` |
+| `Jimp.fromBitmap(bitmap)` | Raw RGBA pixels, such as canvas `ImageData` |
+
+## Encoding options
+
+In v0 encoding options were global, set with methods like `quality()`. In v1 they are passed when you encode:
+
+```js
+// v0
+const buffer = await image.resize(512, Jimp.AUTO).quality(80).getBufferAsync(Jimp.MIME_JPEG);
+
+// v1
+const buffer = await image.resize({ w: 512 }).getBuffer("image/jpeg", { quality: 80 });
+```
+
+## Removed constants
+
+Most constants are now named exports. `Jimp.AUTO` is gone: leave out `w` or `h` instead.
+
+| v0 | v1 |
+| --- | --- |
+| `Jimp.MIME_JPEG` | `JimpMime.jpeg` |
+| `Jimp.RESIZE_BEZIER` | `ResizeStrategy.BEZIER` |
+| `Jimp.HORIZONTAL_ALIGN_LEFT` | `HorizontalAlign.LEFT` |
+| `Jimp.VERTICAL_ALIGN_TOP` | `VerticalAlign.TOP` |
+| `Jimp.BLEND_MULTIPLY` | `BlendMode.MULTIPLY` |
+| `Jimp.FONT_SANS_32_BLACK` | `SANS_32_BLACK` from `jimp/fonts` |
+
+## Behavior changes
+
+### brightness
+
+In v0, `brightness` took a number between -1 and +1. Since v1.1.2 it multiplies each colour channel by the value: `1` leaves the image unchanged, above `1` brightens and below `1` darkens. For darkening, `1 + v0Value` gives the same result as v0.
+
+```js
+// v0
+image.brightness(-0.25);
+
+// v1
+image.brightness(0.75);
+```
+
+## Moved functions
+
+- `Jimp.intToRGBA` → `import { intToRGBA } from "jimp"`
+- `image.getWidth()` → `image.width`
+- `image.getHeight()` → `image.height`
+- `image.getMIME()` → `image.mime`
+
+## Troubleshooting
+
+If webpack reports `export 'methods' was not found in '@jimp/plugin-*'`, jimp v1 is being bundled with v0 copies of its own `@jimp/*` packages. Run `npm ls @jimp/core` to find the dependency that pulls in v0, and make sure webpack's `resolve.modules` lists `"node_modules"` before any absolute path.
+</script>
+
+<script type="text/markdown" id="md-webp">
+The default build of Jimp only includes image formats written in JavaScript. To use WEBP (and anything else without a JavaScript implementation) you add format plugins and create a custom Jimp.
+
+The WASM plugins aren't dependencies of `jimp`, so install the ones you need alongside `@jimp/core`:
+
+[[install jimp @jimp/core @jimp/wasm-webp]]
+
+```ts
+import { createJimp } from "@jimp/core";
+import { defaultFormats, defaultPlugins } from "jimp";
+import webp from "@jimp/wasm-webp";
+
+// A custom jimp that supports webp
+const Jimp = createJimp({
+  formats: [...defaultFormats, webp],
+  plugins: defaultPlugins,
+});
+```
+
+## All WASM plugins
+
+| Package | Adds |
+| --- | --- |
+| `@jimp/wasm-webp` | WEBP read and write |
+| `@jimp/wasm-avif` | AVIF read and write |
+| `@jimp/wasm-jpeg` | MozJPEG encoder and decoder |
+| `@jimp/wasm-png` | PNG with OxiPNG optimisation |
+
+## Browser usage
+
+Since you're no longer using the pre-bundled build, your bundler has to handle the code written for Node.js. Jimp's packages import `Buffer` from the `buffer` package, so you don't need a polyfill.
+
+### Vite
+
+Vite 7 and earlier need some config for the WASM plugins. Vite 8 handles both of these on its own.
+
+```js title="vite.config.js"
+import { defineConfig } from "vite";
+
+export default defineConfig({
+  // The @jsquash codecs load their wasm relative to their own files
+  optimizeDeps: {
+    exclude: ["@jsquash/avif", "@jsquash/jpeg", "@jsquash/png", "@jsquash/oxipng", "@jsquash/webp"],
+  },
+  // Needed for @jimp/wasm-avif's multi-threaded encoder
+  worker: { format: "es" },
+});
+```
+
+:::note Not on this page
+The playgrounds on this site use the default CDN build, so opening a `.webp` file in them shows an error. That's this guide in action.
+:::
+
+## Cloudflare Workers
+
+The WASM plugins normally load their `.wasm` files with `new URL("*.wasm", import.meta.url)`, which Workers can't fetch. Import the `.wasm` files in your worker and pass them to the plugin with the `wasm` option instead:
+
+```ts title="src/index.ts"
+import { createJimp } from "@jimp/core";
+import webp from "@jimp/wasm-webp";
+import webpDecoder from "@jsquash/webp/codec/dec/webp_dec.wasm";
+import webpEncoder from "@jsquash/webp/codec/enc/webp_enc_simd.wasm";
+
+const Jimp = createJimp({
+  formats: [() => webp({ wasm: { decoder: webpDecoder, encoder: webpEncoder } })],
+});
+```
+</script>
+
+<script type="module">
+/* =====================================================================
+   Jimp docs, Win98 skin. A normal docs site: hash routing, sidebar, TOC.
+   ===================================================================== */
+const CDN = "https://cdn.jsdelivr.net/npm/jimp@1/dist/browser/index.js";
+const GH = "https://github.com/jimp-dev/jimp";
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+const frame = () => new Promise((r) => requestAnimationFrame(() => setTimeout(r, 0)));
+const slug = (s) => s.toLowerCase().replace(/<[^>]+>/g, "").replace(/[`*]/g, "").replace(/&\w+;/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+
+/* ---------------- pixel art ---------------- */
+const PAL = { k: "#000", w: "#fff", g: "#c3c3c3", d: "#818181", y: "#ffd23f", Y: "#c99700", o: "#ff8c1a", r: "#e0242c", R: "#8b0000",
+  b: "#2457e6", n: "#08187e", c: "#4fd6ff", G: "#1fa34a", L: "#7be36b", p: "#ff4fb0", u: "#7a3cff", t: "#0f8b8d", B: "#8a5a2b", s: "#f1d9b5", e: "#eeeeee" };
+function pix(map, px = 32) {
+  const rows = map.trim().split("\n").map((r) => r.trim());
+  const w = Math.max(...rows.map((r) => r.length)), h = rows.length;
+  let rects = "";
+  rows.forEach((row, y) => {
+    let x = 0;
+    while (x < row.length) {
+      const ch = row[x];
+      if (!PAL[ch]) { x++; continue; }
+      let x2 = x; while (row[x2] === ch) x2++;
+      rects += `<rect x="${x}" y="${y}" width="${x2 - x}" height="1" fill="${PAL[ch]}"/>`;
+      x = x2;
+    }
+  });
+  return `<svg class="pix" viewBox="0 0 ${w} ${h}" width="${px}" height="${Math.round((px * h) / w)}" shape-rendering="crispEdges" aria-hidden="true">${rects}</svg>`;
+}
+const MAPS = {
+  paint: `
+....kkkkkkk.....
+..kkssssssskk...
+.kssrrsssyysskk.
+.ksrrrrssyyyyssk
+ksssrrsssyysssk.
+ksbbsssssssskk..
+ksbbbsssssskwk..
+kssbbsssssskkk..
+kssssssssssssk..
+ksGGssssssssssk.
+.kGGGssssppsssk.
+.ksGssssppppsk..
+..kkssssspppk...
+....kkkkssskk...
+........kkk.....
+................`,
+  paintbig: `
+.......kkkkkkk..........
+.....kkssssssskk........
+...kkssrrssssyyskk......
+..kssrrrrssssyyyyssk....
+.ksssrrrrsssssyyyysk....
+.kssssrrssssssyyysssk...
+kssssssssssssssssssk....
+ksbbbssssssssssskkk.....
+ksbbbbssssssssskwwk.....
+kssbbbssssssssskwwk.....
+ksssbssssssssssskk......
+kssssssssssssssssk......
+ksGGGssssssssssssssk....
+.kGGGGsssssssppsssssk...
+.ksGGGssssssppppssssk...
+..ksssssssssppppsssk....
+...kkssssssssppsskk.....
+.....kkkkssssssskk......
+.........kkkkkkk........
+........................`,
+  picture: `
+................
+kkkkkkkkkkkkkkkk
+kwwwwwwwwwwwwwwk
+kwccccccccccyywk
+kwcccccccccyyywk
+kwccccccccccyywk
+kwcccccGccccccwk
+kwccccGGGcccccwk
+kwcccGGLGGccGcwk
+kwccGGLGGGGGLGwk
+kwcGGGGGGGGGGGwk
+kwGGGGGGGGGGGGwk
+kwwwwwwwwwwwwwwk
+kkkkkkkkkkkkkkkk
+................`,
+  folder: `
+................
+.kkkkk..........
+kyyyyyk.........
+kyyyyyykkkkkkkk.
+kwwwwwwwwwwwwwwk
+kyyyyyyyyyyyyyyk
+kyyyyyyyyyyyyyyk
+kyyyyyyyyyyyyyyk
+kyyyyyyyyyyyyyyk
+kyyyyyyyyyyyyyyk
+kyyyyyyyyyyyyyyk
+kYYYYYYYYYYYYYYk
+kkkkkkkkkkkkkkkk
+................`,
+  folderopen: `
+................
+.kkkkk..........
+kyyyyyk.........
+kyyyyyykkkkkkk..
+kywwwwwwwwwwwwk.
+kywkkkkkkkkkkkkk
+kywkyyyyyyyyyyyk
+kykyyyyyyyyyyk.
+kykyyyyyyyyyyyk.
+kkyyyyyyyyyyyk..
+kkYYYYYYYYYYYk..
+kkkkkkkkkkkkkk..
+................`,
+  plugins: `
+................
+.kkkkk..........
+kyyyyyk.........
+kyyyyyykkkkkkkk.
+kwwwwwwwwwwwwwwk
+kyyyyyyuuyyyyyyk
+kyyyyyuuuuyyyyyk
+kyyyuuuuuuuuyyyk
+kyyyuuuuuuuuyyyk
+kyyyyyuuuuyuuyyk
+kyyyyuuuuuuuuyyk
+kYYYYuuuuuuYYYYk
+kkkkkkkkkkkkkkkk
+................`,
+  book: `
+................
+..kkkkkkkkkkk...
+.kbbbbbbbbbbbk..
+.kbyyyyyyyyybk..
+.kbbbbbbbbbbbk..
+.kbbbbbbbbbbbk..
+.kbbbbbbbbbbbk..
+.kbbbbbbbbbbbk..
+.kbbbbbbbbbbbk..
+.kbbbbbbbbbbbk..
+.kbbbbbbbbbbbk..
+.kkkkkkkkkkkkk..
+.kwwwwwwwwwwwk..
+..kkkkkkkkkkkk..
+................`,
+  bookopen: `
+................
+................
+.kkkkkk..kkkkkk.
+kwwwwwwkkwwwwwwk
+kwnnnnwkkwnnnnwk
+kwwwwwwkkwwwwwwk
+kwnnnnwkkwnnnwwk
+kwwwwwwkkwwwwwwk
+kwnnnwwkkwnnnnwk
+kwwwwwwkkwwwwwwk
+kkkkkkkkkkkkkkkk
+.kbbbbbbbbbbbbk.
+..kkkkkkkkkkkk..
+................`,
+  page: `
+.kkkkkkkk.......
+.kwwwwwwkk......
+.kwwwwwwkwk.....
+.kwwnnnwkkkk....
+.kwnwwwnwwwk....
+.kwwwwwnwwwk....
+.kwwwwnwwwwk....
+.kwwwnwwwwwk....
+.kwwwnwwwwwk....
+.kwwwwwwwwwk....
+.kwwwnwwwwwk....
+.kwwwwwwwwwk....
+.kkkkkkkkkkk....`,
+  doc: `
+.kkkkkkkk.......
+.kwwwwwwkk......
+.kwwwwwwkwk.....
+.kwnnnnwkkkk....
+.kwwwwwwwwwk....
+.kwnnnnnnnwk....
+.kwwwwwwwwwk....
+.kwnnnnnnnwk....
+.kwwwwwwwwwk....
+.kwnnnnnwwwk....
+.kwwwwwwwwwk....
+.kwwwwwwwwwk....
+.kkkkkkkkkkk....`,
+  method: `
+................
+.kkkkkkkkkkkkk..
+.kgggggggggggk..
+.kgnnnnnnnnngk..
+.kgnwwwwwwwngk..
+.kgnwyyyyywngk..
+.kgnwyGGGywngk..
+.kgnwyGGGywngk..
+.kgnwyyyyywngk..
+.kgnwwwwwwwngk..
+.kgnnnnnnnnngk..
+.kgggggggggggk..
+.kkkkkkkkkkkkk..
+................`,
+  notepad: `
+..k.k.k.k.k.k...
+.kgkgkgkgkgkgk..
+.kwwwwwwwwwwwk..
+.kwnnnnnnnwwwk..
+.kwwwwwwwwwwwk..
+.kwnnnnnnnnnwk..
+.kwwwwwwwwwwwk..
+.kwnnnnnnwwwwk..
+.kwwwwwwwwwwwk..
+.kwnnnnnnnnnwk..
+.kwwwwwwwwwwwk..
+.kwnnnnwwwwwwk..
+.kwwwwwwwwwwwk..
+.kkkkkkkkkkkkk..`,
+  globe: `
+.....kkkkkk.....
+...kkbbGGbbkk...
+..kbbGGGGbbbbk..
+..kbGGGGbbbbbk..
+.kbbbGGbbbGGbbk.
+.kbbbbGbbGGGGbk.
+.kbbbbbbbGGGbbk.
+.kbbbbbbbbGbbbk.
+.kbGGbbbbbbbbbk.
+..kbGGGbbbbbbk..
+..kbbGGbbbbbbk..
+...kkbbbbbbkk...
+.....kkkkkk.....`,
+  bulb: `
+.....kkkkk......
+....kyyyyyk.....
+...kyywyyyyk....
+...kywyyyyyk....
+...kyyyyyyyk....
+...kyyyyyyyk....
+....kyyyyyk.....
+.....kyyyk......
+.....kdddk......
+.....kgggk......
+.....kdddk......
+......kkk.......`,
+  warn: `
+.......kk.......
+......kyyk......
+......kyyk......
+.....kyyyyk.....
+.....kykkyk.....
+....kyykkyyk....
+....kyykkyyk....
+...kyyykkyyyk...
+...kyyykkyyyk...
+..kyyyyyyyyyyk..
+..kyyyykkyyyyk..
+.kyyyyykkyyyyyk.
+.kyyyyyyyyyyyyk.
+kkkkkkkkkkkkkkkk`,
+  error: `
+.....kkkkkk.....
+...kkrrrrrrkk...
+..krrrrrrrrrrk..
+.krrwwrrrrwwrrk.
+.krrwwwrrwwwrrk.
+krrrrwwwwwwrrrrk
+krrrrrwwwwrrrrrk
+krrrrrwwwwrrrrrk
+krrrrwwwwwwrrrrk
+.krrwwwrrwwwrrk.
+.krrwwrrrrwwrrk.
+..krrrrrrrrrrk..
+...kkrrrrrrkk...
+.....kkkkkk.....`,
+  info: `
+.....kkkkkk.....
+...kkbbbbbbkk...
+..kbbbbwwbbbbk..
+.kbbbbbwwbbbbbk.
+.kbbbbbbbbbbbbk.
+kbbbbbwwwbbbbbbk
+kbbbbbbwwbbbbbbk
+kbbbbbbwwbbbbbbk
+kbbbbbbwwbbbbbbk
+.kbbbbbwwbbbbbk.
+.kbbbbwwwwbbbbk.
+..kbbbbbbbbbbk..
+...kkbbbbbbkk...
+.....kkkkkk.....`,
+  cross: `
+.......k.......
+.......k.......
+.......k.......
+...............
+...............
+kkk.........kkk
+.......k.......
+...............
+...............
+.......k.......
+.......k.......
+.......k.......`,
+  frame: `
+kkkkkkkkkkkk
+kwwwwwwwwwwk
+kwccccccyywk
+kwccccccccwk
+kwccGGccccwk
+kwcGGGGcGcwk
+kwGGGGGGGGwk
+kwwwwwwwwwwk
+kkkkkkkkkkkk`,
+  disk: `
+kkkkkkkkkkkkkk..
+knnwwwwwwwwnnnk.
+knnwwwwwwwwnnnnk
+knnwwwwwwwwnnnnk
+knnnnnnnnnnnnnnk
+knnnnnnnnnnnnnnk
+knnggggggggggnnk
+knnggkkggggggnnk
+knnggkkggggggnnk
+knnggkkggggggnnk
+kkkkkkkkkkkkkkkk`,
+  js: `
+kkkkkkkkkkkkkkkk
+kyyyyyyyyyyyyyyk
+kyyyyyyyyyyyyyyk
+kyyyyyyyyyyyyyyk
+kyyyyyyyyyyyyyyk
+kyyyykyyyykkkkyk
+kyyyykyyykyyyyyk
+kyyyykyyyykkkyyk
+kyyyykyyyyyyykyk
+kykyykyyyyyyykyk
+kyykkyyyykkkkyyk
+kyyyyyyyyyyyyyyk
+kkkkkkkkkkkkkkkk`,
+  hourglass: `
+.kkkkkkkkkkkk.
+.kggggggggggk.
+..kwyyyyyywk..
+..kwwyyyywwk..
+...kwwyywwk...
+....kwyywk....
+.....kwwk.....
+....kwwwwk....
+...kwwyywwk...
+..kwwyyyywwk..
+..kyyyyyyyyk..
+.kggggggggggk.
+.kkkkkkkkkkkk.`,
+  search: `
+..kkkk......
+.kwwwwk.....
+kwccwwwk....
+kwcwwwwk....
+kwwwwwwk....
+kwwwwwwk....
+.kwwwwk.....
+..kkkkkk....
+......kkk...
+.......kkk..
+........kkk.
+.........kk.`,
+  menu: `
+............
+kkkkkkkkkkkk
+............
+............
+kkkkkkkkkkkk
+............
+............
+kkkkkkkkkkkk
+............`,
+  link: `
+................
+................
+..kkkkk.........
+.kgggggk........
+kgk...kgkkkkk...
+kgk...kgggggggk.
+kgk...kkkkk.kgk.
+.kgggggk...kkgk.
+..kkkkkkkkkkgk..
+.......kgggggk..
+........kkkkk...`,
+};
+const icon = (name, px = 32) => pix(MAPS[name] || MAPS.page, px);
+
+/* ---------------- tool icons ---------------- */
+const svg16 = (inner) => `<svg viewBox="0 0 16 16" shape-rendering="crispEdges" aria-hidden="true">${inner}</svg>`;
+const TOOL_ICONS = {
+  resize: svg16(`<rect x="1.5" y="5.5" width="9" height="9" fill="#4fd6ff" stroke="#000"/><path d="M8 1.5h6.5V8" fill="none" stroke="#000" stroke-dasharray="1 1"/><path d="M9 7l5-5M10.5 2h4v4" fill="none" stroke="#e0242c" stroke-width="1.4"/>`),
+  crop: svg16(`<path d="M4 0v12h12M0 4h12v12" fill="none" stroke="#000" stroke-width="2"/><rect x="6" y="6" width="4" height="4" fill="#4fd6ff"/>`),
+  pixel: svg16(["#e0242c", "#ffd23f", "#2457e6", "#1fa34a", "#ffd23f", "#2457e6", "#1fa34a", "#e0242c", "#2457e6", "#1fa34a", "#e0242c", "#ffd23f", "#1fa34a", "#e0242c", "#ffd23f", "#2457e6"].map((c, i) => `<rect x="${1 + (i % 4) * 3.5}" y="${1 + Math.floor(i / 4) * 3.5}" width="3.5" height="3.5" fill="${c}"/>`).join("") + `<rect x="1" y="1" width="14" height="14" fill="none" stroke="#000"/>`),
+  circle: svg16(`<rect x="1" y="1" width="14" height="14" fill="none" stroke="#000" stroke-dasharray="1 1"/><circle cx="8" cy="8" r="6" fill="#ffd23f" stroke="#000"/><circle cx="6" cy="6" r="1.5" fill="#fff"/>`),
+  fisheye: svg16(`<circle cx="8" cy="8" r="7" fill="#cfefff" stroke="#000"/><path d="M8 1v14M1 8h14" stroke="#2457e6"/><ellipse cx="8" cy="8" rx="3.5" ry="7" fill="none" stroke="#2457e6"/><ellipse cx="8" cy="8" rx="7" ry="3.5" fill="none" stroke="#2457e6"/>`),
+  blur: svg16(`<path d="M8 1C8 1 3 7 3 10a5 5 0 0 0 10 0C13 7 8 1 8 1z" fill="#4fd6ff" stroke="#000"/><path d="M5.5 10a2.5 2.5 0 0 0 2.5 2.5" stroke="#fff" fill="none"/>`),
+  gaussian: svg16(`<path d="M0 14.5h16" stroke="#000"/><path d="M1 14C5 14 5.5 3 8 3s3 11 7 11z" fill="#ff9fd0" stroke="#000"/><path d="M8 3v11" stroke="#000" stroke-dasharray="1 1"/>`),
+  rotate: svg16(`<path d="M12.5 9.5A5 5 0 1 1 10 4" fill="none" stroke="#000" stroke-width="2"/><path d="M8 0.5l5 3.5-5 3z" fill="#e0242c" stroke="#000" stroke-width=".8"/>`),
+  flipH: svg16(`<path d="M8 0v16" stroke="#000" stroke-dasharray="2 1"/><path d="M6.5 3v10H1z" fill="#2457e6" stroke="#000"/><path d="M9.5 3v10H15z" fill="#fff" stroke="#000"/>`),
+  flipV: svg16(`<g transform="rotate(90 8 8)"><path d="M8 0v16" stroke="#000" stroke-dasharray="2 1"/><path d="M6.5 3v10H1z" fill="#e0242c" stroke="#000"/><path d="M9.5 3v10H15z" fill="#fff" stroke="#000"/></g>`),
+  invert: svg16(`<rect x="1.5" y="1.5" width="13" height="13" fill="#fff" stroke="#000"/><path d="M14.5 1.5V14.5H1.5z" fill="#000"/><circle cx="5.5" cy="5.5" r="2" fill="#000"/><circle cx="10.5" cy="10.5" r="2" fill="#fff"/>`),
+  greyscale: svg16(`<rect x="1" y="2" width="3.5" height="12" fill="#fff"/><rect x="4.5" y="2" width="3.5" height="12" fill="#b4b4b4"/><rect x="8" y="2" width="3.5" height="12" fill="#6a6a6a"/><rect x="11.5" y="2" width="3.5" height="12" fill="#1a1a1a"/><rect x="1" y="2" width="14" height="12" fill="none" stroke="#000"/>`),
+  sepia: svg16(`<rect x="1.5" y="2.5" width="13" height="11" fill="#f1d9b5" stroke="#000"/><path d="M2 13l4-5 3 3 2-2 3.5 4z" fill="#8a5a2b"/><circle cx="11" cy="5.5" r="1.5" fill="#c9884a"/>`),
+  posterize: svg16(`<path d="M1 15V11h4V7h4V3h5v12z" fill="#7a3cff" stroke="#000"/><path d="M5 15V11M9 15V7" stroke="#000"/>`),
+  dither: svg16(Array.from({ length: 49 }, (_, i) => { const x = i % 7, y = Math.floor(i / 7); return (x + y) % 2 === 0 && x <= 6 - y / 2 ? `<rect x="${1 + x * 2}" y="${1 + y * 2}" width="2" height="2" fill="#000"/>` : ""; }).join("") + `<rect x="0.5" y="0.5" width="15" height="15" fill="none" stroke="#000"/>`),
+  threshold: svg16(`<rect x="1.5" y="1.5" width="13" height="13" fill="#fff" stroke="#000"/><path d="M1.5 14.5V9l3-2 3 3 3-5 4 2v7.5z" fill="#000"/>`),
+  contrast: svg16(`<circle cx="8" cy="8" r="6.5" fill="#fff" stroke="#000"/><path d="M8 1.5a6.5 6.5 0 0 1 0 13z" fill="#000"/>`),
+  brightness: svg16(`<circle cx="8" cy="8" r="3.5" fill="#ffd23f" stroke="#000"/><path d="M8 0v2.5M8 13.5V16M0 8h2.5M13.5 8H16M2.3 2.3l1.8 1.8M11.9 11.9l1.8 1.8M2.3 13.7l1.8-1.8M11.9 4.1l1.8-1.8" stroke="#000" stroke-width="1.4"/>`),
+  normalize: svg16(`<path d="M0.5 15.5h15" stroke="#000"/><rect x="1" y="10" width="2" height="5" fill="#2457e6"/><rect x="4" y="6" width="2" height="9" fill="#2457e6"/><rect x="7" y="2" width="2" height="13" fill="#2457e6"/><rect x="10" y="5" width="2" height="10" fill="#2457e6"/><rect x="13" y="9" width="2" height="6" fill="#2457e6"/><path d="M1 1h14" stroke="#e0242c" stroke-dasharray="2 1"/>`),
+};
+
+/* ---------------- cursors ---------------- */
+const cur = (svg, x, y, fb) => `url("data:image/svg+xml,${encodeURIComponent(svg)}") ${x} ${y}, ${fb}`;
+const CURSORS = {
+  arrow: cur(`<svg xmlns="http://www.w3.org/2000/svg" width="20" height="30" viewBox="0 0 12 19" shape-rendering="crispEdges"><path d="M.5.5v15l3.5-3.5 2.5 6 2.2-1-2.5-5.5h5z" fill="#fff" stroke="#000"/></svg>`, 1, 1, "auto"),
+  busy: cur(`<svg xmlns="http://www.w3.org/2000/svg" width="22" height="30" viewBox="0 0 14 19" shape-rendering="crispEdges"><path d="M1 1h12v2l-4 5v3l4 5v2H1v-2l4-5V8L1 3z" fill="#fff" stroke="#000"/><path d="M3 3h8l-4 4.5zM3 16l4-3.5 4 3.5z" fill="#ffd23f"/></svg>`, 11, 15, "progress"),
+  cross: cur(`<svg xmlns="http://www.w3.org/2000/svg" width="23" height="23" shape-rendering="crispEdges"><path d="M11.5 0v9M11.5 14v9M0 11.5h9M14 11.5h9" stroke="#fff" stroke-width="3"/><path d="M11.5 0v9M11.5 14v9M0 11.5h9M14 11.5h9" stroke="#000"/></svg>`, 11, 11, "crosshair"),
+  brush: cur(`<svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 16 16" shape-rendering="crispEdges"><path d="M10 1l5 5-5 4-4-4z" fill="#8a5a2b" stroke="#000"/><path d="M6 6l4 4-3 1.5L1 15.5 4.5 9z" fill="#ffd23f" stroke="#000"/></svg>`, 2, 24, "pointer"),
+  pixel: cur(`<svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" shape-rendering="crispEdges"><rect x="1.5" y="1.5" width="22" height="22" fill="none" stroke="#fff" stroke-width="3"/><rect x="1.5" y="1.5" width="22" height="22" fill="none" stroke="#000"/><rect x="11" y="11" width="3" height="3"/></svg>`, 12, 12, "crosshair"),
+  ring: cur(`<svg xmlns="http://www.w3.org/2000/svg" width="27" height="27"><circle cx="13.5" cy="13.5" r="11" fill="none" stroke="#fff" stroke-width="3"/><circle cx="13.5" cy="13.5" r="11" fill="none" stroke="#000"/><rect x="12" y="12" width="3" height="3"/></svg>`, 13, 13, "crosshair"),
+};
+document.documentElement.style.setProperty("--cur-arrow", CURSORS.arrow);
+document.documentElement.style.setProperty("--cur-busy", CURSORS.busy);
+
+/* ---------------- syntax highlighting ---------------- */
+const KW = /^(import|from|const|let|var|await|async|function|return|new|export|default|if|else|for|of|throw|true|false|null|undefined|satisfies|typeof|as|declare|module)$/;
+function hl(code, lang = "ts") {
+  if (lang === "bash" || lang === "sh") return code.split("\n").map((l) => l.replace(/^(\s*)(\S+)(.*)$/, (_, a, b, c) => `${a}<span class="t-f">${esc(b)}</span>${esc(c).replace(/(@[\w/.-]+)/g, '<span class="t-s">$1</span>')}`)).join("\n");
+  if (lang === "toml") return esc(code).replace(/(&quot;[^&]*&quot;)/g, '<span class="t-s">$1</span>').replace(/^(\w+)/gm, '<span class="t-t">$1</span>');
+  const re = lang === "html"
+    ? /(\/\/[^\n]*)|("(?:[^"\\\n]|\\.)*"|'(?:[^'\\\n]|\\.)*'|`(?:[^`\\]|\\.)*`)|(<\/?[a-z][\w-]*|\/?>)|\b([A-Za-z_$][\w$]*)\b(?=\s*\()|\b(\d+(?:\.\d+)?)\b|\b([A-Za-z_$][\w$]*)\b/g
+    : /(\/\/[^\n]*|\/\*[\s\S]*?\*\/)|("(?:[^"\\\n]|\\.)*"|'(?:[^'\\\n]|\\.)*'|`(?:[^`\\]|\\.)*`)|(\u0000)|\b([A-Za-z_$][\w$]*)\b(?=\s*[(<](?!\/))|\b(0x[\da-f]+|\d+(?:\.\d+)?)\b|\b([A-Za-z_$][\w$]*)\b/gi;
+  let out = "", last = 0;
+  code.replace(re, (m, com, str, tag, fn, num, word, idx) => {
+    out += esc(code.slice(last, idx));
+    let cls = "";
+    if (com) cls = "t-c"; else if (str) cls = "t-s"; else if (tag) cls = "t-g";
+    else if (fn) cls = KW.test(fn) ? "t-k" : "t-f"; else if (num) cls = "t-n";
+    else if (word) cls = KW.test(word) ? "t-k" : /^[A-Z]/.test(word) ? "t-t" : "";
+    out += cls ? `<span class="${cls}">${esc(m)}</span>` : esc(m);
+    last = idx + m.length;
+    return m;
+  });
+  return out + esc(code.slice(last));
+}
+function codeBlock(code, lang = "ts", title) {
+  const dos = lang === "bash" || lang === "sh";
+  const names = { ts: "example.ts", js: "example.js", html: "index.html", toml: "wrangler.toml", txt: "output.txt" };
+  const body = dos ? code.split("\n").map((l) => (l.trim() ? `<span class="prompt">C:\\&gt; </span>` : "") + hl(l, "bash")).join("\n") : hl(code, lang);
+  const t = title || (dos ? "Command Prompt" : names[lang] || "example." + lang);
+  return `<figure class="np-code${dos ? " dos" : ""}"><div class="titlebar">${icon(dos ? "doc" : "notepad", 14)}<span class="tb-title">${esc(t)}${dos ? "" : " - Notepad"}</span><button class="tb-copy" data-copy-block>Copy</button></div><pre data-raw="${esc(code)}"><code>${body}</code></pre></figure>`;
+}
+function installTabs(pkgs) {
+  const cmds = [["npm", `npm install ${pkgs}`], ["pnpm", `pnpm add ${pkgs}`], ["yarn", `yarn add ${pkgs}`], ["bun", `bun add ${pkgs}`]];
+  return `<div class="pm-tabs" data-tabs><div class="tabs98" role="tablist">${cmds.map(([n], i) => `<button role="tab" class="${i ? "" : "on"}" data-t="${i}">${n}</button>`).join("")}</div><div class="tabpanel">${cmds.map(([, c], i) => `<div data-p="${i}" class="${i ? "hidden" : ""}">${codeBlock(c, "bash")}</div>`).join("")}</div></div>`;
+}
+
+/* ---------------- tiny markdown ---------------- */
+function inline(s) {
+  const codes = [];
+  let h = esc(s).replace(/`([^`]+)`/g, (_, c) => { codes.push(c); return `\u0001${codes.length - 1}\u0001`; });
+  h = h.replace(/\*\*([^*]+)\*\*/g, "<b>$1</b>")
+    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, (_, t, href) => href.startsWith("#") ? `<a href="${href}">${t}</a>` : `<a href="${href}" target="_blank" rel="noopener">${t}</a>`);
+  return h.replace(/\u0001(\d+)\u0001/g, (_, i) => `<code>${codes[+i]}</code>`);
+}
+function md(src, ctx = { path: "/", lead: true, ids: new Set() }) {
+  const lines = src.replace(/<\\\/script>/g, "<\/script>").replace(/^\s*\n/, "").replace(/\s+$/, "").split("\n");
+  let html = "", para = [], list = null, i = 0;
+  const flushP = () => { if (para.length) { html += `<p${ctx.lead ? ' class="lead"' : ""}>${inline(para.join(" "))}</p>`; ctx.lead = false; para = []; } };
+  const flushL = () => { if (list) { html += `<${list.t}>${list.items.map((x) => `<li>${inline(x)}</li>`).join("")}</${list.t}>`; list = null; } };
+  const flush = () => { flushP(); flushL(); };
+  while (i < lines.length) {
+    const l = lines[i];
+    let m;
+    if ((m = l.match(/^```(\w*)(?:\s+title="([^"]+)")?/))) {
+      flush();
+      const buf = []; i++;
+      while (i < lines.length && !lines[i].startsWith("```")) buf.push(lines[i++]);
+      i++; html += codeBlock(buf.join("\n"), m[1] || "txt", m[2]); ctx.lead = false; continue;
+    }
+    if ((m = l.match(/^:::(\w+)\s*(.*)$/))) {
+      flush();
+      const buf = []; i++;
+      let depth = 0;
+      while (i < lines.length) {
+        if (/^:::\w/.test(lines[i])) depth++;
+        else if (lines[i].trim() === ":::") { if (depth === 0) break; depth--; }
+        buf.push(lines[i++]);
+      }
+      i++;
+      const sub = { ...ctx, lead: false };
+      if (m[1] === "steps") html += steps(buf.join("\n"), sub);
+      else html += callout(m[1], m[2], md(buf.join("\n"), sub));
+      ctx.lead = false; continue;
+    }
+    if ((m = l.match(/^(#{2,3}) (.*)$/))) {
+      flush();
+      let id = slug(m[2]), n = 2; while (ctx.ids.has(id)) id = slug(m[2]) + "-" + n++; ctx.ids.add(id);
+      const lv = m[1].length;
+      html += `<h${lv} id="${id}">${inline(m[2])}<a class="anchor" href="#${ctx.path}#${id}" aria-label="Link to this section">#</a></h${lv}>`;
+      ctx.lead = false; i++; continue;
+    }
+    if ((m = l.match(/^\[\[(\w+)\s*(.*)\]\]$/))) {
+      flush(); html += directive(m[1], m[2]); ctx.lead = false; i++; continue;
+    }
+    if (l.startsWith("|")) {
+      flush();
+      const rows = []; while (i < lines.length && lines[i].startsWith("|")) rows.push(lines[i++]);
+      const cells = (r) => r.replace(/^\||\|$/g, "").split("|").map((c) => c.trim());
+      const head = cells(rows[0]), body = rows.slice(2).map(cells);
+      html += `<div class="tbl"><table><thead><tr>${head.map((c) => `<th>${inline(c)}</th>`).join("")}</tr></thead><tbody>${body.map((r) => `<tr>${r.map((c) => `<td>${inline(c)}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`;
+      ctx.lead = false; continue;
+    }
+    if ((m = l.match(/^(-|\d+\.) (.*)$/))) {
+      flushP();
+      const t = m[1] === "-" ? "ul" : "ol";
+      if (!list || list.t !== t) { flushL(); list = { t, items: [] }; }
+      list.items.push(m[2]); i++; continue;
+    }
+    if (!l.trim()) { flush(); i++; continue; }
+    para.push(l); i++;
+  }
+  flush();
+  return html;
+}
+function steps(src, ctx) {
+  const items = []; let curItem = null;
+  src.split("\n").forEach((l) => {
+    const m = l.match(/^\d+\. (.*)$/);
+    if (m) { curItem = { t: m[1], body: [] }; items.push(curItem); } else if (curItem) curItem.body.push(l);
+  });
+  return `<ol class="steps">${items.map((it) => `<li><p class="step-t">${inline(it.t)}</p>${md(it.body.join("\n"), { ...ctx, lead: false })}</li>`).join("")}</ol>`;
+}
+const CALLOUT = { tip: ["bulb", "Did you know…"], caution: ["warn", "Caution"], note: ["info", "Note"] };
+function callout(type, title, body) {
+  const [ic, def] = CALLOUT[type] || CALLOUT.note;
+  return `<aside class="callout ${type}">${icon(ic, 32)}<div><span class="co-t">${esc(title || def)}</span>${body.replace(/<p class="lead">/g, "<p>")}</div></aside>`;
+}
+function directive(name, arg) {
+  if (name === "install") return installTabs(arg.trim());
+  if (name === "playground") return `<div data-pg='${esc(arg || "{}").replace(/'/g, "&#39;")}'></div>`;
+  if (name === "cards") return cards(arg.split(";").map((c) => c.trim().split("|")));
+  return "";
+}
+const cards = (list) => `<div class="cards">${list.map(([href, t, d, ic]) => `<a class="card98" href="#${href}">${icon(ic || "doc", 30)}<b>${esc(t)}</b><small>${esc(d)}</small></a>`).join("")}</div>`;
+
+/* ================= dialogs ================= */
+function dialog({ title, icon: ic, body, buttons = [{ label: "OK", value: true, def: true }] }) {
+  return new Promise((resolve) => {
+    const veil = document.createElement("div"); veil.className = "veil";
+    const d = document.createElement("div");
+    d.className = "win dialog"; d.setAttribute("role", "alertdialog"); d.setAttribute("aria-label", title);
+    d.innerHTML = `<div class="titlebar"><span class="tb-title">${esc(title)}</span><button class="tb-x" data-x aria-label="Close">✕</button></div>
+      <div class="dlg-body">${ic ? `<div>${icon(ic, 34)}</div>` : "<div></div>"}<div>${body}</div></div>
+      <div class="dlg-btns">${buttons.map((b, i) => `<button class="btn${b.def ? " default" : ""}" data-i="${i}">${esc(b.label)}</button>`).join("")}</div>`;
+    document.body.append(veil, d);
+    const done = (v) => { d.remove(); veil.remove(); document.removeEventListener("keydown", key, true); resolve(v); };
+    const key = (e) => { if (e.key === "Escape") { e.stopPropagation(); done(null); } };
+    document.addEventListener("keydown", key, true);
+    $("[data-x]", d).onclick = () => done(null);
+    $$(".dlg-btns .btn", d).forEach((b) => (b.onclick = () => done(buttons[+b.dataset.i].value)));
+    veil.onclick = () => d.animate([{ marginLeft: "-4px" }, { marginLeft: "4px" }], { duration: 70, iterations: 3 });
+    $(".btn.default", d)?.focus();
+  });
+}
+function errText(err) {
+  if (err?.issues) return err.issues.map((i) => `${i.path.join(".") || "options"}: ${i.message}`).join("\n");
+  try { const j = JSON.parse(err.message); if (Array.isArray(j)) return j.map((i) => `${(i.path || []).join(".") || "options"}: ${i.message}`).join("\n"); } catch {}
+  return err?.message || String(err);
+}
+function showError(code, err, extra = "") {
+  return dialog({ title: "Jimp", icon: "error", body: `<p><code style="font:12.5px var(--mono)">${esc(code)}</code> threw an error:</p><pre>${esc(errText(err))}</pre>${extra}` });
+}
+let tipEl;
+function tooltip(anchor, html) {
+  clearTimeout(tooltip.t); tipEl?.remove(); tipEl = null;
+  if (!anchor) return;
+  tooltip.t = setTimeout(() => {
+    tipEl = document.createElement("div"); tipEl.className = "tooltip"; tipEl.innerHTML = html;
+    document.body.append(tipEl);
+    const r = anchor.getBoundingClientRect();
+    tipEl.style.left = r.right + 4 + "px"; tipEl.style.top = r.bottom + 2 + "px";
+  }, 350);
+}
+async function copyText(t) { try { await navigator.clipboard.writeText(t); return true; } catch { return false; } }
+function flash(btn, text = "Copied!") { const o = btn.textContent; btn.textContent = text; setTimeout(() => (btn.textContent = o), 1200); }
+
+/* ================= Jimp loading ================= */
+let J = null;
+const jimpReady = import(CDN).then((m) => (J = m));
+const BASE_W = 360;
+let baseP = null;
+const getBase = () => (baseP ||= jimpReady.then((m) => m.Jimp.read("./dice.png")).then((img) => { if (img.bitmap.width > BASE_W) img.resize({ w: BASE_W }); return img; }));
+
+/* ================= playground tools ================= */
+const TOOLS = [
+  { id: "resize", name: "Resize", method: "resize", opts: [[270, "w 270"], [180, "w 180"], [120, "w 120"]], sel: 1, hint: "Scale to a new width. Leaving out h keeps the aspect ratio." },
+  { id: "crop", name: "Crop", method: "crop", pos: "drag", hint: "Drag a rectangle on the picture to crop to it." },
+  { id: "pixel", name: "Pixel Brush", method: "pixelate", pos: "click", opts: [[6, "6px"], [12, "12px"], [20, "20px"]], sel: 1, hint: "Click the picture to pixelate a 96px square there." },
+  { id: "circle", name: "Circle", method: "circle", pos: "click", opts: [[70, "r 70"], [110, "r 110"], [0, "auto"]], sel: 2, hint: "Click the picture to cut a circle centred on that point." },
+  { id: "fisheye", name: "Fisheye", method: "fisheye", opts: [[1.6, "1.6"], [2.5, "2.5"], [3.5, "3.5"]], sel: 0, hint: "Bulge the middle of the image like a lens." },
+  { id: "blur", name: "Blur", method: "blur", opts: [[2, "r 2"], [5, "r 5"], [10, "r 10"]], sel: 1, hint: "Fast box blur with radius r." },
+  { id: "gaussian", name: "Gaussian", method: "gaussian", opts: [[1, "r 1"], [2, "r 2"], [4, "r 4"]], sel: 1, hint: "A true Gaussian blur. Smoother, but slower." },
+  { id: "rotate", name: "Rotate", method: "rotate", opts: [[90, "90°"], [-90, "-90°"], [15, "15°"]], sel: 0, hint: "Rotate by degrees. The canvas grows to fit." },
+  { id: "flipH", name: "Flip H", method: "flip", hint: "Mirror left to right." },
+  { id: "flipV", name: "Flip V", method: "flip", hint: "Mirror top to bottom." },
+  { id: "invert", name: "Invert", method: "invert", hint: "Invert every colour." },
+  { id: "greyscale", name: "Greyscale", method: "greyscale", hint: "Remove all colour." },
+  { id: "sepia", name: "Sepia", method: "sepia", hint: "Warm brown tones." },
+  { id: "posterize", name: "Posterize", method: "posterize", opts: [[2, "2"], [4, "4"], [8, "8"]], sel: 1, hint: "Reduce each channel to n levels." },
+  { id: "dither", name: "Dither", method: "dither", hint: "16-bit (RGB565) ordered dither." },
+  { id: "threshold", name: "Threshold", method: "threshold", opts: [[80, "80"], [128, "128"], [180, "180"]], sel: 1, hint: "Black and white, split at max." },
+  { id: "contrast", name: "Contrast", method: "contrast", opts: [[-0.4, "-0.4"], [0.3, "+0.3"], [0.6, "+0.6"]], sel: 1, hint: "Contrast from -1 to +1." },
+  { id: "brightness", name: "Brightness", method: "brightness", opts: [[0.7, "×0.7"], [1.25, "×1.25"], [1.5, "×1.5"]], sel: 1, hint: "Multiply every channel." },
+  { id: "normalize", name: "Normalize", method: "normalize", hint: "Stretch the histogram to the full range." },
+];
+const TOOL_BY_ID = Object.fromEntries(TOOLS.map((t) => [t.id, t]));
+const S = (tool, label, code, fn, extra = {}) => ({ tool, label, code, fn, ...extra });
+function toolStep(t, v, p, img) {
+  switch (t.id) {
+    case "resize": return S(t.id, "Resize", `image.resize({ w: ${v} });`, (i) => i.resize({ w: v }));
+    case "blur": return S(t.id, "Blur", `image.blur(${v});`, (i) => i.blur(v));
+    case "gaussian": return S(t.id, "Gaussian blur", `image.gaussian(${v});`, (i) => i.gaussian(v));
+    case "rotate": return S(t.id, "Rotate", `image.rotate(${v});`, (i) => i.rotate(v));
+    case "flipH": return S(t.id, "Flip horizontal", `image.flip({ horizontal: true });`, (i) => i.flip({ horizontal: true }));
+    case "flipV": return S(t.id, "Flip vertical", `image.flip({ vertical: true });`, (i) => i.flip({ vertical: true }));
+    case "invert": return S(t.id, "Invert", `image.invert();`, (i) => i.invert());
+    case "greyscale": return S(t.id, "Greyscale", `image.greyscale();`, (i) => i.greyscale());
+    case "sepia": return S(t.id, "Sepia", `image.sepia();`, (i) => i.sepia());
+    case "posterize": return S(t.id, "Posterize", `image.posterize(${v});`, (i) => i.posterize(v));
+    case "dither": return S(t.id, "Dither", `image.dither();`, (i) => i.dither());
+    case "threshold": return S(t.id, "Threshold", `image.threshold({ max: ${v} });`, (i) => i.threshold({ max: v }));
+    case "contrast": return S(t.id, "Contrast", `image.contrast(${v});`, (i) => i.contrast(v));
+    case "brightness": return S(t.id, "Brightness", `image.brightness(${v});`, (i) => i.brightness(v));
+    case "normalize": return S(t.id, "Normalize", `image.normalize();`, (i) => i.normalize());
+    case "fisheye": return S(t.id, "Fisheye", `image.fisheye({ radius: ${v} });`, (i) => i.fisheye({ radius: v }));
+    case "circle": {
+      if (!p) return S(t.id, "Circle", `image.circle();`, (i) => i.circle());
+      const o = v ? { radius: v, x: p.x, y: p.y } : { x: p.x, y: p.y };
+      return S(t.id, "Circle", `image.circle({ ${Object.entries(o).map(([k, x]) => `${k}: ${x}`).join(", ")} });`, (i) => i.circle(o));
+    }
+    case "pixel": {
+      if (!p) return S(t.id, "Pixelate", `image.pixelate(${v});`, (i) => i.pixelate(v));
+      const W = img.bitmap.width, H = img.bitmap.height, s = 96, w = Math.min(s, W), h = Math.min(s, H);
+      const x = Math.max(0, Math.min(W - w, p.x - (w >> 1))), y = Math.max(0, Math.min(H - h, p.y - (h >> 1)));
+      return S(t.id, "Pixel brush", `image.pixelate({ size: ${v}, x: ${x}, y: ${y}, w: ${w}, h: ${h} });`, (i) => i.pixelate({ size: v, x, y, w, h }));
+    }
+    case "crop": {
+      const c = p || (() => { const W = img.bitmap.width, H = img.bitmap.height; return { x: Math.round(W * 0.125), y: Math.round(H * 0.125), w: Math.round(W * 0.75), h: Math.round(H * 0.75) }; })();
+      return S(t.id, "Crop", `image.crop({ x: ${c.x}, y: ${c.y}, w: ${c.w}, h: ${c.h} });`, (i) => i.crop(c));
+    }
+  }
+}
+const rgbCode = ({ r, g, b }) => `{ r: ${r}, g: ${g}, b: ${b} }`;
+const colorStep = (label, actions) => S("color", label, `image.color([${actions.map(actionCode).join(", ")}]);`, (i) => i.color(actions));
+function actionCode(a) {
+  if (!a.params) return `{ apply: "${a.apply}" }`;
+  return `{ apply: "${a.apply}", params: [${a.params.map((p) => (typeof p === "object" ? rgbCode(p) : p)).join(", ")}] }`;
+}
+const hex2rgb = (h) => ({ r: parseInt(h.slice(1, 3), 16), g: parseInt(h.slice(3, 5), 16), b: parseInt(h.slice(5, 7), 16) });
+const SWATCHES = ["#000000", "#808080", "#800000", "#808000", "#008000", "#008080", "#000080", "#800080", "#808040", "#004040", "#0080ff", "#004080", "#8000ff", "#804000",
+  "#ffffff", "#c0c0c0", "#ff0000", "#ffff00", "#00ff00", "#00ffff", "#0000ff", "#ff00ff", "#ffff80", "#00ff80", "#80ffff", "#8080ff", "#ff0080", "#ff8040"];
+
+/* ================= API reference data ================= */
+const RS = { "": "default", nearestNeighbor: "NEAREST_NEIGHBOR", bilinearInterpolation: "BILINEAR", bicubicInterpolation: "BICUBIC", hermiteInterpolation: "HERMITE", bezierInterpolation: "BEZIER" };
+const obj = (o) => `{ ${Object.entries(o).filter(([, v]) => v !== undefined).map(([k, v]) => `${k}: ${v}`).join(", ")} }`;
+const API_GROUPS = [["shape", "Size & shape"], ["effects", "Blur & effects"], ["colour", "Colour"]];
+const API = [
+  {
+    name: "resize", group: "shape", pkg: "plugin-resize", sig: "image.resize(options: ResizeOptions): this",
+    summary: "Resize to a width and/or height.",
+    desc: "Resizes the image to a set width and height. Pass only `w` or only `h` and the other side is calculated to keep the aspect ratio.",
+    params: [
+      ["w", "number", "", "Width in pixels. Required unless `h` is given. Must be 0 or more."],
+      ["h", "number", "", "Height in pixels. Required unless `w` is given."],
+      ["mode", "ResizeStrategy", "built-in resizer", "Resampling algorithm: `NEAREST_NEIGHBOR`, `BILINEAR`, `BICUBIC`, `HERMITE` or `BEZIER`."],
+    ],
+    controls: [
+      { key: "w", label: "w", hint: "width", type: "range", min: 10, max: 720, step: 1, value: 200 },
+      { key: "keep", label: "Keep aspect ratio (leave out <code>h</code>)", type: "check", value: true },
+      { key: "h", label: "h", hint: "height", type: "range", min: 10, max: 540, step: 1, value: 150, off: (v) => v.keep },
+      { key: "mode", label: "mode", type: "select", value: "", options: Object.entries(RS).map(([v, l]) => [v, l === "default" ? "(leave out)" : "ResizeStrategy." + l]) },
+    ],
+    call(v) {
+      const o = { w: v.w, h: v.keep ? undefined : v.h, mode: v.mode || undefined };
+      return S("resize", "Resize", `image.resize(${obj({ w: o.w, h: o.h, mode: v.mode ? "ResizeStrategy." + RS[v.mode] : undefined })});`, (i) => i.resize(o), v.mode ? { imports: ["ResizeStrategy"] } : {});
+    },
+    examples: [["Keep the aspect ratio", `image.resize({ w: 150 });`], ["Exact size", `image.resize({ w: 150, h: 100 });`], ["Pick an algorithm", `import { Jimp, ResizeStrategy } from "jimp";\n\nimage.resize({ w: 150, mode: ResizeStrategy.BICUBIC });`]],
+    notes: [["tip", "", "To scale by a factor use `image.scale(0.5)`. To fit inside a box without distorting, use `image.scaleToFit({ w: 100, h: 100 })`."]],
+    related: ["crop", "rotate"],
+  },
+  {
+    name: "crop", group: "shape", pkg: "plugin-crop", sig: "image.crop(options: CropOptions): this",
+    summary: "Keep only a rectangle of the image.",
+    desc: "Crops the image to a rectangle. `x` and `y` are the top-left corner of the rectangle, in pixels from the top-left of the image. Values are rounded to whole pixels.",
+    params: [["x", "number", "", "Left edge of the rectangle."], ["y", "number", "", "Top edge of the rectangle."], ["w", "number", "", "Width of the rectangle."], ["h", "number", "", "Height of the rectangle."]],
+    req: ["x", "y", "w", "h"],
+    controls: [
+      { key: "x", label: "x", type: "range", min: 0, max: (d) => d.W - 1, step: 1, value: 70 },
+      { key: "y", label: "y", type: "range", min: 0, max: (d) => d.H - 1, step: 1, value: 40 },
+      { key: "w", label: "w", type: "range", min: 1, max: (d) => d.W, step: 1, value: 200 },
+      { key: "h", label: "h", type: "range", min: 1, max: (d) => d.H, step: 1, value: 170 },
+    ],
+    canvas: "drag", tip: "Or drag a rectangle on the picture.",
+    call(v, img) {
+      const W = img.bitmap.width, H = img.bitmap.height;
+      const x = Math.min(v.x, W - 1), y = Math.min(v.y, H - 1), w = Math.max(1, Math.min(v.w, W - x)), h = Math.max(1, Math.min(v.h, H - y));
+      return S("crop", "Crop", `image.crop({ x: ${x}, y: ${y}, w: ${w}, h: ${h} });`, (i) => i.crop({ x, y, w, h }));
+    },
+    examples: [["Crop a rectangle", `image.crop({ x: 50, y: 40, w: 200, h: 150 });`], ["Trim borders automatically", `image.autocrop();`]],
+    notes: [["caution", "Stay inside the image", "`crop()` doesn't clamp the rectangle. Keep `x + w` and `y + h` within the image size, as this playground does for you."]],
+    related: ["resize", "pixelate"],
+  },
+  {
+    name: "rotate", group: "shape", pkg: "plugin-rotate", sig: "image.rotate(options: number | RotateOptions): this",
+    summary: "Rotate by any number of degrees.",
+    desc: "Rotates the image by a number of degrees. By default the width and height grow so the whole rotated image fits. Pass a number as a shorthand for `{ deg }`.",
+    params: [["deg", "number", "", "Degrees to rotate by. Multiples of 90 use a fast, lossless path."], ["mode", "boolean | ResizeStrategy", "`true`", "`true` grows the canvas to fit. `false` keeps the original size and clips the corners. A `ResizeStrategy` grows the canvas using that algorithm."]],
+    req: ["deg"],
+    controls: [
+      { key: "deg", label: "deg", hint: "degrees", type: "range", min: -180, max: 180, step: 1, value: 30 },
+      { key: "mode", label: "mode", type: "radio", value: "true", options: [["true", "<code>true</code>: grow canvas"], ["false", "<code>false</code>: keep size"]] },
+    ],
+    call(v) {
+      if (v.mode === "true") return S("rotate", "Rotate", `image.rotate(${v.deg});`, (i) => i.rotate(v.deg));
+      return S("rotate", "Rotate", `image.rotate({ deg: ${v.deg}, mode: false });`, (i) => i.rotate({ deg: v.deg, mode: false }));
+    },
+    examples: [["Rotate by 90°", `image.rotate(90);`], ["Keep the original size", `image.rotate({ deg: 15, mode: false });`]],
+    notes: [["tip", "", "Areas uncovered by rotation are filled with the image's background colour, transparent by default. Save as PNG to keep the transparency."]],
+    related: ["flip", "resize"],
+  },
+  {
+    name: "flip", group: "shape", pkg: "plugin-flip", sig: "image.flip(options: FlipOptions): this",
+    summary: "Mirror horizontally, vertically, or both.",
+    desc: "Flips the image horizontally, vertically, or both.",
+    params: [["horizontal", "boolean", "`false`", "Mirror left to right."], ["vertical", "boolean", "`false`", "Mirror top to bottom."]],
+    controls: [{ key: "horizontal", label: "<code>horizontal</code>", type: "check", value: true }, { key: "vertical", label: "<code>vertical</code>", type: "check", value: false }],
+    call(v) {
+      const o = {}; if (v.horizontal) o.horizontal = true; if (v.vertical) o.vertical = true;
+      return S("flip", "Flip", `image.flip(${Object.keys(o).length ? obj(o) : "{}"});`, (i) => i.flip(o));
+    },
+    examples: [["Mirror", `image.flip({ horizontal: true });`], ["Both ways (same as rotating 180°)", `image.flip({ horizontal: true, vertical: true });`]],
+    related: ["rotate"],
+  },
+  {
+    name: "blur", group: "effects", pkg: "plugin-blur", sig: "image.blur(r: number): this",
+    summary: "A fast blur that looks like a Gaussian blur.",
+    desc: "A fast blur algorithm that produces a similar effect to a Gaussian blur, but much quicker. Colours are weighted by their alpha, so transparent pixels don't darken the edges.",
+    params: [["r", "number", "", "Pixel radius of the blur. Must be 1 or more."]], req: ["r"],
+    controls: [{ key: "r", label: "r", hint: "radius in px", type: "range", min: 1, max: 40, step: 1, value: 6 }],
+    call: (v) => S("blur", "Blur", `image.blur(${v.r});`, (i) => i.blur(v.r)),
+    examples: [["Blur", `import { Jimp } from "jimp";\n\nconst image = await Jimp.read("test/image.png");\n\nimage.blur(5);`]],
+    notes: [["tip", "", "Need a smoother falloff? `gaussian()` is a true Gaussian blur. It looks softer but is much slower on large images and radii."]],
+    related: ["gaussian", "pixelate"],
+  },
+  {
+    name: "gaussian", group: "effects", pkg: "plugin-blur", sig: "image.gaussian(r: number): this",
+    summary: "A true Gaussian blur. Slower than blur().",
+    desc: "Applies a true Gaussian blur to the image. Slower than `blur()`, especially for large radii.",
+    params: [["r", "number", "", "Pixel radius of the blur. Must be 1 or more."]], req: ["r"],
+    controls: [{ key: "r", label: "r", hint: "radius in px", type: "range", min: 1, max: 12, step: 1, value: 3 }],
+    call: (v) => S("gaussian", "Gaussian blur", `image.gaussian(${v.r});`, (i) => i.gaussian(v.r)),
+    examples: [["Gaussian blur", `image.gaussian(15);`]],
+    related: ["blur"],
+  },
+  {
+    name: "pixelate", group: "effects", pkg: "plugin-color", sig: "image.pixelate(options: number | PixelateOptions): this",
+    summary: "Pixelate the whole image or a region.",
+    desc: "Applies a pixelation effect to the image, or to a rectangular region of it. Pass a number as a shorthand for `{ size }`.",
+    params: [["size", "number", "", "Size of each pixel block. Must be 1 or more."], ["x", "number", "`0`", "Left edge of the region."], ["y", "number", "`0`", "Top edge of the region."], ["w", "number", "image width − x", "Width of the region."], ["h", "number", "image height − y", "Height of the region."]],
+    req: ["size"],
+    controls: [
+      { key: "size", label: "size", hint: "block px", type: "range", min: 2, max: 40, step: 1, value: 10 },
+      { key: "region", label: "Only a region", type: "check", value: false },
+      { key: "x", label: "x", type: "range", min: 0, max: (d) => d.W - 1, step: 1, value: 120, off: (v) => !v.region },
+      { key: "y", label: "y", type: "range", min: 0, max: (d) => d.H - 1, step: 1, value: 80, off: (v) => !v.region },
+      { key: "w", label: "w", type: "range", min: 1, max: (d) => d.W, step: 1, value: 120, off: (v) => !v.region },
+      { key: "h", label: "h", type: "range", min: 1, max: (d) => d.H, step: 1, value: 110, off: (v) => !v.region },
+    ],
+    canvas: "click", tip: "Or click the picture to pixelate a region there.",
+    call(v, img) {
+      if (!v.region) return S("pixelate", "Pixelate", `image.pixelate(${v.size});`, (i) => i.pixelate(v.size));
+      const W = img.bitmap.width, H = img.bitmap.height;
+      const x = Math.min(v.x, W - 1), y = Math.min(v.y, H - 1), w = Math.max(1, Math.min(v.w, W - x)), h = Math.max(1, Math.min(v.h, H - y));
+      return S("pixelate", "Pixelate", `image.pixelate({ size: ${v.size}, x: ${x}, y: ${y}, w: ${w}, h: ${h} });`, (i) => i.pixelate({ size: v.size, x, y, w, h }));
+    },
+    examples: [["Whole image", `image.pixelate(10);`], ["Just a region", `image.pixelate({ size: 10, x: 10, y: 10, w: 20, h: 20 });`]],
+    related: ["blur", "crop"],
+  },
+  {
+    name: "color", group: "colour", pkg: "plugin-color", sig: "image.color(actions: ColorAction[]): this",
+    summary: "Run a list of colour adjustments on every pixel.",
+    desc: "Applies a list of colour actions to every pixel, in order. Each action is an object with an `apply` name and, for most actions, a `params` tuple. Actions are validated, so an unknown name or an out-of-range value throws.",
+    params: null,
+    actions: [
+      ["hue", "[degrees]", "Rotate the hue, from -360 to 360. Same as `spin`."],
+      ["lighten / darken", "[amount?]", "Blend toward white or black, 0 to 100 (default 10)."],
+      ["brighten", "[amount?]", "Brighten, 0 to 100."],
+      ["saturate / desaturate", "[amount?]", "Scale the saturation, 0 to 100 (default 10)."],
+      ["greyscale", "[]", "Remove all colour."],
+      ["mix", "[color, amount?]", "Mix in an `{ r, g, b }` colour, 0 to 100 percent."],
+      ["tint / shade", "[amount?]", "Mix with white or black, 0 to 100."],
+      ["xor", "[color]", "XOR every pixel with an `{ r, g, b }` colour."],
+      ["red / green / blue", "[amount]", "Add to one channel, -255 to 255."],
+    ],
+    controls: [
+      { key: "apply", label: "apply", type: "select", value: "hue", options: ["hue", "lighten", "darken", "brighten", "saturate", "desaturate", "greyscale", "mix", "tint", "shade", "xor", "red", "green", "blue"].map((a) => [a, `"${a}"`]) },
+      { key: "deg", label: "params[0]", hint: "degrees", type: "range", min: -360, max: 360, step: 1, value: 90, show: (v) => v.apply === "hue" },
+      { key: "amt", label: "amount", hint: "0 to 100", type: "range", min: 0, max: 100, step: 1, value: 30, show: (v) => ["lighten", "darken", "brighten", "saturate", "desaturate", "mix", "tint", "shade"].includes(v.apply) },
+      { key: "ch", label: "params[0]", hint: "-255 to 255", type: "range", min: -255, max: 255, step: 1, value: 80, show: (v) => ["red", "green", "blue"].includes(v.apply) },
+      { key: "rgb", label: "color", type: "color", value: { r: 255, g: 0, b: 128 }, show: (v) => v.apply === "mix" || v.apply === "xor" },
+    ],
+    palette: true, tip: "Click a colour in the palette to use it for mix or xor.",
+    call(v) {
+      const a = v.apply;
+      const act = a === "hue" ? { apply: a, params: [v.deg] } : a === "greyscale" ? { apply: a } : a === "mix" ? { apply: a, params: [{ ...v.rgb }, v.amt] }
+        : a === "xor" ? { apply: a, params: [{ ...v.rgb }] } : ["red", "green", "blue"].includes(a) ? { apply: a, params: [v.ch] } : { apply: a, params: [v.amt] };
+      return colorStep(`color ${a}`, [act]);
+    },
+    examples: [["Several actions in one pass", `image.color([\n  { apply: "hue", params: [-90] },\n  { apply: "lighten", params: [50] },\n  { apply: "mix", params: [{ r: 255, g: 0, b: 0 }, 30] },\n]);`]],
+    related: ["brightness", "contrast", "posterize"],
+  },
+  {
+    name: "brightness", group: "colour", pkg: "plugin-color", sig: "image.brightness(val: number): this",
+    summary: "Multiply every colour channel.",
+    desc: "Multiplies each colour channel by `val` and clamps the result. `1` leaves the image unchanged, above `1` brightens it and below `1` darkens it.",
+    params: [["val", "number", "", "Multiplier for each channel. `0` or below makes the image black."]], req: ["val"],
+    controls: [{ key: "val", label: "val", hint: "multiplier", type: "range", min: 0, max: 2.5, step: 0.05, value: 1.4 }],
+    call: (v) => S("brightness", "Brightness", `image.brightness(${v.val});`, (i) => i.brightness(v.val)),
+    examples: [["Brighten and darken", `image.brightness(1.5); // brighten\nimage.brightness(0.5); // darken`]],
+    notes: [["caution", "Changed in v1.1.2", "In v0, `brightness` took a value from -1 to +1. See [Migrate to v1](#/guides/migrate-to-v1#brightness) to convert old values."]],
+    related: ["contrast", "color"],
+  },
+  {
+    name: "contrast", group: "colour", pkg: "plugin-color", sig: "image.contrast(val: number): this",
+    summary: "Adjust contrast from -1 to +1.",
+    desc: "Adjusts the contrast of the image by an amount between -1 and +1. Negative values flatten the image toward grey, positive values push colours apart.",
+    params: [["val", "number", "", "Amount to adjust the contrast, from -1 to +1."]], req: ["val"],
+    controls: [{ key: "val", label: "val", hint: "-1 to +1", type: "range", min: -1, max: 1, step: 0.05, value: 0.5 }],
+    call: (v) => S("contrast", "Contrast", `image.contrast(${v.val});`, (i) => i.contrast(v.val)),
+    examples: [["More contrast", `image.contrast(0.75);`]],
+    notes: [["tip", "", "Type `1.5` into the number box above. The playground passes it straight to Jimp, so you see the error Jimp throws for values outside -1 to +1."]],
+    related: ["brightness", "threshold"],
+  },
+  {
+    name: "posterize", group: "colour", pkg: "plugin-color", sig: "image.posterize(n: number): this",
+    summary: "Reduce each channel to n levels.",
+    desc: "Applies a posterize effect, reducing each colour channel to `n` levels. Values below 2 are treated as 2.",
+    params: [["n", "number", "", "Number of levels per channel. Minimum 2."]], req: ["n"],
+    controls: [{ key: "n", label: "n", hint: "levels", type: "range", min: 2, max: 16, step: 1, value: 4 }],
+    call: (v) => S("posterize", "Posterize", `image.posterize(${v.n});`, (i) => i.posterize(v.n)),
+    examples: [["Posterize", `image.posterize(5);`]],
+    related: ["threshold", "color"],
+  },
+  {
+    name: "threshold", group: "colour", pkg: "plugin-threshold", sig: "image.threshold(options: ThresholdOptions): this",
+    summary: "Turn the image black and white at a cut-off.",
+    desc: "Applies a minimum colour threshold. Pixels brighter than `max` become `replace`, the rest become black. The image is converted to greyscale first unless you turn that off.",
+    params: [["max", "number", "", "Cut-off, from 0 to 255."], ["replace", "number", "`255`", "Value for pixels above the cut-off, from 0 to 255."], ["autoGreyscale", "boolean", "`true`", "Convert the image to greyscale first."]],
+    req: ["max"],
+    controls: [
+      { key: "max", label: "max", hint: "0 to 255", type: "range", min: 0, max: 255, step: 1, value: 140 },
+      { key: "replace", label: "replace", hint: "0 to 255", type: "range", min: 0, max: 255, step: 1, value: 255 },
+      { key: "auto", label: "<code>autoGreyscale</code>", type: "check", value: true },
+    ],
+    call(v) {
+      const o = { max: v.max, replace: v.replace === 255 ? undefined : v.replace, autoGreyscale: v.auto ? undefined : false };
+      return S("threshold", "Threshold", `image.threshold(${obj(o)});`, (i) => i.threshold(JSON.parse(JSON.stringify(o))));
+    },
+    examples: [["Threshold", `image.threshold({ max: 150 });`]],
+    related: ["posterize", "contrast"],
+  },
+];
+const API_BY = Object.fromEntries(API.map((a) => [a.name, a]));
+
+/* ================= Playground component ================= */
+let activePg = null;
+class Playground {
+  constructor(host, cfg = {}) {
+    this.host = host; this.cfg = cfg;
+    this.api = cfg.api ? API_BY[cfg.api] : null;
+    this.tools = (cfg.tools || TOOLS.map((t) => t.id)).map((id) => TOOL_BY_ID[id]).filter(Boolean);
+    this.sel = Object.fromEntries(this.tools.map((t) => [t.id, t.sel ?? 0]));
+    this.tool = TOOL_BY_ID[cfg.tool] || this.tools[0];
+    this.states = []; this.steps = []; this.src = { kind: "url", name: "dice.png" }; this.resized = 0;
+    this.target = cfg.target || "node";
+    this.vals = this.api ? Object.fromEntries(this.api.controls.map((c) => [c.key, typeof c.value === "object" ? { ...c.value } : c.value])) : null;
+    this.busy = false; this.pending = false;
+    this.build(); this.boot();
+  }
+  get cur() { return this.states[this.states.length - 1]; }
+  build() {
+    const a = this.api, c = this.cfg, showPal = a ? !!a.palette : c.palette !== false;
+    const file = c.file || (a ? `${a.name}.js` : "recipe.js");
+    this.host.className = "pg" + (c.compact ? " compact" : "");
+    this.host.innerHTML = `
+<div class="pg-grid">
+  <section class="win pg-paint" aria-label="Jimp playground">
+    <div class="titlebar">${icon("paint", 16)}<span class="tb-title" data-r="title">dice.png - JimPaint 98</span><a class="tb-x" href="#${a ? "/guides/getting-started" : "/api"}" title="${a ? "Getting Started" : "API Reference"}" aria-label="Help">?</a></div>
+    <div class="pg-toolbar">
+      <button class="btn" data-a="open" title="Open an image from your computer (Jimp.fromBuffer)">${icon("folderopen", 16)}Open image…</button>
+      <button class="btn" data-a="save" title="Download the result as PNG">${icon("disk", 14)}Save</button>
+      <i class="tb-sep"></i>
+      <button class="btn" data-a="undo" disabled title="Undo (Ctrl+Z)">↶ Undo</button>
+      <button class="btn" data-a="reset" disabled title="Back to the original image">Reset</button>
+      <button class="btn" data-a="orig" title="Press and hold to compare with the original">◐ Original</button>
+    </div>
+    <div class="pg-body${a ? " api" : ""}">
+      <div class="pg-side ${a ? "ctl" : "tb"}" data-r="side"></div>
+      <div class="pg-canvas" data-r="area">
+        <div class="pg-loading" data-r="loading">Loading Jimp from jsDelivr…<div class="progress">${"<i></i>".repeat(16)}</div></div>
+        <div class="canvas-wrap hidden" data-r="wrap"><img data-r="img" alt="The image being edited by Jimp" /><div class="marquee" data-r="mq"></div><i class="h r"></i><i class="h b"></i><i class="h rb"></i></div>
+        <div class="drop-hint">Drop to open with Jimp.fromBuffer()</div>
+      </div>
+    </div>
+    ${showPal ? `<div class="palette"><div class="fgbg"><i class="fg" data-r="fg"></i><i class="bg"></i></div><div class="swatches" data-r="sw"></div><div class="pal-hint">${a ? "<b>COLOR</b>click a colour<br>to mix or xor with it" : "<b>COLOR BOX</b>click: <code>mix</code> · right-click: <code>xor</code><br>rainbow: <code>hue</code> +60°"}</div></div>` : ""}
+    <div class="statusbar">
+      <div class="grow" data-r="msg">Loading Jimp…</div>
+      <div class="st-xy" title="Pixel under the cursor">${icon("cross", 13)}<span data-r="xy"></span></div>
+      <div class="st-dim" title="Image size">${icon("frame", 13)}<span data-r="dim">–</span></div>
+      <div class="st-last" title="Last Jimp call"><span class="lastcall" data-r="last">no edits yet</span></div>
+    </div>
+  </section>
+  <section class="win pg-np" aria-label="Generated code">
+    <div class="titlebar">${icon("notepad", 16)}<span class="tb-title">${esc(file)} - Notepad</span></div>
+    <div class="np-bar">
+      <div class="seg" role="radiogroup" aria-label="Code target"><button class="btn" data-target="node">Node.js</button><button class="btn" data-target="browser">Browser</button></div>
+      <span class="sp"></span><button class="btn tiny" data-a="copy">Copy code</button>
+    </div>
+    <div class="np-text" data-r="code" tabindex="0" aria-live="polite"></div>
+    <div class="statusbar"><div class="grow" data-r="ln">Ln 1, Col 1</div><div data-r="count">0 edits</div></div>
+  </section>
+</div>
+<input type="file" accept="image/*" class="sr" data-r="file" aria-label="Open an image" />`;
+    this.r = Object.fromEntries($$("[data-r]", this.host).map((e) => [e.dataset.r, e]));
+    if (a) this.buildControls(); else this.buildToolbox();
+    if (showPal) this.buildPalette();
+    this.bind();
+    this.setTarget(this.target, false);
+    this.renderCode(false);
+  }
+  setStatus(t) { this.r.msg.textContent = t; }
+  /* ---- toolbox (guide/home mode) ---- */
+  buildToolbox() {
+    this.r.side.innerHTML = `<div class="tools" role="toolbar" aria-label="Jimp methods"></div><div class="tool-opts"></div><div class="tool-name"></div>`;
+    const box = $(".tools", this.r.side);
+    this.tools.forEach((t) => {
+      const b = document.createElement("button");
+      b.className = "tool"; b.dataset.tool = t.id; b.innerHTML = TOOL_ICONS[t.id]; b.setAttribute("aria-label", `${t.name}: image.${t.method}()`);
+      b.onclick = () => this.selectTool(t, true);
+      b.onmouseenter = () => { tooltip(b, `<b>${t.name}</b>: <code>image.${t.method}()</code>`); this.setStatus(t.hint); };
+      b.onmouseleave = () => tooltip(null);
+      box.append(b);
+    });
+    this.selectTool(this.tool, false);
+  }
+  selectTool(t, run) {
+    this.tool = t;
+    $$(".tool", this.r.side).forEach((b) => b.classList.toggle("on", b.dataset.tool === t.id));
+    $(".tool-name", this.r.side).textContent = t.name.toUpperCase();
+    const o = $(".tool-opts", this.r.side);
+    if (t.opts) {
+      o.innerHTML = t.opts.map(([, l], i) => `<button class="opt${i === this.sel[t.id] ? " on" : ""}" data-i="${i}">${l}</button>`).join("");
+      $$(".opt", o).forEach((b) => (b.onclick = () => {
+        this.sel[t.id] = +b.dataset.i; this.selectTool(t, false);
+        if (!t.pos) this.apply(this.toolStep(t), { replaceLast: this.steps.at(-1)?.tool === t.id });
+        else this.setStatus(`${t.name} set to ${t.opts[this.sel[t.id]][1]}. ${t.hint}`);
+      }));
+    } else o.innerHTML = `<div class="none">${t.pos === "drag" ? "DRAG ON<br>PICTURE" : "NO<br>OPTIONS"}</div>`;
+    this.setCursor(t.pos === "drag" ? "cross" : t.id === "pixel" ? "pixel" : t.id === "circle" ? "ring" : "brush");
+    if (run && !t.pos) this.apply(this.toolStep(t));
+    else if (run) this.setStatus(t.hint);
+  }
+  toolStep(t, p) { return toolStep(t, t.opts ? t.opts[this.sel[t.id]][0] : undefined, p, this.cur); }
+  setCursor(k) { this.host.style.setProperty("--cur-tool", CURSORS[k]); }
+  /* ---- controls (API mode) ---- */
+  dims() { const i = this.base(); return i ? { W: i.bitmap.width, H: i.bitmap.height } : { W: BASE_W, H: 270 }; }
+  base() { return this.steps.at(-1)?.live ? this.states[this.states.length - 2] : this.cur; }
+  buildControls() {
+    const a = this.api, d = this.dims();
+    const row = (c) => {
+      const id = `c-${a.name}-${c.key}-${Math.random().toString(36).slice(2, 6)}`;
+      const mx = typeof c.max === "function" ? c.max(d) : c.max;
+      if (c.type === "range") return `<div class="ctl" data-k="${c.key}"><label for="${id}"><code>${c.label}</code>${c.hint ? `<small>${c.hint}</small>` : ""}</label><div class="ctl-row"><input id="${id}" type="range" class="slider" min="${c.min}" max="${mx}" step="${c.step}" value="${this.vals[c.key]}"><input type="number" class="numin" aria-label="${c.label}" min="${c.min}" max="${mx}" step="${c.step}" value="${this.vals[c.key]}"></div></div>`;
+      if (c.type === "check") return `<label class="ctl chkl" data-k="${c.key}"><input type="checkbox" class="chk" ${this.vals[c.key] ? "checked" : ""}> <span>${c.label}</span></label>`;
+      if (c.type === "select") return `<div class="ctl" data-k="${c.key}"><label for="${id}"><code>${c.label}</code></label><span class="sel98"><select id="${id}">${c.options.map(([v, l]) => `<option value="${v}"${v === this.vals[c.key] ? " selected" : ""}>${esc(l)}</option>`).join("")}</select></span></div>`;
+      if (c.type === "radio") return `<div class="ctl" data-k="${c.key}"><span class="lbl"><code>${c.label}</code></span><div class="rads">${c.options.map(([v, l]) => `<label><input type="radio" class="rad" name="${id}" value="${v}"${v === this.vals[c.key] ? " checked" : ""}> <span>${l}</span></label>`).join("")}</div></div>`;
+      if (c.type === "color") return `<div class="ctl" data-k="${c.key}"><span class="lbl"><code>${c.label}</code></span><div class="ctl-color"><i data-swatch></i><span data-rgb></span></div></div>`;
+      return "";
+    };
+    this.r.side.innerHTML = `<fieldset class="ctl-box"><legend>Options</legend>${a.controls.map(row).join("")}</fieldset>
+      ${a.tip ? `<div class="ctl-tip">${a.tip}</div>` : ""}
+      <div class="ctl-btns"><button class="btn" data-a="again" title="Keep this call and apply it once more">Apply again</button></div>`;
+    a.controls.forEach((c) => {
+      const el = $(`[data-k="${c.key}"]`, this.r.side);
+      if (c.type === "range") {
+        const [rg, nm] = $$("input", el);
+        rg.oninput = () => { nm.value = rg.value; this.vals[c.key] = +rg.value; this.changed(); };
+        nm.onchange = () => { this.vals[c.key] = +nm.value; rg.value = nm.value; this.changed(true); };
+      } else if (c.type === "check") $("input", el).onchange = (e) => { this.vals[c.key] = e.target.checked; this.changed(true); };
+      else if (c.type === "select") $("select", el).onchange = (e) => { this.vals[c.key] = e.target.value; this.changed(true); };
+      else if (c.type === "radio") $$("input", el).forEach((r) => (r.onchange = () => { this.vals[c.key] = r.value; this.changed(true); }));
+    });
+    this.setCursor(a.canvas === "drag" ? "cross" : a.canvas === "click" ? "pixel" : "brush");
+    this.syncControls();
+  }
+  syncControls() {
+    const a = this.api; if (!a) return;
+    const d = this.dims();
+    a.controls.forEach((c) => {
+      const el = $(`[data-k="${c.key}"]`, this.r.side); if (!el) return;
+      el.classList.toggle("hidden", c.show ? !c.show(this.vals) : false);
+      const off = c.off ? c.off(this.vals) : false;
+      el.classList.toggle("off", off);
+      $$("input, select", el).forEach((i) => (i.disabled = off));
+      if (c.type === "range") {
+        const dyn = typeof c.max === "function", mx = dyn ? c.max(d) : c.max;
+        if (dyn && this.vals[c.key] > mx) this.vals[c.key] = mx;
+        const [rg, nm] = $$("input", el); rg.max = mx; rg.value = this.vals[c.key];
+        if (dyn) nm.max = mx; else nm.removeAttribute("max"), nm.removeAttribute("min");
+        nm.value = this.vals[c.key];
+      }
+      if (c.type === "check") $("input", el).checked = !!this.vals[c.key];
+      if (c.type === "select") $("select", el).value = this.vals[c.key];
+      if (c.type === "radio") $$("input", el).forEach((r) => (r.checked = r.value === this.vals[c.key]));
+      if (c.type === "color") { const v = this.vals[c.key]; $("[data-swatch]", el).style.background = `rgb(${v.r},${v.g},${v.b})`; $("[data-rgb]", el).textContent = rgbCode(v); }
+    });
+  }
+  changed(now) {
+    this.syncControls();
+    clearTimeout(this.tm);
+    this.tm = setTimeout(() => this.applyLive(), now ? 0 : 70);
+  }
+  applyLive() {
+    if (!this.cur) return;
+    if (this.busy) { this.pending = true; return; }
+    const live = !!this.steps.at(-1)?.live;
+    const s = this.api.call(this.vals, live ? this.states[this.states.length - 2] : this.cur);
+    s.live = true; s.vals = JSON.parse(JSON.stringify(this.vals));
+    return this.apply(s, { replaceLast: live, quiet: true });
+  }
+  /* ---- palette ---- */
+  buildPalette() {
+    const box = this.r.sw;
+    const pick = (c) => { this.r.fg.style.background = c; };
+    SWATCHES.forEach((c, i) => {
+      const b = document.createElement("button"); b.className = "sw"; b.style.background = c; b.setAttribute("aria-label", `Colour ${c}`);
+      b.style.gridRow = i < 14 ? 1 : 2; b.style.gridColumn = (i % 14) + 1;
+      b.onclick = () => {
+        pick(c); const rgb = hex2rgb(c);
+        if (this.api) { this.vals.rgb = rgb; if (!["mix", "xor"].includes(this.vals.apply)) this.vals.apply = "mix"; this.changed(true); return; }
+        if (c === "#000000") return this.apply(colorStep("Shade", [{ apply: "shade", params: [30] }]));
+        if (c === "#ffffff") return this.apply(colorStep("Tint", [{ apply: "tint", params: [30] }]));
+        this.apply(colorStep(`Mix ${c}`, [{ apply: "mix", params: [rgb, 30] }]));
+      };
+      b.oncontextmenu = (e) => { if (this.api) return; e.preventDefault(); pick(c); this.apply(colorStep(`Xor ${c}`, [{ apply: "xor", params: [hex2rgb(c)] }])); };
+      b.onmouseenter = () => this.setStatus(this.api ? `${c}: use it as the colour for mix or xor.` : `${c}: click to mix 30% of it in, right-click to xor with it.`);
+      box.append(b);
+    });
+    const rb = document.createElement("button"); rb.className = "sw rainbow"; rb.style.gridColumn = 15; rb.style.gridRow = "1 / span 2"; rb.setAttribute("aria-label", "Rotate hue by 60 degrees");
+    rb.onclick = () => {
+      if (this.api) { this.vals.apply = "hue"; this.vals.deg = ((this.vals.deg + 60 + 360) % 720) - 360; this.changed(true); return; }
+      this.apply(colorStep("Hue +60°", [{ apply: "hue", params: [60] }]));
+    };
+    rb.onmouseenter = () => this.setStatus("Rotate every hue by 60°.");
+    box.append(rb);
+  }
+  /* ---- events ---- */
+  bind() {
+    const h = this.host, img = this.r.img, area = this.r.area;
+    h.addEventListener("pointerdown", () => (activePg = this), true);
+    h.addEventListener("click", (e) => {
+      const b = e.target.closest("[data-a]"); if (!b || b.disabled) return;
+      const act = b.dataset.a;
+      if (act === "open") this.r.file.click();
+      if (act === "save") this.save();
+      if (act === "undo") this.undo();
+      if (act === "reset") this.reset();
+      if (act === "copy") copyText(this.codeText()).then((ok) => { flash(b, ok ? "Copied!" : "Select it"); this.setStatus(ok ? "Code copied to the clipboard." : "Couldn't reach the clipboard. Select the text instead."); });
+      if (act === "again") { const l = this.steps.at(-1); if (l?.live) l.live = false; this.applyLive(); }
+    });
+    $$("[data-target]", h).forEach((b) => (b.onclick = () => this.setTarget(b.dataset.target)));
+    this.r.file.onchange = (e) => { this.openFile(e.target.files[0]); e.target.value = ""; };
+    const orig = $("[data-a=orig]", h);
+    const showOrig = (on) => { if (!this.states.length) return; img.src = on ? this.origSrc : this.curSrc; this.setStatus(on ? "Showing the original. Release to see your edits." : "Showing your edits."); };
+    orig.addEventListener("pointerdown", (e) => { e.preventDefault(); orig.classList.add("pressed"); showOrig(true); });
+    ["pointerup", "pointerleave"].forEach((ev) => orig.addEventListener(ev, () => { if (orig.classList.contains("pressed")) { orig.classList.remove("pressed"); showOrig(false); } }));
+    img.addEventListener("mousemove", (e) => { if (!this.cur) return; const p = this.pt(e); this.r.xy.textContent = `${p.x}, ${p.y}px`; });
+    img.addEventListener("mouseleave", () => (this.r.xy.textContent = ""));
+    img.addEventListener("dragstart", (e) => e.preventDefault());
+    img.addEventListener("mousedown", (e) => this.canvasDown(e));
+    area.addEventListener("dragover", (e) => { e.preventDefault(); area.classList.add("drag"); });
+    area.addEventListener("dragleave", (e) => { if (!area.contains(e.relatedTarget)) area.classList.remove("drag"); });
+    area.addEventListener("drop", (e) => { e.preventDefault(); area.classList.remove("drag"); this.openFile(e.dataTransfer.files[0]); });
+  }
+  pt(e) {
+    const r = this.r.img.getBoundingClientRect(), b = this.cur.bitmap;
+    const x = Math.floor(((e.clientX - r.left) / r.width) * b.width), y = Math.floor(((e.clientY - r.top) / r.height) * b.height);
+    return { x: Math.max(0, Math.min(b.width - 1, x)), y: Math.max(0, Math.min(b.height - 1, y)) };
+  }
+  canvasDown(e) {
+    if (e.button !== 0 || !this.cur) return;
+    e.preventDefault(); activePg = this;
+    const mode = this.api ? this.api.canvas : this.tool.pos;
+    if (!mode) { if (!this.api) this.setStatus(`${this.tool.name} applies to the whole picture: click its tool button.`); return; }
+    if (mode === "click") {
+      const p = this.pt(e);
+      if (this.api) { const d = this.dims(); Object.assign(this.vals, { region: true, w: Math.min(120, d.W), h: Math.min(110, d.H) }); this.vals.x = Math.max(0, Math.min(d.W - this.vals.w, p.x - 60)); this.vals.y = Math.max(0, Math.min(d.H - this.vals.h, p.y - 55)); this.changed(true); }
+      else this.apply(this.toolStep(this.tool, p));
+      return;
+    }
+    const wrap = this.r.wrap, mq = this.r.mq, r = wrap.getBoundingClientRect(), sx = e.clientX - r.left, sy = e.clientY - r.top, p0 = this.pt(e);
+    let p1 = p0;
+    mq.style.display = "block"; Object.assign(mq.style, { left: sx + "px", top: sy + "px", width: "0px", height: "0px" });
+    const mv = (ev) => {
+      const cx = Math.max(0, Math.min(r.width, ev.clientX - r.left)), cy = Math.max(0, Math.min(r.height, ev.clientY - r.top));
+      Object.assign(mq.style, { left: Math.min(sx, cx) + "px", top: Math.min(sy, cy) + "px", width: Math.abs(cx - sx) + "px", height: Math.abs(cy - sy) + "px" });
+      p1 = this.pt(ev); this.setStatus(`Selection ${Math.abs(p1.x - p0.x)} × ${Math.abs(p1.y - p0.y)} at ${Math.min(p0.x, p1.x)}, ${Math.min(p0.y, p1.y)}`);
+    };
+    const up = () => {
+      removeEventListener("mousemove", mv); removeEventListener("mouseup", up); mq.style.display = "none";
+      const c = { x: Math.min(p0.x, p1.x), y: Math.min(p0.y, p1.y), w: Math.abs(p1.x - p0.x), h: Math.abs(p1.y - p0.y) };
+      if (c.w < 6 || c.h < 6) return this.setStatus("Drag a bigger rectangle to crop.");
+      if (this.api) {
+        // the drag happened on the cropped preview; map back onto the uncropped base
+        const last = this.steps.at(-1); const off = last?.live && last.vals ? { x: Math.min(last.vals.x, this.dims().W - 1), y: Math.min(last.vals.y, this.dims().H - 1) } : { x: 0, y: 0 };
+        Object.assign(this.vals, { x: c.x + off.x, y: c.y + off.y, w: c.w, h: c.h }); this.changed(true);
+      } else this.apply(this.toolStep(this.tool, c));
+    };
+    addEventListener("mousemove", mv); addEventListener("mouseup", up);
+  }
+  /* ---- core ---- */
+  async boot() {
+    try {
+      const base = await getBase();
+      this.resized = base.bitmap.width === BASE_W ? BASE_W : 0;
+      await this.setBase(base.clone(), { kind: "url", name: "dice.png" });
+      if (this.api) { await this.applyLive(); this.setStatus(`Showing ${this.steps.at(-1)?.code.replace(/;$/, "") || this.api.name}. Change the options to re-run it.`); }
+      else this.setStatus(this.cfg.ready || "Ready. Pick a method in the toolbox.");
+    } catch (err) {
+      console.warn(err);
+      this.r.loading.innerHTML = `Couldn't load Jimp from the CDN.<br><small>${esc(errText(err))}</small>`;
+      this.setStatus("Jimp failed to load. Check your connection.");
+    }
+  }
+  async setBase(img, src) {
+    this.src = src; this.states = [img]; this.steps = [];
+    this.origSrc = await img.getBase64("image/png");
+    if (this.api) this.syncControls();
+    await this.render(); this.renderCode(false);
+    this.r.last.textContent = "no edits yet";
+  }
+  async apply(step, { replaceLast = false, quiet = false } = {}) {
+    if (!this.cur) { this.setStatus("Jimp is still loading…"); return false; }
+    if (this.busy) return false;
+    this.busy = true; document.body.classList.add("busy");
+    this.setStatus(`Running ${step.code}`);
+    await frame();
+    try {
+      const from = replaceLast && this.steps.length ? this.states[this.states.length - 2] : this.cur;
+      const t0 = performance.now();
+      const next = from.clone();
+      step.fn(next);
+      const ms = Math.round(performance.now() - t0);
+      if (replaceLast && this.steps.length) { this.states.pop(); this.steps.pop(); }
+      this.states.push(next); this.steps.push(step);
+      await this.render();
+      this.r.last.textContent = step.code.replace(/;$/, "");
+      this.setStatus(`${step.label} done in ${ms} ms.${quiet ? "" : " Ctrl+Z undoes it."}`);
+      this.renderCode(true);
+      return true;
+    } catch (err) {
+      this.setStatus(`Error: ${errText(err).split("\n")[0]}`);
+      showError(step.code, err);
+      return false;
+    } finally {
+      this.busy = false; document.body.classList.remove("busy");
+      if (this.pending) { this.pending = false; setTimeout(() => this.applyLive(), 0); }
+    }
+  }
+  async undo() {
+    if (this.busy || !this.steps.length) { this.setStatus("Nothing to undo."); return; }
+    const s = this.steps.pop(); this.states.pop();
+    const last = this.steps.at(-1);
+    if (this.api && last?.vals) { last.live = true; this.vals = JSON.parse(JSON.stringify(last.vals)); this.syncControls(); }
+    await this.render(); this.renderCode(false);
+    this.r.last.textContent = last ? last.code.replace(/;$/, "") : "no edits yet";
+    this.setStatus(`Undid ${s.code}`);
+  }
+  async reset() {
+    if (!this.states.length) return;
+    this.states = [this.states[0]]; this.steps = [];
+    if (this.api) this.syncControls();
+    await this.render(); this.renderCode(false);
+    this.r.last.textContent = "no edits yet";
+    this.setStatus(this.api ? "Back to the original. Change an option to run the method again." : "Back to the original picture.");
+  }
+  async render() {
+    const img = this.cur;
+    this.curSrc = await img.getBase64("image/png");
+    this.r.img.src = this.curSrc;
+    const { width: W, height: H } = img.bitmap;
+    this.r.img.style.width = W + "px";
+    this.r.dim.textContent = `${W} × ${H}`;
+    this.r.title.textContent = `${this.src.name} - JimPaint 98`;
+    this.r.loading.classList.add("hidden"); this.r.wrap.classList.remove("hidden");
+    $("[data-a=undo]", this.host).disabled = !this.steps.length;
+    $("[data-a=reset]", this.host).disabled = !this.steps.length;
+  }
+  async openFile(file) {
+    if (!file) return;
+    if (!J) return this.setStatus("Jimp is still loading…");
+    this.busy = true; document.body.classList.add("busy"); this.setStatus(`Reading ${file.name}…`);
+    try {
+      const img = await J.Jimp.fromBuffer(await file.arrayBuffer());
+      this.resized = 0;
+      if (img.bitmap.width > BASE_W) { img.resize({ w: BASE_W }); this.resized = BASE_W; }
+      this.busy = false;
+      await this.setBase(img, { kind: "upload", name: file.name });
+      if (this.api) await this.applyLive();
+      this.setStatus(`Opened ${file.name}. Jimp decoded it in your browser; it wasn't uploaded anywhere.`);
+    } catch (err) {
+      const webp = /webp|avif|heic/i.test(file.type + file.name);
+      showError("Jimp.fromBuffer(await file.arrayBuffer())", err, webp ? `<p>The default build reads PNG, JPEG, BMP, GIF and TIFF. For WEBP and AVIF see <a href="#/guides/webp">WEBP / WASM</a>.</p>` : "");
+      this.setStatus("Couldn't open that file.");
+    } finally { this.busy = false; document.body.classList.remove("busy"); }
+  }
+  save() {
+    if (!this.cur) return;
+    const a = document.createElement("a");
+    a.href = this.curSrc; a.download = this.src.name.replace(/\.\w+$/, "") + "-edited.png"; a.click();
+    this.setStatus(`Saved with image.getBase64("image/png").`);
+  }
+  setTarget(t, re = true) {
+    this.target = t;
+    $$("[data-target]", this.host).forEach((b) => b.classList.toggle("pressed", b.dataset.target === t));
+    if (re) this.renderCode(false);
+  }
+  codeLines() {
+    const node = this.target === "node", L = [];
+    const add = (t, s = -1) => L.push({ t, s });
+    const imports = new Set(["Jimp"]); this.steps.forEach((s) => s.imports?.forEach((i) => imports.add(i)));
+    const imp = `{ ${[...imports].join(", ")} }`;
+    add(node ? `import ${imp} from "jimp";` : `import ${imp} from "${CDN}";`);
+    add("");
+    if (this.src.kind === "upload") {
+      if (node) add(`const image = await Jimp.read("${this.src.name}");`);
+      else { add(`// file comes from an <input type="file">`); add(`const image = await Jimp.fromBuffer(await file.arrayBuffer());`); }
+    } else add(`const image = await Jimp.read("${node ? "" : "./"}${this.src.name}");`);
+    if (this.resized) add(`image.resize({ w: ${this.resized} }); // the playground edits a smaller copy`);
+    add("");
+    if (!this.steps.length) add(this.api ? `// Change an option: the ${this.api.name}() call appears here` : "// Pick a method in the toolbox: its code appears here");
+    this.steps.forEach((st, i) => st.code.split("\n").forEach((t) => add(t, i)));
+    add("");
+    add(node ? `await image.write("${this.src.name.replace(/\.\w+$/, "")}-edited.png");` : `document.querySelector("img").src = await image.getBase64("image/png");`);
+    return L;
+  }
+  codeText() { return this.codeLines().map((l) => l.t).join("\n"); }
+  renderCode(fresh) {
+    const box = this.r.code, L = this.codeLines(), last = this.steps.length - 1;
+    const lastLn = L.findLastIndex((x) => x.s === last && last >= 0);
+    box.innerHTML = L.map((l, i) => `<div class="ln${l.s >= 0 ? " step" : ""}${fresh && l.s === last && l.s >= 0 ? " fresh" : ""}">${hl(l.t, "js")}${i === lastLn ? '<span class="caret"></span>' : ""}</div>`).join("");
+    this.r.ln.textContent = `Ln ${lastLn >= 0 ? lastLn + 1 : L.length}, Col 1`;
+    this.r.count.textContent = `${this.steps.length} call${this.steps.length === 1 ? "" : "s"}`;
+    const line = $(".ln.fresh", box) || $$(".ln.step", box).at(-1);
+    if (line) box.scrollTop = Math.max(0, line.offsetTop - box.clientHeight / 2);
+  }
+}
+
+/* ================= site data ================= */
+const GUIDES = [
+  ["getting-started", "Getting Started", "Install Jimp and learn the load, manipulate, save workflow."],
+  ["browser", "Using in Browser", "Use the pre-bundled build, a CDN, uploads, canvas and web workers."],
+  ["reading-large-images", "Reading Large Images", "Raise the size limits and pass decode options per format."],
+  ["exif", "EXIF", "How Jimp reads, rotates and writes EXIF metadata."],
+  ["writing-plugins", "Writing Plugins", "Add your own image formats and manipulation methods."],
+  ["custom-jimp", "Custom Jimp", "Build a Jimp with only the plugins and formats you need."],
+  ["migrate-to-v1", "Migrate to v1", "What changed from v0 and how to update your code."],
+  ["webp", "WEBP / WASM", "Add WEBP, AVIF and other WASM-powered formats."],
+];
+const GUIDE_BY = Object.fromEntries(GUIDES.map((g) => [g[0], g]));
+const ORDER = [...GUIDES.map(([id, t]) => ({ path: "/guides/" + id, title: t })), { path: "/api", title: "API Reference" }, ...API_GROUPS.flatMap(([g]) => API.filter((a) => a.group === g).map((a) => ({ path: "/api/" + a.name, title: a.name + "()" })))];
+const PAGE_TITLE = (p) => ORDER.find((o) => o.path === p)?.title;
+
+/* ================= pages ================= */
+function pager(path) {
+  const i = ORDER.findIndex((o) => o.path === path), prev = ORDER[i - 1], next = ORDER[i + 1];
+  return `<nav class="pager" aria-label="Previous and next pages">${prev ? `<a class="btn prev" href="#${prev.path}"><small>◂ PREVIOUS</small><b>${esc(prev.title)}</b></a>` : ""}${next ? `<a class="btn next" href="#${next.path}"><small>NEXT ▸</small><b>${esc(next.title)}</b></a>` : ""}</nav>`;
+}
+function docFoot(edit) {
+  return `<div class="doc-foot"><a href="${edit}" target="_blank" rel="noopener">${icon("notepad", 16)}Edit this page on GitHub</a><span>Found a problem? <a href="${GH}/issues/new" target="_blank" rel="noopener">Open an issue</a></span></div>`;
+}
+function guidePage(id) {
+  const g = GUIDE_BY[id]; if (!g) return null;
+  const path = "/guides/" + id;
+  const body = md(document.getElementById("md-" + id).textContent, { path, lead: true, ids: new Set() });
+  return { title: g[1], sec: "guides", path, html: `<article class="prose"><nav class="crumbs"><a href="#/">DOCS</a>▸<a href="#/guides/getting-started">GUIDES</a>▸</nav><h1>${esc(g[1])}</h1>${body}${docFoot(`${GH}/edit/main/packages/docs/src/content/docs/guides/${id}.mdx`)}${pager(path)}</article>` };
+}
+function apiPage(name) {
+  const a = API_BY[name]; if (!a) return null;
+  const path = "/api/" + name, grp = API_GROUPS.find(([g]) => g === a.group)[1];
+  const ctx = { path, lead: false, ids: new Set() };
+  const h2 = (t, id) => `<h2 id="${id}">${t}<a class="anchor" href="#${path}#${id}" aria-label="Link to this section">#</a></h2>`;
+  const params = a.params ? `<div class="tbl"><table><thead><tr><th>Option</th><th>Type</th><th>Default</th><th>Description</th></tr></thead><tbody>${a.params.map(([n, t, d, desc]) =>
+    `<tr><td class="nm"><code>${n}</code>${(a.req || []).includes(n) ? '<span class="req">REQ</span>' : ""}</td><td><code>${esc(t)}</code></td><td>${d ? inline(d) : "–"}</td><td>${inline(desc)}</td></tr>`).join("")}</tbody></table></div>`
+    : `<p>Each item in <code>actions</code> is one of these:</p><div class="tbl"><table><thead><tr><th>apply</th><th>params</th><th>Effect</th></tr></thead><tbody>${a.actions.map(([n, p, d]) => `<tr><td class="nm">${n.split(" / ").map((x) => `<code>"${x}"</code>`).join(" ")}</td><td><code>${esc(p)}</code></td><td>${inline(d)}</td></tr>`).join("")}</tbody></table></div>`;
+  const html = `<article class="prose">
+    <nav class="crumbs"><a href="#/">DOCS</a>▸<a href="#/api">API REFERENCE</a>▸<span>${esc(grp.toUpperCase().replace("&", "AND"))}</span></nav>
+    <h1>${esc(a.name)}<span class="paren">()</span></h1>
+    <div class="api-meta"><a class="chip" href="${GH}/tree/main/plugins/${a.pkg}" target="_blank" rel="noopener">${icon("plugins", 16)}<code>@jimp/${a.pkg}</code></a><span class="chip">${icon("method", 16)}Method of <code>Jimp</code></span><span class="chip">${icon("js", 16)}Included in <code>jimp</code></span></div>
+    <p class="lead">${inline(a.desc)}</p>
+    ${h2("Signature", "signature")}
+    <div class="sigbox"><div class="sig-label">TYPESCRIPT</div><pre>${hl(a.sig, "ts")}</pre></div>
+    ${h2("Try it", "try-it")}
+    <p>This is <code>${a.name}()</code> running on a real image. Change the options and the image and code update; <b>Apply again</b> stacks another call. You can open your own picture too.</p>
+    <div data-pg='${esc(JSON.stringify({ api: a.name }))}'></div>
+    ${h2(a.params ? "Options" : "Actions", "options")}
+    ${params}
+    ${h2("Examples", "examples")}
+    ${a.examples.map(([t, code]) => `<h3 id="${slug(t)}">${esc(t)}</h3>${codeBlock(code, "ts")}`).join("")}
+    ${(a.notes || []).map(([type, title, text]) => callout(type, title, `<p>${inline(text)}</p>`)).join("")}
+    ${h2("Related", "related")}
+    ${cards(a.related.map((r) => ["/api/" + r, r + "()", API_BY[r].summary, "method"]))}
+    ${docFoot(`${GH}/edit/main/plugins/${a.pkg}/src/index.ts`)}
+    ${pager(path)}
+  </article>`;
+  return { title: a.name + "()", sec: "api", path, html };
+}
+function apiIndex() {
+  const path = "/api";
+  const html = `<article class="prose">
+    <nav class="crumbs"><a href="#/">DOCS</a>▸<span>API REFERENCE</span></nav>
+    <h1>API Reference</h1>
+    <p class="lead">Every image is a <code>Jimp</code> instance. Manipulation methods change the image in place and return it, so calls can be chained. Each page below has the options, examples and a playground for that method.</p>
+    <h2 id="reading-and-writing">Reading and writing<a class="anchor" href="#/api#reading-and-writing">#</a></h2>
+    <div class="tbl"><table><thead><tr><th>Method</th><th>Description</th></tr></thead><tbody>
+      <tr><td><code>Jimp.read(pathOrUrl, options?)</code></td><td>Load from a file path (Node.js) or URL (browser). <a href="#/guides/reading-large-images">Decode options</a></td></tr>
+      <tr><td><code>Jimp.fromBuffer(buffer, options?)</code></td><td>Decode a <code>Buffer</code> or <code>ArrayBuffer</code>, such as an uploaded file.</td></tr>
+      <tr><td><code>Jimp.fromBitmap(bitmap)</code></td><td>Wrap raw RGBA pixels, such as canvas <code>ImageData</code>.</td></tr>
+      <tr><td><code>image.getBuffer(mime, options?)</code></td><td>Encode to a <code>Buffer</code>. JPEG takes <code>quality</code> and <code>exif</code>.</td></tr>
+      <tr><td><code>image.getBase64(mime, options?)</code></td><td>Encode to a data URL, ready for an <code>&lt;img&gt;</code>.</td></tr>
+      <tr><td><code>image.write(path, options?)</code></td><td>Node.js only. Encode and save, picking the format from the extension.</td></tr>
+      <tr><td><code>image.clone()</code></td><td>Copy an image so you can branch edits.</td></tr>
+    </tbody></table></div>
+    ${API_GROUPS.map(([g, label]) => `<h2 id="${g}">${esc(label)}<a class="anchor" href="#/api#${g}">#</a></h2><div class="tbl"><table><thead><tr><th>Method</th><th>Description</th><th>Package</th></tr></thead><tbody>${API.filter((a) => a.group === g).map((a) => `<tr><td class="nm"><a href="#/api/${a.name}"><code>${a.name}()</code></a></td><td>${inline(a.summary)}</td><td><code>@jimp/${a.pkg}</code></td></tr>`).join("")}</tbody></table></div>`).join("")}
+    <aside class="callout note">${icon("info", 32)}<div><span class="co-t">More methods</span><p>Jimp has more methods than this prototype documents, including <code>blit</code>, <code>composite</code>, <code>mask</code>, <code>contain</code>, <code>cover</code>, <code>circle</code>, <code>fisheye</code>, <code>print</code> and <code>hash</code>. See the <a href="https://jimp-dev.github.io/jimp/api/jimp/classes/jimp/" target="_blank" rel="noopener">full typedoc reference</a>.</p></div></aside>
+    ${docFoot(`${GH}/tree/main/plugins`)}
+    ${pager(path)}
+  </article>`;
+  return { title: "API Reference", sec: "api", path, html };
+}
+function homePage() {
+  const cols = ["#e0242c", "#ff8c1a", "#ffd23f", "#1fa34a"];
+  const feat = [
+    ["picture", "Image formats", "PNG, JPEG, BMP, GIF and TIFF are built in. WEBP and AVIF are opt-in WASM plugins."],
+    ["paint", "Image manipulation", "Resize, crop, rotate, blur, recolour, mask and composite, with typed option objects."],
+    ["plugins", "Pluggable", "Write your own methods or formats, then build a custom Jimp with only what you need."],
+    ["js", "Just JavaScript", "No native dependencies, so the same code runs in Node.js, browsers and web workers."],
+    ["hourglass", "Promises, not callbacks", "<code>read</code>, <code>getBuffer</code>, <code>getBase64</code> and <code>write</code> all return promises."],
+    ["notepad", "Typed and validated", "Every method is typed, and options are validated at runtime so mistakes fail with a clear message."],
+  ];
+  const step = (n, t, code, p, title) => `<div class="step"><div class="step-h"><span class="step-n">${n}</span><b>${t}</b></div>${codeBlock(code, "ts", title)}<p>${p}</p></div>`;
+  const html = `<div class="home">
+    <section class="hero">
+      <div class="hero-l">
+        <div class="hero-logo">${pix(MAPS.paintbig, 92)}<h1 class="logo-word" aria-label="Jimp v1">${[..."Jimp"].map((c, i) => `<span style="color:${cols[i]}">${c}</span>`).join("")}<span class="nn">v1</span></h1></div>
+        <p class="hero-tag">The JavaScript Image Manipulation Program</p>
+        <p class="hero-lede">Load, edit and save images with plain JavaScript. Jimp has no native dependencies, so the same code runs in Node.js and in the browser.</p>
+        <div class="install">
+          <div class="seg" role="radiogroup" aria-label="Package manager">${["npm", "pnpm", "yarn", "bun"].map((p, i) => `<button class="btn${i ? "" : " pressed"}" data-pm="${p}">${p}</button>`).join("")}</div>
+          <div class="dosfield" aria-label="Install command"><b>C:\\&gt;</b><span id="pm-cmd">npm install jimp</span><i></i></div>
+          <button class="btn" id="pm-copy">Copy</button>
+        </div>
+        <div class="hero-cta">
+          <a class="btn default" href="#/guides/getting-started">${icon("book", 16)}Get started ▸</a>
+          <a class="btn" href="#/api">${icon("folder", 16)}API Reference</a>
+          <a class="btn" href="${GH}" target="_blank" rel="noopener">${icon("globe", 16)}GitHub</a>
+        </div>
+        <ul class="facts">
+          <li><span class="ok"><svg width="7" height="7" viewBox="0 0 7 7" shape-rendering="crispEdges"><path d="M0 2h1v1h1v1h1V3h1V2h1V1h1V0h1v3H6v1H5v1H4v1H3v1H2V6H1V5H0z"/></svg></span>Works in Node.js, browsers and web workers</li>
+          <li><span class="ok"><svg width="7" height="7" viewBox="0 0 7 7" shape-rendering="crispEdges"><path d="M0 2h1v1h1v1h1V3h1V2h1V1h1V0h1v3H6v1H5v1H4v1H3v1H2V6H1V5H0z"/></svg></span>TypeScript types included</li>
+          <li><span class="ok"><svg width="7" height="7" viewBox="0 0 7 7" shape-rendering="crispEdges"><path d="M0 2h1v1h1v1h1V3h1V2h1V1h1V0h1v3H6v1H5v1H4v1H3v1H2V6H1V5H0z"/></svg></span>MIT licensed</li>
+        </ul>
+        <section class="win tipwin" aria-label="Tip">
+          <div class="titlebar">${icon("bulb", 16)}<span class="tb-title">Tip of the Day</span></div>
+          <div class="tip-in">${icon("bulb", 34)}<div><b class="tip-h">Did you know…</b><p id="tip-text"></p></div></div>
+          <div class="tip-foot"><span id="tip-n"></span><span><button class="btn tiny" id="tip-prev">◂ Back</button> <button class="btn tiny" id="tip-next">Next Tip ▸</button></span></div>
+        </section>
+      </div>
+      <div class="hero-r" id="playground">
+        <div data-pg='{"compact":true,"tools":["blur","gaussian","pixel","circle","crop","rotate","flipH","flipV","invert","greyscale","sepia","posterize","fisheye","dither"],"tool":"pixel","ready":"Ready. Pick a tool, or click the picture with the Pixel Brush."}'></div>
+        <p class="pg-caption">${icon("bulb", 16)}This is the real Jimp, loaded from a CDN. Every click is a method call you can copy.</p>
+      </div>
+    </section>
+    <section class="sec">
+      <h2 class="sec-h" id="features">${icon("info", 26)}Why Jimp?</h2>
+      <p class="sec-sub">An image library that's just JavaScript: easy to install, easy to read, and the same in every runtime.</p>
+      <div class="feat">${feat.map(([ic, t, d]) => `<section class="win fwin"><div class="titlebar">${icon(ic, 16)}<span class="tb-title">${t}</span></div><div class="fbody"><p>${d}</p></div></section>`).join("")}</div>
+    </section>
+    <section class="sec">
+      <h2 class="sec-h" id="usage">${icon("doc", 26)}Load → manipulate → save</h2>
+      <p class="sec-sub">Every Jimp script follows the same three steps.</p>
+      <div class="flow">
+        ${step(1, "Load", `import { Jimp } from "jimp";\n\nconst image = await Jimp.read(\n  "test/image.png"\n);`, "From a path or URL, or from bytes with <code>Jimp.fromBuffer</code>.", "load.ts")}
+        <div class="flow-arrow" aria-hidden="true">▸</div>
+        ${step(2, "Manipulate", `image\n  .resize({ w: 100 })\n  .greyscale()\n  .blur(2);`, "Methods change the image in place and return it, so they chain.", "edit.ts")}
+        <div class="flow-arrow" aria-hidden="true">▸</div>
+        ${step(3, "Save", `await image.write(\n  "test/output.png"\n);`, "Or get bytes with <code>getBuffer</code>, or a data URL with <code>getBase64</code>.", "save.ts")}
+      </div>
+    </section>
+    <section class="sec">
+      <h2 class="sec-h" id="next">${icon("bookopen", 26)}Where to next</h2>
+      ${cards([["/guides/getting-started", "Getting Started", "Install Jimp and write your first script.", "book"], ["/guides/browser", "Using in Browser", "CDN builds, uploads, canvas and workers.", "globe"], ["/api", "API Reference", "Every method, with a playground for each.", "folder"], ["/guides/migrate-to-v1", "Migrate to v1", "Update code written for Jimp v0.", "notepad"]])}
+    </section>
+  </div>`;
+  return { title: "", sec: "home", path: "/", html, wide: true };
+}
+function notFound(path) {
+  return { title: "Page not found", sec: "", path, wide: true, html: `<div class="nf">${icon("error", 44)}<div class="prose"><h1 style="font-size:30px">Cannot find this page</h1><p>Jimp docs can't find <code>#${esc(path)}</code>. Make sure the address is correct, or start from one of these:</p><p style="display:flex;gap:8px;flex-wrap:wrap"><a class="btn default" href="#/">Home</a><a class="btn" href="#/guides/getting-started">Getting Started</a><a class="btn" href="#/api">API Reference</a></p></div></div>` };
+}
+
+/* ================= shell: header, sidebar, toc, search ================= */
+$("#brand-ico").innerHTML = icon("paint", 22);
+$("#brand-word").innerHTML = [..."Jimp"].map((c, i) => `<span style="color:${["#ff5a5f", "#ffad3b", "#ffd23f", "#5fd37a"][i]}">${c}</span>`).join("");
+$("#search-ico").innerHTML = icon("search", 14);
+$("#gh-ico").innerHTML = icon("globe", 16);
+$("#menu-btn").innerHTML = icon("menu", 14);
+
+function buildTree() {
+  const pg = (path, label, ic, mono) => `<li><a href="#${path}" data-path="${path}" class="${mono ? "mono" : ""}">${icon(ic, 16)}<span>${esc(label)}</span></a></li>`;
+  const grp = (label, kids, ic = "book", open = true) => `<li class="${open ? "open" : ""}"><button class="grp" data-ic="${ic}" aria-expanded="${open}">${icon(open ? (ic === "book" ? "bookopen" : "folderopen") : ic, 16)}<span>${esc(label)}</span></button><ul>${kids}</ul></li>`;
+  $("#tree").innerHTML =
+    pg("/", "Home", "picture") +
+    grp("Guides", GUIDES.map(([id, t]) => pg("/guides/" + id, t, "doc")).join("")) +
+    grp("API Reference", pg("/api", "Overview", "doc") + API_GROUPS.map(([g, label]) => grp(label, API.filter((a) => a.group === g).map((a) => pg("/api/" + a.name, a.name + "()", "method", true)).join(""), "folder")).join(""));
+  $("#tree").addEventListener("click", (e) => {
+    const b = e.target.closest("button.grp"); if (!b) return;
+    const li = b.parentElement, open = li.classList.toggle("open"), ic = b.dataset.ic;
+    b.setAttribute("aria-expanded", open);
+    b.querySelector("svg").outerHTML = icon(open ? (ic === "book" ? "bookopen" : "folderopen") : ic, 16);
+  });
+}
+function markTree(path) {
+  $$("#tree a").forEach((a) => a.classList.toggle("on", a.dataset.path === path));
+  const on = $(`#tree a[data-path="${CSS.escape(path)}"]`);
+  let li = on?.closest("ul")?.closest("li");
+  while (li) { if (!li.classList.contains("open")) li.querySelector(":scope > button.grp")?.click(); li = li.parentElement.closest("li"); }
+  if (on) { const box = $(".tree-box"), r = on.getBoundingClientRect(), br = box.getBoundingClientRect(); if (r.top < br.top || r.bottom > br.bottom) box.scrollTop += r.top - br.top - 80; }
+}
+const INDEX = [
+  ...GUIDES.map(([id, t]) => ({ k: t, sub: "guide", path: "/guides/" + id })),
+  ...API.map((a) => ({ k: a.name + "()", sub: "@jimp/" + a.pkg, path: "/api/" + a.name })),
+  ...[["autocrop()", "crop()", "/api/crop#examples"], ["Buffer polyfill", "Custom Jimp", "/guides/custom-jimp#using-a-custom-jimp-outside-of-nodejs"], ["callbacks (v0)", "Migrate to v1", "/guides/migrate-to-v1#async-exports"],
+    ["CDN", "Using in Browser", "/guides/browser#from-a-cdn"], ["canvas", "Using in Browser", "/guides/browser#using-a-canvas"], ["createJimp", "Custom Jimp", "/guides/custom-jimp"],
+    ["decode options", "Reading Large Images", "/guides/reading-large-images#passing-decode-options"], ["GPS location", "EXIF", "/guides/exif#writing-exif-data"], ["fromBuffer", "Using in Browser", "/guides/browser#with-uploaded-files"],
+    ["loadFont", "Using in Browser", "/guides/browser#using-fonts"], ["maxResolutionInMP", "Reading Large Images", "/guides/reading-large-images#options-by-format"], ["Orientation", "EXIF", "/guides/exif#auto-rotation-on-read"],
+    ["ResizeStrategy", "resize()", "/api/resize#options"], ["scaleToFit()", "resize()", "/api/resize"], ["web workers", "Using in Browser", "/guides/browser#web-workers"], ["Vite", "WEBP / WASM", "/guides/webp#vite"],
+    ["zod", "Writing Plugins", "/guides/writing-plugins"], ["AVIF", "WEBP / WASM", "/guides/webp"], ["JimpMime", "Migrate to v1", "/guides/migrate-to-v1#removed-constants"]].map(([k, sub, path]) => ({ k, sub, path })),
+].sort((a, b) => a.k.toLowerCase().localeCompare(b.k.toLowerCase()));
+function renderIndex(q = "") {
+  const items = INDEX.filter((e) => !q || e.k.toLowerCase().startsWith(q.toLowerCase()));
+  $("#idx-list").innerHTML = items.map((e) => `<a href="#${e.path}">${esc(e.k)} <small>· ${esc(e.sub)}</small></a>`).join("") || `<p style="padding:6px">No topics found.</p>`;
+}
+$$(".side-panel .tabs98 button").forEach((t) => (t.onclick = () => {
+  $$(".side-panel .tabs98 button").forEach((x) => x.classList.toggle("on", x === t));
+  $$(".side-panel [data-panel]").forEach((p) => { const on = p.dataset.panel === t.dataset.tab; p.classList.toggle("hidden", !on); p.style.display = on ? "flex" : ""; });
+  if (t.dataset.tab === "index") $("#idx-in").focus();
+}));
+$("#idx-in").oninput = (e) => renderIndex(e.target.value);
+
+/* search */
+const SEARCH = [];
+function buildSearch() {
+  GUIDES.forEach(([id, t, d]) => {
+    const src = document.getElementById("md-" + id).textContent;
+    SEARCH.push({ t, d, path: "/guides/" + id, text: (t + " " + src).toLowerCase(), kind: "Guide", ic: "doc" });
+    src.split("\n").filter((l) => /^#{2,3} /.test(l)).forEach((l) => { const h = l.replace(/^#+ /, ""); SEARCH.push({ t: h.replace(/`/g, ""), d: t, path: `/guides/${id}#${slug(h)}`, text: h.toLowerCase(), kind: "Section", ic: "page" }); });
+  });
+  API.forEach((a) => SEARCH.push({ t: a.name + "()", d: a.summary, path: "/api/" + a.name, text: [a.name, a.summary, a.desc, ...(a.params || []).map((p) => p.join(" ")), ...(a.actions || []).map((p) => p.join(" "))].join(" ").toLowerCase(), kind: "API", ic: "method" }));
+}
+let sIdx = 0, sRes = [];
+function doSearch(q) {
+  const box = $("#search-res");
+  q = q.trim().toLowerCase();
+  if (q.length < 2) { box.classList.add("hidden"); return; }
+  const words = q.split(/\s+/);
+  sRes = SEARCH.map((s) => {
+    if (!words.every((w) => s.text.includes(w))) return null;
+    const tl = s.t.toLowerCase();
+    const score = (tl === q ? 100 : tl.startsWith(q) ? 50 : tl.includes(q) ? 25 : 0) + (s.kind === "API" ? 6 : s.kind === "Guide" ? 4 : 0);
+    return { ...s, score };
+  }).filter(Boolean).sort((a, b) => b.score - a.score).slice(0, 9);
+  sIdx = 0;
+  box.innerHTML = sRes.length ? sRes.map((r, i) => `<a href="#${r.path}" class="${i ? "" : "on"}" role="option">${icon(r.ic, 16)}<span><b>${esc(r.t)}</b><small>${esc(r.kind)} · ${esc(r.d)}</small></span></a>`).join("") : `<div class="none">No results for “${esc(q)}”.</div>`;
+  box.classList.remove("hidden");
+}
+$("#search-in").addEventListener("input", (e) => doSearch(e.target.value));
+$("#search-in").addEventListener("focus", (e) => e.target.value && doSearch(e.target.value));
+$("#search-in").addEventListener("keydown", (e) => {
+  const box = $("#search-res"), links = $$("a", box);
+  if (e.key === "ArrowDown" || e.key === "ArrowUp") { e.preventDefault(); if (!links.length) return; sIdx = (sIdx + (e.key === "ArrowDown" ? 1 : -1) + links.length) % links.length; links.forEach((l, i) => l.classList.toggle("on", i === sIdx)); links[sIdx].scrollIntoView({ block: "nearest" }); }
+  if (e.key === "Enter" && sRes[sIdx]) { location.hash = sRes[sIdx].path; closeSearch(); e.target.blur(); }
+  if (e.key === "Escape") { closeSearch(); e.target.blur(); }
+});
+function closeSearch() { $("#search-res").classList.add("hidden"); }
+document.addEventListener("click", (e) => { if (!e.target.closest("#search")) closeSearch(); else if (e.target.closest("#search-res a")) { closeSearch(); $("#search-in").value = ""; } });
+
+/* version picker */
+$("#ver").onchange = async (e) => {
+  if (e.target.value !== "v0") return;
+  const v = await dialog({ title: "Jimp v0", icon: "info", body: `<p>These docs are for <b>Jimp v1</b>. Version 0 is no longer maintained, and its README on GitHub is the only v0 documentation.</p><p>Moving to v1? The migration guide covers every renamed method and constant.</p>`,
+    buttons: [{ label: "Read Migrate to v1", value: "migrate", def: true }, { label: "Open v0 on GitHub", value: "gh" }, { label: "Cancel", value: null }] });
+  e.target.value = "v1";
+  if (v === "migrate") location.hash = "/guides/migrate-to-v1";
+  if (v === "gh") open(`${GH}/tree/v0.22.12`, "_blank");
+};
+
+/* mobile nav */
+const setNav = (on) => { document.body.classList.toggle("nav-open", on); $("#menu-btn").setAttribute("aria-expanded", on); };
+$("#menu-btn").onclick = () => setNav(!document.body.classList.contains("nav-open"));
+document.addEventListener("click", (e) => { if (document.body.classList.contains("nav-open") && !e.target.closest("#sidebar, #menu-btn")) setNav(false); });
+
+/* TOC */
+let tocLinks = [];
+function buildToc(path) {
+  const hs = $$("#doc .prose h2[id], #doc .prose h3[id]");
+  if (!hs.length) { $("#toc").innerHTML = ""; tocLinks = []; return; }
+  $("#toc").innerHTML = `<div class="toc-panel"><div class="toc-head">${icon("bookopen", 14)}ON THIS PAGE</div><ul class="toc-list">
+    <li class="lv2"><a href="#${path}" data-top>Overview</a></li>
+    ${hs.map((h) => `<li class="lv${h.tagName[1]}"><a href="#${path}#${h.id}" data-id="${h.id}">${esc(h.childNodes[0].textContent)}</a></li>`).join("")}</ul></div>
+    <div class="toc-tools"><button class="btn tiny" id="to-top">▲ Back to top</button></div>`;
+  $("#to-top").onclick = () => scrollTo({ top: 0, behavior: "smooth" });
+  tocLinks = $$("#toc .toc-list a");
+  spy();
+}
+function spy() {
+  if (!tocLinks.length) return;
+  const y = parseInt(getComputedStyle(document.documentElement).getPropertyValue("--head-h")) + 40;
+  let curId = null;
+  $$("#doc .prose h2[id], #doc .prose h3[id]").forEach((h) => { if (h.getBoundingClientRect().top < y) curId = h.id; });
+  if (innerHeight + scrollY >= document.documentElement.scrollHeight - 4) curId = $$("#doc .prose h2[id], #doc .prose h3[id]").at(-1)?.id;
+  tocLinks.forEach((a) => a.classList.toggle("on", curId ? a.dataset.id === curId : a.hasAttribute("data-top")));
+}
+addEventListener("scroll", () => { cancelAnimationFrame(spy.f); spy.f = requestAnimationFrame(spy); }, { passive: true });
+
+/* ================= router ================= */
+let curPath = null;
+function parseHash() {
+  const raw = decodeURIComponent(location.hash.slice(1)) || "/";
+  const i = raw.indexOf("#");
+  return i >= 0 ? [raw.slice(0, i) || "/", raw.slice(i + 1)] : [raw, ""];
+}
+function route() {
+  let [path, sec] = parseHash();
+  if (!path.startsWith("/")) path = "/" + path;
+  if (path.length > 1) path = path.replace(/\/$/, "");
+  if (path !== curPath) {
+    const page = path === "/" ? homePage() : path === "/api" ? apiIndex() : path.startsWith("/guides/") ? guidePage(path.slice(8)) : path.startsWith("/api/") ? apiPage(path.slice(5)) : null;
+    const p = page || notFound(path);
+    curPath = path;
+    $("#doc").innerHTML = p.html;
+    $("#layout").classList.toggle("wide", !!p.wide);
+    document.title = p.title ? `${p.title} · Jimp docs` : "Jimp · The JavaScript Image Manipulation Program";
+    $("#head-doc").innerHTML = esc(p.title || "").replace(/\(\)$/, '<span class="paren">()</span>');
+    $$("#navlinks a").forEach((a) => a.classList.toggle("on", a.dataset.sec === p.sec));
+    activePg = null;
+    $$("[data-pg]", $("#doc")).forEach((el) => { let cfg = {}; try { cfg = JSON.parse(el.dataset.pg); } catch {} const pg = new Playground(el, cfg); activePg ||= pg; });
+    $$("[data-tabs]", $("#doc")).forEach(bindTabs);
+    bindHome();
+    markTree(path);
+    buildToc(path);
+    setNav(false);
+    if (!sec) scrollTo({ top: 0 });
+  }
+  if (sec) requestAnimationFrame(() => document.getElementById(sec)?.scrollIntoView({ block: "start" }));
+}
+function bindTabs(el) {
+  $$(".tabs98 button", el).forEach((b) => (b.onclick = () => {
+    const pick = b.dataset.t;
+    $$("[data-tabs]").forEach((all) => { // keep every package-manager tab group in sync
+      $$(".tabs98 button", all).forEach((x) => x.classList.toggle("on", x.dataset.t === pick));
+      $$("[data-p]", all).forEach((p) => p.classList.toggle("hidden", p.dataset.p !== pick));
+    });
+  }));
+}
+const TIPS = [
+  "<code>Jimp.read</code> takes a file path in Node.js and a URL in the browser. For bytes you already have, such as an upload, use <code>Jimp.fromBuffer</code>.",
+  "<code>image.clone()</code> copies an image, so you can make a thumbnail without touching the original: <code>image.clone().resize({ w: 64 })</code>.",
+  "Options are validated at runtime. <code>image.resize({ w: -1 })</code> throws a readable error instead of producing a broken image.",
+  "Pass <code>{ exif: true }</code> when writing a JPEG to keep the camera metadata of the file you read.",
+  "Need WEBP or AVIF? Add the opt-in WASM format plugins to a custom Jimp with <code>createJimp</code>.",
+];
+let tipI = 0;
+function bindHome() {
+  const cmd = $("#pm-cmd"); if (!cmd) return;
+  const showTip = (d) => { tipI = (tipI + d + TIPS.length) % TIPS.length; $("#tip-text").innerHTML = TIPS[tipI]; $("#tip-n").textContent = `Tip ${tipI + 1} of ${TIPS.length}`; };
+  $("#tip-next").onclick = () => showTip(1); $("#tip-prev").onclick = () => showTip(-1); showTip(0);
+  const C = { npm: "npm install jimp", pnpm: "pnpm add jimp", yarn: "yarn add jimp", bun: "bun add jimp" };
+  $$("[data-pm]").forEach((b) => (b.onclick = () => { $$("[data-pm]").forEach((x) => x.classList.toggle("pressed", x === b)); cmd.textContent = C[b.dataset.pm]; }));
+  $("#pm-copy").onclick = (e) => copyText(cmd.textContent).then((ok) => flash(e.currentTarget || $("#pm-copy"), ok ? "Copied!" : "Select it"));
+}
+addEventListener("hashchange", route);
+
+/* global clicks: copy buttons */
+document.addEventListener("click", (e) => {
+  const cb = e.target.closest("[data-copy-block]");
+  if (cb) copyText(cb.closest(".np-code").querySelector("pre").dataset.raw).then((ok) => flash(cb, ok ? "Copied!" : "Select it"));
+});
+/* keyboard */
+document.addEventListener("keydown", (e) => {
+  const mod = e.ctrlKey || e.metaKey;
+  if (mod && e.key.toLowerCase() === "k") { e.preventDefault(); $("#search-in").focus(); $("#search-in").select(); return; }
+  if (e.target.matches?.("input, textarea, select")) return;
+  if (e.key === "/") { e.preventDefault(); $("#search-in").focus(); }
+  if (mod && e.key.toLowerCase() === "z" && !e.shiftKey && activePg) { e.preventDefault(); activePg.undo(); }
+});
+/* keep --head-h in sync with the real header height */
+const syncHead = () => document.documentElement.style.setProperty("--head-h", $("#site-head").offsetHeight + "px");
+new ResizeObserver(syncHead).observe($("#site-head"));
+
+buildTree(); renderIndex(); buildSearch(); syncHead(); route();
+</script>
+</body>
+</html>

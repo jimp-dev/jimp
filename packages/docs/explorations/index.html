@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Jimp docs — visual directions</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;700&family=Inter:wght@400;600&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --ink: #111;
+        --paper: #fffdf6;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        font: 16px/1.55 Inter, system-ui, sans-serif;
+        color: var(--ink);
+        background:
+          repeating-conic-gradient(#e9e6dc 0 25%, var(--paper) 0 50%) 0 0 / 16px
+            16px;
+        min-height: 100vh;
+      }
+      main {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 56px 24px 80px;
+      }
+      h1 {
+        font-family: "Pixelify Sans", monospace;
+        font-size: 56px;
+        line-height: 1;
+        margin: 0 0 12px;
+        letter-spacing: -1px;
+      }
+      h1 span {
+        background: linear-gradient(90deg, #ff3b6b, #ffb800, #19c37d, #2f7bff, #a347ff);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+      }
+      .lede {
+        max-width: 640px;
+        font-size: 18px;
+        margin: 0 0 40px;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+        gap: 20px;
+      }
+      a.card {
+        display: block;
+        text-decoration: none;
+        color: inherit;
+        background: #fff;
+        border: 3px solid var(--ink);
+        box-shadow: 6px 6px 0 var(--ink);
+        transition:
+          transform 0.12s,
+          box-shadow 0.12s;
+      }
+      a.card:hover {
+        transform: translate(-3px, -3px) rotate(-0.5deg);
+        box-shadow: 9px 9px 0 var(--ink);
+      }
+      .swatch {
+        height: 140px;
+        border-bottom: 3px solid var(--ink);
+        display: grid;
+        place-items: center;
+        font-family: "Pixelify Sans", monospace;
+        font-size: 22px;
+      }
+      .body {
+        padding: 14px 16px 18px;
+      }
+      .body h2 {
+        margin: 0 0 6px;
+        font-size: 18px;
+      }
+      .body p {
+        margin: 0;
+        font-size: 15px;
+        color: #333;
+      }
+      .s1 {
+        background: #008080;
+        color: #fff;
+      }
+      .s1 b {
+        background: #c0c0c0;
+        color: #000;
+        padding: 4px 10px;
+        border: 2px outset #fff;
+      }
+      .s2 {
+        background: #2b2b2b;
+        color: #ddd;
+      }
+      .s2 b {
+        border: 1px dashed #ddd;
+        padding: 4px 10px;
+      }
+      .s3 {
+        background: repeating-conic-gradient(#000 0 25%, #fff 0 50%) 0 0 / 4px 4px;
+      }
+      .s3 b {
+        background: #fff;
+        border: 2px solid #000;
+        padding: 4px 10px;
+      }
+      .s4 {
+        background: radial-gradient(circle at 20% 30%, #ffde00 0 18%, transparent 19%),
+          radial-gradient(circle at 80% 70%, #ff4fa3 0 22%, transparent 23%), #3ad1ff;
+      }
+      .s4 b {
+        background: #fff;
+        border: 3px solid #000;
+        border-radius: 18px;
+        padding: 4px 12px;
+        transform: rotate(-4deg);
+      }
+      footer {
+        margin-top: 48px;
+        font-size: 14px;
+        color: #555;
+      }
+      code {
+        background: #fff;
+        border: 1px solid #ccc;
+        padding: 1px 5px;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>Jimp docs, <span>but make it Paint.</span></h1>
+      <p class="lede">
+        Four visual directions for the docs redesign. Each one is a single HTML
+        file that loads real Jimp from the CDN, so every playground runs actual
+        Jimp operations and shows you the code for whatever you just clicked.
+      </p>
+      <h2 style="font-family: 'Pixelify Sans', monospace; font-size: 28px; margin: 0 0 16px">Round 2</h2>
+      <div class="grid" style="margin-bottom: 48px">
+        <a class="card" href="./01b-paint-site.html">
+          <div class="swatch s1"><b>Paint '98 site</b></div>
+          <div class="body">
+            <h2>01b · Paint '98, as a website</h2>
+            <p>A normal docs layout (header, sidebar, content, page outline) in 98-era styling, with Paint-style playgrounds placed inline in the guides and API pages.</p>
+          </div>
+        </a>
+        <a class="card" href="./04b-kid-docs.html">
+          <div class="swatch s4"><b>Kid Studio docs</b></div>
+          <div class="body">
+            <h2>04b · Kid Studio, toned down</h2>
+            <p>The same chunky colourful visuals with calmer motion and plain technical copy. Tools use the real method names.</p>
+          </div>
+        </a>
+      </div>
+      <h2 style="font-family: 'Pixelify Sans', monospace; font-size: 28px; margin: 0 0 16px">Round 1</h2>
+      <div class="grid">
+        <a class="card" href="./01-paint.html">
+          <div class="swatch s1"><b>Paint '98</b></div>
+          <div class="body">
+            <h2>01 · Paint '98</h2>
+            <p>A teal desktop with beveled windows. The toolbox is the API, and a Notepad window writes your code as you go.</p>
+          </div>
+        </a>
+        <a class="card" href="./02-layers.html">
+          <div class="swatch s2"><b>Pro Studio</b></div>
+          <div class="body">
+            <h2>02 · Pro Studio 2002</h2>
+            <p>Dark pro-editor palettes where the layers panel is the method chain. Toggle, reorder, and tweak layers to see the chained code update.</p>
+          </div>
+        </a>
+        <a class="card" href="./03-onebit.html">
+          <div class="swatch s3"><b>1-Bit</b></div>
+          <div class="body">
+            <h2>03 · 1-Bit Classic</h2>
+            <p>Strictly black and white. Every image goes through Jimp's own <code>dither()</code>, and guides open as windows from a Finder-style desktop.</p>
+          </div>
+        </a>
+        <a class="card" href="./04-kidpix.html">
+          <div class="swatch s4"><b>Kid Studio!</b></div>
+          <div class="body">
+            <h2>04 · Kid Studio</h2>
+            <p>Maximalist and chunky. Tools with silly names map to real methods, there's an Undo Guy, and the Dynamite button resets everything.</p>
+          </div>
+        </a>
+      </div>
+      <footer>
+        Run <code>python3 -m http.server</code> in this folder and open
+        <code>localhost:8000</code>. The pages fetch <code>dice.png</code>, so
+        they won't work over <code>file://</code>.
+      </footer>
+    </main>
+  </body>
+</html>

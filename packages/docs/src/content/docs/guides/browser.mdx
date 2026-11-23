@@ -1,170 +1,291 @@
 ---
 title: Using in Browser
-description: How to use Jimp in the browser.
+description: Use Jimp in the browser with a bundler or a CDN, with uploads, canvas, fonts and workers.
 ---
 
-import { GrayscaleExample } from "../../../components/grayscale-example";
-import GrayscaleExampleCode from "../../../components/grayscale-example?raw";
-import { Code } from "@astrojs/starlight/components";
+import { Aside, Steps, TabItem, Tabs } from "@astrojs/starlight/components";
+import InstallCommand from "../../../components/InstallCommand.astro";
+import Playground from "../../../components/playground/Playground";
 
-Jimp can be used anywhere that javascript is supported. It can be used in the browser, in Node.js, or in a web worker.
+Jimp runs in the browser with the same API as in Node.js.
+The `jimp` package includes a pre-bundled browser build with everything it needs, so there's nothing to polyfill or configure.
 
-Jimp comes with a pre-bundled browser version.
-To use it simply import `jimp` instead.
+Every playground on this site runs Jimp in your browser.
+Upload your own image to try it: nothing leaves your computer.
+The code panel shows browser code; switch it to **Node** to compare.
 
+<Playground
+  client:visible
+  flavor="browser"
+  title="Jimp in your browser"
+  tools={["greyscale", "blur", "invert", "sepia", "pixelate", "threshold", "resize", "rotate"]}
+  steps={[{ op: "greyscale" }]}
+/>
 
-<br />
-<GrayscaleExample client:load />
+## Add Jimp to your page
 
-<details>
-  <summary>How to use in the browser</summary>
+<Tabs syncKey="browser-setup">
+  <TabItem label="With a bundler">
 
-<Code code={GrayscaleExampleCode} lang="ts" title="example.jsx" />
+Install the package and import it as usual:
 
-</details>
+<InstallCommand />
 
-## Usage
+```ts title="main.ts"
+import { Jimp } from "jimp";
+```
 
-There are a few main ways to use Jimp in the browser.
-### From a CDN
+The `jimp` package has a `browser` export condition that points at its pre-bundled build.
+Vite, webpack 5 and esbuild (with `--platform=browser`) pick it up automatically when they build for the browser. With Rollup, set `browser: true` in `@rollup/plugin-node-resolve`.
+The build includes the `Buffer` polyfill and the browser versions of its dependencies, so you don't need `vite-plugin-node-polyfills`, webpack `fallback` settings or a global `Buffer`.
 
-The browser build at `dist/browser/index.js` is a self-contained ES module, so you can import it straight from a CDN without a bundler.
+  </TabItem>
+  <TabItem label="From a CDN">
 
-```html
+The browser build at `dist/browser/index.js` is a self-contained ES module, so you can import it straight from a CDN without a bundler:
+
+```html title="index.html"
+<img id="output" alt="" />
+
 <script type="module">
   import { Jimp } from "https://cdn.jsdelivr.net/npm/jimp@1/dist/browser/index.js";
 
-  const image = await Jimp.read("/some/url");
+  const image = await Jimp.read("/images/photo.jpg");
 
   image.greyscale();
 
-  document.querySelector("img").src = await image.getBase64("image/png");
+  document.querySelector("#output").src = await image.getBase64("image/png");
 </script>
 ```
 
 The same file is on unpkg at `https://unpkg.com/jimp@1/dist/browser/index.js`.
-`jimp@1` always loads the latest v1 release. Pin an exact version such as `jimp@1.7.0` to make sure an update never changes your page.
+`jimp@1` always loads the latest v1 release. Pin an exact version, such as `jimp@1.7.0`, so an update never changes your page.
 
-The `jimp/fonts` export isn't self-contained, so it can't be imported from a CDN.
-Load your fonts by URL with `loadFont` instead (see [Using Fonts](#using-fonts)).
+The `jimp/fonts` export isn't part of the bundle and can't be imported from a CDN. Load fonts by URL instead; see [Fonts](#fonts).
 
+  </TabItem>
+</Tabs>
 
-### With hosted file
+If you build a [custom Jimp](/jimp/guides/custom-jimp/) from `@jimp/core` and individual plugins, your bundler bundles those packages itself instead of using the pre-built file. See [Using a custom Jimp outside of Node.js](/jimp/guides/custom-jimp/#using-a-custom-jimp-outside-of-nodejs) for what that needs.
 
-You can initialize a Jimp instance from a URL or a file path.
+## Load images
 
-```ts
+### From a URL
+
+[`Jimp.read`](/jimp/methods/read/) fetches a URL with `fetch` and decodes the response:
+
+```ts title="main.ts"
 import { Jimp } from "jimp";
 
-// Read a file hosted on the same domain
-const image1 = await Jimp.read("/some/url");
+// On the same site
+const image = await Jimp.read("/images/photo.jpg");
 
-// Read a file hosted on a different domain
-const image2 = await Jimp.read("https://some.other.domain/some/url");
+// On another site, which must send CORS headers
+const remote = await Jimp.read("https://example.com/photo.jpg");
 ```
 
-### With uploaded files
+Images on other domains are subject to [CORS](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS): the server has to allow your page to read them, even though an `<img>` tag can show them without permission.
+A failed fetch rejects with `Could not load Buffer from URL: <url>`, and an error status rejects with `HTTP Status <status> for url <url>`.
 
-Or you can use Jimp with an `ArrayBuffer`.
-Here we take a user's uploaded image and modify it to greyscale.
+### From a file input
 
-```ts
-function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
-  const reader = new FileReader();
+A `File` from an `<input type="file">` or a drop event has an `arrayBuffer()` method.
+Pass the result to [`Jimp.fromBuffer`](/jimp/methods/from-buffer/):
 
-  reader.onload = async (e) => {
-    const image = await Jimp.fromBuffer(e.target?.result);
-
-    image.greyscale();
-
-    const base64 = await image.getBase64("image/jpeg");
-  };
-
-  reader.readAsArrayBuffer(e.target.files[0]);
-}
-
-input.addEventListener("change", handleFile);
+```html title="index.html"
+<input type="file" accept="image/*" id="picker" />
+<img id="output" alt="" />
 ```
 
-### Using Canvas
+```ts title="main.ts"
+import { Jimp } from "jimp";
 
-You can also use Jimp with a canvas.
+const picker = document.querySelector<HTMLInputElement>("#picker")!;
+const output = document.querySelector<HTMLImageElement>("#output")!;
 
-```ts
-const canvas = document.getElementById("my-canvas");
-const ctx = canvas.getContext("2d");
+picker.addEventListener("change", async () => {
+  const file = picker.files?.[0];
+  if (!file) return;
 
-// Load the canvas into a Jimp instance
-const image = await Jimp.fromBitmap(
-  ctx.getImageData(0, 0, canvas.width, canvas.height)
-);
+  const image = await Jimp.fromBuffer(await file.arrayBuffer());
 
-// Manipulate the image
-image.greyscale();
+  image.resize({ w: 600 }).greyscale();
 
-const imageData = new ImageData(
-  new Uint8ClampedArray(image.bitmap.data),
-  image.bitmap.width,
-  image.bitmap.height
-);
-
-// Write back to the canvas
-ctx.putImageData(imageData, 0, 0);
-```
-
-## Using Fonts
-
-Jimp supports loading fonts from a URL or a file path.
-You must host the fonts and will not be able to use the ones included in the node version of Jimp.
-
-> PRs welcome! 
-
-## Web Workers
-
-Jimp can be slow and you don't want that running on the main thread.
-Workers can make this experience a lot better.
-
-First define a worker.
-This is where you should import jimp and do your image transformations.
-
-```ts
-import { Jimp, loadFont } from "jimp";
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const ctx: Worker = self as any;
-
-ctx.addEventListener("message", async (e) => {
-  // Initialize Jimp
-  const image = await Jimp.fromBuffer(e.data.image);
-  const options = e.data.options;
-
-  // Manipulate the image
-  if (options.blur) {
-    image.blur(options.blur);
-  }
-
-  // Return the result
-  ctx.postMessage({ base64: await image.getBase64("image/png") });
+  output.src = await image.getBase64("image/jpeg", { quality: 80 });
 });
 ```
 
-Then you can use the worker.
+`Jimp.fromBuffer` detects the format from the file's contents, so it doesn't matter what the file is called.
+If the user picks a format Jimp can't read, such as WebP, it rejects with `Mime type image/webp does not support decoding`. Add the format with a [WASM plugin](/jimp/guides/webp/) to support it.
 
-```ts
-const fileData: ArrayBuffer = new ArrayBuffer(); // Your image data
+## Show and download the result
+
+[`write`](/jimp/methods/write/) can't save files in the browser; it throws.
+Encode the image instead:
+
+- [`getBase64`](/jimp/methods/get-base64/) returns a data URL you can use as an `<img>` `src`. It's the simplest option for small images.
+- [`getBuffer`](/jimp/methods/get-buffer/) returns the encoded bytes as a `Buffer`, which is a `Uint8Array`. Wrap them in a `Blob` for an object URL, a download or an upload.
+
+```ts title="main.ts"
+import { JimpMime } from "jimp";
+
+const buffer = await image.getBuffer(JimpMime.png);
+const blob = new Blob([buffer], { type: JimpMime.png });
+
+// Show it
+const url = URL.createObjectURL(blob);
+document.querySelector<HTMLImageElement>("#output")!.src = url;
+
+// Download it
+const link = document.createElement("a");
+link.href = url;
+link.download = "edited.png";
+link.click();
+
+// Or upload it
+await fetch("/upload", { method: "POST", body: blob });
+```
+
+Object URLs are cheaper than data URLs for large images. Call `URL.revokeObjectURL(url)` when you no longer need one.
+
+## Canvas and ImageData
+
+Jimp images and canvas `ImageData` use the same pixel layout: one byte each for red, green, blue and alpha, row by row.
+That makes moving pixels between them cheap.
+
+<Steps>
+
+1. Read the canvas pixels with `getImageData` and wrap them with [`Jimp.fromBitmap`](/jimp/methods/from-bitmap/). Unlike `Jimp.read`, `fromBitmap` is synchronous.
+
+   ```ts title="main.ts"
+   import { Jimp } from "jimp";
+
+   const canvas = document.querySelector<HTMLCanvasElement>("#canvas")!;
+   const ctx = canvas.getContext("2d")!;
+
+   const image = Jimp.fromBitmap(ctx.getImageData(0, 0, canvas.width, canvas.height));
+   ```
+
+2. Edit the image as usual.
+
+   ```ts title="main.ts"
+   image.invert();
+   ```
+
+3. Copy the pixels into a new `ImageData` and draw it back. Size the canvas first if the method changed the image's size.
+
+   ```ts title="main.ts"
+   const imageData = new ImageData(
+     new Uint8ClampedArray(image.bitmap.data),
+     image.width,
+     image.height,
+   );
+
+   canvas.width = image.width;
+   canvas.height = image.height;
+   ctx.putImageData(imageData, 0, 0);
+   ```
+
+</Steps>
+
+To get pixels from an `<img>` element or an `ImageBitmap`, draw it on a canvas with `drawImage` first, then read the canvas as above.
+The image must be on the same site or served with CORS headers, or the canvas is "tainted" and `getImageData` throws.
+
+<Aside type="note">
+  `Jimp.fromBitmap` wraps a `Uint8ClampedArray` without copying it, so methods
+  that edit pixels in place can change the `ImageData` you passed in. Pass
+  `new Uint8ClampedArray(imageData.data)` instead if you need to keep it.
+</Aside>
+
+See [Colors and pixels](/jimp/concepts/colors-and-pixels/) for the bitmap layout and for reading and writing single pixels.
+
+## Fonts
+
+The `SANS_*` constants in `jimp/fonts` are file paths for Node.js, so they don't work in the browser.
+In the browser, [`loadFont`](/jimp/methods/load-font/) fetches the font by URL. A font is a `.fnt` file plus one or more `.png` pages, which are loaded from the same directory as the `.fnt` file.
+
+You can host the bundled Open Sans fonts yourself. They're in `node_modules/@jimp/plugin-print/fonts/open-sans/`, one folder per size and color (`open-sans-8-black` to `open-sans-128-white`).
+Copy the folders you need into your public directory, then load them by URL:
+
+```ts title="main.ts"
+import { Jimp, loadFont } from "jimp";
+
+const font = await loadFont("/fonts/open-sans-32-black/open-sans-32-black.fnt");
+
+const image = new Jimp({ width: 320, height: 80, color: 0xffffffff });
+image.print({ font, x: 10, y: 20, text: "Hello, browser" });
+```
+
+For a quick prototype you can load them from a CDN instead, as the `@jimp/plugin-print` package includes the font files:
+
+```ts title="main.ts"
+const font = await loadFont(
+  "https://cdn.jsdelivr.net/npm/@jimp/plugin-print@1/fonts/open-sans/open-sans-32-black/open-sans-32-black.fnt",
+);
+```
+
+Your own BMFont fonts work the same way. See [Text and fonts](/jimp/concepts/text-and-fonts/) for printing, wrapping and measuring text.
+
+## Web workers
+
+Decoding, editing and encoding all run on the thread that calls them.
+On the main thread a large image can freeze the page for a moment, so move the work into a [web worker](https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API).
+Jimp works in module workers, including `loadFont`.
+
+First, write the worker. It receives the image bytes, edits them and posts back a `Blob`:
+
+```ts title="jimp.worker.ts"
+import { Jimp } from "jimp";
+
+interface Job {
+  data: ArrayBuffer;
+  blur: number;
+}
+
+self.addEventListener("message", async (event: MessageEvent<Job>) => {
+  try {
+    const image = await Jimp.fromBuffer(event.data.data);
+
+    image.resize({ w: 800 }).blur(event.data.blur);
+
+    const buffer = await image.getBuffer("image/png");
+    self.postMessage({ blob: new Blob([buffer], { type: "image/png" }) });
+  } catch (error) {
+    self.postMessage({ error: (error as Error).message });
+  }
+});
+```
+
+Then start the worker from the page and send it a file:
+
+```ts title="main.ts"
 const worker = new Worker(new URL("./jimp.worker.ts", import.meta.url), {
   type: "module",
 });
 
-worker.postMessage({
-  image: fileData,
-  options: {
-    blur: 8
-  },
+worker.addEventListener("message", (event) => {
+  if (event.data.error) {
+    console.error(event.data.error);
+    return;
+  }
+
+  output.src = URL.createObjectURL(event.data.blob);
 });
 
-worker.addEventListener("message", (e) => {
-  setOutput(e.data.base64);
-  setIsLoading(false);
+picker.addEventListener("change", async () => {
+  const data = await picker.files![0]!.arrayBuffer();
+
+  // Transfer the bytes instead of copying them
+  worker.postMessage({ data, blur: 8 }, [data]);
 });
 ```
+
+`new Worker(new URL("./file", import.meta.url), { type: "module" })` is the pattern Vite and webpack 5 recognize to bundle the worker.
+Without a bundler, point the worker at a plain `.js` file that imports Jimp from the CDN URL.
+
+## Performance tips
+
+- **Shrink first.** Most methods take time proportional to the number of pixels. Call [`resize`](/jimp/methods/resize/) or [`scaleToFit`](/jimp/methods/scale-to-fit/) before effects such as [`blur`](/jimp/methods/blur/) or [`gaussian`](/jimp/methods/gaussian/), not after.
+- **Use a worker** for anything that takes more than a frame or two, as shown above.
+- **Reuse decoded images.** Decoding is often the slowest step. Keep the decoded image and [`clone`](/jimp/methods/clone/) it for each variation instead of reading the file again.
+- **Mind memory.** A decoded image takes four bytes per pixel: a 24 megapixel photo needs about 96 MB, and every clone needs as much again. See [Reading Large Images](/jimp/guides/reading-large-images/).

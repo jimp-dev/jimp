@@ -1,0 +1,109 @@
+---
+title: "loadFont()"
+description: "Load a bitmap font (.fnt) to use with print."
+category: text
+method: "loadFont"
+plugin: "@jimp/plugin-print"
+---
+
+import { Aside } from "@astrojs/starlight/components";
+import Related from "../../../components/Related.astro";
+
+`loadFont` loads a bitmap font in the [BMFont](https://www.angelcode.com/products/bmfont/) format so you can draw text with [`print`](/jimp/methods/print/) and measure it with [`measureText`](/jimp/methods/measure-text/).
+Pass it one of the fonts bundled in `jimp/fonts`, or the path or URL of your own `.fnt` file.
+
+## Signature
+
+```ts title="loadFont.d.ts"
+import { loadFont } from "jimp";
+
+loadFont(file: string): Promise<BmFont>
+```
+
+`loadFont` is a function, not an image method. It resolves to a font object (`BmFont`) holding the glyph metrics and the font's image pages.
+
+## Parameters
+
+| Parameter | Type     | Default  | Description                                                                                                           |
+| --------- | -------- | -------- | --------------------------------------------------------------------------------------------------------------------- |
+| `file`    | `string` | required | Path to a `.fnt` file, a `file:` URL, or an `http:`, `https:`, `data:` or `blob:` URL. The `.png` pages must sit next to it. |
+
+## Example
+
+```ts title="example.ts"
+import { Jimp, loadFont } from "jimp";
+import { SANS_32_BLACK } from "jimp/fonts";
+
+const font = await loadFont(SANS_32_BLACK);
+const image = new Jimp({ width: 320, height: 80, color: 0xffffffff });
+
+image.print({ font, x: 10, y: 10, text: "Hello, world" });
+
+await image.write("hello.png");
+```
+
+### Bundled fonts
+
+`jimp/fonts` exports the path of each bundled Open Sans font, in black and in white:
+
+| Size  | Black           | White           | Line height |
+| ----- | --------------- | --------------- | ----------- |
+| 8px   | `SANS_8_BLACK`  | `SANS_8_WHITE`  | 9px         |
+| 10px  | `SANS_10_BLACK` |                 | 14px        |
+| 12px  | `SANS_12_BLACK` |                 | 17px        |
+| 14px  | `SANS_14_BLACK` |                 | 20px        |
+| 16px  | `SANS_16_BLACK` | `SANS_16_WHITE` | 18px        |
+| 32px  | `SANS_32_BLACK` | `SANS_32_WHITE` | 36px        |
+| 64px  | `SANS_64_BLACK` | `SANS_64_WHITE` | 72px        |
+| 128px | `SANS_128_BLACK`| `SANS_128_WHITE`| 143px       |
+
+The constants are absolute file paths inside the installed package, so they only work in Node.js.
+
+### Your own font
+
+Pass the path to the `.fnt` file. Its `.png` pages are read from the same directory.
+
+```ts title="example.ts"
+const font = await loadFont("fonts/my-font/my-font.fnt");
+```
+
+See [Making your own fonts](/jimp/concepts/text-and-fonts/#making-your-own-fonts) for how to generate one.
+
+### In the browser
+
+`jimp/fonts` can't be used in the browser, because its constants are paths on the server's disk.
+Host the `.fnt` and `.png` files with the rest of your site (the bundled ones are in the `dist/fonts/open-sans/` folder of the `@jimp/plugin-print` package) and pass their URL:
+
+```ts title="main.ts"
+import { loadFont } from "jimp";
+
+const font = await loadFont("/fonts/open-sans-32-black/open-sans-32-black.fnt");
+```
+
+In the browser and in web workers, `loadFont` always loads with `fetch`, so the usual [CORS rules](/jimp/concepts/errors-and-validation/#http-and-cors-errors) apply to fonts on another origin.
+
+## Notes
+
+- **How the file is loaded.** In Node.js, a path or `file:` URL is read from disk, pages included, without `fetch`. `http:`, `https:`, `data:` and `blob:` URLs are loaded with the global `fetch`, and the pages are fetched relative to the font's URL.
+- **Formats.** Text, XML, JSON and binary BMFont files all work. The bundled fonts are XML.
+- **Load once, print many times.** The font object can be reused for any number of images, so load it once rather than on every call.
+- **Pages stay in the font's directory.** A page name in the font that points outside the font's directory, such as `../secret.png`, throws `Font page is outside of the font directory: ../secret.png`.
+
+### Errors
+
+- `loadFont expects a path or URL to a font file, but received undefined.`: no string was passed. This is often v0 code such as `loadFont(Jimp.FONT_SANS_32_BLACK)`; import the font from `jimp/fonts` instead.
+- `loadFont expects a path or URL to a font file, but received the contents of one: …`: the `.fnt` file's text was passed instead of its path.
+- `loadFont: font file not found: "fonts/missing.fnt".`: the path doesn't exist. Relative paths are resolved from the current working directory.
+- `loadFont: font page not found: "…/my-font.png".`: the `.fnt` file was found, but a page it lists isn't next to it.
+- `loadFont: can't load "…" because this runtime has no global fetch.`: a URL was passed in a runtime without `fetch`. Pass a file path instead.
+
+<Aside type="caution" title="A 404 isn't reported as one">
+  `loadFont` doesn't check the HTTP status of a font URL. If the server returns
+  an error page, the font parser fails on it instead, with a message such as
+  `Unquoted attribute value`. If loading a font by URL fails with a parse
+  error, open the URL in a browser to check that it serves the `.fnt` file.
+</Aside>
+
+## Related
+
+<Related methods={["print", "measureText", "measureTextHeight"]} />

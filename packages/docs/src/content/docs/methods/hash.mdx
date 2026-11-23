@@ -1,0 +1,90 @@
+---
+title: "hash()"
+description: "Compute a perceptual hash of the image as a string in any base."
+category: compare
+method: "hash"
+plugin: "@jimp/plugin-hash"
+---
+
+import { Aside } from "@astrojs/starlight/components";
+import Related from "../../../components/Related.astro";
+
+`hash` returns the image's perceptual hash, the same bits as [`pHash`](/jimp/methods/phash/), written in a more compact base.
+The default, base 64, turns the 64-bit hash into an 11-character string that's easy to store and to use as a lookup key.
+
+## Signature
+
+```ts title="hash.d.ts"
+image.hash(
+  base?: number,
+  options?: { size?: number; smallerSize?: number },
+): string
+```
+
+`hash` doesn't change the image. It returns a string, padded with leading `0`s so every hash in a given base and size has the same length.
+
+## Parameters
+
+| Parameter | Type     | Default | Description                                                                                                  |
+| --------- | -------- | ------- | ------------------------------------------------------------------------------------------------------------ |
+| `base`    | `number` | `64`    | The base to write the hash in, from `2` to `64`. `2` is binary, `16` is hexadecimal.                         |
+| `options` | `object` | `{}`    | `size` and `smallerSize`, as for [`pHash`](/jimp/methods/phash/#options). They set how many bits the hash has. |
+
+## Example
+
+```ts title="example.ts"
+import { Jimp } from "jimp";
+
+const image = await Jimp.read("photo.jpg");
+
+image.hash(); // "bUvO$3wo1Wi" (base 64)
+image.hash(16); // "be1fcbe0e0601e92"
+image.hash(2); // the same 64 bits as image.pHash()
+```
+
+### Find exact duplicates
+
+Images with the same hash look the same to the algorithm, so you can group them with a `Map`:
+
+```ts title="example.ts"
+import { Jimp } from "jimp";
+
+const files = ["a.jpg", "b.jpg", "a-copy.png"];
+const groups = new Map<string, string[]>();
+
+for (const file of files) {
+  const image = await Jimp.read(file);
+  const key = image.hash();
+
+  groups.set(key, [...(groups.get(key) ?? []), file]);
+}
+```
+
+For "close enough" matches rather than identical hashes, compare [`pHash`](/jimp/methods/phash/) strings with [`compareHashes`](/jimp/methods/compare-hashes/).
+
+### A longer hash
+
+`options` work as they do for `pHash`. With `smallerSize: 16` the hash has 256 bits, which is 64 characters in base 16:
+
+```ts title="example.ts"
+image.hash(16, { smallerSize: 16 }); // 64 hex digits
+```
+
+## Notes
+
+- **Digits.** Bases above 10 use `0-9`, then `a-z`, then `A-Z`, then `$` and `_`. Base 64 output is therefore not the standard Base64 encoding.
+- **Invalid bases.** A `base` below `2` or above `64` throws `base must be a number between 2 and 64`.
+- **Invalid options.** `options` are validated like `pHash`'s; see its [notes](/jimp/methods/phash/#notes).
+
+<Aside type="caution" title="Compare bits, not characters">
+  [`compareHashes`](/jimp/methods/compare-hashes/) counts the positions where
+  two strings differ. In base 64, one character holds six bits, so a single
+  changed bit changes a whole character and the distances come out larger and
+  coarser than for the binary hash. Two images that are `0.03` apart by
+  `pHash` came out `0.18` apart by `hash()`. To measure how similar images
+  are, compare `pHash()` strings (or `hash(2)`).
+</Aside>
+
+## Related
+
+<Related methods={["pHash", "compareHashes", "distanceFromHash", "distance"]} />

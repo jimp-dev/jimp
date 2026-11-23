@@ -1,0 +1,61 @@
+---
+title: "intToRGBA()"
+description: "Convert an RGBA integer such as 0xff0000ff to { r, g, b, a }."
+category: utils
+method: "intToRGBA"
+plugin: "@jimp/utils"
+---
+
+import Related from "../../../components/Related.astro";
+
+`intToRGBA` splits a color integer, such as the one [`getPixelColor`](/jimp/methods/get-pixel-color/) returns, into its red, green, blue and alpha channels.
+[`rgbaToInt`](/jimp/methods/rgba-to-int/) does the reverse.
+
+## Signature
+
+```ts title="intToRGBA.d.ts"
+import { intToRGBA } from "jimp";
+
+intToRGBA(i: number): RGBAColor // { r: number; g: number; b: number; a: number }
+```
+
+It returns a new [`RGBAColor`](/jimp/api/jimp/interfaces/rgbacolor/) object with each channel from `0` to `255`.
+
+## Parameters
+
+| Parameter | Type     | Default  | Description                                                 |
+| --------- | -------- | -------- | ----------------------------------------------------------- |
+| `i`       | `number` | required | A color in `0xRRGGBBAA` form, from `0` to `0xffffffff`.     |
+
+## Example
+
+```ts title="example.ts"
+import { Jimp, intToRGBA } from "jimp";
+
+intToRGBA(0xff8800ff); // { r: 255, g: 136, b: 0, a: 255 }
+
+const image = await Jimp.read("photo.png");
+const { r, g, b, a } = intToRGBA(image.getPixelColor(0, 0));
+```
+
+### Edit a channel and write it back
+
+```ts title="example.ts"
+import { intToRGBA, rgbaToInt } from "jimp";
+
+const { r, g, b } = intToRGBA(image.getPixelColor(5, 5));
+
+image.setPixelColor(rgbaToInt(r, g, b, 128), 5, 5); // same color, half transparent
+```
+
+## Notes
+
+- **The byte order is red, green, blue, alpha**, from the highest byte to the lowest. `0x0000ffff` is opaque blue, not transparent black.
+- **Non-numbers throw** `i must be a number`.
+- **Pass unsigned values.** A negative number gives a negative `r`, for example `intToRGBA(-1)` returns `{ r: -1, g: 255, b: 255, a: 255 }`. Colors built with JavaScript's bitwise operators can be negative; convert them with `>>> 0` first.
+- **Inside [`scan`](/jimp/methods/scan/)** you can read the channels straight from `image.bitmap.data[idx]` to `[idx + 3]`, which avoids creating an object for every pixel.
+- **Changes from v0.** `intToRGBA` used to be a static method, `Jimp.intToRGBA`. It's now a named export of `jimp` (and of `@jimp/utils`).
+
+## Related
+
+<Related methods={["rgbaToInt", "getPixelColor", "cssColorToHex", "colorDiff"]} />

@@ -1,0 +1,282 @@
+---
+title: "Constants and enums"
+description: "The enums and constants exported by jimp: resize strategies, blend modes, text alignment, MIME types and format options."
+---
+
+import { Aside } from "@astrojs/starlight/components";
+import Playground from "../../../components/playground/Playground";
+
+`jimp` exports a handful of enums and constants for options that take one of a fixed set of values.
+Import them by name alongside `Jimp`; they replace the `Jimp.SOMETHING` constants of v0 (see [Migrate to v1](/jimp/guides/migrate-to-v1/)).
+
+```ts title="example.ts"
+import {
+  Jimp,
+  ResizeStrategy,
+  BlendMode,
+  HorizontalAlign,
+  VerticalAlign,
+  JimpMime,
+  PNGColorType,
+  PNGFilterType,
+  BmpCompression,
+  defaultPlugins,
+  defaultFormats,
+} from "jimp";
+```
+
+| Export                                | Used by                                                      |
+| ------------------------------------- | ------------------------------------------------------------ |
+| [`ResizeStrategy`](#resizestrategy)   | `mode` of `resize`, `scale`, `scaleToFit`, `contain`, `cover`, `rotate` |
+| [`BlendMode`](#blendmode)             | `mode` of `composite`                                        |
+| [`HorizontalAlign`](#horizontalalign-and-verticalalign), [`VerticalAlign`](#horizontalalign-and-verticalalign) | `align` of `contain` and `cover`; `alignmentX` and `alignmentY` of `print` |
+| [`JimpMime`](#jimpmime)               | `getBuffer`, `getBase64`                                     |
+| [`PNGColorType`](#pngcolortype)       | `colorType` when writing PNG                                 |
+| [`PNGFilterType`](#pngfiltertype)     | `filterType` when writing PNG                                |
+| [`BmpCompression`](#bmpcompression)   | Not used by any Jimp option                                  |
+| [`Edge`](#edge) (type only)           | `getPixelIndex`, `edgeHandling` of `convolution`             |
+| [`defaultPlugins`](#defaultplugins-and-defaultformats), [`defaultFormats`](#defaultplugins-and-defaultformats) | `createJimp` from `@jimp/core` |
+
+Most enums are TypeScript `enum`s, so in plain JavaScript you can also pass the underlying value (for example `"bilinearInterpolation"` instead of `ResizeStrategy.BILINEAR`). Using the names is clearer and lets TypeScript check them.
+
+## ResizeStrategy
+
+The resampling algorithm for methods that change an image's size.
+Pass it as the `mode` option of [`resize`](/jimp/methods/resize/), [`scale`](/jimp/methods/scale/), [`scaleToFit`](/jimp/methods/scale-to-fit/), [`contain`](/jimp/methods/contain/), [`cover`](/jimp/methods/cover/) and [`rotate`](/jimp/methods/rotate/).
+Without a `mode`, these methods use Jimp's default resampler.
+
+| Member             | Value                     | Meaning                                                                                       |
+| ------------------ | ------------------------- | --------------------------------------------------------------------------------------------- |
+| `NEAREST_NEIGHBOR` | `"nearestNeighbor"`       | Copies the nearest source pixel. Fastest, and keeps hard edges, so it suits pixel art; photos look blocky. |
+| `BILINEAR`         | `"bilinearInterpolation"` | Weighted average of the 4 nearest pixels. Smoother than nearest neighbor.                     |
+| `BICUBIC`          | `"bicubicInterpolation"`  | Uses the 16 nearest pixels. Smoother and sharper than bilinear, and slower. A good choice for photos. |
+| `HERMITE`          | `"hermiteInterpolation"`  | Hermite interpolation. Similar quality to bicubic with less blurring.                         |
+| `BEZIER`           | `"bezierInterpolation"`   | Bézier interpolation.                                                                         |
+
+```ts title="example.ts"
+import { Jimp, ResizeStrategy } from "jimp";
+
+const image = await Jimp.read("photo.jpeg");
+
+image.resize({ w: 200, mode: ResizeStrategy.BICUBIC });
+```
+
+Try each one: pick a strategy from the `mode` list and change the width. The difference is easiest to see with `NEAREST_NEIGHBOR`.
+
+<Playground method="resize" client:visible />
+
+## BlendMode
+
+How [`composite`](/jimp/methods/composite/) combines each source pixel with the pixel under it.
+Pass it as the `mode` option. The default is `BlendMode.SRC_OVER`.
+[Compositing](/jimp/concepts/compositing/#blend-modes) shows each mode side by side.
+
+| Member       | Value          | Result                                                                                     |
+| ------------ | -------------- | ------------------------------------------------------------------------------------------ |
+| `SRC_OVER`   | `"srcOver"`    | Draws the source on top, with its transparency. The default.                                |
+| `DST_OVER`   | `"dstOver"`    | Draws the source underneath the destination.                                                |
+| `MULTIPLY`   | `"multiply"`   | Multiplies the colors. Never lighter; white leaves the destination unchanged.               |
+| `ADD`        | `"add"`        | Adds the colors. Brightens.                                                                 |
+| `SCREEN`     | `"screen"`     | Inverse of multiply. Never darker; black leaves the destination unchanged.                  |
+| `OVERLAY`    | `"overlay"`    | Multiply in dark areas of the destination, screen in light ones. Increases contrast.       |
+| `DARKEN`     | `"darken"`     | Keeps the darker value of each channel.                                                     |
+| `LIGHTEN`    | `"lighten"`    | Keeps the lighter value of each channel.                                                    |
+| `HARD_LIGHT` | `"hardLight"`  | Like overlay, but decided by the source: bright source colors screen, dark ones multiply.  |
+| `DIFFERENCE` | `"difference"` | Subtracts the smaller value from the larger. White inverts, black has no effect.           |
+| `EXCLUSION`  | `"exclusion"`  | Like difference, with lower contrast.                                                       |
+
+```ts title="example.ts"
+import { Jimp, BlendMode } from "jimp";
+
+const base = await Jimp.read("photo.jpeg");
+const texture = await Jimp.read("paper.png");
+
+base.composite(texture, 0, 0, { mode: BlendMode.MULTIPLY, opacitySource: 0.5 });
+```
+
+## HorizontalAlign and VerticalAlign
+
+Where to place content inside a larger area.
+The values are bit flags, so a horizontal and a vertical value can be combined with `|` into one number.
+
+| Member                   | Value |
+| ------------------------ | ----- |
+| `HorizontalAlign.LEFT`   | `1`   |
+| `HorizontalAlign.CENTER` | `2`   |
+| `HorizontalAlign.RIGHT`  | `4`   |
+| `VerticalAlign.TOP`      | `8`   |
+| `VerticalAlign.MIDDLE`   | `16`  |
+| `VerticalAlign.BOTTOM`   | `32`  |
+
+[`contain`](/jimp/methods/contain/) and [`cover`](/jimp/methods/cover/) take one combined `align` value. The default is `HorizontalAlign.CENTER | VerticalAlign.MIDDLE`.
+
+```ts title="example.ts"
+import { Jimp, HorizontalAlign, VerticalAlign } from "jimp";
+
+const image = await Jimp.read("photo.jpeg");
+
+image.cover({ w: 300, h: 300, align: HorizontalAlign.LEFT | VerticalAlign.TOP });
+```
+
+[`print`](/jimp/methods/print/) takes them separately, as `alignmentX` and `alignmentY` of the `text` object. The defaults are `LEFT` and `TOP`. Set `maxWidth` when you use `alignmentX`, and `maxHeight` when you use `alignmentY`: they define the area the text is aligned in. See [Text and fonts](/jimp/concepts/text-and-fonts/).
+
+```ts title="example.ts"
+image.print({
+  font,
+  x: 0,
+  y: 0,
+  text: {
+    text: "Hello",
+    alignmentX: HorizontalAlign.CENTER,
+    alignmentY: VerticalAlign.MIDDLE,
+  },
+  maxWidth: image.width,
+  maxHeight: image.height,
+});
+```
+
+<Aside type="caution" title="Give both directions">
+  If the `align` value for `contain` or `cover` has only a horizontal flag, the
+  vertical position falls back to the top, not the middle (and a vertical flag
+  alone aligns to the left). Write `HorizontalAlign.RIGHT | VerticalAlign.MIDDLE`
+  rather than just `HorizontalAlign.RIGHT`. Don't combine two flags for the same
+  direction.
+</Aside>
+
+## JimpMime
+
+An object with the MIME type of each default format. Pass its values to [`getBuffer`](/jimp/methods/get-buffer/) and [`getBase64`](/jimp/methods/get-base64/) instead of typing the strings.
+
+| Key    | Value          |
+| ------ | -------------- |
+| `bmp`  | `"image/bmp"`  |
+| `gif`  | `"image/gif"`  |
+| `jpeg` | `"image/jpeg"` |
+| `png`  | `"image/png"`  |
+| `tiff` | `"image/tiff"` |
+
+```ts title="example.ts"
+import { Jimp, JimpMime } from "jimp";
+
+const image = await Jimp.read("photo.png");
+
+const buffer = await image.getBuffer(JimpMime.jpeg, { quality: 80 });
+```
+
+The default formats also include `"image/x-ms-bmp"`, which isn't in `JimpMime`.
+Formats added with plugins, such as WEBP, aren't either; use their MIME string directly. See [Formats](/jimp/concepts/formats/).
+
+## PNGColorType
+
+The PNG color type to write, passed as the `colorType` option when you write a PNG.
+By default Jimp picks the smallest type that stores the image without loss: it drops the alpha channel when every pixel is opaque, and the color channels when every pixel is grey.
+
+| Member            | Value | Stores                     |
+| ----------------- | ----- | -------------------------- |
+| `GRAYSCALE`       | `0`   | Grey only                  |
+| `COLOR`           | `2`   | Red, green, blue           |
+| `GRAYSCALE_ALPHA` | `4`   | Grey and alpha             |
+| `COLOR_ALPHA`     | `6`   | Red, green, blue and alpha |
+
+```ts title="example.ts"
+import { Jimp, PNGColorType } from "jimp";
+
+const image = await Jimp.read("photo.png");
+
+// Always write RGBA, even for opaque or grey images
+await image.write("output.png", { colorType: PNGColorType.COLOR_ALPHA });
+```
+
+Forcing a type without alpha discards transparency, and a grey type discards color.
+
+## PNGFilterType
+
+The filter PNG applies to each row before compressing it, passed as the `filterType` option.
+Filters don't change the image, only how well it compresses. The default, `AUTO`, tries every filter on each row and keeps the one that's likely to compress best, which is usually the right choice.
+
+| Member    | Value | Filter                                                                   |
+| --------- | ----- | ------------------------------------------------------------------------ |
+| `AUTO`    | `-1`  | Choose the best filter for each row. The default.                        |
+| `NONE`    | `0`   | No filter.                                                               |
+| `SUB`     | `1`   | Difference from the pixel to the left.                                   |
+| `UP`      | `2`   | Difference from the pixel above.                                         |
+| `AVERAGE` | `3`   | Difference from the average of the left and upper pixels.               |
+| `PATH`    | `4`   | The Paeth filter: difference from whichever of left, above or upper-left is closest to a prediction. |
+
+```ts title="example.ts"
+import { Jimp, JimpMime, PNGFilterType } from "jimp";
+
+const image = await Jimp.read("photo.png");
+
+// Faster to encode, usually larger
+const buffer = await image.getBuffer(JimpMime.png, { filterType: PNGFilterType.NONE });
+```
+
+## BmpCompression
+
+The compression methods of the BMP format, re-exported from the [`bmp-ts`](https://www.npmjs.com/package/bmp-ts) library.
+No Jimp option takes this enum: Jimp always writes uncompressed 24-bit BMP files. It's exported for code that works with BMP headers directly.
+
+| Member                | Value |
+| --------------------- | ----- |
+| `NONE`                | `0`   |
+| `BI_RLE8`             | `1`   |
+| `BI_RLE4`             | `2`   |
+| `BI_BIT_FIELDS`       | `3`   |
+| `BI_ALPHA_BIT_FIELDS` | `6`   |
+
+## Edge
+
+How [`getPixelIndex`](/jimp/methods/get-pixel-index/) and the `edgeHandling` option of [`convolution`](/jimp/methods/convolution/) treat coordinates outside the image.
+
+| Member   | Value | Outside coordinates                            |
+| -------- | ----- | ---------------------------------------------- |
+| `EXTEND` | `1`   | Clamp to the nearest edge pixel. The default. |
+| `WRAP`   | `2`   | Wrap around to the opposite side.              |
+| `CROP`   | `3`   | Treat as missing. `getPixelIndex` returns `-1`. |
+
+`jimp` exports `Edge` as a TypeScript type only, so there's no `Edge` object to read `Edge.WRAP` from at run time.
+Pass the number, or install `@jimp/types` and import the enum from there:
+
+```ts title="example.ts"
+import { Edge } from "@jimp/types";
+
+image.convolution({
+  kernel: [
+    [0, -1, 0],
+    [-1, 5, -1],
+    [0, -1, 0],
+  ],
+  edgeHandling: Edge.WRAP, // or 2
+});
+```
+
+See [Colors and pixels](/jimp/concepts/colors-and-pixels/#edge-handling).
+
+## defaultPlugins and defaultFormats
+
+The building blocks of the `Jimp` class.
+`jimp` creates it with `createJimp({ plugins: defaultPlugins, formats: defaultFormats })`, and you can do the same to add your own plugins or formats on top.
+
+- `defaultPlugins` is an array of the method objects of the 19 built-in plugins: blit, blur, border, circle, color, contain, cover, crop, displace, dither, fisheye, flip, hash, mask, print, resize, rotate, threshold and quantize.
+- `defaultFormats` is an array of format factories, one each for `image/bmp`, `image/x-ms-bmp`, `image/gif`, `image/jpeg`, `image/png` and `image/tiff`.
+
+```ts title="example.ts"
+import { createJimp } from "@jimp/core";
+import { defaultFormats, defaultPlugins } from "jimp";
+import webp from "@jimp/wasm-webp";
+
+const Jimp = createJimp({
+  plugins: defaultPlugins,
+  formats: [...defaultFormats, webp],
+});
+```
+
+See [Custom Jimp](/jimp/guides/custom-jimp/) and [WEBP / WASM](/jimp/guides/webp/).
+
+## See also
+
+- [TypeScript](/jimp/concepts/typescript/): the option types that use these enums.
+- [Formats](/jimp/concepts/formats/): the options of each format.
+- [Compositing](/jimp/concepts/compositing/): blend modes in action.
+- [Migrate to v1](/jimp/guides/migrate-to-v1/): mapping v0 constants to these exports.

@@ -1,0 +1,221 @@
+---
+title: "Reading and writing"
+description: "Load images from files, URLs, buffers and raw pixels, and encode them again in any supported format."
+---
+
+import { Aside } from "@astrojs/starlight/components";
+import Playground from "../../../components/playground/Playground";
+
+Every Jimp program has the same shape: get an image into memory, change its pixels, then encode it into a file format again.
+This page covers the first and last steps: the ways to create an image, the ways to get it out, and the properties that connect them.
+
+```ts title="example.ts"
+import { Jimp } from "jimp";
+
+const image = await Jimp.read("input.jpg"); // decode
+image.resize({ w: 640 }).greyscale(); // edit the pixels
+await image.write("output.png"); // encode
+```
+
+In between, an image is just a grid of RGBA pixels in memory. It isn't a JPEG or a PNG any more, which is why you can read one format and write another.
+
+## Getting an image
+
+There are four ways to create an image. Pick by what you have:
+
+| You have                                   | Use                                                      | Async |
+| ------------------------------------------ | -------------------------------------------------------- | ----- |
+| A file path or a URL                       | [`Jimp.read(pathOrUrl)`](/jimp/methods/read/)            | yes   |
+| The bytes of an image file                 | [`Jimp.fromBuffer(buffer)`](/jimp/methods/from-buffer/)  | yes   |
+| Raw RGBA pixels, such as canvas `ImageData` | [`Jimp.fromBitmap({ width, height, data })`](/jimp/methods/from-bitmap/) | no    |
+| Nothing yet: you want a blank canvas       | [`new Jimp({ width, height, color })`](/jimp/methods/new-jimp/) | no    |
+
+### From a path or URL
+
+`Jimp.read` takes a file path in Node, or any URL `fetch` can load, including `data:` URLs:
+
+```ts title="example.ts"
+const local = await Jimp.read("images/photo.jpg");
+const remote = await Jimp.read("https://example.com/photo.jpg");
+```
+
+It also accepts a `Buffer` or an `ArrayBuffer`, in which case it does the same as `Jimp.fromBuffer`.
+
+### From bytes in memory
+
+When the file is already in memory (an upload, a database blob, a response body), decode it with `Jimp.fromBuffer`:
+
+```ts title="example.ts"
+const response = await fetch("https://example.com/photo.jpg");
+const image = await Jimp.fromBuffer(await response.arrayBuffer());
+```
+
+Jimp detects the format from the bytes, so you never pass a MIME type when reading.
+
+### From raw pixels
+
+`Jimp.fromBitmap` wraps pixels that are already decoded: 4 bytes per pixel, in red, green, blue, alpha order.
+
+```ts title="example.ts"
+const image = Jimp.fromBitmap({
+  width: 2,
+  height: 1,
+  data: [0xff0000ff, 0x0000ffff], // a red and a blue pixel
+});
+```
+
+### From scratch
+
+`new Jimp` creates a blank image filled with one color:
+
+```ts title="example.ts"
+const canvas = new Jimp({ width: 800, height: 400, color: "#fff7e0" });
+```
+
+## Image properties
+
+Whichever way you create it, an image has the same properties:
+
+| Property                | Type                                         | Description                                                                                                                                                                                      |
+| ----------------------- | -------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `image.width`           | `number`                                     | Width in pixels. Read-only; use [`resize`](/jimp/methods/resize/) or [`crop`](/jimp/methods/crop/) to change it.                                                                                 |
+| `image.height`          | `number`                                     | Height in pixels.                                                                                                                                                                                |
+| `image.bitmap`          | `{ width: number; height: number; data: Buffer }` | The pixels: `data` holds 4 bytes (R, G, B, A) per pixel, row by row. See [Colors and pixels](/jimp/concepts/colors-and-pixels/).                                                            |
+| `image.mime`            | `string \| undefined`                        | The MIME type the image was decoded from, such as `"image/jpeg"`. `undefined` for images from `new Jimp`, `fromBitmap` or `clone`.                                                              |
+| `image.background`      | `number`                                     | An RGBA color, `0x00000000` (transparent) unless you set it. Used to fill new space in [`rotate`](/jimp/methods/rotate/) and [`contain`](/jimp/methods/contain/), and behind formats without alpha. |
+
+```ts title="example.ts"
+const image = await Jimp.read("photo.jpg");
+
+console.log(image.width, image.height); // 4000 3000
+console.log(image.mime); // "image/jpeg"
+console.log(image.bitmap.data.length); // 48000000, 4 bytes per pixel
+```
+
+`new Jimp({ color })` sets `background` to the fill color. You can also assign it at any time:
+
+```ts title="example.ts"
+image.background = 0xffffffff; // white
+```
+
+## Getting the image out
+
+There are three ways to encode an image. All of them are async and none of them change the image.
+
+| You want                                      | Use                                                        | Where       |
+| --------------------------------------------- | ---------------------------------------------------------- | ----------- |
+| A file on disk                                | [`image.write(path, options?)`](/jimp/methods/write/)      | Node only   |
+| The encoded bytes, as a `Buffer`              | [`image.getBuffer(mime, options?)`](/jimp/methods/get-buffer/) | everywhere |
+| A `data:` URL for an `<img>` or for embedding | [`image.getBase64(mime, options?)`](/jimp/methods/get-base64/) | everywhere |
+
+```ts title="example.ts"
+import { Jimp, JimpMime } from "jimp";
+
+const image = await Jimp.read("photo.jpg");
+
+await image.write("copy.png"); // the extension picks the format
+const bytes = await image.getBuffer(JimpMime.png);
+const url = await image.getBase64("image/jpeg", { quality: 80 });
+```
+
+### MIME types and `JimpMime`
+
+`getBuffer` and `getBase64` take the output format as a MIME type string.
+`JimpMime` has a constant for each of the default formats, which saves typing and catches typos:
+
+```ts title="example.ts"
+import { JimpMime } from "jimp";
+
+JimpMime.png; // "image/png"
+JimpMime.jpeg; // "image/jpeg"
+JimpMime.gif; // "image/gif"
+JimpMime.bmp; // "image/bmp"
+JimpMime.tiff; // "image/tiff"
+```
+
+`write` doesn't need one: it looks up the MIME type from the file extension.
+
+### Encoder options
+
+Each format takes its own options as the last argument of `write`, `getBuffer` and `getBase64`.
+The ones you'll use most:
+
+```ts title="example.ts"
+import { Jimp, PNGColorType } from "jimp";
+
+const image = await Jimp.read("photo.jpg");
+
+// JPEG: quality 1 to 100 (default 100), and keep the camera's EXIF data
+await image.write("small.jpg", { quality: 75, exif: true });
+
+// PNG: drop the alpha channel
+await image.write("flat.png", { colorType: PNGColorType.COLOR });
+
+// BMP: store 72 DPI (in pixels per meter)
+await image.write("print.bmp", { hr: 2835, vr: 2835 });
+```
+
+GIF and TIFF take no options. The full lists are on the [`getBuffer`](/jimp/methods/get-buffer/#options) page, and [Formats](/jimp/concepts/formats/) covers what each format can store.
+
+### Transparency and the background
+
+Before encoding JPEG, BMP, GIF or TIFF, Jimp draws the image over `image.background`.
+JPEG and BMP have no alpha channel at all, so with the default transparent background, transparent areas come out black.
+PNG and the WASM formats skip this step and keep the alpha channel as it is.
+Set a background color to control what they become:
+
+```ts title="example.ts"
+const logo = await Jimp.read("logo.png"); // transparent background
+
+logo.background = 0xffffffff;
+
+await logo.write("logo.jpg"); // on white instead of black
+```
+
+Try it below: the dice image has a transparent background. Switch to JPEG or BMP, then turn on **set background**.
+
+<Playground method="encode" client:visible />
+
+## Decode options
+
+`Jimp.read` and `Jimp.fromBuffer` take a second argument with options for the decoders, keyed by MIME type.
+They're mostly used to raise the size limits that protect against huge or malicious files:
+
+```ts title="example.ts"
+const image = await Jimp.read("panorama.jpg", {
+  "image/jpeg": { maxResolutionInMP: 250, maxMemoryUsageInMB: 2048 },
+});
+```
+
+See [Reading Large Images](/jimp/guides/reading-large-images/) for every format's options and defaults.
+
+## Node and the browser
+
+The same API works in both, with a few differences:
+
+| Task                  | Node                                          | Browser                                                                |
+| --------------------- | --------------------------------------------- | ---------------------------------------------------------------------- |
+| Read a file path      | `Jimp.read("photo.jpg")`                      | Not available: there's no file system. Strings are fetched as URLs.     |
+| Read a URL            | `Jimp.read(url)`, using the global `fetch`    | `Jimp.read(url)`. Other origins need CORS headers.                      |
+| Read an upload        | `Jimp.fromBuffer(buffer)`                     | `Jimp.fromBuffer(await file.arrayBuffer())`                            |
+| Save a file           | `image.write("out.png")`                      | Not available: `write` throws. Use `getBuffer` and a `Blob` download. |
+| Show the result       | Write a file, or send the bytes from `getBuffer` | `img.src = await image.getBase64("image/png")`                         |
+| Pass the bytes on     | `getBuffer` returns a Node `Buffer`           | `getBuffer` returns a `Buffer` from the `buffer` package, a `Uint8Array` subclass |
+
+`Jimp.read` and `Jimp.fromBuffer` only accept a `Buffer` or an `ArrayBuffer` as data. Convert a `Blob` or `File` with `await blob.arrayBuffer()` first.
+The [browser guide](/jimp/guides/browser/) covers uploads, canvas and web workers in more detail.
+
+<Aside type="caution" title="A missing file looks like a failed fetch">
+  `Jimp.read` treats any string that isn't an existing file as a URL. A wrong
+  path therefore fails with `Could not load Buffer from URL: <path>`. Check
+  the path relative to the current working directory.
+</Aside>
+
+## See also
+
+- [Formats](/jimp/concepts/formats/): what each format supports, and adding WebP and AVIF
+- [Chaining and async](/jimp/concepts/chaining-and-async/): which calls need `await`
+- [EXIF](/jimp/guides/exif/): orientation on read and the `exif` option on write
+- [Reading Large Images](/jimp/guides/reading-large-images/): decode options and size limits
+- [Using in Browser](/jimp/guides/browser/)
+- Methods: [`Jimp.read`](/jimp/methods/read/), [`Jimp.fromBuffer`](/jimp/methods/from-buffer/), [`Jimp.fromBitmap`](/jimp/methods/from-bitmap/), [`new Jimp`](/jimp/methods/new-jimp/), [`getBuffer`](/jimp/methods/get-buffer/), [`getBase64`](/jimp/methods/get-base64/), [`write`](/jimp/methods/write/), [`clone`](/jimp/methods/clone/)

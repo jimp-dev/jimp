@@ -1,0 +1,100 @@
+---
+title: "mask()"
+description: "Use another image's brightness to make parts of this image transparent."
+category: compose
+method: "mask"
+plugin: "@jimp/plugin-mask"
+---
+
+import Playground from "../../../components/playground/Playground";
+import Related from "../../../components/Related.astro";
+
+`mask` uses a second, usually grayscale, image as a stencil: where the mask is white the image stays as it is, where it's black the image becomes transparent, and grays in between make it partly transparent.
+Use it to cut an image into a shape, fade its edges into a vignette or reveal it through a gradient.
+
+## Signature
+
+```ts title="mask.d.ts"
+image.mask(src: Jimp): this
+image.mask(options: { src: Jimp; x?: number; y?: number }): this
+```
+
+`mask` changes this image in place and returns it, so you can chain more calls after it. The mask image isn't changed.
+
+## Options
+
+Pass the mask on its own to line it up with the top-left corner, or an object to position it.
+
+| Option | Type     | Default  | Description                                                     |
+| ------ | -------- | -------- | --------------------------------------------------------------- |
+| `src`  | `Jimp`   | required | The mask image. Its brightness sets how much of the image stays. |
+| `x`    | `number` | `0`      | Where the mask's left edge goes on the image. Can be negative.  |
+| `y`    | `number` | `0`      | Where the mask's top edge goes.                                 |
+
+## Example
+
+```ts title="example.ts"
+import { Jimp } from "jimp";
+
+const image = await Jimp.read("photo.png");
+const mask = await Jimp.read("mask.png");
+
+image.mask(mask);
+
+await image.write("photo-masked.png");
+```
+
+Save the result as PNG (or another format with alpha) to keep the transparency.
+
+### Fade an image out
+
+A mask doesn't have to be a file. Here a mask the size of the image goes from white at the top to black at the bottom, so the image fades out toward its bottom edge:
+
+```ts title="example.ts"
+const fade = new Jimp({ width: image.width, height: image.height });
+
+fade.scan((x, y, idx) => {
+  const v = Math.round(255 * (1 - y / (fade.height - 1)));
+
+  fade.bitmap.data[idx] = v;
+  fade.bitmap.data[idx + 1] = v;
+  fade.bitmap.data[idx + 2] = v;
+  fade.bitmap.data[idx + 3] = 255;
+});
+
+image.mask(fade);
+```
+
+### Position the mask
+
+Give `x` and `y` to move the mask. Here a spotlight mask twice the size of the image is centered on a point, so the image stays covered wherever the spot goes:
+
+```ts title="example.ts"
+const spotlight = await Jimp.read("spotlight.png"); // 720 × 540
+const center = { x: 120, y: 90 };
+
+image.mask({
+  src: spotlight,
+  x: center.x - spotlight.width / 2,
+  y: center.y - spotlight.height / 2,
+});
+```
+
+## Try it
+
+Click the image to move the spotlight mask.
+
+<Playground method="mask" src="dice-on-paper.png" client:visible />
+
+## Notes
+
+- **How the mask is read.** For every pixel the mask covers, Jimp averages the mask's red, green and blue values and multiplies the image's alpha by that average divided by 255. White keeps the pixel, black hides it, and 50% gray halves its alpha.
+- **The mask's own alpha is ignored.** A transparent pixel counts by its color, so a transparent white pixel keeps the image. Flatten masks with transparency onto black first, for example with [`composite`](/jimp/methods/composite/) onto `new Jimp({ width, height, color: 0x000000ff })`.
+- **Colored masks work, by brightness.** Pure red averages to `85`, so it leaves about a third of the alpha. Call [`greyscale`](/jimp/methods/greyscale/) on a mask first if you want perceived brightness instead.
+- **Only the covered area changes.** Pixels outside the mask's area keep their alpha. Make the mask at least as large as the image, or [`resize`](/jimp/methods/resize/) it to `{ w: image.width, h: image.height }`, to mask everything.
+- **It only removes opacity.** The image's alpha is multiplied, never raised, so masking twice compounds and an already transparent pixel can't be brought back.
+- **Validation.** The options are checked with zod, so calling `mask()` without an image, or with an object without `src`, throws a validation error.
+
+## Related
+
+<Related methods={["composite", "blit", "circle", "opacity", "greyscale", "new Jimp"]} />

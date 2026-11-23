@@ -1,0 +1,70 @@
+---
+title: "scale()"
+description: "Scale the width and height by the same factor."
+category: shape
+method: "scale"
+plugin: "@jimp/plugin-resize"
+---
+
+import Playground from "../../../components/playground/Playground";
+import Related from "../../../components/Related.astro";
+
+`scale` multiplies both sides of the image by one factor, so the aspect ratio never changes.
+Use it for relative sizes such as "half size" or "double size".
+
+## Signature
+
+```ts title="scale.d.ts"
+image.scale(f: number): this
+image.scale(options: { f: number; mode?: ResizeStrategy }): this
+```
+
+`scale` changes the image in place and returns it, so you can chain more calls after it.
+
+## Options
+
+Pass the factor on its own, or an object to also choose the algorithm.
+
+| Option | Type                                         | Default          | Description                                                                               |
+| ------ | -------------------------------------------- | ---------------- | ----------------------------------------------------------------------------------------- |
+| `f`    | `number`                                     | required         | The factor. `0.5` halves both sides, `2` doubles them. Must be `0` or more.               |
+| `mode` | [`ResizeStrategy`](/jimp/concepts/constants/) | built-in resizer | The resampling algorithm. See [resize strategies](/jimp/methods/resize/#resize-strategies). |
+
+## Example
+
+```ts title="example.ts"
+import { Jimp } from "jimp";
+
+const image = await Jimp.read("photo.jpg");
+
+// 800 x 600 becomes 400 x 300
+image.scale(0.5);
+
+await image.write("photo-half.jpg");
+```
+
+### Choose the algorithm
+
+```ts title="example.ts"
+import { Jimp, ResizeStrategy } from "jimp";
+
+const icon = await Jimp.read("icon.png");
+
+icon.scale({ f: 4, mode: ResizeStrategy.NEAREST_NEIGHBOR });
+```
+
+## Try it
+
+Drag `f` to change the factor, and pick a strategy to compare algorithms.
+
+<Playground method="scale" client:visible />
+
+## Notes
+
+- **Same as `resize`.** `scale(f)` is `resize({ w: image.width * f, h: image.height * f })`. The new sizes are rounded to whole pixels, and a side that rounds to `0` becomes `1`.
+- **Negative factors** fail validation. `scale({ f: -1 })` reports `Too small: expected number to be >=0`; `scale(-1)` is checked by `resize` instead and reports `Invalid input`.
+- **To fit a box** rather than multiply by a factor, use [`scaleToFit`](/jimp/methods/scale-to-fit/). It works out the factor for you.
+
+## Related
+
+<Related methods={["resize", "scaleToFit", "cover", "contain"]} />

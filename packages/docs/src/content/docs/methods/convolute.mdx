@@ -1,0 +1,114 @@
+---
+title: "convolute()"
+description: "Apply a convolution kernel to the image or a region."
+category: effects
+method: "convolute"
+plugin: "@jimp/plugin-color"
+---
+
+import { Aside } from "@astrojs/starlight/components";
+import Playground from "../../../components/playground/Playground";
+import Related from "../../../components/Related.astro";
+
+`convolute` runs a convolution kernel over the image: every pixel becomes a weighted sum of itself and its neighbors, with the weights taken from a small matrix.
+Kernels give you sharpening, embossing, blurring and many other filters. `convolute` can work on a region and also filters the alpha channel; [`convolution`](/jimp/methods/convolution/) leaves alpha alone and lets you choose how edges are handled.
+
+## Signature
+
+```ts title="convolute.d.ts"
+image.convolute(kernel: number[][]): this
+image.convolute(options: {
+  kernel: number[][];
+  x?: number;
+  y?: number;
+  w?: number;
+  h?: number;
+}): this
+```
+
+`convolute` changes the image in place and returns it, so you can chain more calls after it.
+
+## Options
+
+Pass the kernel on its own to filter the whole image, or an object to filter a region.
+
+| Option   | Type         | Default            | Description                                                  |
+| -------- | ------------ | ------------------ | ------------------------------------------------------------ |
+| `kernel` | `number[][]` | required           | The weights. Use a square matrix with an odd size: 3×3, 5×5… |
+| `x`      | `number`     | `0`                | The left edge of the region to filter.                       |
+| `y`      | `number`     | `0`                | The top edge of the region.                                  |
+| `w`      | `number`     | `image.width - x`  | The width of the region.                                     |
+| `h`      | `number`     | `image.height - y` | The height of the region.                                    |
+
+## Example
+
+Sharpen a photo with the classic 3×3 sharpening kernel:
+
+```ts title="example.ts"
+import { Jimp } from "jimp";
+
+const image = await Jimp.read("photo.jpg");
+
+image.convolute([
+  [0, -1, 0],
+  [-1, 5, -1],
+  [0, -1, 0],
+]);
+
+await image.write("photo-sharp.jpg");
+```
+
+### Filter a region
+
+Add the region's position and size next to `kernel`. Here an emboss kernel is applied to a 200 × 100 area:
+
+```ts title="example.ts"
+image.convolute({
+  kernel: [
+    [-2, -1, 0],
+    [-1, 1, 1],
+    [0, 1, 2],
+  ],
+  x: 20,
+  y: 20,
+  w: 200,
+  h: 100,
+});
+```
+
+### Common kernels
+
+| Effect   | Kernel                                    | Sum |
+| -------- | ----------------------------------------- | --- |
+| Sharpen  | `[[0, -1, 0], [-1, 5, -1], [0, -1, 0]]`   | 1   |
+| Emboss   | `[[-2, -1, 0], [-1, 1, 1], [0, 1, 2]]`    | 1   |
+| Box blur | `[[1/9, 1/9, 1/9], [1/9, 1/9, 1/9], [1/9, 1/9, 1/9]]` | 1   |
+
+Kernels whose weights add up to `1` keep the overall brightness. A sum above `1` brightens and below `1` darkens.
+
+## Try it
+
+Pick a kernel. Turn on **region only** and drag on the image to filter part of it.
+
+<Playground method="convolute" client:visible />
+
+## Notes
+
+<Aside type="caution" title="Alpha is convolved too">
+  `convolute` applies the kernel to the alpha channel as well as to red, green
+  and blue. A kernel whose weights add up to `0`, such as an edge detector,
+  turns opaque areas transparent. For those kernels, use
+  [`convolution`](/jimp/methods/convolution/), which leaves alpha unchanged, or
+  call [`opaque()`](/jimp/methods/opaque/) afterwards.
+</Aside>
+
+- **Rows are columns.** `convolute` reads `kernel[i][j]` as the weight for the pixel `i` columns across and `j` rows down, so it uses the kernel transposed compared with how it's written (and with `convolution`). That makes no difference for symmetric kernels like the ones above. For a directional kernel such as a Sobel filter, transpose it first or use `convolution`.
+- **Sources are read from a copy.** Every pixel is computed from the original image, so pixels already filtered don't feed into their neighbors.
+- **Edges are extended.** Pixels past the border count as copies of the nearest edge pixel.
+- **Results are clamped and truncated.** Each channel is clamped to `0`–`255`, and fractional results are cut down to a whole number (so `1.9` becomes `1`).
+- **Keep regions inside the image.** `w` and `h` aren't clamped. A region that runs past the right edge spills over onto the start of the next rows.
+- **Validation.** The kernel is checked with zod: it must be an array of arrays of numbers, and each row must have at least one number. An empty array `[]` passes but erases the image to transparent black, so check computed kernels before you pass them.
+
+## Related
+
+<Related methods={["convolution", "blur", "gaussian", "pixelate", "opaque"]} />

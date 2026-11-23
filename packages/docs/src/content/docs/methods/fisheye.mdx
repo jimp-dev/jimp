@@ -1,0 +1,72 @@
+---
+title: "fisheye()"
+description: "Bulge the center of the image like a fisheye lens."
+category: shape
+method: "fisheye"
+plugin: "@jimp/plugin-fisheye"
+---
+
+import Playground from "../../../components/playground/Playground";
+import Related from "../../../components/Related.astro";
+
+`fisheye` distorts the image as if seen through a fisheye lens: the center is magnified and the edges are squeezed toward the border.
+The image keeps its size.
+
+## Signature
+
+```ts title="fisheye.d.ts"
+image.fisheye(options?: { radius?: number }): this
+```
+
+`fisheye` changes the image in place and returns it, so you can chain more calls after it.
+
+## Options
+
+| Option   | Type     | Default | Description                                                                                         |
+| -------- | -------- | ------- | --------------------------------------------------------------------------------------------------- |
+| `radius` | `number` | `2.5`   | The strength of the distortion, `0` or more. Higher values magnify the center more. Not a size in pixels. |
+
+## Example
+
+```ts title="example.ts"
+import { Jimp } from "jimp";
+
+const image = await Jimp.read("photo.jpg");
+
+image.fisheye();
+
+await image.write("photo-fisheye.jpg");
+```
+
+### Stronger or weaker
+
+```ts title="example.ts"
+image.fisheye({ radius: 4 }); // a strong bulge
+image.fisheye({ radius: 1.5 }); // a gentle one
+```
+
+## Try it
+
+Drag `radius` to change the strength.
+
+<Playground method="fisheye" client:visible />
+
+## How `radius` works
+
+Despite its name, `radius` is an exponent. For each output pixel, `fisheye` measures its distance `r` from the center (as a fraction of the image size) and copies the source pixel at distance `2 * r ** radius` in the same direction.
+
+- Above `1`, the center is magnified and the outer part is squeezed. Larger values zoom in further.
+- At `1`, every pixel samples twice as far out, so the whole image shrinks to half size in the middle.
+- Below `1`, it shrinks even more.
+
+Points that land outside the source take the color of the nearest edge pixel, so the borders show smeared edge colors at low values.
+
+## Notes
+
+- **Centered and stretched.** The effect is always centered. Distances are measured relative to the width and height separately, so on a non-square image the bulge is an ellipse, not a circle.
+- **No smoothing.** Each output pixel copies one source pixel, so strong settings can look blocky in the magnified center. Enlarge the image with [`resize`](/jimp/methods/resize/) first for a smoother result.
+- **Validation.** Negative values fail with `Too small: expected number to be >=0`.
+
+## Related
+
+<Related methods={["displace", "circle", "blur", "convolute"]} />

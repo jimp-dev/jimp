@@ -1,0 +1,94 @@
+---
+/** Starlight's table of contents, presented as a taped-on sticky note. */
+import type { Props } from "@astrojs/starlight/props";
+import Default from "@astrojs/starlight/components/TableOfContents.astro";
+---
+
+<div class="note">
+  <div class="scroll">
+    <Default {...Astro.props} />
+    <a class="top-link" href="#_top">↑ Back to top</a>
+  </div>
+</div>
+
+<style>
+  .note {
+    position: relative;
+    padding: 18px 16px 14px;
+    font-family: var(--jp-ui);
+    color: var(--jp-ink);
+    background: var(--jp-note);
+    border: 3px solid var(--jp-ink);
+    box-shadow:
+      5px 6px 0 var(--jp-shadow),
+      0 0 28px var(--jp-note-glow);
+    transform: rotate(1deg);
+  }
+  .scroll {
+    max-height: calc(100vh - var(--sl-nav-height) - 100px);
+    overflow-y: auto;
+    scrollbar-width: thin;
+  }
+  /* A strip of tape */
+  .note::before {
+    content: "";
+    position: absolute;
+    top: -15px;
+    left: 50%;
+    width: 84px;
+    height: 24px;
+    margin-left: -42px;
+    background: rgba(255, 95, 176, 0.7);
+    border: 2px solid rgba(27, 24, 64, 0.35);
+    transform: rotate(-3deg);
+  }
+  .note :global(h2) {
+    margin: 0 0 8px;
+    font-family: var(--jp-ui);
+    font-weight: 700;
+    font-size: 14px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--jp-ink);
+  }
+  .note :global(ul) {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .note :global(li:has(> a[href="#_top"])) {
+    display: none;
+  }
+  .note :global(ul ul a) {
+    padding-left: 22px;
+    font-size: 13.5px;
+  }
+  .note :global(a) {
+    display: block;
+    padding: 4px 0 4px 10px;
+    color: var(--jp-ink);
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 14.5px;
+    line-height: 1.35;
+    border-left: 3px solid rgba(27, 24, 64, 0.15);
+    border-radius: 0;
+  }
+  .note :global(a:hover) {
+    color: var(--jp-ink);
+    border-left-color: var(--jp-ink);
+  }
+  .note :global(a[aria-current="true"]) {
+    color: var(--jp-ink);
+    border-left-color: var(--jp-red);
+    font-weight: 700;
+  }
+  .note .top-link {
+    margin-top: 10px;
+    padding: 8px 0 0;
+    border: 0;
+    border-top: 2px dashed rgba(27, 24, 64, 0.25);
+    font-size: 13.5px;
+    color: #4a4673;
+  }
+</style>

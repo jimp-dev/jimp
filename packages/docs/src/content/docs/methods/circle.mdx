@@ -1,0 +1,76 @@
+---
+title: "circle()"
+description: "Make everything outside a circle transparent."
+category: shape
+method: "circle"
+plugin: "@jimp/plugin-circle"
+---
+
+import { Aside } from "@astrojs/starlight/components";
+import Playground from "../../../components/playground/Playground";
+import Related from "../../../components/Related.astro";
+
+`circle` makes every pixel outside a circle fully transparent, with a smooth one-pixel edge.
+With no options the circle is centered and as large as fits, which turns a square image into a round avatar.
+
+## Signature
+
+```ts title="circle.d.ts"
+image.circle(options?: { radius?: number; x?: number; y?: number }): this
+```
+
+`circle` changes the image in place and returns it, so you can chain more calls after it.
+
+## Options
+
+| Option   | Type     | Default                                     | Description                                         |
+| -------- | -------- | ------------------------------------------- | --------------------------------------------------- |
+| `radius` | `number` | half the shorter side                       | The radius of the circle in pixels. Must be `0` or more. |
+| `x`      | `number` | `image.width / 2`                           | The x position of the center.                       |
+| `y`      | `number` | `image.height / 2`                          | The y position of the center.                       |
+
+## Example
+
+```ts title="example.ts"
+import { Jimp } from "jimp";
+
+const image = await Jimp.read("profile.jpg");
+
+// Square it up first, so the circle fills the whole image
+image.cover({ w: 256, h: 256 }).circle();
+
+// Save as PNG to keep the transparency
+await image.write("avatar.png");
+```
+
+### A smaller circle
+
+```ts title="example.ts"
+image.circle({ radius: 50, x: 80, y: 60 });
+```
+
+The image keeps its size; only the pixels outside the circle become transparent. [Crop](/jimp/methods/crop/) afterwards to remove the empty space.
+
+## Try it
+
+Click the image to move the center and drag `radius` to resize the circle.
+
+<Playground method="circle" client:visible />
+
+## Notes
+
+- **The size doesn't change.** On a non-square image the default circle touches the top and bottom (or the sides), and the rest is transparent. Use [`cover`](/jimp/methods/cover/) or [`crop`](/jimp/methods/crop/) first to get a square.
+- **`radius: 0` means the default.** A radius of `0` is treated as "not set" and gives the largest circle that fits, not an empty image.
+- **Only alpha changes.** Pixels outside the circle keep their color values with an alpha of `0`.
+- **Rounded rectangles.** For rounded corners instead of a full circle, use [`roundCorners`](/jimp/methods/round-corners/).
+
+<Aside type="caution" title="Save as PNG">
+  JPEG has no transparency, so the area outside the circle is filled with the
+  image's `background` color, which is black unless you set it. Write PNG to keep
+  it transparent, or set `image.background` (for example `0xffffffff` for white)
+  before writing a JPEG.
+</Aside>
+
+## Related
+
+<Related methods={["roundCorners", "cover", "crop", "mask", "opacity"]} />

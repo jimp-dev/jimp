@@ -1,0 +1,81 @@
+---
+title: "new Jimp()"
+description: "Create a blank image of a given size and background color."
+category: io
+method: "new Jimp"
+plugin: "@jimp/core"
+---
+
+import Related from "../../../components/Related.astro";
+
+`new Jimp()` creates an image from scratch, filled with a single color.
+Use it as a canvas to draw on: a background to [`composite`](/jimp/methods/composite/) other images onto, a card to [`print`](/jimp/methods/print/) text on, or a test image.
+
+## Signature
+
+```ts title="Jimp.d.ts"
+new Jimp(options: { width: number; height: number; color?: number | string })
+new Jimp(bitmap: { width: number; height: number; data: Buffer })
+```
+
+The constructor is synchronous and returns the new image.
+
+## Options
+
+| Option   | Type               | Default      | Description                                                                                                 |
+| -------- | ------------------ | ------------ | ----------------------------------------------------------------------------------------------------------- |
+| `width`  | `number`           | required     | Width in pixels.                                                                                            |
+| `height` | `number`           | required     | Height in pixels.                                                                                           |
+| `color`  | `number \| string` | `0x00000000` | Fill color: an RGBA number such as `0xff0000ff`, or a CSS color string such as `"#ff0000"`, `"red"` or `"rgba(255, 0, 0, 0.5)"`. The default is transparent. |
+
+The options type is [`JimpSimpleConstructorOptions`](/jimp/api/jimp/interfaces/jimpsimpleconstructoroptions/).
+
+## Example
+
+```ts title="example.ts"
+import { Jimp } from "jimp";
+
+const card = new Jimp({ width: 400, height: 200, color: 0xffd83aff });
+
+const logo = await Jimp.read("logo.png");
+logo.resize({ w: 120 });
+
+card.composite(logo, 20, 40);
+
+await card.write("card.png");
+```
+
+### Colors as strings
+
+Strings are parsed as CSS colors, so named colors and `rgb()`/`rgba()` work as well as hex:
+
+```ts title="example.ts"
+const red = new Jimp({ width: 10, height: 10, color: "red" });
+const halfBlue = new Jimp({ width: 10, height: 10, color: "rgba(0, 0, 255, 0.5)" });
+const transparent = new Jimp({ width: 10, height: 10 });
+
+red.getPixelColor(0, 0).toString(16); // "ff0000ff"
+```
+
+### From an existing bitmap
+
+You can also pass a bitmap object with a `Buffer` of RGBA bytes. The image uses that `Buffer` as is, without copying it.
+To convert other array types, or to work on a copy, use [`Jimp.fromBitmap`](/jimp/methods/from-bitmap/).
+
+```ts title="example.ts"
+const data = Buffer.alloc(16 * 16 * 4, 0xff); // white, opaque
+const image = new Jimp({ width: 16, height: 16, data });
+```
+
+## Notes
+
+- **Colors are RGBA numbers.** A number is read as `0xRRGGBBAA`, so `0xff0000` is a fully transparent color, not red. Write the alpha byte too: `0xff0000ff`. See [Colors and pixels](/jimp/concepts/colors-and-pixels/).
+- **`color` also sets the background.** The fill color is stored in [`image.background`](/jimp/concepts/reading-and-writing/#image-properties). [`rotate`](/jimp/methods/rotate/) and [`contain`](/jimp/methods/contain/) fill new space with it, and formats without transparency, like JPEG, are drawn over it when you encode.
+- **Unknown color names become opaque black.** A string that isn't a valid CSS color doesn't throw; it gives `0x000000ff`.
+- **Sizes aren't validated.** Use positive whole numbers. A negative size throws a `RangeError` from `Buffer.alloc`, and a fractional one produces a broken image.
+- **No format.** A new image has no `mime`. Choose the output format when you call [`write`](/jimp/methods/write/) or [`getBuffer`](/jimp/methods/get-buffer/).
+- **v0 difference.** Jimp v0 took positional arguments, `new Jimp(256, 256, 0xffffffff)`, and callbacks. v1 only takes an options object.
+
+## Related
+
+<Related methods={["Jimp.fromBitmap", "Jimp.read", "composite", "print", "setPixelColor", "clone"]} />

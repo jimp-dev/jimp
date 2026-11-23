@@ -1,0 +1,76 @@
+---
+title: "blur()"
+description: "Apply a fast blur with a radius in pixels."
+category: effects
+method: "blur"
+plugin: "@jimp/plugin-blur"
+---
+
+import { Aside } from "@astrojs/starlight/components";
+import Playground from "../../../components/playground/Playground";
+import Related from "../../../components/Related.astro";
+
+`blur` softens the image by averaging each pixel with its neighbors.
+It looks close to a Gaussian blur but runs much faster, especially at large radii, so it's the one to reach for unless you need an exact Gaussian.
+
+## Signature
+
+```ts title="blur.d.ts"
+image.blur(r: number): this
+```
+
+`blur` changes the image in place and returns it, so you can chain more calls after it.
+
+## Parameters
+
+| Parameter | Type     | Default  | Description                                                   |
+| --------- | -------- | -------- | ------------------------------------------------------------- |
+| `r`       | `number` | required | The blur radius in pixels. A whole number from `1` to `256`. |
+
+## Example
+
+```ts title="example.ts"
+import { Jimp } from "jimp";
+
+const image = await Jimp.read("photo.jpg");
+
+image.blur(5);
+
+await image.write("photo-blurred.jpg");
+```
+
+### Blur part of an image
+
+`blur` always works on the whole image.
+To blur one area, such as a face or a license plate, blur a cropped copy and draw it back on top:
+
+```ts title="example.ts"
+const area = { x: 40, y: 30, w: 120, h: 120 };
+
+const patch = image.clone().crop(area).blur(10);
+
+image.composite(patch, area.x, area.y);
+```
+
+## Try it
+
+Drag the slider to change `r`. The code panel shows the call that produced the image.
+
+<Playground method="blur" client:visible />
+
+## Notes
+
+- **Transparency is handled.** Colors are weighted by their alpha while blurring, so transparent pixels don't leave a dark fringe around the edges of a shape.
+- **Edges are extended.** Near the border, pixels outside the image count as copies of the nearest edge pixel, so the edges don't fade to black.
+- **Invalid radii.** `r` values below `1` throw `r must be greater than 0`, and values that aren't numbers throw `r must be a number`.
+- **`blur` or `gaussian`?** [`gaussian`](/jimp/methods/gaussian/) computes a true Gaussian blur. It's a little smoother, but it gets much slower as the radius grows. For most images the difference isn't visible.
+
+<Aside type="caution" title="Use whole numbers">
+  The radius is used to look up precomputed tables. A fractional radius such as
+  `2.5`, or one above `256`, doesn't throw: it makes the whole image transparent
+  black. Round computed values first, for example `image.blur(Math.round(r))`.
+</Aside>
+
+## Related
+
+<Related methods={["gaussian", "pixelate", "convolute", "boxShadow", "clone"]} />

@@ -1,0 +1,67 @@
+---
+title: "distanceFromHash()"
+description: "Compare the image to a perceptual hash."
+category: compare
+method: "distanceFromHash"
+plugin: "@jimp/plugin-hash"
+---
+
+import Related from "../../../components/Related.astro";
+
+`distanceFromHash` hashes the image with [`pHash`](/jimp/methods/phash/) and tells you how far that hash is from one you already have.
+Use it to check a new image against hashes you've stored, without loading the images they came from.
+
+## Signature
+
+```ts title="distanceFromHash.d.ts"
+image.distanceFromHash(
+  compareHash: string,
+  options?: { size?: number; smallerSize?: number },
+): number
+```
+
+`distanceFromHash` doesn't change the image. It returns a number from `0` to `1`: the share of bits that differ.
+
+## Parameters
+
+| Parameter     | Type     | Default  | Description                                                                                     |
+| ------------- | -------- | -------- | ----------------------------------------------------------------------------------------------- |
+| `compareHash` | `string` | required | A hash from `pHash()` (or `hash(2)`).                                                           |
+| `options`     | `object` | `{}`     | The `size` and `smallerSize` that `compareHash` was made with. See [`pHash`](/jimp/methods/phash/#options). |
+
+## Example
+
+```ts title="example.ts"
+import { Jimp } from "jimp";
+
+// Hashes saved earlier with image.pHash()
+const known = {
+  logo: "1011111000011111110010111110000011100000011000000001111010010010",
+};
+
+const upload = await Jimp.read("upload.png");
+
+if (upload.distanceFromHash(known.logo) < 0.15) {
+  console.log("This looks like the logo");
+}
+```
+
+### With a longer hash
+
+If the stored hash was made with options, pass the same options so the image is hashed the same way:
+
+```ts title="example.ts"
+const stored = original.pHash({ smallerSize: 16 });
+
+image.distanceFromHash(stored, { smallerSize: 16 });
+```
+
+## Notes
+
+- **Reading the result.** `0` means the hashes are identical. Unrelated images land around `0.5`, because about half their bits match by chance. Where to draw the line depends on your images; values below about `0.15` usually mean the same picture.
+- **Same as `compareHashes`.** `image.distanceFromHash(hash)` gives the same result as [`compareHashes(image.pHash(), hash)`](/jimp/methods/compare-hashes/).
+- **Mismatched hashes throw.** If `compareHash` has a different length from the image's hash, because it came from `hash()` in another base or used other options, `distanceFromHash` throws `Can't compare hashes of different lengths (64 and 11). Both hashes must be made with the same size and smallerSize options (and, for hash(), the same base).`
+
+## Related
+
+<Related methods={["pHash", "compareHashes", "distance", "hash", "diff"]} />

@@ -1,0 +1,70 @@
+---
+title: "gaussian()"
+description: "Apply a true Gaussian blur. Smoother than blur, but slower."
+category: effects
+method: "gaussian"
+plugin: "@jimp/plugin-blur"
+---
+
+import Playground from "../../../components/playground/Playground";
+import Related from "../../../components/Related.astro";
+
+`gaussian` blurs the image with a true Gaussian kernel, so each pixel becomes a weighted average of its neighbors with the nearest ones counting most.
+Use it when you need an exact, smooth Gaussian falloff or a fractional radius; for everyday blurring, [`blur`](/jimp/methods/blur/) looks almost the same and stays fast at any radius.
+
+## Signature
+
+```ts title="gaussian.d.ts"
+image.gaussian(r: number): this
+```
+
+`gaussian` changes the image in place and returns it, so you can chain more calls after it.
+
+## Parameters
+
+| Parameter | Type     | Default  | Description                                                                                                      |
+| --------- | -------- | -------- | ---------------------------------------------------------------------------------------------------------------- |
+| `r`       | `number` | required | The blur radius in pixels: the standard deviation of the Gaussian. Must be `1` or more, and may be fractional. |
+
+## Example
+
+```ts title="example.ts"
+import { Jimp } from "jimp";
+
+const image = await Jimp.read("photo.jpg");
+
+image.gaussian(4);
+
+await image.write("photo-soft.jpg");
+```
+
+### Soften a background behind a subject
+
+Blur a copy of the image and draw the sharp subject back on top of it. Here the subject is a rectangle in the middle:
+
+```ts title="example.ts"
+const subject = { x: 120, y: 80, w: 200, h: 160 };
+
+const sharp = image.clone().crop(subject);
+
+image.gaussian(6).composite(sharp, subject.x, subject.y);
+```
+
+## Try it
+
+Drag the slider to change `r`. Unlike `blur`, half-pixel steps work.
+
+<Playground method="gaussian" client:visible />
+
+## Notes
+
+- **What `r` means.** `r` is the standard deviation (sigma) of the Gaussian. Each pixel samples neighbors up to `Math.ceil(r * 2.57)` pixels away in each direction, so `gaussian(4)` reaches 11 pixels out. At the same `r`, `gaussian` and `blur` look about equally soft.
+- **Speed.** The blur runs as a horizontal pass then a vertical pass, so the work per pixel grows in step with `r`. Small radii are quick; at large radii [`blur`](/jimp/methods/blur/), whose cost hardly depends on the radius, is much faster.
+- **Transparency is handled.** Colors are weighted by their alpha, so transparent areas don't darken the edges of a shape. Fully transparent results are written as transparent black.
+- **Edges are extended.** Pixels past the border count as copies of the nearest edge pixel.
+- **Invalid radii.** A non-number throws `r must be a number`, and a value below `1` (including `0.5`) throws `r must be greater than 0`.
+- **The whole image.** `gaussian` has no region option. To blur part of an image, blur a cropped copy and [`composite`](/jimp/methods/composite/) it back, as with [`blur`](/jimp/methods/blur/#blur-part-of-an-image).
+
+## Related
+
+<Related methods={["blur", "pixelate", "convolution", "boxShadow", "composite"]} />

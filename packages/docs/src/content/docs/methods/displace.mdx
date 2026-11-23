@@ -1,0 +1,98 @@
+---
+title: "displace()"
+description: "Shift pixels sideways using a displacement map image."
+category: shape
+method: "displace"
+plugin: "@jimp/plugin-displace"
+---
+
+import { Aside } from "@astrojs/starlight/components";
+import Playground from "../../../components/playground/Playground";
+import Related from "../../../components/Related.astro";
+
+`displace` moves each pixel sideways by an amount read from a second image, the displacement map.
+Brighter areas of the map move pixels further. It's used for ripple, wave, heat-haze and glass effects.
+
+## Signature
+
+```ts title="displace.d.ts"
+image.displace(options: { map: Jimp; offset: number }): this
+```
+
+`displace` changes the image in place and returns it, so you can chain more calls after it. The map isn't changed.
+
+## Options
+
+| Option   | Type     | Default  | Description                                                                                              |
+| -------- | -------- | -------- | -------------------------------------------------------------------------------------------------------- |
+| `map`    | `Jimp`   | required | The displacement map, a Jimp image the same size as `image`. Only its red channel is used.               |
+| `offset` | `number` | required | The largest shift in pixels, used where the map's red channel is `255`. Negative values shift left.      |
+
+## Example
+
+```ts title="example.ts"
+import { Jimp } from "jimp";
+
+const image = await Jimp.read("photo.jpg");
+const map = await Jimp.read("waves.png");
+
+// The map must line up with the image pixel for pixel
+map.resize({ w: image.width, h: image.height });
+
+image.displace({ map, offset: 20 });
+
+await image.write("photo-waves.jpg");
+```
+
+### Make a map in code
+
+A map is just an image, so you can draw one with [`scan`](/jimp/methods/scan/). This one varies by row, which bends vertical lines into waves:
+
+```ts title="example.ts"
+import { Jimp } from "jimp";
+
+const image = await Jimp.read("photo.jpg");
+const map = new Jimp({ width: image.width, height: image.height });
+
+map.scan((x, y, idx) => {
+  const v = Math.round(127.5 + 127.5 * Math.sin((2 * Math.PI * y) / 45));
+  map.bitmap.data[idx] = v; // red: the amount of shift
+  map.bitmap.data[idx + 1] = v;
+  map.bitmap.data[idx + 2] = v;
+  map.bitmap.data[idx + 3] = 255;
+});
+
+image.displace({ map, offset: 20 });
+```
+
+The playground below uses a map made the same way.
+
+## How it works
+
+For each pixel at `(x, y)`, `displace` reads the red value `r` of the map at the same position and copies the pixel to `(x + d, y)`, where `d = Math.round((r / 256) * offset)`.
+
+- Red `0` means no shift; red `255` shifts by almost the full `offset`.
+- A map of one flat color moves the whole image by the same amount. The effect comes from changes in the map: where the red value changes along a row, pixels are pulled apart or pushed together.
+- Pixels are only ever moved horizontally.
+
+## Try it
+
+Drag `offset` to change the strength of the waves.
+
+<Playground method="displace" client:visible />
+
+## Notes
+
+- **Only color moves, not alpha.** The red, green and blue values are moved but each pixel keeps its original alpha. On images with transparency, like the dice above, the hidden colors of transparent pixels (usually black) get pulled into opaque areas and show as dark streaks. Composite such images onto a solid background first, or use opaque images.
+- **Gaps keep the original pixel.** Where nothing lands on a pixel (because the shift increases along the row), it keeps its old color, which can leave thin copies of edges.
+- **Edges.** Pixels shifted past the right (or, with a negative `offset`, the left) edge are lost.
+- **Map size.** The map is read by pixel index, not by coordinates. A map of a different size doesn't line up with the image, and pixels past the end of a smaller map aren't moved. Resize the map to the image size first, as in the example.
+
+<Aside type="tip">
+  Blur the map before using it, for example with [`blur`](/jimp/methods/blur/),
+  to soften sharp steps in the shift.
+</Aside>
+
+## Related
+
+<Related methods={["fisheye", "blur", "scan", "composite"]} />

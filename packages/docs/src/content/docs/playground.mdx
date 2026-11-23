@@ -1,0 +1,30 @@
+---
+title: Playground
+description: Try every Jimp method on your own images, right in the browser, and copy the code for what you made.
+template: splash
+prev: false
+next: false
+---
+
+import Playground from "../../components/playground/Playground";
+
+Pick a method, adjust its options and watch the image change. Every button runs
+the real Jimp in your browser, and the code panel builds the program you'd write
+to get the same result. Drop in your own image to try it on something else.
+
+<Playground client:load grouped height={340} steps={[{ op: "fisheye" }]} />
+
+## Tips
+
+- **Changing options** re-runs the last step. Select **Apply again** to stack
+  another call instead.
+- **Region tools** such as `crop` and `pixelate` let you drag on the image to
+  pick the area.
+- **Hold Compare** to see the original, and use **Undo** to step back.
+- **Node and Browser** switch how the code ends: Node saves the result with
+  `write()`, and the browser version shows it in an `<img>` with `getBase64()`.
+- Images wider than 360 px are scaled down first so the playground stays fast.
+  Your own code works on the full-size image.
+
+Every method has its own page with all its options, examples and notes. Browse
+them in the [method reference](/jimp/methods/).

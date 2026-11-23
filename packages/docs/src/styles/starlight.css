@@ -1,0 +1,234 @@
+/* Restyles Starlight's built-in content components: asides, code blocks and search. */
+
+/* ---------- Asides: sticker cards with a colored strip ---------- */
+
+.starlight-aside {
+  --strip: var(--jp-sky);
+  position: relative;
+  margin-block: 1.5rem;
+  padding: 14px 18px 14px 66px;
+  color: var(--jp-text);
+  background: var(--jp-note-bg);
+  border: 3.5px solid var(--jp-line);
+  border-radius: 16px;
+  box-shadow: 4px 4px 0 var(--jp-shadow);
+}
+.starlight-aside::before {
+  content: "";
+  position: absolute;
+  inset-block: 0;
+  inset-inline-start: 0;
+  width: 46px;
+  border-inline-end: 3px solid var(--jp-line);
+  border-radius: 12px 0 0 12px;
+  background: var(--strip);
+}
+.starlight-aside--tip {
+  --strip: var(--jp-mint);
+  background: var(--jp-tip-bg);
+}
+.starlight-aside--caution {
+  --strip: repeating-linear-gradient(-45deg, var(--jp-ink) 0 9px, var(--jp-yellow) 9px 18px);
+  background: var(--jp-caution-bg);
+}
+.starlight-aside--danger {
+  --strip: var(--jp-red);
+  background: var(--jp-danger-bg);
+}
+.starlight-aside__title {
+  font-family: var(--jp-ui);
+  font-size: 16.5px;
+  font-weight: 700;
+  color: var(--jp-text);
+}
+.starlight-aside__icon {
+  position: absolute;
+  inset-inline-start: 8px;
+  top: 12px;
+  width: 30px;
+  height: 30px;
+  padding: 4px;
+  font-size: 1rem;
+  color: var(--jp-ink);
+  background: #fff;
+  border: 2.5px solid var(--jp-ink);
+  border-radius: 50%;
+}
+.starlight-aside__title + .starlight-aside__content {
+  margin-top: 0.25rem;
+}
+.starlight-aside__content a {
+  color: var(--jp-link);
+}
+
+/* ---------- Code blocks (Expressive Code) ---------- */
+
+.sl-markdown-content .expressive-code,
+.not-content .expressive-code {
+  --code-shadow: var(--jp-sky);
+  margin-block: 1.75rem;
+}
+.sl-markdown-content .expressive-code:nth-of-type(5n + 2) {
+  --code-shadow: var(--jp-pink);
+}
+.sl-markdown-content .expressive-code:nth-of-type(5n + 3) {
+  --code-shadow: var(--jp-mint);
+}
+.sl-markdown-content .expressive-code:nth-of-type(5n + 4) {
+  --code-shadow: var(--jp-yellow);
+}
+.sl-markdown-content .expressive-code:nth-of-type(5n + 5) {
+  --code-shadow: var(--jp-orange);
+}
+
+.expressive-code .frame {
+  box-shadow: 6px 6px 0 var(--code-shadow, var(--jp-sky)) !important;
+  border-radius: 16px;
+}
+.expressive-code .frame pre {
+  border: 3.5px solid var(--jp-code-line) !important;
+  border-radius: 16px !important;
+  background: var(--jp-code-bg) !important;
+}
+.expressive-code .frame.has-title pre,
+.expressive-code .frame.is-terminal pre {
+  border-top-left-radius: 16px !important;
+}
+
+/* Titles become a rotated filename sticker sitting on the top edge. */
+.expressive-code .frame.has-title:not(.is-terminal) {
+  margin-top: 0.9rem;
+}
+.expressive-code .frame.has-title:not(.is-terminal) .header {
+  position: absolute;
+  top: -15px;
+  left: 16px;
+  z-index: 1;
+  display: block;
+  background: none;
+  border: 0;
+}
+.expressive-code .frame.has-title:not(.is-terminal) .header::before,
+.expressive-code .frame.has-title:not(.is-terminal) .header::after {
+  display: none;
+}
+.expressive-code .frame.has-title:not(.is-terminal) .header .title {
+  display: inline-block;
+  padding: 0 10px;
+  font-family: var(--jp-ui);
+  font-weight: 600;
+  font-size: 13px;
+  line-height: 1.7;
+  color: var(--jp-ink);
+  background: var(--jp-yellow);
+  border: 2.5px solid var(--jp-ink);
+  border-radius: 8px;
+  transform: rotate(-1.5deg);
+}
+.expressive-code .frame.has-title:not(.is-terminal) .header .title::after {
+  display: none;
+}
+
+/* Terminal frames keep their title bar, recolored. */
+.expressive-code .frame.is-terminal .header {
+  border: 3.5px solid var(--jp-code-line);
+  border-bottom: 0;
+  border-radius: 16px 16px 0 0;
+  background: var(--jp-code-head);
+}
+.expressive-code .frame.is-terminal .header ~ pre {
+  border-top-left-radius: 0 !important;
+  border-top-right-radius: 0 !important;
+}
+.expressive-code .frame.is-terminal .header .title {
+  font-family: var(--jp-mono);
+  color: #cfc8ff;
+}
+
+/* Copy button: a chunky pill, always visible. */
+.expressive-code .copy {
+  inset-block-start: 10px !important;
+  inset-inline-end: 10px !important;
+}
+.expressive-code .copy button {
+  opacity: 1 !important;
+  width: 2rem !important;
+  height: 2rem !important;
+  background: #fff !important;
+  border: 2.5px solid var(--jp-ink) !important;
+  border-radius: 9px !important;
+  box-shadow: 0 2px 0 var(--jp-ink);
+}
+.expressive-code .copy button::before {
+  display: none;
+}
+.expressive-code .copy button::after {
+  background-color: var(--jp-ink) !important;
+}
+.expressive-code .copy .feedback {
+  font-family: var(--jp-ui);
+  font-weight: 600;
+  color: var(--jp-ink) !important;
+  background: var(--jp-mint) !important;
+  border: 2.5px solid var(--jp-ink);
+}
+
+/* ---------- Search dialog (Pagefind) ---------- */
+
+site-search dialog {
+  border: 4px solid var(--jp-line) !important;
+  border-radius: 22px !important;
+  box-shadow: 10px 10px 0 var(--jp-shadow) !important;
+  background: var(--jp-paper) !important;
+}
+site-search dialog::backdrop {
+  background: var(--sl-color-backdrop-overlay);
+}
+#starlight__search {
+  --pagefind-ui-primary: var(--jp-link);
+  --pagefind-ui-text: var(--jp-text);
+  --pagefind-ui-background: var(--jp-surface);
+  --pagefind-ui-border: var(--jp-line);
+  --pagefind-ui-tag: var(--jp-surface-2);
+  --pagefind-ui-border-width: 3px;
+  --pagefind-ui-border-radius: 14px;
+  --pagefind-ui-font: var(--jp-ui);
+}
+#starlight__search .pagefind-ui__search-input {
+  font-family: var(--jp-ui);
+  font-weight: 500;
+  color: var(--jp-text);
+  border: 3px solid var(--jp-line);
+  border-radius: 999px;
+  box-shadow: 0 3px 0 var(--jp-shadow);
+}
+#starlight__search .pagefind-ui__result {
+  border: 3px solid var(--jp-line) !important;
+  border-radius: 14px;
+  box-shadow: 4px 4px 0 var(--jp-shadow);
+  background: var(--jp-surface);
+  padding: 10px 14px !important;
+  margin-bottom: 12px;
+}
+#starlight__search .pagefind-ui__result-link {
+  font-family: var(--jp-ui);
+  font-weight: 600;
+  color: var(--jp-text);
+}
+#starlight__search mark {
+  background: var(--jp-yellow);
+  color: var(--jp-ink);
+  border-radius: 3px;
+}
+#starlight__search .pagefind-ui__result-nested .pagefind-ui__result-link::before {
+  color: var(--jp-text-2);
+}
+#starlight__search .pagefind-ui__button {
+  font-family: var(--jp-ui);
+  font-weight: 600;
+  color: var(--jp-ink);
+  background: var(--jp-yellow);
+  border: 3px solid var(--jp-ink);
+  border-radius: 12px;
+  box-shadow: 0 3px 0 var(--jp-ink);
+}

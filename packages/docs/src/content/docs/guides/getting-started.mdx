@@ -1,61 +1,245 @@
 ---
 title: Getting Started
-description: How to use Jimp
+description: Install Jimp, then load, edit and save your first image in Node.js or the browser.
 ---
 
-import { Steps } from "@astrojs/starlight/components";
-import { Aside } from "@astrojs/starlight/components";
+import { Aside, CardGrid, LinkCard, Steps, TabItem, Tabs } from "@astrojs/starlight/components";
+import InstallCommand from "../../../components/InstallCommand.astro";
+import Playground from "../../../components/playground/Playground";
 
-Jimp (JavaScript Image Manipulation Program) is a package that makes it easy to load and manipulate images in the browser and Node.js.
-It aims to run anywhere that JavaScript is supported.
+Jimp (JavaScript Image Manipulation Program) reads, edits and writes images in Node.js and the browser.
+It's written entirely in JavaScript, so there are no native dependencies to install or compile.
+This guide walks through a first program: install Jimp, load an image, change it, and save the result.
 
-[Read the full documentation](/jimp/api/jimp/classes/jimp/) to learn more about the API.
-
-```bash
-pnpm add jimp
-```
-
-Jimp supports the following image formats:
-
-- [bmp](https://en.wikipedia.org/wiki/BMP_file_format)
-- [gif](https://en.wikipedia.org/wiki/GIF)
-- [jpeg](https://en.wikipedia.org/wiki/JPEG)
-- [png](https://en.wikipedia.org/wiki/Portable_Network_Graphics)
-- [tiff](https://en.wikipedia.org/wiki/TIFF)
-
-<Aside type="caution" title="Watch out!">
-  Jimp is built on JavaScript implementations of image formats. These
-  implementations are not optimized for performance and may allocate a lot of
-  memory before using.
-</Aside>
-
-By default JPEG, GIF, TIFF and BMP images larger than 100 megapixels are rejected.
-See [Reading Large Images](/jimp/guides/reading-large-images/) to raise the limits.
-
-## Usage
-
-The workflow for using jimp
+Every Jimp program follows the same three steps:
 
 <Steps>
 
-1. Load an image.
-
-   ```ts
-   import { Jimp } from "jimp";
-
-   const image = await Jimp.read("test/image.png");
-   ```
-
-2. Manipulate the image.
-
-   ```ts
-   image.resize({ w: 100 });
-   ```
-
-3. Save the image.
-
-   ```ts
-   await image.write("test/output.png");
-   ```
+1. **Load** an image with [`Jimp.read`](/jimp/methods/read/), or create a blank one with [`new Jimp()`](/jimp/methods/new-jimp/).
+2. **Edit** it with methods such as [`resize`](/jimp/methods/resize/), [`crop`](/jimp/methods/crop/) or [`greyscale`](/jimp/methods/greyscale/).
+3. **Save** it with [`write`](/jimp/methods/write/), or encode it with [`getBuffer`](/jimp/methods/get-buffer/) or [`getBase64`](/jimp/methods/get-base64/).
 
 </Steps>
+
+## Install
+
+Add the `jimp` package to your project:
+
+<InstallCommand />
+
+Jimp needs Node.js 18 or later. The package works with both `import` and `require`, and ships its own TypeScript types.
+
+<Tabs syncKey="module">
+  <TabItem label="ES modules">
+
+```ts title="index.ts"
+import { Jimp } from "jimp";
+```
+
+  </TabItem>
+  <TabItem label="CommonJS">
+
+```js title="index.cjs"
+const { Jimp } = require("jimp");
+```
+
+  </TabItem>
+</Tabs>
+
+`Jimp` is a named export. There's no default export as there was in v0; see [Migrate to v1](/jimp/guides/migrate-to-v1/) if you're upgrading.
+
+## Load an image
+
+[`Jimp.read`](/jimp/methods/read/) loads an image and returns a promise for it.
+Jimp detects the format from the file's contents, not its name.
+
+<Tabs syncKey="env">
+  <TabItem label="Node.js">
+
+```ts title="index.ts"
+import { Jimp } from "jimp";
+
+// A path on disk
+const image = await Jimp.read("photos/dice.png");
+
+// A URL, downloaded with fetch
+const remote = await Jimp.read("https://jimp-dev.github.io/jimp/dice.png");
+
+console.log(image.width, image.height, image.mime); // 800 600 "image/png"
+```
+
+  </TabItem>
+  <TabItem label="Browser">
+
+```js title="main.js"
+import { Jimp } from "jimp";
+
+// A URL, fetched by the browser (it must allow CORS if it's on another domain)
+const image = await Jimp.read("/images/dice.png");
+
+// A file the user picked in an <input type="file">
+const input = document.querySelector("input[type=file]");
+const picked = await Jimp.fromBuffer(await input.files[0].arrayBuffer());
+```
+
+  </TabItem>
+</Tabs>
+
+`Jimp.read` also accepts a `Buffer` or `ArrayBuffer`.
+When you already have the bytes in memory, [`Jimp.fromBuffer`](/jimp/methods/from-buffer/) does the same thing.
+To build an image from scratch, pass a size and an optional fill color to [`new Jimp()`](/jimp/methods/new-jimp/):
+
+```ts title="index.ts"
+const canvas = new Jimp({ width: 400, height: 300, color: 0xffffffff });
+```
+
+Out of the box Jimp reads and writes PNG, JPEG, GIF, BMP and TIFF.
+WebP, AVIF and WebAssembly JPEG and PNG codecs are available as plugins; see [Formats](/jimp/concepts/formats/) and [WEBP / WASM](/jimp/guides/webp/).
+
+## Edit the image
+
+Image methods change the image in place and return it, so you can chain them:
+
+```ts title="index.ts"
+image.resize({ w: 400 }).greyscale().contrast(0.2);
+```
+
+Most methods take an options object, such as `{ w: 400 }` for [`resize`](/jimp/methods/resize/).
+Leave out `h` and the height follows the aspect ratio.
+
+Because methods change the image, call [`clone`](/jimp/methods/clone/) when you want to keep the original or make several versions from one source:
+
+```ts title="index.ts"
+const thumbnail = image.clone().cover({ w: 150, h: 150 });
+```
+
+Try it here. Click a method to add it to the program, adjust its options, and watch the code panel build up the matching Jimp code.
+Upload your own image with the button at the top right.
+
+<Playground
+  client:visible
+  title="Your first program"
+  tools={["resize", "crop", "rotate", "flip", "circle", "blur", "pixelate", "greyscale", "sepia", "brightness", "contrast", "invert"]}
+  steps={[{ op: "resize", options: { w: 240 } }, { op: "greyscale" }]}
+/>
+
+Browse every method on the [methods page](/jimp/methods/), grouped by what they do.
+
+## Save the image
+
+[`write`](/jimp/methods/write/) encodes the image and writes it to disk in Node.js.
+It picks the format from the file extension, so you can convert between formats by changing it:
+
+```ts title="index.ts"
+await image.write("output.png");
+
+// JPEG with a quality from 0 to 100 (the default is 100)
+await image.write("output.jpg", { quality: 80 });
+```
+
+To get the encoded bytes instead of a file, for example to send them in an HTTP response or show them in the browser, use [`getBuffer`](/jimp/methods/get-buffer/) or [`getBase64`](/jimp/methods/get-base64/) with a MIME type.
+The [`JimpMime`](/jimp/concepts/constants/) export lists the MIME types of the built-in formats:
+
+```ts title="index.ts"
+import { Jimp, JimpMime } from "jimp";
+
+const buffer = await image.getBuffer(JimpMime.png);
+const dataUrl = await image.getBase64("image/jpeg", { quality: 60 });
+```
+
+<Aside type="caution" title="Transparency and JPEG">
+  JPEG and BMP output has no alpha channel, so transparent pixels come out
+  black. Before encoding to any format other than PNG, Jimp draws the image over
+  `image.background`, which is transparent black by default. Set it to flatten
+  transparent areas onto a color instead: `image.background = 0xffffffff;`
+  gives white.
+</Aside>
+
+## Put it together
+
+This program loads a photo, makes a square thumbnail and a captioned preview from it, and saves both.
+[`loadFont`](/jimp/methods/load-font/) and the fonts in `jimp/fonts` are covered in [Text and fonts](/jimp/concepts/text-and-fonts/).
+
+```ts title="thumbnails.ts"
+import { Jimp, HorizontalAlign, loadFont } from "jimp";
+import { SANS_32_WHITE } from "jimp/fonts";
+
+const image = await Jimp.read("dice.png");
+
+// A 150 x 150 square, cropped from the center
+const thumbnail = image.clone().cover({ w: 150, h: 150 });
+await thumbnail.write("dice-thumb.png");
+
+// A smaller, grey preview with a caption
+const font = await loadFont(SANS_32_WHITE);
+
+image
+  .resize({ w: 400 })
+  .greyscale()
+  .print({
+    font,
+    x: 0,
+    y: 10,
+    text: { text: "Dice", alignmentX: HorizontalAlign.CENTER },
+    maxWidth: image.width,
+  });
+
+await image.write("dice-preview.jpg", { quality: 80 });
+```
+
+## Handle errors
+
+Loading, decoding and encoding are asynchronous, so errors arrive as rejected promises.
+Wrap them in `try`/`catch`:
+
+```js title="index.js"
+try {
+  const image = await Jimp.read("photos/missing.png");
+} catch (error) {
+  console.error(error.message);
+  // Could not load Buffer from URL: photos/missing.png
+}
+```
+
+The errors you're most likely to see first:
+
+| Message                                                    | Cause                                                                                                  |
+| ---------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
+| `Could not load Buffer from URL: <path>`                   | The path doesn't exist, so Jimp tried to fetch it as a URL and failed.                                 |
+| `HTTP Status 404 for url <url>`                            | The URL was fetched, but the server returned an error status.                                          |
+| `Could not find MIME for Buffer`                           | The data isn't an image Jimp recognizes.                                                               |
+| `Mime type image/webp does not support decoding`           | The image is in a format Jimp doesn't include by default. Add a [format plugin](/jimp/guides/webp/).  |
+| `Unsupported MIME type: image/webp`                        | You asked `write` or `getBuffer` for a format that isn't installed.                                     |
+| `Cannot write "<path>": the path has no recognisable file extension …` | `write` couldn't tell the format from the path. Add an extension such as `.png`.      |
+
+Image methods are synchronous and throw straight away when an option is wrong.
+Options objects are validated with [zod](https://zod.dev), so a bad option throws a `ZodError` whose `issues` say which option failed:
+
+```js title="index.js"
+try {
+  image.resize({ w: -5 });
+} catch (error) {
+  console.error(error.issues[0].message);
+  // Too small: expected number to be >=0
+}
+```
+
+[Errors and validation](/jimp/concepts/errors-and-validation/) covers these in more detail.
+
+<Aside type="note" title="Large images">
+  Jimp decodes images in JavaScript and keeps every pixel in memory, four bytes
+  per pixel. JPEG, GIF, TIFF and BMP images over 100 megapixels are rejected by
+  default. See [Reading Large Images](/jimp/guides/reading-large-images/) to
+  raise the limits.
+</Aside>
+
+## Next steps
+
+<CardGrid>
+  <LinkCard title="All methods" href="/jimp/methods/" description="Every method, with options, examples and a playground." />
+  <LinkCard title="Using in Browser" href="/jimp/guides/browser/" description="CDN builds, file inputs, canvas and web workers." />
+  <LinkCard title="Reading and writing" href="/jimp/concepts/reading-and-writing/" description="Every way to load and encode images, and the options for each format." />
+  <LinkCard title="Chaining and async" href="/jimp/concepts/chaining-and-async/" description="Which methods change the image, which return promises, and when to clone." />
+  <LinkCard title="Colors and pixels" href="/jimp/concepts/colors-and-pixels/" description="How pixels are stored, and how to read and write them yourself." />
+  <LinkCard title="Compositing" href="/jimp/concepts/compositing/" description="Layer images with composite, blit and mask." />
+</CardGrid>

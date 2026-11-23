@@ -1,0 +1,67 @@
+---
+title: "flip()"
+description: "Mirror the image horizontally, vertically or both."
+category: shape
+method: "flip"
+plugin: "@jimp/plugin-flip"
+---
+
+import Playground from "../../../components/playground/Playground";
+import Related from "../../../components/Related.astro";
+
+`flip` mirrors the image. A horizontal flip swaps left and right, like a mirror; a vertical flip turns it upside down.
+
+## Signature
+
+```ts title="flip.d.ts"
+image.flip(options: { horizontal?: boolean; vertical?: boolean }): this
+```
+
+`flip` changes the image in place and returns it, so you can chain more calls after it.
+
+## Options
+
+| Option       | Type      | Default | Description                                     |
+| ------------ | --------- | ------- | ----------------------------------------------- |
+| `horizontal` | `boolean` | `false` | Mirror left to right.                           |
+| `vertical`   | `boolean` | `false` | Mirror top to bottom.                           |
+
+The options object itself is required, even though both options are optional.
+
+## Example
+
+```ts title="example.ts"
+import { Jimp } from "jimp";
+
+const image = await Jimp.read("selfie.jpg");
+
+// Undo the mirroring of a front camera
+image.flip({ horizontal: true });
+
+await image.write("selfie-fixed.jpg");
+```
+
+### Flip both ways
+
+Flipping in both directions gives the same result as rotating by 180°:
+
+```ts title="example.ts"
+image.flip({ horizontal: true, vertical: true });
+// same pixels as image.rotate(180)
+```
+
+## Try it
+
+Toggle `horizontal` and `vertical`.
+
+<Playground method="flip" client:visible />
+
+## Notes
+
+- **The size doesn't change.** Every pixel is moved, none are resampled, so flipping twice restores the original exactly.
+- **No options does nothing.** `flip({})` leaves the image as it is. Calling `flip()` with no argument at all fails validation with `Invalid input: expected object, received undefined`.
+- **v0 differences.** v0 took two booleans: `flip(horizontal, vertical)`. In v1 pass an object, and the `mirror` alias is gone.
+
+## Related
+
+<Related methods={["rotate", "crop", "clone"]} />

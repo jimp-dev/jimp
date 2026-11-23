@@ -1,0 +1,267 @@
+---
+title: "Formats"
+description: "The image formats built into jimp, the WASM format plugins, and what each one can read and write."
+---
+
+import { Aside, Tabs, TabItem } from "@astrojs/starlight/components";
+import InstallCommand from "../../../components/InstallCommand.astro";
+import Playground from "../../../components/playground/Playground";
+
+Jimp reads and writes images through format plugins: small objects that know how to decode one MIME type into pixels and encode pixels back.
+The `jimp` package includes five formats written in plain JavaScript, so it runs anywhere without native code.
+For WebP and AVIF, or for smaller JPEGs and PNGs, you add WASM format plugins.
+
+## Built-in formats
+
+These formats are in the `jimp` package and in its `defaultFormats` export:
+
+| Format | MIME type                         | Package         | Read | Write | Transparency                                    |
+| ------ | --------------------------------- | --------------- | ---- | ----- | ----------------------------------------------- |
+| PNG    | `image/png`                       | `@jimp/js-png`  | yes  | yes   | Full alpha                                      |
+| JPEG   | `image/jpeg`                      | `@jimp/js-jpeg` | yes  | yes   | None                                            |
+| GIF    | `image/gif`                       | `@jimp/js-gif`  | yes  | yes   | On or off: only fully transparent pixels        |
+| BMP    | `image/bmp`, `image/x-ms-bmp`     | `@jimp/js-bmp`  | yes  | yes   | Read from 16 and 32-bit files; never written    |
+| TIFF   | `image/tiff`                      | `@jimp/js-tiff` | yes  | yes   | Full alpha                                      |
+
+When reading, Jimp recognizes the format from the file's contents. When writing, you choose it: with a MIME type for [`getBuffer`](/jimp/methods/get-buffer/) and [`getBase64`](/jimp/methods/get-base64/), or with the file extension for [`write`](/jimp/methods/write/).
+
+Try each format on an image with a transparent background:
+
+<Playground
+  client:visible
+  title="Formats"
+  tools={["encode"]}
+  steps={[{ op: "encode", options: { format: "image/gif" } }]}
+/>
+
+### PNG
+
+Lossless, with full transparency. The best default for anything that isn't a photo, and for intermediate files you'll edit again.
+
+- **Encoder and decoder:** [pngjs](https://www.npmjs.com/package/pngjs).
+- **Encode options:** `colorType`, `filterType`, `deflateLevel`, `deflateStrategy`, `bitDepth` and `bgColor`. By default Jimp picks the smallest color type that loses nothing, so an opaque image is written without an alpha channel and a gray one as grayscale. See [PNG options](/jimp/methods/get-buffer/#png).
+- **Decode options:** `checkCRC` (default `true`) throws when a chunk's checksum is wrong. Bytes after the end of the image, which some tools write, are ignored.
+
+### JPEG
+
+Lossy and small, for photos. No transparency.
+
+- **Encoder and decoder:** [jpeg-js](https://www.npmjs.com/package/jpeg-js).
+- **Encode options:** `quality`, from `1` to `100`, default `100`; and `exif`, default `false`, which writes back the EXIF data of the JPEG the image was read from. See [JPEG options](/jimp/methods/get-buffer/#jpeg).
+- **Decode options:** `maxResolutionInMP` (default `100`), `maxMemoryUsageInMB` (default `512`), `tolerantDecoding` and `colorTransform`. See [Reading Large Images](/jimp/guides/reading-large-images/#jpeg-imagejpeg).
+- **EXIF:** on read, Jimp parses the EXIF data and rotates the pixels to match the orientation tag. See [EXIF](/jimp/guides/exif/).
+- **Damaged files:** files missing the end-of-image marker, or with stray bytes between header segments, are repaired before decoding.
+
+### GIF
+
+Up to 256 colors, one frame.
+
+- **Decoder:** [omggif](https://www.npmjs.com/package/omggif). Only the first frame of an animated GIF is read.
+- **Encoder:** Jimp's own. It writes a single frame. Images with 256 colors or fewer get an exact palette; others are reduced to 256 colors with Wu's quantization algorithm, without dithering. For control over the palette, call [`quantize`](/jimp/methods/quantize/) or [`dither`](/jimp/methods/dither/) first.
+- **Transparency:** pixels with an alpha of `0` become transparent. Every other pixel is written as opaque.
+- **Encode options:** none. Width and height can be at most 65,535.
+- **Decode options:** `maxResolutionInMP` (default `100`).
+
+### BMP
+
+Uncompressed bitmaps, mostly for compatibility with older software.
+
+- **Encoder and decoder:** [bmp-ts](https://www.npmjs.com/package/bmp-ts).
+- **Writing:** always uncompressed 24-bit, without transparency.
+- **Reading:** 1, 4, 8, 16, 24 and 32-bit files. Alpha is read from 16 and 32-bit files only.
+- **Encode options:** `hr` and `vr` (resolution in pixels per meter), `reserved1` and `reserved2`. See [BMP options](/jimp/methods/get-buffer/#bmp).
+- **Decode options:** `maxResolutionInMP` (default `100`).
+- **Two MIME types:** `@jimp/js-bmp` registers the same encoder and decoder as `image/bmp` and as `image/x-ms-bmp` (its `msBmp` export), for code that uses the older name. Files are always read as `image/bmp`.
+
+### TIFF
+
+Lossless and uncompressed, used in print and scanning workflows.
+
+- **Encoder and decoder:** [utif2](https://www.npmjs.com/package/utif2). Only the first page of a multi-page TIFF is read.
+- **Writing:** uncompressed 8-bit RGBA, so files are large: 4 bytes per pixel.
+- **Reading:** the common compression schemes and color models, including CMYK.
+- **Encode options:** none.
+- **Decode options:** `maxResolutionInMP` (default `100`).
+
+### Transparency and `image.background`
+
+Before encoding JPEG, BMP, GIF or TIFF, Jimp draws the image over [`image.background`](/jimp/concepts/reading-and-writing/#image-properties), which is transparent unless you set it.
+For JPEG and BMP that means transparent areas turn black. Set a background color to choose what they become:
+
+```ts title="example.ts"
+image.background = 0xffffffff; // white
+
+await image.write("on-white.jpg");
+```
+
+PNG and all the WASM formats skip this step.
+
+## WASM format plugins
+
+These plugins wrap codecs compiled to WebAssembly from [Squoosh](https://squoosh.app) via [jSquash](https://github.com/jamsinclair/jSquash). They aren't part of the `jimp` package. Install the ones you need along with `@jimp/core`:
+
+<InstallCommand pkg="@jimp/core @jimp/wasm-webp" />
+
+| Package           | MIME type    | Codec           | Read | Write | Transparency |
+| ----------------- | ------------ | --------------- | ---- | ----- | ------------ |
+| `@jimp/wasm-webp` | `image/webp` | libwebp         | yes  | yes   | Full alpha   |
+| `@jimp/wasm-avif` | `image/avif` | libavif         | yes  | yes   | Full alpha   |
+| `@jimp/wasm-jpeg` | `image/jpeg` | MozJPEG         | yes  | yes   | None         |
+| `@jimp/wasm-png`  | `image/png`  | Squoosh PNG and OxiPNG | yes | yes | Full alpha |
+
+### Adding a format
+
+Create your own Jimp class with [`createJimp`](/jimp/guides/custom-jimp/), passing the default formats and plugins plus the new format:
+
+```ts title="jimp.ts"
+import { createJimp } from "@jimp/core";
+import { defaultFormats, defaultPlugins } from "jimp";
+import webp from "@jimp/wasm-webp";
+
+export const Jimp = createJimp({
+  formats: [...defaultFormats, webp],
+  plugins: defaultPlugins,
+});
+```
+
+```ts title="example.ts"
+import { Jimp } from "./jimp";
+
+const image = await Jimp.read("photo.webp");
+
+await image.write("photo.png");
+await image.write("small.webp", { quality: 75 });
+```
+
+The custom class has the same API, and TypeScript knows the new MIME type and its options.
+The codecs are loaded the first time an image is encoded or decoded in that format, so the first call is slower.
+
+### Replacing a built-in format
+
+`@jimp/wasm-jpeg` and `@jimp/wasm-png` use the same MIME types as the built-in JPEG and PNG formats.
+When two formats share a MIME type, Jimp uses the first one in the list, so put the WASM format **before** the defaults:
+
+```ts title="jimp.ts"
+import { createJimp } from "@jimp/core";
+import { defaultFormats, defaultPlugins } from "jimp";
+import jpeg from "@jimp/wasm-jpeg";
+
+export const Jimp = createJimp({
+  formats: [jpeg, ...defaultFormats],
+  plugins: defaultPlugins,
+});
+```
+
+With `[...defaultFormats, jpeg]`, the built-in JPEG format would still be used for reading and writing.
+
+### Encode options
+
+All four plugins accept `colorSpace`, `"srgb"` (default) or `"display-p3"`, which tags the output's color space. The other options are specific to each codec. Options are validated, so a value out of range throws a validation error listing the problem, for example `Too big: expected number to be <=100`.
+None of the WASM plugins take decode options.
+
+<Tabs>
+  <TabItem label="WebP">
+
+| Option            | Type       | Default | Description                                                                                     |
+| ----------------- | ---------- | ------- | ----------------------------------------------------------------------------------------------- |
+| `quality`         | `number`   | `100`   | `0` to `100`. For lossy, the image quality. For lossless, the compression effort.               |
+| `lossless`        | `0 \| 1`   | `0`     | `1` for lossless encoding. The default is lossy, even at quality `100`.                         |
+| `nearLossless`    | `number`   | `100`   | Near-lossless preprocessing, `0` (most loss) to `100` (off).                                    |
+| `method`          | `number`   | `4`     | Speed and size trade-off, `0` (fastest) to `6` (slowest, smallest).                             |
+| `alphaQuality`    | `number`   | `100`   | Quality of the alpha channel, `0` to `100` (lossless).                                          |
+| `alphaCompression`| `0 \| 1`   | `1`     | `1` compresses the alpha channel losslessly, `0` stores it uncompressed.                       |
+| `alphaFiltering`  | `0 \| 1 \| 2` | `1`  | Predictive filtering for the alpha channel: none, fast or best.                                 |
+| `exact`           | `0 \| 1`   | `0`     | `1` keeps the RGB values of transparent pixels. By default they may change to compress better. |
+| `targetSize`      | `number`   | `0`     | If not `0`, aim for this many bytes.                                                            |
+| `targetPSNR`      | `number`   | `0`     | If not `0`, aim for this quality in dB. Takes precedence over `targetSize`.                     |
+| `snsStrength`     | `number`   | `50`    | Spatial noise shaping, `0` to `100`.                                                            |
+| `filterStrength`  | `number`   | `60`    | Deblocking filter strength, `0` (off) to `100`.                                                 |
+| `filterSharpness` | `number`   | `0`     | Filter sharpness, `0` (sharpest) to `7`.                                                        |
+| `filterType`      | `0 \| 1`   | `1`     | Filter type: `0` simple, `1` strong.                                                            |
+| `autoFilter`      | `0 \| 1`   | `0`     | `1` adjusts the filter strength automatically.                                                  |
+| `segments`        | `number`   | `4`     | Number of segments, `1` to `4`.                                                                 |
+| `partitions`      | `number`   | `0`     | log2 of the number of token partitions, `0` to `3`.                                             |
+| `pass`            | `number`   | `1`     | Entropy analysis passes, `1` to `10`.                                                           |
+| `preprocessing`   | `0 \| 1`   | `0`     | `1` applies segment-smooth preprocessing.                                                       |
+| `partitionLimit`  | `number`   | `0`     | Quality loss allowed to fit the 512 KB limit on prediction modes, `0` to `100`.                 |
+| `emulateJpegSize` | `0 \| 1`   | `0`     | `1` maps the options to give a size similar to a JPEG of the same quality.                      |
+| `useSharpYuv`     | `0 \| 1`   | `0`     | `1` uses a slower, sharper RGB to YUV conversion.                                               |
+| `lowMemory`       | `0 \| 1`   | `0`     | `1` uses less memory and encodes more slowly.                                                   |
+| `threadLevel`     | `number`   | `0`     | If not `0`, try multi-threaded encoding.                                                        |
+| `showCompressed`  | `0 \| 1`   | `0`     | libwebp debugging option.                                                                       |
+| `useDeltaPalette` | `0 \| 1`   | `0`     | Reserved by libwebp.                                                                            |
+
+  </TabItem>
+  <TabItem label="AVIF">
+
+| Option          | Type                           | Default  | Description                                                                         |
+| --------------- | ------------------------------ | -------- | ----------------------------------------------------------------------------------- |
+| `cqLevel`       | `number`                       | `0`      | Quantizer level. Lower is higher quality and a bigger file; `0` is the best quality. |
+| `cqAlphaLevel`  | `number`                       | `0`      | Quantizer level for the alpha channel.                                              |
+| `speed`         | `number`                       | `6`      | Encoder speed. Higher is faster and gives larger files.                             |
+| `subsample`     | `number`                       | `1`      | Chroma subsampling, `0` to `4`.                                                     |
+| `denoiseLevel`  | `number`                       | `0`      | Denoising strength.                                                                 |
+| `sharpness`     | `number`                       | `0`      | Sharpness.                                                                          |
+| `tune`          | `"auto" \| "psnr" \| "ssim"`   | `"auto"` | Which quality metric the encoder optimizes for.                                     |
+| `chromaDeltaQ`  | `boolean`                      | `false`  | Use a different quantizer for the color channels.                                   |
+| `tileColsLog2`  | `number`                       | `0`      | log2 of the number of tile columns, `0` to `10`.                                    |
+| `tileRowsLog2`  | `number`                       | `0`      | log2 of the number of tile rows, `0` to `10`.                                       |
+
+The numeric options accept `0` to `100`, except where noted. Jimp's defaults favor quality over size. Raise `cqLevel` for smaller files; `@jsquash/avif`, which Jimp uses, defaults to `33`.
+
+  </TabItem>
+  <TabItem label="JPEG (MozJPEG)">
+
+| Option                  | Type                                 | Default   | Description                                                                       |
+| ----------------------- | ------------------------------------ | --------- | --------------------------------------------------------------------------------- |
+| `quality`               | `number`                             | `75`      | `0` to `100`.                                                                     |
+| `exif`                  | `boolean`                            | `false`   | Write the EXIF data of the JPEG the image was read from, as with the built-in JPEG format. |
+| `progressive`           | `boolean`                            | `true`    | Write a progressive JPEG.                                                         |
+| `baseline`              | `boolean`                            | `false`   | Force baseline-compatible quantization tables.                                    |
+| `optimizeCoding`        | `boolean`                            | `true`    | Compute optimal Huffman tables.                                                   |
+| `arithmetic`            | `boolean`                            | `false`   | Use arithmetic coding, which few decoders support.                                |
+| `smoothing`             | `number`                             | `0`       | Smoothing, `0` to `100`.                                                          |
+| `jpegColorSpace`        | `"ycbcr" \| "rgb" \| "grayscale"`    | `"ycbcr"` | Color space inside the JPEG.                                                      |
+| `quantTable`            | `number`                             | `3`       | Which of MozJPEG's quantization table presets to use.                             |
+| `autoSubsample`         | `boolean`                            | `true`    | Choose chroma subsampling automatically.                                          |
+| `chromaSubsample`       | `number`                             | `2`       | Chroma subsampling factor when `autoSubsample` is off, `0` to `4`.                |
+| `separateChromaQuality` | `boolean`                            | `false`   | Use `chromaQuality` for the color channels.                                       |
+| `chromaQuality`         | `number`                             | `75`      | Quality of the color channels when `separateChromaQuality` is on.                 |
+| `trellisLoops`          | `number`                             | `1`       | Trellis quantization passes.                                                      |
+| `trellisMultipass`      | `boolean`                            | `false`   | Trellis quantization option.                                                      |
+| `trellisOptZero`        | `boolean`                            | `false`   | Trellis quantization option.                                                      |
+| `trellisOptTable`       | `boolean`                            | `false`   | Trellis quantization option.                                                      |
+
+Unlike the built-in JPEG format, `image.background` isn't applied first. To control the color of transparent areas, [`composite`](/jimp/methods/composite/) the image onto a solid [`new Jimp`](/jimp/methods/new-jimp/) before encoding.
+
+  </TabItem>
+  <TabItem label="PNG (OxiPNG)">
+
+| Option                   | Type      | Default | Description                                                                                 |
+| ------------------------ | --------- | ------- | ------------------------------------------------------------------------------------------- |
+| `optimize`               | `object`  | none    | Run OxiPNG on the encoded PNG to make it smaller. Without it, the PNG isn't optimized.     |
+| `optimize.level`         | `number`  | `2`     | Optimization level, `0` to `6`. Higher is smaller and slower; above `4` is rarely worth it. |
+| `optimize.interlace`     | `boolean` | `false` | Write an interlaced PNG. Interlacing makes the file bigger.                                 |
+| `optimize.optimiseAlpha` | `boolean` | `false` | Allow the RGB values of transparent pixels to change to compress better.                    |
+
+```ts title="example.ts"
+const bytes = await image.getBuffer("image/png", { optimize: { level: 3 } });
+```
+
+  </TabItem>
+</Tabs>
+
+<Aside type="note" title="Bundlers and Cloudflare Workers">
+  The WASM plugins load `.wasm` files at runtime. Vite 7 and older need some
+  configuration, and Cloudflare Workers need the modules passed in with the
+  `wasm` option. See [Using WebP and other WASM plugins](/jimp/guides/webp/).
+</Aside>
+
+## See also
+
+- [Reading and writing](/jimp/concepts/reading-and-writing/): the read, encode and write APIs
+- [`getBuffer` options](/jimp/methods/get-buffer/#options): every option of the built-in encoders
+- [Reading Large Images](/jimp/guides/reading-large-images/): decode options and size limits
+- [Using WebP and other WASM plugins](/jimp/guides/webp/)
+- [Custom Jimp](/jimp/guides/custom-jimp/): pick only the formats and plugins you need
+- [Writing Plugins](/jimp/guides/writing-plugins/): add a format of your own

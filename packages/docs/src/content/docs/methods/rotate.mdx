@@ -1,0 +1,109 @@
+---
+title: "rotate()"
+description: "Rotate the image counter-clockwise by any angle."
+category: shape
+method: "rotate"
+plugin: "@jimp/plugin-rotate"
+---
+
+import { Aside } from "@astrojs/starlight/components";
+import Playground from "../../../components/playground/Playground";
+import Related from "../../../components/Related.astro";
+
+`rotate` turns the image counter-clockwise by a number of degrees. Use a negative angle to turn it clockwise.
+By default the canvas grows so the whole rotated image fits.
+
+## Signature
+
+```ts title="rotate.d.ts"
+image.rotate(deg: number): this
+image.rotate(options: { deg: number; mode?: boolean | ResizeStrategy }): this
+```
+
+`rotate` changes the image in place and returns it, so you can chain more calls after it.
+
+## Options
+
+Pass the angle on its own, or an object to also set `mode`.
+
+| Option | Type                         | Default  | Description                                                                                                  |
+| ------ | ---------------------------- | -------- | ------------------------------------------------------------------------------------------------------------ |
+| `deg`  | `number`                     | required | The angle in degrees. Positive values turn counter-clockwise, negative values clockwise.                     |
+| `mode` | `boolean \| ResizeStrategy` | `true`   | `true` grows the canvas to fit the rotated image. `false` keeps the original size and clips the corners.    |
+
+## Example
+
+```ts title="example.ts"
+import { Jimp } from "jimp";
+
+const image = await Jimp.read("photo.jpg");
+
+// Turn a landscape photo into a portrait one: 800 x 600 becomes 600 x 800
+image.rotate(90);
+
+await image.write("photo-rotated.jpg");
+```
+
+### Rotate clockwise
+
+```ts title="example.ts"
+image.rotate(-90);
+```
+
+### Keep the size
+
+```ts title="example.ts"
+image.rotate({ deg: 15, mode: false });
+```
+
+The image stays the same size. The rotated corners are cut off, and the areas the image no longer covers are filled with `image.background`.
+
+### Fill the corners with a color
+
+New pixels use `image.background`, which is transparent black (`0x00000000`) for images loaded with `Jimp.read`. Set it before rotating to fill them with a color, which matters for formats without transparency such as JPEG:
+
+```ts title="example.ts"
+image.background = 0xffffffff; // opaque white, as 0xRRGGBBAA
+image.rotate(30);
+
+await image.write("photo-tilted.jpg");
+```
+
+## Canvas size
+
+With `mode: true` (the default), angles that aren't a multiple of 90 make the canvas larger, so nothing is cut off. The new size is the bounding box of the rotated image plus one pixel, rounded up to an even number:
+
+```ts
+width  = ceil(|w · cos θ| + |h · sin θ|) + 1   // then rounded up to even
+height = ceil(|w · sin θ| + |h · cos θ|) + 1   // then rounded up to even
+```
+
+For example, an 800 × 600 image rotated by 45° becomes 992 × 992, and by 30° becomes 994 × 922.
+Multiples of 90 swap or keep the sides exactly: `rotate(90)` on 800 × 600 gives 600 × 800, and `rotate(180)` keeps 800 × 600.
+
+To get back to the original size after a rotation, follow it with [`cover`](/jimp/methods/cover/) or [`crop`](/jimp/methods/crop/).
+
+## Try it
+
+Drag `deg` to rotate, and switch `mode` to compare growing the canvas with keeping its size.
+
+<Playground method="rotate" client:visible />
+
+## Notes
+
+- **Right angles are exact.** Multiples of 90 move pixels without resampling, so `rotate(90)` four times gives back the original. This is used whenever the canvas may change size, or the image is square, or the angle is 180.
+- **Other angles aren't smoothed.** Each output pixel copies the nearest source pixel, so straight edges at angles like 30° look stepped. To soften them, rotate a larger copy and scale it down afterwards, or apply a light [`blur`](/jimp/methods/blur/).
+- **`mode: false` with 90°.** On a non-square image, `rotate({ deg: 90, mode: false })` keeps the original width and height, so the ends of the rotated image are cut off.
+- **Angles wrap.** `deg` is taken modulo 360, so `rotate(450)` is the same as `rotate(90)`, and `rotate(360)` does nothing.
+- **Validation.** `deg` must be a number. A string such as `"90"` fails validation with `Invalid input`.
+
+<Aside type="note" title="ResizeStrategy as mode">
+  `mode` also accepts a [`ResizeStrategy`](/jimp/concepts/constants/), a holdover
+  from v0's `rotate(deg, mode)`. It behaves exactly like `true`: the strategy is
+  only used to enlarge the empty canvas before the image is drawn onto it, so it
+  doesn't change the result.
+</Aside>
+
+## Related
+
+<Related methods={["flip", "crop", "cover", "resize"]} />

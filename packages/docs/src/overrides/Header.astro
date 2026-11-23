@@ -1,0 +1,336 @@
+---
+import type { Props } from "@astrojs/starlight/props";
+import Search from "@astrojs/starlight/components/Search.astro";
+import ThemeSelect from "./ThemeSelect.astro";
+import { uiIcon } from "../components/icons";
+import { version } from "../../package.json";
+import { compactCount, weeklyDownloads } from "../data/downloads";
+
+const base = import.meta.env.BASE_URL.replace(/\/$/, "");
+const { slug } = Astro.props;
+
+const section =
+  slug.startsWith("guides/") || slug.startsWith("concepts/")
+    ? "guides"
+    : slug.startsWith("methods") || slug.startsWith("api/")
+      ? "api"
+      : slug === "playground"
+        ? "playground"
+        : "";
+
+const nav = [
+  { id: "guides", label: "Guides", href: `${base}/guides/getting-started/` },
+  { id: "api", label: "API", href: `${base}/methods/` },
+  { id: "playground", label: "Playground", href: `${base}/playground/` },
+];
+
+const letters = [
+  ["J", "var(--jp-red)", -5],
+  ["I", "var(--jp-yellow)", 4],
+  ["M", "var(--jp-sky)", -3],
+  ["P", "var(--jp-green)", 5],
+] as const;
+
+const stats = await weeklyDownloads;
+const shortDate = (iso: string) =>
+  new Date(iso).toLocaleDateString("en-US", { month: "short", day: "numeric", timeZone: "UTC" });
+---
+
+<div class="bar">
+  <a class="brand" href={`${base}/`} aria-label="Jimp home">
+    <span class="word" aria-hidden="true">
+      {
+        letters.map(([ch, color, rot]) => (
+          <span style={`--c:${color}; transform:rotate(${rot}deg)`}>{ch}</span>
+        ))
+      }
+    </span>
+    <span class="tag">docs</span>
+  </a>
+  <nav class="topnav" aria-label="Main">
+    {
+      nav.map((item) => (
+        <a href={item.href} aria-current={item.id === section ? "true" : undefined}>
+          {item.label}
+        </a>
+      ))
+    }
+  </nav>
+  <div class="grow"></div>
+  <div class="search"><Search {...Astro.props} /></div>
+  <ThemeSelect {...Astro.props} />
+  <a class="pill gh" href="https://github.com/jimp-dev/jimp">
+    <Fragment set:html={uiIcon("star")} />
+    <span>GitHub</span>
+  </a>
+  {
+    stats && (
+      <a
+        class="pill dl"
+        href="https://npm-stat.com/charts.html?package=jimp"
+        title={`${stats.downloads.toLocaleString("en-US")} npm downloads, ${shortDate(stats.start)} to ${shortDate(stats.end)}`}
+        data-downloads={stats.downloads}
+      >
+        <svg class="dl-arrow" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M12 3v13M6 11l6 6 6-6M4 21h16" />
+        </svg>
+        <span class="dl-num">{compactCount(stats.downloads)}</span>
+        <span class="dl-unit">/week</span>
+      </a>
+    )
+  }
+  <a class="pill ver" href="https://www.npmjs.com/package/jimp" title="Latest release on npm">
+    v{version}
+  </a>
+</div>
+
+<script>
+  // Count the downloads badge up from zero, once per visit.
+  const badge = document.querySelector<HTMLElement>(".dl[data-downloads]");
+  const num = badge?.querySelector(".dl-num");
+  const target = Number(badge?.dataset.downloads);
+  const calm = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  if (num && target && !calm && !sessionStorage.getItem("jimp-dl-counted")) {
+    sessionStorage.setItem("jimp-dl-counted", "1");
+    const format = new Intl.NumberFormat("en-US", {
+      notation: "compact",
+      maximumFractionDigits: 1,
+    });
+    const final = num.textContent;
+    const start = performance.now();
+    const tick = (now: number) => {
+      const t = Math.min(1, (now - start) / 1400);
+      const eased = 1 - (1 - t) ** 3;
+      num.textContent = t < 1 ? format.format(Math.round(target * eased)) : final;
+      if (t < 1) requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
+  }
+</script>
+
+<style>
+  .bar {
+    max-width: 1440px;
+    height: 100%;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 0 22px;
+  }
+
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex: none;
+    text-decoration: none;
+  }
+  .word {
+    font-family: var(--jp-display);
+    font-size: 34px;
+    line-height: 1;
+    letter-spacing: 1px;
+    padding-top: 6px;
+    white-space: nowrap;
+  }
+  .word span {
+    display: inline-block;
+    color: var(--c);
+    -webkit-text-stroke: 3px var(--jp-ink);
+    paint-order: stroke fill;
+    text-shadow: 3px 3px 0 var(--jp-ink);
+  }
+  .tag {
+    font-family: var(--jp-ui);
+    font-weight: 600;
+    font-size: 13.5px;
+    color: #fff;
+    background: rgba(27, 24, 64, 0.35);
+    border-radius: 8px;
+    padding: 1px 9px;
+  }
+
+  .topnav {
+    display: flex;
+    gap: 4px;
+    margin-inline-start: 14px;
+  }
+  .topnav a {
+    font-family: var(--jp-ui);
+    font-weight: 600;
+    font-size: 16px;
+    color: #fff;
+    text-decoration: none;
+    padding: 4px 13px;
+    border-radius: 12px;
+    border: 3px solid transparent;
+  }
+  .topnav a:hover {
+    background: rgba(255, 255, 255, 0.16);
+  }
+  .topnav a[aria-current] {
+    background: var(--jp-yellow);
+    color: var(--jp-ink);
+    border-color: var(--jp-ink);
+    box-shadow: 0 3px 0 var(--jp-ink);
+  }
+
+  .grow {
+    flex: 1;
+  }
+
+  .search {
+    flex: 0 1 300px;
+    min-width: 0;
+    display: flex;
+  }
+  .search :global(button[data-open-modal]) {
+    width: 100%;
+    max-width: none;
+    height: 38px;
+    gap: 8px;
+    padding: 0 10px 0 12px;
+    font-family: var(--jp-ui);
+    font-weight: 500;
+    font-size: 15px;
+    color: #4a4673;
+    background: #fff;
+    border: 3px solid var(--jp-ink);
+    border-radius: 999px;
+    box-shadow: 0 3px 0 var(--jp-ink);
+  }
+  .search :global(button[data-open-modal]:hover) {
+    color: var(--jp-ink);
+    border-color: var(--jp-ink);
+  }
+  .search :global(button[data-open-modal] > svg) {
+    flex: none;
+    width: 18px;
+    height: 18px;
+    color: var(--jp-ink);
+  }
+  .search :global(button[data-open-modal] kbd) {
+    color: #4a4673;
+    background: #f6f4ff;
+    border: 2px solid #cfc9ec;
+    border-bottom-width: 3px;
+    border-radius: 6px;
+    font-family: var(--jp-mono);
+  }
+  .search :global(button[data-open-modal] kbd kbd) {
+    border: 0;
+    padding: 0;
+    background: none;
+  }
+
+  .pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    flex: none;
+    font-family: var(--jp-ui);
+    font-weight: 600;
+    font-size: 15px;
+    color: var(--jp-ink);
+    background: #fff;
+    border: 3px solid var(--jp-ink);
+    border-radius: 999px;
+    padding: 4px 13px;
+    box-shadow: 0 3px 0 var(--jp-ink);
+    text-decoration: none;
+    white-space: nowrap;
+    transition: transform 0.12s;
+  }
+  .pill:hover {
+    transform: translateY(-2px);
+    color: var(--jp-ink);
+  }
+  .pill :global(svg) {
+    width: 18px;
+    height: 18px;
+  }
+  .ver {
+    background: var(--jp-yellow);
+  }
+  .dl {
+    gap: 5px;
+    background: var(--jp-mint);
+    font-variant-numeric: tabular-nums;
+  }
+  .dl .dl-arrow {
+    width: 16px;
+    height: 16px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 3;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  .dl:hover .dl-arrow {
+    animation: dl-bob 0.6s ease-in-out infinite;
+  }
+  .dl-unit {
+    font-weight: 500;
+    opacity: 0.75;
+  }
+  @keyframes dl-bob {
+    50% {
+      transform: translateY(3px);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .dl:hover .dl-arrow {
+      animation: none;
+    }
+  }
+
+  @media (max-width: 1199px) {
+    .dl {
+      display: none;
+    }
+  }
+
+  @media (max-width: 999px) {
+    .tag,
+    .ver,
+    .gh span {
+      display: none;
+    }
+    .topnav {
+      margin-inline-start: 4px;
+    }
+    .search {
+      flex-basis: 220px;
+    }
+  }
+
+  @media (max-width: 49.99rem) {
+    .bar {
+      gap: 8px;
+      padding: 0 12px;
+    }
+    :global([data-has-sidebar]) .bar {
+      padding-inline-start: 64px;
+    }
+    .topnav {
+      display: none;
+    }
+    .word {
+      font-size: 28px;
+    }
+    .search {
+      flex: 0 0 auto;
+    }
+    .search :global(button[data-open-modal]) {
+      width: 40px;
+      height: 40px;
+      padding: 0;
+      justify-content: center;
+    }
+    .gh {
+      padding: 4px 9px;
+    }
+  }
+</style>

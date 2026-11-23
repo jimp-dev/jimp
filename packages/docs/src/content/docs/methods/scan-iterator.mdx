@@ -1,0 +1,105 @@
+---
+title: "scanIterator()"
+description: "Loop over the pixels of the image or a region with for...of."
+category: pixels
+method: "scanIterator"
+plugin: "@jimp/core"
+---
+
+import { Aside } from "@astrojs/starlight/components";
+import Playground from "../../../components/playground/Playground";
+import Related from "../../../components/Related.astro";
+
+`scanIterator` visits the same pixels as [`scan`](/jimp/methods/scan/), in the same order, but as an iterator you loop over with `for...of`.
+Use it when you want to `break` out early, `continue`, or keep your loop body in the surrounding function instead of a callback.
+
+## Signature
+
+```ts title="scanIterator.d.ts"
+image.scanIterator(
+  x?: number,
+  y?: number,
+  w?: number,
+  h?: number,
+): Generator<{ x: number; y: number; idx: number; image: typeof image }>
+```
+
+Each step yields the pixel's coordinates, its index in `image.bitmap.data` and the image itself.
+Pixels are produced lazily as you loop, so stopping early skips the rest.
+
+## Parameters
+
+| Parameter | Type     | Default        | Description                    |
+| --------- | -------- | -------------- | ------------------------------ |
+| `x`       | `number` | `0`            | Left edge of the region.       |
+| `y`       | `number` | `0`            | Top edge of the region.        |
+| `w`       | `number` | `image.width`  | Width of the region in pixels. |
+| `h`       | `number` | `image.height` | Height of the region in pixels.|
+
+Unlike `scan`, each value has its own default. The defaults don't adjust to `x` and `y`, though: `image.scanIterator(10, 10)` covers a region as large as the whole image starting at `(10, 10)`, which runs past the right and bottom edges. When you pass `x` or `y`, pass `w` and `h` too.
+
+## Example
+
+Find the first fully transparent pixel and stop there:
+
+```ts title="example.ts"
+import { Jimp } from "jimp";
+
+const image = await Jimp.read("logo.png");
+
+let firstHole = null;
+
+for (const { x, y, idx } of image.scanIterator()) {
+  if (image.bitmap.data[idx + 3] === 0) {
+    firstHole = { x, y };
+    break;
+  }
+}
+```
+
+### Change pixels in a region
+
+Writing to `image.bitmap.data` works the same as in `scan`. This turns a 100 × 100 block grey:
+
+```ts title="example.ts"
+const { data } = image.bitmap;
+
+for (const { idx } of image.scanIterator(0, 0, 100, 100)) {
+  const grey = Math.round((data[idx] + data[idx + 1] + data[idx + 2]) / 3);
+  data[idx] = grey;
+  data[idx + 1] = grey;
+  data[idx + 2] = grey;
+}
+```
+
+### Await inside the loop
+
+Because the loop body isn't a callback, you can use `await` in it, for example to yield to the event loop every few rows while processing a large image:
+
+```ts title="example.ts"
+for (const { x, y, idx } of image.scanIterator()) {
+  if (x === 0 && y % 100 === 0) {
+    await new Promise((resolve) => setTimeout(resolve));
+  }
+  image.bitmap.data[idx] = 255 - image.bitmap.data[idx];
+}
+```
+
+## Try it
+
+Pick what the loop does for each pixel and drag out the region on the image. Turn off "region only" to loop over the whole image.
+
+<Playground method="scanIterator" client:visible />
+
+## Notes
+
+- **It's slower than `scan`.** Creating an object for every pixel adds overhead; over a whole image `scanIterator` takes about two to three times as long as `scan`. For effects that touch every pixel and never stop early, prefer `scan`.
+- **Values wrap, they don't clamp**, exactly as in `scan`: clamp computed values with [`limit255`](/jimp/methods/limit255/).
+- **The region isn't clipped.** Like `scan`, a region that extends past the image yields indexes in the wrong row or outside the buffer. Clamp it first, for example `w = Math.min(w, image.width - x)`.
+- **Region values are rounded** to whole pixels.
+- **Arguments must be numbers** when given. Otherwise it throws `x and y must be numbers` or `w and h must be numbers` as soon as you call it, before the loop starts.
+- **Don't resize inside the loop.** The region is fixed when you call `scanIterator`, but each index is computed from the current width, so changing the image's size mid-loop gives wrong indexes.
+
+## Related
+
+<Related methods={["scan", "getPixelIndex", "getPixelColor", "setPixelColor", "limit255"]} />

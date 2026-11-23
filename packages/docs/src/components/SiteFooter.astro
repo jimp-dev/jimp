@@ -1,0 +1,81 @@
+---
+import { version } from "../../package.json";
+
+const base = import.meta.env.BASE_URL.replace(/\/$/, "");
+const swatches = ["--jp-red", "--jp-orange", "--jp-yellow", "--jp-green", "--jp-sky", "--jp-purple"];
+---
+
+<footer class="site-footer">
+  <div class="in">
+    <div class="px" aria-hidden="true">
+      {swatches.map((name) => <i style={`background:var(${name})`}></i>)}
+    </div>
+    <span>Jimp is MIT licensed.</span>
+    <nav aria-label="Footer">
+      <a href={`${base}/guides/getting-started/`}>Guides</a>
+      <a href={`${base}/methods/`}>API</a>
+      <a href="https://github.com/jimp-dev/jimp">GitHub</a>
+      <a href="https://www.npmjs.com/package/jimp">npm</a>
+      <a href="https://github.com/jimp-dev/jimp/releases">Releases</a>
+    </nav>
+    <span class="grow"></span>
+    <span class="dim">v{version}</span>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    width: 100%;
+    max-width: 1440px;
+    margin: 64px auto 30px;
+    padding: 0 22px;
+  }
+  .in {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 14px 28px;
+    padding: 16px 24px;
+    color: #fff;
+    background: #1b1840;
+    border: 4px solid var(--jp-line);
+    border-radius: 20px;
+    box-shadow: 6px 6px 0 var(--jp-pink);
+    font-family: var(--jp-ui);
+    font-weight: 500;
+    font-size: 15px;
+  }
+  .px {
+    display: flex;
+    gap: 3px;
+  }
+  .px i {
+    display: block;
+    width: 13px;
+    height: 13px;
+  }
+  nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 18px;
+  }
+  .in a {
+    color: #ffd83a;
+    text-decoration: none;
+  }
+  .in a:hover {
+    color: #fff;
+    text-decoration: underline;
+  }
+  .grow {
+    flex: 1;
+  }
+  .dim {
+    opacity: 0.7;
+  }
+  @media (max-width: 49.99rem) {
+    .site-footer {
+      padding: 0 12px;
+    }
+  }
+</style>

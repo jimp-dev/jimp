@@ -1,0 +1,108 @@
+---
+title: "blit()"
+description: "Copy pixels from another image, or part of it, onto this one."
+category: compose
+method: "blit"
+plugin: "@jimp/plugin-blit"
+---
+
+import { Aside } from "@astrojs/starlight/components";
+import Playground from "../../../components/playground/Playground";
+import Related from "../../../components/Related.astro";
+
+`blit` copies pixels from a source image onto this one at a position. Its name is short for "bit-block transfer".
+Unlike [`composite`](/jimp/methods/composite/), it can copy just a rectangle of the source, which makes it the tool for sprite sheets, tiles and copying one part of an image to another.
+
+## Signature
+
+```ts title="blit.d.ts"
+image.blit(src: Jimp): this
+image.blit(options: {
+  src: Jimp;
+  x?: number;
+  y?: number;
+  srcX?: number;
+  srcY?: number;
+  srcW?: number;
+  srcH?: number;
+}): this
+```
+
+`blit` changes this image in place and returns it, so you can chain more calls after it. The source image isn't changed.
+
+## Options
+
+Pass an image on its own to copy all of it to the top-left corner, or an object to choose where it goes and which part to copy.
+
+| Option | Type     | Default      | Description                                         |
+| ------ | -------- | ------------ | --------------------------------------------------- |
+| `src`  | `Jimp`   | required     | The image to copy from.                             |
+| `x`    | `number` | `0`          | Where the copied pixels' left edge goes.            |
+| `y`    | `number` | `0`          | Where the copied pixels' top edge goes.             |
+| `srcX` | `number` | `0`          | The left edge of the area to copy from `src`.       |
+| `srcY` | `number` | `0`          | The top edge of the area to copy from `src`.        |
+| `srcW` | `number` | `src.width`  | The width of the area to copy.                      |
+| `srcH` | `number` | `src.height` | The height of the area to copy.                     |
+
+All positions and sizes are rounded to whole pixels.
+
+## Example
+
+Draw one image onto another at a position:
+
+```ts title="example.ts"
+import { Jimp } from "jimp";
+
+const image = await Jimp.read("photo.png");
+const badge = await Jimp.read("badge.png");
+
+image.blit({ src: badge, x: 20, y: 20 });
+
+await image.write("photo-badge.png");
+```
+
+### Copy part of a sprite sheet
+
+Use `srcX`, `srcY`, `srcW` and `srcH` to pick a rectangle of the source. Here the second 32 × 32 sprite in the top row is copied onto a blank canvas:
+
+```ts title="example.ts"
+const sheet = await Jimp.read("sprites.png");
+const sprite = new Jimp({ width: 32, height: 32 });
+
+sprite.blit({ src: sheet, srcX: 32, srcY: 0, srcW: 32, srcH: 32 });
+```
+
+### Copy within the same image
+
+To copy one area of an image to another place in it, blit from a [`clone`](/jimp/methods/clone/):
+
+```ts title="example.ts"
+image.blit({ src: image.clone(), x: 10, y: 10, srcX: 120, srcY: 80, srcW: 100, srcH: 60 });
+```
+
+Passing the image itself as `src` reads pixels that the copy has already overwritten, which smears the result when the two areas overlap.
+
+## Try it
+
+Drag on the image to pick the source region, and click to choose where it goes. Switch the source to `sticker.png` to blit a second image.
+
+<Playground method="blit" src="dice-on-paper.png" client:visible />
+
+## Notes
+
+<Aside type="caution" title="Keep the source area inside the source">
+  `srcW` and `srcH` aren't clamped to the source image. An area that runs
+  past the source's right edge picks up pixels from the start of its next
+  rows instead of stopping. Clamp the area yourself, for example
+  `srcW: Math.min(w, src.width - srcX)`.
+</Aside>
+
+- **Transparency is respected.** Source pixels are drawn over the image with the same "over" blending as [`composite`](/jimp/methods/composite/)'s default mode. Fully transparent source pixels leave the image unchanged, and partly transparent ones mix with it.
+- **Out-of-bounds parts are skipped.** Pixels that would land outside the image are ignored, so the image never grows.
+- **Any Jimp image works.** `blit` accepts any object with a `bitmap` of `data`, `width` and `height`, so unlike `composite` it doesn't care which Jimp class made the source.
+- **Validation.** The options are checked with zod. Calling `blit()` without an image, or with an object without `src`, throws a validation error.
+- **No blend modes or opacity.** For those, use [`composite`](/jimp/methods/composite/). To copy part of a source with `composite`, [`crop`](/jimp/methods/crop/) a clone of it first.
+
+## Related
+
+<Related methods={["composite", "mask", "crop", "clone", "new Jimp"]} />

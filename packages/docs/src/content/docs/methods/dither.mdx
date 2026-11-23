@@ -1,0 +1,52 @@
+---
+title: "dither()"
+description: "Add an ordered dither pattern to reduce banding."
+category: effects
+method: "dither"
+plugin: "@jimp/plugin-dither"
+---
+
+import Playground from "../../../components/playground/Playground";
+import Related from "../../../components/Related.astro";
+
+`dither` adds a fine, repeating 4×4 pattern of small brightness offsets to the image.
+On its own the change is barely visible. Its job is to come before a step that cuts the number of colors, such as [`posterize`](/jimp/methods/posterize/), so smooth gradients break into an even texture instead of hard bands.
+
+## Signature
+
+```ts title="dither.d.ts"
+image.dither(): this
+```
+
+`dither` takes no arguments. It changes the image in place and returns it, so you can chain more calls after it.
+
+## Example
+
+```ts title="example.ts"
+import { Jimp } from "jimp";
+
+const image = await Jimp.read("sky.png");
+
+image.dither().posterize(17);
+
+await image.write("sky-dithered.png");
+```
+
+Without `dither()`, `posterize(17)` turns a smooth sky into visible stripes. With it, each stripe boundary becomes a fine checkered blend of the two neighboring levels.
+
+## Try it
+
+The playground starts with `posterize` turned on so you can see what the pattern does. Turn it off to see `dither()` alone, or lower `levels` to make the bands, and the dithering, coarser.
+
+<Playground method="dither" src="dice-on-paper.png" client:visible />
+
+## Notes
+
+- **What it adds.** Each pixel's red, green and blue values are raised by a number from 1 to 16, taken from a 4×4 [ordered dither](https://en.wikipedia.org/wiki/Ordered_dithering) (Bayer) matrix by the pixel's position. Values are capped at 255. Alpha is unchanged.
+- **It only brightens.** Because the offsets are all positive, a dithered image is on average about 8 levels brighter per channel. That's invisible in most photos, and it pairs well with `posterize`, which always rounds down: on its own `posterize` darkens by about half a level, while after `dither` the mix of levels in each 4×4 tile averages out close to the original tone.
+- **Pick the level count to match.** The offsets span 16 values, so the pattern blends neighboring levels best when the levels are about 16 apart: `posterize(17)`. With fewer levels the bands are wider than the pattern and still show at their edges.
+- **Not a palette reducer.** `dither` doesn't reduce colors itself. To convert to a small palette with error-diffusion dithering, use [`quantize`](/jimp/methods/quantize/), which has its own `imageQuantization` options.
+
+## Related
+
+<Related methods={["posterize", "quantize", "threshold", "pixelate"]} />

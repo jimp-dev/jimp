@@ -1,0 +1,56 @@
+---
+title: "hasAlpha()"
+description: "Check whether any pixel is not fully opaque."
+category: pixels
+method: "hasAlpha"
+plugin: "@jimp/core"
+---
+
+import Related from "../../../components/Related.astro";
+
+`hasAlpha` tells you whether the image uses transparency: it returns `true` as soon as it finds a pixel whose alpha is below `255`, and `false` if every pixel is fully opaque.
+Use it to pick an output format, or to skip work that only matters for transparent images.
+
+## Signature
+
+```ts title="hasAlpha.d.ts"
+image.hasAlpha(): boolean
+```
+
+`hasAlpha` only reads the image.
+
+## Example
+
+Keep transparency by writing a PNG when the image needs it, and a smaller JPEG when it doesn't:
+
+```ts title="example.ts"
+import { Jimp } from "jimp";
+
+const image = await Jimp.read("upload.png");
+
+if (image.hasAlpha()) {
+  await image.write("output.png");
+} else {
+  await image.write("output.jpeg");
+}
+```
+
+### New images
+
+A `new Jimp()` without a `color` starts fully transparent, so `hasAlpha` returns `true` until you fill it:
+
+```ts title="example.ts"
+new Jimp({ width: 10, height: 10 }).hasAlpha(); // true
+new Jimp({ width: 10, height: 10, color: 0xffffffff }).hasAlpha(); // false
+new Jimp({ width: 10, height: 10, color: 0xffffff80 }).hasAlpha(); // true
+```
+
+## Notes
+
+- **It looks at the pixels, not the file.** A PNG saved with an alpha channel whose pixels are all opaque returns `false`. JPEGs have no alpha channel, so a decoded JPEG always returns `false`.
+- **It stops early.** The alpha bytes are checked in order and the loop ends at the first one that isn't `255`, so images with transparency near the top return quickly. A fully opaque image is checked to the last pixel.
+- **Not every format keeps transparency.** PNG and TIFF store the alpha channel and GIF keeps fully transparent pixels, but JPEG and BMP have no alpha. Before encoding those, Jimp draws the image over `image.background`, which is transparent black for images you read, so transparent areas usually turn black. Set `image.background = 0xffffffff` before writing to get white instead. See [Formats](/jimp/concepts/formats/).
+
+## Related
+
+<Related methods={["opaque", "opacity", "getPixelColor", "write", "scan"]} />

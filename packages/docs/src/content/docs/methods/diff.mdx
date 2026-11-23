@@ -1,0 +1,99 @@
+---
+title: "diff()"
+description: "Compare two images pixel by pixel and get a diff image."
+category: compare
+method: "diff"
+plugin: "@jimp/diff"
+---
+
+import { Aside } from "@astrojs/starlight/components";
+import Playground from "../../../components/playground/Playground";
+import Related from "../../../components/Related.astro";
+
+`diff` compares two images pixel by pixel and returns the share of pixels that differ, plus an image that shows where they are.
+It's the tool for visual regression tests and for checking that an edit changed only what it should. Jimp uses [pixelmatch](https://github.com/mapbox/pixelmatch) for the comparison.
+
+## Signature
+
+```ts title="diff.d.ts"
+import { diff } from "jimp";
+
+diff(
+  img1: JimpInstance,
+  img2: JimpInstance,
+  threshold?: number,
+): { percent: number; image: JimpInstance }
+```
+
+`diff` is a function exported from `jimp`. It doesn't change either image; it returns a new one.
+
+## Parameters
+
+| Parameter   | Type     | Default  | Description                                                                                               |
+| ----------- | -------- | -------- | --------------------------------------------------------------------------------------------------------- |
+| `img1`      | `Jimp`   | required | The first image.                                                                                          |
+| `img2`      | `Jimp`   | required | The second image. If its size differs, the larger image is resized to match the smaller one.             |
+| `threshold` | `number` | `0.1`    | How different two pixels' colors must be to count, from `0` to `1`. Smaller values are more sensitive.    |
+
+## Returns
+
+| Property  | Type     | Description                                                                                                    |
+| --------- | -------- | -------------------------------------------------------------------------------------------------------------- |
+| `percent` | `number` | The share of pixels that differ, from `0` (identical) to `1` (every pixel). Despite the name, not multiplied by 100. |
+| `image`   | `Jimp`   | An opaque image the size of the compared images: changed pixels in red over a faded grayscale copy of `img1`. |
+
+## Example
+
+```ts title="example.ts"
+import { Jimp, diff } from "jimp";
+
+const expected = await Jimp.read("expected.png");
+const actual = await Jimp.read("actual.png");
+
+const result = diff(expected, actual);
+
+console.log(`${(result.percent * 100).toFixed(2)}% of pixels differ`);
+
+await result.image.write("diff.png");
+```
+
+### In a visual test
+
+Fail when more than a small share of pixels changed, and save the diff image to look at:
+
+```ts title="screenshot.test.ts"
+import { Jimp, diff } from "jimp";
+
+const result = diff(await Jimp.read("baseline.png"), await Jimp.read("current.png"));
+
+if (result.percent > 0.001) {
+  await result.image.write("current.diff.png");
+  throw new Error(`Screenshot changed: ${result.percent * 100}% of pixels differ`);
+}
+```
+
+## Try it
+
+Choose how to edit a copy of the image, and the playground draws the diff between the original and the copy.
+Try `brightness` and raise `threshold` until the change stops counting.
+
+<Playground method="diff" client:visible />
+
+## Notes
+
+- **Reading the diff image.** Red pixels differ. Yellow pixels differ too, but pixelmatch has detected them as anti-aliasing (the soft edge of a shape), and they aren't counted in `percent`. Everything else is `img1` in faded grayscale.
+- **Different sizes.** When the images aren't the same size, the one with more pixels is resized to the other's width and height (on a copy) before comparing, even if that changes its aspect ratio. The diff image has the smaller size.
+- **Transparency counts.** Each pixel is blended onto white before comparing, so the same color at a clearly different opacity is a difference.
+- **Invalid thresholds.** A `threshold` outside `0` to `1`, or one that isn't a number, throws `threshold must be a number between 0 and 1`.
+- **Pixels or perception?** `diff` notices any change, including a one-pixel shift or recompression. To ask whether two images show the same picture, use [`distance`](/jimp/methods/distance/), which compares perceptual hashes.
+
+<Aside type="tip" title="Choosing a threshold">
+  The default `0.1` ignores tiny color shifts such as JPEG noise. Use `0` to
+  count every changed pixel, and raise it towards `1` to count only large color
+  changes. In the playground, `brightness(1.3)` on the dice changes about 11% of
+  the pixels at the default threshold and none at `0.5`.
+</Aside>
+
+## Related
+
+<Related methods={["distance", "compareHashes", "pHash", "colorDiff", "clone"]} />

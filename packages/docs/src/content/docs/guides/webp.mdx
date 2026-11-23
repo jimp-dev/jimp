@@ -1,53 +1,165 @@
 ---
 title: Using WEBP (And other WASM plugins)
-description: How to use Jimp WebP and other WASM plugins.
+description: Add WebP, AVIF and faster JPEG and PNG codecs to Jimp with WASM format plugins.
 ---
 
+import { Aside, Steps } from "@astrojs/starlight/components";
+import InstallCommand from "../../../components/InstallCommand.astro";
 import { WebpExample } from "../../../components/webp-example";
-import WebpExampleCode from "../../../components/webp-example?raw";
-import { Code } from "@astrojs/starlight/components";
 
-The default build of Jimp only includes image formats written in javascript.
-To utilize webp (and anything else we don't have a JS implementation for) we need to use format plugins and create a custom jimp.
+The default build of Jimp only includes image formats written in JavaScript.
+WebP, AVIF and other formats that have no JavaScript implementation come as **WASM format plugins**: codecs compiled to WebAssembly from C and Rust libraries, wrapped as Jimp [format plugins](/jimp/guides/writing-plugins/#write-a-format-plugin).
+They aren't part of `jimp`, so you add them to a [custom Jimp](/jimp/guides/custom-jimp/).
 
-The WASM plugins aren't dependencies of `jimp`, so install the ones you need alongside `@jimp/core`:
+| Package           | MIME type    | What it does                                                                                           |
+| ----------------- | ------------ | ------------------------------------------------------------------------------------------------------ |
+| `@jimp/wasm-webp` | `image/webp` | Reads and writes WebP.                                                                                 |
+| `@jimp/wasm-avif` | `image/avif` | Reads and writes AVIF.                                                                                 |
+| `@jimp/wasm-jpeg` | `image/jpeg` | Reads and writes JPEG with [MozJPEG](https://github.com/mozilla/mozjpeg). Replaces `@jimp/js-jpeg`.   |
+| `@jimp/wasm-png`  | `image/png`  | Reads and writes PNG, and can shrink files with [oxipng](https://github.com/shssoichiro/oxipng). Replaces `@jimp/js-png`. |
 
-```sh
-npm install jimp @jimp/core @jimp/wasm-webp
+The WASM plugins are ES modules only: import them with `import`, not `require`.
+
+## Adding WebP
+
+<Steps>
+
+1. Install the plugin alongside `jimp` and `@jimp/core`:
+
+   ```sh
+   npm install jimp @jimp/core @jimp/wasm-webp
+   ```
+
+2. Create a Jimp with the default formats and plugins, plus WebP:
+
+   ```ts title="jimp.ts"
+   import { createJimp } from "@jimp/core";
+   import { defaultFormats, defaultPlugins } from "jimp";
+   import webp from "@jimp/wasm-webp";
+
+   // A custom jimp that supports webp
+   export const Jimp = createJimp({
+     formats: [...defaultFormats, webp],
+     plugins: defaultPlugins,
+   });
+   ```
+
+3. Read and write WebP like any other format:
+
+   ```ts title="index.ts"
+   import { Jimp } from "./jimp.js";
+
+   // Read a WebP...
+   const image = await Jimp.read("tree.webp");
+   image.resize({ w: 160 });
+   await image.write("tree-small.png");
+
+   // ...or convert another format to WebP
+   const photo = await Jimp.read("photo.jpg");
+   await photo.write("photo.webp", { quality: 75 });
+   ```
+
+</Steps>
+
+The codec is loaded the first time an image is decoded or encoded, so the first call takes a little longer.
+
+## Try it
+
+This demo runs `@jimp/wasm-webp` in your browser. Change the options to re-encode the image, hold **Compare** to see the original, or upload a PNG, JPEG, GIF, BMP, TIFF or WebP to convert it.
+
+<WebpExample client:visible />
+
+## WebP options
+
+Pass these to [`write`](/jimp/methods/write/), [`getBuffer`](/jimp/methods/get-buffer/) or [`getBase64`](/jimp/methods/get-base64/) when writing `image/webp`.
+The most useful ones:
+
+| Option         | Type     | Default | Description                                                                                                  |
+| -------------- | -------- | ------- | ------------------------------------------------------------------------------------------------------------ |
+| `quality`      | `number` | `100`   | `0` to `100`. For lossy images, higher means better quality and larger files. For lossless, it's the effort spent compressing. |
+| `lossless`     | `0 \| 1` | `0`     | `1` for lossless encoding.                                                                                   |
+| `method`       | `number` | `4`     | `0` (fast) to `6` (slower, smaller files).                                                                    |
+| `nearLossless` | `number` | `100`   | `0` to `100`. Below `100`, lossless encoding may change pixels slightly to save space.                        |
+| `alphaQuality` | `number` | `100`   | `0` to `100`. Quality of the alpha channel.                                                                  |
+| `exact`        | `0 \| 1` | `0`     | `1` keeps the colors of fully transparent pixels, which the encoder otherwise changes to compress better.    |
+
+```ts title="index.ts"
+// Small lossy file
+await image.write("small.webp", { quality: 60, method: 6 });
+
+// Lossless
+const buffer = await image.getBuffer("image/webp", { lossless: 1 });
 ```
 
-```ts
+The plugin accepts every option of [libwebp's `WebPConfig`](https://developers.google.com/speed/webp/docs/api#advanced_encoding_api), in camelCase. Invalid values throw a `ZodError`, for example `quality: 150` fails with `Too big: expected number to be <=100`.
+WebP keeps transparency, and has no decode options.
+
+## The other WASM plugins
+
+Each plugin is used the same way: install it, then add it to `formats`.
+
+### AVIF
+
+```ts title="jimp.ts"
 import { createJimp } from "@jimp/core";
 import { defaultFormats, defaultPlugins } from "jimp";
-import webp from "@jimp/wasm-webp";
+import avif from "@jimp/wasm-avif";
 
-// A custom jimp that supports webp
-const Jimp = createJimp({
-  formats: [...defaultFormats, webp],
+export const Jimp = createJimp({
+  formats: [...defaultFormats, avif],
   plugins: defaultPlugins,
+});
+
+const image = await Jimp.read("photo.jpg");
+await image.write("photo.avif", { speed: 6 });
+```
+
+The encode options are `cqLevel`, `cqAlphaLevel`, `speed` (default `6`), `subsample`, `tune`, `sharpness`, `denoiseLevel`, `chromaDeltaQ`, `tileColsLog2` and `tileRowsLog2`, from [libavif](https://github.com/AOMediaCodec/libavif).
+In the browser, the AVIF encoder runs in a worker; see the [Vite](#vite) notes.
+
+### JPEG and PNG
+
+`@jimp/wasm-jpeg` and `@jimp/wasm-png` replace the built-in JavaScript codecs with WebAssembly ones. MozJPEG usually produces smaller JPEGs at the same quality, and oxipng can shrink PNGs further.
+When two formats have the same MIME type Jimp uses the first one in the list, so put the WASM format **before** the defaults, or leave the JavaScript one out:
+
+```ts title="jimp.ts"
+import { createJimp } from "@jimp/core";
+import { defaultFormats, defaultPlugins } from "jimp";
+import jpeg from "@jimp/wasm-jpeg";
+import png from "@jimp/wasm-png";
+
+export const Jimp = createJimp({
+  formats: [jpeg, png, ...defaultFormats],
+  plugins: defaultPlugins,
+});
+
+await image.write("photo.jpg", { quality: 80, progressive: true });
+await image.write("icon.png", {
+  optimize: { level: 3, interlace: false, optimiseAlpha: false },
 });
 ```
 
-<br />
-<WebpExample client:load />
+- `@jimp/wasm-jpeg` takes MozJPEG's options, such as `quality` (default `75`), `progressive` (default `true`) and `optimizeCoding` (default `true`). It also supports [`exif: true`](/jimp/guides/exif/#writing-exif-data).
+- `@jimp/wasm-png` takes an `optimize` object to run the output through oxipng: `level` (`0` to `6`, default `2`), `interlace` (default `false`) and `optimiseAlpha` (default `false`). Without `optimize`, the PNG isn't optimized. At runtime each field of `optimize` is optional, but the TypeScript types currently require all three, so pass them all in TypeScript code.
 
-<details>
-  <summary>Full code for example</summary>
+Each plugin's [source](https://github.com/jimp-dev/jimp/tree/main/plugins) lists every option with its range and default.
 
-<Code code={WebpExampleCode} lang="ts" title="example.jsx" />
+## Node.js
 
-</details>
+The plugins work in Node.js 18 and later without any setup: they read their `.wasm` files from `node_modules`.
+Use ES modules (`"type": "module"` in `package.json`, or `.mjs` files), as the plugins can't be loaded with `require`.
 
-## Browser Usage
+## Browser usage
 
-Since you're no longer using a pre-bundled version of jimp your bundler has to handle the code written for node.
-Jimp's packages import `Buffer` from the `buffer` package, so you don't need a `Buffer` polyfill (see [Custom Jimp](/jimp/guides/custom-jimp#using-a-custom-jimp-outside-of-nodejs)).
+Since you're no longer using the pre-bundled version of jimp, your bundler has to handle the code written for Node.js.
+Jimp's packages import `Buffer` from the `buffer` package, so you don't need a `Buffer` polyfill (see [Custom Jimp](/jimp/guides/custom-jimp/#using-a-custom-jimp-outside-of-nodejs)).
+In the browser the codecs fetch their `.wasm` files with `new URL("*.wasm", import.meta.url)`, which webpack 5 and Vite's production build handle without extra config.
 
 ### Vite
 
 Vite 7 and earlier need some config for the WASM plugins:
 
-```js
+```js title="vite.config.js"
 import { defineConfig } from "vite";
 
 export default defineConfig({
@@ -85,9 +197,7 @@ Wrangler turns each `.wasm` import into a precompiled `WebAssembly.Module`.
 The `.wasm` files come from the `@jsquash` packages the plugins use, so install those too.
 This makes the imports resolve with any package manager, and keeps them on the same versions as the plugins' own copies:
 
-```sh
-npm install @jimp/core @jimp/wasm-webp @jsquash/webp
-```
+<InstallCommand pkg="@jimp/core @jimp/wasm-webp @jsquash/webp" />
 
 ```ts title="src/index.ts"
 import { createJimp } from "@jimp/core";
@@ -111,6 +221,7 @@ export default {
 };
 ```
 
+Each plugin's default export is a function that takes options, so wrap it in an arrow function to pass them: `formats` expects functions it can call with no arguments.
 You only need to import the modules for what you use.
 For example, if a worker only decodes WebP, you can leave out the encoder.
 
@@ -146,9 +257,17 @@ declare module "@jsquash/oxipng/codec/pkg/squoosh_oxipng_bg.wasm" {
 The `.wasm` files count towards your worker's size limit.
 AVIF is the largest, at about 1.2 MB gzipped for the decoder and encoder together.
 
-## All WASM Plugins
+<Aside type="note">
+  The same `wasm` option works anywhere the codecs can't fetch their own files,
+  for example when you serve the `.wasm` files from a CDN. Compile them with
+  `WebAssembly.compileStreaming(fetch(url))` and pass the modules in.
+</Aside>
+
+## All WASM plugins
 
 - [@jimp/wasm-avif](https://github.com/jimp-dev/jimp/tree/main/plugins/wasm-avif)
 - [@jimp/wasm-jpeg](https://github.com/jimp-dev/jimp/tree/main/plugins/wasm-jpeg)
 - [@jimp/wasm-png](https://github.com/jimp-dev/jimp/tree/main/plugins/wasm-png)
 - [@jimp/wasm-webp](https://github.com/jimp-dev/jimp/tree/main/plugins/wasm-webp)
+
+See [Formats](/jimp/concepts/formats/) for how the WASM formats compare with the built-in ones.

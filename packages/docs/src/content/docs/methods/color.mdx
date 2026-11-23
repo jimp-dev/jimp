@@ -1,0 +1,160 @@
+---
+title: "color()"
+description: "Apply color actions such as hue, saturate, tint and mix."
+category: color
+method: "color"
+plugin: "@jimp/plugin-color"
+---
+
+import { Aside } from "@astrojs/starlight/components";
+import Playground from "../../../components/playground/Playground";
+import Related from "../../../components/Related.astro";
+
+`color` applies a list of color adjustments, called actions, to every pixel: rotate the hue, saturate, lighten, tint, mix in a color and more.
+Use it when you need a color change that the single-purpose methods such as [`brightness`](/jimp/methods/brightness/) or [`sepia`](/jimp/methods/sepia/) don't cover, or to apply several adjustments in one pass.
+
+## Signature
+
+```ts title="color.d.ts"
+image.color(actions: ColorAction[]): this
+
+type ColorAction = { apply: string; params?: [...] }; // see the table below
+```
+
+`color` changes the image in place and returns it, so you can chain more calls after it.
+
+## Parameters
+
+| Parameter | Type            | Default  | Description                                                              |
+| --------- | --------------- | -------- | ------------------------------------------------------------------------ |
+| `actions` | `ColorAction[]` | required | The actions to apply, in order. Each one is `{ apply, params }`. An empty array changes nothing. |
+
+### Actions
+
+`apply` names the action and `params` is a tuple of its arguments.
+Where the default column shows a value, `params` can be left out.
+
+| `apply`      | `params`              | Range                       | Default | Effect                                                                                           |
+| ------------ | --------------------- | --------------------------- | ------- | ------------------------------------------------------------------------------------------------ |
+| `hue`        | `[degrees]`           | `-360` to `360`             | required | Rotate the hue around the color wheel. `120` turns red into green.                              |
+| `spin`       | `[degrees]`           | `-360` to `360`             | required | Same as `hue`.                                                                                  |
+| `saturate`   | `[amount]`            | `0` to `100`                | `10`    | Multiply the saturation by `1 + amount / 100`. Grays stay gray.                                  |
+| `desaturate` | `[amount]`            | `0` to `100`                | `10`    | Multiply the saturation by `1 - amount / 100`. `100` removes all color.                          |
+| `greyscale`  | none (`[]`)           |                             |         | Remove all color. Same as `desaturate` with `100`.                                               |
+| `lighten`    | `[amount]`            | `0` to `100`                | `10`    | Blend `amount` percent toward white.                                                             |
+| `darken`     | `[amount]`            | `0` to `100`                | `10`    | Blend `amount` percent toward black.                                                             |
+| `brighten`   | `[amount]`            | `0` to `100`                | `10`    | Add `amount` percent of 255 to each channel, so `20` adds about 51.                              |
+| `tint`       | `[amount]`            | `0` to `100`                | `50`    | Blend `amount` percent toward white.                                                             |
+| `shade`      | `[amount]`            | `0` to `100`                | `50`    | Blend `amount` percent toward black.                                                             |
+| `mix`        | `[color, amount?]`    | `{ r, g, b }`, `0` to `100` | amount `50` | Blend `amount` percent toward `color`.                                                       |
+| `xor`        | `[color]`             | `{ r, g, b }`               | required | Bitwise XOR each channel with `color`. XOR with white inverts the image.                       |
+| `red`        | `[amount]`            | `-255` to `255`             | required | Add `amount` to the red channel.                                                               |
+| `green`      | `[amount]`            | `-255` to `255`             | required | Add `amount` to the green channel.                                                             |
+| `blue`       | `[amount]`            | `-255` to `255`             | required | Add `amount` to the blue channel.                                                              |
+
+`color` in `mix` and `xor` is an object with `r`, `g` and `b` from `0` to `255`, such as `{ r: 0, g: 102, b: 221 }`.
+Results are clamped to `0`–`255`.
+
+## Example
+
+```ts title="example.ts"
+import { Jimp } from "jimp";
+
+const image = await Jimp.read("photo.jpg");
+
+image.color([
+  { apply: "hue", params: [-90] },
+  { apply: "lighten", params: [20] },
+  { apply: "xor", params: [{ r: 0, g: 102, b: 221 }] },
+]);
+
+await image.write("photo-color.jpg");
+```
+
+### Combine several actions
+
+Actions run in the order you list them, one after the other on each pixel.
+Putting several in one call gives the same result as calling `color` once per action (give or take rounding), but the image is only scanned once.
+
+```ts title="example.ts"
+// A faded, warm "vintage" look
+image.color([
+  { apply: "desaturate", params: [40] },
+  { apply: "mix", params: [{ r: 255, g: 170, b: 90 }, 20] },
+  { apply: "lighten", params: [10] },
+]);
+```
+
+Order matters when actions interact.
+Mixing in a color and then desaturating loses some of the color you mixed in; desaturating first keeps it.
+
+```ts title="example.ts"
+// Duotone: remove the color, then tint everything toward one hue
+image.color([
+  { apply: "greyscale" },
+  { apply: "mix", params: [{ r: 40, g: 90, b: 200 }, 45] },
+]);
+```
+
+### Use a CSS color with `mix` and `xor`
+
+`mix` and `xor` only accept `{ r, g, b }` objects.
+To start from a CSS color string, convert it with [`cssColorToHex`](/jimp/methods/css-color-to-hex/) and [`intToRGBA`](/jimp/methods/int-to-rgba/). The extra `a` key is ignored.
+
+```ts title="example.ts"
+import { Jimp, cssColorToHex, intToRGBA } from "jimp";
+
+const image = await Jimp.read("photo.jpg");
+const brand = intToRGBA(cssColorToHex("#06D")); // { r: 0, g: 102, b: 221, a: 255 }
+
+image.color([{ apply: "mix", params: [brand, 30] }]);
+```
+
+### Build actions in TypeScript
+
+The `ColorAction` type is exported from `jimp`, so you can build an action list ahead of time and get type checking on `apply` and `params`:
+
+```ts title="example.ts"
+import { Jimp, type ColorAction } from "jimp";
+
+const warm: ColorAction[] = [
+  { apply: "saturate", params: [20] },
+  { apply: "red", params: [15] },
+  { apply: "blue", params: [-15] },
+];
+
+const image = await Jimp.read("photo.jpg");
+image.color(warm);
+```
+
+`color` doesn't change the array you pass, so the same list can be reused for many images.
+
+## Try it
+
+Pick an action and move its slider. The code panel shows the action you built.
+
+<Playground method="color" client:visible />
+
+This one builds a single call with several actions. Set a slider to `0` to leave its action out.
+
+<Playground tools={["color-combo"]} steps={[{ op: "color-combo" }]} title="Several actions, one call" client:visible />
+
+## Notes
+
+- **Alpha is unchanged.** Every action works on red, green and blue only. To change transparency use [`opacity`](/jimp/methods/opacity/), [`fade`](/jimp/methods/fade/) or [`opaque`](/jimp/methods/opaque/).
+- **Validation comes first.** Every action is checked before any pixel changes, so an invalid action leaves the image untouched. Out-of-range values, a missing required `params` or an unknown `apply` throw a `ZodError`. Passing something other than an array throws `actions must be an array`.
+- **The `greyscale` action isn't [`greyscale()`](/jimp/methods/greyscale/).** The action sets each pixel to its HSL lightness (the average of the largest and smallest channel), while the method uses perceived luminance. For an orange `(200, 100, 50)` the action gives `125` and the method gives `117`. Use the method for photos.
+- **`lighten` and `tint` blend the same way.** Both move each channel toward white (and `darken` and `shade` toward black). Only the defaults differ: `10` for `lighten`/`darken`, `50` for `tint`/`shade`.
+- **`lighten` versus `brighten`.** `lighten` moves each channel a percentage of the way to white, so light areas change less than dark ones. `brighten` adds the same amount to every channel, which clips highlights sooner.
+- **`saturate` scales.** `saturate` and `desaturate` multiply the saturation rather than adding to it, so muted colors stay muted and grays are never tinted.
+- **Constants.** `@jimp/plugin-color` also exports `ColorActionName` (`ColorActionName.HUE` is `"hue"` and so on). The `jimp` package doesn't re-export it; plain strings work everywhere.
+
+<Aside type="caution" title="mix and xor take an object, not a string">
+  `{ apply: "mix", params: ["#06D"] }` throws a `ZodError`, even though an older
+  example in the source comments shows a string. Pass `{ r, g, b }` instead, or
+  convert a CSS color as shown in [Use a CSS color](#use-a-css-color-with-mix-and-xor).
+</Aside>
+
+## Related
+
+<Related methods={["brightness", "contrast", "greyscale", "sepia", "invert", "cssColorToHex", "intToRGBA"]} />

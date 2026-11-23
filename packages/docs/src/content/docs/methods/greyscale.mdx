@@ -1,0 +1,69 @@
+---
+title: "greyscale()"
+description: "Remove all color from the image."
+category: color
+method: "greyscale"
+plugin: "@jimp/plugin-color"
+---
+
+import Playground from "../../../components/playground/Playground";
+import Related from "../../../components/Related.astro";
+
+`greyscale` turns the image into shades of gray.
+Each pixel's gray level is based on how bright its color looks to the eye, so greens stay lighter than blues of the same strength.
+
+## Signature
+
+```ts title="greyscale.d.ts"
+image.greyscale(): this
+```
+
+`greyscale` takes no arguments. It changes the image in place and returns it, so you can chain more calls after it.
+
+## Example
+
+```ts title="example.ts"
+import { Jimp } from "jimp";
+
+const image = await Jimp.read("photo.jpg");
+
+image.greyscale();
+
+await image.write("photo-grey.jpg");
+```
+
+### Black and white with more punch
+
+Raise the contrast after removing the color:
+
+```ts title="example.ts"
+image.greyscale().contrast(0.25);
+```
+
+### Tinted monochrome
+
+To get a single-color look, remove the color and then mix one back in with [`color`](/jimp/methods/color/):
+
+```ts title="example.ts"
+image.greyscale().color([{ apply: "mix", params: [{ r: 40, g: 90, b: 200 }, 40] }]);
+```
+
+For the classic brown tone, use [`sepia`](/jimp/methods/sepia/).
+
+## Try it
+
+Run the playground to see the result. Hold the compare button to see the original.
+
+<Playground method="greyscale" client:visible />
+
+## Notes
+
+- **Luminance weights.** The gray value is `0.2126 × R + 0.7152 × G + 0.0722 × B` (ITU-R BT.709), rounded down, and written to all three channels.
+- **Alpha is unchanged.** Transparent areas stay transparent.
+- **Spelling.** The method is spelled `greyscale`; there is no `grayscale` alias.
+- **The `greyscale` color action is different.** `image.color([{ apply: "greyscale" }])` uses HSL lightness (the average of the largest and smallest channel) instead of luminance, which makes blues look lighter and greens darker than they should. Prefer `greyscale()` for photos.
+- **The image stays RGBA.** The pixels are gray, but the bitmap still has four channels. How the file is saved depends on the encoder; see [Formats](/jimp/concepts/formats/).
+
+## Related
+
+<Related methods={["sepia", "color", "threshold", "contrast", "invert"]} />

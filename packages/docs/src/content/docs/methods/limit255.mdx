@@ -1,0 +1,72 @@
+---
+title: "limit255()"
+description: "Clamp a number to the 0 to 255 range."
+category: utils
+method: "limit255"
+plugin: "@jimp/utils"
+---
+
+import Playground from "../../../components/playground/Playground";
+import Related from "../../../components/Related.astro";
+
+`limit255` clamps a number so it's at least `0` and at most `255`, the range of one color channel.
+Use it whenever you compute a new channel value, before writing it to `image.bitmap.data` or passing it to [`rgbaToInt`](/jimp/methods/rgba-to-int/).
+
+## Signature
+
+```ts title="limit255.d.ts"
+import { limit255 } from "jimp";
+
+limit255(n: number): number
+```
+
+## Parameters
+
+| Parameter | Type     | Default  | Description          |
+| --------- | -------- | -------- | -------------------- |
+| `n`       | `number` | required | The value to clamp.  |
+
+## Example
+
+```ts title="example.ts"
+import { limit255 } from "jimp";
+
+limit255(300); // 255
+limit255(-20); // 0
+limit255(128); // 128
+limit255(12.7); // 12.7, not rounded
+```
+
+### Brighten an image
+
+Without `limit255`, a channel value of `200 + 80 = 280` would be stored as `24`, turning the brightest areas dark.
+
+```ts title="example.ts"
+import { Jimp, limit255 } from "jimp";
+
+const image = await Jimp.read("photo.png");
+
+image.scan((x, y, idx) => {
+  const { data } = image.bitmap;
+  data[idx] = limit255(data[idx] + 80);
+  data[idx + 1] = limit255(data[idx + 1] + 80);
+  data[idx + 2] = limit255(data[idx + 2] + 80);
+});
+```
+
+## Try it
+
+Change `amount`, then turn "use limit255" off to see what happens when values above `255` or below `0` are written without clamping: they wrap around.
+
+<Playground method="limit255" client:visible />
+
+## Notes
+
+- **Why it's needed.** `image.bitmap.data` is a `Buffer`, which stores each value modulo 256: `256` becomes `0`, `300` becomes `44` and `-1` becomes `255`. It never throws, so mistakes show up as strange colors.
+- **It doesn't round.** Fractions pass through unchanged. When a `Buffer` stores a fraction it drops the fractional part, so wrap the value in `Math.round` first if you want rounding: `limit255(Math.round(n))`.
+- **`NaN` stays `NaN`**, which a `Buffer` stores as `0`.
+- **Changes from v0.** `limit255` used to be a static method, `Jimp.limit255`. It's now a named export of `jimp` (and of `@jimp/utils`).
+
+## Related
+
+<Related methods={["rgbaToInt", "scan", "brightness", "intToRGBA"]} />

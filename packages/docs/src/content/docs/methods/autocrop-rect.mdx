@@ -1,0 +1,72 @@
+---
+title: "autocropRect()"
+description: "Measure the rectangle autocrop would keep, without cropping."
+category: shape
+method: "autocropRect"
+plugin: "@jimp/plugin-crop"
+---
+
+import Related from "../../../components/Related.astro";
+
+`autocropRect` works out the rectangle that [`autocrop`](/jimp/methods/autocrop/) would keep and returns it, without changing the image.
+Use it when you need the offsets, for example to remember where a trimmed sprite sat in its frame, or to check the crop before applying it.
+
+## Signature
+
+```ts title="autocropRect.d.ts"
+image.autocropRect(options?: AutocropOptions): { x: number; y: number; w: number; h: number }
+image.autocropRect(tolerance: number): { x: number; y: number; w: number; h: number }
+```
+
+`autocropRect` doesn't change the image. It returns a rectangle in the same shape as the options of [`crop`](/jimp/methods/crop/), so you can pass it straight to `crop`.
+
+## Options
+
+The options are the same as `autocrop`'s; see [autocrop options](/jimp/methods/autocrop/#options) for the details.
+
+| Option           | Type      | Default  | Description                                                                 |
+| ---------------- | --------- | -------- | --------------------------------------------------------------------------- |
+| `tolerance`      | `number`  | `0.0002` | How different from the top-left pixel a pixel can be and still count as border, from `0` to `1`. |
+| `cropOnlyFrames` | `boolean` | `true`   | Only crop if the border goes all the way around.                            |
+| `cropSymmetric`  | `boolean` | `false`  | Trim the same amount from opposite sides.                                   |
+| `leaveBorder`    | `number`  | `0`      | Pixels of border to keep on every side.                                     |
+| `ignoreSides`    | `object`  | none     | Sides to leave alone: `{ north, south, east, west }`.                       |
+
+## Example
+
+```ts title="example.ts"
+import { Jimp } from "jimp";
+
+const image = await Jimp.read("sprite.png");
+
+const rect = image.autocropRect();
+console.log(rect); // { x: 12, y: 4, w: 40, h: 56 }
+
+image.crop(rect);
+await image.write("sprite-trimmed.png");
+```
+
+### Keep the offsets for packing
+
+When you trim sprites for a sprite sheet, store where each one sat in its original frame so it can be drawn in the same place later:
+
+```ts title="example.ts"
+const { x, y, w, h } = image.autocropRect();
+
+const entry = {
+  frame: { w, h },
+  offset: { x, y },
+  sourceSize: { w: image.width, h: image.height },
+};
+
+image.crop({ x, y, w, h });
+```
+
+## Notes
+
+- **Nothing to trim.** If `autocrop` wouldn't crop, the result is the whole image: `{ x: 0, y: 0, w: image.width, h: image.height }`. This includes the case where `cropOnlyFrames` is `true` and the border doesn't go all the way around.
+- **Same rules as `autocrop`.** Everything on the [`autocrop`](/jimp/methods/autocrop/) page applies, including how `tolerance` is measured and the [`ignoreSides` caution](/jimp/methods/autocrop/#notes).
+
+## Related
+
+<Related methods={["autocrop", "crop", "colorDiff"]} />

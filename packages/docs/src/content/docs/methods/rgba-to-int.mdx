@@ -1,0 +1,53 @@
+---
+title: "rgbaToInt()"
+description: "Convert red, green, blue and alpha values to an RGBA integer."
+category: utils
+method: "rgbaToInt"
+plugin: "@jimp/utils"
+---
+
+import Related from "../../../components/Related.astro";
+
+`rgbaToInt` packs four channel values into the single `0xRRGGBBAA` integer that Jimp uses for colors, as taken by [`setPixelColor`](/jimp/methods/set-pixel-color/), `new Jimp({ color })` and many plugin options.
+[`intToRGBA`](/jimp/methods/int-to-rgba/) does the reverse.
+
+## Signature
+
+```ts title="rgbaToInt.d.ts"
+import { rgbaToInt } from "jimp";
+
+rgbaToInt(r: number, g: number, b: number, a: number): number
+```
+
+## Parameters
+
+| Parameter | Type     | Default  | Description                                     |
+| --------- | -------- | -------- | ----------------------------------------------- |
+| `r`       | `number` | required | Red, from `0` to `255`.                         |
+| `g`       | `number` | required | Green, from `0` to `255`.                       |
+| `b`       | `number` | required | Blue, from `0` to `255`.                        |
+| `a`       | `number` | required | Alpha, from `0` (transparent) to `255` (opaque). |
+
+All four are required: there's no default alpha.
+
+## Example
+
+```ts title="example.ts"
+import { Jimp, rgbaToInt } from "jimp";
+
+rgbaToInt(255, 136, 0, 255); // 0xff8800ff, which is 4287103231
+
+const image = new Jimp({ width: 100, height: 100, color: rgbaToInt(0, 128, 255, 255) });
+```
+
+## Notes
+
+- **The result is always unsigned**, from `0` to `0xffffffff`, which is what [`setPixelColor`](/jimp/methods/set-pixel-color/) needs. Building the number yourself with `<<` and `|` gives a negative number when red is `128` or more, unless you finish with `>>> 0`.
+- **Range checks.** A value below `0` or above `255` throws, for example `r must be between 0 and 255`. Clamp computed values first with [`limit255`](/jimp/methods/limit255/).
+- **Missing or non-number arguments** throw `r, g, b and a must be numbers`.
+- **Fractions are truncated**, not rounded: `rgbaToInt(1.7, 0, 0, 255)` is the same as `rgbaToInt(1, 0, 0, 255)`. Use `Math.round` if you need rounding.
+- **Changes from v0.** `rgbaToInt` used to be a static method, `Jimp.rgbaToInt`. It's now a named export of `jimp` (and of `@jimp/utils`).
+
+## Related
+
+<Related methods={["intToRGBA", "cssColorToHex", "setPixelColor", "limit255"]} />

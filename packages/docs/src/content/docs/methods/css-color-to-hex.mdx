@@ -1,0 +1,73 @@
+---
+title: "cssColorToHex()"
+description: "Convert a CSS color string to an RGBA integer."
+category: utils
+method: "cssColorToHex"
+plugin: "@jimp/utils"
+---
+
+import { Aside } from "@astrojs/starlight/components";
+import Related from "../../../components/Related.astro";
+
+`cssColorToHex` turns a CSS color, such as `"#ff8800"`, `"rgba(255, 0, 0, 0.5)"` or `"tomato"`, into the `0xRRGGBBAA` integer that Jimp uses for colors.
+Use it to pass user-supplied or CSS colors to methods that only take numbers, such as [`setPixelColor`](/jimp/methods/set-pixel-color/).
+
+## Signature
+
+```ts title="cssColorToHex.d.ts"
+import { cssColorToHex } from "jimp";
+
+cssColorToHex(cssColor: string | number): number
+```
+
+Despite the name, it returns a number, not a hex string.
+
+## Parameters
+
+| Parameter  | Type               | Default  | Description                                                                       |
+| ---------- | ------------------ | -------- | --------------------------------------------------------------------------------- |
+| `cssColor` | `string \| number` | required | A CSS color string. A number is returned unchanged, so you can pass either kind. |
+
+## Example
+
+```ts title="example.ts"
+import { Jimp, cssColorToHex } from "jimp";
+
+cssColorToHex("#ff8800"); // 0xff8800ff
+cssColorToHex("#f80"); // 0xff8800ff
+cssColorToHex("#ff880080"); // 0xff880080
+cssColorToHex("rgba(255, 0, 0, 0.5)"); // 0xff000080
+cssColorToHex("hsl(120, 100%, 50%)"); // 0x00ff00ff
+cssColorToHex("red"); // 0xff0000ff
+cssColorToHex("transparent"); // 0x00000000
+cssColorToHex(0x123456ff); // 0x123456ff, numbers pass through
+
+const image = new Jimp({ width: 10, height: 10 });
+image.setPixelColor(cssColorToHex("tomato"), 0, 0);
+```
+
+## Supported formats
+
+Parsing is done by [TinyColor](https://github.com/bgrins/TinyColor), so it accepts what TinyColor accepts:
+
+- Hex: `#rgb`, `#rgba`, `#rrggbb` and `#rrggbbaa`, with or without the `#`.
+- `rgb()` and `rgba()`, with numbers or percentages.
+- `hsl()`, `hsla()`, `hsv()` and `hsva()`.
+- The CSS color names, such as `"rebeccapurple"`, and `"transparent"`.
+
+Alpha values from `0` to `1` become `0` to `255`. Colors without alpha are fully opaque.
+
+## Notes
+
+- **Where you don't need it.** `new Jimp({ color })` already accepts CSS strings and converts them the same way, so `new Jimp({ width: 10, height: 10, color: "tomato" })` works without calling `cssColorToHex`.
+- **Changes from v0.** `cssColorToHex` used to be a static method, `Jimp.cssColorToHex`. It's now a named export of `jimp` (and of `@jimp/utils`).
+
+<Aside type="caution" title="Invalid colors don't throw">
+  A string TinyColor can't parse returns opaque black, `0x000000ff`, instead of
+  throwing. If the color comes from user input, validate it first.
+  Out-of-range channels are clamped, so `"rgb(300, 0, 0)"` becomes `0xff0000ff`.
+</Aside>
+
+## Related
+
+<Related methods={["rgbaToInt", "intToRGBA", "setPixelColor", "new Jimp"]} />
