@@ -1,8 +1,15 @@
 import { z } from "zod";
 
+/**
+ * How `getPixelIndex` (and plugins like `convolution`) handle coordinates
+ * outside the image.
+ */
 export enum Edge {
+  /** Use the nearest edge pixel */
   EXTEND = 1,
+  /** Wrap around to the other side of the image */
   WRAP = 2,
+  /** There is no pixel: `getPixelIndex` returns -1 */
   CROP = 3,
 }
 

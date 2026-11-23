@@ -872,79 +872,74 @@ export function createJimp<
     }
 
     /**
-     * Returns the offset of a pixel in the bitmap buffer
+     * Returns the offset of a pixel in the bitmap buffer.
+     *
+     * Coordinates are rounded to the nearest pixel (`Math.round`). How
+     * coordinates outside the image are handled depends on `edgeHandling`:
+     *
+     * - `Edge.EXTEND` (default): use the nearest edge pixel
+     * - `Edge.WRAP`: wrap around to the other side of the image
+     * - `Edge.CROP`: return -1
+     *
      * @param x the x coordinate
      * @param y the y coordinate
-     * @param edgeHandling (optional) define how to sum pixels from outside the border
-     * @returns the index of the pixel or -1 if not found
+     * @param edgeHandling (optional) how to handle coordinates outside the image
+     * @returns the index of the pixel, or -1 if it is outside the image and `edgeHandling` is `Edge.CROP`
      * @example
      * ```ts
-     * import { Jimp } from "jimp";
+     * import { Jimp, Edge } from "jimp";
      *
      * const image = new Jimp({ width: 3, height: 3, color: 0xffffffff });
      *
      * image.getPixelIndex(1, 1); // 16
+     * image.getPixelIndex(5, 1); // 20, the edge pixel (2, 1)
+     * image.getPixelIndex(-1, 1, Edge.WRAP); // 20, the pixel (2, 1)
+     * image.getPixelIndex(5, 1, Edge.CROP); // -1
      * ```
      */
     getPixelIndex(x: number, y: number, edgeHandling?: Edge) {
-      let xi;
-      let yi;
-
       if (!edgeHandling) {
         edgeHandling = Edge.EXTEND;
       }
 
-      if (typeof x !== "number" || typeof y !== "number") {
+      if (
+        typeof x !== "number" ||
+        typeof y !== "number" ||
+        Number.isNaN(x) ||
+        Number.isNaN(y)
+      ) {
         throw new Error("x and y must be numbers");
       }
 
+      const { width, height } = this.bitmap;
+
       // round input
-      x = Math.round(x);
-      y = Math.round(y);
-      xi = x;
-      yi = y;
+      let xi = Math.round(x);
+      let yi = Math.round(y);
 
       if (edgeHandling === Edge.EXTEND) {
-        if (x < 0) xi = 0;
-        if (x >= this.bitmap.width) xi = this.bitmap.width - 1;
-        if (y < 0) yi = 0;
-        if (y >= this.bitmap.height) yi = this.bitmap.height - 1;
+        xi = Math.min(Math.max(xi, 0), width - 1);
+        yi = Math.min(Math.max(yi, 0), height - 1);
+      } else if (edgeHandling === Edge.WRAP) {
+        xi = ((xi % width) + width) % width;
+        yi = ((yi % height) + height) % height;
       }
-
-      if (edgeHandling === Edge.WRAP) {
-        if (x < 0) {
-          xi = this.bitmap.width + x;
-        }
-
-        if (x >= this.bitmap.width) {
-          xi = x % this.bitmap.width;
-        }
-
-        if (y < 0) {
-          yi = this.bitmap.height + y;
-        }
-
-        if (y >= this.bitmap.height) {
-          yi = y % this.bitmap.height;
-        }
-      }
-
-      let i = (this.bitmap.width * yi + xi) << 2;
 
       // if out of bounds index is -1
-      if (xi < 0 || xi >= this.bitmap.width) {
-        i = -1;
+      if (!(xi >= 0 && xi < width && yi >= 0 && yi < height)) {
+        return -1;
       }
 
-      if (yi < 0 || yi >= this.bitmap.height) {
-        i = -1;
-      }
-
-      return i;
+      return (width * yi + xi) << 2;
     }
 
     /**
-     * Returns the hex color value of a pixel
+     * Returns the hex color value of a pixel.
+     *
+     * Coordinates are rounded to the nearest pixel. Coordinates outside the
+     * image return the color of the nearest edge pixel, like
+     * `getPixelIndex`'s default `Edge.EXTEND`.
+     *
      * @param x the x coordinate
      * @param y the y coordinate
      * @returns the color of the pixel
@@ -958,16 +953,15 @@ export function createJimp<
      * ```
      */
     getPixelColor(x: number, y: number) {
-      if (typeof x !== "number" || typeof y !== "number") {
-        throw new Error("x and y must be numbers");
-      }
-
       const idx = this.getPixelIndex(x, y);
       return this.bitmap.data.readUInt32BE(idx);
     }
 
     /**
-     * Sets the hex colour value of a pixel
+     * Sets the hex colour value of a pixel.
+     *
+     * Coordinates are rounded to the nearest pixel. Coordinates outside the
+     * image are ignored, so nothing is drawn (like canvas).
      *
      * @param hex color to set
      * @param x the x coordinate
@@ -980,6 +974,7 @@ export function createJimp<
      * const image = new Jimp({ width: 3, height: 3, color: 0xffffffff });
      *
      * image.setPixelColor(0xff0000ff, 0, 0);
+     * image.setPixelColor(0xff0000ff, 5, 0); // outside the image, does nothing
      * ```
      */
     setPixelColor<S extends JimpClass>(
@@ -991,13 +986,18 @@ export function createJimp<
       if (
         typeof hex !== "number" ||
         typeof x !== "number" ||
-        typeof y !== "number"
+        typeof y !== "number" ||
+        Number.isNaN(x) ||
+        Number.isNaN(y)
       ) {
         throw new Error("hex, x and y must be numbers");
       }
 
-      const idx = this.getPixelIndex(x, y);
-      this.bitmap.data.writeUInt32BE(hex, idx);
+      const idx = this.getPixelIndex(x, y, Edge.CROP);
+
+      if (idx !== -1) {
+        this.bitmap.data.writeUInt32BE(hex, idx);
+      }
 
       return this;
     }
