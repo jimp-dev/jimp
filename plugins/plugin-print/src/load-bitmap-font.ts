@@ -1,3 +1,4 @@
+import { Buffer } from "buffer";
 import parseASCII from "parse-bmfont-ascii";
 import parseXML from "parse-bmfont-xml";
 import readBinary from "parse-bmfont-binary";

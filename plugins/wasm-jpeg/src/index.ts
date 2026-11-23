@@ -1,3 +1,4 @@
+import { Buffer } from "buffer";
 import decode, { init as initDecoder } from "@jsquash/jpeg/decode.js";
 import encode, { init as initEncoder } from "@jsquash/jpeg/encode.js";
 import { Format } from "@jimp/types";
@@ -38,24 +39,41 @@ const JpegOptionsSchema = z.object({
 
 type JpegOptions = z.infer<typeof JpegOptionsSchema>;
 
+export interface JpegWasm {
+  /** The compiled `@jsquash/jpeg/codec/dec/mozjpeg_dec.wasm` */
+  decoder?: WebAssembly.Module;
+  /** The compiled `@jsquash/jpeg/codec/enc/mozjpeg_enc.wasm` */
+  encoder?: WebAssembly.Module;
+}
+
+export interface JpegFormatOptions {
+  /**
+   * Precompiled wasm modules for runtimes where the codecs can't load their
+   * own wasm, like Cloudflare Workers.
+   * Each codec is initialized once, by the first instance that encodes or
+   * decodes, so pass the same modules to every instance.
+   */
+  wasm?: JpegWasm;
+}
+
 let decoderReady: Promise<unknown> | undefined;
 let encoderReady: Promise<unknown> | undefined;
 
-function initDecoderOnce() {
-  decoderReady ??= loadWasm("@jsquash/jpeg/codec/dec/mozjpeg_dec.wasm").then(
-    initDecoder,
-  );
+function initDecoderOnce(module?: WebAssembly.Module) {
+  decoderReady ??= Promise.resolve(
+    module ?? loadWasm("@jsquash/jpeg/codec/dec/mozjpeg_dec.wasm"),
+  ).then(initDecoder);
   return decoderReady;
 }
 
-function initEncoderOnce() {
-  encoderReady ??= loadWasm("@jsquash/jpeg/codec/enc/mozjpeg_enc.wasm").then(
-    initEncoder,
-  );
+function initEncoderOnce(module?: WebAssembly.Module) {
+  encoderReady ??= Promise.resolve(
+    module ?? loadWasm("@jsquash/jpeg/codec/enc/mozjpeg_enc.wasm"),
+  ).then(initEncoder);
   return encoderReady;
 }
 
-export default function jpeg() {
+export default function jpeg({ wasm }: JpegFormatOptions = {}) {
   return {
     mime: "image/jpeg",
     hasAlpha: true,
@@ -79,7 +97,7 @@ export default function jpeg() {
         trellisOptZero,
         jpegColorSpace,
       } = JpegOptionsSchema.parse(options);
-      await initEncoderOnce();
+      await initEncoderOnce(wasm?.encoder);
       const arrayBuffer = await encode(
         {
           ...bitmap,
@@ -114,7 +132,7 @@ export default function jpeg() {
       return Buffer.from(arrayBuffer);
     },
     decode: async (data) => {
-      await initDecoderOnce();
+      await initDecoderOnce(wasm?.decoder);
       const result = await decode(new Uint8Array(data).buffer);
 
       return {

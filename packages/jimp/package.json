@@ -4,13 +4,7 @@
   "sideEffects": false,
   "description": "An image processing library written entirely in JavaScript.",
   "files": [
-    "browser.js",
-    "browser.js.map",
-    "dist",
-    "es",
-    "index.d.ts",
-    "fonts",
-    "types"
+    "dist"
   ],
   "repository": "jimp-dev/jimp",
   "engines": {
@@ -18,7 +12,7 @@
   },
   "scripts": {
     "lint": "eslint .",
-    "test": "vitest --exclude '**/*.browser.test.ts'",
+    "test": "vitest --typecheck --typecheck.ignoreSourceErrors --exclude '**/*.browser.test.ts'",
     "test:browser": "vitest --config vitest.config.browser.mjs",
     "build": "tshy",
     "build:browser": "rollup -c",
@@ -79,6 +73,7 @@
     "@rollup/plugin-node-resolve": "^15.2.3",
     "@rollup/plugin-terser": "^0.4.4",
     "@vitest/browser": "^2.0.5",
+    "buffer": "^6.0.3",
     "eslint": "^9.9.1",
     "node-self": "^1.0.2",
     "path-browserify": "^1.0.1",
@@ -138,6 +133,13 @@
   },
   "main": "./dist/commonjs/index.js",
   "types": "./dist/commonjs/index.d.ts",
+  "typesVersions": {
+    "*": {
+      "fonts": [
+        "./dist/commonjs/fonts.d.ts"
+      ]
+    }
+  },
   "type": "module",
   "publishConfig": {
     "access": "public"

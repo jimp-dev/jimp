@@ -1,3 +1,4 @@
+import { Buffer } from "buffer";
 import decode, { init as initDecoder } from "@jsquash/webp/decode.js";
 import encode, { init as initEncoder } from "@jsquash/webp/encode.js";
 import { Format } from "@jimp/types";
@@ -104,31 +105,52 @@ const WebpOptionsSchema = z.object({
 
 type WebpOptions = z.infer<typeof WebpOptionsSchema>;
 
+export interface WebpWasm {
+  /** The compiled `@jsquash/webp/codec/dec/webp_dec.wasm` */
+  decoder?: WebAssembly.Module;
+  /**
+   * The compiled `@jsquash/webp/codec/enc/webp_enc_simd.wasm`, or
+   * `webp_enc.wasm` in runtimes without wasm SIMD
+   */
+  encoder?: WebAssembly.Module;
+}
+
+export interface WebpFormatOptions {
+  /**
+   * Precompiled wasm modules for runtimes where the codecs can't load their
+   * own wasm, like Cloudflare Workers.
+   * Each codec is initialized once, by the first instance that encodes or
+   * decodes, so pass the same modules to every instance.
+   */
+  wasm?: WebpWasm;
+}
+
 let decoderReady: Promise<unknown> | undefined;
 let encoderReady: Promise<unknown> | undefined;
 
-function initDecoderOnce() {
-  decoderReady ??= loadWasm("@jsquash/webp/codec/dec/webp_dec.wasm").then(
-    initDecoder,
-  );
+function initDecoderOnce(module?: WebAssembly.Module) {
+  decoderReady ??= Promise.resolve(
+    module ?? loadWasm("@jsquash/webp/codec/dec/webp_dec.wasm"),
+  ).then(initDecoder);
   return decoderReady;
 }
 
-function initEncoderOnce() {
+function initEncoderOnce(module?: WebAssembly.Module) {
   // Load the same encoder build @jsquash/webp picks for this runtime
-  encoderReady ??= simd()
-    .then((hasSimd) =>
-      loadWasm(
-        hasSimd
-          ? "@jsquash/webp/codec/enc/webp_enc_simd.wasm"
-          : "@jsquash/webp/codec/enc/webp_enc.wasm",
+  encoderReady ??= Promise.resolve(
+    module ??
+      simd().then((hasSimd) =>
+        loadWasm(
+          hasSimd
+            ? "@jsquash/webp/codec/enc/webp_enc_simd.wasm"
+            : "@jsquash/webp/codec/enc/webp_enc.wasm",
+        ),
       ),
-    )
-    .then(initEncoder);
+  ).then(initEncoder);
   return encoderReady;
 }
 
-export default function webp() {
+export default function webp({ wasm }: WebpFormatOptions = {}) {
   return {
     mime: "image/webp",
     hasAlpha: true,
@@ -162,7 +184,7 @@ export default function webp() {
         targetSize,
         colorSpace = "srgb",
       } = WebpOptionsSchema.parse(options);
-      await initEncoderOnce();
+      await initEncoderOnce(wasm?.encoder);
       const arrayBuffer = await encode(
         {
           ...bitmap,
@@ -202,7 +224,7 @@ export default function webp() {
       return Buffer.from(arrayBuffer);
     },
     decode: async (data) => {
-      await initDecoderOnce();
+      await initDecoderOnce(wasm?.decoder);
       const result = await decode(new Uint8Array(data).buffer);
 
       return {

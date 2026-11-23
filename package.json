@@ -9,7 +9,7 @@
   },
   "author": "Andrew Lisowski <lisowski54@gmail.com>",
   "scripts": {
-    "build": "turbo run build build:browser --filter=!@jimp/docs",
+    "build": "turbo run build build:browser --filter=!@jimp/docs && node scripts/check-browser-bundle.mjs",
     "dev": "turbo run dev",
     "lint": "turbo run lint",
     "test": "turbo run test -- --watch=false",
@@ -25,6 +25,8 @@
     "@auto-it/all-contributors": "^11.2.1",
     "@auto-it/first-time-contributor": "^11.2.1",
     "@auto-it/released": "^11.2.1",
+    "@babel/core": "^7.25.2",
+    "@babel/preset-env": "^7.29.14",
     "@jimp/config-eslint": "workspace:*",
     "@jimp/config-typescript": "workspace:*",
     "@turbo/gen": "^2.1.1",

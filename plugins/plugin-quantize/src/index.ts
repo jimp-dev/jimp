@@ -1,3 +1,4 @@
+import { Buffer } from "buffer";
 import { JimpClass } from "@jimp/types";
 import { applyPaletteSync, buildPaletteSync, utils } from "image-q";
 import z from "zod";

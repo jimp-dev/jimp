@@ -32,6 +32,12 @@ export type EncodeOptions = Pretty<
 
 export interface DecodeBmpOptions {
   toRGBA?: boolean;
+  /**
+   * Largest image, in megapixels, that will be decoded.
+   * Larger images are rejected before any pixel memory is allocated.
+   * @default 100
+   */
+  maxResolutionInMP?: number;
 }
 
 function encode(image: Bitmap, options: EncodeOptions = {}) {

@@ -10,6 +10,12 @@ import { Code } from "@astrojs/starlight/components";
 The default build of Jimp only includes image formats written in javascript.
 To utilize webp (and anything else we don't have a JS implementation for) we need to use format plugins and create a custom jimp.
 
+The WASM plugins aren't dependencies of `jimp`, so install the ones you need alongside `@jimp/core`:
+
+```sh
+npm install jimp @jimp/core @jimp/wasm-webp
+```
+
 ```ts
 import { createJimp } from "@jimp/core";
 import { defaultFormats, defaultPlugins } from "jimp";
@@ -34,19 +40,111 @@ const Jimp = createJimp({
 
 ## Browser Usage
 
-Since you're no longer using a pre-bundled version of jimp you need configure your bundler to handle the node code.
+Since you're no longer using a pre-bundled version of jimp your bundler has to handle the code written for node.
+Jimp's packages import `Buffer` from the `buffer` package, so you don't need a `Buffer` polyfill (see [Custom Jimp](/jimp/guides/custom-jimp#using-a-custom-jimp-outside-of-nodejs)).
 
-For example in vite/astro you can use `vite-plugin-node-polyfills`.
+### Vite
+
+Vite 7 and earlier need some config for the WASM plugins:
 
 ```js
-
-import { nodePolyfills } from "vite-plugin-node-polyfills";
+import { defineConfig } from "vite";
 
 export default defineConfig({
-  // You only need to polyfill buffer if you're using a browser
-  plugins: [nodePolyfills({ include: ["buffer"] })],
+  // The @jsquash codecs load their wasm relative to their own files
+  optimizeDeps: {
+    exclude: [
+      "@jsquash/avif",
+      "@jsquash/jpeg",
+      "@jsquash/png",
+      "@jsquash/oxipng",
+      "@jsquash/webp",
+    ],
+  },
+  // Needed for @jimp/wasm-avif's multi-threaded encoder
+  worker: { format: "es" },
 });
 ```
+
+- `optimizeDeps.exclude`: Vite pre-bundles dependencies into `node_modules/.vite/deps`, which separates the codec code from the `.wasm` file it loads with `new URL("*.wasm", import.meta.url)`.
+  Without it, the dev server and vitest browser mode fail to load the wasm with errors like `both async and sync fetching of the wasm failed` or `expected magic word 00 61 73 6d`.
+  Only the packages used by the plugins you install need to be listed (`@jimp/wasm-png` uses both `@jsquash/png` and `@jsquash/oxipng`).
+- `worker.format`: only needed for `@jimp/wasm-avif`.
+  Its encoder runs in a worker and Vite's default `iife` worker format can't code-split, so `vite build` fails with `Invalid value "iife" for option "worker.format"` (`"output.format"` on Vite 5).
+
+Vite 8 handles both of these on its own, so it doesn't need any config.
+
+## Cloudflare Workers
+
+The WASM plugins normally load their `.wasm` files with `new URL("*.wasm", import.meta.url)`, which Workers can't fetch.
+In Workers they fail with `both async and sync fetching of the wasm failed`.
+
+Instead, import the `.wasm` files in your worker and pass them to the plugins with the `wasm` option.
+Wrangler turns each `.wasm` import into a precompiled `WebAssembly.Module`.
+
+The `.wasm` files come from the `@jsquash` packages the plugins use, so install those too.
+This makes the imports resolve with any package manager, and keeps them on the same versions as the plugins' own copies:
+
+```sh
+npm install @jimp/core @jimp/wasm-webp @jsquash/webp
+```
+
+```ts title="src/index.ts"
+import { createJimp } from "@jimp/core";
+import webp from "@jimp/wasm-webp";
+import webpDecoder from "@jsquash/webp/codec/dec/webp_dec.wasm";
+import webpEncoder from "@jsquash/webp/codec/enc/webp_enc_simd.wasm";
+
+const Jimp = createJimp({
+  formats: [() => webp({ wasm: { decoder: webpDecoder, encoder: webpEncoder } })],
+});
+
+export default {
+  async fetch(request: Request) {
+    // Recompress the uploaded WebP
+    const image = await Jimp.read(await request.arrayBuffer());
+
+    return new Response(await image.getBuffer("image/webp", { quality: 50 }), {
+      headers: { "Content-Type": "image/webp" },
+    });
+  },
+};
+```
+
+You only need to import the modules for what you use.
+For example, if a worker only decodes WebP, you can leave out the encoder.
+
+| Plugin | Install | `wasm` option |
+| --- | --- | --- |
+| `@jimp/wasm-avif` | `@jsquash/avif` | `decoder`: `@jsquash/avif/codec/dec/avif_dec.wasm`<br />`encoder`: `@jsquash/avif/codec/enc/avif_enc.wasm` |
+| `@jimp/wasm-jpeg` | `@jsquash/jpeg` | `decoder`: `@jsquash/jpeg/codec/dec/mozjpeg_dec.wasm`<br />`encoder`: `@jsquash/jpeg/codec/enc/mozjpeg_enc.wasm` |
+| `@jimp/wasm-png` | `@jsquash/png`, `@jsquash/oxipng` | `png`: `@jsquash/png/codec/pkg/squoosh_png_bg.wasm`<br />`optimise`: `@jsquash/oxipng/codec/pkg/squoosh_oxipng_bg.wasm`, only used with the `optimize` export option |
+| `@jimp/wasm-webp` | `@jsquash/webp` | `decoder`: `@jsquash/webp/codec/dec/webp_dec.wasm`<br />`encoder`: `@jsquash/webp/codec/enc/webp_enc_simd.wasm` |
+
+Each codec is set up once, by the first image that uses it, so pass the same modules everywhere you create the plugin.
+
+With TypeScript, declare the `.wasm` imports.
+`@jsquash/png` and `@jsquash/oxipng` ship their own types for their `.wasm` files, so those two need declarations of their own:
+
+```ts title="src/wasm.d.ts"
+declare module "*.wasm" {
+  const module: WebAssembly.Module;
+  export default module;
+}
+
+declare module "@jsquash/png/codec/pkg/squoosh_png_bg.wasm" {
+  const module: WebAssembly.Module;
+  export default module;
+}
+
+declare module "@jsquash/oxipng/codec/pkg/squoosh_oxipng_bg.wasm" {
+  const module: WebAssembly.Module;
+  export default module;
+}
+```
+
+The `.wasm` files count towards your worker's size limit.
+AVIF is the largest, at about 1.2 MB gzipped for the decoder and encoder together.
 
 ## All WASM Plugins
 

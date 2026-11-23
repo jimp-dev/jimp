@@ -1,6 +1,8 @@
 import { describe, expect, test } from "vitest";
 import { Jimp } from "./index.js";
 import { getTestImagePath, makeTestImage } from "@jimp/test-utils";
+import { createJimp } from "@jimp/core";
+import png from "@jimp/js-png";
 
 describe("hasAlpha", () => {
   test("image with no alpha", async () => {
@@ -22,8 +24,8 @@ describe("hasAlpha", () => {
         "  ◆▫▫▫▫◆  ",
         "   ◆▫▫◆   ",
         "    ◆◆    ",
-        "          "
-      )
+        "          ",
+      ),
     );
 
     expect(image.autocropRect()).toEqual({
@@ -56,5 +58,30 @@ describe("fromBitmap", () => {
 
     expect(image.bitmap.data.length).toBe(16);
     expect(image.getPixelColor(0, 0)).toBe(0xffffffff);
+  });
+});
+
+describe("getBuffer", () => {
+  test("encoders that return a plain Uint8Array", async () => {
+    const CustomJimp = createJimp({
+      formats: [
+        () => ({
+          ...png(),
+          // Like jpeg-js when it isn't loaded as CommonJS
+          encode: async (bitmap) =>
+            new Uint8Array(await png().encode(bitmap)) as Buffer,
+        }),
+      ],
+    });
+    const image = new CustomJimp({ width: 2, height: 2, color: 0xff0000ff });
+    const expected = await Jimp.fromBitmap(image.bitmap).getBuffer("image/png");
+
+    const buffer = await image.getBuffer("image/png");
+    expect(Buffer.isBuffer(buffer)).toBe(true);
+    expect(buffer.equals(expected)).toBe(true);
+
+    expect(await image.getBase64("image/png")).toBe(
+      `data:image/png;base64,${expected.toString("base64")}`,
+    );
   });
 });

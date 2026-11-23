@@ -101,7 +101,7 @@ export const JimpMime = {
  *
  * const image = await Jimp.read("test/image.png");
  *
- * image.resize(256, 100);
+ * image.resize({ w: 256, h: 100 });
  * image.greyscale();
  *
  * await image.write('test/output.png');
@@ -116,10 +116,8 @@ export const JimpMime = {
  *
  * const image = await Jimp.read("https://upload.wikimedia.org/wikipedia/commons/0/01/Bot-Test.jpg");
  *
- * image.resize(256, 100);
+ * image.resize({ w: 256, h: 100 });
  * image.greyscale();
- *
- * const output = await image.getBuffer("test/image.png");
  *
  * const canvas = document.createElement("canvas");
  *
@@ -127,7 +125,13 @@ export const JimpMime = {
  * canvas.height = image.bitmap.height;
  *
  * const ctx = canvas.getContext("2d");
- * ctx.putImageData(image.bitmap, 0, 0);
+ * const imageData = new ImageData(
+ *   new Uint8ClampedArray(image.bitmap.data),
+ *   image.bitmap.width,
+ *   image.bitmap.height
+ * );
+ *
+ * ctx.putImageData(imageData, 0, 0);
  *
  * document.body.appendChild(canvas);
  * ```

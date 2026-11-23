@@ -7,6 +7,6 @@
 
 Resizes the image to a set width and height using a 2-pass bilinear algorithm.
 
-- [resize](http://jimp-dev.github.io/jimp/api/jimp/classes/jimp#resize)
-- [scale](http://jimp-dev.github.io/jimp/api/jimp/classes/jimp#scale)
-- [scaleToFit](http://jimp-dev.github.io/jimp/api/jimp/classes/jimp#scaletofit)
+- [resize](https://jimp-dev.github.io/jimp/api/jimp/classes/jimp/#resize)
+- [scale](https://jimp-dev.github.io/jimp/api/jimp/classes/jimp/#scale)
+- [scaleToFit](https://jimp-dev.github.io/jimp/api/jimp/classes/jimp/#scaletofit)

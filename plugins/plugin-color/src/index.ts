@@ -1,3 +1,4 @@
+import { Buffer } from "buffer";
 import tinyColor from "tinycolor2";
 import { clone, limit255, scan } from "@jimp/utils";
 import { Edge, JimpClass, RGBColor } from "@jimp/types";
@@ -687,7 +688,7 @@ export const methods = {
    * image.pixelate(10);
    *
    * // pixelate a region
-   * image.pixelate(10, 10, 10, 20, 20);
+   * image.pixelate({ size: 10, x: 10, y: 10, w: 20, h: 20 });
    * ```
    */
   pixelate<I extends JimpClass>(image: I, options: PixelateOptions) {

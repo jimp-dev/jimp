@@ -7,4 +7,4 @@
 
 Displaces the image based on the provided displacement map
 
-- [displace](http://jimp-dev.github.io/jimp/api/jimp/classes/jimp#displace)
+- [displace](https://jimp-dev.github.io/jimp/api/jimp/classes/jimp/#displace)

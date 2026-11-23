@@ -7,14 +7,23 @@ It also support optimizing the image using [oxipng](https://github.com/shssoichi
 
 ## Usage
 
+```sh
+npm install jimp @jimp/core @jimp/wasm-png
+```
+
 ```ts
 import { createJimp } from "@jimp/core";
 import { defaultPlugins } from "jimp";
 import png from "@jimp/wasm-png";
 
-// A custom jimp that supports webp
+// A custom jimp that uses the wasm png codec
 const Jimp = createJimp({
   formats: [png],
   plugins: defaultPlugins,
 });
 ```
+
+## Bundler Setup
+
+Using this plugin in the browser with Vite 7 or earlier needs some extra config.
+See the [Vite section of the WASM plugins guide](https://jimp-dev.github.io/jimp/guides/webp/#vite).

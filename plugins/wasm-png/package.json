@@ -67,6 +67,7 @@
   "dependencies": {
     "@jsquash/oxipng": "^2.3.0",
     "@jsquash/png": "^3.0.1",
+    "buffer": "^6.0.3",
     "zod": "^4.6.7"
   },
   "module": "./dist/esm/index.js"

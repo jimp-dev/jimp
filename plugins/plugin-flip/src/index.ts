@@ -1,3 +1,4 @@
+import { Buffer } from "buffer";
 import { JimpClass } from "@jimp/types";
 import { z } from "zod";
 
@@ -13,15 +14,16 @@ export type FlipOptions = z.infer<typeof FlipOptionsSchema>;
 export const methods = {
   /**
    * Flip the image.
-   * @param horizontal a Boolean, if true the image will be flipped horizontally
-   * @param vertical a Boolean, if true the image will be flipped vertically
+   * @param options the directions to flip the image in
+   * @param options.horizontal if true the image will be flipped horizontally
+   * @param options.vertical if true the image will be flipped vertically
    * @example
    * ```ts
    * import { Jimp } from "jimp";
    *
    * const image = await Jimp.read("test/image.png");
    *
-   * image.flip(true, false);
+   * image.flip({ horizontal: true, vertical: false });
    * ```
    */
   flip<I extends JimpClass>(image: I, options: FlipOptions) {

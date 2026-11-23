@@ -1,3 +1,4 @@
+import { Buffer } from "buffer";
 import { RGBAColor, JimpClass, Bitmap, RGBColor } from "@jimp/types";
 import tinyColor from "tinycolor2";
 

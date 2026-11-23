@@ -82,7 +82,8 @@ export function load(app) {
       refOrig.sources = i.sources;
       refOrig.type = i.type;
 
-      if (refOrig.type.name === "I" || refOrig.type.name.startsWith("I_")) {
+      // Methods like autocropRect return an object type, which has no name
+      if (refOrig.type.name === "I" || refOrig.type.name?.startsWith("I_")) {
         refOrig.type.name = "Jimp";
       }
     }

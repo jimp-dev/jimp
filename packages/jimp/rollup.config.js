@@ -8,6 +8,9 @@ import terser from "@rollup/plugin-terser";
 import { dts } from "rollup-plugin-dts";
 
 import { promises as fs } from "fs";
+import { createRequire } from "module";
+
+const require = createRequire(import.meta.url);
 
 async function maybeUnlink(path) {
   try {
@@ -59,6 +62,47 @@ function injectCodePlugin(code) {
   };
 }
 
+/**
+ * rollup-plugin-polyfill-node ships buffer v5, which detects typed array
+ * support through `__proto__`. Runtimes that disable `__proto__` (like Deno)
+ * then get plain Uint8Arrays instead of Buffers. Resolve every `buffer` import,
+ * including the ones the polyfill plugin injects, to buffer v6 instead.
+ */
+function bufferV6Plugin() {
+  const bufferPath = require.resolve("buffer/");
+
+  return {
+    name: "buffer-v6",
+    resolveId(importee) {
+      if (/^(\0polyfill-node\.)?buffer(\.js)?\/?$/.test(importee)) {
+        return bufferPath;
+      }
+    },
+  };
+}
+
+/**
+ * pngjs/browser.js is a browserify bundle with its own copy of buffer v5, which
+ * sets prototypes by assigning `__proto__`. Use Object.setPrototypeOf instead.
+ */
+function pngjsSetPrototypeOfPlugin() {
+  return {
+    name: "pngjs-set-prototype-of",
+    transform(code, id) {
+      if (id.endsWith("pngjs/browser.js")) {
+        return {
+          code: code.replace(
+            /([\w.]+)\.__proto__ = ([^;\n]+)/g,
+            "Object.setPrototypeOf($1, $2)",
+          ),
+          // Only columns change, so the existing mappings stay usable
+          map: null,
+        };
+      }
+    },
+  };
+}
+
 export default [
   {
     input: `src/index.ts`,
@@ -67,6 +111,7 @@ export default [
       esbuild(),
 
       // Polyfill Node.js builtins
+      bufferV6Plugin(),
       nodePolyfills(),
       nodeResolve({ browser: true, preferBuiltins: false }),
       commonjs(),
@@ -74,8 +119,9 @@ export default [
 
       // Use the browser version of some packages
       alias({
-        entries: [{ find: "pngjs", replacement: "pngjs/browser" }],
+        entries: [{ find: /^pngjs$/, replacement: "pngjs/browser.js" }],
       }),
+      pngjsSetPrototypeOfPlugin(),
 
       terser(),
     ],

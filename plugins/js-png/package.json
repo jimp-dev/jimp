@@ -37,6 +37,9 @@
     "exclude": [
       "**/*.test.ts"
     ],
+    "esmDialects": [
+      "browser"
+    ],
     "exports": {
       "./package.json": "./package.json",
       ".": "./src/index.ts"
@@ -45,6 +48,10 @@
   "exports": {
     "./package.json": "./package.json",
     ".": {
+      "browser": {
+        "types": "./dist/browser/index.d.ts",
+        "default": "./dist/browser/index.js"
+      },
       "import": {
         "types": "./dist/esm/index.d.ts",
         "default": "./dist/esm/index.js"

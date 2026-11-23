@@ -5,9 +5,6 @@
   <p>flip an image.</p>
 </div>
 
-Flip the image horizontally or vertically. Defaults to horizontal.
+Flip the image horizontally, vertically, or both.
 
-Also aliased as `mirror`
-
-- [flip](http://jimp-dev.github.io/jimp/api/jimp/classes/jimp#flip)
-- [mirror](http://jimp-dev.github.io/jimp/api/jimp/classes/jimp#mirror)
+- [flip](https://jimp-dev.github.io/jimp/api/jimp/classes/jimp/#flip)

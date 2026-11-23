@@ -73,6 +73,16 @@
   },
   "main": "./dist/commonjs/index.js",
   "types": "./dist/commonjs/index.d.ts",
+  "typesVersions": {
+    "*": {
+      "load-font": [
+        "./dist/commonjs/load-font.d.ts"
+      ],
+      "fonts": [
+        "./dist/commonjs/fonts.d.ts"
+      ]
+    }
+  },
   "type": "module",
   "dependencies": {
     "@jimp/core": "workspace:*",
@@ -80,6 +90,7 @@
     "@jimp/js-png": "workspace:*",
     "@jimp/plugin-blit": "workspace:*",
     "@jimp/types": "workspace:*",
+    "buffer": "^6.0.3",
     "parse-bmfont-ascii": "^1.0.6",
     "parse-bmfont-binary": "^1.0.6",
     "parse-bmfont-xml": "^1.1.6",

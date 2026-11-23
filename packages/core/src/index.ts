@@ -1,3 +1,4 @@
+import { Buffer } from "buffer";
 import { Bitmap, Format, JimpClass, Edge } from "@jimp/types";
 import { cssColorToHex, scan, scanIterator } from "@jimp/utils";
 import { to } from "await-to-js";
@@ -126,10 +127,10 @@ export type CreateMimeTypeToDecodeOptions<T extends Format<string, any>> =
   T extends Format<infer M, any, infer O> ? Record<M, O> : never;
 export type GetOptionsForMimeType<Mime extends string, MimeTypeMap> =
   MimeTypeMap extends Record<Mime, infer O> ? O : never;
+type ExportOptions<MimeTypeMap> =
+  MimeTypeMap extends Record<string, infer O> ? O : never;
 
 type PathWithExtension<E extends string> = `${string}.${E}`;
-export type ExtensionOf<Path extends string> =
-  Path extends PathWithExtension<infer E> ? E : never;
 type MimeToExtension<M extends string> = `${string}/${M}`;
 export type CreateExtensionToMimeType<M extends string> =
   M extends MimeToExtension<infer E> ? Record<E, M> : never;
@@ -459,7 +460,15 @@ export function createJimp<
         composite(outputImage, this);
       }
 
-      return format.encode(outputImage.bitmap, options);
+      const data: Buffer | Uint8Array = await format.encode(
+        outputImage.bitmap,
+        options
+      );
+
+      // Some encoders (e.g. jpeg-js outside of CommonJS) return a plain Uint8Array
+      return Buffer.isBuffer(data)
+        ? data
+        : Buffer.from(data.buffer, data.byteOffset, data.byteLength);
     }
 
     /**
@@ -511,19 +520,30 @@ export function createJimp<
      * ```
      */
     async write<
-      // The emitted .d.ts repeats this class in several places, and TypeScript
-      // has to relate those copies' `write` for images from `new Jimp()`,
-      // `Jimp.read()` and chained methods to be compatible. That only works
-      // when every type parameter is inferred directly from an argument:
-      // don't add one no argument uses (like a `Mime`), and take the whole
-      // path rather than inferring an `Extension` out of a template literal.
-      Path extends PathWithExtension<string>,
+      Extension extends string,
+      Mime extends GetMimeTypeForExtension<Extension, ExtensionToMimeType>,
+      Options extends GetOptionsForMimeType<Mime, MimeTypeToExportOptions>,
+    >(path: PathWithExtension<Extension>, options?: Options): Promise<void>;
+    // Non-literal paths (path.join, user input) can't be narrowed to a format.
+    // The guard keeps literal paths with mismatched options from landing here.
+    async write<Path extends string>(
+      path: string extends Path ? Path : never,
+      options?: ExportOptions<MimeTypeToExportOptions>
+    ): Promise<void>;
+    async write<
       Options extends GetOptionsForMimeType<
-        GetMimeTypeForExtension<ExtensionOf<Path>, ExtensionToMimeType>,
+        SupportedMimeTypes,
         MimeTypeToExportOptions
       >,
-    >(path: Path, options?: Options) {
+    >(path: string, options?: Options) {
       const mimeType = mime.getType(path);
+
+      if (!mimeType) {
+        throw new Error(
+          `Cannot write "${path}": the path has no recognisable file extension to determine the image format`
+        );
+      }
+
       await writeFile(
         path,
         await this.getBuffer(mimeType as SupportedMimeTypes, options)

@@ -5,4 +5,4 @@
   <p>Apply a fisheye effect to an image</p>
 </div>
 
-- [fisheye](http://jimp-dev.github.io/jimp/api/jimp/classes/jimp#fisheye)
+- [fisheye](https://jimp-dev.github.io/jimp/api/jimp/classes/jimp/#fisheye)
