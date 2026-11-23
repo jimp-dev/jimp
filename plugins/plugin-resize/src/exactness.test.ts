@@ -10,9 +10,6 @@ const jimp = createJimp({ plugins: [methods], formats: [] });
  * The resizers are tuned for speed, and must keep giving exactly the same
  * bytes. Each test resizes a few images to many sizes and snapshots a hash of
  * every result, so any change to a single byte shows up in the snapshot.
- *
- * Node only: Lanczos uses Math.sin, whose last bit differs between JavaScript
- * engines, which is enough to change a byte here and there.
  */
 
 /** 53-bit hash (cyrb53) of the bytes, as hex */
@@ -102,7 +99,12 @@ const sizes = [
   [211, 37],
 ] as const;
 
-const modes = [undefined, ...Object.values(ResizeStrategy)];
+// Lanczos is left out: it uses Math.sin, whose last bit differs between
+// JavaScript engines and platforms, which is enough to change a byte here and
+// there
+const modes = [undefined, ...Object.values(ResizeStrategy)].filter(
+  (mode) => mode !== ResizeStrategy.LANCZOS && mode !== ResizeStrategy.LANCZOS2,
+);
 
 for (const mode of modes) {
   for (const premultiplyAlpha of [true, false]) {
