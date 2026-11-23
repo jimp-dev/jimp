@@ -159,6 +159,7 @@ describe("chainable methods return the instance type", () => {
       scale: image.scale(2),
       scaleToFit: image.scaleToFit({ w: 1, h: 1 }),
       rotate: image.rotate(90),
+      rotateSmooth: image.rotate({ deg: 30, mode: ResizeStrategy.BILINEAR }),
       threshold: image.threshold({ max: 100 }),
       quantize: image.quantize({ colors: 4 }),
     };
@@ -280,6 +281,9 @@ describe("format options are still checked", () => {
     image.getBuffer("image/jpeg", { quality: 50, exif: true });
     image.getBuffer("image/jpeg", { icc: false });
     image.getBuffer("image/png", { icc: false });
+    image.getBuffer("image/bmp", { hr: 2835, vr: 2835 });
+    // @ts-expect-error bmp is always written without a palette
+    image.getBuffer("image/bmp", { palette: [] });
     // @ts-expect-error bmp can't write an ICC profile
     image.getBuffer("image/bmp", { icc: false });
     // @ts-expect-error png can't write EXIF data

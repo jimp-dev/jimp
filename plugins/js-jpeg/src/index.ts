@@ -24,7 +24,6 @@ export interface JPEGOptions {
 }
 
 export interface DecodeJpegOptions {
-  useTArray?: false;
   colorTransform?: boolean;
   formatAsRGBA?: boolean;
   tolerantDecoding?: boolean;

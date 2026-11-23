@@ -4,10 +4,6 @@ import { Format } from "@jimp/types";
 import { indexImage } from "./quantize.js";
 import { writeGif } from "./writer.js";
 
-export interface JPEGOptions {
-  quality?: number;
-}
-
 export interface DecodeGifOptions {
   /**
    * Largest image, in megapixels, that will be decoded.

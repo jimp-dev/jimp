@@ -5,14 +5,20 @@ import { clone } from "@jimp/utils";
 import { composite } from "@jimp/core";
 import { z } from "zod";
 
+import { Kernel, kernels } from "./kernels.js";
+
 const RotateOptionsSchema = z.union([
   z.number(),
   z.object({
     /** the number of degrees to rotate the image by */
     deg: z.number(),
     /**
-     * resize mode or a boolean, if false then the width and height of the image will not be changed.
-     * Any resize mode grows the canvas like true does: the rotation itself always takes the nearest pixel.
+     * Whether to grow the canvas to fit the rotated image, and how to sample
+     * the pixels:
+     * - `true` (the default) grows the canvas and takes the nearest pixel.
+     * - `false` keeps the width and height of the image, and takes the nearest pixel.
+     * - A `ResizeStrategy` grows the canvas like `true`, and interpolates the
+     *   pixels with that strategy, for smooth edges and lines.
      */
     mode: z.union([z.boolean(), z.nativeEnum(ResizeStrategy)]).optional(),
   }),
@@ -127,6 +133,88 @@ function rotatedSide(extent: number, alongSide: number, tolerance: number) {
 }
 
 /**
+ * Write the pixel at a point of the source image, interpolated with a kernel,
+ * to `dst`. The point is in pixels, with pixel centres at half pixels. Pixels
+ * outside the image are the background colour, premultiplied by its alpha.
+ * Colours are weighted by their alpha, so transparent pixels don't darken
+ * their neighbours. Returns false, without writing, if the point is too far
+ * from the image to reach any of its pixels.
+ */
+function writeInterpolated(
+  src: Buffer,
+  srcW: number,
+  srcH: number,
+  sourceX: number,
+  sourceY: number,
+  kernel: Kernel,
+  background: number[],
+  dst: Buffer,
+  dstIdx: number,
+) {
+  const u = sourceX - 0.5;
+  const v = sourceY - 0.5;
+  const x0 = Math.ceil(u - kernel.support);
+  const x1 = Math.floor(u + kernel.support);
+  const y0 = Math.ceil(v - kernel.support);
+  const y1 = Math.floor(v + kernel.support);
+
+  if (x1 < 0 || y1 < 0 || x0 >= srcW || y0 >= srcH) {
+    return false;
+  }
+
+  let r = 0;
+  let g = 0;
+  let b = 0;
+  let a = 0;
+  let total = 0;
+
+  for (let y = y0; y <= y1; y++) {
+    const wy = kernel.weight(v - y);
+
+    if (wy === 0) {
+      continue;
+    }
+
+    for (let x = x0; x <= x1; x++) {
+      const weight = wy * kernel.weight(u - x);
+
+      if (weight === 0) {
+        continue;
+      }
+
+      total += weight;
+
+      if (x < 0 || y < 0 || x >= srcW || y >= srcH) {
+        r += weight * background[0]!;
+        g += weight * background[1]!;
+        b += weight * background[2]!;
+        a += weight * background[3]!;
+        continue;
+      }
+
+      const idx = (srcW * y + x) << 2;
+      const alpha = src[idx + 3]!;
+      const w = (weight * alpha) / 255;
+
+      r += w * src[idx]!;
+      g += w * src[idx + 1]!;
+      b += w * src[idx + 2]!;
+      a += weight * alpha;
+    }
+  }
+
+  const alpha = Math.min(255, Math.max(0, Math.round(a / total)));
+  // un-premultiply: the colour is the alpha weighted average
+  const f = alpha ? 1 / a : 0;
+
+  dst[dstIdx] = Math.min(255, Math.max(0, Math.round(r * f * 255)));
+  dst[dstIdx + 1] = Math.min(255, Math.max(0, Math.round(g * f * 255)));
+  dst[dstIdx + 2] = Math.min(255, Math.max(0, Math.round(b * f * 255)));
+  dst[dstIdx + 3] = alpha;
+  return true;
+}
+
+/**
  * Rotates an image counter-clockwise by an arbitrary number of degrees. NB: 'this' must be a Jimp object.
  * @param {number} deg the number of degrees to rotate the image by
  */
@@ -174,6 +262,17 @@ function advancedRotate<I extends JimpClass>(
 
   const src = image.bitmap.data;
   const dstBuffer = Buffer.alloc(w * h * 4);
+  const kernel =
+    typeof mode === "string" && mode !== ResizeStrategy.NEAREST_NEIGHBOR
+      ? kernels[mode]
+      : undefined;
+  const bgAlpha = image.background & 0xff;
+  const background = [
+    (((image.background >>> 24) & 0xff) * bgAlpha) / 255,
+    (((image.background >>> 16) & 0xff) * bgAlpha) / 255,
+    (((image.background >>> 8) & 0xff) * bgAlpha) / 255,
+    bgAlpha,
+  ];
 
   for (let y = 0; y < h; y++) {
     for (let x = 0; x < w; x++) {
@@ -191,7 +290,28 @@ function advancedRotate<I extends JimpClass>(
       );
       const dstIdx = (w * y + x) << 2;
 
-      if (sourceX >= 0 && sourceX < srcW && sourceY >= 0 && sourceY < srcH) {
+      if (kernel) {
+        const written = writeInterpolated(
+          src,
+          srcW,
+          srcH,
+          sourceX,
+          sourceY,
+          kernel,
+          background,
+          dstBuffer,
+          dstIdx,
+        );
+
+        if (!written) {
+          dstBuffer.writeUInt32BE(image.background, dstIdx);
+        }
+      } else if (
+        sourceX >= 0 &&
+        sourceX < srcW &&
+        sourceY >= 0 &&
+        sourceY < srcH
+      ) {
         const srcIdx = (srcW * (sourceY | 0) + (sourceX | 0)) << 2;
         dstBuffer.writeUInt32BE(src.readUInt32BE(srcIdx), dstIdx);
       } else {
@@ -209,13 +329,15 @@ function advancedRotate<I extends JimpClass>(
 export const methods = {
   /**
    * Rotates the image counter-clockwise by a number of degrees. By default the width and height of the image will be resized appropriately.
+   * The rotation takes the nearest pixel unless `mode` is a `ResizeStrategy`, which interpolates the pixels for smooth edges.
    * @example
    * ```ts
-   * import { Jimp } from "jimp";
+   * import { Jimp, ResizeStrategy } from "jimp";
    *
    * const image = await Jimp.read("test/image.png");
    *
    * image.rotate(90);
+   * image.rotate({ deg: 30, mode: ResizeStrategy.BILINEAR });
    * ```
    */
   rotate<I extends JimpClass>(image: I, options: RotateOptions) {

@@ -4,9 +4,9 @@ import { PNGFilterType, PNGColorType } from "./constants.js";
 import { PNG } from "./pngjs.js";
 
 export type { PNGOptions as PNGJSOptions } from "pngjs";
-export type PNGOptions = Omit<
+export type PNGOptions = Pick<
   PNGJSOptions,
-  "filterType" | "colorType" | "inputColorType" | "inputHasAlpha"
+  "deflateLevel" | "deflateStrategy" | "bitDepth" | "bgColor"
 > & {
   filterType?: PNGFilterType;
   colorType?: PNGColorType;
@@ -121,11 +121,10 @@ export default function png() {
         deflateStrategy = 3,
         filterType = PNGFilterType.AUTO,
         colorType,
+        inputColorType,
         inputHasAlpha,
-        // Written by jimp core after encoding
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        icc,
-        ...options
+        bitDepth,
+        bgColor,
       }: PNGOptions = {}
     ) => {
       const png = new PNG({
@@ -136,7 +135,9 @@ export default function png() {
       png.data = bitmap.data;
 
       return PNG.sync.write(png, {
-        ...options,
+        inputColorType,
+        bitDepth,
+        bgColor,
         deflateLevel,
         deflateStrategy,
         filterType,

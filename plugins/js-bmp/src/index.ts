@@ -3,32 +3,22 @@ import * as BMP from "bmp-ts";
 import { scan } from "@jimp/utils";
 import { Bitmap, Format } from "@jimp/types";
 
-export type { BmpColor } from "bmp-ts";
 export { BmpCompression } from "bmp-ts";
 
-type Pretty<T> = {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  [K in keyof T]: T[K] extends (...args: any[]) => any
-    ? T[K]
-    : T[K] extends object
-      ? Pretty<T[K]>
-      : T[K];
-};
-
-export type EncodeOptions = Pretty<
-  Partial<
-    Pick<
-      BMP.BmpImage,
-      | "palette"
-      | "colors"
-      | "importantColors"
-      | "hr"
-      | "vr"
-      | "reserved1"
-      | "reserved2"
-    >
-  >
->;
+/**
+ * Header fields of the BMP that is written. Jimp always writes uncompressed
+ * 24-bit BMPs, which have no palette.
+ */
+export interface EncodeOptions {
+  /** Horizontal resolution, in pixels per metre */
+  hr?: number;
+  /** Vertical resolution, in pixels per metre */
+  vr?: number;
+  /** Stored in the reserved bytes of the file header, which readers ignore */
+  reserved1?: number;
+  /** Stored in the reserved bytes of the file header, which readers ignore */
+  reserved2?: number;
+}
 
 export interface DecodeBmpOptions {
   toRGBA?: boolean;
@@ -40,7 +30,10 @@ export interface DecodeBmpOptions {
   maxResolutionInMP?: number;
 }
 
-function encode(image: Bitmap, options: EncodeOptions = {}) {
+function encode(
+  image: Bitmap,
+  { hr, vr, reserved1, reserved2 }: EncodeOptions = {}
+) {
   scan(
     { bitmap: image },
     0,
@@ -60,7 +53,17 @@ function encode(image: Bitmap, options: EncodeOptions = {}) {
     }
   );
 
-  return BMP.encode({ ...image, ...options }).data;
+  // Only pass the supported header fields, so a stray bitPP or palette can't
+  // change the bit depth
+  return BMP.encode({
+    data: image.data,
+    width: image.width,
+    height: image.height,
+    hr,
+    vr,
+    reserved1,
+    reserved2,
+  }).data;
 }
 
 function decode(data: Buffer, options?: DecodeBmpOptions) {

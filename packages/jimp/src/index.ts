@@ -190,7 +190,6 @@ export type { JPEGOptions } from "@jimp/js-jpeg";
 export { PNGColorType, PNGFilterType } from "@jimp/js-png";
 export { BmpCompression } from "@jimp/js-bmp";
 export type { EncodeOptions } from "@jimp/js-bmp";
-export type { BmpColor } from "@jimp/js-bmp";
 export { HorizontalAlign, VerticalAlign, BlendMode } from "@jimp/core";
 export type {
   RawImageData,

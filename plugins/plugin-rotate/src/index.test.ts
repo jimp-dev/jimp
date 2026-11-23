@@ -152,26 +152,89 @@ describe("Rotate without resizing does not sample the wrong pixel", () => {
 });
 
 describe("Rotate with a resize mode", () => {
-  // the mode only resizes the canvas, which is filled with the background
-  // colour, so every mode gives the same result as the default
-  const modes = Object.keys(ResizeStrategy) as (keyof typeof ResizeStrategy)[];
+  const strategies = Object.values(ResizeStrategy);
+  const twoColours = () =>
+    jimp.fromBitmap(
+      makeTestImage("▴▴▴▪▪", "▴▴▴▪▪", "▪▪▪▴▴", "▪▪▪▴▴"),
+    );
 
-  modes.forEach((modeType) => {
-    [0x00000000, 0x336699ff].forEach((background) => {
-      test(`${modeType} with background ${background.toString(16)}`, () => {
-        const image = () => {
-          const img = jimp.fromBitmap(
-            makeTestImage("▴▴▴▪▪", "▴▴▴▪▪", "▪▪▪▴▴", "▪▪▪▴▴"),
-          );
-          img.background = background;
-          return img;
-        };
+  function solid(color: number, background: number) {
+    const image = new jimp({ width: 6, height: 4, color });
+    image.background = background;
+    return image;
+  }
 
-        expect(
-          image().rotate({ deg: 30, mode: ResizeStrategy[modeType] }).bitmap,
-        ).toEqual(image().rotate({ deg: 30 }).bitmap);
-      });
+  function pixels(image: { bitmap: { data: Buffer } }) {
+    const result: number[] = [];
+
+    for (let i = 0; i < image.bitmap.data.length; i += 4) {
+      result.push(image.bitmap.data.readUInt32BE(i));
+    }
+
+    return result;
+  }
+
+  test("nearest neighbour is the same as the default", () => {
+    expect(
+      twoColours().rotate({ deg: 30, mode: ResizeStrategy.NEAREST_NEIGHBOR })
+        .bitmap,
+    ).toEqual(twoColours().rotate({ deg: 30 }).bitmap);
+  });
+
+  test.each(strategies)("%s grows the canvas like true", (mode) => {
+    const rotated = twoColours().rotate({ deg: 30, mode });
+    const expected = twoColours().rotate({ deg: 30 });
+
+    expect(rotated.width).toBe(expected.width);
+    expect(rotated.height).toBe(expected.height);
+  });
+
+  test.each(strategies)("%s keeps multiples of 90 degrees exact", (mode) => {
+    expect(twoColours().rotate({ deg: 90, mode }).bitmap).toEqual(
+      twoColours().rotate({ deg: 90 }).bitmap,
+    );
+  });
+
+  test.each(strategies.filter((s) => s !== ResizeStrategy.NEAREST_NEIGHBOR))(
+    "%s blends neighbouring pixels",
+    (mode) => {
+      const image = twoColours();
+      const colours = new Set([...pixels(image), image.background]);
+      const rotated = pixels(image.rotate({ deg: 30, mode }));
+
+      expect(rotated.some((pixel) => !colours.has(pixel))).toBe(true);
+    },
+  );
+
+  test.each(strategies)(
+    "%s doesn't darken edges against a transparent background",
+    (mode) => {
+      const rotated = solid(0xff8040ff, 0x00000000).rotate({ deg: 30, mode });
+      const visible = pixels(rotated).filter((pixel) => pixel & 0xff);
+
+      // the centre of the image is untouched
+      expect(rotated.getPixelColor(rotated.width / 2, rotated.height / 2)).toBe(
+        0xff8040ff,
+      );
+      expect(new Set(visible.map((pixel) => pixel >>> 8))).toEqual(
+        new Set([0xff8040]),
+      );
+    },
+  );
+
+  test("bilinear mixes edges with an opaque background", () => {
+    const rotated = solid(0xff0000ff, 0x0000ffff).rotate({
+      deg: 30,
+      mode: ResizeStrategy.BILINEAR,
     });
+    const colours = pixels(rotated);
+
+    expect(colours.every((pixel) => (pixel & 0xff) === 0xff)).toBe(true);
+    expect(colours).toContain(0xff0000ff);
+    expect(colours).toContain(0x0000ffff);
+    expect(
+      colours.some((pixel) => pixel >>> 24 > 0 && (pixel >>> 8) & 0xff),
+    ).toBe(true);
   });
 });
 

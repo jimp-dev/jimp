@@ -7,7 +7,6 @@ import z from "zod";
 import { loadWasm } from "./load-wasm.js";
 
 const AvifOptionsSchema = z.object({
-  colorSpace: z.union([z.literal("display-p3"), z.literal("srgb")]).optional(),
   chromaDeltaQ: z.boolean().optional().default(false),
   cqAlphaLevel: z.number().min(0).max(100).optional().default(0),
   cqLevel: z.number().min(0).max(100).optional().default(0),
@@ -21,7 +20,7 @@ const AvifOptionsSchema = z.object({
     .union([z.literal("psnr"), z.literal("ssim"), z.literal("auto")])
     .optional()
     .default("auto"),
-});
+}).strict();
 
 type AvifOptions = z.infer<typeof AvifOptionsSchema>;
 
@@ -69,7 +68,6 @@ export default function avif({ wasm }: AvifFormatOptions = {}) {
     hasAlpha: true,
     encode: async (bitmap, options: Partial<AvifOptions> = {}) => {
       const {
-        colorSpace = "srgb",
         chromaDeltaQ,
         cqAlphaLevel,
         cqLevel,
@@ -86,7 +84,8 @@ export default function avif({ wasm }: AvifFormatOptions = {}) {
         {
           ...bitmap,
           data: new Uint8ClampedArray(bitmap.data),
-          colorSpace,
+          // ImageData needs one, but the codec only reads the pixels
+          colorSpace: "srgb",
         },
         {
           chromaDeltaQ,

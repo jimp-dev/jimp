@@ -7,7 +7,6 @@ import z from "zod";
 import { loadWasm } from "./load-wasm.js";
 
 const JpegOptionsSchema = z.object({
-  colorSpace: z.union([z.literal("display-p3"), z.literal("srgb")]).optional(),
   jpegColorSpace: z
     .union([z.literal("rgb"), z.literal("grayscale"), z.literal("ycbcr")])
     .optional()
@@ -47,7 +46,7 @@ const JpegOptionsSchema = z.object({
    * @default true
    */
   icc: z.boolean().optional(),
-});
+}).strict();
 
 type JpegOptions = z.infer<typeof JpegOptionsSchema>;
 
@@ -92,7 +91,6 @@ export default function jpeg({ wasm }: JpegFormatOptions = {}) {
     encode: async (bitmap, options: Partial<JpegOptions> = {}) => {
       const {
         quality,
-        colorSpace = "srgb",
         arithmetic,
         autoSubsample,
         baseline,
@@ -114,7 +112,8 @@ export default function jpeg({ wasm }: JpegFormatOptions = {}) {
         {
           ...bitmap,
           data: new Uint8ClampedArray(bitmap.data),
-          colorSpace,
+          // ImageData needs one, but the codec only reads the pixels
+          colorSpace: "srgb",
         },
         {
           quality,

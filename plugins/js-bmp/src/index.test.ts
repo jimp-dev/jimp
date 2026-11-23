@@ -88,6 +88,33 @@ describe("BMP", () => {
     expect(decoded.getPixelColor(4, 2)).toBe(0x336699ff);
   });
 
+  test("writes the header options", async () => {
+    const image = new jimp({ width: 2, height: 2, color: 0x336699ff });
+    const buffer = await image.getBuffer("image/bmp", {
+      hr: 2835,
+      vr: 1417,
+      reserved1: 7,
+      reserved2: 9,
+    });
+
+    expect(buffer.readUInt32LE(38)).toBe(2835);
+    expect(buffer.readUInt32LE(42)).toBe(1417);
+    expect(buffer.readUInt32LE(6)).toBe((7 << 16) | 9);
+  });
+
+  test("always writes a 24 bit BMP without a palette", async () => {
+    const image = new jimp({ width: 2, height: 2, color: 0x336699ff });
+    const buffer = await image.getBuffer("image/bmp", {
+      bitPP: 8,
+      palette: [{ red: 0, green: 0, blue: 0, quad: 0 }],
+      colors: 1,
+      importantColors: 1,
+    } as object);
+
+    expect(buffer).toEqual(await image.getBuffer("image/bmp"));
+    expect(buffer.readUInt16LE(28)).toBe(24);
+  });
+
   test("decodes an uncompressed 24 bit BMP", async () => {
     // 2x2, bottom-up, each row padded to 8 bytes
     const image = await jimp.read(
