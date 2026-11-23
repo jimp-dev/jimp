@@ -3,44 +3,44 @@
 exports[`Mask > Affect alpha image with a bigger gray mask 1`] = `
 Visualization:
 
-▴812
-66▾▿
-66▾▿
+▴913
+67▾▿
+67▾▿
 
 Data:
 
-FF-00-00⁰⁰ FF-00-00²¹ 00-00-FF⁸⁸ 00-00-FF⁴³
-FF-00-00⁸⁸ FF-00-00⁶⁵ 00-00-FFᶠᶠ 00-00-FF⁷ᶠ
-FF-00-00⁸⁸ FF-00-00⁶⁵ 00-00-FFᶠᶠ 00-00-FF⁷ᶠ
+FF-00-00⁰⁰ FF-00-00²² 00-00-FF⁸⁸ 00-00-FF⁴⁴
+FF-00-00⁸⁸ FF-00-00⁶⁶ 00-00-FFᶠᶠ 00-00-FF⁷ᶠ
+FF-00-00⁸⁸ FF-00-00⁶⁶ 00-00-FFᶠᶠ 00-00-FF⁷ᶠ
 `;
 
 exports[`Mask > Affect alpha image with a bigger gray mask, blited 1`] = `
 Visualization:
 
-4▵▾1
-4▵▾1
-8713
+4▵▾2
+4▵▾2
+8814
 
 Data:
 
-FF-00-00ᶜᶜ FF-00-00⁷ᶠ 00-00-FFᶠᶠ 00-00-FF⁶⁵
-FF-00-00ᶜᶜ FF-00-00⁷ᶠ 00-00-FFᶠᶠ 00-00-FF⁶⁵
-FF-00-00⁴⁴ FF-00-00⁴³ 00-00-FF⁸⁸ 00-00-FF²¹
+FF-00-00ᶜᶜ FF-00-00⁷ᶠ 00-00-FFᶠᶠ 00-00-FF⁶⁶
+FF-00-00ᶜᶜ FF-00-00⁷ᶠ 00-00-FFᶠᶠ 00-00-FF⁶⁶
+FF-00-00⁴⁴ FF-00-00⁴⁴ 00-00-FF⁸⁸ 00-00-FF²²
 `;
 
 exports[`Mask > Affect opaque image with a colored mask 1`] = `
 Visualization:
 
 ▴□▾□■□
-■!▿▰▿□
-■C5C0□
+■0!50□
+■▪B5▴□
 ■□■▴■▾
 
 Data:
 
 FF-00-00ᶠᶠ FF-FF-FFᶠᶠ 00-00-FFᶠᶠ FF-FF-FFᶠᶠ 00-00-00ᶠᶠ FF-FF-FFᶠᶠ
-00-00-00ᶠᶠ FF-00-00⁵⁵ 00-00-00⁵⁵ 00-00-FF⁵⁵ 00-00-00⁵⁵ FF-FF-FFᶠᶠ
-00-00-00ᶠᶠ FF-FF-FFᵃᵃ FF-00-00ᵃᵃ FF-FF-FFᵃᵃ 00-00-FFᵃᵃ FF-FF-FFᶠᶠ
+00-00-00ᶠᶠ FF-00-00⁸² 00-00-00⁸² 00-00-FF⁴⁶ 00-00-00⁴⁶ FF-FF-FFᶠᶠ
+00-00-00ᶠᶠ FF-FF-FFᵉ⁴ FF-00-00ᵉ⁴ FF-FF-FF⁹¹ 00-00-FF⁹¹ FF-FF-FFᶠᶠ
 00-00-00ᶠᶠ FF-FF-FFᶠᶠ 00-00-00ᶠᶠ FF-00-00ᶠᶠ 00-00-00ᶠᶠ 00-00-FFᶠᶠ
 `;
 
