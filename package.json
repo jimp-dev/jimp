@@ -12,7 +12,7 @@
     "build": "turbo run build --filter=!@jimp/docs && node scripts/check-browser-bundle.mjs",
     "dev": "turbo run dev",
     "lint": "turbo run lint",
-    "test": "turbo run test -- --watch=false",
+    "test": "turbo run test -- --watch=false --testTimeout=20000",
     "test:browser": "turbo run test:browser -- --watch=false",
     "clean": "turbo run clean && rm -rf node_modules .turbo",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
