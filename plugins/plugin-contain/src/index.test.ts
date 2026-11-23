@@ -73,3 +73,53 @@ describe("All align combinations for contain", () => {
     });
   });
 });
+
+describe("contain align", () => {
+  const image = jimp.fromBitmap(
+    makeTestImage(
+      "▴▴▴▴▸▸▸▸",
+      "▴▴▴▴▸▸▸▸",
+      "▴▴▴▴▸▸▸▸",
+      "▴▴▴▴▸▸▸▸",
+      "▾▾▾▾◆◆◆◆",
+      "▾▾▾▾◆◆◆◆",
+      "▾▾▾▾◆◆◆◆",
+      "▾▾▾▾◆◆◆◆",
+    ),
+  );
+
+  test.each([
+    ["both horizontal flags", HorizontalAlign.LEFT | HorizontalAlign.RIGHT],
+    [
+      "two horizontal flags and a vertical one",
+      HorizontalAlign.LEFT | HorizontalAlign.RIGHT | VerticalAlign.TOP,
+    ],
+    [
+      "two vertical flags and a horizontal one",
+      HorizontalAlign.LEFT | VerticalAlign.TOP | VerticalAlign.BOTTOM,
+    ],
+    ["an unknown flag", 64],
+    ["a fraction", 1.5],
+  ])("throws for %s", (_, align) => {
+    expect(() => image.clone().contain({ w: 4, h: 2, align })).toThrow(
+      "align must combine at most one HorizontalAlign and one VerticalAlign flag",
+    );
+  });
+
+  test.each([
+    [{ w: 4, h: 2 }, VerticalAlign.TOP, HorizontalAlign.CENTER],
+    [{ w: 2, h: 4 }, HorizontalAlign.RIGHT, VerticalAlign.MIDDLE],
+  ])("centers the axis without a flag (%o)", (size, align, center) => {
+    const withCenter = image
+      .clone()
+      .contain({ ...size, align: align | center });
+
+    expect(image.clone().contain({ ...size, align }).bitmap.data).toEqual(
+      withCenter.bitmap.data,
+    );
+    // make sure the test can tell the difference
+    expect(
+      image.clone().contain({ ...size, align: 0b001001 }).bitmap.data,
+    ).not.toEqual(withCenter.bitmap.data);
+  });
+});

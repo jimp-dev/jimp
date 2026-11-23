@@ -73,6 +73,36 @@ describe("pHash", () => {
     expect(compareHashes(hash1, hash2)).toBe(distance(image1, image2));
   });
 
+  test("compareHashes gives the same distance for hash() in any base", async function () {
+    const image1 = await Jimp.read(getTestImagePath("dice.png"));
+    const image2 = await Jimp.read(getTestImagePath("mask.png"));
+    const d = distance(image1, image2);
+
+    expect(compareHashes(image1.hash(), image2.hash())).toBe(d);
+
+    for (const base of [2, 10, 16, 36, 64]) {
+      expect(compareHashes(image1.hash(base), image2.hash(base), base)).toBe(d);
+    }
+
+    const options = { smallerSize: 16 };
+
+    expect(
+      compareHashes(image1.hash(16, options), image2.hash(16, options), 16),
+    ).toBe(distance(image1, image2, options));
+  });
+
+  test("compareHashes throws for a hash() in another base", async function () {
+    const image1 = await Jimp.read(getTestImagePath("dice.png"));
+    const image2 = await Jimp.read(getTestImagePath("mask.png"));
+
+    expect(() => compareHashes(image1.hash(16), image2.hash(16))).toThrow(
+      "isn't a base 64 hash",
+    );
+    expect(() => compareHashes(image1.hash(16), image2.hash(16), 65)).toThrow(
+      "base must be a number between 2 and 64",
+    );
+  });
+
   // https://github.com/jimp-dev/jimp/issues/338
   test("should not let the DC term flatten the hash of bright images", () => {
     function sketch(draw: (x: number, y: number) => boolean) {

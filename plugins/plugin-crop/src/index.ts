@@ -1,5 +1,5 @@
 import { Buffer } from "buffer";
-import { JimpClass } from "@jimp/types";
+import { JimpClass, RGBAColor } from "@jimp/types";
 import { colorDiff, intToRGBA, scan } from "@jimp/utils";
 import { z } from "zod";
 
@@ -19,7 +19,10 @@ export type CropOptions = z.infer<typeof CropOptionsSchema>;
 const AutocropComplexOptionsSchema = z.object({
   /** percent of color difference tolerance (default value) */
   tolerance: z.number().min(0).max(1).optional(),
-  /** flag to force cropping only if the image has a real "frame" i.e. all 4 sides have some border (default value) */
+  /**
+   * only crop if the image has a real "frame", i.e. every side that isn't in
+   * `ignoreSides` has some border (default true)
+   */
   cropOnlyFrames: z.boolean().optional(),
   /** force cropping top be symmetric */
   cropSymmetric: z.boolean().optional(),
@@ -39,6 +42,18 @@ export type AutocropComplexOptions = z.infer<
   typeof AutocropComplexOptionsSchema
 >;
 export type AutocropOptions = number | AutocropComplexOptions;
+
+/**
+ * How different a pixel is from the border color, like `colorDiff`, except
+ * that fully transparent pixels all match, whatever color they hide.
+ */
+function borderColorDiff(rgba1: RGBAColor, rgba2: RGBAColor) {
+  if (rgba1.a === 0 && rgba2.a === 0) {
+    return 0;
+  }
+
+  return colorDiff(rgba1, rgba2);
+}
 
 function getAutocropRect<I extends JimpClass>(
   image: I,
@@ -88,7 +103,7 @@ function getAutocropRect<I extends JimpClass>(
         const colorXY = image.getPixelColor(x, y);
         const rgba2 = intToRGBA(colorXY);
 
-        if (colorDiff(rgba1, rgba2) > tolerance) {
+        if (borderColorDiff(rgba1, rgba2) > tolerance) {
           // this pixel is too distant from the first one: abort this side scan
           break north;
         }
@@ -106,7 +121,7 @@ function getAutocropRect<I extends JimpClass>(
         const colorXY = image.getPixelColor(x, y);
         const rgba2 = intToRGBA(colorXY);
 
-        if (colorDiff(rgba1, rgba2) > tolerance) {
+        if (borderColorDiff(rgba1, rgba2) > tolerance) {
           // this pixel is too distant from the first one: abort this side scan
           break west;
         }
@@ -128,7 +143,7 @@ function getAutocropRect<I extends JimpClass>(
         const colorXY = image.getPixelColor(x, y);
         const rgba2 = intToRGBA(colorXY);
 
-        if (colorDiff(rgba1, rgba2) > tolerance) {
+        if (borderColorDiff(rgba1, rgba2) > tolerance) {
           // this pixel is too distant from the first one: abort this side scan
           break south;
         }
@@ -150,7 +165,7 @@ function getAutocropRect<I extends JimpClass>(
         const colorXY = image.getPixelColor(x, y);
         const rgba2 = intToRGBA(colorXY);
 
-        if (colorDiff(rgba1, rgba2) > tolerance) {
+        if (borderColorDiff(rgba1, rgba2) > tolerance) {
           // this pixel is too distant from the first one: abort this side scan
           break east;
         }
@@ -160,6 +175,14 @@ function getAutocropRect<I extends JimpClass>(
       eastPixelsToCrop++;
     }
   }
+
+  // A frame has a border on every side that was scanned. This is checked
+  // before leaveBorder, which can leave nothing to crop on a side.
+  const isFrame =
+    (ignoreSides.north || northPixelsToCrop > 0) &&
+    (ignoreSides.east || eastPixelsToCrop > 0) &&
+    (ignoreSides.south || southPixelsToCrop > 0) &&
+    (ignoreSides.west || westPixelsToCrop > 0);
 
   // apply leaveBorder
   westPixelsToCrop -= leaveBorder;
@@ -186,25 +209,8 @@ function getAutocropRect<I extends JimpClass>(
   const widthOfRemainingPixels = w - (westPixelsToCrop + eastPixelsToCrop);
   const heightOfRemainingPixels = h - (southPixelsToCrop + northPixelsToCrop);
 
-  let doCrop = false;
-
-  if (cropOnlyFrames) {
-    // crop image if all sides should be cropped
-    doCrop =
-      eastPixelsToCrop !== 0 &&
-      northPixelsToCrop !== 0 &&
-      westPixelsToCrop !== 0 &&
-      southPixelsToCrop !== 0;
-  } else {
-    // crop image if at least one side should be cropped
-    doCrop =
-      eastPixelsToCrop !== 0 ||
-      northPixelsToCrop !== 0 ||
-      westPixelsToCrop !== 0 ||
-      southPixelsToCrop !== 0;
-  }
-
-  if (!doCrop) {
+  // with cropOnlyFrames, only crop images that have a frame
+  if (cropOnlyFrames && !isFrame) {
     return {
       x: 0,
       y: 0,

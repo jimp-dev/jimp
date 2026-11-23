@@ -87,4 +87,52 @@ describe("Shadow", () => {
     expect(image.colorSpace).toBe("display-p3");
     expect(image.getPixelColor(5, 5)).toBe(0x80604aff);
   });
+
+  describe("shadow shape", () => {
+    // an opaque square in the middle of a transparent image
+    const makeSquare = () => {
+      const image = new jimp({ width: 40, height: 40, color: 0x00000000 });
+
+      image.scan(10, 10, 20, 20, (_, __, idx) => {
+        image.bitmap.data.writeUInt32BE(0xff0000ff, idx);
+      });
+
+      return image;
+    };
+    const alphaAt = (
+      image: ReturnType<typeof makeSquare>,
+      x: number,
+      y: number,
+    ) => image.getPixelColor(x, y) & 0xff;
+
+    test("grows the shadow from the center of the image", () => {
+      const result = makeSquare().shadow({ x: 0, y: 0, size: 1.5, blur: 0 });
+
+      // the square's shadow is 30x30, so it reaches 5 pixels past each side
+      for (const [x, y] of [
+        [6, 20],
+        [33, 20],
+        [20, 6],
+        [20, 33],
+      ]) {
+        expect(alphaAt(result, x!, y!)).toBeGreaterThan(0);
+      }
+
+      for (const [x, y] of [
+        [3, 20],
+        [36, 20],
+        [20, 3],
+        [20, 36],
+      ]) {
+        expect(alphaAt(result, x!, y!)).toBe(0);
+      }
+    });
+
+    test("rounds a fractional blur instead of removing the shadow", () => {
+      const result = makeSquare().shadow({ x: 0, y: 0, size: 1.5, blur: 2.5 });
+
+      expect(alphaAt(result, 7, 20)).toBeGreaterThan(0);
+      expect(alphaAt(result, 32, 20)).toBeGreaterThan(0);
+    });
+  });
 });

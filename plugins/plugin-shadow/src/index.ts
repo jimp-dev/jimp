@@ -9,13 +9,13 @@ import { z } from "zod";
 const ShadowOptionsSchema = z.object({
   /** opacity of the shadow between 0 and 1 */
   opacity: z.number().min(0).max(1).optional(),
-  /** size of the shadow */
+  /** how much bigger than the image the shadow is, scaled from its center */
   size: z.number().optional(),
-  /** how blurry the shadow is */
+  /** the radius of the shadow's blur in pixels, rounded. 0 doesn't blur it */
   blur: z.number().optional(),
-  /** x position of shadow */
+  /** how far right the shadow is from the image */
   x: z.number().optional(),
-  /** y position of shadow */
+  /** how far down the shadow is from the image */
   y: z.number().optional(),
 });
 
@@ -23,7 +23,12 @@ export type ShadowOptions = z.infer<typeof ShadowOptionsSchema>;
 
 export const methods = {
   /**
-   *  Adds a shadow to the image
+   * Adds a shadow to the image. The shadow is the image's silhouette, scaled
+   * by `size` about its center, blurred by `blur` and moved by `x` and `y`.
+   * @example
+   * ```ts
+   * image.shadow({ opacity: 0.7, size: 1.1, blur: 5, x: -25, y: 25 });
+   * ```
    */
   shadow<I extends JimpClass>(image: I, options: ShadowOptions = {}): I {
     const {
@@ -48,7 +53,11 @@ export const methods = {
       w: image.bitmap.width * size,
       h: image.bitmap.height * size,
     });
-    shadow = blurMethods.blur(shadow, blurAmount);
+
+    if (Math.round(blurAmount) > 0) {
+      shadow = blurMethods.blur(shadow, blurAmount);
+    }
+
     shadow = colorMethods.opacity(shadow, opacityAmount);
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -60,8 +69,14 @@ export const methods = {
     // So the image is drawn onto it without converting its colours
     blankImage.iccProfile = image.iccProfile;
 
-    // Then blit the "shadow" onto the background and the image on top of that.
-    let result = composite(blankImage, shadow, x, y);
+    // Then blit the "shadow" onto the background, centered on the image, and
+    // the image on top of that.
+    let result = composite(
+      blankImage,
+      shadow,
+      x + Math.round((image.bitmap.width - shadow.bitmap.width) / 2),
+      y + Math.round((image.bitmap.height - shadow.bitmap.height) / 2),
+    );
     result = composite(result, image, 0, 0);
 
     return result;
