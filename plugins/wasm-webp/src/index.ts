@@ -101,6 +101,14 @@ const WebpOptionsSchema = z.object({
     .union([z.literal(1), z.literal(0)])
     .optional()
     .default(0),
+  /**
+   * Write the image's ICC colour profile, e.g. Display P3 for iPhone photos.
+   * Jimp core adds it after encoding. Pass `false` to write sRGB without a
+   * profile instead: the colours are converted to sRGB first, so they still
+   * look right.
+   * @default true
+   */
+  icc: z.boolean().optional(),
 });
 
 type WebpOptions = z.infer<typeof WebpOptionsSchema>;

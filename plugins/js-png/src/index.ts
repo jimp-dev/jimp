@@ -20,6 +20,14 @@ export type PNGOptions = Omit<
    * @deprecated Use `colorType: PNGColorType.COLOR` instead.
    */
   inputHasAlpha?: boolean;
+  /**
+   * Write the image's ICC colour profile, e.g. Display P3 for iPhone photos.
+   * Jimp core adds it after encoding. Pass `false` to write sRGB without a
+   * profile instead: the colours are converted to sRGB first, so they still
+   * look right.
+   * @default true
+   */
+  icc?: boolean;
 };
 
 export interface DecodePngOptions {
@@ -114,6 +122,9 @@ export default function png() {
         filterType = PNGFilterType.AUTO,
         colorType,
         inputHasAlpha,
+        // Written by jimp core after encoding
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        icc,
         ...options
       }: PNGOptions = {}
     ) => {

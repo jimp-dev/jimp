@@ -278,6 +278,10 @@ describe("format options are still checked", () => {
     image.getBuffer("image/gif");
     image.getBase64("image/jpeg", { quality: 50 });
     image.getBuffer("image/jpeg", { quality: 50, exif: true });
+    image.getBuffer("image/jpeg", { icc: false });
+    image.getBuffer("image/png", { icc: false });
+    // @ts-expect-error bmp can't write an ICC profile
+    image.getBuffer("image/bmp", { icc: false });
     // @ts-expect-error png can't write EXIF data
     image.getBuffer("image/png", { exif: true });
     // @ts-expect-error unsupported mime type
@@ -293,6 +297,7 @@ describe("format options are still checked", () => {
     image.write("out.jpeg", { quality: 50 });
     image.write("out.png", { deflateLevel: 1 });
     image.write("out.jpg", { exif: true });
+    image.write("out.png", { icc: false });
     image.write("out.bmp");
     image.write("dir/out.gif");
     // @ts-expect-error png has no quality option
@@ -306,6 +311,26 @@ describe("format options are still checked", () => {
     Jimp.fromBuffer(buffer, { "image/png": { checkCRC: false } });
     // @ts-expect-error unknown mime types are rejected
     Jimp.read("image.webp", { "image/webp": {} });
+  });
+});
+
+describe("colour spaces", () => {
+  test("colorSpace, toColorSpace and the colorSpace option", () => {
+    expectTypeOf(image.colorSpace).toEqualTypeOf<
+      "srgb" | "display-p3" | "custom"
+    >();
+    expectTypeOf(image.iccProfile).toEqualTypeOf<Buffer | undefined>();
+    expectTypeOf(image.toColorSpace("srgb")).toEqualTypeOf<JimpInstance>();
+    expectTypeOf(
+      image.toColorSpace("display-p3").resize({ w: 1 }),
+    ).toEqualTypeOf<JimpInstance>();
+    // @ts-expect-error unsupported colour space
+    image.toColorSpace("rec2020");
+
+    new Jimp({ width: 1, height: 1, colorSpace: "display-p3" });
+    Jimp.fromBitmap({ width: 1, height: 1, data: [0], colorSpace: "srgb" });
+    // @ts-expect-error unsupported colour space
+    new Jimp({ width: 1, height: 1, colorSpace: "adobe-rgb" });
   });
 });
 

@@ -1,6 +1,6 @@
 import { Buffer } from "buffer";
 import { JimpClass } from "@jimp/types";
-import { cssColorToHex, intToRGBA } from "@jimp/utils";
+import { cssColorToHex, getColorSpace, intToRGBA } from "@jimp/utils";
 import { z } from "zod";
 
 const CornerRadiiSchema = z.object({
@@ -37,7 +37,7 @@ export type RoundCornersOptions = z.infer<typeof RoundCornersOptionsSchema>;
 const BorderOptionsSchema = z.object({
   /** the width of the border in pixels. The image grows by this much on every side. */
   width: z.number().int().min(0),
-  /** the color of the border, as a hex number (0xRRGGBBAA) or a CSS color. Defaults to black. */
+  /** the color of the border, as a hex number (0xRRGGBBAA) or a CSS color, which is converted to the image's colour space. Defaults to black. */
   color: ColorSchema.optional(),
   /**
    * the radius of the border's outer corners. The image's own corners are
@@ -57,7 +57,7 @@ const BoxShadowOptionsSchema = z.object({
   blur: z.number().min(0).optional(),
   /** how much to grow the shadow on every side, in pixels. Negative shrinks it. Defaults to 0. */
   spread: z.number().optional(),
-  /** the color of the shadow, as a hex number (0xRRGGBBAA) or a CSS color. Defaults to 50% black. */
+  /** the color of the shadow, as a hex number (0xRRGGBBAA) or a CSS color, which is converted to the image's colour space. Defaults to 50% black. */
   color: ColorSchema.optional(),
   /** the radius of the shadow's corners. Use the radius you rounded the image with. */
   radius: RadiusSchema.optional(),
@@ -311,7 +311,7 @@ export const methods = {
       h: height,
       radii: outerRadii.map((r) => Math.max(0, r - borderWidth)) as Radii,
     };
-    const border = intToRGBA(cssColorToHex(color));
+    const border = intToRGBA(cssColorToHex(color, getColorSpace(image)));
     const data = Buffer.alloc(w * h * 4);
 
     for (let y = 0; y < h; y++) {
@@ -433,7 +433,7 @@ export const methods = {
       }
     }
 
-    const shadow = intToRGBA(cssColorToHex(color));
+    const shadow = intToRGBA(cssColorToHex(color, getColorSpace(image)));
     const data = Buffer.alloc(w * h * 4);
 
     for (let y = 0; y < h; y++) {

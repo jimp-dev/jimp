@@ -69,3 +69,9 @@ Generally our method APIs follow the following pattern:
 
 - They can take 1 primitive as an option (other than `image`)
 - Otherwise they take and options object defined and validated by `zod`.
+
+### Colour spaces
+
+An image can be in a colour space other than sRGB, see [Colour Spaces](/guides/color-spaces/).
+If your method takes a CSS colour, convert it to the image's colour space with `cssColorToHex(color, getColorSpace(image))` from `@jimp/utils`.
+If it creates a new image and draws the original onto it, give the new image the original's profile (`newImage.iccProfile = image.iccProfile`), or `composite` and `blit` will convert the original's colours to sRGB.

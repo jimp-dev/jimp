@@ -1,0 +1,122 @@
+---
+title: Colour Spaces
+description: How Jimp handles Display P3, sRGB and ICC colour profiles.
+---
+
+A pixel's red, green and blue values only describe a colour once you know the colour space they're in.
+Most images are sRGB, which is also what viewers assume when an image doesn't say.
+iPhones and many other cameras save photos in Display P3, which can show more saturated reds and greens, and embed a Display P3 ICC profile so viewers know.
+
+Jimp keeps every image in the colour space it was read in, and converts colours only where they enter or leave the image.
+
+## Reading and writing
+
+When `Jimp.read` or `Jimp.fromBuffer` loads a JPEG, PNG or WebP with an ICC profile, Jimp keeps the profile, and the pixels stay as they are.
+JPEG, PNG and WebP output gets the same profile, byte for byte, so the image looks the same as the original.
+
+```ts
+import { Jimp } from "jimp";
+
+const image = await Jimp.read("iphone-photo.jpg");
+
+image.colorSpace; // "display-p3"
+
+image.resize({ w: 2000 });
+
+await image.write("small.jpg"); // still Display P3
+await image.write("small.png"); // also Display P3
+```
+
+`image.colorSpace` is:
+
+- `"srgb"` for images without a profile, or with an sRGB one
+- `"display-p3"` for images with a Display P3 profile, from any vendor
+- `"custom"` for any other profile, such as Adobe RGB
+
+`image.clone()` keeps the colour space.
+
+GIF, BMP, TIFF and AVIF can't carry a profile in Jimp, so for those Jimp writes a copy of the image converted to sRGB.
+The image itself isn't changed.
+
+To write sRGB without a profile in a JPEG, PNG or WebP, pass `icc: false`.
+Jimp converts the colours first, so the output still looks right in every viewer.
+Display P3 colours more saturated than sRGB can show are clipped.
+
+```ts
+await image.write("small.jpg", { icc: false });
+// or
+const buffer = await image.getBuffer("image/png", { icc: false });
+```
+
+## Converting
+
+`image.toColorSpace()` converts the pixels and changes the profile to match:
+
+```ts
+const image = await Jimp.read("iphone-photo.jpg");
+
+image.toColorSpace("srgb"); // e.g. for image recognition that expects sRGB
+image.colorSpace; // "srgb"
+image.iccProfile; // undefined
+```
+
+You can convert to `"srgb"` or `"display-p3"`, from either of them or from any `"custom"` RGB profile made of primaries and tone curves, which covers Adobe RGB, ProPhoto and Rec. 2020.
+Jimp can't convert from profiles built on lookup tables, or from CMYK, and throws if you try.
+Converting to a smaller space clips the colours it can't show.
+
+## Creating Display P3 images
+
+Pass `colorSpace` when creating an image:
+
+```ts
+const image = new Jimp({
+  width: 256,
+  height: 256,
+  color: "color(display-p3 1 0 0)", // the reddest red Display P3 can show
+  colorSpace: "display-p3",
+});
+
+await image.write("red.png"); // with a Display P3 profile
+```
+
+`Jimp.fromBitmap` takes `colorSpace` too, for pixel data that's already in Display P3.
+
+## Colours
+
+CSS colour strings mean the same as in a browser:
+
+- `#ff0000`, `rgb()`, `hsl()` and named colours are sRGB. On a Display P3 image Jimp converts them, so `#ff0000` becomes `rgb(234, 51, 35)` in Display P3, the same red you'd see in a browser.
+- `color(display-p3 r g b)` is a Display P3 colour, with channels from 0 to 1 (or percentages) and an optional `/ alpha`. On an sRGB image it's converted, and clipped if sRGB can't show it.
+- `color(srgb r g b)` is an sRGB colour, like `#rrggbb`.
+
+This applies to the `color` option of `new Jimp()`, and to `border()` and `boxShadow()` colours.
+
+Numbers such as `0xff0000ff` are pixel values, so they're used as they are, in the image's own colour space.
+The same goes for `setPixelColor`, `getPixelColor`, the background colour and the `{ r, g, b }` colours of `color()`'s `mix` and `xor`.
+On a Display P3 image `0xff0000ff` is Display P3's most saturated red.
+
+## Drawing one image onto another
+
+`composite()` and `blit()` convert the source image to the colour space of the image you draw onto, so an sRGB logo keeps its colours on a Display P3 photo.
+The source image itself isn't changed.
+
+```ts
+const photo = await Jimp.read("iphone-photo.jpg"); // Display P3
+const logo = await Jimp.read("logo.png"); // sRGB
+
+photo.composite(logo, 10, 10);
+```
+
+Draw onto the image you want to keep the colour space of.
+A new image from `new Jimp()` is sRGB unless you pass `colorSpace`, so drawing a Display P3 photo onto one converts the photo to sRGB.
+
+## Pixel operations
+
+Operations such as `resize()`, `blur()`, `brightness()`, `greyscale()` and the `color()` adjustments work on the pixel values in the image's own colour space, the same way they work on sRGB values.
+White, black and grays are the same in sRGB and Display P3, so `greyscale()`, `tint()` and `shade()` give the same colours either way.
+Hue and saturation changes are measured in the image's own space, so they're a little different from the same change on the sRGB version of the image.
+
+## Removing the profile without converting
+
+`image.iccProfile` holds the profile bytes.
+Setting it to `undefined` makes Jimp treat the pixel values as sRGB without converting them, which is what Jimp did with every image before it supported colour spaces.

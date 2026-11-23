@@ -57,6 +57,8 @@ export const methods = {
       height: image.bitmap.height,
       color: 0x00000000,
     });
+    // So the image is drawn onto it without converting its colours
+    blankImage.iccProfile = image.iccProfile;
 
     // Then blit the "shadow" onto the background and the image on top of that.
     let result = composite(blankImage, shadow, x, y);

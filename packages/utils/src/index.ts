@@ -1,6 +1,14 @@
 import { Buffer } from "buffer";
 import { RGBAColor, JimpClass, Bitmap, RGBColor } from "@jimp/types";
 import tinyColor from "tinycolor2";
+import {
+  ColorSpace,
+  convertColor,
+  parseColorFunction,
+  SRGB,
+} from "./color-space.js";
+
+export * from "./color-space.js";
 
 export function clone<I extends JimpClass>(image: I): I {
   const newBitmap = {
@@ -10,7 +18,10 @@ export function clone<I extends JimpClass>(image: I): I {
   };
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  return new (image.constructor as any)(newBitmap);
+  const copy: I = new (image.constructor as any)(newBitmap);
+  copy.iccProfile = image.iccProfile;
+
+  return copy;
 }
 
 export function scan<I extends JimpClass>(
@@ -254,19 +265,53 @@ export function limit255(n: number) {
 }
 
 /**
- * Converts a css color (Hex, 8-digit (RGBA) Hex, RGB, RGBA, HSL, HSLA, HSV, HSVA, Named) to a hex number
+ * Converts a css color (Hex, 8-digit (RGBA) Hex, RGB, RGBA, HSL, HSLA, HSV,
+ * HSVA, Named, or `color(display-p3 r g b)` / `color(srgb r g b)`) to a hex
+ * number.
+ *
+ * As in CSS, colors other than `color(display-p3 ...)` are sRGB. They're
+ * converted to `colorSpace` (sRGB by default), the space of the image the
+ * color is for, see {@link getColorSpace}. Numbers are pixel values, and are
+ * returned as they are.
  * @returns A hex number representing a color
  * @example
  * ```ts
- * import { cssColorToHex } from "@jimp/utils";
+ * import { cssColorToHex, DISPLAY_P3 } from "@jimp/utils";
  *
- * cssColorToHex("rgba(255, 0, 0, 0.5)"); // "ff000080"
+ * cssColorToHex("rgba(255, 0, 0, 0.5)"); // 0xff000080
+ * cssColorToHex("#ff0000", DISPLAY_P3); // 0xea3323ff, sRGB red in Display P3
+ * cssColorToHex("color(display-p3 1 0 0)", DISPLAY_P3); // 0xff0000ff
  * ```
  */
-export function cssColorToHex(cssColor: string | number) {
+export function cssColorToHex(
+  cssColor: string | number,
+  colorSpace: ColorSpace = SRGB
+) {
   if (typeof cssColor === "number") {
     return cssColor;
   }
 
-  return parseInt(tinyColor(cssColor).toHex8(), 16);
+  const parsed = parseColorFunction(cssColor);
+  let rgb: [number, number, number];
+  let alpha: number;
+
+  if (parsed) {
+    rgb = convertColor(parsed.rgb, parsed.colorSpace, colorSpace);
+    alpha = parsed.alpha;
+  } else {
+    const color = tinyColor(cssColor);
+
+    if (colorSpace === SRGB) {
+      return parseInt(color.toHex8(), 16);
+    }
+
+    const { r, g, b, a } = color.toRgb();
+
+    rgb = convertColor([r / 255, g / 255, b / 255], SRGB, colorSpace);
+    alpha = a;
+  }
+
+  const [r, g, b] = rgb.map((v) => Math.round(v * 255));
+
+  return ((r! << 24) | (g! << 16) | (b! << 8) | Math.round(alpha * 255)) >>> 0;
 }

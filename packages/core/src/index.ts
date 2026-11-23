@@ -1,6 +1,21 @@
 import { Buffer } from "buffer";
-import { Bitmap, Format, JimpClass, Edge } from "@jimp/types";
-import { cssColorToHex, scan, scanIterator } from "@jimp/utils";
+import {
+  Bitmap,
+  ColorSpaceName,
+  Format,
+  JimpClass,
+  Edge,
+} from "@jimp/types";
+import {
+  COLOR_SPACES,
+  createColorConverter,
+  cssColorToHex,
+  DISPLAY_P3_PROFILE,
+  getColorSpace,
+  scan,
+  scanIterator,
+  SRGB,
+} from "@jimp/utils";
 import { to } from "await-to-js";
 import { existsSync, readFile, writeFile } from "@jimp/file-ops";
 import mime from "mime/lite.js";
@@ -13,6 +28,11 @@ import {
   getExifOrientation,
 } from "./utils/image-bitmap.js";
 import { copyExif, writeJpegExif } from "./utils/exif.js";
+import {
+  ICC_MIME_TYPES,
+  readIccProfile,
+  writeIccProfile,
+} from "./utils/icc.js";
 
 const emptyBitmap: Bitmap = {
   data: Buffer.alloc(0),
@@ -45,6 +65,7 @@ async function detectFileTypeFromBuffer(buffer: Buffer | ArrayBuffer) {
 
 export { getExifOrientation } from "./utils/image-bitmap.js";
 export { composite } from "./utils/composite.js";
+export type { ColorSpaceName } from "@jimp/types";
 export * from "./utils/constants.js";
 
 /**
@@ -57,6 +78,11 @@ export interface RawImageData {
   width: number;
   height: number;
   data: Buffer | Uint8Array | Uint8ClampedArray | number[];
+  /**
+   * The colour space the pixel data is in.
+   * @default "srgb"
+   */
+  colorSpace?: ColorSpaceName;
 }
 
 /**
@@ -123,9 +149,29 @@ export interface JimpSimpleConstructorOptions {
   height: number;
   width: number;
   /**
-   * Initialize the image with a color for each pixel
+   * Initialize the image with a color for each pixel.
+   * A CSS color string is converted to the image's `colorSpace`, a number is
+   * used as the pixel value.
    */
   color?: number | string;
+  /**
+   * The colour space of the image's pixels. Display P3 images can hold more
+   * saturated colours than sRGB ones, and are written with a Display P3 ICC
+   * profile.
+   * @default "srgb"
+   */
+  colorSpace?: ColorSpaceName;
+}
+
+/** The ICC profile jimp writes for a colour space, undefined for sRGB */
+function profileForColorSpace(colorSpace: ColorSpaceName = "srgb") {
+  if (!(colorSpace in COLOR_SPACES)) {
+    throw new Error(
+      `Unknown color space "${colorSpace}", expected "srgb" or "display-p3"`
+    );
+  }
+
+  return colorSpace === "display-p3" ? DISPLAY_P3_PROFILE : undefined;
 }
 
 export type JimpConstructorOptions = RawImageData | JimpSimpleConstructorOptions;
@@ -254,6 +300,15 @@ export function createJimp<
     mime?: string;
 
     /**
+     * The ICC colour profile the pixels are in, as read from a JPEG, PNG or
+     * WebP, or undefined for sRGB. It's written to JPEG, PNG and WebP output.
+     *
+     * Setting it changes how the pixels are interpreted, without converting
+     * them. Use `toColorSpace` to convert.
+     */
+    iccProfile?: Buffer;
+
+    /**
      * Create a blank image (`{ width, height, color? }`) or one from raw RGBA
      * pixel data (`{ data, width, height }`, see {@link RawImageData}).
      *
@@ -264,6 +319,8 @@ export function createJimp<
     constructor(options: JimpConstructorOptions = emptyBitmap) {
       // Add the formats
       this.formats = formats;
+
+      this.iccProfile = profileForColorSpace(options.colorSpace);
 
       if ("data" in options) {
         // Buffers are used without copying. Other data is copied into a Buffer.
@@ -278,7 +335,7 @@ export function createJimp<
         if (options.color) {
           this.background =
             typeof options.color === "string"
-              ? cssColorToHex(options.color)
+              ? cssColorToHex(options.color, getColorSpace(this))
               : options.color;
 
           for (let i = 0; i < this.bitmap.data.length; i += 4) {
@@ -378,7 +435,10 @@ export function createJimp<
      * ```
      */
     static fromBitmap(bitmap: RawImageData): Instance {
-      return new CustomJimp(toBitmap(bitmap, true)) as Instance;
+      return new CustomJimp({
+        ...toBitmap(bitmap, true),
+        colorSpace: bitmap.colorSpace,
+      }) as Instance;
     }
 
     /**
@@ -420,6 +480,7 @@ export function createJimp<
       image.mime = mime.mime;
 
       attemptExifRotate(image, actualBuffer);
+      image.iccProfile = readIccProfile(actualBuffer);
 
       return image;
     }
@@ -465,6 +526,61 @@ export function createJimp<
     }
 
     /**
+     * The colour space of the image's pixels, from its ICC profile:
+     * `"srgb"` (also for images without a profile), `"display-p3"`, or
+     * `"custom"` for any other profile.
+     * @example
+     * ```ts
+     * import { Jimp } from "jimp";
+     *
+     * const image = await Jimp.read("iphone-photo.jpg");
+     *
+     * image.colorSpace; // "display-p3"
+     * ```
+     */
+    get colorSpace(): ColorSpaceName | "custom" {
+      return getColorSpace(this).name;
+    }
+
+    /**
+     * Converts the pixels to another colour space and sets the ICC profile to
+     * match. Colours outside the new space (e.g. Display P3 colours more
+     * saturated than sRGB can show) are clipped.
+     *
+     * Throws for images whose ICC profile jimp can't convert from: only RGB
+     * profiles made of primaries and tone curves are supported.
+     * @param colorSpace The colour space to convert to
+     * @example
+     * ```ts
+     * import { Jimp } from "jimp";
+     *
+     * const image = await Jimp.read("iphone-photo.jpg");
+     *
+     * image.toColorSpace("srgb");
+     * ```
+     */
+    toColorSpace<S extends JimpClass>(this: S, colorSpace: ColorSpaceName): S {
+      const profile = profileForColorSpace(colorSpace);
+      const from = getColorSpace(this);
+      const to = COLOR_SPACES[colorSpace];
+
+      if (from === to) {
+        return this;
+      }
+
+      if (!from.toXyz) {
+        throw new Error(
+          "Can't convert from the image's ICC profile: only RGB profiles with primaries and tone curves are supported"
+        );
+      }
+
+      createColorConverter(from, to)?.(this.bitmap.data);
+      this.iccProfile = profile;
+
+      return this;
+    }
+
+    /**
      * Converts the Jimp instance to an image buffer
      * @param mime The mime type to export to
      * @param options The options to use when exporting
@@ -481,6 +597,10 @@ export function createJimp<
      * // Copy the EXIF data of a JPEG that was read, see JPEGOptions.exif
      * const photo = await Jimp.read("photo.jpg");
      * await photo.getBuffer("image/jpeg", { exif: true });
+     *
+     * // Write sRGB without an ICC profile, converting the colours if the image
+     * // is in another colour space, see JPEGOptions.icc
+     * await photo.getBuffer("image/jpeg", { icc: false });
      * ```
      */
     async getBuffer<
@@ -496,6 +616,14 @@ export function createJimp<
         throw new Error(`Unsupported MIME type: ${mime}`);
       }
 
+      const { exif, icc } = (options ?? {}) as {
+        exif?: boolean;
+        icc?: boolean;
+      };
+      const writeProfile =
+        this.iccProfile !== undefined &&
+        icc !== false &&
+        ICC_MIME_TYPES.has(mime);
       let outputImage: Jimp;
 
       if (format.hasAlpha) {
@@ -507,8 +635,23 @@ export function createJimp<
           height: this.bitmap.height,
           color: this.background,
         });
+        // The background is a pixel value in the image's colour space too
+        outputImage.iccProfile = this.iccProfile;
 
         composite(outputImage, this);
+      }
+
+      // Output without the profile would be shown as sRGB, so convert it
+      const toSrgb = writeProfile
+        ? undefined
+        : createColorConverter(getColorSpace(this), SRGB);
+
+      if (toSrgb) {
+        if (outputImage === this) {
+          outputImage = this.clone();
+        }
+
+        toSrgb(outputImage.bitmap.data);
       }
 
       const data: Buffer | Uint8Array = await format.encode(
@@ -517,17 +660,27 @@ export function createJimp<
       );
 
       // Some encoders (e.g. jpeg-js outside of CommonJS) return a plain Uint8Array
-      const buffer = Buffer.isBuffer(data)
+      let buffer = Buffer.isBuffer(data)
         ? data
         : Buffer.from(data.buffer, data.byteOffset, data.byteLength);
 
-      if (mime === "image/jpeg" && (options as { exif?: boolean } | undefined)?.exif) {
-        return writeJpegExif(this, buffer, {
+      if (mime === "image/jpeg" && exif) {
+        buffer = writeJpegExif(this, buffer, {
           width: this.bitmap.width,
           height: this.bitmap.height,
           // 1 once the pixels have been auto-rotated on read
           orientation: getExifOrientation(this),
         });
+      }
+
+      if (writeProfile) {
+        buffer = writeIccProfile(
+          this.iccProfile!,
+          mime,
+          buffer,
+          this.bitmap.width,
+          this.bitmap.height
+        );
       }
 
       return buffer;
@@ -632,6 +785,7 @@ export function createJimp<
       }
 
       copyExif(this, clone);
+      clone.iccProfile = this.iccProfile;
 
       return clone as unknown as S;
     }
