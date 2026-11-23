@@ -47,3 +47,56 @@ describe.each([
     }
   });
 });
+
+describe("gaussian", () => {
+  test("blurs a single pixel symmetrically", () => {
+    const size = 21;
+    const center = 10;
+    const image = new Jimp({ width: size, height: size, color: 0x000000ff });
+
+    image.bitmap.data.set(
+      [0xff, 0xff, 0xff, 0xff],
+      (center * size + center) << 2,
+    );
+    image.gaussian(2);
+
+    const red = (x: number, y: number) => pixelAt(image, x, y)[0];
+
+    for (let dy = -center; dy <= center; dy++) {
+      for (let dx = -center; dx <= center; dx++) {
+        const value = red(center + dx, center + dy);
+
+        expect(red(center - dx, center + dy)).toBe(value);
+        expect(red(center + dx, center - dy)).toBe(value);
+        expect(red(center + dy, center + dx)).toBe(value);
+      }
+    }
+
+    // The center is the brightest pixel and the falloff matches sigma = r
+    expect(red(center, center)).toBe(10);
+    expect(red(center + 1, center)).toBe(9);
+    expect(red(center + 2, center)).toBe(6);
+  });
+
+  test("keeps the exact color at alpha edges", () => {
+    const { data } = makeSquare().gaussian(3).bitmap;
+
+    for (let idx = 0; idx < data.length; idx += 4) {
+      if (data[idx + 3]! > 0) {
+        expect([...data.subarray(idx, idx + 3)]).toEqual([0xff, 0xcc, 0x00]);
+      }
+    }
+  });
+
+  test("leaves a uniform image unchanged", () => {
+    const image = new Jimp({ width: 30, height: 20, color: 0x3c8ae180 });
+
+    image.gaussian(5);
+
+    for (let y = 0; y < image.bitmap.height; y++) {
+      for (let x = 0; x < image.bitmap.width; x++) {
+        expect(pixelAt(image, x, y)).toEqual([0x3c, 0x8a, 0xe1, 0x80]);
+      }
+    }
+  });
+});

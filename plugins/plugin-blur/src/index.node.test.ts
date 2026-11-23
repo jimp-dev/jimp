@@ -14,4 +14,10 @@ describe("hasAlpha", () => {
     const output = await image.blur(16).getBuffer("image/png");
     expect(output).toMatchImageSnapshot();
   });
+
+  test("gaussian image with alpha", async () => {
+    const image = await Jimp.read(getTestImagePath("dice.png"));
+    const output = await image.gaussian(6).getBuffer("image/png");
+    expect(output).toMatchImageSnapshot();
+  });
 });

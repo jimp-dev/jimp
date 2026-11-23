@@ -218,7 +218,8 @@ export const methods = {
   },
   // http://blog.ivank.net/fastest-gaussian-blur.html
   /**
-   * Applies a true Gaussian blur to the image (warning: this is VERY slow)
+   * Applies a true Gaussian blur to the image. Slower than `blur`, especially
+   * for large radii.
    * @param r the pixel radius of the blur
    * @example
    * ```ts
@@ -238,63 +239,96 @@ export const methods = {
       throw new Error("r must be greater than 0");
     }
 
+    const { width, height, data } = image.bitmap;
     const rs = Math.ceil(r * 2.57); // significant radius
     const range = rs * 2 + 1;
     const rr2 = r * r * 2;
-    const rr2pi = rr2 * Math.PI;
 
-    const weights = [];
+    // A 2D Gaussian is the product of two 1D Gaussians, so blur the rows and
+    // then the columns. Clamping at the edges is per axis, so this gives the
+    // same result as the full 2D kernel.
+    const weights = new Float64Array(range);
+    let wsum = 0;
 
-    for (let y = 0; y < range; y++) {
-      const weightsRow = [];
-      for (let x = 0; x < range; x++) {
-        const dsq = (x - rs) ** 2 + (y - rs) ** 2;
-        weightsRow[x] = Math.exp(-dsq / rr2) / rr2pi;
-      }
-      weights.push(weightsRow);
+    for (let i = 0; i < range; i++) {
+      weights[i] = Math.exp(-((i - rs) ** 2) / rr2);
+      wsum += weights[i]!;
     }
 
-    premultiplyAlpha(image.bitmap.data);
+    for (let i = 0; i < range; i++) {
+      weights[i] = weights[i]! / wsum;
+    }
 
-    for (let y = 0; y < image.bitmap.height; y++) {
-      for (let x = 0; x < image.bitmap.width; x++) {
+    // Each pass reads from one buffer and writes to another, so no pixel is
+    // sampled after it has been blurred. The intermediate buffer is floating
+    // point so the rows aren't rounded before the columns are blurred, and it
+    // holds colors premultiplied by alpha (see `premultiplyAlpha`) without
+    // losing precision to 8-bit rounding.
+    const rows = new Float32Array(data.length);
+
+    for (let y = 0; y < height; y++) {
+      for (let x = 0; x < width; x++) {
         let red = 0;
         let green = 0;
         let blue = 0;
         let alpha = 0;
-        let wsum = 0;
 
-        for (let iy = 0; iy < range; iy++) {
-          for (let ix = 0; ix < range; ix++) {
-            const x1 = Math.min(
-              image.bitmap.width - 1,
-              Math.max(0, ix + x - rs)
-            );
-            const y1 = Math.min(
-              image.bitmap.height - 1,
-              Math.max(0, iy + y - rs)
-            );
-            const weight = weights[iy]![ix]!;
-            const idx = (y1 * image.bitmap.width + x1) << 2;
+        for (let i = 0; i < range; i++) {
+          const x1 = Math.min(width - 1, Math.max(0, x + i - rs));
+          const idx = (y * width + x1) << 2;
+          const a = data[idx + 3]! * weights[i]!;
 
-            red += image.bitmap.data[idx]! * weight;
-            green += image.bitmap.data[idx + 1]! * weight;
-            blue += image.bitmap.data[idx + 2]! * weight;
-            alpha += image.bitmap.data[idx + 3]! * weight;
-            wsum += weight;
-          }
-
-          const idx = (y * image.bitmap.width + x) << 2;
-
-          image.bitmap.data[idx] = Math.round(red / wsum);
-          image.bitmap.data[idx + 1] = Math.round(green / wsum);
-          image.bitmap.data[idx + 2] = Math.round(blue / wsum);
-          image.bitmap.data[idx + 3] = Math.round(alpha / wsum);
+          red += data[idx]! * a;
+          green += data[idx + 1]! * a;
+          blue += data[idx + 2]! * a;
+          alpha += a;
         }
+
+        const idx = (y * width + x) << 2;
+
+        rows[idx] = red;
+        rows[idx + 1] = green;
+        rows[idx + 2] = blue;
+        rows[idx + 3] = alpha;
       }
     }
 
-    unpremultiplyAlpha(image.bitmap.data);
+    for (let y = 0; y < height; y++) {
+      for (let x = 0; x < width; x++) {
+        let red = 0;
+        let green = 0;
+        let blue = 0;
+        let alpha = 0;
+
+        for (let i = 0; i < range; i++) {
+          const y1 = Math.min(height - 1, Math.max(0, y + i - rs));
+          const idx = (y1 * width + x) << 2;
+          const weight = weights[i]!;
+
+          red += rows[idx]! * weight;
+          green += rows[idx + 1]! * weight;
+          blue += rows[idx + 2]! * weight;
+          alpha += rows[idx + 3]! * weight;
+        }
+
+        const idx = (y * width + x) << 2;
+        const a = limit255(Math.round(alpha));
+
+        data[idx + 3] = a;
+
+        // Fully transparent pixels become transparent black
+        if (a === 0) {
+          data[idx] = 0;
+          data[idx + 1] = 0;
+          data[idx + 2] = 0;
+          continue;
+        }
+
+        data[idx] = limit255(Math.round(red / alpha));
+        data[idx + 1] = limit255(Math.round(green / alpha));
+        data[idx + 2] = limit255(Math.round(blue / alpha));
+      }
+    }
 
     return image;
   },
