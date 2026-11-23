@@ -65,6 +65,7 @@ function encode(image: Bitmap, options: EncodeOptions = {}) {
 
 function decode(data: Buffer, options?: DecodeBmpOptions) {
   const result = BMP.decode(data, options);
+
   // bmp-ts only decodes alpha for 16 and 32 bit images, and makes it 0xff
   // when the header has no alpha mask. Other bit depths leave it at 0.
   const hasAlpha = result.bitPP === 16 || result.bitPP === 32;
