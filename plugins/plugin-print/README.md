@@ -17,11 +17,40 @@ const font = await loadFont(SANS_32_BLACK);
 image.print({ font, x: 10, y: 10, text: "Hello world!" });
 ```
 
+## Layout
+
+The text is laid out in a box whose top left corner is at `x`, `y`. `maxWidth` and `maxHeight` set the size of the box, and without them it reaches to the right and bottom edges of the image.
+
+- Text wraps at `maxWidth`. Without it, text only breaks at newlines (`\n`).
+- `alignmentX` and `alignmentY` align the text within the box. So without `maxWidth` and `maxHeight` this centers the text on the image:
+
+  ```js
+  import { HorizontalAlign, VerticalAlign } from "jimp";
+
+  image.print({
+    font,
+    x: 0,
+    y: 0,
+    text: {
+      text: "Hello world!",
+      alignmentX: HorizontalAlign.CENTER,
+      alignmentY: VerticalAlign.MIDDLE,
+    },
+  });
+  ```
+
+- `maxHeight` is only used to align the text. Text that is taller isn't clipped.
+
+`measureText(font, text)` returns the width of the widest line, and `measureTextHeight(font, text, maxWidth)` the height of the text wrapped at `maxWidth`, for example to check whether it fits.
+
 See [Getting Started](https://jimp-dev.github.io/jimp/guides/getting-started/) to read an image, change it and save the result with `write` or `getBuffer`.
 
 ## Custom fonts
 
-Fonts are bitmap fonts in the [BMFont](https://www.angelcode.com/products/bmfont/) format: a `.fnt` file and the `.png` pages it points to. A bitmap font only has glyphs for the characters it was generated with. The bundled fonts only cover printable ASCII.
+Fonts are bitmap fonts in the [BMFont](https://www.angelcode.com/products/bmfont/) format: a `.fnt` file and the `.png` pages it points to. A bitmap font only has glyphs for the characters it was generated with. The bundled fonts cover:
+
+- 8, 16, 32, 64 and 128px: printable ASCII except the backtick (`` ` ``), Latin-1 (accented letters like `é` and `ü`, and symbols like `£`, `©` and `°`) and `€`.
+- 10, 12 and 14px: printable ASCII only.
 
 Any character the font has no glyph for is printed as `?`, and whitespace without a glyph is left blank. So if Japanese, Chinese or Korean text prints as `???`, the font doesn't include those characters.
 
