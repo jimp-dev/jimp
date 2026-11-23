@@ -4,13 +4,17 @@ import { unzlibSync, zlibSync } from "fflate";
 import { APP0, APP1, readJpegSegments } from "./exif.js";
 
 /**
- * Reads the ICC colour profile of a JPEG, PNG or WebP on decode and writes it
- * back on encode.
+ * Reads the ICC colour profile of a JPEG, PNG, WebP or JPEG 2000 on decode
+ * and writes it back on encode.
  *
  * Jimp keeps the pixels in the colour space of the profile they were read
  * with (e.g. Display P3). Writing them without it would make viewers treat
  * them as sRGB, so the profile is kept as the original bytes and written to
  * JPEG, PNG and WebP output.
+ *
+ * JPEG 2000 profiles are only read. JP2 only allows ICC v2 profiles, and
+ * readers like macOS's reject the whole image with a v4 one, like the Display
+ * P3 profile of iPhone photos. So JPEG 2000 output is converted to sRGB.
  */
 
 const APP2 = 0xe2;
@@ -31,6 +35,17 @@ const PNG_SIGNATURE = Buffer.from([
   0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a,
 ]);
 const PNG_PROFILE_NAME = "ICC Profile";
+
+/** The signature box JP2 and JPX files start with */
+const JP2_SIGNATURE = Buffer.from([
+  0x00, 0x00, 0x00, 0x0c, 0x6a, 0x50, 0x20, 0x20, 0x0d, 0x0a, 0x87, 0x0a,
+]);
+/**
+ * Colour specification methods with an ICC profile: 2 is the restricted
+ * (monochrome or matrix-based RGB) profile JP2 allows, 3 any profile in JPX
+ */
+const JP2_RESTRICTED_ICC = 2;
+const JP2_ANY_ICC = 3;
 
 /**
  * The profile's data colour space. Only RGB and gray profiles describe the
@@ -199,9 +214,63 @@ function readWebpProfile(data: Buffer) {
   return iccp ? Buffer.from(iccp.data) : undefined;
 }
 
+interface Jp2Box {
+  type: string;
+  /** The box's contents, after its header */
+  data: Buffer;
+}
+
+/** Lists the boxes of a JPEG 2000 file, or the boxes in a superbox's data */
+function readJp2Boxes(data: Buffer) {
+  const boxes: Jp2Box[] = [];
+  let offset = 0;
+
+  while (offset + 8 <= data.length) {
+    let length = data.readUInt32BE(offset);
+    let headerLength = 8;
+
+    if (length === 1 && offset + 16 <= data.length) {
+      // A 64-bit length follows the type
+      length = Number(data.readBigUInt64BE(offset + 8));
+      headerLength = 16;
+    } else if (length === 0) {
+      // The last box can run to the end of the file
+      length = data.length - offset;
+    }
+
+    if (length < headerLength || offset + length > data.length) {
+      break;
+    }
+
+    boxes.push({
+      type: data.toString("latin1", offset + 4, offset + 8),
+      data: data.subarray(offset + headerLength, offset + length),
+    });
+    offset += length;
+  }
+
+  return boxes;
+}
+
+function readJp2Profile(data: Buffer) {
+  // The JP2 header box holds the image header and colour boxes
+  const header = readJp2Boxes(data).find(({ type }) => type === "jp2h");
+  // Readers only use the first colour specification box
+  const colr = header
+    ? readJp2Boxes(header.data).find(({ type }) => type === "colr")
+    : undefined;
+  const method = colr?.data[0];
+
+  // The method, precedence and approximation bytes come before the profile
+  return colr && (method === JP2_RESTRICTED_ICC || method === JP2_ANY_ICC)
+    ? Buffer.from(colr.data.subarray(3))
+    : undefined;
+}
+
 /**
- * Reads the ICC profile of a JPEG, PNG or WebP. Returns undefined for other
- * formats, or if the profile is broken or isn't an RGB or gray profile.
+ * Reads the ICC profile of a JPEG, PNG, WebP or JPEG 2000 (JP2 or JPX).
+ * Returns undefined for other formats, or if the profile is broken or isn't
+ * an RGB or gray profile.
  */
 export function readIccProfile(data: Buffer) {
   try {
@@ -209,7 +278,9 @@ export function readIccProfile(data: Buffer) {
       ? readPngProfile(data)
       : data.toString("latin1", 0, 4) === "RIFF"
         ? readWebpProfile(data)
-        : readJpegProfile(data);
+        : data.subarray(0, 12).equals(JP2_SIGNATURE)
+          ? readJp2Profile(data)
+          : readJpegProfile(data);
 
     return profile && profileColorSpace(profile) ? profile : undefined;
   } catch {
