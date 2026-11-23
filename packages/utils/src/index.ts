@@ -24,6 +24,48 @@ export function clone<I extends JimpClass>(image: I): I {
   return copy;
 }
 
+/**
+ * Rounds a region and clamps it to the bounds of an image, so that it never
+ * reaches past an edge. The part of the region outside the image is dropped:
+ * a region starting at a negative `x` keeps only its columns from 0. A region
+ * that doesn't overlap the image at all gets a width or height of 0.
+ * @example
+ * ```ts
+ * import { clampRegion } from "@jimp/utils";
+ *
+ * // image is 100x50
+ * clampRegion(image, -10, 40, 30, 30); // { x: 0, y: 40, w: 20, h: 10 }
+ * clampRegion(image, 200, 0, 10, 10); // { x: 100, y: 0, w: 0, h: 10 }
+ * ```
+ */
+export function clampRegion(
+  image: { bitmap: Pick<Bitmap, "width" | "height"> },
+  x: number,
+  y: number,
+  w: number,
+  h: number
+) {
+  const { width, height } = image.bitmap;
+
+  // round input
+  x = Math.round(x);
+  y = Math.round(y);
+  w = Math.round(w);
+  h = Math.round(h);
+
+  const x0 = Math.min(Math.max(x, 0), width);
+  const y0 = Math.min(Math.max(y, 0), height);
+  const x1 = Math.min(Math.max(x + w, x0), width);
+  const y1 = Math.min(Math.max(y + h, y0), height);
+
+  return { x: x0, y: y0, w: x1 - x0, h: y1 - y0 };
+}
+
+/**
+ * Calls `f` for every pixel of the image, or of a region of it. The region is
+ * clamped to the image (see {@link clampRegion}), so `f` is only called for
+ * pixels inside the image.
+ */
 export function scan<I extends JimpClass>(
   image: I,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -73,11 +115,7 @@ export function scan<I extends { bitmap: Bitmap }>(
     cb = cbArg;
   }
 
-  // round input
-  x = Math.round(x);
-  y = Math.round(y);
-  w = Math.round(w);
-  h = Math.round(h);
+  ({ x, y, w, h } = clampRegion(image, x, y, w, h));
 
   const bound = cb.bind(image);
 
@@ -92,6 +130,11 @@ export function scan<I extends { bitmap: Bitmap }>(
   return image;
 }
 
+/**
+ * Iterates over every pixel of a region of the image. The region is clamped
+ * to the image (see {@link clampRegion}), so only pixels inside the image are
+ * yielded.
+ */
 export function* scanIterator<I extends JimpClass>(
   image: I,
   x: number,
@@ -99,11 +142,7 @@ export function* scanIterator<I extends JimpClass>(
   w: number,
   h: number
 ) {
-  // round input
-  x = Math.round(x);
-  y = Math.round(y);
-  w = Math.round(w);
-  h = Math.round(h);
+  ({ x, y, w, h } = clampRegion(image, x, y, w, h));
 
   for (let _y = y; _y < y + h; _y++) {
     for (let _x = x; _x < x + w; _x++) {

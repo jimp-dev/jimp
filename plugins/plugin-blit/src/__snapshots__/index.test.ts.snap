@@ -1,5 +1,29 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
+exports[`Blit over image > a source region past the right edge doesn't wrap onto the next row 1`] = `
+Visualization:
+
+▥□▴▴▸▸▸▸
+▥□▴▴▸▸▸▸
+▴▴▴▴▸▸▸▸
+▴▴▴▴▸▸▸▸
+▾▾▾▾◆◆◆◆
+▾▾▾▾◆◆◆◆
+▾▾▾▾◆◆◆◆
+▾▾▾▾◆◆◆◆
+
+Data:
+
+BF-BF-BFᶠᶠ FF-FF-FFᶠᶠ FF-00-00ᶠᶠ FF-00-00ᶠᶠ 00-FF-00ᶠᶠ 00-FF-00ᶠᶠ 00-FF-00ᶠᶠ 00-FF-00ᶠᶠ
+BF-BF-BFᶠᶠ FF-FF-FFᶠᶠ FF-00-00ᶠᶠ FF-00-00ᶠᶠ 00-FF-00ᶠᶠ 00-FF-00ᶠᶠ 00-FF-00ᶠᶠ 00-FF-00ᶠᶠ
+FF-00-00ᶠᶠ FF-00-00ᶠᶠ FF-00-00ᶠᶠ FF-00-00ᶠᶠ 00-FF-00ᶠᶠ 00-FF-00ᶠᶠ 00-FF-00ᶠᶠ 00-FF-00ᶠᶠ
+FF-00-00ᶠᶠ FF-00-00ᶠᶠ FF-00-00ᶠᶠ FF-00-00ᶠᶠ 00-FF-00ᶠᶠ 00-FF-00ᶠᶠ 00-FF-00ᶠᶠ 00-FF-00ᶠᶠ
+00-00-FFᶠᶠ 00-00-FFᶠᶠ 00-00-FFᶠᶠ 00-00-FFᶠᶠ FF-FF-00ᶠᶠ FF-FF-00ᶠᶠ FF-FF-00ᶠᶠ FF-FF-00ᶠᶠ
+00-00-FFᶠᶠ 00-00-FFᶠᶠ 00-00-FFᶠᶠ 00-00-FFᶠᶠ FF-FF-00ᶠᶠ FF-FF-00ᶠᶠ FF-FF-00ᶠᶠ FF-FF-00ᶠᶠ
+00-00-FFᶠᶠ 00-00-FFᶠᶠ 00-00-FFᶠᶠ 00-00-FFᶠᶠ FF-FF-00ᶠᶠ FF-FF-00ᶠᶠ FF-FF-00ᶠᶠ FF-FF-00ᶠᶠ
+00-00-FFᶠᶠ 00-00-FFᶠᶠ 00-00-FFᶠᶠ 00-00-FFᶠᶠ FF-FF-00ᶠᶠ FF-FF-00ᶠᶠ FF-FF-00ᶠᶠ FF-FF-00ᶠᶠ
+`;
+
 exports[`Blit over image > blit on middle, with no crop 1`] = `
 Visualization:
 

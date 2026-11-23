@@ -51,6 +51,34 @@ describe("scan", () => {
     expect(j).toMatchSnapshot();
   });
 
+  test("scan and scanIterator clamp the region to the image", () => {
+    const image = new Jimp({ width: 4, height: 3, color: 0xffffffff });
+    const scanned: number[][] = [];
+
+    image.scan(3, 1, 5, 5, (x, y, idx) => scanned.push([x, y, idx]));
+
+    expect(scanned).toEqual([
+      [3, 1, 28],
+      [3, 2, 44],
+    ]);
+    expect(
+      [...image.scanIterator(3, 1, 5, 5)].map(({ x, y, idx }) => [x, y, idx]),
+    ).toEqual(scanned);
+  });
+
+  test("scanIterator defaults to the rest of the image", () => {
+    const image = new Jimp({ width: 4, height: 3, color: 0xffffffff });
+
+    expect(
+      [...image.scanIterator(2, 1)].map(({ x, y, idx }) => [x, y, idx]),
+    ).toEqual([
+      [2, 1, 24],
+      [3, 1, 28],
+      [2, 2, 40],
+      [3, 2, 44],
+    ]);
+  });
+
   test("draw bars with (get|set)PixelColor", async () => {
     const image = Jimp.fromBitmap(barsJGD);
 

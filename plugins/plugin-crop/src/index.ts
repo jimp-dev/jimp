@@ -1,6 +1,6 @@
 import { Buffer } from "buffer";
 import { JimpClass, RGBAColor } from "@jimp/types";
-import { colorDiff, intToRGBA, scan } from "@jimp/utils";
+import { clampRegion, colorDiff, intToRGBA, scan } from "@jimp/utils";
 import { z } from "zod";
 
 export const CropOptionsSchema = z.object({
@@ -231,6 +231,11 @@ export const methods = {
   /**
    * Crops the image at a given point to a give size.
    *
+   * The rectangle is clamped to the image, so the part of it outside the
+   * image is ignored and the result is never larger than the image. It throws
+   * if nothing would be left: the rectangle is entirely outside the image, or
+   * its width or height is 0 or less.
+   *
    * @example
    * ```ts
    * import { Jimp } from "jimp";
@@ -240,12 +245,20 @@ export const methods = {
    * ```
    */
   crop<I extends JimpClass>(image: I, options: CropOptions) {
-    let { x, y, w, h } = CropOptionsSchema.parse(options);
-    // round input
-    x = Math.round(x);
-    y = Math.round(y);
-    w = Math.round(w);
-    h = Math.round(h);
+    const parsed = CropOptionsSchema.parse(options);
+    const { x, y, w, h } = clampRegion(
+      image,
+      parsed.x,
+      parsed.y,
+      parsed.w,
+      parsed.h,
+    );
+
+    if (w === 0 || h === 0) {
+      throw new Error(
+        `The crop region (x: ${parsed.x}, y: ${parsed.y}, w: ${parsed.w}, h: ${parsed.h}) doesn't overlap the ${image.bitmap.width}x${image.bitmap.height} image, so the result would be empty`,
+      );
+    }
 
     if (x === 0 && w === image.bitmap.width) {
       // shortcut
