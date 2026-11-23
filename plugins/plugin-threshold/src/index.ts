@@ -69,9 +69,9 @@ export function otsuThreshold<I extends JimpClass>(
       return;
     }
 
-    // Flooring matches what greyscale() leaves when it writes into the Buffer
+    // Rounded like greyscale(), so this matches thresholding after it
     const grey = autoGreyscale
-      ? Math.floor(
+      ? Math.round(
           0.2126 * data[idx]! +
             0.7152 * data[idx + 1]! +
             0.0722 * data[idx + 2]!,

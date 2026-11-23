@@ -18,7 +18,8 @@ function mix(clr: RGBColor, clr2: RGBColor, p = 50) {
 
 /**
  * color() as it was before it stopped using tinycolor2 per pixel (#1207).
- * The new implementation must produce exactly the same bytes.
+ * The new implementation must produce exactly the same bytes, except for
+ * greyscale, which now matches greyscale() instead of tinycolor.
  */
 function referenceColor(data: Buffer, actions: ColorAction[]) {
   actions = actions.map((action) => {
@@ -75,6 +76,13 @@ function referenceColor(data: Buffer, actions: ColorAction[]) {
         );
 
         clr = { r: Math.round(r), g: Math.round(g), b: Math.round(b) };
+      } else if (action.apply === "greyscale") {
+        // The same as greyscale() rather than tinycolor's greyscale
+        const grey = limit255(
+          Math.round(0.2126 * clr.r + 0.7152 * clr.g + 0.0722 * clr.b),
+        );
+
+        clr = { r: grey, g: grey, b: grey };
       } else {
         const name = action.apply === "hue" ? "spin" : action.apply;
         const tnyClr = tinyColor(clr);

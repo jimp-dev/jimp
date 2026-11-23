@@ -140,6 +140,14 @@ describe("Otsu", () => {
     expect(otsuThreshold(image, { autoGreyscale: false })).toBe(251);
   });
 
+  test("rounds luminance like greyscale(), so grey pixels keep their value", () => {
+    // Truncating would turn 5 into 4 (the weights sum to a little under 1)
+    expect(otsuThreshold(greyImage([5, 200]))).toBe(6);
+    expect(otsuThreshold(greyImage([5, 200]), { autoGreyscale: false })).toBe(
+      6,
+    );
+  });
+
   test("returns 255 for a uniform image", () => {
     expect(otsuThreshold(greyImage([0, 0, 0, 0]))).toBe(255);
     expect(otsuThreshold(greyImage([128, 128, 128, 128]))).toBe(255);
