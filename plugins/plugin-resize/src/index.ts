@@ -32,6 +32,8 @@ const ResizeOptionsSchema = z.union([
     h: z.number().min(0).optional(),
     /** a scaling method (e.g. ResizeStrategy.BEZIER) */
     mode: z.nativeEnum(ResizeStrategy).optional(),
+    /** resize the colour and alpha channels separately, so transparent pixels keep their colour */
+    separateAlpha: z.boolean().optional(),
   }),
   z.object({
     /** the width to resize the image to */
@@ -40,6 +42,8 @@ const ResizeOptionsSchema = z.union([
     h: z.number().min(0),
     /** a scaling method (e.g. ResizeStrategy.BEZIER) */
     mode: z.nativeEnum(ResizeStrategy).optional(),
+    /** resize the colour and alpha channels separately, so transparent pixels keep their colour */
+    separateAlpha: z.boolean().optional(),
   }),
 ]);
 
@@ -119,6 +123,7 @@ export const methods = {
    * @param options.w the width to resize the image to
    * @param options.h the height to resize the image to
    * @param options.mode (optional) a scaling method (e.g. ResizeStrategy.LANCZOS)
+   * @param options.separateAlpha (optional) resize the colour and alpha channels separately. By default most modes drop the colour of transparent pixels; use this when alpha isn't opacity (e.g. a texture that stores other data in it)
    * @example
    * ```ts
    * import { Jimp, ResizeStrategy } from "jimp";
@@ -132,7 +137,32 @@ export const methods = {
    * ```
    */
   resize<I extends JimpClass>(image: I, options: ResizeOptions) {
-    const { mode } = ResizeOptionsSchema.parse(options);
+    const { mode, separateAlpha } = ResizeOptionsSchema.parse(options);
+
+    if (separateAlpha) {
+      // No mode drops or weights the colour of opaque pixels, so resize an
+      // opaque copy for the colour and the image itself for the alpha.
+      const opaque = {
+        ...image.bitmap,
+        data: Buffer.from(image.bitmap.data),
+      };
+
+      for (let i = 3; i < opaque.data.length; i += 4) {
+        opaque.data[i] = 255;
+      }
+
+      const together = { ...options, separateAlpha: false };
+      const alpha = this.resize(image, together).bitmap.data;
+
+      image.bitmap = opaque;
+      const { data } = this.resize(image, together).bitmap;
+
+      for (let i = 3; i < data.length; i += 4) {
+        data[i] = alpha[i]!;
+      }
+
+      return image;
+    }
 
     let w: number;
     let h: number;
