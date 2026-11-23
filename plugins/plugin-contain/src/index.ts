@@ -12,7 +12,7 @@ const ContainOptionsSchema = z.object({
   h: z.number(),
   /** A bitmask for horizontal and vertical alignment */
   align: z.number().optional(),
-  /** a scaling method (e.g. Jimp.RESIZE_BEZIER) */
+  /** a scaling method (e.g. ResizeStrategy.BEZIER) */
   mode: z.nativeEnum(ResizeStrategy).optional(),
 });
 
