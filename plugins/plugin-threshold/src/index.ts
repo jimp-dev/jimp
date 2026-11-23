@@ -24,26 +24,6 @@ const OtsuThresholdOptionsSchema = ThresholdOptionsSchema.pick({
 export type OtsuThresholdOptions = z.infer<typeof OtsuThresholdOptionsSchema>;
 
 /**
- * Returns a function that stores a value the way `data` would, so the
- * luminance we bin matches what greyscale() leaves in the bitmap.
- */
-function storeLike(data: JimpClass["bitmap"]["data"]) {
-  if (Array.isArray(data)) {
-    return (value: number) => value;
-  }
-
-  const cell =
-    data instanceof Uint8ClampedArray
-      ? new Uint8ClampedArray(1)
-      : new Uint8Array(1);
-
-  return (value: number) => {
-    cell[0] = value;
-    return cell[0];
-  };
-}
-
-/**
  * Computes the `max` that Otsu's method picks for `threshold`.
  *
  * Builds a 256-bin histogram of the luminance `threshold` compares (Rec. 709
@@ -78,7 +58,6 @@ export function otsuThreshold<I extends JimpClass>(
 ) {
   const { autoGreyscale = true } = OtsuThresholdOptionsSchema.parse(options);
   const { data } = image.bitmap;
-  const store = storeLike(data);
   const histogram = new Array<number>(256).fill(0);
 
   image.scan((_, __, idx) => {
@@ -88,15 +67,16 @@ export function otsuThreshold<I extends JimpClass>(
       return;
     }
 
+    // Flooring matches what greyscale() leaves when it writes into the Buffer
     const grey = autoGreyscale
-      ? store(
+      ? Math.floor(
           0.2126 * data[idx]! +
             0.7152 * data[idx + 1]! +
             0.0722 * data[idx + 2]!,
         )
       : data[idx]!;
 
-    histogram[limit255(Math.floor(grey))]! += alpha;
+    histogram[limit255(grey)]! += alpha;
   });
 
   let total = 0;
