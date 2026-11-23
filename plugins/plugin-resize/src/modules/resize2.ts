@@ -33,6 +33,11 @@ function premultiplied(buf: any, i: number) {
   return k === 3 ? buf[i] : (buf[i] * buf[i - k + 3]) / 255;
 }
 
+/** Read channel `i` of an RGBA buffer as it is */
+function straight(buf: any, i: number) {
+  return buf[i];
+}
+
 /**
  * Turn a buffer of premultiplied RGBA back into straight RGBA, in place.
  * Pixels with no alpha get black, since they have no colour left.
@@ -152,10 +157,10 @@ function filterWeights(srcSize: number, dstSize: number, filter: Filter) {
 
 /**
  * Resample with a separable convolution filter: rows first, then columns.
- * RGB is premultiplied by alpha and kept as floats between the passes. An axis
- * whose size doesn't change is copied as is.
+ * RGB is premultiplied by alpha, unless `premultiply` is false, and kept as
+ * floats between the passes. An axis whose size doesn't change is copied as is.
  */
-function convolve(src: any, dst: any, filter: Filter) {
+function convolve(src: any, dst: any, filter: Filter, premultiply: boolean) {
   const wSrc = src.width;
   const hSrc = src.height;
 
@@ -165,17 +170,34 @@ function convolve(src: any, dst: any, filter: Filter) {
   const bufSrc = src.data;
   const bufDst = dst.data;
 
+  // When alpha isn't premultiplied, RGB is weighted as if the image were
+  // opaque. opaque1 holds the alpha each column of buf1 would have then, which
+  // is the same for every row, to divide the colour by in the end
+  const opaque1 = new Float32Array(wDst).fill(255);
+
   // ===========================================================
   // Pass 1 - resample rows
   // buf1 has width of dst and height of src, and holds premultiplied RGBA
   const buf1 = new Float32Array(wDst * hSrc * 4);
 
   if (wDst === wSrc) {
+    const read = premultiply ? premultiplied : straight;
+
     for (let i = 0; i < buf1.length; i++) {
-      buf1[i] = premultiplied(bufSrc, i);
+      buf1[i] = read(bufSrc, i);
     }
   } else {
     const { start, count, taps, weights } = filterWeights(wSrc, wDst, filter);
+
+    for (let j = 0; j < wDst; j++) {
+      let a = 0;
+
+      for (let n = 0; n < count[j]!; n++) {
+        a += weights[j * taps + n]! * 255;
+      }
+
+      opaque1[j] = a;
+    }
 
     for (let i = 0; i < hSrc; i++) {
       for (let j = 0; j < wDst; j++) {
@@ -187,12 +209,13 @@ function convolve(src: any, dst: any, filter: Filter) {
 
         for (let n = 0; n < count[j]!; n++, srcPos += 4) {
           const weight = weights[j * taps + n]!;
-          const wa = weight * bufSrc[srcPos + 3];
+          const alpha = bufSrc[srcPos + 3];
+          const wa = weight * (premultiply ? alpha : 255);
 
           r += wa * bufSrc[srcPos];
           g += wa * bufSrc[srcPos + 1];
           b += wa * bufSrc[srcPos + 2];
-          a += wa;
+          a += weight * alpha;
         }
 
         const buf1Pos = (i * wDst + j) * 4;
@@ -206,14 +229,22 @@ function convolve(src: any, dst: any, filter: Filter) {
 
   // ===========================================================
   // Pass 2 - resample columns, then un-premultiply, clamp and round into dst
-  const store = (pos: number, r: number, g: number, b: number, a: number) => {
+  const store = (
+    pos: number,
+    r: number,
+    g: number,
+    b: number,
+    a: number,
+    opaque: number,
+  ) => {
     const alpha = Math.max(0, Math.min(255, Math.round(a)));
 
     bufDst[pos + 3] = alpha;
 
     // the colour is the alpha weighted average. Pixels with no alpha get
-    // black, since they have no colour left
-    const f = alpha ? 255 / a : 0;
+    // black, since they have no colour left. Straight colour is weighted as if
+    // the image were opaque
+    const f = premultiply ? (alpha ? 255 / a : 0) : 255 / opaque;
     bufDst[pos] = Math.max(0, Math.min(255, Math.round(r * f)));
     bufDst[pos + 1] = Math.max(0, Math.min(255, Math.round(g * f)));
     bufDst[pos + 2] = Math.max(0, Math.min(255, Math.round(b * f)));
@@ -221,7 +252,15 @@ function convolve(src: any, dst: any, filter: Filter) {
 
   if (hDst === hSrc) {
     for (let pos = 0; pos < buf1.length; pos += 4) {
-      store(pos, buf1[pos]!, buf1[pos + 1]!, buf1[pos + 2]!, buf1[pos + 3]!);
+      const opaque = opaque1[(pos / 4) % wDst]!;
+      store(
+        pos,
+        buf1[pos]!,
+        buf1[pos + 1]!,
+        buf1[pos + 2]!,
+        buf1[pos + 3]!,
+        opaque,
+      );
     }
 
     return;
@@ -236,6 +275,7 @@ function convolve(src: any, dst: any, filter: Filter) {
       let g = 0;
       let b = 0;
       let a = 0;
+      let opaque = 0;
       let buf1Pos = start[i]! * stride + j * 4;
 
       for (let n = 0; n < count[i]!; n++, buf1Pos += stride) {
@@ -245,9 +285,10 @@ function convolve(src: any, dst: any, filter: Filter) {
         g += weight * buf1[buf1Pos + 1]!;
         b += weight * buf1[buf1Pos + 2]!;
         a += weight * buf1[buf1Pos + 3]!;
+        opaque += weight * opaque1[j]!;
       }
 
-      store((i * wDst + j) * 4, r, g, b, a);
+      store((i * wDst + j) * 4, r, g, b, a, opaque);
     }
   }
 }
@@ -282,7 +323,7 @@ export const operations = {
     }
   },
 
-  bilinearInterpolation(src: any, dst: any) {
+  bilinearInterpolation(src: any, dst: any, premultiply = true) {
     const wSrc = src.width;
     const hSrc = src.height;
 
@@ -291,6 +332,7 @@ export const operations = {
 
     const bufSrc = src.data;
     const bufDst = dst.data;
+    const read = premultiply ? premultiplied : straight;
 
     const interpolate = function (
       k: number,
@@ -322,9 +364,9 @@ export const operations = {
       const vMin = interpolate(
         x,
         xMin,
-        premultiplied(bufSrc, posMin),
+        read(bufSrc, posMin),
         xMax,
-        premultiplied(bufSrc, posMax),
+        read(bufSrc, posMax),
       );
 
       // special case, y is integer
@@ -336,9 +378,9 @@ export const operations = {
         const vMax = interpolate(
           x,
           xMin,
-          premultiplied(bufSrc, posMin),
+          read(bufSrc, posMin),
           xMax,
-          premultiplied(bufSrc, posMax),
+          read(bufSrc, posMax),
         );
 
         bufDst[pos + offset] = interpolate(y, yMin, vMin, yMax, vMax);
@@ -364,10 +406,12 @@ export const operations = {
       }
     }
 
-    unpremultiply(bufDst);
+    if (premultiply) {
+      unpremultiply(bufDst);
+    }
   },
 
-  _interpolate2D(src: any, dst: any, options?: any, interpolate?: any) {
+  _interpolate2D(src: any, dst: any, premultiply: boolean, interpolate: any) {
     const bufSrc = src.data;
     const bufDst = dst.data;
 
@@ -383,8 +427,9 @@ export const operations = {
     const hM = Math.max(1, Math.floor(hSrc / hDst));
     const hDst2 = hDst * hM;
 
-    // buf1 and buf2 hold RGB premultiplied by alpha, so transparent pixels
-    // don't darken the edges of what they surround
+    // buf1 and buf2 hold RGB premultiplied by alpha, unless premultiply is
+    // false, so transparent pixels don't darken the edges of what they surround
+    const read = premultiply ? premultiplied : straight;
 
     // ===========================================================
     // Pass 1 - interpolate rows
@@ -408,11 +453,10 @@ export const operations = {
 
         for (let k = 0; k < 4; k++) {
           const kPos = srcPos + k;
-          const x1 = premultiplied(bufSrc, kPos);
-          const x2 = premultiplied(bufSrc, kPos + next);
-          const x0 = xPos > 0 ? premultiplied(bufSrc, kPos - 4) : 2 * x1 - x2;
-          const x3 =
-            xPos < wSrc - 2 ? premultiplied(bufSrc, kPos + 8) : 2 * x2 - x1;
+          const x1 = read(bufSrc, kPos);
+          const x2 = read(bufSrc, kPos + next);
+          const x0 = xPos > 0 ? read(bufSrc, kPos - 4) : 2 * x1 - x2;
+          const x3 = xPos < wSrc - 2 ? read(bufSrc, kPos + 8) : 2 * x2 - x1;
           buf1[buf1Pos + k] = interpolate(x0, x1, x2, x3, t);
         }
       }
@@ -477,22 +521,33 @@ export const operations = {
             }
           }
 
-          // un-premultiply: the colour is the alpha weighted average
           const pos = (i * wDst + j) * 4;
-          bufDst[pos] = a ? Math.min(255, Math.round((r * 255) / a)) : 0;
-          bufDst[pos + 1] = a ? Math.min(255, Math.round((g * 255) / a)) : 0;
-          bufDst[pos + 2] = a ? Math.min(255, Math.round((b * 255) / a)) : 0;
+
+          if (premultiply) {
+            // un-premultiply: the colour is the alpha weighted average
+            bufDst[pos] = a ? Math.min(255, Math.round((r * 255) / a)) : 0;
+            bufDst[pos + 1] = a ? Math.min(255, Math.round((g * 255) / a)) : 0;
+            bufDst[pos + 2] = a ? Math.min(255, Math.round((b * 255) / a)) : 0;
+          } else {
+            bufDst[pos] = Math.round(r / m);
+            bufDst[pos + 1] = Math.round(g / m);
+            bufDst[pos + 2] = Math.round(b / m);
+          }
+
           bufDst[pos + 3] = Math.round(a / m);
         }
       }
     } else {
       // replace dst buffer with buf2
-      unpremultiply(buf2);
+      if (premultiply) {
+        unpremultiply(buf2);
+      }
+
       dst.data = buf2;
     }
   },
 
-  bicubicInterpolation(src: any, dst: any, options?: any) {
+  bicubicInterpolation(src: any, dst: any, premultiply = true) {
     const interpolateCubic = function (
       x0: number,
       x1: number,
@@ -510,10 +565,10 @@ export const operations = {
       );
     };
 
-    return this._interpolate2D(src, dst, options, interpolateCubic);
+    return this._interpolate2D(src, dst, premultiply, interpolateCubic);
   },
 
-  hermiteInterpolation(src: any, dst: any, options?: any) {
+  hermiteInterpolation(src: any, dst: any, premultiply = true) {
     const interpolateHermite = function (
       x0: number,
       x1: number,
@@ -531,10 +586,10 @@ export const operations = {
       );
     };
 
-    return this._interpolate2D(src, dst, options, interpolateHermite);
+    return this._interpolate2D(src, dst, premultiply, interpolateHermite);
   },
 
-  bezierInterpolation(src: any, dst: any, options?: any) {
+  bezierInterpolation(src: any, dst: any, premultiply = true) {
     // between 2 points y(n), y(n+1), use next points out, y(n-1), y(n+2)
     // to predict control points (a & b) to be placed at n+0.5
     //  ya(n) = y(n) + (y(n+1)-y(n-1))/4
@@ -564,18 +619,18 @@ export const operations = {
       return Math.max(0, Math.min(255, Math.round(c0 + c1 + c2 + c3)));
     };
 
-    return this._interpolate2D(src, dst, options, interpolateBezier);
+    return this._interpolate2D(src, dst, premultiply, interpolateBezier);
   },
 
-  lanczosInterpolation(src: any, dst: any) {
-    convolve(src, dst, lanczos3);
+  lanczosInterpolation(src: any, dst: any, premultiply = true) {
+    convolve(src, dst, lanczos3, premultiply);
   },
 
-  lanczos2Interpolation(src: any, dst: any) {
-    convolve(src, dst, lanczos2);
+  lanczos2Interpolation(src: any, dst: any, premultiply = true) {
+    convolve(src, dst, lanczos2, premultiply);
   },
 
-  mitchellInterpolation(src: any, dst: any) {
-    convolve(src, dst, mitchell);
+  mitchellInterpolation(src: any, dst: any, premultiply = true) {
+    convolve(src, dst, mitchell, premultiply);
   },
 };
