@@ -798,9 +798,12 @@ export const methods = {
 
     actions.forEach((action) => ColorActionNameSchema.parse(action));
 
+    // Copy instead of mutating so the caller's actions can be reused
     actions = actions.map((action) => {
       if (action.apply === "xor" || action.apply === "mix") {
-        action.params[0] = tinyColor(action.params[0]).toRgb();
+        const params = [...action.params] as typeof action.params;
+        params[0] = tinyColor(params[0]).toRgb();
+        return { ...action, params } as ColorAction;
       }
 
       return action;
@@ -835,18 +838,39 @@ export const methods = {
           clr.g = colorModifier("g", action.params[0]);
         } else if (action.apply === "blue") {
           clr.b = colorModifier("b", action.params[0]);
-        } else {
-          if (action.apply === "hue") {
-            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            // @ts-ignore
-            action.apply = "spin";
-          }
+        } else if (
+          action.apply === "saturate" ||
+          action.apply === "desaturate"
+        ) {
+          // Scale saturation (like GIMP) rather than offsetting it like
+          // tinycolor does, which flattens muted colors to grey.
+          const amount = (action.params?.[0] ?? 10) / 100;
+          const hsl = tinyColor(clr).toHsl();
 
+          hsl.s = Math.min(
+            1,
+            hsl.s * (action.apply === "saturate" ? 1 + amount : 1 - amount),
+          );
+          clr = tinyColor(hsl).toRgb();
+        } else if (action.apply === "lighten" || action.apply === "darken") {
+          // Blend toward white/black (like Photoshop's Hue/Saturation
+          // lightness) rather than offsetting HSL lightness like tinycolor
+          // does, which turns near-white pixels vivid when darkened.
+          const target = action.apply === "lighten" ? 255 : 0;
+          const { r, g, b } = mix(
+            clr,
+            { r: target, g: target, b: target },
+            action.params?.[0] ?? 10,
+          );
+
+          clr = { r: Math.round(r), g: Math.round(g), b: Math.round(b) };
+        } else {
+          const name = action.apply === "hue" ? "spin" : action.apply;
           const tnyClr = tinyColor(clr);
-          const fn = tnyClr[action.apply].bind(tnyClr);
+          const fn = tnyClr[name].bind(tnyClr);
 
           if (!fn) {
-            throw new Error("action " + action.apply + " not supported");
+            throw new Error("action " + name + " not supported");
           }
 
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
