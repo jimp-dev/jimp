@@ -4,13 +4,13 @@ import { unzlibSync, zlibSync } from "fflate";
 import { APP0, APP1, readJpegSegments } from "./exif.js";
 
 /**
- * Reads the ICC colour profile of a JPEG or PNG on decode and writes it back
- * on encode.
+ * Reads the ICC colour profile of a JPEG, PNG or WebP on decode and writes it
+ * back on encode.
  *
- * Jimp never converts colours, so the pixels stay in the colour space of the
- * profile they were read with (e.g. Display P3). Writing them without it would
- * make viewers treat them as sRGB, so the profile is kept as the original
- * bytes and written to JPEG and PNG output.
+ * Jimp keeps the pixels in the colour space of the profile they were read
+ * with (e.g. Display P3). Writing them without it would make viewers treat
+ * them as sRGB, so the profile is kept as the original bytes and written to
+ * JPEG, PNG and WebP output.
  */
 
 const APP2 = 0xe2;
@@ -31,9 +31,6 @@ const PNG_SIGNATURE = Buffer.from([
   0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a,
 ]);
 const PNG_PROFILE_NAME = "ICC Profile";
-
-/** ICC profiles read from each image, kept out of the public API */
-const iccProfiles = new WeakMap<object, Buffer>();
 
 /**
  * The profile's data colour space. Only RGB and gray profiles describe the
@@ -154,31 +151,70 @@ function readPngProfile(data: Buffer) {
   return undefined;
 }
 
+interface RiffChunk {
+  type: string;
+  data: Buffer;
+  /** Offset of the chunk's FourCC */
+  start: number;
+  /** Offset just past the chunk and its padding byte */
+  end: number;
+}
+
+/** Lists a WebP's chunks */
+function readWebpChunks(data: Buffer) {
+  const chunks: RiffChunk[] = [];
+
+  if (
+    data.toString("latin1", 0, 4) !== "RIFF" ||
+    data.toString("latin1", 8, 12) !== "WEBP"
+  ) {
+    return chunks;
+  }
+
+  let offset = 12;
+
+  while (offset + 8 <= data.length) {
+    const size = data.readUInt32LE(offset + 4);
+
+    if (offset + 8 + size > data.length) {
+      break;
+    }
+
+    chunks.push({
+      type: data.toString("latin1", offset, offset + 4),
+      data: data.subarray(offset + 8, offset + 8 + size),
+      start: offset,
+      // Chunks are padded to an even size
+      end: Math.min(offset + 8 + size + (size & 1), data.length),
+    });
+    offset += 8 + size + (size & 1);
+  }
+
+  return chunks;
+}
+
+function readWebpProfile(data: Buffer) {
+  const iccp = readWebpChunks(data).find(({ type }) => type === "ICCP");
+
+  return iccp ? Buffer.from(iccp.data) : undefined;
+}
+
 /**
- * Stores the ICC profile of a JPEG or PNG so it can be written back on encode.
- * Does nothing for other formats, or if the profile is broken or isn't an RGB
- * or gray profile.
+ * Reads the ICC profile of a JPEG, PNG or WebP. Returns undefined for other
+ * formats, or if the profile is broken or isn't an RGB or gray profile.
  */
-export function storeIccProfile(image: object, data: Buffer) {
+export function readIccProfile(data: Buffer) {
   try {
     const profile = data.subarray(0, 8).equals(PNG_SIGNATURE)
       ? readPngProfile(data)
-      : readJpegProfile(data);
+      : data.toString("latin1", 0, 4) === "RIFF"
+        ? readWebpProfile(data)
+        : readJpegProfile(data);
 
-    if (profile && profileColorSpace(profile)) {
-      iccProfiles.set(image, profile);
-    }
+    return profile && profileColorSpace(profile) ? profile : undefined;
   } catch {
     // A profile that can't be read is dropped, as before
-  }
-}
-
-/** Gives a cloned image the same ICC profile as the original */
-export function copyIccProfile(from: object, to: object) {
-  const profile = iccProfiles.get(from);
-
-  if (profile) {
-    iccProfiles.set(to, profile);
+    return undefined;
   }
 }
 
@@ -300,25 +336,100 @@ function writePngProfile(profile: Buffer, png: Buffer) {
   return Buffer.concat(parts);
 }
 
-/**
- * Writes the ICC profile stored for `image` into an encoded JPEG or PNG.
- * Returns the data unchanged for other formats, if the image has no profile,
- * or if the profile doesn't fit the encoded colour type (e.g. an RGB profile
- * and a grayscale PNG).
- */
-export function writeIccProfile(image: object, mime: string, encoded: Buffer) {
-  const profile = iccProfiles.get(image);
+function riffChunk(type: string, payload: Buffer) {
+  const header = Buffer.alloc(8);
 
-  if (!profile) {
-    return encoded;
+  header.write(type, 0, "latin1");
+  header.writeUInt32LE(payload.length, 4);
+
+  return Buffer.concat([header, payload, Buffer.alloc(payload.length & 1)]);
+}
+
+/**
+ * Adds the profile as an ICCP chunk. That needs the extended format, so a
+ * simple WebP (a lone VP8 or VP8L chunk) gets a VP8X header first. ICCP goes
+ * right after VP8X, as the WebP container spec requires.
+ */
+function writeWebpProfile(
+  profile: Buffer,
+  webp: Buffer,
+  width: number,
+  height: number,
+) {
+  const chunks = readWebpChunks(webp);
+
+  // WebP is always RGB
+  if (!chunks.length || profileColorSpace(profile) !== "RGB ") {
+    return webp;
   }
 
+  const extended = chunks.find(({ type }) => type === "VP8X");
+  let header: Buffer;
+
+  if (extended) {
+    header = Buffer.from(webp.subarray(extended.start, extended.end));
+    header[8]! |= 0x20; // ICC profile flag
+  } else {
+    const flags = Buffer.alloc(10);
+    const lossless = chunks.find(({ type }) => type === "VP8L");
+    // After VP8L's signature byte: 14 bits each of width - 1 and height - 1,
+    // then whether alpha is used
+    const alpha =
+      lossless &&
+      lossless.data.length >= 5 &&
+      (lossless.data.readUInt32LE(1) >>> 28) & 1;
+
+    flags[0] = 0x20 | (alpha ? 0x10 : 0);
+    flags.writeUIntLE(width - 1, 4, 3);
+    flags.writeUIntLE(height - 1, 7, 3);
+    header = riffChunk("VP8X", flags);
+  }
+
+  const body = Buffer.concat([
+    Buffer.from("WEBP", "latin1"),
+    header,
+    riffChunk("ICCP", profile),
+    ...chunks
+      .filter(({ type }) => type !== "VP8X" && type !== "ICCP")
+      .map(({ start, end }) => webp.subarray(start, end)),
+  ]);
+  const riff = Buffer.alloc(8);
+
+  riff.write("RIFF", 0, "latin1");
+  riff.writeUInt32LE(body.length, 4);
+
+  return Buffer.concat([riff, body]);
+}
+
+/** The formats jimp can write an ICC profile to */
+export const ICC_MIME_TYPES = new Set([
+  "image/jpeg",
+  "image/png",
+  "image/webp",
+]);
+
+/**
+ * Writes an ICC profile into an encoded JPEG, PNG or WebP.
+ * Returns the data unchanged for other formats, or if the profile doesn't
+ * fit the encoded colour type (e.g. an RGB profile and a grayscale PNG).
+ */
+export function writeIccProfile(
+  profile: Buffer,
+  mime: string,
+  encoded: Buffer,
+  width: number,
+  height: number,
+) {
   if (mime === "image/jpeg") {
     return writeJpegProfile(profile, encoded);
   }
 
   if (mime === "image/png") {
     return writePngProfile(profile, encoded);
+  }
+
+  if (mime === "image/webp") {
+    return writeWebpProfile(profile, encoded, width, height);
   }
 
   return encoded;

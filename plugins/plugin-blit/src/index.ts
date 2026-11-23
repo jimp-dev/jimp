@@ -1,5 +1,5 @@
 import { JimpClass, JimpClassSchema } from "@jimp/types";
-import { limit255, scan } from "@jimp/utils";
+import { limit255, pixelsInColorSpaceOf, scan } from "@jimp/utils";
 import { z } from "zod";
 
 const BlitOptionsSchemaComplex = z.object({
@@ -73,6 +73,9 @@ export const methods = {
 
     const maxWidth = image.bitmap.width;
     const maxHeight = image.bitmap.height;
+    // Draw the source's colours, not its values, if it's in another colour
+    // space
+    const srcData = pixelsInColorSpaceOf(src, image);
 
     scan(src, srcX, srcY, srcW, srcH, function (sx, sy, idx) {
       const xOffset = x + sx - srcX;
@@ -86,10 +89,10 @@ export const methods = {
       ) {
         const dstIdx = image.getPixelIndex(xOffset, yOffset);
         const srcColor = {
-          r: src.bitmap.data[idx] || 0,
-          g: src.bitmap.data[idx + 1] || 0,
-          b: src.bitmap.data[idx + 2] || 0,
-          a: src.bitmap.data[idx + 3] || 0,
+          r: srcData[idx] || 0,
+          g: srcData[idx + 1] || 0,
+          b: srcData[idx + 2] || 0,
+          a: srcData[idx + 3] || 0,
         };
 
         // A fully transparent source pixel leaves the destination untouched.

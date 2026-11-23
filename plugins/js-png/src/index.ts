@@ -21,9 +21,10 @@ export type PNGOptions = Omit<
    */
   inputHasAlpha?: boolean;
   /**
-   * Write the ICC colour profile of the image that was read, e.g. Display P3
-   * on iPhone photos. Jimp doesn't convert colours, so without the profile
-   * viewers would show the pixels as sRGB. Pass `false` to leave it out.
+   * Write the image's ICC colour profile, e.g. Display P3 for iPhone photos.
+   * Jimp core adds it after encoding. Pass `false` to write sRGB without a
+   * profile instead: the colours are converted to sRGB first, so they still
+   * look right.
    * @default true
    */
   icc?: boolean;

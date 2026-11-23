@@ -308,6 +308,26 @@ describe("format options are still checked", () => {
   });
 });
 
+describe("colour spaces", () => {
+  test("colorSpace, toColorSpace and the colorSpace option", () => {
+    expectTypeOf(image.colorSpace).toEqualTypeOf<
+      "srgb" | "display-p3" | "custom"
+    >();
+    expectTypeOf(image.iccProfile).toEqualTypeOf<Buffer | undefined>();
+    expectTypeOf(image.toColorSpace("srgb")).toEqualTypeOf<JimpInstance>();
+    expectTypeOf(
+      image.toColorSpace("display-p3").resize({ w: 1 }),
+    ).toEqualTypeOf<JimpInstance>();
+    // @ts-expect-error unsupported colour space
+    image.toColorSpace("rec2020");
+
+    new Jimp({ width: 1, height: 1, colorSpace: "display-p3" });
+    Jimp.fromBitmap({ width: 1, height: 1, data: [0], colorSpace: "srgb" });
+    // @ts-expect-error unsupported colour space
+    new Jimp({ width: 1, height: 1, colorSpace: "adobe-rgb" });
+  });
+});
+
 describe("classes made with createJimp", () => {
   test("share one instance type", async () => {
     const CustomJimp = createJimp({ plugins: [crop.methods], formats: [png] });
