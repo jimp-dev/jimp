@@ -351,3 +351,95 @@ describe("greyscale", () => {
     ]).toStrictEqual([...image.clone().greyscale().bitmap.data]);
   });
 });
+
+describe("exposure", () => {
+  const values = [0, 1, 10, 64, 128, 200, 255];
+  const makeImage = () =>
+    jimp.fromBitmap({
+      width: values.length,
+      height: 1,
+      data: Buffer.from(values.flatMap((v) => [v, v, v, 100])),
+    });
+  const reds = (image: ReturnType<typeof makeImage>) =>
+    values.map((_, i) => image.bitmap.data[i * 4]!);
+
+  test("0 leaves the image unchanged", () => {
+    expect(makeImage().exposure(0).bitmap).toStrictEqual(makeImage().bitmap);
+  });
+
+  test("works in linear light", () => {
+    // sRGB decoded, multiplied by 2 ** stops, encoded and rounded
+    expect(reds(makeImage().exposure(1))).toStrictEqual([
+      0, 2, 18, 90, 176, 255, 255,
+    ]);
+    expect(reds(makeImage().exposure(-1))).toStrictEqual([
+      0, 0, 5, 44, 92, 146, 188,
+    ]);
+    expect(reds(makeImage().exposure(0.5))).toStrictEqual([
+      0, 1, 14, 76, 150, 233, 255,
+    ]);
+  });
+
+  test("is not the same as brightness()", () => {
+    // doubling the light isn't doubling the 8 bit value
+    expect(reds(makeImage().brightness(2))).toStrictEqual([
+      0, 2, 20, 128, 255, 255, 255,
+    ]);
+  });
+
+  test("keeps alpha and clamps very large adjustments", () => {
+    const image = makeImage().exposure(100);
+
+    expect(reds(image)).toStrictEqual([0, 255, 255, 255, 255, 255, 255]);
+    expect(values.map((_, i) => image.bitmap.data[i * 4 + 3])).toStrictEqual(
+      values.map(() => 100),
+    );
+    expect(reds(makeImage().exposure(-100))).toStrictEqual(values.map(() => 0));
+  });
+});
+
+describe("vibrance", () => {
+  // Pixels: a muted red, a vivid red, a grey, and a fully saturated red with
+  // alpha 128
+  const makeImage = () =>
+    jimp.fromBitmap({
+      width: 4,
+      height: 1,
+      data: Buffer.from([
+        200, 100, 100, 255, 220, 40, 40, 255, 128, 128, 128, 255, 255, 0, 0,
+        128,
+      ]),
+    });
+
+  test("0 leaves the image unchanged", () => {
+    expect(makeImage().vibrance(0).bitmap).toStrictEqual(makeImage().bitmap);
+  });
+
+  test("boosts muted colors more than vivid ones", () => {
+    const image = makeImage().vibrance(1);
+
+    // The muted red's saturation is scaled by 1.61 and the vivid red's by
+    // 1.29, where saturate 50 would scale both by 1.5
+    expect([...image.bitmap.data]).toStrictEqual([
+      230, 70, 70, 255, 246, 14, 14, 255, 128, 128, 128, 255, 255, 0, 0, 128,
+    ]);
+  });
+
+  test("negative values mute muted colors the most", () => {
+    const image = makeImage().vibrance(-1);
+
+    // scaled by 0.39 and 0.71
+    expect([...image.bitmap.data]).toStrictEqual([
+      170, 130, 130, 255, 194, 66, 66, 255, 128, 128, 128, 255, 255, 0, 0, 128,
+    ]);
+  });
+
+  test("clamps the amount to -1 to +1", () => {
+    expect(makeImage().vibrance(5).bitmap).toStrictEqual(
+      makeImage().vibrance(1).bitmap,
+    );
+    expect(makeImage().vibrance(-5).bitmap).toStrictEqual(
+      makeImage().vibrance(-1).bitmap,
+    );
+  });
+});

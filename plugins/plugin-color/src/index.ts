@@ -7,6 +7,7 @@ import {
   intToRGBA,
   limit255,
   scan,
+  SRGB,
 } from "@jimp/utils";
 import { Edge, JimpClass, RGBColor } from "@jimp/types";
 import { z } from "zod";
@@ -258,6 +259,30 @@ function luminance(r: number, g: number, b: number) {
 function brightenChannel(v: number, delta: number) {
   const c = Math.max(0, Math.min(255, Math.round(tinyChannel(v)) - delta));
   return Math.round(tinyChannel(c));
+}
+
+/**
+ * A table that maps each 8 bit value to its exposure adjusted value: decoded
+ * to linear light with the colour space's tone curve, multiplied by
+ * `factor`, then encoded back to the nearest 8 bit value
+ */
+function exposureTable(curve: (value: number) => number, factor: number) {
+  // The linear light half way between each pair of 8 bit values
+  const thresholds = Array.from({ length: 255 }, (_, k) =>
+    curve((k + 0.5) / 255),
+  );
+
+  return Uint8Array.from({ length: 256 }, (_, v) => {
+    // 0 * Infinity is NaN, which stays black like 0 should
+    const linear = curve(v / 255) * factor;
+    let value = 0;
+
+    while (value < 255 && linear > thresholds[value]!) {
+      value++;
+    }
+
+    return value;
+  });
 }
 
 const HueActionSchema = z.object({
@@ -718,6 +743,99 @@ export const methods = {
       image.bitmap.data[idx] = adjust(image.bitmap.data[idx]!);
       image.bitmap.data[idx + 1] = adjust(image.bitmap.data[idx + 1]!);
       image.bitmap.data[idx + 2] = adjust(image.bitmap.data[idx + 2]!);
+    });
+
+    return image;
+  },
+
+  /**
+   * Adjusts the exposure of the image by `stops`, like a camera or a photo
+   * editor's exposure slider. Each color channel is decoded to linear light,
+   * multiplied by `2 ** stops` and encoded back, so `1` doubles the light and
+   * `-1` halves it. Channels that go over 255 are clamped. Alpha is not
+   * changed.
+   *
+   * Unlike `brightness()`, which multiplies the encoded 8 bit values, this
+   * works on the light the values stand for, so shadows and highlights change
+   * the way they would with a longer or shorter exposure. The image's tone
+   * curves are used (sRGB unless it has another ICC profile).
+   *
+   * - `0` leaves the image unchanged
+   * - greater than `0` brightens it (`1` is one stop brighter)
+   * - less than `0` darkens it (`-1` is one stop darker)
+   * @param stops the number of stops to change the exposure by
+   * @example
+   * ```ts
+   * import { Jimp } from "jimp";
+   *
+   * const image = await Jimp.read("test/image.png");
+   *
+   * image.exposure(1); // one stop brighter
+   * image.exposure(-0.5); // half a stop darker
+   * ```
+   */
+  exposure<I extends JimpClass>(image: I, stops: number) {
+    const factor = 2 ** z.number().parse(stops);
+    const curves = getColorSpace(image).curves ?? SRGB.curves!;
+    const [r, g, b] = curves.map((curve) => exposureTable(curve, factor));
+
+    image.scan((_, __, idx) => {
+      image.bitmap.data[idx] = r![image.bitmap.data[idx]!]!;
+      image.bitmap.data[idx + 1] = g![image.bitmap.data[idx + 1]!]!;
+      image.bitmap.data[idx + 2] = b![image.bitmap.data[idx + 2]!]!;
+    });
+
+    return image;
+  },
+
+  /**
+   * Adjusts the vibrance of the image: like `color([{ apply: "saturate" }])`
+   * it scales each pixel's HSL saturation, but by more for muted colors than
+   * for vivid ones, so skies and skin tones get richer while colors that are
+   * already saturated don't clip.
+   *
+   * Each pixel's saturation is scaled by `1 + amount * (1 - chroma)`, where
+   * chroma is `(max(r, g, b) - min(r, g, b)) / 255`. Greys and fully
+   * saturated colors don't change.
+   *
+   * - `0` leaves the image unchanged
+   * - `1` boosts the saturation of muted colors the most (up to double)
+   * - `-1` mutes the colors, muted colors the most
+   *
+   * Values outside -1 to +1 are clamped.
+   * @param amount the amount to adjust the vibrance, a number between -1 and +1
+   * @example
+   * ```ts
+   * import { Jimp } from "jimp";
+   *
+   * const image = await Jimp.read("test/image.png");
+   *
+   * image.vibrance(0.5);
+   * ```
+   */
+  vibrance<I extends JimpClass>(image: I, amount: number) {
+    amount = Math.min(1, Math.max(-1, z.number().parse(amount)));
+
+    if (amount === 0) {
+      return image;
+    }
+
+    image.scan((_, __, idx) => {
+      const r = image.bitmap.data[idx]!;
+      const g = image.bitmap.data[idx + 1]!;
+      const b = image.bitmap.data[idx + 2]!;
+      const chroma = (Math.max(r, g, b) - Math.min(r, g, b)) / 255;
+
+      toHsl(r, g, b);
+      fromHsl(
+        hsl[0]!,
+        Math.min(1, hsl[1]! * (1 + amount * (1 - chroma))),
+        hsl[2]!,
+      );
+
+      image.bitmap.data[idx] = rgb[0]!;
+      image.bitmap.data[idx + 1] = rgb[1]!;
+      image.bitmap.data[idx + 2] = rgb[2]!;
     });
 
     return image;
