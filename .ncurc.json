@@ -5,7 +5,7 @@
     "mime",
     "@types/mime",
     "file-type",
-    // We support node 18 and above
+    // Keep in sync with the minimum supported Node.js version (engines.node)
     "@types/node"
   ]
 }

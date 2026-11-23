@@ -6,7 +6,7 @@
   ],
   "repository": "jimp-dev/jimp",
   "engines": {
-    "node": ">=18"
+    "node": ">=22"
   },
   "scripts": {
     "lint": "eslint .",
@@ -23,7 +23,7 @@
     "@jimp/config-typescript": "workspace:*",
     "@jimp/config-vitest": "workspace:*",
     "@jimp/test-utils": "workspace:*",
-    "@types/node": "^18.19.48",
+    "@types/node": "^22.20.5",
     "@types/omggif": "^1.0.5",
     "@vitest/browser": "^2.0.5",
     "eslint": "^9.9.1",

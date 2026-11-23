@@ -6,7 +6,7 @@
   ],
   "repository": "jimp-dev/jimp",
   "engines": {
-    "node": ">=18"
+    "node": ">=22"
   },
   "scripts": {
     "lint": "eslint .",
@@ -25,7 +25,7 @@
   "devDependencies": {
     "@jimp/config-eslint": "workspace:*",
     "@jimp/config-typescript": "workspace:*",
-    "@types/node": "^18.19.48",
+    "@types/node": "^22.20.5",
     "@types/tinycolor2": "^1.4.6",
     "eslint": "^9.9.1",
     "tshy": "^3.0.2",

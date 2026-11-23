@@ -1,13 +1,19 @@
 name: "Setup"
 description: Setup action
 
+inputs:
+  node-version:
+    description: Node.js version to install. Defaults to the oldest supported version (engines.node).
+    required: false
+    default: "22"
+
 runs:
   using: "composite"
   steps:
     - name: Setup Node
       uses: actions/setup-node@v4
       with:
-        node-version: 22
+        node-version: ${{ inputs.node-version }}
 
     # Version comes from "packageManager" in package.json
     - uses: pnpm/action-setup@v6
