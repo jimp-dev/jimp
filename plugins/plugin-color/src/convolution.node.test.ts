@@ -39,4 +39,20 @@ describe("Convolution", function () {
 
     expect(output).toMatchImageSnapshot();
   });
+
+  test("edge detection shifted into the visible range with a bias", async () => {
+    const image = await jimp.read(__dirname + "/images/tiles.jpg");
+    const output = await image
+      .convolution({
+        kernel: [
+          [0, 1, 0],
+          [1, -4, 1],
+          [0, 1, 0],
+        ],
+        bias: 128,
+      })
+      .getBuffer("image/png");
+
+    expect(output).toMatchImageSnapshot();
+  });
 });

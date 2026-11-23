@@ -20,4 +20,17 @@
 - [normalize](https://jimp-dev.github.io/jimp/api/jimp/classes/jimp/#normalize)
 - [invert](https://jimp-dev.github.io/jimp/api/jimp/classes/jimp/#invert)
 
+`convolution` and `convolute` don't normalize the kernel. Pass a `divisor` (like ImageMagick's `-define convolve:scale` or the CSS `feConvolveMatrix` divisor) to write kernels with integer weights, and a `bias` to shift results that can be negative into the visible range:
+
+```ts
+image.convolution({
+  kernel: [
+    [1, 2, 1],
+    [2, 4, 2],
+    [1, 2, 1],
+  ],
+  divisor: 16,
+});
+```
+
 See [Getting Started](https://jimp-dev.github.io/jimp/guides/getting-started/) to read an image, change it and save the result with `write` or `getBuffer`.
