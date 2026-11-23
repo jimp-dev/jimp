@@ -14,4 +14,13 @@ describe("BMP", () => {
 
     expect(image.bitmap.data).toEqual(expectedImg.bitmap.data);
   });
+
+  test("keeps the alpha of a BMP with an alpha mask", async function () {
+    // ImageMagick and GIMP save images with alpha as 32 bit BITMAPV5 files
+    // with an alpha mask
+    const expectedImg = await jimp.read(getTestImagePath("alpha-v5.png"));
+    const image = await jimp.read(getTestImagePath("alpha-v5.bmp"));
+
+    expect(image.bitmap.data).toEqual(expectedImg.bitmap.data);
+  });
 });

@@ -66,6 +66,10 @@ function encode(image: Bitmap, options: EncodeOptions = {}) {
 function decode(data: Buffer, options?: DecodeBmpOptions) {
   const result = BMP.decode(data, options);
 
+  // bmp-ts only decodes alpha for 16 and 32 bit images, and makes it 0xff
+  // when the header has no alpha mask. Other bit depths leave it at 0.
+  const hasAlpha = result.bitPP === 16 || result.bitPP === 32;
+
   scan(
     { bitmap: result },
     0,
@@ -73,7 +77,7 @@ function decode(data: Buffer, options?: DecodeBmpOptions) {
     result.width,
     result.height,
     function (_, __, index) {
-      // const alpha = result.data[index + 0]!;
+      const alpha = result.data[index + 0]!;
       const blue = result.data[index + 1]!;
       const green = result.data[index + 2]!;
       const red = result.data[index + 3]!;
@@ -81,7 +85,7 @@ function decode(data: Buffer, options?: DecodeBmpOptions) {
       result.data[index + 0] = red;
       result.data[index + 1] = green;
       result.data[index + 2] = blue;
-      result.data[index + 3] = 0xff;
+      result.data[index + 3] = hasAlpha ? alpha : 0xff;
     }
   );
 

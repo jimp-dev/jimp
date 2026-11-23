@@ -7,12 +7,16 @@ import bmp from "./index.js";
 
 const jimp = createJimp({ formats: [bmp, png] });
 
-/** Build a BMP with a BITMAPINFOHEADER and an optional palette */
+/**
+ * Build a BMP with a BITMAPINFOHEADER, optional color masks (for
+ * BI_BITFIELDS and BI_ALPHA_BITFIELDS) and an optional palette
+ */
 function createBmp({
   width,
   height,
   bitDepth,
   compression = 0,
+  masks = [],
   palette = [],
   pixels,
 }: {
@@ -20,10 +24,12 @@ function createBmp({
   height: number;
   bitDepth: number;
   compression?: number;
+  masks?: number[];
   palette?: number[];
   pixels: number[];
 }) {
-  const offset = 14 + 40 + palette.length * 4;
+  const paletteOffset = 14 + 40 + masks.length * 4;
+  const offset = paletteOffset + palette.length * 4;
   const buffer = Buffer.alloc(offset + pixels.length);
 
   buffer.write("BM", 0);
@@ -37,7 +43,10 @@ function createBmp({
   buffer.writeUInt32LE(compression, 30);
   buffer.writeUInt32LE(pixels.length, 34);
   buffer.writeUInt32LE(palette.length, 46);
-  palette.forEach((color, i) => buffer.writeUInt32LE(color, 54 + i * 4));
+  masks.forEach((mask, i) => buffer.writeUInt32LE(mask, 54 + i * 4));
+  palette.forEach((color, i) =>
+    buffer.writeUInt32LE(color, paletteOffset + i * 4)
+  );
   buffer.set(pixels, offset);
 
   return buffer;
@@ -231,4 +240,58 @@ describe("BMP", () => {
       RangeError
     );
   });
+
+  test.each([
+    // ARGB 4444. bmp-ts scales 4 bit channels by 16, so 0xf is 0xf0.
+    [
+      16,
+      [0x0f00, 0x00f0, 0x000f, 0xf000],
+      [0x00, 0x8f, 0x0f, 0xf0],
+      [0xf0000080, 0x0000f0f0],
+    ],
+    // ARGB 8888
+    [
+      32,
+      [0x00ff0000, 0x0000ff00, 0x000000ff, 0xff000000],
+      [0x00, 0x00, 0xff, 0x80, 0xff, 0x00, 0x00, 0xff],
+      [0xff000080, 0x0000ffff],
+    ],
+  ])(
+    "keeps the alpha of a %i bit BI_ALPHA_BITFIELDS BMP",
+    async (bitDepth, masks, pixels, expected) => {
+      const image = await jimp.read(
+        createBmp({
+          width: 2,
+          height: 1,
+          bitDepth,
+          compression: 6,
+          masks,
+          pixels,
+        })
+      );
+
+      expect(image.getPixelColor(0, 0)).toBe(expected[0]);
+      expect(image.getPixelColor(1, 0)).toBe(expected[1]);
+    }
+  );
+
+  test.each([
+    ["zero", 0],
+    ["not zero", 0x80],
+  ])(
+    "ignores the alpha byte of a 32 bit BMP without an alpha mask when it is %s",
+    async (_, alpha) => {
+      const image = await jimp.read(
+        createBmp({
+          width: 2,
+          height: 1,
+          bitDepth: 32,
+          pixels: [0, 0, 0xff, alpha, 0xff, 0, 0, alpha],
+        })
+      );
+
+      expect(image.getPixelColor(0, 0)).toBe(0xff0000ff);
+      expect(image.getPixelColor(1, 0)).toBe(0x0000ffff);
+    }
+  );
 });
