@@ -19,6 +19,7 @@ import {
 import { to } from "await-to-js";
 import { hasFileSystem, readFile, writeFile } from "@jimp/file-ops";
 import mime from "mime/lite.js";
+import Mime from "mime/Mime.js";
 import type { ExifData } from "exif-parser";
 
 import { composite, CompositeSource } from "./utils/composite.js";
@@ -80,6 +81,13 @@ async function toBuffer(input: ImageInput) {
     "Expected image data as a Buffer, ArrayBuffer, Uint8Array (or other ArrayBuffer view) or Blob"
   );
 }
+
+/**
+ * Extensions mime/lite doesn't know, because they're registered under a
+ * different MIME type than the one file-type detects (and formats use), e.g.
+ * image/vnd.microsoft.icon for ICO files
+ */
+const unregisteredMime = new Mime({ "image/x-icon": ["ico"] });
 
 /** Strings that are fetched rather than read from the file system */
 const URL_PATTERN = /^(https?|data|blob):/i;
@@ -319,7 +327,8 @@ export type PathExtension<Path extends string> =
 /** Extensions `mime` maps to a type with a differently spelled subtype */
 type ExtensionAliases =
   | Record<"jpg" | "jpe", "image/jpeg">
-  | Record<"tif", "image/tiff">;
+  | Record<"tif", "image/tiff">
+  | Record<"ico", "image/x-icon">;
 type OrIfNever<T, Fallback> = [T] extends [never] ? Fallback : T;
 /**
  * The options `write` takes for a path: those of the format its extension
@@ -854,7 +863,7 @@ export function createJimp<
         MimeTypeToExportOptions
       >
     ) {
-      const mimeType = mime.getType(path);
+      const mimeType = mime.getType(path) ?? unregisteredMime.getType(path);
 
       if (!mimeType) {
         throw new Error(

@@ -6,6 +6,7 @@
 
 import bmp, { msBmp } from "@jimp/js-bmp";
 import gif from "@jimp/js-gif";
+import ico, { msIcon } from "@jimp/js-ico";
 import jpeg from "@jimp/js-jpeg";
 import png from "@jimp/js-png";
 import tiff from "@jimp/js-tiff";
@@ -54,12 +55,13 @@ export const defaultPlugins = [
   quantize.methods,
 ];
 
-export const defaultFormats = [bmp, msBmp, gif, jpeg, png, tiff];
+export const defaultFormats = [bmp, msBmp, gif, ico, msIcon, jpeg, png, tiff];
 
 /** Convenience object for getting the MIME types of the default formats */
 export const JimpMime = {
   bmp: bmp().mime,
   gif: gif().mime,
+  ico: ico().mime,
   jpeg: jpeg().mime,
   png: png().mime,
   tiff: tiff().mime,

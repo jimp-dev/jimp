@@ -49,6 +49,10 @@ describe("write", () => {
     image.write("output.tiff", { quality: 50 });
     // @ts-expect-error BMP has no options
     image.write("output.bmp", { quality: 50 });
+
+    image.write("output.ico", { sizes: [16, 32] });
+    // @ts-expect-error ICO doesn't take a JPEG quality
+    image.write("output.ico", { quality: 50 });
   });
 
   test("uses the last extension of paths with directories and dots", () => {
