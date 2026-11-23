@@ -85,3 +85,35 @@ describe("getBuffer", () => {
     );
   });
 });
+
+describe("read", () => {
+  async function getDice() {
+    const image = await Jimp.read(getTestImagePath("dice.png"));
+    return { image, buffer: await image.getBuffer("image/png") };
+  }
+
+  test("base64 data URL", async () => {
+    const { image, buffer } = await getDice();
+    const read = await Jimp.read(
+      `data:image/png;base64,${buffer.toString("base64")}`,
+    );
+
+    expect(read.mime).toBe("image/png");
+    expect(read.bitmap.data.equals(image.bitmap.data)).toBe(true);
+  });
+
+  test("percent-encoded base64 data URL", async () => {
+    const { image, buffer } = await getDice();
+    const base64 = buffer.toString("base64").replace(/\+/g, "%2B");
+    const read = await Jimp.read(`data:image/png;base64,${base64}`);
+
+    expect(read.bitmap.data.equals(image.bitmap.data)).toBe(true);
+  });
+
+  test("ArrayBuffer", async () => {
+    const { image, buffer } = await getDice();
+    const read = await Jimp.read(new Uint8Array(buffer).buffer);
+
+    expect(read.bitmap.data.equals(image.bitmap.data)).toBe(true);
+  });
+});

@@ -19,14 +19,25 @@ const emptyBitmap: Bitmap = {
  * Prepare a Buffer object from the arrayBuffer.
  */
 function bufferFromArrayBuffer(arrayBuffer: ArrayBuffer) {
-  const buffer = Buffer.alloc(arrayBuffer.byteLength);
-  const view = new Uint8Array(arrayBuffer);
+  // Buffer.from(arrayBuffer) would share memory, so copy through a view
+  return Buffer.from(new Uint8Array(arrayBuffer));
+}
 
-  for (let i = 0; i < buffer.length; ++i) {
-    buffer[i] = view[i]!;
+/**
+ * Decode a base64 data URL. fetch() can do this too, but in browsers and Node
+ * it takes about 40 ms per MB.
+ *
+ * @returns the decoded bytes, or undefined if `url` isn't a base64 data URL
+ */
+function bufferFromBase64DataUrl(url: string) {
+  const match = /^data:[^,]*;base64,/i.exec(url);
+
+  // Leave percent-encoded data to fetch()
+  if (!match || url.includes("%", match[0].length)) {
+    return;
   }
 
-  return buffer;
+  return Buffer.from(url.slice(match[0].length), "base64");
 }
 
 async function detectFileTypeFromBuffer(buffer: Buffer | ArrayBuffer) {
@@ -250,6 +261,12 @@ export function createJimp<
 
       if (existsSync(url)) {
         return this.fromBuffer(await readFile(url), options);
+      }
+
+      const dataUrlBuffer = bufferFromBase64DataUrl(url);
+
+      if (dataUrlBuffer) {
+        return this.fromBuffer(dataUrlBuffer, options);
       }
 
       const [fetchErr, response] = await to(fetch(url));

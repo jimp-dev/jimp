@@ -112,6 +112,70 @@ const imageData = new ImageData(
 ctx.putImageData(imageData, 0, 0);
 ```
 
+### From a data URL
+
+`Jimp.read` accepts a data URL, so there's no need to convert it to a `Buffer` first.
+
+```ts
+const image = await Jimp.read("data:image/png;base64,iVBORw0KGgo...");
+```
+
+## Decoding faster
+
+Jimp's default PNG and JPEG decoders (pngjs and jpeg-js) are written in plain JavaScript.
+They're much slower than the decoders built into the browser.
+For example, on a fast laptop, a 3072×512 PNG takes Jimp around 150 ms to decode in Chrome, and a 12 megapixel JPEG takes about a second.
+If decoding is too slow for you, there are two faster options.
+
+### WASM decoders
+
+The WASM format plugins wrap native codecs compiled to WebAssembly.
+In Chrome they decode PNGs about 3× faster than the default decoders, and JPEGs 4–6× faster.
+Put them before `defaultFormats`, since Jimp uses the first format that matches an image's type:
+
+```ts
+import { createJimp } from "@jimp/core";
+import { defaultFormats, defaultPlugins } from "jimp";
+import png from "@jimp/wasm-png";
+import jpeg from "@jimp/wasm-jpeg";
+import webp from "@jimp/wasm-webp";
+
+const Jimp = createJimp({
+  formats: [png, jpeg, webp, ...defaultFormats],
+  plugins: defaultPlugins,
+});
+```
+
+`@jimp/wasm-webp` also lets Jimp read WebP images directly.
+See [Using WEBP](/jimp/guides/webp) for how to install the plugins and set up your bundler.
+
+### The browser's decoder
+
+Decoding with the browser and passing the pixels to `Jimp.fromBitmap` is faster still: in Chrome, about 4× faster than the default decoders for PNGs and 8–10× faster for JPEGs.
+It works for any format the browser can display, including WebP and AVIF.
+
+```ts
+async function readWithBrowser(blob: Blob) {
+  const bitmap = await createImageBitmap(blob);
+  const canvas = new OffscreenCanvas(bitmap.width, bitmap.height);
+  const ctx = canvas.getContext("2d")!;
+
+  ctx.drawImage(bitmap, 0, 0);
+  bitmap.close();
+
+  return Jimp.fromBitmap(ctx.getImageData(0, 0, canvas.width, canvas.height));
+}
+
+const response = await fetch("/some/image.jpg");
+const image = await readWithBrowser(await response.blob());
+```
+
+The pixels might not match what Jimp's own decoders produce exactly:
+
+- The browser converts images with an embedded color profile to sRGB.
+- Canvas stores colors premultiplied by alpha, so semi-transparent pixels can be off by a little.
+- The browser applies EXIF orientation itself, so the image's EXIF data isn't available to Jimp.
+
 ## Using Fonts
 
 Jimp supports loading fonts from a URL or a file path.
