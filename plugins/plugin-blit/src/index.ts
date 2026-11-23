@@ -92,6 +92,12 @@ export const methods = {
           a: src.bitmap.data[idx + 3] || 0,
         };
 
+        // A fully transparent source pixel leaves the destination untouched.
+        // This also means the output alpha below is never 0.
+        if (srcColor.a === 0) {
+          return;
+        }
+
         const dst = {
           r: image.bitmap.data[dstIdx] || 0,
           g: image.bitmap.data[dstIdx + 1] || 0,
@@ -99,13 +105,17 @@ export const methods = {
           a: image.bitmap.data[dstIdx + 3] || 0,
         };
 
-        image.bitmap.data[dstIdx] =
-          ((srcColor.a * (srcColor.r - dst.r) - dst.r + 255) >> 8) + dst.r;
-        image.bitmap.data[dstIdx + 1] =
-          ((srcColor.a * (srcColor.g - dst.g) - dst.g + 255) >> 8) + dst.g;
-        image.bitmap.data[dstIdx + 2] =
-          ((srcColor.a * (srcColor.b - dst.b) - dst.b + 255) >> 8) + dst.b;
-        image.bitmap.data[dstIdx + 3] = limit255(dst.a + srcColor.a);
+        // Porter-Duff source-over, the same as composite's SRC_OVER mode
+        const srcA = srcColor.a / 255;
+        const dstA = dst.a / 255;
+        const outA = srcA + dstA - srcA * dstA;
+        const blend = (s: number, d: number) =>
+          Math.round(limit255((s * srcA + d * dstA * (1 - srcA)) / outA));
+
+        image.bitmap.data[dstIdx] = blend(srcColor.r, dst.r);
+        image.bitmap.data[dstIdx + 1] = blend(srcColor.g, dst.g);
+        image.bitmap.data[dstIdx + 2] = blend(srcColor.b, dst.b);
+        image.bitmap.data[dstIdx + 3] = Math.round(limit255(outA * 255));
       }
     });
 

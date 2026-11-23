@@ -60,12 +60,12 @@ exports[`Callbacks > with contain 1`] = `
 Visualization:
 
 C0 
-◇◇ 
+▿▰ 
 
 Data:
 
 AA-8E-1Cᶠᶠ 39-55-C6ᶠᶠ 00-00-00⁰⁰
-71-5F-13ᵃᵃ 26-39-84ᵃᵃ 00-00-00⁰⁰
+AA-8E-1Cᵃᵃ 39-55-C6ᵃᵃ 00-00-00⁰⁰
 `;
 
 exports[`Callbacks > with contrast 1`] = `
