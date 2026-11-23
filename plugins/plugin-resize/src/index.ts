@@ -50,7 +50,7 @@ const ScaleToFitOptionsSchema = z.object({
   w: z.number().min(0),
   /** the height to resize the image to */
   h: z.number().min(0),
-  /** a scaling method (e.g. Jimp.RESIZE_BEZIER) */
+  /** a scaling method (e.g. ResizeStrategy.BEZIER) */
   mode: z.nativeEnum(ResizeStrategy).optional(),
 });
 
@@ -59,7 +59,7 @@ export type ScaleToFitOptions = z.infer<typeof ScaleToFitOptionsSchema>;
 const ScaleComplexOptionsSchema = z.object({
   /** the width to resize the image to */
   f: z.number().min(0),
-  /** a scaling method (e.g. Jimp.RESIZE_BEZIER) */
+  /** a scaling method (e.g. ResizeStrategy.BEZIER) */
   mode: z.nativeEnum(ResizeStrategy).optional(),
 });
 

@@ -20,6 +20,21 @@ They have also been renamed:
 - `getBase64Async` -> `getBase64`
 - `writeAsync` -> `write`
 
+Callbacks are no longer supported.
+Methods like `Jimp.read`, `write` and `getBuffer` return promises instead:
+
+```js
+// v0
+Jimp.read("image.png", (err, image) => {
+  if (err) throw err;
+  image.write("output.png");
+});
+
+// v1
+const image = await Jimp.read("image.png");
+await image.write("output.png");
+```
+
 ## Importing
 
 `Jimp` no longer uses a default export. Instead it uses named exports.
@@ -27,6 +42,10 @@ They have also been renamed:
 ```js
 import { Jimp } from "jimp";
 ```
+
+`@jimp/custom` and `@jimp/plugins` are gone.
+To build a Jimp with only some plugins and formats, use `createJimp` from `@jimp/core`.
+See [Custom Jimp](/jimp/guides/custom-jimp).
 
 ## Positional Arguments to Options Objects
 
@@ -143,7 +162,7 @@ async function main() {
   const ctx = canvas.getContext("2d");
 
   const image = await Jimp.fromBitmap(
-    ctx.getImageData(0, 0, canvas.width, canvas.height)
+    ctx.getImageData(0, 0, canvas.width, canvas.height),
   );
 }
 ```
@@ -212,6 +231,30 @@ These have moved to a named export `JimpMime`.
 import { JimpMime } from "jimp";
 
 JimpMime.jpeg;
+```
+
+### Other constants
+
+These are now enums exported from `jimp`:
+
+| v0                                                      | v1                                            |
+| ------------------------------------------------------- | --------------------------------------------- |
+| `Jimp.RESIZE_BEZIER`, `Jimp.RESIZE_BILINEAR`, ...       | `ResizeStrategy.BEZIER`, ...                  |
+| `Jimp.HORIZONTAL_ALIGN_LEFT`, `_CENTER`, `_RIGHT`       | `HorizontalAlign.LEFT`, `.CENTER`, `.RIGHT`   |
+| `Jimp.VERTICAL_ALIGN_TOP`, `_MIDDLE`, `_BOTTOM`         | `VerticalAlign.TOP`, `.MIDDLE`, `.BOTTOM`     |
+| `Jimp.BLEND_SOURCE_OVER`, `Jimp.BLEND_DESTINATION_OVER` | `BlendMode.SRC_OVER`, `BlendMode.DST_OVER`    |
+| `Jimp.BLEND_HARDLIGHT`                                  | `BlendMode.HARD_LIGHT`                        |
+| `Jimp.BLEND_MULTIPLY`, `Jimp.BLEND_SCREEN`, ...         | `BlendMode.MULTIPLY`, `BlendMode.SCREEN`, ... |
+
+```js
+import { Jimp, ResizeStrategy, HorizontalAlign, VerticalAlign } from "jimp";
+
+image.resize({ w: 256, mode: ResizeStrategy.BEZIER });
+image.contain({
+  w: 256,
+  h: 256,
+  align: HorizontalAlign.CENTER | VerticalAlign.MIDDLE,
+});
 ```
 
 ## Fonts
@@ -293,3 +336,37 @@ image.color([{ apply: "tint", params: [25] }]);
 - `image.getHeight()` was moved `image.height`
 - `image.getWidth()` was moved `image.width`
 - `image.getMIME()` was moved `image.mime`
+
+## Troubleshooting
+
+### `export 'methods' was not found in '@jimp/plugin-*'`
+
+If webpack reports errors like these:
+
+```
+export 'methods' (imported as 'circle') was not found in '@jimp/plugin-circle' (possible exports: default)
+export 'createJimp' (imported as 'createJimp') was not found in '@jimp/core' (possible exports: addConstants, addJimpMethods, addType, default, jimpEvChange, jimpEvMethod)
+```
+
+then jimp v1 is being bundled with v0 copies of its own `@jimp/*` packages.
+
+This happens when another dependency still uses jimp v0, for example an old library or leftover `@jimp/*` v0 packages in your own `package.json`.
+Your package manager can put the v0 copies in the top-level `node_modules` and the v1 copies in `node_modules/jimp/node_modules`.
+Node.js and webpack's default settings find the v1 copies, but a bundler that only checks the top-level `node_modules` finds the v0 ones.
+
+In webpack, the usual cause is a `resolve.modules` setting that has only an absolute path, or that lists an absolute path first:
+
+```js
+// webpack.config.js
+module.exports = {
+  resolve: {
+    // Only finds the top-level (v0) copies
+    modules: [path.resolve(__dirname, "node_modules")],
+  },
+};
+```
+
+To fix it, do one of the following:
+
+- List `"node_modules"` first, so nested packages are found before the top-level ones: `modules: ["node_modules", path.resolve(__dirname, "node_modules")]`
+- Remove or upgrade the dependencies that pull in v0 packages. Run `npm ls @jimp/core` (or `yarn why @jimp/core`) to find them.
