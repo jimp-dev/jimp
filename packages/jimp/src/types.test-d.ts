@@ -149,6 +149,8 @@ describe("chainable methods return the instance type", () => {
       autocrop: image.autocrop(),
       displace: image.displace({ map: image, offset: 1 }),
       dither: image.dither(),
+      ditherDiffusion: image.dither({ type: "floyd-steinberg" }),
+      ditherBayer: image.dither({ type: "bayer8", palette: 4 }),
       fisheye: image.fisheye(),
       flip: image.flip({ horizontal: true }),
       mask: image.mask({ src: image }),
@@ -221,6 +223,10 @@ describe("chainable methods return the instance type", () => {
     image.crop({ x: 0, y: 0 });
     // @ts-expect-error blur needs a radius
     image.blur();
+    // @ts-expect-error the default rgb565 dither has no palette
+    image.dither({ type: "rgb565", palette: "bw" });
+    // @ts-expect-error a palette needs a dither type
+    image.dither({ palette: "bw" });
   });
 });
 
