@@ -1,11 +1,17 @@
 import { Buffer } from "buffer";
 import { ResizeStrategy } from "@jimp/plugin-resize";
 import { JimpClass } from "@jimp/types";
-import { clone } from "@jimp/utils";
-import { composite } from "@jimp/core";
 import { z } from "zod";
 
-import { Kernel, kernels } from "./kernels.js";
+import {
+  affine as affineTransform,
+  AffineOptions,
+  skew as skewTransform,
+  SkewOptions,
+} from "./affine.js";
+import { createSampler, drawOverBackground, snapToInteger } from "./sample.js";
+
+export type { AffineOptions, SkewOptions };
 
 const RotateOptionsSchema = z.union([
   z.number(),
@@ -112,16 +118,6 @@ function matrixRotate<I extends JimpClass>(image: I, deg: number) {
 }
 
 /**
- * Math.cos and Math.sin are not exact (Math.cos(Math.PI / 2) is 6e-17), so a
- * source coordinate that should be a whole number can land just below or above
- * it. Snap such values to the whole number before choosing the source pixel.
- */
-function snapToInteger(value: number, tolerance: number) {
-  const rounded = Math.round(value);
-  return Math.abs(value - rounded) < tolerance ? rounded : value;
-}
-
-/**
  * The size of one side of the canvas that holds the rotated image: the side of
  * its bounding box, rounded up to whole pixels and to the same parity as the
  * side of the image that lies along it, so the image is centred on whole
@@ -130,88 +126,6 @@ function snapToInteger(value: number, tolerance: number) {
 function rotatedSide(extent: number, alongSide: number, tolerance: number) {
   const size = Math.ceil(extent - tolerance);
   return (size - alongSide) % 2 === 0 ? size : size + 1;
-}
-
-/**
- * Write the pixel at a point of the source image, interpolated with a kernel,
- * to `dst`. The point is in pixels, with pixel centres at half pixels. Pixels
- * outside the image are the background colour, premultiplied by its alpha.
- * Colours are weighted by their alpha, so transparent pixels don't darken
- * their neighbours. Returns false, without writing, if the point is too far
- * from the image to reach any of its pixels.
- */
-function writeInterpolated(
-  src: Buffer,
-  srcW: number,
-  srcH: number,
-  sourceX: number,
-  sourceY: number,
-  kernel: Kernel,
-  background: number[],
-  dst: Buffer,
-  dstIdx: number,
-) {
-  const u = sourceX - 0.5;
-  const v = sourceY - 0.5;
-  const x0 = Math.ceil(u - kernel.support);
-  const x1 = Math.floor(u + kernel.support);
-  const y0 = Math.ceil(v - kernel.support);
-  const y1 = Math.floor(v + kernel.support);
-
-  if (x1 < 0 || y1 < 0 || x0 >= srcW || y0 >= srcH) {
-    return false;
-  }
-
-  let r = 0;
-  let g = 0;
-  let b = 0;
-  let a = 0;
-  let total = 0;
-
-  for (let y = y0; y <= y1; y++) {
-    const wy = kernel.weight(v - y);
-
-    if (wy === 0) {
-      continue;
-    }
-
-    for (let x = x0; x <= x1; x++) {
-      const weight = wy * kernel.weight(u - x);
-
-      if (weight === 0) {
-        continue;
-      }
-
-      total += weight;
-
-      if (x < 0 || y < 0 || x >= srcW || y >= srcH) {
-        r += weight * background[0]!;
-        g += weight * background[1]!;
-        b += weight * background[2]!;
-        a += weight * background[3]!;
-        continue;
-      }
-
-      const idx = (srcW * y + x) << 2;
-      const alpha = src[idx + 3]!;
-      const w = (weight * alpha) / 255;
-
-      r += w * src[idx]!;
-      g += w * src[idx + 1]!;
-      b += w * src[idx + 2]!;
-      a += weight * alpha;
-    }
-  }
-
-  const alpha = Math.min(255, Math.max(0, Math.round(a / total)));
-  // un-premultiply: the colour is the alpha weighted average
-  const f = alpha ? 1 / a : 0;
-
-  dst[dstIdx] = Math.min(255, Math.max(0, Math.round(r * f * 255)));
-  dst[dstIdx + 1] = Math.min(255, Math.max(0, Math.round(g * f * 255)));
-  dst[dstIdx + 2] = Math.min(255, Math.max(0, Math.round(b * f * 255)));
-  dst[dstIdx + 3] = alpha;
-  return true;
 }
 
 /**
@@ -250,29 +164,14 @@ function advancedRotate<I extends JimpClass>(
       tolerance,
     );
 
-    // the image is drawn over the background, as if onto a larger canvas
-    const c = clone(image);
-
-    image.scan((_, __, idx) => {
-      image.bitmap.data.writeUInt32BE(image.background, idx);
-    });
-
-    composite(image, c);
+    drawOverBackground(image);
   }
 
-  const src = image.bitmap.data;
   const dstBuffer = Buffer.alloc(w * h * 4);
-  const kernel =
-    typeof mode === "string" && mode !== ResizeStrategy.NEAREST_NEIGHBOR
-      ? kernels[mode]
-      : undefined;
-  const bgAlpha = image.background & 0xff;
-  const background = [
-    (((image.background >>> 24) & 0xff) * bgAlpha) / 255,
-    (((image.background >>> 16) & 0xff) * bgAlpha) / 255,
-    (((image.background >>> 8) & 0xff) * bgAlpha) / 255,
-    bgAlpha,
-  ];
+  const sample = createSampler(
+    image,
+    typeof mode === "string" ? mode : undefined,
+  );
 
   for (let y = 0; y < h; y++) {
     for (let x = 0; x < w; x++) {
@@ -290,34 +189,7 @@ function advancedRotate<I extends JimpClass>(
       );
       const dstIdx = (w * y + x) << 2;
 
-      if (kernel) {
-        const written = writeInterpolated(
-          src,
-          srcW,
-          srcH,
-          sourceX,
-          sourceY,
-          kernel,
-          background,
-          dstBuffer,
-          dstIdx,
-        );
-
-        if (!written) {
-          dstBuffer.writeUInt32BE(image.background, dstIdx);
-        }
-      } else if (
-        sourceX >= 0 &&
-        sourceX < srcW &&
-        sourceY >= 0 &&
-        sourceY < srcH
-      ) {
-        const srcIdx = (srcW * (sourceY | 0) + (sourceX | 0)) << 2;
-        dstBuffer.writeUInt32BE(src.readUInt32BE(srcIdx), dstIdx);
-      } else {
-        // reset off-image pixels
-        dstBuffer.writeUInt32BE(image.background, dstIdx);
-      }
+      sample(sourceX, sourceY, dstBuffer, dstIdx);
     }
   }
 
@@ -366,5 +238,63 @@ export const methods = {
     }
 
     return image;
+  },
+
+  /**
+   * Transforms the image with a 2D affine matrix: any mix of scaling, rotating,
+   * skewing, flipping and translating. The matrix is `[a, b, c, d, e, f]`, in
+   * the same order as CSS's `matrix(a, b, c, d, e, f)`, so each point moves to
+   * `x' = a * x + c * y + e` and `y' = b * x + d * y + f`. Like CSS, the origin
+   * is the centre of the image and y points down.
+   *
+   * By default the canvas is resized to fit the transformed image, and new
+   * space is filled with the image's `background` colour, like `rotate`.
+   * Pass `fit: false` to keep the width and height of the image instead;
+   * `e` and `f` then move the transformed image within it.
+   *
+   * The transform takes the nearest pixel unless `mode` is a `ResizeStrategy`,
+   * which interpolates the pixels for smooth edges.
+   * @example
+   * ```ts
+   * import { Jimp, ResizeStrategy } from "jimp";
+   *
+   * const image = await Jimp.read("test/image.png");
+   *
+   * // skew along the x axis, like CSS's matrix(1, 0, 0.5, 1, 0, 0)
+   * image.affine({ matrix: [1, 0, 0.5, 1, 0, 0] });
+   * // squash vertically and flip horizontally, with smooth edges
+   * image.affine({
+   *   matrix: [-1, 0, 0, 0.5, 0, 0],
+   *   mode: ResizeStrategy.BILINEAR,
+   * });
+   * // move the image 10px right, keeping its size
+   * image.affine({ matrix: [1, 0, 0, 1, 10, 0], fit: false });
+   * ```
+   */
+  affine<I extends JimpClass>(image: I, options: AffineOptions) {
+    return affineTransform(image, options);
+  },
+
+  /**
+   * Skews the image by a number of degrees along the x and/or y axis, like
+   * CSS's `skew(x, y)`. A positive `x` slants vertical lines like `\`, and a
+   * positive `y` moves the right side of the image down.
+   *
+   * By default the canvas grows to fit the skewed image, and new space is
+   * filled with the image's `background` colour; pass `fit: false` to keep
+   * the width and height. The skew takes the nearest pixel unless `mode` is a
+   * `ResizeStrategy`, which interpolates the pixels for smooth edges.
+   * @example
+   * ```ts
+   * import { Jimp, ResizeStrategy } from "jimp";
+   *
+   * const image = await Jimp.read("test/image.png");
+   *
+   * image.skew({ x: 20 });
+   * image.skew({ x: 10, y: -15, mode: ResizeStrategy.BILINEAR });
+   * ```
+   */
+  skew<I extends JimpClass>(image: I, options: SkewOptions) {
+    return skewTransform(image, options);
   },
 };

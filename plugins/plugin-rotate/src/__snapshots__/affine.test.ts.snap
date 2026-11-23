@@ -1,0 +1,129 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`affine > interpolation > bezierInterpolation skews smoothly 1`] = `
+Visualization:
+
+▫▴▴9▪▦  
+ ▾▴▴▫▪D 
+ D▪▪▫▴▾ 
+  ▦▪▪9▴▫
+
+Data:
+
+FF-00-00⁰⁹ FF-00-00ᶠᶠ FF-00-00ᶠᶠ F6-09-09ᶠᶠ 00-FF-FFᶠᶠ 00-FF-FFᶠ⁶ 00-00-00⁰⁰ 00-00-00⁰⁰
+00-00-00⁰⁰ FF-00-00ᵇ³ FF-00-00ᶠᶠ FF-00-00ᶠᶠ 4C-B3-B3ᶠᶠ 00-FF-FFᶠᶠ 00-FF-FF⁴ᶜ 00-00-00⁰⁰
+00-00-00⁰⁰ 00-FF-FF⁴ᶜ 00-FF-FFᶠᶠ 00-FF-FFᶠᶠ 4C-B3-B3ᶠᶠ FF-00-00ᶠᶠ FF-00-00ᵇ³ 00-00-00⁰⁰
+00-00-00⁰⁰ 00-00-00⁰⁰ 00-FF-FFᶠ⁶ 00-FF-FFᶠᶠ 00-FF-FFᶠᶠ F6-09-09ᶠᶠ FF-00-00ᶠᶠ FF-00-00⁰⁹
+`;
+
+exports[`affine > interpolation > bicubicInterpolation skews smoothly 1`] = `
+Visualization:
+
+ ▴▴◇▪■  
+ 9▴▴▥▪1 
+ 1▪▪▥▴9 
+  ■▪▪◇▴ 
+
+Data:
+
+FF-00-00⁰ᶜ FF-00-00ᶠᶠ FF-00-00ᶠᶠ F3-0C-0Cᶠᶠ 00-FF-FFᶠᶠ 00-FF-FFᶠ³ 00-00-00⁰⁰ 00-00-00⁰⁰
+00-00-00⁰⁰ FF-00-00ᵃᵉ FF-00-00ᶠᶠ FF-00-00ᶠᶠ 51-AE-AEᶠᶠ 00-FF-FFᶠᶠ 00-FF-FF⁵¹ 00-00-00⁰⁰
+00-00-00⁰⁰ 00-FF-FF⁵¹ 00-FF-FFᶠᶠ 00-FF-FFᶠᶠ 51-AE-AEᶠᶠ FF-00-00ᶠᶠ FF-00-00ᵃᵉ 00-00-00⁰⁰
+00-00-00⁰⁰ 00-00-00⁰⁰ 00-FF-FFᶠ³ 00-FF-FFᶠᶠ 00-FF-FFᶠᶠ F3-0C-0Cᶠᶠ FF-00-00ᶠᶠ FF-00-00⁰ᶜ
+`;
+
+exports[`affine > interpolation > bilinearInterpolation skews smoothly 1`] = `
+Visualization:
+
+ ▴▴◇▪■  
+ 9▴▴▥▪1 
+ 1▪▪▥▴9 
+  ■▪▪◇▴ 
+
+Data:
+
+FF-00-00⁰ᶜ FF-00-00ᶠᶠ FF-00-00ᶠᶠ F3-0C-0Cᶠᶠ 00-FF-FFᶠᶠ 00-FF-FFᶠ³ 00-00-00⁰⁰ 00-00-00⁰⁰
+00-00-00⁰⁰ FF-00-00ᵃᵉ FF-00-00ᶠᶠ FF-00-00ᶠᶠ 51-AE-AEᶠᶠ 00-FF-FFᶠᶠ 00-FF-FF⁵¹ 00-00-00⁰⁰
+00-00-00⁰⁰ 00-FF-FF⁵¹ 00-FF-FFᶠᶠ 00-FF-FFᶠᶠ 51-AE-AEᶠᶠ FF-00-00ᶠᶠ FF-00-00ᵃᵉ 00-00-00⁰⁰
+00-00-00⁰⁰ 00-00-00⁰⁰ 00-FF-FFᶠ³ 00-FF-FFᶠᶠ 00-FF-FFᶠᶠ F3-0C-0Cᶠᶠ FF-00-00ᶠᶠ FF-00-00⁰ᶜ
+`;
+
+exports[`affine > interpolation > hermiteInterpolation skews smoothly 1`] = `
+Visualization:
+
+◇▴▴A▪B  
+ ▫▴▴9▪▦ 
+ ▦▪▪9▴▫ 
+  B▪▪A▴◇
+
+Data:
+
+FF-00-00⁰⁷ FF-00-00ᶠᶠ FF-00-00ᶠᶠ F8-07-07ᶠᶠ 00-FF-FFᶠᶠ 00-FF-FFᶠ⁸ 00-00-00⁰⁰ 00-00-00⁰⁰
+00-00-00⁰⁰ FF-00-00ᵇ⁸ FF-00-00ᶠᶠ FF-00-00ᶠᶠ 47-B8-B8ᶠᶠ 00-FF-FFᶠᶠ 00-FF-FF⁴⁷ 00-00-00⁰⁰
+00-00-00⁰⁰ 00-FF-FF⁴⁷ 00-FF-FFᶠᶠ 00-FF-FFᶠᶠ 47-B8-B8ᶠᶠ FF-00-00ᶠᶠ FF-00-00ᵇ⁸ 00-00-00⁰⁰
+00-00-00⁰⁰ 00-00-00⁰⁰ 00-FF-FFᶠ⁸ 00-FF-FFᶠᶠ 00-FF-FFᶠᶠ F8-07-07ᶠᶠ FF-00-00ᶠᶠ FF-00-00⁰⁷
+`;
+
+exports[`affine > interpolation > lanczos2Interpolation skews smoothly 1`] = `
+Visualization:
+
+▪▴▴▪▪A  
+ ◆▴▴1▪▥ 
+ ▥▪▪1▴◆ 
+  A▪▪▪▴▪
+
+Data:
+
+FF-00-00⁰⁸ FF-00-00ᶠᶠ FF-00-00ᶠᶠ F7-08-08ᶠᶠ 00-FF-FFᶠᶠ 00-FF-FFᶠ⁷ 00-00-00⁰⁰ 00-00-00⁰⁰
+00-00-00⁰⁰ FF-00-00ᵇ⁵ FF-00-00ᶠᶠ FF-00-00ᶠᶠ 4A-B5-B5ᶠᶠ 00-FF-FFᶠᶠ 00-FF-FF⁴ᵃ 00-00-00⁰⁰
+00-00-00⁰⁰ 00-FF-FF⁴ᵃ 00-FF-FFᶠᶠ 00-FF-FFᶠᶠ 4A-B5-B5ᶠᶠ FF-00-00ᶠᶠ FF-00-00ᵇ⁵ 00-00-00⁰⁰
+00-00-00⁰⁰ 00-00-00⁰⁰ 00-FF-FFᶠ⁷ 00-FF-FFᶠᶠ 00-FF-FFᶠᶠ F7-08-08ᶠᶠ FF-00-00ᶠᶠ FF-00-00⁰⁸
+`;
+
+exports[`affine > interpolation > lanczosInterpolation skews smoothly 1`] = `
+Visualization:
+
+▪▴▪▪▪▴ A
+ ▪A◇2▪▸ 
+ AAAE▴▩ 
+A A▪▪◆▴0
+
+Data:
+
+FF-00-00⁰⁸ FF-00-00ᶠᶠ FF-00-00ᶠᵈ F7-08-08ᶠᶠ 00-FF-FFᶠᶠ 02-FD-FDᶠ⁷ 00-00-00⁰⁰ 00-FF-FF⁰²
+00-00-00⁰⁰ FF-00-00ᵇ⁷ F8-07-07ᶠᶠ FF-00-00ᶠᶜ 4B-B4-B4ᶠ⁷ 00-FF-FFᶠᶠ 0A-F5-F5⁴⁸ 00-00-00⁰⁰
+00-00-00⁰⁰ 00-FF-FF⁴⁸ 03-FC-FCᶠᶠ 00-FF-FFᶠ⁷ 46-B9-B9ᶠᶜ FF-00-00ᶠᶠ F4-0B-0Bᵇ⁷ 00-00-00⁰⁰
+00-FF-FF⁰² 00-00-00⁰⁰ 00-FF-FFᶠ⁷ 02-FD-FDᶠᶠ 00-FF-FFᶠᶠ F7-08-08ᶠᵈ FF-00-00ᶠᶠ FD-02-02⁰⁸
+`;
+
+exports[`affine > interpolation > mitchellInterpolation skews smoothly 1`] = `
+Visualization:
+
+▥F6AE1F 
+ ▦□A▱▰▫ 
+ ▫▱▵▱A▦ 
+ F1▱EAF▥
+
+Data:
+
+FF-00-00¹³ FF-00-00ᵉ⁹ FF-00-00ᶠ¹ EA-15-15ᶠ¹ 09-F6-F6ᶠ¹ 00-FF-FFᵈᵈ 00-FF-FF⁰⁸ 00-00-00⁰⁰
+00-00-00⁰⁰ F1-0E-0Eᵇ¹ F1-0E-0Eᶠᶠ F8-07-07ᶠᶠ 54-AB-ABᶠᶠ 0A-F5-F5ᶠᶠ 0E-F1-F1⁴ᵉ 00-00-00⁰⁰
+00-00-00⁰⁰ 0E-F1-F1⁴ᵉ 0E-F1-F1ᶠᶠ 09-F6-F6ᶠᶠ 54-AB-ABᶠᶠ F8-07-07ᶠᶠ F1-0E-0Eᵇ¹ 00-00-00⁰⁰
+00-00-00⁰⁰ 00-FF-FF⁰⁸ 00-FF-FFᵈᵈ 00-FF-FFᶠ¹ 09-F6-F6ᶠ¹ EA-15-15ᶠ¹ FF-00-00ᵉ⁹ FF-00-00¹³
+`;
+
+exports[`affine > interpolation > nearestNeighbor skews smoothly 1`] = `
+Visualization:
+
+ ▴▴▴▪▪  
+ ▴▴▴▪▪  
+  ▪▪▪▴▴ 
+  ▪▪▪▴▴ 
+
+Data:
+
+00-00-00⁰⁰ FF-00-00ᶠᶠ FF-00-00ᶠᶠ FF-00-00ᶠᶠ 00-FF-FFᶠᶠ 00-FF-FFᶠᶠ 00-00-00⁰⁰ 00-00-00⁰⁰
+00-00-00⁰⁰ FF-00-00ᶠᶠ FF-00-00ᶠᶠ FF-00-00ᶠᶠ 00-FF-FFᶠᶠ 00-FF-FFᶠᶠ 00-00-00⁰⁰ 00-00-00⁰⁰
+00-00-00⁰⁰ 00-00-00⁰⁰ 00-FF-FFᶠᶠ 00-FF-FFᶠᶠ 00-FF-FFᶠᶠ FF-00-00ᶠᶠ FF-00-00ᶠᶠ 00-00-00⁰⁰
+00-00-00⁰⁰ 00-00-00⁰⁰ 00-FF-FFᶠᶠ 00-FF-FFᶠᶠ 00-FF-FFᶠᶠ FF-00-00ᶠᶠ FF-00-00ᶠᶠ 00-00-00⁰⁰
+`;

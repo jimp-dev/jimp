@@ -212,6 +212,7 @@ export {
 } from "@jimp/utils";
 export type { FlipOptions } from "@jimp/plugin-flip";
 export type { FisheyeOptions } from "@jimp/plugin-fisheye";
+export type { AffineOptions, SkewOptions } from "@jimp/plugin-rotate";
 export type { DisplaceOptions } from "@jimp/plugin-displace";
 export type { CoverOptions } from "@jimp/plugin-cover";
 export type { ContainOptions } from "@jimp/plugin-contain";
