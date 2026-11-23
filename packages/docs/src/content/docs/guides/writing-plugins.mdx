@@ -218,9 +218,28 @@ const canvas: I = new (image.constructor as any)({
   height: image.bitmap.height,
   color: 0x00000000,
 });
+
+// Keep the image's color space, so drawing the image onto canvas doesn't convert it
+canvas.iccProfile = image.iccProfile;
 ```
 
 You can return a different image from a method, such as `canvas` after drawing on it. Jimp copies its bitmap onto the image the method was called on, so the user still sees their own image change.
+
+### Color spaces
+
+An image can be in a color space other than sRGB, such as Display P3; see [Color Spaces](/jimp/guides/color-spaces/).
+Pixel values are always in the image's own color space, so most methods don't need to do anything. Two cases do:
+
+- **A method that takes a CSS color** should convert it to the image's color space, as [`border`](/jimp/methods/border/) does. CSS colors are sRGB, so `#ff0000` is a different pixel value in a Display P3 image. Numbers are pixel values and aren't converted.
+
+  ```ts title="src/index.ts"
+  import { cssColorToHex, getColorSpace } from "@jimp/utils";
+
+  // Inside a method: a pixel value for the user's color, in the image's space
+  const hex = cssColorToHex(options.color, getColorSpace(image));
+  ```
+
+- **A method that creates a new image and draws the original onto it** should give the new image the original's profile, as in the example above. [`composite`](/jimp/methods/composite/) and [`blit`](/jimp/methods/blit/) convert a source in a different color space, so without the profile the original's colors are converted to sRGB.
 
 <Aside type="caution" title="Method names are shared">
   Plugins are applied in order, and each method is set directly on every image.
@@ -241,6 +260,7 @@ createJimp({ formats: [png, jpeg] }); // not png(), jpeg()
 | Property   | Type                                                        | Description                                                                                                                         |
 | ---------- | ----------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
 | `mime`     | `string`                                                    | The MIME type, such as `"image/png"`.                                                                                                |
+| `detect`   | `(data: Buffer) => boolean`                                 | Optional. Return `true` if `data` is in this format. Only needed for formats `file-type` can't recognize; see [below](#detecting-the-format). |
 | `encode`   | `(bitmap: Bitmap, options?) => Buffer \| Promise<Buffer>`   | Turn RGBA pixels into file bytes. Receives the options passed to `getBuffer`, `getBase64` or `write`.                                |
 | `decode`   | `(data: Buffer, options?) => Bitmap \| Promise<Bitmap>`     | Turn file bytes into RGBA pixels. Receives this format's entry from the [decode options](/jimp/guides/reading-large-images/).         |
 | `hasAlpha` | `boolean`                                                   | Set to `true` if the format stores transparency. Otherwise Jimp flattens the image onto `image.background` before calling `encode`. |
@@ -327,8 +347,38 @@ export default function myFormat() {
 
 Jimp finds the right format in two different ways, and both have to know your MIME type:
 
-- **Reading.** `Jimp.read` and `Jimp.fromBuffer` detect the MIME type from the file's first bytes with the [`file-type`](https://github.com/sindresorhus/file-type) package. If `file-type` can't recognize the format, Jimp can't pick your decoder. It recognizes most common image formats, such as AVIF, HEIC, JPEG XL, ICO and PSD.
+- **Reading.** `Jimp.read` and `Jimp.fromBuffer` detect the MIME type from the file's first bytes with the [`file-type`](https://github.com/sindresorhus/file-type) package. It recognizes most common image formats, such as AVIF, HEIC, JPEG XL, ICO and PSD. For a format it can't recognize, add a `detect` function; see [Detecting the format](#detecting-the-format).
 - **Writing.** [`write`](/jimp/methods/write/) looks up the MIME type from the file extension with the [`mime`](https://github.com/broofa/mime) package's standard types. For a type it doesn't list, use [`getBuffer`](/jimp/methods/get-buffer/) with the MIME type and write the bytes yourself.
+
+### Detecting the format
+
+Some formats have no signature that `file-type` knows, such as text-based formats like SVG.
+Give the format a `detect` function: it receives the file's bytes and returns `true` if they're in your format.
+
+```ts title="detect.ts"
+import type { Format } from "@jimp/types";
+
+const MAGIC = "MYFMT";
+
+export default function myFormat() {
+  return {
+    mime: "image/x-my-format",
+    detect: (data) => data.subarray(0, MAGIC.length).toString("latin1") === MAGIC,
+    encode: (bitmap) => {
+      /* return a Buffer */
+    },
+    decode: (data) => {
+      /* return { data, width, height } */
+    },
+  } satisfies Format<"image/x-my-format">;
+}
+```
+
+Jimp only calls `detect` when `file-type` finds no format that can decode the data, and calls the formats' `detect` functions in the order the formats were given.
+Keep it cheap: look at the start of the data instead of parsing all of it.
+`@jimp/wasm-svg` uses `detect` to recognize SVG files.
+
+`detect` was added in 2.0.
 
 Format plugins that wrap WebAssembly codecs, such as `@jimp/wasm-webp`, are good references; see [WEBP / WASM](/jimp/guides/webp/) and the source in the [Jimp repository](https://github.com/jimp-dev/jimp/tree/main/plugins).
 
@@ -425,12 +475,12 @@ Publish the plugin as an ES module with its type declarations:
     "test": "vitest"
   },
   "dependencies": {
-    "@jimp/types": "^1.7.0",
+    "@jimp/types": "^2.0.0",
     "zod": "^4.0.0"
   },
   "devDependencies": {
-    "@jimp/core": "^1.7.0",
-    "jimp": "^1.7.0",
+    "@jimp/core": "^2.0.0",
+    "jimp": "^2.0.0",
     "typescript": "^5.5.0",
     "vitest": "^2.0.0"
   }
