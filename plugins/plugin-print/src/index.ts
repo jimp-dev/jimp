@@ -86,8 +86,12 @@ function printText<I extends JimpClass>(
   text: string,
   defaultCharWidth: number
 ) {
-  for (let i = 0; i < text.length; i++) {
-    const stringChar = text[i]!;
+  // Split by code point so characters outside the BMP (emoji, rare CJK)
+  // aren't broken into their surrogate halves
+  const characters = Array.from(text);
+
+  for (let i = 0; i < characters.length; i++) {
+    const stringChar = characters[i]!;
 
     let char;
 
@@ -106,7 +110,7 @@ function printText<I extends JimpClass>(
       drawCharacter(image, font, x, y, fontChar as BmCharacter);
     }
 
-    const nextChar = text[i + 1];
+    const nextChar = characters[i + 1];
     const kerning =
       fontKerning && nextChar && fontKerning[nextChar]
         ? fontKerning[nextChar] || 0
@@ -119,6 +123,11 @@ function printText<I extends JimpClass>(
 export const methods = {
   /**
    * Draws a text on a image on a given boundary
+   *
+   * The font must include a glyph for every character you print. Characters
+   * it has no glyph for are drawn as `?`. The bundled fonts only cover
+   * printable ASCII, so for other text (e.g. Japanese) generate a BMFont
+   * that includes those characters.
    * @param options the font, position and text to print
    * @param options.font a bitmap font loaded with `loadFont`
    * @param options.x the x position to start drawing the text

@@ -1,15 +1,29 @@
 import { BmFont } from "./types.js";
 
+/**
+ * The last character of `text`. Characters outside the BMP are two UTF-16
+ * code units long, so `text[text.length - 1]` would only be half of one.
+ */
+function lastCharacter(text: string) {
+  const last = text.slice(-2);
+
+  return last.length === 2 && last.codePointAt(0)! > 0xffff
+    ? last
+    : text.slice(-1) || undefined;
+}
+
 export function measureText(font: BmFont, text: string) {
+  // Glyphs are keyed by code point, so walk the text by code point too
+  const characters = Array.from(text);
   let x = 0;
 
-  for (let i = 0; i < text.length; i++) {
-    const char = text[i]!;
+  for (let i = 0; i < characters.length; i++) {
+    const char = characters[i]!;
     const fontChar = font.chars[char];
 
     if (fontChar) {
       const fontKerning = font.kernings[char];
-      const nextChar = text[i + 1];
+      const nextChar = characters[i + 1];
       const kerning =
         fontKerning && nextChar && fontKerning[nextChar]
           ? fontKerning[nextChar] || 0
@@ -35,7 +49,7 @@ function measureAppendedText(
 ) {
   if (lastChar && font.chars[lastChar]) {
     const fontKerning = font.kernings[lastChar];
-    const nextChar = text[0];
+    const [nextChar] = text;
 
     width +=
       fontKerning && nextChar && fontKerning[nextChar]
@@ -85,13 +99,13 @@ export function splitLines(font: BmFont, text: string, maxWidth: number) {
         if (length < maxWidth) {
           current += char;
           currentWidth = length;
-          currentLastChar = char[char.length - 1];
+          currentLastChar = char;
         } else if (length > maxWidth) {
           lines.push([...currentLine, current]);
           currentLine = [];
           current = char;
           currentWidth = measureText(font, char);
-          currentLastChar = char[char.length - 1];
+          currentLastChar = char;
         } else {
           lines.push([...currentLine, current + char]);
           currentLine = [];
@@ -124,14 +138,14 @@ export function splitLines(font: BmFont, text: string, maxWidth: number) {
 
       currentLine.push(word);
       lineWidth = length;
-      lineLastChar = appended[appended.length - 1];
+      lineLastChar = lastCharacter(appended);
     } else {
       const nextLine = word.replace("\n", "");
 
       lines.push(currentLine);
       currentLine = [nextLine];
       lineWidth = measureText(font, nextLine);
-      lineLastChar = nextLine[nextLine.length - 1];
+      lineLastChar = lastCharacter(nextLine);
     }
   });
 

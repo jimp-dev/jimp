@@ -1,4 +1,4 @@
-import { expect, test, describe } from "vitest";
+import { afterAll, beforeAll, describe, expect, test } from "vitest";
 import "@jimp/test-utils/image-snapshot";
 import { HorizontalAlign, VerticalAlign, createJimp } from "@jimp/core";
 import png from "@jimp/js-png";
@@ -23,6 +23,48 @@ function createFontFile(page: string) {
     `page id=0 file="${page}"`,
     "char id=65 x=0 y=0 width=4 height=4 xoffset=0 yoffset=0 xadvance=4 page=0",
   ].join("\n");
+}
+
+const EMOJI = "😀"; // U+1F600, outside the BMP
+const KANJI = "日"; // U+65E5
+
+/**
+ * Writes a font with 4x4 glyphs for 😀 (red), 日 (green) and A (blue), with
+ * kerning of 2 from 😀 to A, 1 from 😀 to a space and 1 from A to 😀.
+ */
+async function createAstralFont(dir: string) {
+  const page = new Jimp({ width: 12, height: 4, color: 0xff0000ff });
+
+  page.scan(4, 0, 4, 4, (_, __, idx) => {
+    page.bitmap.data.writeUInt32BE(0x00ff00ff, idx);
+  });
+  page.scan(8, 0, 4, 4, (_, __, idx) => {
+    page.bitmap.data.writeUInt32BE(0x0000ffff, idx);
+  });
+
+  const char = (char: string, x: number) =>
+    `char id=${char.codePointAt(0)} x=${x} y=0 width=4 height=4 xoffset=0 yoffset=0 xadvance=4 page=0`;
+  const fontFile = path.join(dir, "astral.fnt");
+
+  await fs.writeFile(
+    path.join(dir, "astral.png"),
+    await page.getBuffer("image/png"),
+  );
+  await fs.writeFile(
+    fontFile,
+    [
+      "common lineHeight=4 base=4 scaleW=12 scaleH=4 pages=1",
+      'page id=0 file="astral.png"',
+      char(EMOJI, 0),
+      char(KANJI, 4),
+      char("A", 8),
+      `kerning first=${EMOJI.codePointAt(0)} second=65 amount=2`,
+      `kerning first=${EMOJI.codePointAt(0)} second=32 amount=1`,
+      `kerning first=65 second=${EMOJI.codePointAt(0)} amount=1`,
+    ].join("\n"),
+  );
+
+  return loadFont(fontFile);
 }
 
 async function createTextImage(
@@ -266,6 +308,76 @@ describe("Write text over image", function () {
       .getBuffer("image/png");
 
     expect(output).toMatchImageSnapshot();
+  });
+
+  describe("characters outside the BMP", () => {
+    let dir: string;
+    let font: Awaited<ReturnType<typeof loadFont>>;
+
+    beforeAll(async () => {
+      dir = await fs.mkdtemp(path.join(os.tmpdir(), "jimp-font-"));
+      font = await createAstralFont(dir);
+    });
+
+    afterAll(async () => {
+      await fs.rm(dir, { recursive: true, force: true });
+    });
+
+    test("glyphs and kernings are keyed by code point", () => {
+      expect(font.chars[EMOJI]?.id).toBe(0x1f600);
+      expect(font.chars[KANJI]?.id).toBe(0x65e5);
+      // Not under the truncated String.fromCharCode(0x1f600), U+F600
+      expect(font.chars[String.fromCharCode(0x1f600)]).toBeUndefined();
+      expect(font.kernings[EMOJI]?.["A"]).toBe(2);
+    });
+
+    test("prints each glyph once, with kerning", () => {
+      const image = new Jimp({ width: 20, height: 4, color: 0xffffffff });
+      image.print({ font, x: 0, y: 0, text: `${KANJI}${EMOJI}A` });
+
+      const colors = Array.from({ length: 20 }, (_, x) =>
+        image.getPixelColor(x, 0),
+      );
+
+      expect(colors).toEqual([
+        ...Array(4).fill(0x00ff00ff),
+        ...Array(4).fill(0xff0000ff),
+        ...Array(2).fill(0xffffffff),
+        ...Array(4).fill(0x0000ffff),
+        ...Array(6).fill(0xffffffff),
+      ]);
+    });
+
+    test("measureText counts each character once, with kerning", () => {
+      expect(measureText(font, EMOJI)).toBe(4);
+      expect(measureText(font, `${KANJI}${EMOJI}A`)).toBe(14);
+    });
+
+    test("splitLines doesn't split surrogate pairs", () => {
+      expect(splitLines(font, EMOJI.repeat(3), 9).lines).toEqual([
+        [EMOJI.repeat(2)],
+        [EMOJI],
+      ]);
+      expect(measureTextHeight(font, EMOJI.repeat(3), 9)).toBe(8);
+    });
+
+    test("splitLines applies kerning around characters outside the BMP", () => {
+      // 😀A is 10 wide with kerning, so it doesn't fit in 9
+      expect(splitLines(font, `${EMOJI}A${EMOJI}A`, 9).lines).toEqual([
+        [EMOJI],
+        [`A${EMOJI}`],
+        ["A"],
+      ]);
+      // A😀 is 9 wide with kerning, so it doesn't fit in 8.5
+      expect(splitLines(font, `A${EMOJI}${EMOJI}`, 8.5).lines).toEqual([
+        ["A"],
+        [EMOJI.repeat(2)],
+      ]);
+      // Includes the kerning between the first word and the space after it
+      const text = `${EMOJI} ${EMOJI}A`;
+      expect(measureText(font, text)).toBe(15);
+      expect(splitLines(font, text, Infinity).longestLine).toBe(15);
+    });
   });
 
   test("Jimp can print numbers too", async () => {

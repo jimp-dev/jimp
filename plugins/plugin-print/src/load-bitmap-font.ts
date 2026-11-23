@@ -197,14 +197,14 @@ export async function processBitmapFont(file: string, font: LoadedFont) {
 
   for (let i = 0; i < font.chars.length; i++) {
     const char = font.chars[i]!;
-    chars[String.fromCharCode(char.id)] = char;
+    chars[String.fromCodePoint(char.id)] = char;
   }
 
   for (let i = 0; i < font.kernings.length; i++) {
-    const firstString = String.fromCharCode(font.kernings[i]!.first);
+    const firstString = String.fromCodePoint(font.kernings[i]!.first);
 
     kernings[firstString] = kernings[firstString]! || {};
-    kernings[firstString]![String.fromCharCode(font.kernings[i]!.second)] =
+    kernings[firstString]![String.fromCodePoint(font.kernings[i]!.second)] =
       font.kernings[i]!.amount;
   }
 
