@@ -105,11 +105,15 @@ class ImagePHash {
 
     for (let x = 0; x < this.smallerSize; x++) {
       for (let y = 0; y < this.smallerSize; y++) {
+        if (x === 0 && y === 0) {
+          continue;
+        }
+
         total += dctVals[x]![y]!;
       }
     }
 
-    const avg = total / (this.smallerSize * this.smallerSize);
+    const avg = total / (this.smallerSize * this.smallerSize - 1);
 
     /* 6. Further reduce the DCT.
      * This is the magic step. Set the 64 hash bits to 0 or 1
