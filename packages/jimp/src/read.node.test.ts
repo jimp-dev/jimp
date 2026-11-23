@@ -4,8 +4,9 @@ import { Jimp } from "./index.js";
 
 describe("read", () => {
   test("reports a missing file instead of fetching the path", async () => {
+    // Node on Windows reports the absolute path
     await expect(Jimp.read("./does-not-exist.png")).rejects.toThrow(
-      "ENOENT: no such file or directory, open './does-not-exist.png'",
+      /ENOENT: no such file or directory, open '.*does-not-exist\.png'/,
     );
   });
 
