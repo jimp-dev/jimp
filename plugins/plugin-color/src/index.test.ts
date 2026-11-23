@@ -51,6 +51,49 @@ describe("canvas color transformation", () => {
   });
 });
 
+describe("mix and xor colors", () => {
+  const pixel = (colorSpace?: "display-p3") =>
+    new jimp({
+      data: Buffer.from([0x40, 0x80, 0xc0, 0xff]),
+      width: 1,
+      height: 1,
+      colorSpace,
+    });
+
+  test("accept a CSS color", () => {
+    expect(
+      pixel().color([{ apply: "xor", params: ["#06D"] }]).bitmap.data,
+    ).toStrictEqual(
+      pixel().color([{ apply: "xor", params: [{ r: 0, g: 0x66, b: 0xdd }] }])
+        .bitmap.data,
+    );
+    expect(
+      pixel().color([{ apply: "mix", params: ["white", 25] }]).bitmap.data,
+    ).toStrictEqual(
+      pixel().color([
+        { apply: "mix", params: [{ r: 255, g: 255, b: 255 }, 25] },
+      ]).bitmap.data,
+    );
+  });
+
+  test("convert CSS colors to the image's colour space", () => {
+    const image = pixel("display-p3");
+    image.color([{ apply: "mix", params: ["red", 100] }]);
+
+    // sRGB red in Display P3
+    expect([...image.bitmap.data]).toStrictEqual([0xea, 0x33, 0x23, 0xff]);
+  });
+
+  test("throw for an invalid CSS color", () => {
+    expect(() =>
+      pixel().color([{ apply: "xor", params: ["notacolor"] }]),
+    ).toThrow('Invalid color "notacolor"');
+    expect(() =>
+      pixel().color([{ apply: "mix", params: ["nope", 50] }]),
+    ).toThrow('Invalid color "nope"');
+  });
+});
+
 describe("saturation", () => {
   // Scaling HSL saturation scales each channel's distance from the midpoint
   // of the max and min channels, so the expected values are easy to derive.

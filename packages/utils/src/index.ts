@@ -273,6 +273,9 @@ export function limit255(n: number) {
  * converted to `colorSpace` (sRGB by default), the space of the image the
  * color is for, see {@link getColorSpace}. Numbers are pixel values, and are
  * returned as they are.
+ *
+ * Throws an error naming the value if it isn't a color, e.g.
+ * `Invalid color "notacolor"`.
  * @returns A hex number representing a color
  * @example
  * ```ts
@@ -300,6 +303,10 @@ export function cssColorToHex(
     alpha = parsed.alpha;
   } else {
     const color = tinyColor(cssColor);
+
+    if (!color.isValid()) {
+      throw new Error(`Invalid color "${cssColor}"`);
+    }
 
     if (colorSpace === SRGB) {
       return parseInt(color.toHex8(), 16);

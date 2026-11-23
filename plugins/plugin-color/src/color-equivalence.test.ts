@@ -39,16 +39,17 @@ function referenceColor(data: Buffer, actions: ColorAction[]) {
 
     actions.forEach((action) => {
       if (action.apply === "mix") {
-        clr = mix(clr, action.params[0], action.params[1]);
+        clr = mix(clr, action.params[0] as RGBColor, action.params[1]);
       } else if (action.apply === "tint") {
         clr = mix(clr, { r: 255, g: 255, b: 255 }, action.params?.[0]);
       } else if (action.apply === "shade") {
         clr = mix(clr, { r: 0, g: 0, b: 0 }, action.params?.[0]);
       } else if (action.apply === "xor") {
+        const xor = action.params[0] as RGBColor;
         clr = {
-          r: clr.r! ^ action.params[0].r,
-          g: clr.g! ^ action.params[0].g,
-          b: clr.b! ^ action.params[0].b,
+          r: clr.r! ^ xor.r,
+          g: clr.g! ^ xor.g,
+          b: clr.b! ^ xor.b,
         };
       } else if (action.apply === "red") {
         clr.r = colorModifier("r", action.params[0]);

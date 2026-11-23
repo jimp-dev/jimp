@@ -208,4 +208,20 @@ describe("cssColorToHex", () => {
     expect(cssColorToHex("color(srgb 100% 50% 0% / 50%)")).toBe(0xff800080);
     expect(cssColorToHex("COLOR(Display-P3 0 0 0 / 0.25)")).toBe(0x00000040);
   });
+
+  test("throws for invalid colors", () => {
+    expect(() => cssColorToHex("notacolor")).toThrow(
+      'Invalid color "notacolor"',
+    );
+    expect(() => cssColorToHex("notacolor", DISPLAY_P3)).toThrow(
+      'Invalid color "notacolor"',
+    );
+    expect(() => cssColorToHex("")).toThrow('Invalid color ""');
+    expect(() => cssColorToHex("color(rec2020 1 0 0)")).toThrow(
+      'Invalid color "color(rec2020 1 0 0)"',
+    );
+    expect(() => cssColorToHex("color(display-p3 foo 0 0)")).toThrow(
+      'Invalid color "color(display-p3 foo 0 0)": bad channel "foo"',
+    );
+  });
 });

@@ -453,7 +453,7 @@ export function pixelsInColorSpaceOf(
 const COLOR_FUNCTION =
   /^color\(\s*(srgb|display-p3)\s+([^\s/)]+)\s+([^\s/)]+)\s+([^\s/)]+)\s*(?:\/\s*([^\s)]+)\s*)?\)$/i;
 
-function parseChannel(value: string) {
+function parseChannel(value: string, css: string) {
   if (value === "none") {
     return 0;
   }
@@ -463,7 +463,7 @@ function parseChannel(value: string) {
     : parseFloat(value);
 
   if (Number.isNaN(number)) {
-    throw new Error(`Invalid color channel: ${value}`);
+    throw new Error(`Invalid color "${css}": bad channel "${value}"`);
   }
 
   return clamp01(number);
@@ -484,7 +484,11 @@ export function parseColorFunction(css: string) {
 
   return {
     colorSpace: COLOR_SPACES[space!.toLowerCase() as ColorSpaceName],
-    rgb: [r, g, b].map((v) => parseChannel(v!)) as [number, number, number],
-    alpha: alpha === undefined ? 1 : parseChannel(alpha),
+    rgb: [r, g, b].map((v) => parseChannel(v!, css)) as [
+      number,
+      number,
+      number,
+    ],
+    alpha: alpha === undefined ? 1 : parseChannel(alpha, css),
   };
 }

@@ -1,5 +1,13 @@
 import { Buffer } from "buffer";
-import { clone, limit255, scan } from "@jimp/utils";
+import {
+  clone,
+  ColorSpace,
+  cssColorToHex,
+  getColorSpace,
+  intToRGBA,
+  limit255,
+  scan,
+} from "@jimp/utils";
 import { Edge, JimpClass, RGBColor } from "@jimp/types";
 import { z } from "zod";
 
@@ -262,11 +270,17 @@ const RGBColorSchema = z.object({
   b: z.number().min(0).max(255),
 });
 
+/**
+ * An `{ r, g, b }` object, or a CSS color, which is converted to the image's
+ * colour space. Alpha is ignored.
+ */
+const MixColorSchema = z.union([RGBColorSchema, z.string()]);
+
 const MixActionSchema = z.object({
   apply: z.literal("mix"),
   params: z.union([
-    z.tuple([RGBColorSchema]),
-    z.tuple([RGBColorSchema, z.number().min(0).max(100)]),
+    z.tuple([MixColorSchema]),
+    z.tuple([MixColorSchema, z.number().min(0).max(100)]),
   ]),
 });
 export type MixAction = z.infer<typeof MixActionSchema>;
@@ -285,7 +299,7 @@ export type ShadeAction = z.infer<typeof ShadeActionSchema>;
 
 const XorActionSchema = z.object({
   apply: z.literal("xor"),
-  params: z.tuple([RGBColorSchema]),
+  params: z.tuple([MixColorSchema]),
 });
 export type XorAction = z.infer<typeof XorActionSchema>;
 
@@ -415,13 +429,28 @@ function colorStep(op: ColorOp, amount = 0, color = BLACK): ColorStep {
   return { op, r: color.r, g: color.g, b: color.b, amount };
 }
 
-function compileColorAction(action: ColorAction): ColorStep {
+/** An `{ r, g, b }` color, or a CSS color converted to `colorSpace` */
+function toRGBColor(
+  color: z.infer<typeof MixColorSchema>,
+  colorSpace: ColorSpace,
+): RGBColor {
+  return roundColor(
+    typeof color === "string"
+      ? intToRGBA(cssColorToHex(color, colorSpace))
+      : color,
+  );
+}
+
+function compileColorAction(
+  action: ColorAction,
+  colorSpace: ColorSpace,
+): ColorStep {
   switch (action.apply) {
     case "mix":
       return colorStep(
         ColorOp.Mix,
         (action.params[1] ?? 50) / 100,
-        roundColor(action.params[0]),
+        toRGBColor(action.params[0], colorSpace),
       );
     case "tint":
       return colorStep(ColorOp.Mix, (action.params?.[0] ?? 50) / 100, WHITE);
@@ -440,7 +469,11 @@ function compileColorAction(action: ColorAction): ColorStep {
         BLACK,
       );
     case "xor":
-      return colorStep(ColorOp.Xor, 0, roundColor(action.params[0]));
+      return colorStep(
+        ColorOp.Xor,
+        0,
+        toRGBColor(action.params[0], colorSpace),
+      );
     case "red":
       return colorStep(ColorOp.Red, action.params[0]);
     case "green":
@@ -1121,7 +1154,10 @@ export const methods = {
 
     // Work out everything that doesn't depend on the pixel once per call.
     // The caller's actions aren't modified so they can be reused.
-    const steps = actions.map(compileColorAction);
+    const colorSpace = getColorSpace(image);
+    const steps = actions.map((action) =>
+      compileColorAction(action, colorSpace),
+    );
     const data = image.bitmap.data;
     const end = image.bitmap.width * image.bitmap.height * 4;
 
