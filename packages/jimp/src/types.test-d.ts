@@ -154,6 +154,10 @@ describe("chainable methods return the instance type", () => {
       fisheye: image.fisheye(),
       flip: image.flip({ horizontal: true }),
       mask: image.mask({ src: image }),
+      erode: image.erode({ radius: 1 }),
+      dilate: image.dilate({ radius: 1, shape: "disk" }),
+      open: image.open({ radius: 1 }),
+      close: image.close({ radius: 1, shape: "square" }),
       print: image.print({ font, x: 0, y: 0, text: "hi" }),
       resize: image.resize({ w: 1, mode: ResizeStrategy.BILINEAR }),
       scale: image.scale(2),
@@ -290,10 +294,12 @@ describe("format options are still checked", () => {
     image.getBuffer("image/png", { icc: false });
     image.getBuffer("image/bmp", { hr: 2835, vr: 2835 });
     image.getBuffer("image/bmp", { bitPP: 16 });
-    // @ts-expect-error 8-bit BMPs need a palette, which isn't supported
     image.getBuffer("image/bmp", { bitPP: 8 });
-    // @ts-expect-error bmp is always written without a palette
-    image.getBuffer("image/bmp", { palette: [] });
+    image.getBuffer("image/bmp", { bitPP: 1, palette: ["white", 0x000000ff] });
+    // @ts-expect-error BMPs can't be 2-bit
+    image.getBuffer("image/bmp", { bitPP: 2 });
+    // @ts-expect-error palette colours are numbers or CSS colours
+    image.getBuffer("image/bmp", { palette: [{ red: 0, green: 0, blue: 0 }] });
     // @ts-expect-error bmp can't write an ICC profile
     image.getBuffer("image/bmp", { icc: false });
     // @ts-expect-error png can't write EXIF data
@@ -311,6 +317,7 @@ describe("format options are still checked", () => {
     image.write("out.jpeg", { quality: 50 });
     image.write("out.png", { deflateLevel: 1 });
     image.write("out.bmp", { bitPP: 16 });
+    image.write("out.bmp", { bitPP: 4, palette: ["red", "blue"] });
     image.write("out.jpg", { exif: true });
     image.write("out.png", { icc: false });
     image.write("out.bmp");

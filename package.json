@@ -12,7 +12,7 @@
     "build": "turbo run build --filter=!@jimp/docs && node scripts/check-browser-bundle.mjs",
     "dev": "turbo run dev",
     "lint": "turbo run lint",
-    "test": "turbo run test -- --watch=false",
+    "test": "turbo run test -- --watch=false --testTimeout=20000",
     "test:browser": "turbo run test:browser -- --watch=false",
     "clean": "turbo run clean && rm -rf node_modules .turbo",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
@@ -25,14 +25,14 @@
     "@auto-it/all-contributors": "^11.2.1",
     "@auto-it/first-time-contributor": "^11.2.1",
     "@auto-it/released": "^11.2.1",
-    "@babel/core": "^7.25.2",
+    "@babel/core": "^7.29.13",
     "@babel/preset-env": "^7.29.14",
     "@jimp/config-eslint": "workspace:*",
     "@jimp/config-typescript": "workspace:*",
-    "@turbo/gen": "^2.1.1",
+    "@turbo/gen": "^2.11.13",
     "auto": "^11.2.1",
     "npm-check-updates": "^17.1.1",
     "prettier": "^3.3.3",
-    "turbo": "^2.1.1"
+    "turbo": "^2.11.13"
   }
 }

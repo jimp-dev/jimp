@@ -16,4 +16,32 @@ await image.write("out.bmp", { bitPP: 16 });
 const buffer = await image.getBuffer("image/bmp", { bitPP: 32 });
 ```
 
-1, 4 and 8-bit BMPs, which need a palette, aren't supported yet ([#633](https://github.com/jimp-dev/jimp/issues/633)).
+### 1, 4 and 8-bit BMPs
+
+`bitPP: 1`, `4` and `8` write each pixel as an index into a palette of up to 2, 16 or 256 colours. Without a `palette` option:
+
+- If the image has few enough colours, those colours are the palette, so nothing is lost.
+- Otherwise a 1-bit BMP is black and white: pixels whose Rec. 709 luminance is over half are white.
+- Otherwise a 4 or 8-bit BMP gets a palette of the image's most important colours, from [image-q](https://github.com/ibezkrovnyi/image-quantization)'s Wu quantizer. Each pixel is the nearest palette colour, without dithering.
+
+To dither, reduce the image's colours before writing it. The image then has few enough colours to be written exactly:
+
+```ts
+// 1-bit, black and white
+image.dither({ type: "floyd-steinberg" });
+await image.write("out.bmp", { bitPP: 1 });
+
+// 4-bit, 16 colours
+image.quantize({ colors: 16 });
+await image.write("out.bmp", { bitPP: 4 });
+```
+
+Pass `palette` to choose the colours yourself, as RGBA hex numbers or CSS colours. Each pixel is written as the nearest palette colour, and alpha is ignored:
+
+```ts
+await image.write("out.bmp", { bitPP: 1, palette: ["white", "black"] });
+await image.write("out.bmp", {
+  bitPP: 4,
+  palette: [0x000000ff, 0xff0000ff, 0x00ff00ff, 0x0000ffff],
+});
+```

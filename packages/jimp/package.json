@@ -56,6 +56,7 @@
     "@jimp/plugin-flip": "workspace:*",
     "@jimp/plugin-hash": "workspace:*",
     "@jimp/plugin-mask": "workspace:*",
+    "@jimp/plugin-morphology": "workspace:*",
     "@jimp/plugin-print": "workspace:*",
     "@jimp/plugin-quantize": "workspace:*",
     "@jimp/plugin-resize": "workspace:*",
@@ -73,20 +74,20 @@
     "@rollup/plugin-commonjs": "^26.0.1",
     "@rollup/plugin-inject": "^5.0.5",
     "@rollup/plugin-node-resolve": "^15.2.3",
-    "@rollup/plugin-terser": "^0.4.4",
-    "@vitest/browser": "^2.0.5",
+    "@rollup/plugin-terser": "^1.0.2",
+    "@vitest/browser": "^4.1.12",
     "buffer": "^6.0.3",
     "eslint": "^9.9.1",
     "node-self": "^1.0.2",
     "path-browserify": "^1.0.1",
-    "rollup": "^4.21.2",
+    "rollup": "^4.68.8",
     "rollup-plugin-dts": "^6.1.1",
     "rollup-plugin-esbuild": "^6.1.1",
     "rollup-plugin-polyfill-node": "^0.13.0",
     "tshy": "^3.0.2",
     "typescript": "^5.5.4",
-    "vite-plugin-node-polyfills": "^0.22.0",
-    "vitest": "^2.0.5"
+    "vite-plugin-node-polyfills": "^0.28.0",
+    "vitest": "^4.1.12"
   },
   "tshy": {
     "exclude": [

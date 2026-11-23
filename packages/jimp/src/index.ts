@@ -25,6 +25,7 @@ import * as fisheye from "@jimp/plugin-fisheye";
 import * as flip from "@jimp/plugin-flip";
 import * as hash from "@jimp/plugin-hash";
 import * as mask from "@jimp/plugin-mask";
+import * as morphology from "@jimp/plugin-morphology";
 import * as print from "@jimp/plugin-print";
 import * as resize from "@jimp/plugin-resize";
 import * as rotate from "@jimp/plugin-rotate";
@@ -48,6 +49,7 @@ export const defaultPlugins = [
   flip.methods,
   hash.methods,
   mask.methods,
+  morphology.methods,
   print.methods,
   resize.methods,
   rotate.methods,
@@ -215,6 +217,7 @@ export {
 } from "@jimp/utils";
 export type { FlipOptions } from "@jimp/plugin-flip";
 export type { FisheyeOptions } from "@jimp/plugin-fisheye";
+export type { MorphologyOptions } from "@jimp/plugin-morphology";
 export type { AffineOptions, SkewOptions } from "@jimp/plugin-rotate";
 export type { DisplaceOptions } from "@jimp/plugin-displace";
 export type { CoverOptions } from "@jimp/plugin-cover";

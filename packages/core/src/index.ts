@@ -85,9 +85,13 @@ async function toBuffer(input: ImageInput) {
 /**
  * Extensions mime/lite doesn't know, because they're registered under a
  * different MIME type than the one file-type detects (and formats use), e.g.
- * image/vnd.microsoft.icon for ICO files
+ * image/vnd.microsoft.icon for ICO files, or are newer than its database,
+ * like JPEG XL
  */
-const unregisteredMime = new Mime({ "image/x-icon": ["ico"] });
+const unregisteredMime = new Mime({
+  "image/x-icon": ["ico"],
+  "image/jxl": ["jxl"],
+});
 
 /** Strings that are fetched rather than read from the file system */
 const URL_PATTERN = /^(https?|data|blob):/i;
