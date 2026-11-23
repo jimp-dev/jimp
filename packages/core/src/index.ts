@@ -403,8 +403,9 @@ export function createJimp<
     mime?: string;
 
     /**
-     * The ICC colour profile the pixels are in, as read from a JPEG, PNG or
-     * WebP, or undefined for sRGB. It's written to JPEG, PNG and WebP output.
+     * The ICC colour profile the pixels are in, as read from a JPEG, PNG,
+     * WebP or JPEG 2000 (JP2/JPX), or undefined for sRGB. It's written to
+     * JPEG, PNG and WebP output.
      *
      * Setting it changes how the pixels are interpreted, without converting
      * them. Use `toColorSpace` to convert.

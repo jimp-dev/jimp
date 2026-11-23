@@ -109,10 +109,11 @@ The bundled fonts cover printable ASCII (the 8, 16, 32, 64 and 128px ones also L
 - [`@jimp/js-png`](https://www.npmjs.com/package/@jimp/js-png)
 - [`@jimp/js-tiff`](https://www.npmjs.com/package/@jimp/js-tiff)
 
-The optional WASM plugins add AVIF and WebP, or swap in WASM codecs for JPEG and PNG. They aren't dependencies of `jimp` and only work in ESM. Install the ones you need and add them to a [custom Jimp](https://jimp-dev.github.io/jimp/guides/custom-jimp/), as shown in the [WASM plugins guide](https://jimp-dev.github.io/jimp/guides/webp/).
+The optional WASM plugins add AVIF, JPEG 2000 and WebP, or swap in WASM codecs for JPEG and PNG. They aren't dependencies of `jimp` and only work in ESM. Install the ones you need and add them to a [custom Jimp](https://jimp-dev.github.io/jimp/guides/custom-jimp/), as shown in the [WASM plugins guide](https://jimp-dev.github.io/jimp/guides/webp/).
 
 - [`@jimp/wasm-avif`](https://www.npmjs.com/package/@jimp/wasm-avif)
 - [`@jimp/wasm-jpeg`](https://www.npmjs.com/package/@jimp/wasm-jpeg)
+- [`@jimp/wasm-jpeg2000`](https://www.npmjs.com/package/@jimp/wasm-jpeg2000)
 - [`@jimp/wasm-png`](https://www.npmjs.com/package/@jimp/wasm-png)
 - [`@jimp/wasm-webp`](https://www.npmjs.com/package/@jimp/wasm-webp)
 
