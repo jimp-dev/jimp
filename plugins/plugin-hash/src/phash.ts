@@ -33,17 +33,29 @@ import { clone } from "@jimp/utils";
  * Based On: http://www.hackerfactor.com/blog/index.php?/archives/432-Looks-Like-It.html
  */
 
+/** Default width and height the image is scaled to before the DCT. */
+export const DEFAULT_SIZE = 32;
+/** Default width and height of the low-frequency DCT block the hash is made from. */
+export const DEFAULT_SMALLER_SIZE = 8;
+
 class ImagePHash {
   size: number;
   smallerSize: number;
 
   constructor(size?: number, smallerSize?: number) {
-    this.size = size || 32;
-    this.smallerSize = smallerSize || 8;
-    initCoefficients(this.size);
+    this.size = size || DEFAULT_SIZE;
+    this.smallerSize = smallerSize || DEFAULT_SMALLER_SIZE;
   }
 
   distance(s1: string, s2: string) {
+    if (s1.length !== s2.length) {
+      throw new Error(
+        `Can't compare hashes of different lengths (${s1.length} and ${s2.length}). ` +
+          "Both hashes must be made with the same size and smallerSize options " +
+          "(and, for hash(), the same base).",
+      );
+    }
+
     let counter = 0;
 
     for (let k = 0; k < s1.length; k++) {
@@ -98,13 +110,13 @@ class ImagePHash {
      * and scalars. While JPEG uses an 8x8 DCT, this algorithm uses
      * a 32x32 DCT.
      */
-    const dctVals = applyDCT(vals, this.size);
-
     /* 4. Reduce the DCT.
      * This is the magic step. While the DCT is 32x32, just keep the
      * top-left 8x8. Those represent the lowest frequencies in the
-     * picture.
+     * picture. Only those coefficients are computed.
      */
+    const dctVals = applyDCT(vals, this.size, this.smallerSize);
+
     /* 5. Compute the average value.
      * Like the Average Hash, compute the mean DCT value (using only
      * the 8x8 DCT low-frequency values and excluding the first term
@@ -191,37 +203,46 @@ function flatten<I extends JimpClass>(img: I, background: number) {
   return img;
 }
 
-const c: number[] = [];
-
-function initCoefficients(size: number) {
-  for (let i = 1; i < size; i++) {
-    c[i] = 1;
-  }
-
-  c[0] = 1 / Math.sqrt(2.0);
+function c(u: number) {
+  return u === 0 ? 1 / Math.sqrt(2.0) : 1;
 }
 
-function applyDCT(f: number[][], size: number) {
+/**
+ * Computes the top-left `count` x `count` coefficients of the 2D DCT-II of
+ * a `size` x `size` matrix.
+ */
+function applyDCT(f: number[][], size: number, count: number) {
   const N = size;
   const F: number[][] = [];
 
-  for (let u = 0; u < N; u++) {
+  // cosines[u][i] is the DCT basis function for frequency u at sample i.
+  const cosines: number[][] = [];
+
+  for (let u = 0; u < count; u++) {
     const row = [];
-    for (let v = 0; v < N; v++) {
+    for (let i = 0; i < N; i++) {
+      row[i] = Math.cos(((2 * i + 1) / (2.0 * N)) * u * Math.PI);
+    }
+    cosines[u] = row;
+  }
+
+  for (let u = 0; u < count; u++) {
+    const row = [];
+    for (let v = 0; v < count; v++) {
       let sum = 0;
       for (let i = 0; i < N; i++) {
         for (let j = 0; j < N; j++) {
-          sum +=
-            Math.cos(((2 * i + 1) / (2.0 * N)) * u * Math.PI) *
-            Math.cos(((2 * j + 1) / (2.0 * N)) * v * Math.PI) *
-            f[i]![j]!;
+          sum += cosines[u]![i]! * cosines[v]![j]! * f[i]![j]!;
         }
       }
 
-      sum *= (c[u]! * c[v]!) / 4;
+      // 2 / N is the orthonormal scale. Scaling every coefficient by the
+      // same positive factor doesn't change the hash, which only compares
+      // coefficients with their mean.
+      sum *= (2 / N) * c(u) * c(v);
       row[v] = sum;
-      F[u] = row;
     }
+    F[u] = row;
   }
 
   return F;

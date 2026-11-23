@@ -41,7 +41,8 @@
     "@jimp/plugin-resize": "workspace:*",
     "@jimp/types": "workspace:*",
     "@jimp/utils": "workspace:*",
-    "any-base": "^1.1.0"
+    "any-base": "^1.1.0",
+    "zod": "^4.6.7"
   },
   "tshy": {
     "exclude": [
