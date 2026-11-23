@@ -1966,6 +1966,9 @@ importers:
       '@jimp/js-jpeg':
         specifier: workspace:*
         version: link:../js-jpeg
+      '@jimp/js-png':
+        specifier: workspace:*
+        version: link:../js-png
       '@jimp/test-utils':
         specifier: workspace:*
         version: link:../../packages/test-utils
