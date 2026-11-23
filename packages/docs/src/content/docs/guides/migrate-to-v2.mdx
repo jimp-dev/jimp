@@ -17,11 +17,20 @@ npm install jimp@2
 
 Then work through this page. Start with the quick checklist; the sections below it explain each change.
 
+<Aside type="caution" title="Stored image hashes">
+  [`pHash`](/jimp/methods/phash/) and [`hash`](/jimp/methods/hash/) return
+  different values in 2.0 for every image, opaque ones included. Hashes made
+  with 1.x can't be compared with hashes made with 2.0: `compareHashes` and
+  `distanceFromHash` across versions give meaningless distances. If you store
+  hashes, for example to find duplicates, re-hash the stored images after
+  upgrading. See [Hashes](#hashes).
+</Aside>
+
 ## Quick checklist
 
 1. Run on **Node.js 22 or later**.
 2. Look for code that relied on bad input being accepted: invalid CSS colors, `NaN` coordinates, crop rectangles outside the image, conflicting `align` flags. These now throw. See [Errors that now throw](#errors-that-now-throw).
-3. If you store [`pHash`](/jimp/methods/phash/) or [`hash`](/jimp/methods/hash/) values, recompute them. Hashes from 1.x won't match hashes from 2.0.
+3. If you store [`pHash`](/jimp/methods/phash/) or [`hash`](/jimp/methods/hash/) values, recompute them. Hashes from 1.x can't be compared with hashes from 2.0.
 4. If you compare output against saved images (snapshot tests, golden files), expect changes in `greyscale`, `posterize`, `contrast`, `rotate`, `resize` with transparency, `gaussian`, `sepia`, `mask`, `color()` and `print`. See [Behavior changes](#behavior-changes).
 5. Remove encode and decode options that no longer exist. TypeScript reports them; see [Removed options](#removed-options).
 
@@ -137,7 +146,9 @@ These don't throw, but the output is different. Most are fixes for results that 
 
 ### Hashes
 
-- **[`pHash`](/jimp/methods/phash/) and [`hash`](/jimp/methods/hash/) give different values for every image.** The average now leaves out the DC term, as the algorithm intends, and transparent pixels are composited onto gray before hashing, so hidden colors under alpha 0 don't change the hash. Recompute any hashes you've stored.
+- **[`pHash`](/jimp/methods/phash/) and [`hash`](/jimp/methods/hash/) give different values for every image.** The average now leaves out the DC term, as the algorithm intends. In 1.x the DC term dominated on bright, low-contrast images, so many different images got nearly the same hash, with almost every bit 0. Transparent pixels are also composited onto gray before hashing, so hidden colors under alpha 0 don't change the hash.
+
+  Hashes from 1.x and 2.0 can't be mixed: a [`compareHashes`](/jimp/methods/compare-hashes/) or [`distanceFromHash`](/jimp/methods/distance-from-hash/) distance between a stored 1.x hash and a 2.0 hash means nothing. Re-hash every stored image with 2.0. [`distance(a, b)`](/jimp/methods/distance/) on two images is fine, since it hashes both with the same version.
 - **[`compareHashes`](/jimp/methods/compare-hashes/) decodes `hash()` output** to binary before comparing, so `compareHashes(a.hash(), b.hash())` equals [`distance(a, b)`](/jimp/methods/distance/). It used to compare base 64 characters, which gave much larger distances. Pass `base` for hashes in other bases.
 
 ### Reading and writing
@@ -161,6 +172,7 @@ try {
 #### Other changes
 
 - **PNG output uses the smallest lossless color type.** Without a `colorType` option, opaque images are written as RGB and gray images as grayscale, instead of always RGBA. The pixels are identical, and files are smaller. Pass `colorType: PNGColorType.COLOR_ALPHA` if something downstream needs RGBA. `inputHasAlpha` is deprecated; use `colorType`.
+- **`Jimp.read` passes decode options for files and buffers.** In 1.x, the per-format options passed to `Jimp.read`, such as `{ "image/jpeg": { maxMemoryUsageInMB: 1024 } }`, were only used when reading a URL. They're now used for file paths and buffers too, so options you passed before may now take effect. [`Jimp.fromBuffer`](/jimp/methods/from-buffer/) already used them.
 - **[`clone`](/jimp/methods/clone/) copies `mime` and `background`.** They used to be reset.
 - **ICC color profiles are kept.** JPEG, PNG and WebP files keep their embedded profile when you write them, so Display P3 photos no longer look duller after a round trip. For images with a profile, CSS colors are converted to the image's color space, and GIF, BMP, TIFF and AVIF output is converted to sRGB. Images without a profile are unchanged. Set `image.iccProfile = undefined` for the 1.x behavior. See [Color Spaces](/jimp/guides/color-spaces/).
 - **GIF encoding** keeps images with up to 256 colors exact, and quantizes larger ones in constant memory, so large GIFs no longer run out of memory. The output for images with more than 256 colors differs from 1.x.
@@ -220,6 +232,7 @@ await image.write("out.bmp", { bitPP: 1, palette: ["black", "white"] });
 - `divisor` and `bias` for [`convolution`](/jimp/methods/convolution/) and [`convolute`](/jimp/methods/convolute/), `preserveAlpha` for `convolute`, and even-sized and non-square kernels.
 - [`roundCorners`](/jimp/methods/round-corners/), [`border`](/jimp/methods/border/) and [`boxShadow`](/jimp/methods/box-shadow/), modeled on the CSS properties.
 - [`displace`](/jimp/methods/displace/) along both axes with `offset: { x, y }`.
+- `erode`, `dilate`, `open` and `close` morphology operations, from the new default plugin `@jimp/plugin-morphology`: `image.erode({ radius: 2, shape: "disk" })`.
 - [`diff`](/jimp/methods/diff/) takes pixelmatch's options, including `diffMask` for a transparent diff and custom diff colors.
 
 ### Shape
