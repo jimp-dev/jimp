@@ -5,7 +5,7 @@ import * as resize from "@jimp/plugin-resize";
 import png from "@jimp/js-png";
 import jpeg from "@jimp/js-jpeg";
 import type { BmFont } from "@jimp/plugin-print";
-import { Jimp, JimpInstance, ResizeStrategy } from "./index.js";
+import { Jimp, JimpInstance, RawImageData, ResizeStrategy } from "./index.js";
 
 declare const buffer: Buffer;
 declare const image: JimpInstance;
@@ -89,8 +89,32 @@ describe("one instance type (#1337, #1364)", () => {
     new Jimp({ width: 1, height: 1, color: "#ff0000" });
     new Jimp({ width: 1, height: 1, color: 0xff0000ff });
     new Jimp({ width: 1, height: 1, data: Buffer.alloc(4) });
+    new Jimp({ width: 1, height: 1, data: new Uint8Array(4) });
+    new Jimp({ width: 1, height: 1, data: new Uint8ClampedArray(4) });
     // @ts-expect-error width and height are required
     new Jimp({ width: 1 });
+    // @ts-expect-error pixel data must be bytes
+    new Jimp({ width: 1, height: 1, data: new Float32Array(4) });
+    // @ts-expect-error pixel data must be bytes
+    Jimp.fromBitmap({ width: 1, height: 1, data: new Uint16Array(4) });
+  });
+
+  test("statics and the constructor accept ImageData (#738, #912)", () => {
+    const imageData = new ImageData(1, 1);
+
+    expectTypeOf(Jimp.fromBitmap(imageData)).toEqualTypeOf<JimpInstance>();
+    expectTypeOf(new Jimp(imageData)).toEqualTypeOf<JimpInstance>();
+    expectTypeOf(imageData).toMatchTypeOf<RawImageData>();
+  });
+
+  test("bitmap data is always a Buffer", () => {
+    const image = new Jimp({
+      width: 1,
+      height: 1,
+      data: new Uint8ClampedArray(4),
+    });
+
+    expectTypeOf(image.bitmap.data).toEqualTypeOf<Buffer>();
   });
 });
 

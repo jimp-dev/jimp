@@ -47,10 +47,73 @@ export { getExifOrientation } from "./utils/image-bitmap.js";
 export { composite } from "./utils/composite.js";
 export * from "./utils/constants.js";
 
+/**
+ * Raw RGBA pixel data, 4 bytes per pixel.
+ * `data` can be a Buffer, any Uint8Array (or a view into part of one),
+ * a Uint8ClampedArray, or an array of 0xRRGGBBAA numbers.
+ * An `ImageData` from a canvas fits this shape, so it can be passed directly.
+ */
 export interface RawImageData {
   width: number;
   height: number;
   data: Buffer | Uint8Array | Uint8ClampedArray | number[];
+}
+
+/**
+ * Convert raw pixel data to the Buffer that Jimp stores.
+ * A Buffer is used as is unless `copy` is set.
+ * Any other data is always copied into a new Buffer. Typed arrays usually
+ * belong to something the caller keeps using, such as a canvas's ImageData.
+ * If Jimp shared that memory, methods that edit pixels in place would change
+ * it but methods that replace the bitmap (resize, crop, ...) wouldn't.
+ */
+function toBitmapData(data: RawImageData["data"], copy: boolean) {
+  if (Buffer.isBuffer(data)) {
+    return copy ? Buffer.from(data) : data;
+  }
+
+  if (data instanceof Uint8Array || data instanceof Uint8ClampedArray) {
+    // Only copy the view's own bytes, not the whole ArrayBuffer it sits in
+    return Buffer.from(
+      new Uint8Array(data.buffer, data.byteOffset, data.byteLength)
+    );
+  }
+
+  if (Array.isArray(data)) {
+    return Buffer.concat(
+      data.map((hex) => Buffer.from(hex.toString(16).padStart(8, "0"), "hex"))
+    );
+  }
+
+  throw new Error(
+    "data must be a Buffer, Uint8Array, Uint8ClampedArray or an array of numbers"
+  );
+}
+
+/**
+ * Check raw image data and convert it to a Bitmap.
+ * A bitmap whose data is already a Buffer is returned as is unless `copy` is set.
+ */
+function toBitmap(bitmap: RawImageData, copy: boolean): Bitmap {
+  const { width, height } = bitmap;
+
+  if (typeof height !== "number" || typeof width !== "number") {
+    throw new Error("bitmap must have width and height");
+  }
+
+  const data = toBitmapData(bitmap.data, copy);
+  const expectedLength = width * height * 4;
+
+  // Exactly, not "at least": like ImageData, extra bytes almost always mean
+  // the width, height or row stride is wrong. They'd also be read by code
+  // that loops over data.length.
+  if (data.length !== expectedLength) {
+    throw new Error(
+      `bitmap data is ${data.length} bytes, but a ${width}x${height} RGBA image needs exactly ${expectedLength} (width * height * 4)`
+    );
+  }
+
+  return data === bitmap.data ? (bitmap as Bitmap) : { data, width, height };
 }
 
 /**
@@ -65,7 +128,7 @@ export interface JimpSimpleConstructorOptions {
   color?: number | string;
 }
 
-export type JimpConstructorOptions = Bitmap | JimpSimpleConstructorOptions;
+export type JimpConstructorOptions = RawImageData | JimpSimpleConstructorOptions;
 
 /** Converts a jimp plugin function to a Jimp class method */
 type JimpInstanceMethod<ClassInstance, MethodMap, Method> =
@@ -190,12 +253,21 @@ export function createJimp<
     /** The original MIME type of the image */
     mime?: string;
 
+    /**
+     * Create a blank image (`{ width, height, color? }`) or one from raw RGBA
+     * pixel data (`{ data, width, height }`, see {@link RawImageData}).
+     *
+     * A Buffer passed as `data` is used without copying, so the image and the
+     * caller share it. Any other `data` is copied.
+     * Use `Jimp.fromBitmap` to always copy.
+     */
     constructor(options: JimpConstructorOptions = emptyBitmap) {
       // Add the formats
       this.formats = formats;
 
       if ("data" in options) {
-        this.bitmap = options;
+        // Buffers are used without copying. Other data is copied into a Buffer.
+        this.bitmap = toBitmap(options, false);
       } else {
         this.bitmap = {
           data: Buffer.alloc(options.width * options.height * 4),
@@ -278,65 +350,35 @@ export function createJimp<
     }
 
     /**
-     * Create a Jimp instance from a bitmap.
-     * The difference between this and just using the constructor is that this will
-     * convert raw image data into the bitmap format that Jimp uses.
+     * Create a Jimp instance from raw RGBA pixel data, such as a canvas's `ImageData`.
+     * `data` can be a Buffer, a Uint8Array, a Uint8ClampedArray or an array of
+     * 0xRRGGBBAA numbers, and must hold exactly `width * height * 4` bytes.
+     *
+     * Unlike the constructor, this always copies the data, so changing the
+     * image never changes the object you passed in.
      *
      * @example
      * ```ts
      * import { Jimp } from "jimp";
      *
      * const image = Jimp.fromBitmap({
-     *   data: Buffer.from([
+     *   data: [
      *     0xffffffff, 0xffffffff, 0xffffffff,
      *     0xffffffff, 0xffffffff, 0xffffffff,
      *     0xffffffff, 0xffffffff, 0xffffffff,
-     *   ]),
+     *   ],
      *   width: 3,
      *   height: 3,
      * });
+     *
+     * // In the browser
+     * const fromCanvas = Jimp.fromBitmap(
+     *   ctx.getImageData(0, 0, canvas.width, canvas.height)
+     * );
      * ```
      */
     static fromBitmap(bitmap: RawImageData): Instance {
-      let data: Buffer | undefined;
-
-      if (bitmap.data instanceof Buffer) {
-        data = Buffer.from(bitmap.data);
-      } else if (
-        bitmap.data instanceof Uint8Array ||
-        bitmap.data instanceof Uint8ClampedArray
-      ) {
-        data = Buffer.from(
-          bitmap.data.buffer,
-          bitmap.data.byteOffset,
-          bitmap.data.byteLength
-        );
-      }
-
-      if (Array.isArray(bitmap.data)) {
-        data = Buffer.concat(
-          bitmap.data.map((hex) =>
-            Buffer.from(hex.toString(16).padStart(8, "0"), "hex")
-          )
-        );
-      }
-
-      if (!data) {
-        throw new Error("data must be a Buffer");
-      }
-
-      if (
-        typeof bitmap.height !== "number" ||
-        typeof bitmap.width !== "number"
-      ) {
-        throw new Error("bitmap must have width and height");
-      }
-
-      return new CustomJimp({
-        height: bitmap.height,
-        width: bitmap.width,
-        data,
-      }) as Instance;
+      return new CustomJimp(toBitmap(bitmap, true)) as Instance;
     }
 
     /**

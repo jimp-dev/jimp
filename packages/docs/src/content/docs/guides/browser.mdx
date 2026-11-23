@@ -89,19 +89,23 @@ input.addEventListener("change", handleFile);
 ### Using Canvas
 
 You can also use Jimp with a canvas.
+`Jimp.fromBitmap` takes the `ImageData` from `getImageData` directly.
 
 ```ts
+import { Jimp } from "jimp";
+
 const canvas = document.getElementById("my-canvas");
 const ctx = canvas.getContext("2d");
 
 // Load the canvas into a Jimp instance
-const image = await Jimp.fromBitmap(
+const image = Jimp.fromBitmap(
   ctx.getImageData(0, 0, canvas.width, canvas.height)
 );
 
 // Manipulate the image
-image.greyscale();
+image.greyscale().resize({ w: 100 });
 
+// Make an ImageData from the image's pixels
 const imageData = new ImageData(
   new Uint8ClampedArray(image.bitmap.data),
   image.bitmap.width,
@@ -109,8 +113,39 @@ const imageData = new ImageData(
 );
 
 // Write back to the canvas
+canvas.width = image.bitmap.width;
+canvas.height = image.bitmap.height;
 ctx.putImageData(imageData, 0, 0);
 ```
+
+#### Raw pixel data
+
+`Jimp.fromBitmap` and `new Jimp({ data, width, height })` accept any raw RGBA pixel data with 4 bytes per pixel:
+
+- an `ImageData`
+- a `Uint8ClampedArray`, such as `imageData.data`
+- a `Uint8Array` or a `Buffer`, including a view into part of a larger `ArrayBuffer`
+- an array of `0xRRGGBBAA` numbers
+
+`data` must hold exactly `width * height * 4` bytes. Otherwise Jimp throws an error.
+
+Jimp always stores pixels in a `Buffer` (`image.bitmap.data`).
+A `Uint8ClampedArray` or `Uint8Array` is copied into a new `Buffer`, so editing the image never changes your `ImageData`, and the reverse.
+`Jimp.fromBitmap` copies a `Buffer` too, while the constructor uses a `Buffer` without copying it.
+
+To skip the copy when writing back to a canvas, make a view over the image's memory instead.
+Pass the offset and length, because a `Buffer` can be a slice of a larger `ArrayBuffer`:
+
+```ts
+const { data, width, height } = image.bitmap;
+const imageData = new ImageData(
+  new Uint8ClampedArray(data.buffer, data.byteOffset, data.length),
+  width,
+  height
+);
+```
+
+That `ImageData` shares memory with the image until a method like `resize` or `crop` replaces `image.bitmap`, so put it on the canvas straight away.
 
 ## Using Fonts
 
