@@ -100,6 +100,41 @@ describe("saturation", () => {
   });
 });
 
+describe("lightness", () => {
+  // Pixels: a near-white, an orange, and a pure red with alpha 128.
+  const makeImage = () =>
+    jimp.fromBitmap({
+      width: 3,
+      height: 1,
+      data: Buffer.from([250, 252, 255, 255, 100, 50, 0, 255, 255, 0, 0, 128]),
+    });
+
+  test("darken blends toward black without making colors vivid", () => {
+    const image = makeImage().color([{ apply: "darken", params: [40] }]);
+
+    expect([...image.bitmap.data]).toStrictEqual([
+      150, 151, 153, 255, 60, 30, 0, 255, 153, 0, 0, 128,
+    ]);
+  });
+
+  test("lighten blends toward white", () => {
+    const image = makeImage().color([{ apply: "lighten", params: [40] }]);
+
+    expect([...image.bitmap.data]).toStrictEqual([
+      252, 253, 255, 255, 162, 132, 102, 255, 255, 102, 102, 128,
+    ]);
+  });
+
+  test("lighten and darken default to 10", () => {
+    expect(makeImage().color([{ apply: "darken" }]).bitmap).toStrictEqual(
+      makeImage().color([{ apply: "darken", params: [10] }]).bitmap,
+    );
+    expect(makeImage().color([{ apply: "lighten" }]).bitmap).toStrictEqual(
+      makeImage().color([{ apply: "lighten", params: [10] }]).bitmap,
+    );
+  });
+});
+
 describe("brightness", () => {
   test("brightness of 1 should be the same as no change", () => {
     const jgd = makeDonutTestImage(0xff000088, 0xff000088, 0xff000088);

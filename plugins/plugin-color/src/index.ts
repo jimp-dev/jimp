@@ -852,6 +852,18 @@ export const methods = {
             hsl.s * (action.apply === "saturate" ? 1 + amount : 1 - amount),
           );
           clr = tinyColor(hsl).toRgb();
+        } else if (action.apply === "lighten" || action.apply === "darken") {
+          // Blend toward white/black (like Photoshop's Hue/Saturation
+          // lightness) rather than offsetting HSL lightness like tinycolor
+          // does, which turns near-white pixels vivid when darkened.
+          const target = action.apply === "lighten" ? 255 : 0;
+          const { r, g, b } = mix(
+            clr,
+            { r: target, g: target, b: target },
+            action.params?.[0] ?? 10,
+          );
+
+          clr = { r: Math.round(r), g: Math.round(g), b: Math.round(b) };
         } else {
           const name = action.apply === "hue" ? "spin" : action.apply;
           const tnyClr = tinyColor(clr);
