@@ -202,6 +202,7 @@ export type { Bitmap, RGBAColor, RGBColor } from "@jimp/types";
 export { loadFont } from "@jimp/plugin-print/load-font";
 export { measureText, measureTextHeight } from "@jimp/plugin-print";
 export { diff } from "@jimp/diff";
+export type { DiffOptions, DiffColor } from "@jimp/diff";
 export {
   intToRGBA,
   rgbaToInt,

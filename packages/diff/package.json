@@ -21,7 +21,8 @@
     "@jimp/plugin-resize": "workspace:*",
     "@jimp/types": "workspace:*",
     "@jimp/utils": "workspace:*",
-    "pixelmatch": "^5.3.0"
+    "pixelmatch": "^5.3.0",
+    "zod": "^4.6.7"
   },
   "devDependencies": {
     "@jimp/config-eslint": "workspace:*",
