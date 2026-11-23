@@ -67,6 +67,61 @@ async function createAstralFont(dir: string) {
   return loadFont(fontFile);
 }
 
+/**
+ * Writes a font with a 4 wide A (blue) and a space 2 wide, and, if
+ * `questionMark` is set, a 6 wide ? (red), with kerning of 1 from A to ? and
+ * 2 from ? to A.
+ */
+async function createQuestionMarkFont(dir: string, questionMark: boolean) {
+  const page = new Jimp({ width: 10, height: 4, color: 0x0000ffff });
+
+  page.scan(4, 0, 6, 4, (_, __, idx) => {
+    page.bitmap.data.writeUInt32BE(0xff0000ff, idx);
+  });
+
+  const name = questionMark ? "question" : "no-question";
+  const fontFile = path.join(dir, `${name}.fnt`);
+
+  await fs.writeFile(
+    path.join(dir, `${name}.png`),
+    await page.getBuffer("image/png"),
+  );
+  await fs.writeFile(
+    fontFile,
+    [
+      "common lineHeight=4 base=4 scaleW=10 scaleH=4 pages=1",
+      `page id=0 file="${name}.png"`,
+      "char id=65 x=0 y=0 width=4 height=4 xoffset=0 yoffset=0 xadvance=4 page=0",
+      "char id=32 x=0 y=0 width=0 height=0 xoffset=0 yoffset=0 xadvance=2 page=0",
+      ...(questionMark
+        ? [
+            "char id=63 x=4 y=0 width=6 height=4 xoffset=0 yoffset=0 xadvance=6 page=0",
+            "kerning first=65 second=63 amount=1",
+            "kerning first=63 second=65 amount=2",
+          ]
+        : []),
+    ].join("\n"),
+  );
+
+  return loadFont(fontFile);
+}
+
+/** The columns of `image` that have anything drawn on them */
+function inkedColumns(image: InstanceType<typeof Jimp>) {
+  const columns: number[] = [];
+
+  for (let x = 0; x < image.bitmap.width; x++) {
+    for (let y = 0; y < image.bitmap.height; y++) {
+      if (image.getPixelColor(x, y) !== 0xffffffff) {
+        columns.push(x);
+        break;
+      }
+    }
+  }
+
+  return columns;
+}
+
 async function createTextImage(
   width: number,
   height: number,
@@ -308,6 +363,82 @@ describe("Write text over image", function () {
       .getBuffer("image/png");
 
     expect(output).toMatchImageSnapshot();
+  });
+
+  describe("characters the font has no glyph for", () => {
+    let dir: string;
+    let font: Awaited<ReturnType<typeof loadFont>>;
+    let fontWithoutQuestionMark: Awaited<ReturnType<typeof loadFont>>;
+
+    beforeAll(async () => {
+      dir = await fs.mkdtemp(path.join(os.tmpdir(), "jimp-font-"));
+      font = await createQuestionMarkFont(dir, true);
+      fontWithoutQuestionMark = await createQuestionMarkFont(dir, false);
+    });
+
+    afterAll(async () => {
+      await fs.rm(dir, { recursive: true, force: true });
+    });
+
+    test("measureText measures them as the ? that print draws", () => {
+      // A (4), kerning A to ? (1), ? (6), kerning ? to A (2), A (4)
+      expect(measureText(font, "AxA")).toBe(17);
+      expect(measureText(font, "x")).toBe(6);
+
+      const image = new Jimp({ width: 30, height: 4, color: 0xffffffff });
+      image.print({ font, x: 0, y: 0, text: "AxA" });
+
+      // A, then ? after a kerning of 1, then A after a kerning of 2
+      expect(inkedColumns(image)).toEqual([
+        0, 1, 2, 3, 5, 6, 7, 8, 9, 10, 13, 14, 15, 16,
+      ]);
+    });
+
+    test("they are skipped if the font has no ? either", () => {
+      expect(measureText(fontWithoutQuestionMark, "AxA")).toBe(8);
+    });
+
+    test("lines with them wrap at maxWidth", () => {
+      // "A x" is 12 wide, "A x A" 18
+      expect(splitLines(font, "A x A", 12).lines).toEqual([["A", "x"], ["A"]]);
+      expect(measureTextHeight(font, "A x A", 12)).toBe(8);
+
+      const image = new Jimp({ width: 30, height: 8, color: 0xffffffff });
+      image.print({ font, x: 0, y: 0, text: "A x A", maxWidth: 12 });
+
+      expect(Math.max(...inkedColumns(image))).toBeLessThan(12);
+    });
+
+    test("words with them are split at maxWidth, with kerning", () => {
+      // "Ax" is 11 wide and "xA" 12, so neither fits in 10
+      expect(splitLines(font, "AxA", 10).lines).toEqual([["A"], ["x"], ["A"]]);
+    });
+
+    test("right-align text with them", () => {
+      const image = new Jimp({ width: 20, height: 4, color: 0xffffffff });
+      image.print({
+        font,
+        x: 0,
+        y: 0,
+        text: { text: "x", alignmentX: HorizontalAlign.RIGHT },
+        maxWidth: 20,
+      });
+
+      expect(inkedColumns(image)).toEqual([14, 15, 16, 17, 18, 19]);
+    });
+
+    test("center-align text with them", () => {
+      const image = new Jimp({ width: 20, height: 4, color: 0xffffffff });
+      image.print({
+        font,
+        x: 0,
+        y: 0,
+        text: { text: "x", alignmentX: HorizontalAlign.CENTER },
+        maxWidth: 20,
+      });
+
+      expect(inkedColumns(image)).toEqual([7, 8, 9, 10, 11, 12]);
+    });
   });
 
   describe("characters outside the BMP", () => {
