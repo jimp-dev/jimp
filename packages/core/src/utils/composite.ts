@@ -47,7 +47,7 @@ export function composite<I extends JimpClass>(
   if (opacityDest !== 1.0) {
     baseImage.scan((_, __, idx) => {
       const v = baseImage.bitmap.data[idx + 3]! * opacityDest;
-      baseImage.bitmap.data[idx + 3] = v;
+      baseImage.bitmap.data[idx + 3] = Math.round(v);
     });
   }
 
@@ -75,10 +75,13 @@ export function composite<I extends JimpClass>(
       opacitySource
     );
 
-    baseImage.bitmap.data[dstIdx + 0] = limit255(blended.r * 255);
-    baseImage.bitmap.data[dstIdx + 1] = limit255(blended.g * 255);
-    baseImage.bitmap.data[dstIdx + 2] = limit255(blended.b * 255);
-    baseImage.bitmap.data[dstIdx + 3] = limit255(blended.a * 255);
+    // Round rather than let the Uint8Array truncate: floating point error can
+    // put a result just under the integer it should be, e.g. an opaque source
+    // over a semi-transparent pixel can give an alpha of 254.999...
+    baseImage.bitmap.data[dstIdx + 0] = Math.round(limit255(blended.r * 255));
+    baseImage.bitmap.data[dstIdx + 1] = Math.round(limit255(blended.g * 255));
+    baseImage.bitmap.data[dstIdx + 2] = Math.round(limit255(blended.b * 255));
+    baseImage.bitmap.data[dstIdx + 3] = Math.round(limit255(blended.a * 255));
   });
 
   return baseImage;

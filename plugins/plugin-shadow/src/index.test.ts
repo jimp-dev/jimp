@@ -51,9 +51,7 @@ describe("Shadow", () => {
           expect([...result.bitmap.data.subarray(idx, idx + 3)]).toEqual([
             ...data.subarray(idx, idx + 3),
           ]);
-          // composite truncates rather than rounds, so an opaque pixel drawn
-          // over part of the shadow can come out as 254
-          expect(result.bitmap.data[idx + 3]).toBeGreaterThanOrEqual(0xfe);
+          expect(result.bitmap.data[idx + 3]).toBe(0xff);
         }
       }
     });
