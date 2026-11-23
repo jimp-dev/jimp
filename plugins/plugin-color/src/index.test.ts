@@ -3,7 +3,7 @@ import { expect, test, describe } from "vitest";
 import { makeDonutTestImage } from "@jimp/test-utils";
 import { createJimp } from "@jimp/core";
 
-import { methods as color } from "./index.js";
+import { ColorAction, methods as color } from "./index.js";
 
 const jimp = createJimp({ plugins: [color] });
 
@@ -35,6 +35,19 @@ describe("canvas color transformation", () => {
   test("spin hue", () => {
     const image = jimp.fromBitmap(redDonutJGD);
     expect(image.color([{ apply: "hue", params: [150] }])).toMatchSnapshot();
+  });
+
+  test("does not modify the actions passed in", () => {
+    const actions: ColorAction[] = [
+      { apply: "hue", params: [150] },
+      { apply: "mix", params: [{ r: 0, g: 0, b: 255 }, 50] },
+      { apply: "xor", params: [{ r: 1, g: 2, b: 3 }] },
+    ];
+    const copy = structuredClone(actions);
+
+    jimp.fromBitmap(redDonutJGD).color(actions);
+
+    expect(actions).toStrictEqual(copy);
   });
 });
 

@@ -798,9 +798,12 @@ export const methods = {
 
     actions.forEach((action) => ColorActionNameSchema.parse(action));
 
+    // Copy instead of mutating so the caller's actions can be reused
     actions = actions.map((action) => {
       if (action.apply === "xor" || action.apply === "mix") {
-        action.params[0] = tinyColor(action.params[0]).toRgb();
+        const params = [...action.params] as typeof action.params;
+        params[0] = tinyColor(params[0]).toRgb();
+        return { ...action, params } as ColorAction;
       }
 
       return action;
@@ -850,17 +853,12 @@ export const methods = {
           );
           clr = tinyColor(hsl).toRgb();
         } else {
-          if (action.apply === "hue") {
-            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            // @ts-ignore
-            action.apply = "spin";
-          }
-
+          const name = action.apply === "hue" ? "spin" : action.apply;
           const tnyClr = tinyColor(clr);
-          const fn = tnyClr[action.apply].bind(tnyClr);
+          const fn = tnyClr[name].bind(tnyClr);
 
           if (!fn) {
-            throw new Error("action " + action.apply + " not supported");
+            throw new Error("action " + name + " not supported");
           }
 
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
