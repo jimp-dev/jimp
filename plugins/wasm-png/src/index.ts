@@ -3,7 +3,7 @@ import decode, { init as initDecoder } from "@jsquash/png/decode.js";
 import encode, { init as initEncoder } from "@jsquash/png/encode.js";
 import { Format } from "@jimp/types";
 import type { optimise as optimiseCodec } from "@jsquash/oxipng/codec/pkg/squoosh_oxipng.js";
-import z from "zod";
+import { z } from "zod";
 
 import { loadWasm } from "./load-wasm.js";
 
@@ -28,7 +28,7 @@ const PngOptionsSchema = z.object({
   icc: z.boolean().optional(),
 }).strict();
 
-type PngOptions = z.infer<typeof PngOptionsSchema>;
+type PngOptions = z.input<typeof PngOptionsSchema>;
 
 export interface PngWasm {
   /**
@@ -85,7 +85,7 @@ export default function png({ wasm }: PngFormatOptions = {}) {
   return {
     mime: "image/png",
     hasAlpha: true,
-    encode: async (bitmap, options: Partial<PngOptions> = {}) => {
+    encode: async (bitmap, options: PngOptions = {}) => {
       const { optimize } = PngOptionsSchema.parse(options);
       await initPngOnce(wasm?.png);
       let arrayBuffer = await encode({

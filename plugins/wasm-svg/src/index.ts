@@ -2,7 +2,7 @@ import { Buffer } from "buffer";
 import { initWasm, Resvg, ResvgRenderOptions } from "@resvg/resvg-wasm";
 import { Bitmap, Format } from "@jimp/types";
 import { cssColorToHex } from "@jimp/utils";
-import z from "zod";
+import { z } from "zod";
 
 import { isSvg } from "./detect.js";
 import { loadWasm } from "./load-wasm.js";

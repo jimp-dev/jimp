@@ -283,9 +283,15 @@ export type CreateMimeTypeToExportOptions<T extends Format<string, any>> =
 /**
  * The encode options of a format. Formats whose encode doesn't take options
  * (GIF, TIFF, BMP) are inferred as `Record<string, any>`, which would accept
- * anything, so they take none.
+ * anything, so they take none. Options typed as `any`, e.g. because a
+ * format's `.d.ts` refers to a type that doesn't resolve, take any options
+ * rather than none, so users aren't blocked by a broken declaration.
  */
-type DeclaredOptions<O> = string extends keyof NonNullable<O> ? undefined : O;
+type DeclaredOptions<O> = 0 extends 1 & O
+  ? Record<string, unknown>
+  : string extends keyof NonNullable<O>
+    ? undefined
+    : O;
 export type CreateMimeTypeToDecodeOptions<T extends Format<string, any>> =
   T extends Format<infer M, any, infer O> ? Record<M, O> : never;
 

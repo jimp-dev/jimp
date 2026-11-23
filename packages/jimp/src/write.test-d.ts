@@ -72,6 +72,26 @@ describe("write", () => {
     svgImage.write("output.svg", { quality: 50 });
   });
 
+  test("takes any options for a format whose options are typed as any", () => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    type AnyOptions = any;
+    const encode = (() => Buffer.alloc(0)) as (
+      bitmap: unknown,
+      options: AnyOptions,
+    ) => Buffer;
+    const loose = () =>
+      ({
+        mime: "image/loose",
+        encode,
+        decode: () => ({ data: Buffer.alloc(0), width: 0, height: 0 }),
+      }) satisfies Format<"image/loose">;
+    const WithLoose = createJimp({ formats: [loose] });
+    const looseImage = new WithLoose({ width: 1, height: 1 });
+
+    looseImage.write("output.loose", { quality: 50 });
+    looseImage.getBuffer("image/loose", { quality: 50 });
+  });
+
   test("uses the last extension of paths with directories and dots", () => {
     const dir: string = "output";
 

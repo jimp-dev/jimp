@@ -573,6 +573,27 @@ importers:
       '@jimp/test-utils':
         specifier: workspace:*
         version: link:../test-utils
+      '@jimp/wasm-avif':
+        specifier: workspace:*
+        version: link:../../plugins/wasm-avif
+      '@jimp/wasm-jpeg':
+        specifier: workspace:*
+        version: link:../../plugins/wasm-jpeg
+      '@jimp/wasm-jpeg2000':
+        specifier: workspace:*
+        version: link:../../plugins/wasm-jpeg2000
+      '@jimp/wasm-jxl':
+        specifier: workspace:*
+        version: link:../../plugins/wasm-jxl
+      '@jimp/wasm-png':
+        specifier: workspace:*
+        version: link:../../plugins/wasm-png
+      '@jimp/wasm-svg':
+        specifier: workspace:*
+        version: link:../../plugins/wasm-svg
+      '@jimp/wasm-webp':
+        specifier: workspace:*
+        version: link:../../plugins/wasm-webp
       '@rollup/plugin-alias':
         specifier: ^5.1.0
         version: 5.1.0(rollup@4.68.8)
