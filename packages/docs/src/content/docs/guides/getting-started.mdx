@@ -27,7 +27,7 @@ Add the `jimp` package to your project:
 
 <InstallCommand />
 
-Jimp needs Node.js 18 or later. The package works with both `import` and `require`, and ships its own TypeScript types.
+Jimp 2.0 needs Node.js 22 or later. The package works with both `import` and `require`, and ships its own TypeScript types.
 
 <Tabs syncKey="module">
   <TabItem label="ES modules">
@@ -46,7 +46,8 @@ const { Jimp } = require("jimp");
   </TabItem>
 </Tabs>
 
-`Jimp` is a named export. There's no default export as there was in v0; see [Migrate to v1](/jimp/guides/migrate-to-v1/) if you're upgrading.
+`Jimp` is a named export. There's no default export as there was in v0.
+If you're upgrading, see [Migrate to v2](/jimp/guides/migrate-to-v2/) from 1.x, or [Migrate to v1](/jimp/guides/migrate-to-v1/) from v0.
 
 ## Load an image
 
@@ -85,7 +86,8 @@ const picked = await Jimp.fromBuffer(await input.files[0].arrayBuffer());
   </TabItem>
 </Tabs>
 
-`Jimp.read` also accepts a `Buffer` or `ArrayBuffer`.
+In Node.js, `Jimp.read` fetches strings that start with `http:`, `https:`, `data:` or `blob:`, and reads any other string as a file path.
+It also accepts a `Buffer`, `ArrayBuffer`, `Uint8Array` or `Blob`.
 When you already have the bytes in memory, [`Jimp.fromBuffer`](/jimp/methods/from-buffer/) does the same thing.
 To build an image from scratch, pass a size and an optional fill color to [`new Jimp()`](/jimp/methods/new-jimp/):
 
@@ -94,7 +96,7 @@ const canvas = new Jimp({ width: 400, height: 300, color: 0xffffffff });
 ```
 
 Out of the box Jimp reads and writes PNG, JPEG, GIF, BMP, TIFF and ICO, and reads CUR.
-WebP, AVIF and WebAssembly JPEG and PNG codecs are available as plugins; see [Formats](/jimp/concepts/formats/) and [WEBP / WASM](/jimp/guides/webp/).
+WebP, AVIF, JPEG 2000, JPEG XL, SVG (read only) and WebAssembly JPEG and PNG codecs are available as plugins; see [Formats](/jimp/concepts/formats/) and [WEBP / WASM](/jimp/guides/webp/).
 
 ## Edit the image
 
@@ -197,7 +199,7 @@ try {
   const image = await Jimp.read("photos/missing.png");
 } catch (error) {
   console.error(error.message);
-  // Could not load Buffer from URL: photos/missing.png
+  // ENOENT: no such file or directory, open 'photos/missing.png'
 }
 ```
 
@@ -205,7 +207,8 @@ The errors you're most likely to see first:
 
 | Message                                                    | Cause                                                                                                  |
 | ---------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
-| `Could not load Buffer from URL: <path>`                   | The path doesn't exist, so Jimp tried to fetch it as a URL and failed.                                 |
+| `ENOENT: no such file or directory, open '<path>'`         | In Node.js, the file doesn't exist.                                                                    |
+| `Could not load Buffer from URL: <url>`                    | The URL couldn't be fetched, for example because of a network or CORS error.                           |
 | `HTTP Status 404 for url <url>`                            | The URL was fetched, but the server returned an error status.                                          |
 | `Could not find MIME for Buffer`                           | The data isn't an image Jimp recognizes.                                                               |
 | `Mime type image/webp does not support decoding`           | The image is in a format Jimp doesn't include by default. Add a [format plugin](/jimp/guides/webp/).  |

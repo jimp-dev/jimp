@@ -5,6 +5,12 @@ description: What changed from Jimp v0 to v1, and how to update your code.
 
 import { Aside } from "@astrojs/starlight/components";
 
+<Aside type="note" title="Upgrading from 1.x?">
+  This page covers moving from v0 to v1. For the breaking changes in 2.0, see
+  [Migrate to v2](/jimp/guides/migrate-to-v2/). The v1 API on this page is
+  also the 2.0 API, so you can go from v0 straight to 2.0 by following both.
+</Aside>
+
 Jimp v1 is a rewrite in TypeScript. The goals were to:
 
 1. Make Jimp easier to use in any environment: Node.js, browsers, web workers, Deno, Bun and Cloudflare Workers.
@@ -238,7 +244,8 @@ const resized = await image
 ### `rgba`
 
 `image.rgba(false)` has been removed.
-To write a PNG without an alpha channel, pass `colorType` when you encode it:
+Since 2.0, Jimp writes an opaque image as a PNG without an alpha channel automatically.
+To drop the alpha channel of an image that has transparency, pass `colorType` when you encode it:
 
 ```js
 import { Jimp, JimpMime, PNGColorType } from "jimp";
@@ -300,6 +307,8 @@ image.contain({
 });
 image.convolution({ kernel, edgeHandling: Edge.WRAP });
 ```
+
+`Edge` is a runtime export of `jimp` since 2.0. In 1.x it was exported as a type only, so `Edge.WRAP` was `undefined` at runtime; on 1.x, import it from `@jimp/types` instead.
 
 [Constants and enums](/jimp/concepts/constants/) lists every value.
 
