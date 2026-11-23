@@ -8,9 +8,10 @@ const jimp = createJimp({ formats: [png] });
 
 describe("PNG", () => {
   test("should use png options", async () => {
+    // 4 rows of the same 9 pixel gradient from red to blue
     const testImage = jimp.fromBitmap({
-      width: 6,
-      height: 6,
+      width: 9,
+      height: 4,
       data: [
         0xff0000ff, 0xff0080ff, 0xff00ffff, 0xff0080ff, 0xff00ffff, 0x8000ffff,
         0xff00ffff, 0x8000ffff, 0x0000ffff, 0xff0000ff, 0xff0080ff, 0xff00ffff,
