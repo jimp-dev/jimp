@@ -100,17 +100,18 @@ describe("Convolution divisor and bias", () => {
   });
 
   test("convolute divides the sum and adds the bias to the colors", () => {
+    // Alpha is convolved too: 3360 / 16 = 210 and 3520 / 16 = 220
     expect([
       ...makeImage().convolute({ kernel, divisor: 16 }).bitmap.data,
-    ]).toEqual([32, 45, 57, 200, 55, 70, 85, 240, 32, 45, 57, 200]);
+    ]).toEqual([32, 45, 57, 210, 55, 70, 85, 220, 32, 45, 57, 210]);
     expect([
       ...makeImage().convolute({ kernel, divisor: 16, bias: 100 }).bitmap.data,
-    ]).toEqual([132, 145, 157, 200, 155, 170, 185, 240, 132, 145, 157, 200]);
+    ]).toEqual([132, 145, 157, 210, 155, 170, 185, 220, 132, 145, 157, 210]);
   });
 
-  test("convolute leaves alpha alone, like convolution", () => {
-    // An edge-detection kernel sums to 0, so it used to make the image
-    // fully transparent
+  test("convolute leaves alpha alone with preserveAlpha", () => {
+    // An edge-detection kernel sums to 0, so without preserveAlpha the end
+    // pixels' alpha becomes 8 * 200 - 5 * 200 - 3 * 240 < 0, clamped to 0
     const edge = [
       [-1, -1, -1],
       [-1, 8, -1],
@@ -118,11 +119,19 @@ describe("Convolution divisor and bias", () => {
     ];
 
     expect([...makeImage().convolute(edge).bitmap.data]).toEqual([
-      0, 0, 0, 200, 255, 255, 255, 240, 0, 0, 0, 200,
+      0, 0, 0, 0, 255, 255, 255, 240, 0, 0, 0, 0,
     ]);
-    expect(makeImage().convolute(edge).bitmap.data).toEqual(
-      makeImage().convolution(edge).bitmap.data,
-    );
+    expect([
+      ...makeImage().convolute({ kernel: edge, preserveAlpha: true }).bitmap
+        .data,
+    ]).toEqual([0, 0, 0, 200, 255, 255, 255, 240, 0, 0, 0, 200]);
+    expect(
+      makeImage().convolute({ kernel: edge, preserveAlpha: true }).bitmap.data,
+    ).toEqual(makeImage().convolution(edge).bitmap.data);
+    expect([
+      ...makeImage().convolute({ kernel, divisor: 16, preserveAlpha: true })
+        .bitmap.data,
+    ]).toEqual([32, 45, 57, 200, 55, 70, 85, 240, 32, 45, 57, 200]);
   });
 
   test("a negative divisor with a bias inverts the image", () => {
@@ -247,7 +256,7 @@ function greyRows(image: ReturnType<typeof makeGreyImage>) {
 }
 
 describe("Convolution kernel orientation", () => {
-  // Deterministic noise, with varying alpha
+  // Deterministic noise, with varying alpha for convolute
   const makeNoise = () => {
     const width = 9;
     const height = 7;
@@ -277,7 +286,9 @@ describe("Convolution kernel orientation", () => {
       const v = vertical.clone()[method]({ kernel: sobelX, divisor: 8 });
       const h = horizontal.clone()[method]({ kernel: sobelX, divisor: 8 });
 
-      // 4 * 255 / 8 = 127.5 either side of the edge, 0 elsewhere
+      // 4 * 255 / 8 = 127.5 either side of the edge, 0 elsewhere. Only the
+      // colors are checked: convolute also convolves alpha, which sobel-x
+      // turns to 0.
       expect(v.bitmap.data.readUInt32BE(4 * 3) >>> 8, method).toBe(0x7f7f7f);
       expect(v.bitmap.data.readUInt32BE(4 * 4) >>> 8, method).toBe(0x7f7f7f);
       expect(v.bitmap.data.readUInt32BE(0) >>> 8, method).toBe(0);
@@ -331,12 +342,12 @@ describe("Convolution kernel orientation", () => {
     const sum = kernel.flat().reduce((a, b) => a + Math.abs(b), 0);
     const options = { kernel, divisor: sum, bias: 128 };
 
-    // Both methods leave alpha alone
+    // convolution leaves alpha alone, convolute convolves it too
     expect([...image.clone().convolution(options).bitmap.data]).toEqual(
       referenceConvolution(image, kernel, 3, sum, 128),
     );
     expect([...image.clone().convolute(options).bitmap.data]).toEqual(
-      referenceConvolution(image, kernel, 3, sum, 128),
+      referenceConvolution(image, kernel, 4, sum, 128),
     );
   });
 
@@ -372,8 +383,7 @@ describe("Convolution kernel orientation", () => {
   });
 
   // Snapshots taken before the orientation fix. These kernels equal their own
-  // transpose, so neither method's output may change (except that convolute
-  // now leaves alpha alone).
+  // transpose, so neither method's output may change.
   test("symmetric kernels give the same output as before", () => {
     const image = makeNoise();
     const sharpM = [

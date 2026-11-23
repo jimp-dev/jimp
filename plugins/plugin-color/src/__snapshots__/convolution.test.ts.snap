@@ -169,23 +169,23 @@ FF-00-FF⁹ᶜ 00-00-FFᶜ⁰ 00-6A-FFᵉ⁴ 00-FF-FF⁰⁸ 69-FF-00²ᶜ FF-FF-
 exports[`Convolution kernel orientation > symmetric kernels give the same output as before 2`] = `
 Visualization:
 
-◇0◆ ▸□0ED
-E50▦◆E▿B▴
-▴▪7B▪▩96C
-3▩5▰▵22□7
-5▾▹F▰C6▾6
-▪▥3▦81F◇2
-D 4F▥5▱0B
+▿◆▰▰▾■!E▥
+◆▸6D!!▪▹▱
+▴A◆!!C▩▴8
+▴!◆CC▴▫8▾
+▰BF▴64▿F▩
+▴▴B0▱▩▰2E
+▰▾▱!▰▥▴F▰
 
 Data:
 
-F9-FF-8B⁰⁴ FF-FF-00²⁸ FF-D2-00⁴ᶜ FF-00-FF⁷⁰ D1-00-FF⁹⁴ 00-FF-FFᵇ⁸ 00-FF-FFᵈᶜ FF-FF-CF⁰⁰ FF-FF-00²⁴
-FF-FF-00⁴⁸ FF-7A-00⁶ᶜ FF-00-E7⁹⁰ 79-00-FFᵇ⁴ 00-E6-FFᵈ⁸ 00-FF-FFᶠᶜ E5-FF-77²⁰ FF-FF-00⁴⁴ FF-2E-00⁶⁸
-FF-00-00⁸ᶜ 75-00-FFᵇ⁰ 00-00-FFᵈ⁴ 00-FF-FFᶠ⁸ 00-FF-73¹ᶜ FF-FF-00⁴⁰ FF-72-00⁶⁴ FF-00-00⁸⁸ 29-00-BBᵃᶜ
-00-00-FFᵈ⁰ 00-FF-FFᶠ⁴ 00-FF-6F¹⁸ FF-FF-00³ᶜ FF-6E-00⁶⁰ FF-00-00⁸⁴ 6D-00-FFᵃ⁸ 00-00-FFᶜᶜ 00-B6-FFᶠ⁰
-00-FF-23¹⁴ FD-FF-00³⁸ FF-6A-00⁵ᶜ FF-00-00⁸⁰ 69-00-FBᵃ⁴ 00-00-FFᶜ⁸ 00-FA-FFᵉᶜ 00-FF-67¹⁰ B1-FF-43³⁴
-FF-1E-00⁵⁸ FF-00-00⁷ᶜ 65-00-F7ᵃ⁰ 00-00-FFᶜ⁴ 00-F6-FFᵉ⁸ 00-FF-63⁰ᶜ F5-FF-00³⁰ FF-62-00⁵⁴ FF-3E-00⁷⁸
-FF-00-FF⁹ᶜ 00-00-FFᶜ⁰ 00-6A-FFᵉ⁴ 00-FF-FF⁰⁸ 69-FF-00²ᶜ FF-FF-00⁵⁰ FF-00-00⁷⁴ FF-00-67⁹⁸ FF-00-FFᵇᶜ
+F9-FF-8Bᵈ⁴ FF-FF-00ᶠᶠ FF-D2-00ᶠᶠ FF-00-FFᶠᶠ D1-00-FFᶠᶠ 00-FF-FFᵈ⁰ 00-FF-FF⁰⁰ FF-FF-CF⁰⁰ FF-FF-00ᶠ⁴
+FF-FF-00ᶠᶠ FF-7A-00ᶠᶠ FF-00-E7ᶠᶠ 79-00-FFᶠᶠ 00-E6-FF⁷⁸ 00-FF-FF⁰⁰ E5-FF-77⁰⁰ FF-FF-00ᵉ⁴ FF-2E-00ᶠᶠ
+FF-00-00ᶠᶠ 75-00-FFᶠᶠ 00-00-FF⁷⁴ 00-FF-FF⁰⁰ 00-FF-73⁰⁰ FF-FF-00⁰⁰ FF-72-00ᶠᶠ FF-00-00ᶠᶠ 29-00-BBᶠᶠ
+00-00-FF²⁸ 00-FF-FF⁰⁰ 00-FF-6F⁰⁰ FF-FF-00⁰⁰ FF-6E-00ᶠᶠ FF-00-00ᶠᶠ 6D-00-FFᶠᶠ 00-00-FF⁶ᶜ 00-B6-FF⁴⁸
+00-FF-23⁰⁰ FD-FF-00⁰⁰ FF-6A-00ᶠᶜ FF-00-00ᶠᶠ 69-00-FBᶠᶠ 00-00-FF⁶⁸ 00-FA-FF⁰⁰ 00-FF-67⁰⁰ B1-FF-43⁰⁰
+FF-1E-00ᶠᶠ FF-00-00ᶠᶠ 65-00-F7ᶠᶠ 00-00-FF⁶⁴ 00-F6-FF⁰⁰ 00-FF-63⁰⁰ F5-FF-00⁰⁰ FF-62-00ᶠ⁴ FF-3E-00ᶠᶠ
+FF-00-FFᶠᶠ 00-00-FFᶠᶠ 00-6A-FF⁰⁰ 00-FF-FF⁰⁰ 69-FF-00⁰⁰ FF-FF-00⁶⁸ FF-00-00ᶠᶠ FF-00-67ᶠᶠ FF-00-FFᶠᶠ
 `;
 
 exports[`Convolution kernel orientation > symmetric kernels give the same output as before 3`] = `
@@ -213,43 +213,43 @@ A7-47-5F⁹ᶜ 9B-57-74ᶜ⁰ 6F-5E-8Bᵉ⁴ 64-74-99⁰⁸ 5D-8A-95²ᶜ 73-98-
 exports[`Convolution kernel orientation > symmetric kernels give the same output as before 4`] = `
 Visualization:
 
-▵▴◇▱▪ 2F▪
-▩C19▪9▥6A
-A▱▾▩▪AE6!
-■◆EDBB▿EB
-8▥◇◇4▪▱▱3
-F▾F 2B▹▫◆
-▫5▸7▥▵▩ ▿
+▪799A□▱▹▿
+▴0▩◇A▹▱9▥
+▿■◆B▱B!1▥
+▩▫0□▦D▩8◆
+A!▿▰▹ !!9
+D▩▿A2▩▵◇B
+▴344▾■ 2▿
 
 Data:
 
-54-98-B0⁰⁴ 6C-A2-8C²⁸ 88-A3-5C⁴ᶜ 9E-88-55⁷⁰ A2-5B-66⁹⁴ 87-54-86ᵇ⁸ 5A-65-9Cᵈᶜ 50-81-AE⁰⁰ 58-91-AE²⁴
-7E-A8-A3⁴⁸ 88-A0-88⁶ᶜ 9A-99-6E⁹⁰ 9C-83-75ᵇ⁴ 98-6D-83ᵈ⁸ 82-73-98ᶠᶜ 6C-82-9A²⁰ 6F-94-9A⁴⁴ 77-94-88⁶⁸
-9C-9F-8E⁸ᶜ 94-8E-87ᵇ⁰ 94-89-84ᵈ⁴ 89-82-90ᶠ⁸ 88-83-8F¹ᶜ 81-8F-92⁴⁰ 82-8E-87⁶⁴ 8A-8E-87⁸⁸ 88-7C-80ᵃᶜ
-9A-8C-8Dᵈ⁰ 88-87-92ᶠ⁴ 86-8A-8D¹⁸ 82-90-8E³ᶜ 88-8C-83⁶⁰ 8F-8D-84⁸⁴ 8B-82-80ᵃ⁸ 89-82-88ᶜᶜ 77-7B-8Dᶠ⁰
-86-87-86¹⁴ 82-8D-89³⁸ 84-88-7F⁵ᶜ 8B-89-80⁸⁰ 87-7E-7Cᵃ⁴ 88-7F-82ᶜ⁸ 7D-7B-89ᵉᶜ 7D-83-8B¹⁰ 75-88-99³⁴
-92-7A-61⁵⁸ 93-7D-71⁷ᶜ 84-73-79ᵃ⁰ 80-76-87ᶜ⁴ 72-78-8Dᵉ⁸ 75-86-82⁰ᶜ 77-8C-7E³⁰ 89-87-71⁵⁴ 93-8F-74⁷⁸
-A7-47-5F⁹ᶜ 9B-57-74ᶜ⁰ 6F-5E-8Bᵉ⁴ 64-74-99⁰⁸ 5D-8A-95²ᶜ 73-98-6D⁵⁰ 89-94-62⁷⁴ A5-6E-5A⁹⁸ BD-61-6Aᵇᶜ
+54-98-B0²ᵉ 6C-A2-8C⁴⁸ 88-A3-5C⁶⁷ 9E-88-55⁸⁷ A2-5B-66⁹ᵈ 87-54-86ᵃ¹ 5A-65-9C⁸⁶ 50-81-AE⁵⁵ 58-91-AE⁴⁴
+7E-A8-A3⁵ᵈ 88-A0-88⁷¹ 9A-99-6E⁸⁴ 9C-83-75⁹⁹ 98-6D-83⁹ᵇ 82-73-98⁹⁷ 6C-82-9A⁸¹ 6F-94-9A⁶ᵃ 77-94-88⁶ᵃ
+9C-9F-8E⁸⁰ 94-8E-87⁸ᶠ 94-89-84⁹⁰ 89-82-90⁹³ 88-83-8F⁸⁸ 81-8F-92⁸⁷ 82-8E-87⁸⁰ 8A-8E-87⁸³ 88-7C-80⁸ᵈ
+9A-8C-8D⁸ᵇ 88-87-92⁸ᵉ 86-8A-8D⁸⁴ 82-90-8E⁸⁵ 88-8C-83⁸¹ 8F-8D-84⁸⁷ 8B-82-80⁸ᵉ 89-82-88⁹¹ 77-7B-8D⁹ᵉ
+86-87-86⁶ᵈ 82-8D-89⁷ᵃ 84-88-7F⁷ᵈ 8B-89-80⁸³ 87-7E-7C⁸ᵃ 88-7F-82⁸⁶ 7D-7B-89⁸⁷ 7D-83-8B⁷ᵈ 75-88-99⁸⁰
+92-7A-61⁷⁹ 93-7D-71⁸⁶ 84-73-79⁸ᵉ 80-76-87⁸³ 72-78-8D⁷ᶠ 75-86-82⁷¹ 77-8C-7E⁷⁴ 89-87-71⁷⁵ 93-8F-74⁸⁴
+A7-47-5F⁹³ 9B-57-74⁹ᵇ 6F-5E-8B⁹⁶ 64-74-99⁶ᵉ 5D-8A-95⁶³ 73-98-6D⁵ᶜ 89-94-62⁷² A5-6E-5A⁸⁴ BD-61-6A⁹⁹
 `;
 
 exports[`Convolution kernel orientation > symmetric kernels give the same output as before 5`] = `
 Visualization:
 
-45▪▹38■11
-234567EF□
-0123B▥CDE
-F□▩!▦AB▥C
-■▱ ■▩!▦◆◇
-DB▰▸ ▸▴▾▱
-87D1▹ ▫▱■
+▸4 ◆59■13
+□□□□□□□□□
+□□□□□□□□□
+□□□□□□□□□
+▹□□□□□□□□
+■▫□1□87□◆
+20■ 5■▪▫▰
 
 Data:
 
-FF-FF-FF⁰⁴ FF-FF-FF²⁸ FF-FF-ED⁴ᶜ FF-FF-F6⁷⁰ FF-EB-FF⁹⁴ FF-F4-FFᵇ⁸ E9-FF-FFᵈᶜ DD-FF-FF⁰⁰ FF-FF-FF²⁴
-FF-FF-FF⁴⁸ FF-FF-FF⁶ᶜ FF-FF-FF⁹⁰ FF-FF-FFᵇ⁴ FF-FF-FFᵈ⁸ FF-FF-FFᶠᶜ FF-FF-FF²⁰ FF-FF-FF⁴⁴ FF-FF-FF⁶⁸
-FF-FF-FF⁸ᶜ FF-FF-FFᵇ⁰ FF-FF-FFᵈ⁴ FF-FF-FFᶠ⁸ FF-FF-FF¹ᶜ FF-FF-FF⁴⁰ FF-FF-FF⁶⁴ FF-FF-FF⁸⁸ FF-FF-FFᵃᶜ
-FF-FF-FFᵈ⁰ FF-FF-FFᶠ⁴ FF-FF-FF¹⁸ FF-FF-FF³ᶜ FF-FF-FF⁶⁰ FF-FF-FF⁸⁴ FF-FF-FFᵃ⁸ FF-FF-FFᶜᶜ FF-FF-FFᶠ⁰
-FF-FD-FF¹⁴ FF-FF-FF³⁸ FF-FF-FF⁵ᶜ FF-FF-FF⁸⁰ FF-FF-FFᵃ⁴ FF-FF-FFᶜ⁸ FF-FF-FFᵉᶜ FF-FF-FF¹⁰ FF-FF-FF³⁴
-FF-E0-F4⁵⁸ FF-F9-FF⁷ᶜ FF-FF-FFᵃ⁰ F6-FF-FFᶜ⁴ FF-FF-FFᵉ⁸ FF-FF-FF⁰ᶜ FF-FF-F2³⁰ FF-FF-FF⁵⁴ FF-FB-FF⁷⁸
-FF-9B-D4⁹ᶜ FF-B4-FFᶜ⁰ F2-E2-FFᵉ⁴ B2-FF-FF⁰⁸ E0-FF-FF²ᶜ FF-FF-ED⁵⁰ FF-FF-AD⁷⁴ FF-FB-C6⁹⁸ FF-B6-CBᵇᶜ
+FF-FF-FFᵇᵇ FF-FF-FFᶠ⁹ FF-FF-EDᶠᶠ FF-FF-F6ᶠᶠ FF-EB-FFᶠᶠ FF-F4-FFᶠᶠ E9-FF-FFᶠᶠ DD-FF-FFᵈ² FF-FF-FFᵇ²
+FF-FF-FFᶠᶠ FF-FF-FFᶠᶠ FF-FF-FFᶠᶠ FF-FF-FFᶠᶠ FF-FF-FFᶠᶠ FF-FF-FFᶠᶠ FF-FF-FFᶠᶠ FF-FF-FFᶠᶠ FF-FF-FFᶠᶠ
+FF-FF-FFᶠᶠ FF-FF-FFᶠᶠ FF-FF-FFᶠᶠ FF-FF-FFᶠᶠ FF-FF-FFᶠᶠ FF-FF-FFᶠᶠ FF-FF-FFᶠᶠ FF-FF-FFᶠᶠ FF-FF-FFᶠᶠ
+FF-FF-FFᶠᶠ FF-FF-FFᶠᶠ FF-FF-FFᶠᶠ FF-FF-FFᶠᶠ FF-FF-FFᶠᶠ FF-FF-FFᶠᶠ FF-FF-FFᶠᶠ FF-FF-FFᶠᶠ FF-FF-FFᶠᶠ
+FF-FD-FFᶠᶠ FF-FF-FFᶠᶠ FF-FF-FFᶠᶠ FF-FF-FFᶠᶠ FF-FF-FFᶠᶠ FF-FF-FFᶠᶠ FF-FF-FFᶠᶠ FF-FF-FFᶠᶠ FF-FF-FFᶠᶠ
+FF-E0-F4ᶠᶠ FF-F9-FFᶠᶠ FF-FF-FFᶠᶠ F6-FF-FFᶠᶠ FF-FF-FFᶠ⁴ FF-FF-FFᶠᵈ FF-FF-F2ᶠᶠ FF-FF-FFᶠᶠ FF-FB-FFᶠᶠ
+FF-9B-D4ᶠᶠ FF-B4-FFᶠᶠ F2-E2-FFᶠᶠ B2-FF-FFᵉᶠ E0-FF-FFᵇ⁰ FF-FF-EDᵈᵈ FF-FF-ADᶠᶠ FF-FB-C6ᶠᶠ FF-B6-CBᶠᶠ
 `;

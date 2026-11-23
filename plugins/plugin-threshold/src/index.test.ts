@@ -130,15 +130,14 @@ describe("Otsu", () => {
   });
 
   test("uses greyscale luminance unless autoGreyscale is false", () => {
-    // Pure red is ~54 as Rec. 709 luminance. Without greyscale every channel
-    // counts: four 0s (from the reds), six 250s and two 255s.
+    // Pure red is 255 in the red channel but only ~54 as Rec. 709 luminance
     const data = Buffer.from([
       255, 0, 0, 255, 255, 0, 0, 255, 250, 250, 250, 255, 250, 250, 250, 255,
     ]);
     const image = jimp.fromBitmap({ data, width: 4, height: 1 });
 
     expect(otsuThreshold(image)).toBe(55);
-    expect(otsuThreshold(image, { autoGreyscale: false })).toBe(1);
+    expect(otsuThreshold(image, { autoGreyscale: false })).toBe(251);
   });
 
   test("returns 255 for a uniform image", () => {

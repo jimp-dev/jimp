@@ -50,6 +50,11 @@ const ConvoluteComplexOptionsSchema = z.object({
   divisor: ConvolutionDivisorSchema.optional(),
   /** add this to each color channel after dividing (default 0) */
   bias: z.number().optional(),
+  /**
+   * leave alpha as is instead of convolving it, like `preserveAlpha` in the
+   * CSS `feConvolveMatrix` (default false)
+   */
+  preserveAlpha: z.boolean().optional(),
 });
 const ConvoluteOptionsSchema = z.union([
   ConvolutionMatrixSchema,
@@ -1041,13 +1046,16 @@ export const methods = {
   },
 
   /**
-   * Applies a convolution kernel to the image or a region. Like
-   * `convolution`, only the color channels are changed, alpha is left as is.
+   * Applies a convolution kernel to the image or a region. Unlike
+   * `convolution`, the kernel is applied to the alpha channel too, unless
+   * `preserveAlpha` is true (like the CSS `feConvolveMatrix`).
    *
-   * Each color channel becomes `sum / divisor + bias`, clamped to 0-255. The
-   * kernel isn't normalized, so pass the sum of its weights as the `divisor`
-   * to keep the brightness of the image, and a `bias` to shift results that
-   * can be negative into the visible range.
+   * Each color channel becomes `sum / divisor + bias` and alpha becomes
+   * `sum / divisor`, clamped to 0-255. The kernel isn't normalized, so pass
+   * the sum of its weights as the `divisor` to keep the brightness of the
+   * image, and a `bias` to shift results that can be negative into the
+   * visible range. Kernels whose weights sum to 0, like edge detection, make
+   * the image transparent unless `preserveAlpha` is true.
    *
    * The kernel is laid out and anchored the same way as in `convolution`.
    * @example
@@ -1085,6 +1093,16 @@ export const methods = {
    *   ],
    *   divisor: 16,
    * });
+   *
+   * // edge detection that keeps the image's alpha
+   * image.convolute({
+   *   kernel: [
+   *     [-1, -1, -1],
+   *     [-1, 8, -1],
+   *     [-1, -1, -1],
+   *   ],
+   *   preserveAlpha: true,
+   * });
    * ```
    */
   convolute<I extends JimpClass>(image: I, options: ConvoluteOptions) {
@@ -1097,6 +1115,7 @@ export const methods = {
       h = image.bitmap.height - y,
       divisor = 1,
       bias = 0,
+      preserveAlpha = false,
     } = "kernel" in parsed
       ? parsed
       : ({ kernel: parsed } as ConvoluteComplexOptions);
@@ -1109,6 +1128,10 @@ export const methods = {
       image.bitmap.data[idx] = limit255(value[0]! / divisor + bias);
       image.bitmap.data[idx + 1] = limit255(value[1]! / divisor + bias);
       image.bitmap.data[idx + 2] = limit255(value[2]! / divisor + bias);
+
+      if (!preserveAlpha) {
+        image.bitmap.data[idx + 3] = limit255(value[3]! / divisor);
+      }
     });
 
     return image;

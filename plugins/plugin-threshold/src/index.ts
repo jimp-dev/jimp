@@ -26,10 +26,11 @@ export type OtsuThresholdOptions = z.infer<typeof OtsuThresholdOptionsSchema>;
 /**
  * Computes the `max` that Otsu's method picks for `threshold`.
  *
- * Builds a 256-bin histogram of the values `threshold` compares (Rec. 709
- * luminance when `autoGreyscale` is true, otherwise the red, green and blue
- * channels together) and picks the split that maximises the between-class
- * variance.
+ * Builds a 256-bin histogram of the image's grey values and picks the split
+ * that maximises the between-class variance. The grey value is the Rec. 709
+ * luminance when `autoGreyscale` is true. Otherwise the image should already
+ * be grey (like OpenCV, which only runs Otsu on single-channel images), and
+ * the red channel is used.
  *
  * - Each pixel counts in proportion to its alpha: fully transparent pixels
  *   are ignored and a pixel at alpha 128 counts about half as much as an
@@ -68,18 +69,16 @@ export function otsuThreshold<I extends JimpClass>(
       return;
     }
 
-    if (autoGreyscale) {
-      // Flooring matches what greyscale() leaves when it writes into the Buffer
-      const grey = Math.floor(
-        0.2126 * data[idx]! + 0.7152 * data[idx + 1]! + 0.0722 * data[idx + 2]!,
-      );
+    // Flooring matches what greyscale() leaves when it writes into the Buffer
+    const grey = autoGreyscale
+      ? Math.floor(
+          0.2126 * data[idx]! +
+            0.7152 * data[idx + 1]! +
+            0.0722 * data[idx + 2]!,
+        )
+      : data[idx]!;
 
-      histogram[limit255(grey)]! += alpha;
-    } else {
-      histogram[data[idx]!]! += alpha;
-      histogram[data[idx + 1]!]! += alpha;
-      histogram[data[idx + 2]!]! += alpha;
-    }
+    histogram[limit255(grey)]! += alpha;
   });
 
   let total = 0;
@@ -125,8 +124,10 @@ export const methods = {
    *
    * Pixels with a value below `max` are kept and the rest are set to
    * `replace`. With `autoGreyscale: false` the image isn't converted, and
-   * each color channel is compared with `max` and replaced on its own. Pass `max: "otsu"` to choose `max` from the image's histogram
-   * with Otsu's method; see `otsuThreshold` for how it is computed.
+   * each color channel is compared with `max` and replaced on its own (like
+   * OpenCV's `threshold` on a color image). Pass `max: "otsu"` to choose
+   * `max` from the image's histogram with Otsu's method; see
+   * `otsuThreshold` for how it is computed.
    * @example
    * ```ts
    * import { Jimp } from "jimp";

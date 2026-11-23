@@ -47,8 +47,9 @@ image.threshold({ max: level });
 
 How the level is computed:
 
-- It uses the same values `threshold` compares: Rec. 709 luminance, or the
-  red, green and blue channels together when `autoGreyscale` is `false`.
+- It uses Rec. 709 luminance. With `autoGreyscale: false` the image should
+  already be grey (like OpenCV, which only runs Otsu on single-channel
+  images), and it reads the red channel.
 - Each pixel counts in proportion to its alpha. Fully transparent pixels are
   ignored, and a pixel at alpha 128 counts about half as much as an opaque
   one.
