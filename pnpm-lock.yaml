@@ -730,8 +730,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/utils
       bmp-ts:
-        specifier: ^1.1.0
-        version: 1.1.0
+        specifier: ^1.1.2
+        version: 1.1.2
     devDependencies:
       '@jimp/config-eslint':
         specifier: workspace:*
@@ -4176,8 +4176,8 @@ packages:
   bl@4.1.0:
     resolution: {integrity: sha512-1W07cM9gS6DcLperZfFSj+bWLtaPGSOHWhPiGzXmvVJbRLdG82sH/Kn8EtW1VqWVA54AKf2h5k5BbnIbwF3h6w==}
 
-  bmp-ts@1.1.0:
-    resolution: {integrity: sha512-WSnFZCtT8t92y6DBEamlpqxHjCnPo5YcwY/tvhhsYbHqmWkKv5iU8nq3MgV2jfyu1mxe1kKIAuhrPMiVWaKhAw==}
+  bmp-ts@1.1.2:
+    resolution: {integrity: sha512-Vp8AwUAkbfkwboW/GrXEX4krLFUMwCAK7Nx3acx2cGK/JFv98wo8sNYXWwecGJTkNH5EAKZz0rzomX37A4ai9g==}
 
   bn.js@4.12.0:
     resolution: {integrity: sha512-c98Bf3tPniI+scsdk237ku1Dc3ujXQTSgyiPUDEOe7tRkhrqridvh8klBv0HCEso1OLOYcHuCv/cS6DNxKH+ZA==}
@@ -10543,7 +10543,7 @@ snapshots:
       inherits: 2.0.4
       readable-stream: 3.6.2
 
-  bmp-ts@1.1.0: {}
+  bmp-ts@1.1.2: {}
 
   bn.js@4.12.0: {}
 

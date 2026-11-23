@@ -219,6 +219,9 @@ export function getTestImagePath(
     | "windows95.bmp"
     | "alpha-v5.png"
     | "alpha-v5.bmp"
+    | "palette.png"
+    | "palette-4bit.bmp"
+    | "palette-rle8.bmp"
     | "fillbytes.jpg"
     | "hands.jpg"
     | "hands_mx200_rp255.jpg",
