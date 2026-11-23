@@ -1,10 +1,19 @@
 /** Playground ops: color. See ops/shape.ts for how to add an op. */
 import type { ColorAction } from "jimp";
-import { hexToRgb, js, num } from "../code";
+import { js, num } from "../code";
 import { defineOp } from "../types";
 
+const INK = "#1b1840";
+const S = `stroke="${INK}" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"`;
+
+/** Half a sun, half a shadow, with plus and minus. */
+const exposureIcon = `<circle cx="16" cy="16" r="12" fill="#ffd83a" ${S}/><path d="M16 4a12 12 0 010 24z" fill="${INK}"/><path d="M6.5 16h6M9.5 13v6" ${S} stroke-width="2.2"/><path d="M19.5 16h6" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/>`;
+
+/** A muted swatch growing into a vivid one. */
+const vibranceIcon = `<rect x="3" y="10" width="11" height="13" rx="3" fill="#d6a7b8" ${S}/><rect x="18" y="5" width="11" height="22" rx="3" fill="#ff2f86" ${S}/><path d="M13 16h6" ${S} stroke-width="2.2"/>`;
+
 /** Ops that take no options. */
-const simple = (id: "greyscale" | "invert" | "sepia" | "normalize", description: string) =>
+const simple = (id: "greyscale" | "invert" | "normalize", description: string) =>
   defineOp({
     id,
     label: id,
@@ -31,15 +40,19 @@ type ColorOpts = {
   value: number;
   color: string;
   mixAmount: number;
+  r: number;
+  g: number;
+  b: number;
 };
 
 /** The `color()` action described by the playground's options. */
-function toAction({ apply, degrees, amount, value, color, mixAmount }: ColorOpts) {
+function toAction({ apply, degrees, amount, value, color, mixAmount, r, g, b }: ColorOpts) {
   if (degreeActions.includes(apply)) return { apply, params: [degrees] };
   if (percentActions.includes(apply)) return { apply, params: [amount] };
   if (channelActions.includes(apply)) return { apply, params: [value] };
-  if (apply === "mix") return { apply, params: [hexToRgb(color), mixAmount] };
-  if (apply === "xor") return { apply, params: [hexToRgb(color)] };
+  if (apply === "mix") return { apply, params: [color, mixAmount] };
+  if (apply === "xor") return { apply, params: [color] };
+  if (apply === "multiply") return { apply, params: [num(r), num(g), num(b)] };
   return { apply };
 }
 
@@ -59,9 +72,20 @@ function comboActions({ hue, saturation, lightness, mixColor, mixAmount }: Combo
   if (saturation < 0) actions.push({ apply: "desaturate", params: [-saturation] });
   if (lightness > 0) actions.push({ apply: "lighten", params: [lightness] });
   if (lightness < 0) actions.push({ apply: "darken", params: [-lightness] });
-  if (mixAmount) actions.push({ apply: "mix", params: [hexToRgb(mixColor), mixAmount] });
+  if (mixAmount) actions.push({ apply: "mix", params: [mixColor, mixAmount] });
   return actions;
 }
+
+/** A 0 to 2 slider for one of multiply's factors. */
+const factor = (key: "r" | "g" | "b", i: number) => ({
+  type: "slider" as const,
+  key,
+  label: `params[${i}]`,
+  min: 0,
+  max: 2,
+  step: 0.05,
+  when: (o: ColorOpts) => o.apply === "multiply",
+});
 
 export default [
   defineOp({
@@ -70,7 +94,7 @@ export default [
     icon: "color",
     group: "color",
     description:
-      "Apply one color action. mix and xor take an { r, g, b } color, not a CSS string.",
+      "Apply one color action. mix and xor take a CSS color; multiply scales red, green and blue by three factors.",
     controls: [
       {
         type: "select",
@@ -82,6 +106,7 @@ export default [
           "greyscale",
           ...channelActions,
           ...colorActions,
+          "multiply",
         ],
       },
       {
@@ -127,8 +152,21 @@ export default [
         step: 1,
         when: (o) => o.apply === "mix",
       },
+      factor("r", 0),
+      factor("g", 1),
+      factor("b", 2),
     ],
-    defaults: { apply: "hue", degrees: 90, amount: 30, value: 80, color: "#ff5fb0", mixAmount: 50 },
+    defaults: {
+      apply: "hue",
+      degrees: 90,
+      amount: 30,
+      value: 80,
+      color: "#ff5fb0",
+      mixAmount: 50,
+      r: 1.2,
+      g: 1,
+      b: 0.8,
+    },
     apply: (image, opts) => {
       image.color([toAction(opts) as ColorAction]);
     },
@@ -186,9 +224,52 @@ export default [
     code: ({ val }) => `image.contrast(${js(val)});`,
   }),
 
+  defineOp({
+    id: "exposure",
+    label: "exposure",
+    icon: exposureIcon,
+    group: "color",
+    description: "Change the exposure in stops, in linear light: 1 doubles the light and -1 halves it.",
+    controls: [{ type: "slider", key: "stops", min: -3, max: 3, step: 0.1 }],
+    defaults: { stops: 1 },
+    apply: (image, { stops }) => {
+      image.exposure(num(stops));
+    },
+    code: ({ stops }) => `image.exposure(${js(stops)});`,
+  }),
+
+  defineOp({
+    id: "vibrance",
+    label: "vibrance",
+    icon: vibranceIcon,
+    group: "color",
+    description: "Boost muted colors more than vivid ones. -1 mutes the colors, 0 changes nothing.",
+    controls: [{ type: "slider", key: "amount", min: -1, max: 1, step: 0.05 }],
+    defaults: { amount: 0.8 },
+    apply: (image, { amount }) => {
+      image.vibrance(num(amount));
+    },
+    code: ({ amount }) => `image.vibrance(${js(amount)});`,
+  }),
+
   simple("greyscale", "Remove all color, keeping the perceived brightness of each pixel."),
   simple("invert", "Invert the red, green and blue channels. Alpha is unchanged."),
-  simple("sepia", "Apply a warm sepia tone."),
+
+  defineOp({
+    id: "sepia",
+    label: "sepia",
+    icon: "sepia",
+    group: "color",
+    description: "Apply a warm sepia tone. amount blends from the original (0) to full sepia (1).",
+    controls: [{ type: "slider", key: "amount", min: 0, max: 1, step: 0.05 }],
+    defaults: { amount: 1 },
+    apply: (image, { amount }) => {
+      if (num(amount) === 1) image.sepia();
+      else image.sepia(num(amount));
+    },
+    code: ({ amount }) => (num(amount) === 1 ? "image.sepia();" : `image.sepia(${js(amount)});`),
+  }),
+
   simple("normalize", "Stretch each channel so its values use the full 0 to 255 range."),
 
   defineOp({
@@ -196,7 +277,7 @@ export default [
     label: "posterize",
     icon: "posterize",
     group: "color",
-    description: "Reduce each color channel to n levels.",
+    description: "Round each color channel to the nearest of n levels.",
     controls: [{ type: "slider", key: "n", min: 2, max: 12, step: 1 }],
     defaults: { n: 4 },
     apply: (image, { n }) => {
@@ -213,17 +294,18 @@ export default [
     description:
       "Convert to greyscale, then set every pixel at or above max to replace. Darker pixels keep their gray value.",
     controls: [
-      { type: "slider", key: "max", min: 0, max: 255, step: 1 },
+      { type: "toggle", key: "otsu", label: 'max: "otsu"' },
+      { type: "slider", key: "max", min: 0, max: 255, step: 1, when: (o) => !o.otsu },
       { type: "slider", key: "replace", min: 0, max: 255, step: 1 },
       { type: "toggle", key: "autoGreyscale" },
     ],
-    defaults: { max: 140, replace: 255, autoGreyscale: true },
-    apply: (image, opts) => {
-      image.threshold(opts);
+    defaults: { otsu: false, max: 140, replace: 255, autoGreyscale: true },
+    apply: (image, { otsu, max, replace, autoGreyscale }) => {
+      image.threshold({ max: otsu ? "otsu" : max, replace, autoGreyscale });
     },
-    code: ({ max, replace, autoGreyscale }) =>
+    code: ({ otsu, max, replace, autoGreyscale }) =>
       `image.threshold(${js({
-        max,
+        max: otsu ? "otsu" : max,
         replace: replace === 255 ? undefined : replace,
         autoGreyscale: autoGreyscale ? undefined : false,
       })});`,

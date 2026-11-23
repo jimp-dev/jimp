@@ -6,7 +6,6 @@ method: "threshold"
 plugin: "@jimp/plugin-threshold"
 ---
 
-import { Aside } from "@astrojs/starlight/components";
 import Playground from "../../../components/playground/Playground";
 import Related from "../../../components/Related.astro";
 
@@ -17,7 +16,7 @@ Darker pixels keep their gray level. Use it to clean up scans, wash out light ba
 
 ```ts title="threshold.d.ts"
 image.threshold(options: {
-  max: number;
+  max: number | "otsu";
   replace?: number;
   autoGreyscale?: boolean;
 }): this
@@ -28,11 +27,11 @@ The options type is exported from `jimp` as `ThresholdOptions`.
 
 ## Options
 
-| Option          | Type      | Default  | Description                                                                                         |
-| --------------- | --------- | -------- | --------------------------------------------------------------------------------------------------- |
-| `max`           | `number`  | required | The cut-off, from `0` to `255`. Pixels whose gray value is `max` or more are replaced.              |
-| `replace`       | `number`  | `255`    | The gray value, from `0` to `255`, that replaced pixels get.                                        |
-| `autoGreyscale` | `boolean` | `true`   | Call [`greyscale`](/jimp/methods/greyscale/) first. Turn it off only if the image is already gray. |
+| Option          | Type                 | Default  | Description                                                                                                       |
+| --------------- | -------------------- | -------- | ----------------------------------------------------------------------------------------------------------------- |
+| `max`           | `number \| "otsu"`   | required | The cut-off, from `0` to `255`. Values of `max` or more are replaced. `"otsu"` picks the cut-off from the image. |
+| `replace`       | `number`             | `255`    | The value, from `0` to `255`, that replaced values get.                                                          |
+| `autoGreyscale` | `boolean`            | `true`   | Call [`greyscale`](/jimp/methods/greyscale/) first. With `false`, each color channel is thresholded on its own. |
 
 ## Example
 
@@ -47,6 +46,27 @@ image.threshold({ max: 200 });
 await image.write("scan-clean.png");
 ```
 
+### Pick the cut-off automatically
+
+`max: "otsu"` chooses the cut-off with [Otsu's method](/jimp/methods/otsu-threshold/), which looks for the value that best splits the image into a dark and a light group.
+It works well for scans and photos of documents, where the right cut-off changes from image to image.
+
+```ts title="example.ts"
+image.threshold({ max: "otsu" });
+```
+
+To see which cut-off was used, compute it with [`otsuThreshold`](/jimp/methods/otsu-threshold/) and pass it as `max`. The result is the same:
+
+```ts title="example.ts"
+import { Jimp, otsuThreshold } from "jimp";
+
+const image = await Jimp.read("scan.jpg");
+const level = otsuThreshold(image);
+
+console.log(level); // e.g. 104
+image.threshold({ max: level });
+```
+
 ### Replace light pixels with black
 
 Set `replace` to choose another value:
@@ -55,13 +75,23 @@ Set `replace` to choose another value:
 image.threshold({ max: 180, replace: 0 });
 ```
 
+### Keep the colors
+
+With `autoGreyscale: false` the image isn't converted to gray.
+Each of red, green and blue is compared with `max` and replaced on its own, so channels below the cut-off keep their color:
+
+```ts title="example.ts"
+image.threshold({ max: 200, autoGreyscale: false });
+// (230, 120, 40) becomes (255, 120, 40)
+```
+
 ### Pure black and white
 
-`threshold` only changes the pixels at or above `max`; darker pixels keep their gray.
+`threshold` only changes the values at or above `max`; darker pixels keep their gray.
 For a two-color result, set the remaining pixels yourself with [`scan`](/jimp/methods/scan/):
 
 ```ts title="example.ts"
-image.threshold({ max: 128 });
+image.threshold({ max: "otsu" });
 
 image.scan((x, y, idx) => {
   const value = image.bitmap.data[idx] === 255 ? 255 : 0;
@@ -72,25 +102,24 @@ image.scan((x, y, idx) => {
 });
 ```
 
+For a black and white image that keeps shading with patterns of dots, use [`dither`](/jimp/methods/dither/) instead.
+
 ## Try it
 
-Drag `max` to move the cut-off and `replace` to change the value that light pixels get.
+Drag `max` to move the cut-off and `replace` to change the value that light pixels get, or turn on `otsu` to let Jimp pick the cut-off.
 
 <Playground method="threshold" client:visible />
 
 ## Notes
 
-- **At or above.** A pixel is replaced when its gray value is greater than or equal to `max`. `max: 0` replaces every pixel; `max: 255` replaces only pure white.
-- **Alpha is unchanged.** Transparent pixels are processed like any other, but stay transparent.
-- **Errors.** `options` is required: calling `threshold()` with no argument throws a `ZodError`. So do a missing `max` and values of `max` or `replace` outside `0`–`255`.
-
-<Aside type="caution" title="autoGreyscale: false reads only the red channel">
-  `threshold` compares and copies the red channel of each pixel. With
-  `autoGreyscale: false` on a color image, the result is still gray, but its
-  levels come from the red channel alone. Leave `autoGreyscale` on unless the
-  image is already grayscale.
-</Aside>
+- **At or above.** A value is replaced when it's greater than or equal to `max`. `max: 0` replaces every pixel; `max: 255` replaces only pure white.
+- **Otsu with `autoGreyscale: false`.** `"otsu"` reads the image's values after the optional `greyscale`. With `autoGreyscale: false` it builds its histogram from the red channel alone, so use it that way only on images that are already gray.
+- **Alpha is unchanged.** Transparent pixels are processed like any other, but stay transparent. With `"otsu"`, transparent pixels don't affect the chosen cut-off.
+- **Errors.** `options` is required: calling `threshold()` with no argument throws a `ZodError`. So do a missing `max`, a string other than `"otsu"`, and values of `max` or `replace` outside `0`–`255`.
+- Added in 2.0: `max: "otsu"`.
+- Changed in 2.0: with `autoGreyscale: false`, each channel is compared and replaced on its own; before, every pixel came out gray, with its level taken from the red channel alone.
+- Changed in 2.0: the gray values from `greyscale` are rounded rather than rounded down, so some pixels come out one level lighter.
 
 ## Related
 
-<Related methods={["greyscale", "posterize", "contrast", "normalize", "mask", "scan"]} />
+<Related methods={["otsuThreshold", "greyscale", "dither", "posterize", "contrast", "mask", "scan"]} />

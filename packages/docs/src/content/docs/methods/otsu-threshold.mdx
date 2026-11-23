@@ -1,9 +1,89 @@
 ---
 title: "otsuThreshold()"
-description: "TODO"
+description: "Find the best threshold cut-off for an image with Otsu's method."
 category: color
 method: "otsuThreshold"
 plugin: "@jimp/plugin-threshold"
 ---
 
-{/* TODO */}
+import Playground from "../../../components/playground/Playground";
+import Related from "../../../components/Related.astro";
+
+`otsuThreshold` looks at an image's gray levels and returns the cut-off that best separates the dark pixels from the light ones, using [Otsu's method](https://en.wikipedia.org/wiki/Otsu%27s_method).
+Pass the result as `max` to [`threshold`](/jimp/methods/threshold/), or use it to measure an image before you decide what to do with it.
+
+## Signature
+
+```ts title="otsuThreshold.d.ts"
+import { otsuThreshold } from "jimp";
+
+otsuThreshold(image: JimpInstance, options?: { autoGreyscale?: boolean }): number
+```
+
+`otsuThreshold` only reads the image. It returns a whole number from `1` to `255`.
+The options type is exported from `jimp` as `OtsuThresholdOptions`.
+
+## Parameters
+
+| Parameter               | Type          | Default  | Description                                                                                               |
+| ----------------------- | ------------- | -------- | --------------------------------------------------------------------------------------------------------- |
+| `image`                 | `JimpInstance` | required | The image to measure.                                                                                    |
+| `options.autoGreyscale` | `boolean`     | `true`   | Measure each pixel's gray value, as [`greyscale`](/jimp/methods/greyscale/) would compute it. With `false`, the red channel is used, for images that are already gray. |
+
+## Example
+
+```ts title="example.ts"
+import { Jimp, otsuThreshold } from "jimp";
+
+const image = await Jimp.read("scan.jpg");
+
+const level = otsuThreshold(image);
+console.log(level); // e.g. 104
+
+image.threshold({ max: level });
+
+await image.write("scan-clean.png");
+```
+
+`image.threshold({ max: "otsu" })` does the same in one call. Use `otsuThreshold` when you want to see or adjust the level first.
+
+### Adjust the level
+
+The value Otsu's method picks is a starting point. Nudge it to keep more or less of the light areas:
+
+```ts title="example.ts"
+const level = otsuThreshold(image);
+
+image.threshold({ max: Math.min(255, level + 10) }); // keep a little more detail
+```
+
+### Measure an image that's already gray
+
+If the image has been converted with `greyscale`, skip the conversion:
+
+```ts title="example.ts"
+image.greyscale();
+
+const level = otsuThreshold(image, { autoGreyscale: false });
+```
+
+The result is the same as `otsuThreshold(image)` on the original color image.
+
+## Try it
+
+The playground computes the level with `otsuThreshold` and passes it to `threshold`. Move `offset` to shift the cut-off from the level Otsu's method picked, and upload a scan or a photo of a document to see it adapt.
+
+<Playground method="otsuThreshold" client:visible />
+
+## Notes
+
+- **How it's computed.** `otsuThreshold` builds a 256-bin histogram of the gray values and tries every split into a dark group and a light group. It returns the split with the largest variance between the two groups. When several splits tie, the lowest wins.
+- **Ready to use as `max`.** `threshold` keeps values below `max` and replaces those at or above it, so the result is the first value of the light group. That's one more than scikit-image's `threshold_otsu` and OpenCV's `THRESH_OTSU`, which report the last value of the dark group.
+- **Alpha counts.** Each pixel counts in proportion to its alpha: fully transparent pixels are ignored and a half-transparent pixel counts half as much as an opaque one.
+- **Nothing to split.** If the image has fewer than two distinct gray values (a solid color, or no visible pixels), it returns `255`, so `threshold` leaves every pixel below `255` unchanged.
+- **Errors.** An `autoGreyscale` that isn't a boolean throws a `ZodError`.
+- Added in 2.0.
+
+## Related
+
+<Related methods={["threshold", "greyscale", "dither", "posterize"]} />

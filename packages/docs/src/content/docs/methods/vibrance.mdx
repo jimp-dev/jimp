@@ -1,9 +1,66 @@
 ---
 title: "vibrance()"
-description: "TODO"
+description: "Boost muted colors more than vivid ones, from -1 to +1."
 category: color
 method: "vibrance"
 plugin: "@jimp/plugin-color"
 ---
 
-{/* TODO */}
+import Playground from "../../../components/playground/Playground";
+import Related from "../../../components/Related.astro";
+
+`vibrance` makes colors richer, but boosts muted colors more than ones that are already vivid.
+Skies and skin tones gain color while bright reds and blues don't clip, which makes it gentler than a plain saturation boost. Negative values mute the colors instead.
+
+## Signature
+
+```ts title="vibrance.d.ts"
+image.vibrance(amount: number): this
+```
+
+`vibrance` changes the image in place and returns it, so you can chain more calls after it.
+
+## Parameters
+
+| Parameter | Type     | Default  | Description                                                                                       |
+| --------- | -------- | -------- | ------------------------------------------------------------------------------------------------- |
+| `amount`  | `number` | required | A number from `-1` to `+1`. `0` changes nothing, `1` gives the biggest boost and `-1` mutes the colors. |
+
+## Example
+
+```ts title="example.ts"
+import { Jimp } from "jimp";
+
+const image = await Jimp.read("photo.jpg");
+
+image.vibrance(0.5);
+
+await image.write("photo-vibrant.jpg");
+```
+
+### Mute the colors
+
+A negative amount takes color out, muted colors first, for a subdued look that keeps the strongest colors:
+
+```ts title="example.ts"
+image.vibrance(-0.6);
+```
+
+## Try it
+
+Drag the slider to change `amount`. Upload a photo with both muted and vivid colors to see the difference from saturating.
+
+<Playground method="vibrance" client:visible />
+
+## Notes
+
+- **How it's computed.** Each pixel's HSL saturation is multiplied by `1 + amount × (1 − chroma)`, capped at full saturation, where `chroma` is `(max(r, g, b) − min(r, g, b)) / 255`. Muted colors have a low chroma, so at `1` their saturation almost doubles; fully saturated colors have a chroma of `1` and don't change.
+- **`vibrance` or `saturate`?** The `saturate` action of [`color`](/jimp/methods/color/) multiplies every pixel's saturation by the same factor: `100` doubles it everywhere. `vibrance(1)` multiplies the saturation of a muted red `(150, 100, 100)` by about `1.8`, giving `(170, 80, 80)`, but that of a vivid red `(220, 40, 40)` by only about `1.3`.
+- **Grays stay gray.** A pixel with no saturation has nothing to scale.
+- **Out-of-range amounts are clamped** to `-1`–`+1`, so `vibrance(5)` is the same as `vibrance(1)`. A value that isn't a number throws a `ZodError`.
+- **Alpha is unchanged.**
+- Added in 2.0.
+
+## Related
+
+<Related methods={["color", "exposure", "contrast", "brightness", "sepia"]} />

@@ -59,6 +59,7 @@ Drag the slider to change `val`. Values above `1` brighten and values below `1` 
 - **Black stays black.** Multiplying `0` gives `0`, so `brightness` can't lift pure black. To move every pixel toward white instead, use the `lighten` or `tint` action of [`color`](/jimp/methods/color/).
 - **Alpha is unchanged.** Only the red, green and blue channels are multiplied.
 - **Errors.** A `val` that isn't a number throws `val must be numbers`. There is no upper limit.
+- **`brightness` or `exposure`?** `brightness` multiplies the stored 8-bit values, so a factor of `2` turns a mid-gray `128` into white. [`exposure`](/jimp/methods/exposure/) multiplies the light those values stand for, as a camera would: `exposure(1)` doubles the light and turns `128` into `176`, keeping detail in the highlights.
 - **For fine control** of light and dark tones, [`contrast`](/jimp/methods/contrast/) and [`normalize`](/jimp/methods/normalize/) often give better results than a single multiplier.
 
 <Aside type="caution" title="Changed in v1">
@@ -70,4 +71,4 @@ Drag the slider to change `val`. Values above `1` brighten and values below `1` 
 
 ## Related
 
-<Related methods={["contrast", "color", "normalize", "invert", "opacity"]} />
+<Related methods={["exposure", "contrast", "color", "normalize", "invert", "opacity"]} />

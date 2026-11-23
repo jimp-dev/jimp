@@ -6,7 +6,6 @@ method: "quantize"
 plugin: "@jimp/plugin-quantize"
 ---
 
-import { Aside } from "@astrojs/starlight/components";
 import Playground from "../../../components/playground/Playground";
 import Related from "../../../components/Related.astro";
 
@@ -33,7 +32,7 @@ The string options accept only the names in the tables below; in TypeScript they
 
 | Option                 | Type     | Default             | Description                                                                 |
 | ---------------------- | -------- | ------------------- | --------------------------------------------------------------------------- |
-| `colors`               | `number` | `256`               | The maximum number of colors in the palette. A whole number of `1` or more. |
+| `colors`               | `number` | `256`               | The maximum number of colors in the palette: at least `1`, or at least `2` with `"rgbquant"`. |
 | `paletteQuantization`  | `string` | `"wuquant"`         | The algorithm that picks the palette. See below.                            |
 | `imageQuantization`    | `string` | `"floyd-steinberg"` | How each pixel is matched to the palette: nearest color or a dither. See below. |
 | `colorDistanceFormula` | `string` | `"euclidean-bt709"` | How the difference between two colors is measured, for both steps. See below. |
@@ -123,7 +122,7 @@ await image.write("photo-retro.png");
 
 ## Try it
 
-Drag `colors` and try different algorithms. The perceptual distance formulas (`cie94-*` and `ciede2000`) can take a second to run.
+Drag `colors` and try different algorithms. The perceptual distance formulas (`cie94-*` and `ciede2000`) are much slower, and `ciede2000` can take many seconds to run.
 
 <Playground method="quantize" client:visible />
 
@@ -131,9 +130,10 @@ Drag `colors` and try different algorithms. The perceptual distance formulas (`c
 
 - **The image stays RGBA.** `quantize` changes the pixels, not the bitmap format. Jimp's PNG encoder doesn't write palette (indexed) PNGs, so the file is still truecolor, although fewer colors usually compress better.
 - **Alpha is quantized too.** Palette entries include alpha, so soft, semi-transparent edges snap to a few transparency levels. For clean edges, quantize the image before adding transparency, or call [`opaque`](/jimp/methods/opaque/) first if you don't need it.
-- **Speed.** At the defaults, a 360 × 270 image takes about 0.2 s in Node. Large images and the perceptual formulas are much slower: `"ciede2000"` is several times slower than the default, and the gap grows with `colors`. [`posterize`](/jimp/methods/posterize/) is far faster if you don't need an optimal palette.
-- **Errors.** Calling `quantize()` without an options object, or passing an unknown algorithm name, throws a `ZodError`. A `colors` value of `0` or less isn't rejected by validation; it fails inside image-q with a `TypeError`.
+- **Speed.** At the defaults, a 360 × 270 image takes under a second in Node. Large images and the perceptual formulas are much slower: on the same image `"ciede2000"` takes tens of seconds, and the gap grows with `colors`. [`posterize`](/jimp/methods/posterize/) is far faster if you don't need an optimal palette.
+- **Errors.** Calling `quantize()` without an options object, or passing an unknown algorithm name, throws a `ZodError`. So does a `colors` below `1` (`colors must be at least 1`), or below `2` with `paletteQuantization: "rgbquant"` (`colors must be at least 2 for rgbquant`).
 - **Fewer colors than requested.** The palette never has more colors than the image, and some algorithms return a palette one or two colors smaller than `colors`.
+- Changed in 2.0: a `colors` below `1`, or below `2` with `"rgbquant"`, throws a `ZodError` naming the problem; before, it failed inside image-q with a `TypeError`.
 
 ## Related
 

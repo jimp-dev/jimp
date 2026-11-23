@@ -58,11 +58,14 @@ Run the playground to see the result. Hold the compare button to see the origina
 
 ## Notes
 
-- **Luminance weights.** The gray value is `0.2126 × R + 0.7152 × G + 0.0722 × B` (ITU-R BT.709), rounded down, and written to all three channels.
+- **Luminance weights.** The gray value is `0.2126 × R + 0.7152 × G + 0.0722 × B` (ITU-R BT.709), rounded to the nearest whole number, and written to all three channels. An orange `(200, 100, 50)` becomes `118`.
+- **Calling it twice changes nothing.** Pixels that are already gray keep their value, so `greyscale()` on a gray image leaves it as it is.
+- **Raw values.** The weights are applied to the stored values, whatever the image's [color space](/jimp/guides/color-spaces/). Grays, black and white are the same in sRGB and Display P3.
 - **Alpha is unchanged.** Transparent areas stay transparent.
 - **Spelling.** The method is spelled `greyscale`; there is no `grayscale` alias.
-- **The `greyscale` color action is different.** `image.color([{ apply: "greyscale" }])` uses HSL lightness (the average of the largest and smallest channel) instead of luminance, which makes blues look lighter and greens darker than they should. Prefer `greyscale()` for photos.
-- **The image stays RGBA.** The pixels are gray, but the bitmap still has four channels. How the file is saved depends on the encoder; see [Formats](/jimp/concepts/formats/).
+- **The same as the `greyscale` color action.** `image.color([{ apply: "greyscale" }])` gives exactly the same result, so you can use it inside a longer list of [`color`](/jimp/methods/color/) actions. The `desaturate` action with `100` gives a different gray, the HSL lightness.
+- **The image stays RGBA.** The pixels are gray, but the bitmap still has four channels. When you write a PNG, Jimp picks a grayscale PNG automatically if every pixel is gray. See [Formats](/jimp/concepts/formats/).
+- Changed in 2.0: the gray value is rounded; before, it was rounded down, so many pixels came out one level darker and calling `greyscale()` again could darken them further.
 
 ## Related
 

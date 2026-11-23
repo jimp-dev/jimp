@@ -6,7 +6,6 @@ method: "scanIterator"
 plugin: "@jimp/core"
 ---
 
-import { Aside } from "@astrojs/starlight/components";
 import Playground from "../../../components/playground/Playground";
 import Related from "../../../components/Related.astro";
 
@@ -29,14 +28,15 @@ Pixels are produced lazily as you loop, so stopping early skips the rest.
 
 ## Parameters
 
-| Parameter | Type     | Default        | Description                    |
-| --------- | -------- | -------------- | ------------------------------ |
-| `x`       | `number` | `0`            | Left edge of the region.       |
-| `y`       | `number` | `0`            | Top edge of the region.        |
-| `w`       | `number` | `image.width`  | Width of the region in pixels. |
-| `h`       | `number` | `image.height` | Height of the region in pixels.|
+| Parameter | Type     | Default                | Description                    |
+| --------- | -------- | ---------------------- | ------------------------------ |
+| `x`       | `number` | `0`                    | Left edge of the region.       |
+| `y`       | `number` | `0`                    | Top edge of the region.        |
+| `w`       | `number` | `image.width - x`      | Width of the region in pixels. |
+| `h`       | `number` | `image.height - y`     | Height of the region in pixels.|
 
-Unlike `scan`, each value has its own default. The defaults don't adjust to `x` and `y`, though: `image.scanIterator(10, 10)` covers a region as large as the whole image starting at `(10, 10)`, which runs past the right and bottom edges. When you pass `x` or `y`, pass `w` and `h` too.
+Unlike `scan`, each value has its own default, and `w` and `h` default to the rest of the image: `image.scanIterator(10, 10)` covers everything from `(10, 10)` to the bottom-right corner.
+The region is clamped to the image, so only pixels inside it are yielded.
 
 ## Example
 
@@ -95,10 +95,11 @@ Pick what the loop does for each pixel and drag out the region on the image. Tur
 
 - **It's slower than `scan`.** Creating an object for every pixel adds overhead; over a whole image `scanIterator` takes about two to three times as long as `scan`. For effects that touch every pixel and never stop early, prefer `scan`.
 - **Values wrap, they don't clamp**, exactly as in `scan`: clamp computed values with [`limit255`](/jimp/methods/limit255/).
-- **The region isn't clipped.** Like `scan`, a region that extends past the image yields indexes in the wrong row or outside the buffer. Clamp it first, for example `w = Math.min(w, image.width - x)`.
-- **Region values are rounded** to whole pixels.
+- **Regions are clamped to the image.** Region values are rounded to whole pixels, and the part of the region outside the image is skipped. A region that doesn't overlap the image yields nothing.
 - **Arguments must be numbers** when given. Otherwise it throws `x and y must be numbers` or `w and h must be numbers` as soon as you call it, before the loop starts.
-- **Don't resize inside the loop.** The region is fixed when you call `scanIterator`, but each index is computed from the current width, so changing the image's size mid-loop gives wrong indexes.
+- **Don't resize inside the loop.** The region is fixed when the loop starts, but each index is computed from the current width, so changing the image's size mid-loop gives wrong indexes.
+- **In a plugin.** `scanIterator(image, x, y, w, h)` is also exported from `@jimp/utils`. There all four region values are required.
+- Changed in 2.0: regions are clamped to the image, and `w` and `h` default to the rest of the image from `x` and `y`; before, they defaulted to the full image size, so `scanIterator(x, y)` ran past the edges and yielded indexes outside the buffer.
 
 ## Related
 

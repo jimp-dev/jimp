@@ -6,7 +6,6 @@ method: "scan"
 plugin: "@jimp/core"
 ---
 
-import { Aside } from "@astrojs/starlight/components";
 import Playground from "../../../components/playground/Playground";
 import Related from "../../../components/Related.astro";
 
@@ -32,8 +31,8 @@ With one argument, `scan` visits the whole image. With five, it visits only the 
 
 ## Parameters
 
-| Parameter | Type       | Default  | Description                                       |
-| --------- | ---------- | -------- | ------------------------------------------------- |
+| Parameter | Type       | Default      | Description                                |
+| --------- | ---------- | ------------ | ------------------------------------------ |
 | `x`       | `number`   | `0`          | Left edge of the region.                   |
 | `y`       | `number`   | `0`          | Top edge of the region.                    |
 | `w`       | `number`   | image width  | Width of the region in pixels.             |
@@ -41,6 +40,7 @@ With one argument, `scan` visits the whole image. With five, it visits only the 
 | `f`       | `function` | required     | Called with `(x, y, idx)` for every pixel. |
 
 Give all four region values or none of them; the defaults apply when you pass only `f`.
+The region is clamped to the image, so `f` is only called for pixels inside it.
 
 Inside `f`, the pixel's bytes are `image.bitmap.data[idx]` (red), `[idx + 1]` (green), `[idx + 2]` (blue) and `[idx + 3]` (alpha), each from `0` to `255`.
 Change them to change the pixel.
@@ -66,7 +66,7 @@ await image.write("swapped.png");
 
 ### Scan a region
 
-Pass the region before the function. This makes a 100 × 50 block, starting at `(20, 10)`, half transparent:
+Pass the region before the function. This makes a 100 × 50 block, starting at `(20, 10)`, half transparent. If the block reaches past the edge of the image, only the part inside the image is changed:
 
 ```ts title="example.ts"
 image.scan(20, 10, 100, 50, (x, y, idx) => {
@@ -116,17 +116,11 @@ Pick what the function does for each pixel, and turn on "region only" to drag ou
 - **`this` is the image** when `f` is a regular `function`, as in v0: `function (x, y, idx) { this.bitmap.data[idx] = 0; }`. Arrow functions keep their own `this`, so refer to the image by name.
 - **Values wrap, they don't clamp.** `bitmap.data` is a `Buffer`, so assigning `300` stores `44` and `-1` stores `255`. Clamp computed values with [`limit255`](/jimp/methods/limit255/) and round fractions yourself; fractional values are truncated.
 - **You can't stop early.** The return value of `f` is ignored. To stop at the first match, use [`scanIterator`](/jimp/methods/scan-iterator/) with `break`.
-- **Region values are rounded** to whole pixels.
+- **Regions are clamped to the image.** Region values are rounded to whole pixels, and the part of the region outside the image is dropped: `scan(-10, -10, 30, 30, f)` visits the 20 × 20 pixels from `(0, 0)`. A region that doesn't overlap the image at all calls `f` zero times.
 - **Missing arguments** in the five-argument form throw `y must be a number`, `w must be a number`, `h must be a number` or `cb must be a function`.
 - **Speed.** `scan` is much faster than calling [`getPixelColor`](/jimp/methods/get-pixel-color/) and [`setPixelColor`](/jimp/methods/set-pixel-color/) for every pixel. A plain `for` loop over `image.bitmap.data` in steps of 4 is faster still, if you don't need `x` and `y`.
-
-<Aside type="caution" title="Keep the region inside the image">
-  `scan` doesn't clip the region to the image. Pixels past the right edge get
-  the indexes of the start of the next row, pixels left of the image get the
-  end of the previous row, and pixels above or below the image get indexes
-  outside the buffer, where reads return `undefined` and writes do nothing. Clamp the region first, for example
-  `w = Math.min(w, image.width - x)`.
-</Aside>
+- **In a plugin.** The same function is exported as `scan(image, f)` and `scan(image, x, y, w, h, f)` from `@jimp/utils`, with the same clamping. `clampRegion(image, x, y, w, h)`, also from `@jimp/utils`, returns the clamped region as `{ x, y, w, h }` if you need it yourself.
+- Changed in 2.0: regions are clamped to the image; before, pixels past the right edge got the indexes of the next row, and pixels above, below or left of the image got indexes outside the buffer.
 
 ## Related
 

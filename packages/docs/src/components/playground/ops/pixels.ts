@@ -7,7 +7,7 @@
  * self-contained loop, so `code()` spells out the exact statements `apply()`
  * runs.
  */
-import { colorDiff, intToRGBA, limit255 } from "jimp";
+import { colorDiff, Edge, intToRGBA, limit255 } from "jimp";
 import { centeredRect, hexToInt, intToHexLiteral, js } from "../code";
 import { defineOp, type ImageSize, type JimpInstance, type Rect } from "../types";
 
@@ -155,7 +155,8 @@ const at = (width: number, height: number, fx: number, fy: number) => ({
   y: Math.round(height * fy),
 });
 
-const edgeNames: Record<string, string> = { "1": "EXTEND", "2": "WRAP", "3": "CROP" };
+const edgeModes = ["EXTEND", "WRAP", "CROP"] as const;
+const edgeFor = (name: string) => Edge[name as (typeof edgeModes)[number]] ?? Edge.EXTEND;
 
 export default [
   defineOp({
@@ -209,7 +210,7 @@ export default [
     icon: icons.setPixelColor,
     group: "pixels",
     description:
-      "Paint a dot by setting pixels one at a time. Click the image to move it. The color replaces the pixel; it isn't blended.",
+      "Paint a dot by setting pixels one at a time. Click the image to move it. The color replaces the pixel, and pixels outside the image are skipped.",
     controls: [
       { type: "xy", key: "point", label: "x, y" },
       { type: "slider", key: "radius", min: 0, max: 40, step: 1, unit: "px" },
@@ -297,17 +298,13 @@ export default [
         type: "select",
         key: "edge",
         label: "edgeHandling",
-        options: [
-          { value: "1", label: "1 (Edge.EXTEND)" },
-          { value: "2", label: "2 (Edge.WRAP)" },
-          { value: "3", label: "3 (Edge.CROP)" },
-        ],
+        options: edgeModes.map((name) => ({ value: name, label: `Edge.${name}` })),
       },
     ],
-    defaults: { dx: 90, dy: 45, edge: "2" },
+    defaults: { dx: 90, dy: 45, edge: "WRAP" },
     apply: (image, { dx, dy, edge }) => {
       const source = image.clone();
-      const mode = Number(edge);
+      const mode = edgeFor(edge);
       image.scan((x, y, idx) => {
         const from = source.getPixelIndex(x - dx, y - dy, mode);
         const color = from === -1 ? 0 : source.bitmap.data.readUInt32BE(from);
@@ -320,13 +317,13 @@ export default [
       return [
         `const source = image.clone();`,
         `image.scan((x, y, idx) => {`,
-        `  // ${edge} is Edge.${edgeNames[edge]}`,
-        `  const from = source.getPixelIndex(${sx}, ${sy}, ${edge});`,
+        `  const from = source.getPixelIndex(${sx}, ${sy}, Edge.${Edge[edgeFor(edge)]});`,
         `  const color = from === -1 ? 0 : source.bitmap.data.readUInt32BE(from);`,
         `  image.bitmap.data.writeUInt32BE(color, idx);`,
         `});`,
       ].join("\n");
     },
+    imports: () => ({ jimp: ["Edge"] }),
   }),
 
   defineOp({

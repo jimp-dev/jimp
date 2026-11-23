@@ -1,6 +1,7 @@
 /**
- * More color ops: quantize, fade, opaque. See ops/shape.ts for how to add an op.
+ * More color ops: quantize, otsuThreshold, fade, opaque. See ops/shape.ts for how to add an op.
  */
+import { otsuThreshold } from "jimp";
 import { js, num } from "../code";
 import { defineOp } from "../types";
 
@@ -108,6 +109,28 @@ export default [
       image.quantize(quantizeOptions(opts) as Parameters<typeof image.quantize>[0]);
     },
     code: (opts) => `image.quantize(${js(quantizeOptions(opts))});`,
+  }),
+
+  defineOp({
+    id: "otsuThreshold",
+    label: "otsuThreshold",
+    icon: "threshold",
+    group: "color",
+    description:
+      "Pick the threshold cut-off with Otsu's method, then pass it to threshold. offset moves the cut-off from the level it picked.",
+    controls: [{ type: "slider", key: "offset", min: -60, max: 60, step: 1 }],
+    defaults: { offset: 0 },
+    apply: (image, { offset }) => {
+      const level = otsuThreshold(image);
+      image.threshold({ max: offset ? Math.min(255, Math.max(0, level + offset)) : level });
+    },
+    code: ({ offset }) => {
+      const max = offset
+        ? `Math.min(255, Math.max(0, level ${offset < 0 ? "-" : "+"} ${Math.abs(offset)}))`
+        : "level";
+      return `const level = otsuThreshold(image);\nimage.threshold({ max: ${max} });`;
+    },
+    imports: () => ({ jimp: ["otsuThreshold"] }),
   }),
 
   defineOp({
