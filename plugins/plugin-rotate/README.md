@@ -8,3 +8,5 @@
 Rotates the image counter-clockwise by a number of degrees. By default the width and height of the image will be resized appropriately.
 
 - [rotate](https://jimp-dev.github.io/jimp/api/jimp/classes/jimp/#rotate)
+
+See [Getting Started](https://jimp-dev.github.io/jimp/guides/getting-started/) to read an image, change it and save the result with `write` or `getBuffer`.

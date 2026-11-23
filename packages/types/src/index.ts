@@ -25,6 +25,9 @@ export interface Format<
   decode: (data: Buffer, options?: DecodeOptions) => Promise<Bitmap> | Bitmap;
 }
 
+/** The colour spaces jimp can create images in and convert to */
+export type ColorSpaceName = "srgb" | "display-p3";
+
 export interface RGBColor {
   r: number;
   g: number;
@@ -45,11 +48,17 @@ export const JimpClassSchema = z.object({
     width: z.number(),
     height: z.number(),
   }),
+  iccProfile: z.instanceof(Uint8Array).optional(),
 });
 
 export interface JimpClass {
   background: number;
   bitmap: Bitmap;
+  /**
+   * The ICC colour profile of the image's pixels, or undefined for sRGB.
+   * See `getColorSpace` in `@jimp/utils`.
+   */
+  iccProfile?: Buffer;
 
   getPixelIndex: (x: number, y: number, edgeHandling?: Edge) => number;
   getPixelColor: (x: number, y: number) => number;

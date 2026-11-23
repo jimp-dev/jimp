@@ -2,7 +2,7 @@ import { Edge, JimpClass } from "@jimp/types";
 
 import { BlendMode } from "./constants.js";
 import * as compositeModes from "./composite-modes.js";
-import { limit255 } from "@jimp/utils";
+import { limit255, pixelsInColorSpaceOf } from "@jimp/utils";
 
 export function composite<I extends JimpClass>(
   baseImage: I,
@@ -51,6 +51,9 @@ export function composite<I extends JimpClass>(
     });
   }
 
+  // Draw the source's colours, not its values, if it's in another colour space
+  const srcData = pixelsInColorSpaceOf(src, baseImage);
+
   src.scan((sx, sy, idx) => {
     const dstIdx = baseImage.getPixelIndex(x + sx, y + sy, Edge.CROP);
 
@@ -61,10 +64,10 @@ export function composite<I extends JimpClass>(
 
     const blended = blendmode(
       {
-        r: src.bitmap.data[idx + 0]! / 255,
-        g: src.bitmap.data[idx + 1]! / 255,
-        b: src.bitmap.data[idx + 2]! / 255,
-        a: src.bitmap.data[idx + 3]! / 255,
+        r: srcData[idx + 0]! / 255,
+        g: srcData[idx + 1]! / 255,
+        b: srcData[idx + 2]! / 255,
+        a: srcData[idx + 3]! / 255,
       },
       {
         r: baseImage.bitmap.data[dstIdx + 0]! / 255,

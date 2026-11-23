@@ -51,6 +51,210 @@ function unpremultiply(buf: any) {
   }
 }
 
+/**
+ * A resampling filter for `convolve`: the kernel, and how many source pixels
+ * it reaches on each side when the image isn't shrunk.
+ */
+interface Filter {
+  support: number;
+  kernel: (x: number) => number;
+}
+
+function sinc(x: number) {
+  if (x === 0) {
+    return 1;
+  }
+
+  x *= Math.PI;
+  return Math.sin(x) / x;
+}
+
+/** Lanczos: sinc windowed by a wider sinc, `a` pixels on each side */
+function lanczos(a: number): Filter {
+  return {
+    support: a,
+    kernel: (x) => (x > -a && x < a ? sinc(x) * sinc(x / a) : 0),
+  };
+}
+
+/** Mitchell–Netravali cubic with B = C = 1/3 */
+const mitchell: Filter = {
+  support: 2,
+  kernel(x) {
+    const B = 1 / 3;
+    const C = 1 / 3;
+    x = Math.abs(x);
+
+    if (x < 1) {
+      return (
+        ((12 - 9 * B - 6 * C) * x * x * x +
+          (-18 + 12 * B + 6 * C) * x * x +
+          (6 - 2 * B)) /
+        6
+      );
+    }
+
+    if (x < 2) {
+      return (
+        ((-B - 6 * C) * x * x * x +
+          (6 * B + 30 * C) * x * x +
+          (-12 * B - 48 * C) * x +
+          (8 * B + 24 * C)) /
+        6
+      );
+    }
+
+    return 0;
+  },
+};
+
+/**
+ * Work out which source pixels, and with which weights, make up each
+ * destination pixel along one axis. Pixel centres are aligned, as in Pillow
+ * and ImageMagick. When shrinking, the filter is stretched by the scale factor
+ * so every source pixel contributes and the result doesn't alias.
+ */
+function filterWeights(srcSize: number, dstSize: number, filter: Filter) {
+  const scale = srcSize / dstSize;
+  const filterScale = Math.max(scale, 1);
+  const support = filter.support * filterScale;
+  const taps = Math.ceil(support * 2) + 1;
+  const start = new Int32Array(dstSize);
+  const count = new Int32Array(dstSize);
+  const weights = new Float64Array(dstSize * taps);
+
+  for (let i = 0; i < dstSize; i++) {
+    const center = (i + 0.5) * scale;
+    const first = Math.max(0, Math.floor(center - support + 0.5));
+    const last = Math.min(srcSize, Math.floor(center + support + 0.5));
+    let sum = 0;
+
+    for (let j = first; j < last; j++) {
+      const weight = filter.kernel((j + 0.5 - center) / filterScale);
+      weights[i * taps + j - first] = weight;
+      sum += weight;
+    }
+
+    // the filter is cut off at the edges of the image, so normalise the
+    // weights to keep the brightness the same
+    if (sum !== 0) {
+      for (let j = 0; j < last - first; j++) {
+        weights[i * taps + j]! /= sum;
+      }
+    }
+
+    start[i] = first;
+    count[i] = last - first;
+  }
+
+  return { start, count, taps, weights };
+}
+
+/**
+ * Resample with a separable convolution filter: rows first, then columns.
+ * RGB is premultiplied by alpha and kept as floats between the passes. An axis
+ * whose size doesn't change is copied as is.
+ */
+function convolve(src: any, dst: any, filter: Filter) {
+  const wSrc = src.width;
+  const hSrc = src.height;
+
+  const wDst = dst.width;
+  const hDst = dst.height;
+
+  const bufSrc = src.data;
+  const bufDst = dst.data;
+
+  // ===========================================================
+  // Pass 1 - resample rows
+  // buf1 has width of dst and height of src, and holds premultiplied RGBA
+  const buf1 = new Float32Array(wDst * hSrc * 4);
+
+  if (wDst === wSrc) {
+    for (let i = 0; i < buf1.length; i++) {
+      buf1[i] = premultiplied(bufSrc, i);
+    }
+  } else {
+    const { start, count, taps, weights } = filterWeights(wSrc, wDst, filter);
+
+    for (let i = 0; i < hSrc; i++) {
+      for (let j = 0; j < wDst; j++) {
+        let r = 0;
+        let g = 0;
+        let b = 0;
+        let a = 0;
+        let srcPos = (i * wSrc + start[j]!) * 4;
+
+        for (let n = 0; n < count[j]!; n++, srcPos += 4) {
+          const weight = weights[j * taps + n]!;
+          const wa = weight * bufSrc[srcPos + 3];
+
+          r += wa * bufSrc[srcPos];
+          g += wa * bufSrc[srcPos + 1];
+          b += wa * bufSrc[srcPos + 2];
+          a += wa;
+        }
+
+        const buf1Pos = (i * wDst + j) * 4;
+        buf1[buf1Pos] = r / 255;
+        buf1[buf1Pos + 1] = g / 255;
+        buf1[buf1Pos + 2] = b / 255;
+        buf1[buf1Pos + 3] = a;
+      }
+    }
+  }
+
+  // ===========================================================
+  // Pass 2 - resample columns, then un-premultiply, clamp and round into dst
+  const store = (pos: number, r: number, g: number, b: number, a: number) => {
+    const alpha = Math.max(0, Math.min(255, Math.round(a)));
+
+    bufDst[pos + 3] = alpha;
+
+    // the colour is the alpha weighted average. Pixels with no alpha get
+    // black, since they have no colour left
+    const f = alpha ? 255 / a : 0;
+    bufDst[pos] = Math.max(0, Math.min(255, Math.round(r * f)));
+    bufDst[pos + 1] = Math.max(0, Math.min(255, Math.round(g * f)));
+    bufDst[pos + 2] = Math.max(0, Math.min(255, Math.round(b * f)));
+  };
+
+  if (hDst === hSrc) {
+    for (let pos = 0; pos < buf1.length; pos += 4) {
+      store(pos, buf1[pos]!, buf1[pos + 1]!, buf1[pos + 2]!, buf1[pos + 3]!);
+    }
+
+    return;
+  }
+
+  const { start, count, taps, weights } = filterWeights(hSrc, hDst, filter);
+  const stride = wDst * 4;
+
+  for (let i = 0; i < hDst; i++) {
+    for (let j = 0; j < wDst; j++) {
+      let r = 0;
+      let g = 0;
+      let b = 0;
+      let a = 0;
+      let buf1Pos = start[i]! * stride + j * 4;
+
+      for (let n = 0; n < count[i]!; n++, buf1Pos += stride) {
+        const weight = weights[i * taps + n]!;
+
+        r += weight * buf1[buf1Pos]!;
+        g += weight * buf1[buf1Pos + 1]!;
+        b += weight * buf1[buf1Pos + 2]!;
+        a += weight * buf1[buf1Pos + 3]!;
+      }
+
+      store((i * wDst + j) * 4, r, g, b, a);
+    }
+  }
+}
+
+const lanczos3 = lanczos(3);
+const lanczos2 = lanczos(2);
+
 export const operations = {
   nearestNeighbor(src: any, dst: any) {
     const wSrc = src.width;
@@ -361,5 +565,17 @@ export const operations = {
     };
 
     return this._interpolate2D(src, dst, options, interpolateBezier);
+  },
+
+  lanczosInterpolation(src: any, dst: any) {
+    convolve(src, dst, lanczos3);
+  },
+
+  lanczos2Interpolation(src: any, dst: any) {
+    convolve(src, dst, lanczos2);
+  },
+
+  mitchellInterpolation(src: any, dst: any) {
+    convolve(src, dst, mitchell);
   },
 };

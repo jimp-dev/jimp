@@ -145,6 +145,7 @@ export const Jimp = createJimp({
 
 export type JimpInstance = InstanceType<typeof Jimp>;
 
+export { ColorActionName } from "@jimp/plugin-color";
 export type {
   ColorAction,
   HueAction,
@@ -171,13 +172,18 @@ export type {
   RoundCornersOptions,
 } from "@jimp/plugin-border";
 export type { AutocropOptions, CropOptions } from "@jimp/plugin-crop";
+export type { DitherOptions, DitherPalette } from "@jimp/plugin-dither";
 export { ResizeStrategy } from "@jimp/plugin-resize";
 export type {
   ScaleOptions,
   ResizeOptions,
   ScaleToFitOptions,
 } from "@jimp/plugin-resize";
-export type { ThresholdOptions } from "@jimp/plugin-threshold";
+export type {
+  ThresholdOptions,
+  OtsuThresholdOptions,
+} from "@jimp/plugin-threshold";
+export { otsuThreshold } from "@jimp/plugin-threshold";
 export { distance, compareHashes } from "@jimp/plugin-hash";
 export type { PHashOptions } from "@jimp/plugin-hash";
 export type { JPEGOptions } from "@jimp/js-jpeg";
@@ -190,8 +196,10 @@ export type {
   RawImageData,
   JimpConstructorOptions,
   JimpSimpleConstructorOptions,
+  ColorSpaceName,
 } from "@jimp/core";
-export type { Bitmap, Edge, RGBAColor, RGBColor } from "@jimp/types";
+export { Edge } from "@jimp/types";
+export type { Bitmap, RGBAColor, RGBColor } from "@jimp/types";
 export { loadFont } from "@jimp/plugin-print/load-font";
 export { measureText, measureTextHeight } from "@jimp/plugin-print";
 export { diff } from "@jimp/diff";

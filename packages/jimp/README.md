@@ -46,6 +46,18 @@ async function main() {
 main();
 ```
 
+Methods like `resize` only change the image in memory. Call `write` or `getBuffer` to get the result.
+
+There are no callbacks. Besides `Jimp.read`, you can create an image from a buffer or start from a blank one:
+
+```js
+// From an encoded image you already have in memory
+const image = await Jimp.fromBuffer(buffer);
+
+// A blank 256x256 white image. The constructor is synchronous.
+const blank = new Jimp({ width: 256, height: 256, color: 0xffffffff });
+```
+
 Most methods take an options object rather than positional arguments:
 
 ```js

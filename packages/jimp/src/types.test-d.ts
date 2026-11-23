@@ -5,7 +5,7 @@ import * as resize from "@jimp/plugin-resize";
 import png from "@jimp/js-png";
 import jpeg from "@jimp/js-jpeg";
 import type { BmFont } from "@jimp/plugin-print";
-import { Jimp, JimpInstance, ResizeStrategy } from "./index.js";
+import { Jimp, JimpInstance, RawImageData, ResizeStrategy } from "./index.js";
 
 declare const buffer: Buffer;
 declare const image: JimpInstance;
@@ -89,8 +89,32 @@ describe("one instance type (#1337, #1364)", () => {
     new Jimp({ width: 1, height: 1, color: "#ff0000" });
     new Jimp({ width: 1, height: 1, color: 0xff0000ff });
     new Jimp({ width: 1, height: 1, data: Buffer.alloc(4) });
+    new Jimp({ width: 1, height: 1, data: new Uint8Array(4) });
+    new Jimp({ width: 1, height: 1, data: new Uint8ClampedArray(4) });
     // @ts-expect-error width and height are required
     new Jimp({ width: 1 });
+    // @ts-expect-error pixel data must be bytes
+    new Jimp({ width: 1, height: 1, data: new Float32Array(4) });
+    // @ts-expect-error pixel data must be bytes
+    Jimp.fromBitmap({ width: 1, height: 1, data: new Uint16Array(4) });
+  });
+
+  test("statics and the constructor accept ImageData (#738, #912)", () => {
+    const imageData = new ImageData(1, 1);
+
+    expectTypeOf(Jimp.fromBitmap(imageData)).toEqualTypeOf<JimpInstance>();
+    expectTypeOf(new Jimp(imageData)).toEqualTypeOf<JimpInstance>();
+    expectTypeOf(imageData).toMatchTypeOf<RawImageData>();
+  });
+
+  test("bitmap data is always a Buffer", () => {
+    const image = new Jimp({
+      width: 1,
+      height: 1,
+      data: new Uint8ClampedArray(4),
+    });
+
+    expectTypeOf(image.bitmap.data).toEqualTypeOf<Buffer>();
   });
 });
 
@@ -100,6 +124,7 @@ describe("chainable methods return the instance type", () => {
       blit: image.blit({ src: image, x: 0, y: 0 }),
       blur: image.blur(1),
       gaussian: image.gaussian(1),
+      sharpen: image.sharpen({ amount: 1, radius: 1, threshold: 2 }),
       roundCorners: image.roundCorners({ radius: 1 }),
       border: image.border({ width: 1, radius: { topLeft: 1 } }),
       boxShadow: image.boxShadow({ blur: 1, color: "black" }),
@@ -113,10 +138,10 @@ describe("chainable methods return the instance type", () => {
       opacity: image.opacity(0.5),
       sepia: image.sepia(),
       fade: image.fade(0.5),
-      convolution: image.convolution({ kernel: [[1]] }),
+      convolution: image.convolution({ kernel: [[1]], divisor: 2, bias: 1 }),
       opaque: image.opaque(),
       pixelate: image.pixelate({ size: 2 }),
-      convolute: image.convolute({ kernel: [[1]] }),
+      convolute: image.convolute({ kernel: [[1]], divisor: 2, bias: 1 }),
       color: image.color([{ apply: "red", params: [10] }]),
       contain: image.contain({ w: 1, h: 1 }),
       cover: image.cover({ w: 1, h: 1 }),
@@ -124,6 +149,8 @@ describe("chainable methods return the instance type", () => {
       autocrop: image.autocrop(),
       displace: image.displace({ map: image, offset: 1 }),
       dither: image.dither(),
+      ditherDiffusion: image.dither({ type: "floyd-steinberg" }),
+      ditherBayer: image.dither({ type: "bayer8", palette: 4 }),
       fisheye: image.fisheye(),
       flip: image.flip({ horizontal: true }),
       mask: image.mask({ src: image }),
@@ -196,6 +223,10 @@ describe("chainable methods return the instance type", () => {
     image.crop({ x: 0, y: 0 });
     // @ts-expect-error blur needs a radius
     image.blur();
+    // @ts-expect-error the default rgb565 dither has no palette
+    image.dither({ type: "rgb565", palette: "bw" });
+    // @ts-expect-error a palette needs a dither type
+    image.dither({ palette: "bw" });
   });
 });
 
@@ -247,6 +278,10 @@ describe("format options are still checked", () => {
     image.getBuffer("image/gif");
     image.getBase64("image/jpeg", { quality: 50 });
     image.getBuffer("image/jpeg", { quality: 50, exif: true });
+    image.getBuffer("image/jpeg", { icc: false });
+    image.getBuffer("image/png", { icc: false });
+    // @ts-expect-error bmp can't write an ICC profile
+    image.getBuffer("image/bmp", { icc: false });
     // @ts-expect-error png can't write EXIF data
     image.getBuffer("image/png", { exif: true });
     // @ts-expect-error unsupported mime type
@@ -262,6 +297,7 @@ describe("format options are still checked", () => {
     image.write("out.jpeg", { quality: 50 });
     image.write("out.png", { deflateLevel: 1 });
     image.write("out.jpg", { exif: true });
+    image.write("out.png", { icc: false });
     image.write("out.bmp");
     image.write("dir/out.gif");
     // @ts-expect-error png has no quality option
@@ -275,6 +311,26 @@ describe("format options are still checked", () => {
     Jimp.fromBuffer(buffer, { "image/png": { checkCRC: false } });
     // @ts-expect-error unknown mime types are rejected
     Jimp.read("image.webp", { "image/webp": {} });
+  });
+});
+
+describe("colour spaces", () => {
+  test("colorSpace, toColorSpace and the colorSpace option", () => {
+    expectTypeOf(image.colorSpace).toEqualTypeOf<
+      "srgb" | "display-p3" | "custom"
+    >();
+    expectTypeOf(image.iccProfile).toEqualTypeOf<Buffer | undefined>();
+    expectTypeOf(image.toColorSpace("srgb")).toEqualTypeOf<JimpInstance>();
+    expectTypeOf(
+      image.toColorSpace("display-p3").resize({ w: 1 }),
+    ).toEqualTypeOf<JimpInstance>();
+    // @ts-expect-error unsupported colour space
+    image.toColorSpace("rec2020");
+
+    new Jimp({ width: 1, height: 1, colorSpace: "display-p3" });
+    Jimp.fromBitmap({ width: 1, height: 1, data: [0], colorSpace: "srgb" });
+    // @ts-expect-error unsupported colour space
+    new Jimp({ width: 1, height: 1, colorSpace: "adobe-rgb" });
   });
 });
 

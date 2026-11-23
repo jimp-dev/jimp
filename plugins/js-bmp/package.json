@@ -61,7 +61,7 @@
     "@jimp/core": "workspace:*",
     "@jimp/types": "workspace:*",
     "@jimp/utils": "workspace:*",
-    "bmp-ts": "^1.1.0"
+    "bmp-ts": "^1.1.3"
   },
   "publishConfig": {
     "access": "public"

@@ -287,6 +287,9 @@ importers:
       exif-parser:
         specifier: ^0.1.12
         version: 0.1.12
+      fflate:
+        specifier: ^0.8.3
+        version: 0.8.3
       file-type:
         specifier: ^21.3.3
         version: 21.3.3(supports-color@7.2.0)
@@ -730,8 +733,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/utils
       bmp-ts:
-        specifier: ^1.1.0
-        version: 1.1.0
+        specifier: ^1.1.3
+        version: 1.1.3
     devDependencies:
       '@jimp/config-eslint':
         specifier: workspace:*
@@ -1023,6 +1026,9 @@ importers:
       '@jimp/utils':
         specifier: workspace:*
         version: link:../../packages/utils
+      zod:
+        specifier: ^4.6.7
+        version: 4.6.7
     devDependencies:
       '@jimp/config-eslint':
         specifier: workspace:*
@@ -1033,6 +1039,9 @@ importers:
       '@jimp/config-vitest':
         specifier: workspace:*
         version: link:../../packages/config-vitest
+      '@jimp/js-jpeg':
+        specifier: workspace:*
+        version: link:../js-jpeg
       '@jimp/js-png':
         specifier: workspace:*
         version: link:../js-png
@@ -1176,9 +1185,6 @@ importers:
       buffer:
         specifier: ^6.0.3
         version: 6.0.3
-      tinycolor2:
-        specifier: ^1.6.0
-        version: 1.6.0
       zod:
         specifier: ^4.6.7
         version: 4.6.7
@@ -1213,6 +1219,9 @@ importers:
       eslint:
         specifier: ^9.9.1
         version: 9.9.1(supports-color@7.2.0)
+      tinycolor2:
+        specifier: ^1.6.0
+        version: 1.6.0
       tshy:
         specifier: ^3.0.2
         version: 3.0.2
@@ -1415,6 +1424,9 @@ importers:
       '@jimp/types':
         specifier: workspace:*
         version: link:../../packages/types
+      zod:
+        specifier: ^4.6.7
+        version: 4.6.7
     devDependencies:
       '@jimp/config-eslint':
         specifier: workspace:*
@@ -1422,6 +1434,24 @@ importers:
       '@jimp/config-typescript':
         specifier: workspace:*
         version: link:../../packages/config-typescript
+      '@jimp/config-vitest':
+        specifier: workspace:*
+        version: link:../../packages/config-vitest
+      '@jimp/core':
+        specifier: workspace:*
+        version: link:../../packages/core
+      '@jimp/js-jpeg':
+        specifier: workspace:*
+        version: link:../js-jpeg
+      '@jimp/js-png':
+        specifier: workspace:*
+        version: link:../js-png
+      '@jimp/test-utils':
+        specifier: workspace:*
+        version: link:../../packages/test-utils
+      '@vitest/browser':
+        specifier: ^2.0.5
+        version: 2.0.5(@types/node@22.5.2)(playwright@1.46.1)(typescript@5.5.4)(vitest@2.0.5)
       eslint:
         specifier: ^9.9.1
         version: 9.9.1(supports-color@7.2.0)
@@ -1431,6 +1461,9 @@ importers:
       typescript:
         specifier: ^5.5.4
         version: 5.5.4
+      vite-plugin-node-polyfills:
+        specifier: ^0.22.0
+        version: 0.22.0(rollup@4.21.2)(vite@5.4.2(@types/node@22.5.2)(terser@5.30.3))
       vitest:
         specifier: ^2.0.5
         version: 2.0.5(@types/node@22.5.2)(@vitest/browser@2.0.5)(supports-color@7.2.0)(terser@5.30.3)
@@ -1780,6 +1813,12 @@ importers:
       '@jimp/config-vitest':
         specifier: workspace:*
         version: link:../../packages/config-vitest
+      '@jimp/js-jpeg':
+        specifier: workspace:*
+        version: link:../js-jpeg
+      '@jimp/js-png':
+        specifier: workspace:*
+        version: link:../js-png
       '@jimp/test-utils':
         specifier: workspace:*
         version: link:../../packages/test-utils
@@ -1810,9 +1849,6 @@ importers:
       '@jimp/core':
         specifier: workspace:*
         version: link:../../packages/core
-      '@jimp/plugin-crop':
-        specifier: workspace:*
-        version: link:../plugin-crop
       '@jimp/plugin-resize':
         specifier: workspace:*
         version: link:../plugin-resize
@@ -1954,6 +1990,9 @@ importers:
       '@jimp/js-jpeg':
         specifier: workspace:*
         version: link:../js-jpeg
+      '@jimp/js-png':
+        specifier: workspace:*
+        version: link:../js-png
       '@jimp/test-utils':
         specifier: workspace:*
         version: link:../../packages/test-utils
@@ -4176,8 +4215,8 @@ packages:
   bl@4.1.0:
     resolution: {integrity: sha512-1W07cM9gS6DcLperZfFSj+bWLtaPGSOHWhPiGzXmvVJbRLdG82sH/Kn8EtW1VqWVA54AKf2h5k5BbnIbwF3h6w==}
 
-  bmp-ts@1.1.0:
-    resolution: {integrity: sha512-WSnFZCtT8t92y6DBEamlpqxHjCnPo5YcwY/tvhhsYbHqmWkKv5iU8nq3MgV2jfyu1mxe1kKIAuhrPMiVWaKhAw==}
+  bmp-ts@1.1.3:
+    resolution: {integrity: sha512-+ClVJVeLWmVOagd4B3zFXYPQREiJX+FD+0K+/2NahYvHxPoEuVMZ0pAmAfbwpobcyYL1WKEMugOvx75KA0q7Fg==}
 
   bn.js@4.12.0:
     resolution: {integrity: sha512-c98Bf3tPniI+scsdk237ku1Dc3ujXQTSgyiPUDEOe7tRkhrqridvh8klBv0HCEso1OLOYcHuCv/cS6DNxKH+ZA==}
@@ -4932,6 +4971,9 @@ packages:
 
   fastq@1.17.1:
     resolution: {integrity: sha512-sRVD3lWVIXWg6By68ZN7vho9a1pQcN/WBFaAAsDDFzlJjvoGx0P8z7V1t72grFJfJhu3YPZBuu25f7Kaw2jN1w==}
+
+  fflate@0.8.3:
+    resolution: {integrity: sha512-tbZNuJrLwGUp3zshBtdy4W+ORxZuIh8a5ilyIEQDC5rY1f3U20JMry0Ll3WBzU58EZKsEuJFXhb5gwv8CsPvgA==}
 
   figures@2.0.0:
     resolution: {integrity: sha512-Oa2M9atig69ZkfwiApY8F2Yy+tzMbazyvqv21R0NsSC8floSOC09BbT1ITWAdoMGQvJ/aZnR1KMwdx9tvHnTNA==}
@@ -10543,7 +10585,7 @@ snapshots:
       inherits: 2.0.4
       readable-stream: 3.6.2
 
-  bmp-ts@1.1.0: {}
+  bmp-ts@1.1.3: {}
 
   bn.js@4.12.0: {}
 
@@ -11467,6 +11509,8 @@ snapshots:
   fastq@1.17.1:
     dependencies:
       reusify: 1.0.4
+
+  fflate@0.8.3: {}
 
   figures@2.0.0:
     dependencies:

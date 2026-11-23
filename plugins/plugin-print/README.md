@@ -17,6 +17,8 @@ const font = await loadFont(SANS_32_BLACK);
 image.print({ font, x: 10, y: 10, text: "Hello world!" });
 ```
 
+See [Getting Started](https://jimp-dev.github.io/jimp/guides/getting-started/) to read an image, change it and save the result with `write` or `getBuffer`.
+
 ## Custom fonts
 
 Fonts are bitmap fonts in the [BMFont](https://www.angelcode.com/products/bmfont/) format: a `.fnt` file and the `.png` pages it points to. A bitmap font only has glyphs for the characters it was generated with. The bundled fonts only cover printable ASCII.

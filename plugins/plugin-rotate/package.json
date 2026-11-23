@@ -20,7 +20,6 @@
   "license": "MIT",
   "dependencies": {
     "@jimp/core": "workspace:*",
-    "@jimp/plugin-crop": "workspace:*",
     "@jimp/plugin-resize": "workspace:*",
     "@jimp/types": "workspace:*",
     "@jimp/utils": "workspace:*",

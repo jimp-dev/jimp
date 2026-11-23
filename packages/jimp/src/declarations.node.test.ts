@@ -44,6 +44,13 @@ export async function check() {
   cloned = constructed;
   chained = constructed;
 
+  const imageData = new ImageData(1, 1);
+  constructed = Jimp.fromBitmap(imageData);
+  constructed = new Jimp(imageData);
+  constructed = new Jimp({ width: 1, height: 1, data: new Uint8ClampedArray(4) });
+  const pixels: Buffer = constructed.bitmap.data;
+  void pixels;
+
   const takesRead = (image: ReadResult) => image;
   takesRead(new Jimp({ width: 1, height: 1 }));
   takesRead(chained);

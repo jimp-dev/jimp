@@ -73,4 +73,18 @@ describe("Shadow", () => {
       expect(result.getPixelColor(7, 3) & 0xff).toBeGreaterThan(0);
     });
   });
+
+  test("keeps the colours of an image in another colour space", () => {
+    const image = new jimp({
+      width: 10,
+      height: 10,
+      color: 0x80604aff,
+      colorSpace: "display-p3",
+    });
+
+    image.shadow();
+
+    expect(image.colorSpace).toBe("display-p3");
+    expect(image.getPixelColor(5, 5)).toBe(0x80604aff);
+  });
 });

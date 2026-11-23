@@ -27,3 +27,5 @@ image.shadow({ opacity: 0.7, size: 1.1, blur: 5, x: -25, y: 25 });
 ```
 
 The shadow has the shape of the image's opaque pixels, and the image keeps its size, so a shadow that falls past its edges is cut off. For a CSS-style box shadow that grows the image to fit, use `boxShadow` from [`@jimp/plugin-border`](../plugin-border), which is included in `jimp`.
+
+See [Getting Started](https://jimp-dev.github.io/jimp/guides/getting-started/) to read an image, change it and save the result with `write` or `getBuffer`.

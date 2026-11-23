@@ -1,6 +1,21 @@
 import { Buffer } from "buffer";
-import { Bitmap, Format, JimpClass, Edge } from "@jimp/types";
-import { cssColorToHex, scan, scanIterator } from "@jimp/utils";
+import {
+  Bitmap,
+  ColorSpaceName,
+  Format,
+  JimpClass,
+  Edge,
+} from "@jimp/types";
+import {
+  COLOR_SPACES,
+  createColorConverter,
+  cssColorToHex,
+  DISPLAY_P3_PROFILE,
+  getColorSpace,
+  scan,
+  scanIterator,
+  SRGB,
+} from "@jimp/utils";
 import { to } from "await-to-js";
 import { existsSync, readFile, writeFile } from "@jimp/file-ops";
 import mime from "mime/lite.js";
@@ -13,6 +28,11 @@ import {
   getExifOrientation,
 } from "./utils/image-bitmap.js";
 import { copyExif, writeJpegExif } from "./utils/exif.js";
+import {
+  ICC_MIME_TYPES,
+  readIccProfile,
+  writeIccProfile,
+} from "./utils/icc.js";
 
 const emptyBitmap: Bitmap = {
   data: Buffer.alloc(0),
@@ -45,12 +65,81 @@ async function detectFileTypeFromBuffer(buffer: Buffer | ArrayBuffer) {
 
 export { getExifOrientation } from "./utils/image-bitmap.js";
 export { composite } from "./utils/composite.js";
+export type { ColorSpaceName } from "@jimp/types";
 export * from "./utils/constants.js";
 
+/**
+ * Raw RGBA pixel data, 4 bytes per pixel.
+ * `data` can be a Buffer, any Uint8Array (or a view into part of one),
+ * a Uint8ClampedArray, or an array of 0xRRGGBBAA numbers.
+ * An `ImageData` from a canvas fits this shape, so it can be passed directly.
+ */
 export interface RawImageData {
   width: number;
   height: number;
   data: Buffer | Uint8Array | Uint8ClampedArray | number[];
+  /**
+   * The colour space the pixel data is in.
+   * @default "srgb"
+   */
+  colorSpace?: ColorSpaceName;
+}
+
+/**
+ * Convert raw pixel data to the Buffer that Jimp stores.
+ * A Buffer is used as is unless `copy` is set.
+ * Any other data is always copied into a new Buffer. Typed arrays usually
+ * belong to something the caller keeps using, such as a canvas's ImageData.
+ * If Jimp shared that memory, methods that edit pixels in place would change
+ * it but methods that replace the bitmap (resize, crop, ...) wouldn't.
+ */
+function toBitmapData(data: RawImageData["data"], copy: boolean) {
+  if (Buffer.isBuffer(data)) {
+    return copy ? Buffer.from(data) : data;
+  }
+
+  if (data instanceof Uint8Array || data instanceof Uint8ClampedArray) {
+    // Only copy the view's own bytes, not the whole ArrayBuffer it sits in
+    return Buffer.from(
+      new Uint8Array(data.buffer, data.byteOffset, data.byteLength)
+    );
+  }
+
+  if (Array.isArray(data)) {
+    return Buffer.concat(
+      data.map((hex) => Buffer.from(hex.toString(16).padStart(8, "0"), "hex"))
+    );
+  }
+
+  throw new Error(
+    "data must be a Buffer, Uint8Array, Uint8ClampedArray or an array of numbers"
+  );
+}
+
+/**
+ * Check raw image data and convert it to a Bitmap.
+ * A bitmap whose data is already a Buffer is returned as is unless `copy` is set.
+ */
+function toBitmap(bitmap: RawImageData, copy: boolean): Bitmap {
+  const { width, height } = bitmap;
+
+  if (typeof height !== "number" || typeof width !== "number") {
+    throw new Error("bitmap must have width and height");
+  }
+
+  const data = toBitmapData(bitmap.data, copy);
+  const expectedLength = width * height * 4;
+
+  // Exactly, not "at least": like ImageData, extra bytes almost always mean
+  // the width, height or row stride is wrong. They'd also be read by code
+  // that loops over data.length.
+  if (data.length !== expectedLength) {
+    throw new Error(
+      `bitmap data is ${data.length} bytes, but a ${width}x${height} RGBA image needs exactly ${expectedLength} (width * height * 4)`
+    );
+  }
+
+  return data === bitmap.data ? (bitmap as Bitmap) : { data, width, height };
 }
 
 /**
@@ -60,12 +149,32 @@ export interface JimpSimpleConstructorOptions {
   height: number;
   width: number;
   /**
-   * Initialize the image with a color for each pixel
+   * Initialize the image with a color for each pixel.
+   * A CSS color string is converted to the image's `colorSpace`, a number is
+   * used as the pixel value.
    */
   color?: number | string;
+  /**
+   * The colour space of the image's pixels. Display P3 images can hold more
+   * saturated colours than sRGB ones, and are written with a Display P3 ICC
+   * profile.
+   * @default "srgb"
+   */
+  colorSpace?: ColorSpaceName;
 }
 
-export type JimpConstructorOptions = Bitmap | JimpSimpleConstructorOptions;
+/** The ICC profile jimp writes for a colour space, undefined for sRGB */
+function profileForColorSpace(colorSpace: ColorSpaceName = "srgb") {
+  if (!(colorSpace in COLOR_SPACES)) {
+    throw new Error(
+      `Unknown color space "${colorSpace}", expected "srgb" or "display-p3"`
+    );
+  }
+
+  return colorSpace === "display-p3" ? DISPLAY_P3_PROFILE : undefined;
+}
+
+export type JimpConstructorOptions = RawImageData | JimpSimpleConstructorOptions;
 
 /** Converts a jimp plugin function to a Jimp class method */
 type JimpInstanceMethod<ClassInstance, MethodMap, Method> =
@@ -190,12 +299,32 @@ export function createJimp<
     /** The original MIME type of the image */
     mime?: string;
 
+    /**
+     * The ICC colour profile the pixels are in, as read from a JPEG, PNG or
+     * WebP, or undefined for sRGB. It's written to JPEG, PNG and WebP output.
+     *
+     * Setting it changes how the pixels are interpreted, without converting
+     * them. Use `toColorSpace` to convert.
+     */
+    iccProfile?: Buffer;
+
+    /**
+     * Create a blank image (`{ width, height, color? }`) or one from raw RGBA
+     * pixel data (`{ data, width, height }`, see {@link RawImageData}).
+     *
+     * A Buffer passed as `data` is used without copying, so the image and the
+     * caller share it. Any other `data` is copied.
+     * Use `Jimp.fromBitmap` to always copy.
+     */
     constructor(options: JimpConstructorOptions = emptyBitmap) {
       // Add the formats
       this.formats = formats;
 
+      this.iccProfile = profileForColorSpace(options.colorSpace);
+
       if ("data" in options) {
-        this.bitmap = options;
+        // Buffers are used without copying. Other data is copied into a Buffer.
+        this.bitmap = toBitmap(options, false);
       } else {
         this.bitmap = {
           data: Buffer.alloc(options.width * options.height * 4),
@@ -206,7 +335,7 @@ export function createJimp<
         if (options.color) {
           this.background =
             typeof options.color === "string"
-              ? cssColorToHex(options.color)
+              ? cssColorToHex(options.color, getColorSpace(this))
               : options.color;
 
           for (let i = 0; i < this.bitmap.data.length; i += 4) {
@@ -278,64 +407,37 @@ export function createJimp<
     }
 
     /**
-     * Create a Jimp instance from a bitmap.
-     * The difference between this and just using the constructor is that this will
-     * convert raw image data into the bitmap format that Jimp uses.
+     * Create a Jimp instance from raw RGBA pixel data, such as a canvas's `ImageData`.
+     * `data` can be a Buffer, a Uint8Array, a Uint8ClampedArray or an array of
+     * 0xRRGGBBAA numbers, and must hold exactly `width * height * 4` bytes.
+     *
+     * Unlike the constructor, this always copies the data, so changing the
+     * image never changes the object you passed in.
      *
      * @example
      * ```ts
      * import { Jimp } from "jimp";
      *
      * const image = Jimp.fromBitmap({
-     *   data: Buffer.from([
+     *   data: [
      *     0xffffffff, 0xffffffff, 0xffffffff,
      *     0xffffffff, 0xffffffff, 0xffffffff,
      *     0xffffffff, 0xffffffff, 0xffffffff,
-     *   ]),
+     *   ],
      *   width: 3,
      *   height: 3,
      * });
+     *
+     * // In the browser
+     * const fromCanvas = Jimp.fromBitmap(
+     *   ctx.getImageData(0, 0, canvas.width, canvas.height)
+     * );
      * ```
      */
     static fromBitmap(bitmap: RawImageData): Instance {
-      let data: Buffer | undefined;
-
-      if (bitmap.data instanceof Buffer) {
-        data = Buffer.from(bitmap.data);
-      } else if (
-        bitmap.data instanceof Uint8Array ||
-        bitmap.data instanceof Uint8ClampedArray
-      ) {
-        data = Buffer.from(
-          bitmap.data.buffer,
-          bitmap.data.byteOffset,
-          bitmap.data.byteLength
-        );
-      }
-
-      if (Array.isArray(bitmap.data)) {
-        data = Buffer.concat(
-          bitmap.data.map((hex) =>
-            Buffer.from(hex.toString(16).padStart(8, "0"), "hex")
-          )
-        );
-      }
-
-      if (!data) {
-        throw new Error("data must be a Buffer");
-      }
-
-      if (
-        typeof bitmap.height !== "number" ||
-        typeof bitmap.width !== "number"
-      ) {
-        throw new Error("bitmap must have width and height");
-      }
-
       return new CustomJimp({
-        height: bitmap.height,
-        width: bitmap.width,
-        data,
+        ...toBitmap(bitmap, true),
+        colorSpace: bitmap.colorSpace,
       }) as Instance;
     }
 
@@ -346,8 +448,9 @@ export function createJimp<
      * @example
      * ```ts
      * import { Jimp } from "jimp";
+     * import { readFile } from "node:fs/promises";
      *
-     * const buffer = await fs.readFile("test/image.png");
+     * const buffer = await readFile("test/image.png");
      * const image = await Jimp.fromBuffer(buffer);
      * ```
      */
@@ -377,6 +480,7 @@ export function createJimp<
       image.mime = mime.mime;
 
       attemptExifRotate(image, actualBuffer);
+      image.iccProfile = readIccProfile(actualBuffer);
 
       return image;
     }
@@ -422,23 +526,81 @@ export function createJimp<
     }
 
     /**
+     * The colour space of the image's pixels, from its ICC profile:
+     * `"srgb"` (also for images without a profile), `"display-p3"`, or
+     * `"custom"` for any other profile.
+     * @example
+     * ```ts
+     * import { Jimp } from "jimp";
+     *
+     * const image = await Jimp.read("iphone-photo.jpg");
+     *
+     * image.colorSpace; // "display-p3"
+     * ```
+     */
+    get colorSpace(): ColorSpaceName | "custom" {
+      return getColorSpace(this).name;
+    }
+
+    /**
+     * Converts the pixels to another colour space and sets the ICC profile to
+     * match. Colours outside the new space (e.g. Display P3 colours more
+     * saturated than sRGB can show) are clipped.
+     *
+     * Throws for images whose ICC profile jimp can't convert from: only RGB
+     * profiles made of primaries and tone curves are supported.
+     * @param colorSpace The colour space to convert to
+     * @example
+     * ```ts
+     * import { Jimp } from "jimp";
+     *
+     * const image = await Jimp.read("iphone-photo.jpg");
+     *
+     * image.toColorSpace("srgb");
+     * ```
+     */
+    toColorSpace<S extends JimpClass>(this: S, colorSpace: ColorSpaceName): S {
+      const profile = profileForColorSpace(colorSpace);
+      const from = getColorSpace(this);
+      const to = COLOR_SPACES[colorSpace];
+
+      if (from === to) {
+        return this;
+      }
+
+      if (!from.toXyz) {
+        throw new Error(
+          "Can't convert from the image's ICC profile: only RGB profiles with primaries and tone curves are supported"
+        );
+      }
+
+      createColorConverter(from, to)?.(this.bitmap.data);
+      this.iccProfile = profile;
+
+      return this;
+    }
+
+    /**
      * Converts the Jimp instance to an image buffer
      * @param mime The mime type to export to
      * @param options The options to use when exporting
      * @example
      * ```ts
      * import { Jimp } from "jimp";
-     * import { promises as fs } from "fs";
      *
      * const image = new Jimp({ width: 3, height: 3, color: 0xffffffff });
      *
-     * await image.getBuffer("image/jpeg", {
+     * const buffer = await image.getBuffer("image/jpeg", {
      *   quality: 50,
      * });
      *
      * // Copy the EXIF data of a JPEG that was read, see JPEGOptions.exif
      * const photo = await Jimp.read("photo.jpg");
      * await photo.getBuffer("image/jpeg", { exif: true });
+     *
+     * // Write sRGB without an ICC profile, converting the colours if the image
+     * // is in another colour space, see JPEGOptions.icc
+     * await photo.getBuffer("image/jpeg", { icc: false });
      * ```
      */
     async getBuffer<
@@ -454,6 +616,14 @@ export function createJimp<
         throw new Error(`Unsupported MIME type: ${mime}`);
       }
 
+      const { exif, icc } = (options ?? {}) as {
+        exif?: boolean;
+        icc?: boolean;
+      };
+      const writeProfile =
+        this.iccProfile !== undefined &&
+        icc !== false &&
+        ICC_MIME_TYPES.has(mime);
       let outputImage: Jimp;
 
       if (format.hasAlpha) {
@@ -465,8 +635,23 @@ export function createJimp<
           height: this.bitmap.height,
           color: this.background,
         });
+        // The background is a pixel value in the image's colour space too
+        outputImage.iccProfile = this.iccProfile;
 
         composite(outputImage, this);
+      }
+
+      // Output without the profile would be shown as sRGB, so convert it
+      const toSrgb = writeProfile
+        ? undefined
+        : createColorConverter(getColorSpace(this), SRGB);
+
+      if (toSrgb) {
+        if (outputImage === this) {
+          outputImage = this.clone();
+        }
+
+        toSrgb(outputImage.bitmap.data);
       }
 
       const data: Buffer | Uint8Array = await format.encode(
@@ -475,17 +660,27 @@ export function createJimp<
       );
 
       // Some encoders (e.g. jpeg-js outside of CommonJS) return a plain Uint8Array
-      const buffer = Buffer.isBuffer(data)
+      let buffer = Buffer.isBuffer(data)
         ? data
         : Buffer.from(data.buffer, data.byteOffset, data.byteLength);
 
-      if (mime === "image/jpeg" && (options as { exif?: boolean } | undefined)?.exif) {
-        return writeJpegExif(this, buffer, {
+      if (mime === "image/jpeg" && exif) {
+        buffer = writeJpegExif(this, buffer, {
           width: this.bitmap.width,
           height: this.bitmap.height,
           // 1 once the pixels have been auto-rotated on read
           orientation: getExifOrientation(this),
         });
+      }
+
+      if (writeProfile) {
+        buffer = writeIccProfile(
+          this.iccProfile!,
+          mime,
+          buffer,
+          this.bitmap.width,
+          this.bitmap.height
+        );
       }
 
       return buffer;
@@ -500,13 +695,9 @@ export function createJimp<
      * ```ts
      * import { Jimp } from "jimp";
      *
-     * const image = Jimp.fromBuffer(Buffer.from([
-     *   0xff, 0x00, 0x00, 0x00, 0xff, 0x00, 0x00, 0x00,
-     *   0xff, 0x00, 0x00, 0x00, 0xff, 0x00, 0x00, 0x00,
-     *   0xff, 0x00, 0x00, 0x00, 0xff, 0x00, 0x00, 0x00,
-     * ]));
+     * const image = await Jimp.read("test/image.png");
      *
-     * const base64 = image.getBase64("image/jpeg", {
+     * const base64 = await image.getBase64("image/jpeg", {
      *   quality: 50,
      * });
      * ```
@@ -530,11 +721,7 @@ export function createJimp<
      * ```ts
      * import { Jimp } from "jimp";
      *
-     * const image = Jimp.fromBuffer(Buffer.from([
-     *   0xff, 0x00, 0x00, 0x00, 0xff, 0x00, 0x00, 0x00,
-     *   0xff, 0x00, 0x00, 0x00, 0xff, 0x00, 0x00, 0x00,
-     *   0xff, 0x00, 0x00, 0x00, 0xff, 0x00, 0x00, 0x00,
-     * ]));
+     * const image = await Jimp.read("test/image.png");
      *
      * await image.write("test/output.png");
      * ```
@@ -598,6 +785,7 @@ export function createJimp<
       }
 
       copyExif(this, clone);
+      clone.iccProfile = this.iccProfile;
 
       return clone as unknown as S;
     }
