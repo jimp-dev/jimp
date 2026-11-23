@@ -126,6 +126,51 @@ describe("contain align", () => {
   });
 });
 
+describe("fractional align", () => {
+  const image = jimp.fromBitmap(
+    makeTestImage(
+      "▴▴▴▴▸▸▸▸",
+      "▴▴▴▴▸▸▸▸",
+      "▴▴▴▴▸▸▸▸",
+      "▴▴▴▴▸▸▸▸",
+      "▾▾▾▾◆◆◆◆",
+      "▾▾▾▾◆◆◆◆",
+      "▾▾▾▾◆◆◆◆",
+      "▾▾▾▾◆◆◆◆",
+    ),
+  );
+
+  test.each([
+    [{ x: 0, y: 0 }, HorizontalAlign.LEFT | VerticalAlign.TOP],
+    [{ x: 0.5, y: 0.5 }, HorizontalAlign.CENTER | VerticalAlign.MIDDLE],
+    [{ x: 1, y: 1 }, HorizontalAlign.RIGHT | VerticalAlign.BOTTOM],
+    [{ y: 0 }, VerticalAlign.TOP],
+    [{ x: 1 }, HorizontalAlign.RIGHT],
+    [{}, HorizontalAlign.CENTER | VerticalAlign.MIDDLE],
+    [{ x: -1, y: 2 }, HorizontalAlign.LEFT | VerticalAlign.BOTTOM],
+  ])("%o matches the bitmask %i", (align, bits) => {
+    for (const size of [
+      { w: 4, h: 2 },
+      { w: 2, h: 4 },
+    ]) {
+      expect(image.clone().contain({ ...size, align }).bitmap.data).toEqual(
+        image.clone().contain({ ...size, align: bits }).bitmap.data,
+      );
+    }
+  });
+
+  test("places the image part of the way along each axis", () => {
+    const square = jimp.fromBitmap(makeTestImage("▴▴", "▴▴"));
+
+    expect(
+      square.clone().contain({ w: 8, h: 2, align: { x: 1 / 3 } }).bitmap,
+    ).toEqual(makeTestImage("  ▴▴    ", "  ▴▴    "));
+    expect(
+      square.clone().contain({ w: 2, h: 8, align: { y: 0.2 } }).bitmap,
+    ).toEqual(makeTestImage("  ", "▴▴", "▴▴", "  ", "  ", "  ", "  ", "  "));
+  });
+});
+
 describe("premultiplyAlpha", () => {
   // 16x8: alpha 0 on the left, 255 on the right and partial in between, with
   // the same colour everywhere, letter boxed in opaque blue
