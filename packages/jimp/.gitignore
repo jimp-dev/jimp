@@ -1,3 +1,4 @@
 browser.js
 browser.js.map
 .declaration-test-*
+.runtime-exports-test-*

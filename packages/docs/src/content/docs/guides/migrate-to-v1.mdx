@@ -245,9 +245,16 @@ These are now enums exported from `jimp`:
 | `Jimp.BLEND_SOURCE_OVER`, `Jimp.BLEND_DESTINATION_OVER` | `BlendMode.SRC_OVER`, `BlendMode.DST_OVER`    |
 | `Jimp.BLEND_HARDLIGHT`                                  | `BlendMode.HARD_LIGHT`                        |
 | `Jimp.BLEND_MULTIPLY`, `Jimp.BLEND_SCREEN`, ...         | `BlendMode.MULTIPLY`, `BlendMode.SCREEN`, ... |
+| `Jimp.EDGE_EXTEND`, `Jimp.EDGE_WRAP`, `Jimp.EDGE_CROP`  | `Edge.EXTEND`, `Edge.WRAP`, `Edge.CROP`       |
 
 ```js
-import { Jimp, ResizeStrategy, HorizontalAlign, VerticalAlign } from "jimp";
+import {
+  Jimp,
+  Edge,
+  ResizeStrategy,
+  HorizontalAlign,
+  VerticalAlign,
+} from "jimp";
 
 image.resize({ w: 256, mode: ResizeStrategy.BEZIER });
 image.contain({
@@ -255,6 +262,7 @@ image.contain({
   h: 256,
   align: HorizontalAlign.CENTER | VerticalAlign.MIDDLE,
 });
+image.convolution({ kernel, edgeHandling: Edge.WRAP });
 ```
 
 ## Fonts

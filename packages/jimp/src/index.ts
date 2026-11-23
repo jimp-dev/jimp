@@ -145,6 +145,7 @@ export const Jimp = createJimp({
 
 export type JimpInstance = InstanceType<typeof Jimp>;
 
+export { ColorActionName } from "@jimp/plugin-color";
 export type {
   ColorAction,
   HueAction,
@@ -191,7 +192,8 @@ export type {
   JimpConstructorOptions,
   JimpSimpleConstructorOptions,
 } from "@jimp/core";
-export type { Bitmap, Edge, RGBAColor, RGBColor } from "@jimp/types";
+export { Edge } from "@jimp/types";
+export type { Bitmap, RGBAColor, RGBColor } from "@jimp/types";
 export { loadFont } from "@jimp/plugin-print/load-font";
 export { measureText, measureTextHeight } from "@jimp/plugin-print";
 export { diff } from "@jimp/diff";
