@@ -58,6 +58,18 @@ jobs:
       - uses: ./.github/actions/turbo-cache
       - run: pnpm test
 
+  # "test" runs on the oldest supported Node.js (22); this covers the current LTS
+  test-node-24:
+    runs-on: ubuntu-latest
+    needs: install
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ./.github/actions/install-deps
+        with:
+          node-version: 24
+      - uses: ./.github/actions/turbo-cache
+      - run: pnpm test
+
   test-browser:
     runs-on: ubuntu-latest
     needs: install

@@ -1,11 +1,20 @@
 import { Buffer } from "buffer";
-import { clone, limit255, scan } from "@jimp/utils";
+import {
+  clone,
+  ColorSpace,
+  cssColorToHex,
+  getColorSpace,
+  intToRGBA,
+  limit255,
+  scan,
+  SRGB,
+} from "@jimp/utils";
 import { Edge, JimpClass, RGBColor } from "@jimp/types";
 import { z } from "zod";
 
 const ConvolutionMatrixSchema = z
   .array(z.number())
-  .min(1)
+  .min(1, "kernel rows must not be empty")
   .array()
   .min(1, "kernel must be a matrix")
   .refine(
@@ -50,6 +59,11 @@ const ConvoluteComplexOptionsSchema = z.object({
   divisor: ConvolutionDivisorSchema.optional(),
   /** add this to each color channel after dividing (default 0) */
   bias: z.number().optional(),
+  /**
+   * leave alpha as is instead of convolving it, like `preserveAlpha` in the
+   * CSS `feConvolveMatrix` (default false)
+   */
+  preserveAlpha: z.boolean().optional(),
 });
 const ConvoluteOptionsSchema = z.union([
   ConvolutionMatrixSchema,
@@ -230,12 +244,45 @@ function fromHsl(hue: number, saturation: number, lightness: number) {
 }
 
 /**
+ * The grey value `greyscale()` gives a pixel: its Rec. 709 luminance, rounded
+ * to the nearest integer. Rounding (rather than truncating) keeps grey pixels
+ * the same, since the weights' floating point sum is a little under 1.
+ */
+function luminance(r: number, g: number, b: number) {
+  return Math.round(0.2126 * r + 0.7152 * g + 0.0722 * b);
+}
+
+/**
  * One channel of `tinycolor(clr).brighten(amount).toRgb()`, where
  * `delta` is `Math.round(255 * -(amount / 100))`.
  */
 function brightenChannel(v: number, delta: number) {
   const c = Math.max(0, Math.min(255, Math.round(tinyChannel(v)) - delta));
   return Math.round(tinyChannel(c));
+}
+
+/**
+ * A table that maps each 8 bit value to its exposure adjusted value: decoded
+ * to linear light with the colour space's tone curve, multiplied by
+ * `factor`, then encoded back to the nearest 8 bit value
+ */
+function exposureTable(curve: (value: number) => number, factor: number) {
+  // The linear light half way between each pair of 8 bit values
+  const thresholds = Array.from({ length: 255 }, (_, k) =>
+    curve((k + 0.5) / 255),
+  );
+
+  return Uint8Array.from({ length: 256 }, (_, v) => {
+    // 0 * Infinity is NaN, which stays black like 0 should
+    const linear = curve(v / 255) * factor;
+    let value = 0;
+
+    while (value < 255 && linear > thresholds[value]!) {
+      value++;
+    }
+
+    return value;
+  });
 }
 
 const HueActionSchema = z.object({
@@ -262,14 +309,33 @@ const RGBColorSchema = z.object({
   b: z.number().min(0).max(255),
 });
 
+/**
+ * An `{ r, g, b }` object, or a CSS color, which is converted to the image's
+ * colour space. Alpha is ignored.
+ */
+const MixColorSchema = z.union([RGBColorSchema, z.string()]);
+
 const MixActionSchema = z.object({
   apply: z.literal("mix"),
   params: z.union([
-    z.tuple([RGBColorSchema]),
-    z.tuple([RGBColorSchema, z.number().min(0).max(100)]),
+    z.tuple([MixColorSchema]),
+    z.tuple([MixColorSchema, z.number().min(0).max(100)]),
   ]),
 });
 export type MixAction = z.infer<typeof MixActionSchema>;
+
+/**
+ * Three factors to multiply red, green and blue by, or a color to multiply
+ * with (each channel divided by 255), like the multiply blend mode
+ */
+const MultiplyActionSchema = z.object({
+  apply: z.literal("multiply"),
+  params: z.union([
+    z.tuple([z.number(), z.number(), z.number()]),
+    z.tuple([MixColorSchema]),
+  ]),
+});
+export type MultiplyAction = z.infer<typeof MultiplyActionSchema>;
 
 const TintActionSchema = z.object({
   apply: z.literal("tint"),
@@ -285,7 +351,7 @@ export type ShadeAction = z.infer<typeof ShadeActionSchema>;
 
 const XorActionSchema = z.object({
   apply: z.literal("xor"),
-  params: z.tuple([RGBColorSchema]),
+  params: z.tuple([MixColorSchema]),
 });
 export type XorAction = z.infer<typeof XorActionSchema>;
 
@@ -342,6 +408,7 @@ const ColorActionNameSchema = z.union([
   SpinActionSchema,
   LightenActionSchema,
   MixActionSchema,
+  MultiplyActionSchema,
   TintActionSchema,
   ShadeActionSchema,
   XorActionSchema,
@@ -366,6 +433,7 @@ export const ColorActionName = Object.freeze({
   SPIN: "spin",
   HUE: "hue",
   MIX: "mix",
+  MULTIPLY: "multiply",
   TINT: "tint",
   SHADE: "shade",
   XOR: "xor",
@@ -385,13 +453,14 @@ const ColorOp = {
   Greyscale: 7,
   Spin: 8,
   Brighten: 9,
+  Multiply: 10,
 } as const;
 type ColorOp = (typeof ColorOp)[keyof typeof ColorOp];
 
 /** A color action with everything that doesn't depend on the pixel worked out */
 interface ColorStep {
   op: ColorOp;
-  /** The color to mix toward or xor with */
+  /** The color to mix toward or xor with, or the factors to multiply by */
   r: number;
   g: number;
   b: number;
@@ -415,14 +484,43 @@ function colorStep(op: ColorOp, amount = 0, color = BLACK): ColorStep {
   return { op, r: color.r, g: color.g, b: color.b, amount };
 }
 
-function compileColorAction(action: ColorAction): ColorStep {
+/** An `{ r, g, b }` color, or a CSS color converted to `colorSpace` */
+function toRGBColor(
+  color: z.infer<typeof MixColorSchema>,
+  colorSpace: ColorSpace,
+): RGBColor {
+  return roundColor(
+    typeof color === "string"
+      ? intToRGBA(cssColorToHex(color, colorSpace))
+      : color,
+  );
+}
+
+function compileColorAction(
+  action: ColorAction,
+  colorSpace: ColorSpace,
+): ColorStep {
   switch (action.apply) {
     case "mix":
       return colorStep(
         ColorOp.Mix,
         (action.params[1] ?? 50) / 100,
-        roundColor(action.params[0]),
+        toRGBColor(action.params[0], colorSpace),
       );
+    case "multiply": {
+      if (action.params.length === 3) {
+        const [r, g, b] = action.params;
+        return colorStep(ColorOp.Multiply, 0, { r, g, b });
+      }
+
+      const { r, g, b } = toRGBColor(action.params[0], colorSpace);
+
+      return colorStep(ColorOp.Multiply, 0, {
+        r: r / 255,
+        g: g / 255,
+        b: b / 255,
+      });
+    }
     case "tint":
       return colorStep(ColorOp.Mix, (action.params?.[0] ?? 50) / 100, WHITE);
     case "shade":
@@ -440,7 +538,11 @@ function compileColorAction(action: ColorAction): ColorStep {
         BLACK,
       );
     case "xor":
-      return colorStep(ColorOp.Xor, 0, roundColor(action.params[0]));
+      return colorStep(
+        ColorOp.Xor,
+        0,
+        toRGBColor(action.params[0], colorSpace),
+      );
     case "red":
       return colorStep(ColorOp.Red, action.params[0]);
     case "green":
@@ -497,6 +599,11 @@ function histogram<I extends JimpClass>(image: I) {
  * @param  max   Maximum value for channel
  */
 const normalizeValue = function (value: number, min: number, max: number) {
+  // A channel with a single value has no range to stretch
+  if (min === max) {
+    return value;
+  }
+
   return ((value - min) * 255) / (max - min);
 };
 
@@ -513,7 +620,9 @@ const getBounds = function (histogramChannel: number[]) {
 
 export const methods = {
   /**
-   * Normalizes the image.
+   * Normalizes the image: stretches each color channel so its lowest value
+   * becomes 0 and its highest 255. A channel that has the same value in
+   * every pixel is left unchanged.
    * @example
    * ```ts
    * import { Jimp } from "jimp";
@@ -619,7 +728,12 @@ export const methods = {
   },
 
   /**
-   * Adjusts the contrast of the image
+   * Adjusts the contrast of the image by scaling each color channel's
+   * distance from the midpoint, 127.5, by `(1 + val) / (1 - val)`.
+   *
+   * - `0` leaves the image unchanged
+   * - `-1` turns every pixel mid grey (128)
+   * - `1` sets channels up to 127 to 0 and channels from 128 up to 255
    * @param val the amount to adjust the contrast, a number between -1 and +1
    * @example
    * ```ts
@@ -642,8 +756,17 @@ export const methods = {
     const factor = (val + 1) / (1 - val);
 
     function adjust(value: number) {
-      value = Math.floor(factor * (value - 127) + 127);
-      return value < 0 ? 0 : value > 255 ? 255 : value;
+      // 127.5 is never a channel value, so with val = 1 (an infinite
+      // factor) every channel goes to 0 or 255 rather than 0 * Infinity
+      const offset = factor * (value - 127.5);
+
+      // Round halves away from the midpoint, so dark and light channels
+      // are treated alike: contrast(invert(image)) is invert(contrast(image))
+      return limit255(
+        offset < 0
+          ? 255 - Math.round(127.5 - offset)
+          : Math.round(127.5 + offset),
+      );
     }
 
     image.scan((_, __, idx) => {
@@ -656,8 +779,103 @@ export const methods = {
   },
 
   /**
-   * Apply a posterize effect
-   * @param  n the amount to adjust the contrast, minimum threshold is two
+   * Adjusts the exposure of the image by `stops`, like a camera or a photo
+   * editor's exposure slider. Each color channel is decoded to linear light,
+   * multiplied by `2 ** stops` and encoded back, so `1` doubles the light and
+   * `-1` halves it. Channels that go over 255 are clamped. Alpha is not
+   * changed.
+   *
+   * Unlike `brightness()`, which multiplies the encoded 8 bit values, this
+   * works on the light the values stand for, so shadows and highlights change
+   * the way they would with a longer or shorter exposure. The image's tone
+   * curves are used (sRGB unless it has another ICC profile).
+   *
+   * - `0` leaves the image unchanged
+   * - greater than `0` brightens it (`1` is one stop brighter)
+   * - less than `0` darkens it (`-1` is one stop darker)
+   * @param stops the number of stops to change the exposure by
+   * @example
+   * ```ts
+   * import { Jimp } from "jimp";
+   *
+   * const image = await Jimp.read("test/image.png");
+   *
+   * image.exposure(1); // one stop brighter
+   * image.exposure(-0.5); // half a stop darker
+   * ```
+   */
+  exposure<I extends JimpClass>(image: I, stops: number) {
+    const factor = 2 ** z.number().parse(stops);
+    const curves = getColorSpace(image).curves ?? SRGB.curves!;
+    const [r, g, b] = curves.map((curve) => exposureTable(curve, factor));
+
+    image.scan((_, __, idx) => {
+      image.bitmap.data[idx] = r![image.bitmap.data[idx]!]!;
+      image.bitmap.data[idx + 1] = g![image.bitmap.data[idx + 1]!]!;
+      image.bitmap.data[idx + 2] = b![image.bitmap.data[idx + 2]!]!;
+    });
+
+    return image;
+  },
+
+  /**
+   * Adjusts the vibrance of the image: like `color([{ apply: "saturate" }])`
+   * it scales each pixel's HSL saturation, but by more for muted colors than
+   * for vivid ones, so skies and skin tones get richer while colors that are
+   * already saturated don't clip.
+   *
+   * Each pixel's saturation is scaled by `1 + amount * (1 - chroma)`, where
+   * chroma is `(max(r, g, b) - min(r, g, b)) / 255`. Greys and fully
+   * saturated colors don't change.
+   *
+   * - `0` leaves the image unchanged
+   * - `1` boosts the saturation of muted colors the most (up to double)
+   * - `-1` mutes the colors, muted colors the most
+   *
+   * Values outside -1 to +1 are clamped.
+   * @param amount the amount to adjust the vibrance, a number between -1 and +1
+   * @example
+   * ```ts
+   * import { Jimp } from "jimp";
+   *
+   * const image = await Jimp.read("test/image.png");
+   *
+   * image.vibrance(0.5);
+   * ```
+   */
+  vibrance<I extends JimpClass>(image: I, amount: number) {
+    amount = Math.min(1, Math.max(-1, z.number().parse(amount)));
+
+    if (amount === 0) {
+      return image;
+    }
+
+    image.scan((_, __, idx) => {
+      const r = image.bitmap.data[idx]!;
+      const g = image.bitmap.data[idx + 1]!;
+      const b = image.bitmap.data[idx + 2]!;
+      const chroma = (Math.max(r, g, b) - Math.min(r, g, b)) / 255;
+
+      toHsl(r, g, b);
+      fromHsl(
+        hsl[0]!,
+        Math.min(1, hsl[1]! * (1 + amount * (1 - chroma))),
+        hsl[2]!,
+      );
+
+      image.bitmap.data[idx] = rgb[0]!;
+      image.bitmap.data[idx + 1] = rgb[1]!;
+      image.bitmap.data[idx + 2] = rgb[2]!;
+    });
+
+    return image;
+  },
+
+  /**
+   * Apply a posterize effect: rounds each color channel to the nearest of
+   * `n` evenly spaced levels from 0 to 255. For example `n = 2` gives 0 and
+   * 255, and `n = 4` gives 0, 85, 170 and 255.
+   * @param  n the number of levels per channel, at least 2
    * @example
    * ```ts
    * import { Jimp } from "jimp";
@@ -672,29 +890,31 @@ export const methods = {
       throw new Error("n must be numbers");
     }
 
-    // minimum of 2 levels
-    if (n < 2) {
-      n = 2;
+    // a whole number of levels from 2 to 256 (256 leaves the image as is)
+    n = Math.min(256, Math.max(2, Math.round(n)));
+
+    const step = 255 / (n - 1);
+
+    function level(value: number) {
+      return Math.round(Math.round(value / step) * step);
     }
 
     image.scan((_, __, idx) => {
-      const r = image.bitmap.data[idx]!;
-      const g = image.bitmap.data[idx + 1]!;
-      const b = image.bitmap.data[idx + 2]!;
-
-      image.bitmap.data[idx] =
-        (Math.floor((r / 255) * (n - 1)) / (n - 1)) * 255;
-      image.bitmap.data[idx + 1] =
-        (Math.floor((g / 255) * (n - 1)) / (n - 1)) * 255;
-      image.bitmap.data[idx + 2] =
-        (Math.floor((b / 255) * (n - 1)) / (n - 1)) * 255;
+      image.bitmap.data[idx] = level(image.bitmap.data[idx]!);
+      image.bitmap.data[idx + 1] = level(image.bitmap.data[idx + 1]!);
+      image.bitmap.data[idx + 2] = level(image.bitmap.data[idx + 2]!);
     });
 
     return image;
   },
 
   /**
-   * Removes colour from the image using ITU Rec 709 luminance values
+   * Removes colour from the image. Each pixel's red, green and blue are set to
+   * its ITU Rec. 709 luminance, `0.2126 * r + 0.7152 * g + 0.0722 * b`,
+   * rounded to the nearest integer. Alpha is left alone, and pixels that are
+   * already grey don't change, so greyscaling twice is the same as once.
+   *
+   * `color([{ apply: "greyscale" }])` gives the same result.
    * @example
    * ```ts
    * import { Jimp } from "jimp";
@@ -706,16 +926,11 @@ export const methods = {
    */
   greyscale<I extends JimpClass>(image: I) {
     image.scan((_, __, idx) => {
-      // const grey = parseInt(
-      //   0.2126 * image.bitmap.data[idx]! +
-      //     0.7152 * image.bitmap.data[idx + 1]! +
-      //     0.0722 * image.bitmap.data[idx + 2]!,
-      //   10
-      // );
-      const grey =
-        0.2126 * image.bitmap.data[idx]! +
-        0.7152 * image.bitmap.data[idx + 1]! +
-        0.0722 * image.bitmap.data[idx + 2]!;
+      const grey = luminance(
+        image.bitmap.data[idx]!,
+        image.bitmap.data[idx + 1]!,
+        image.bitmap.data[idx + 2]!,
+      );
 
       image.bitmap.data[idx] = grey;
       image.bitmap.data[idx + 1] = grey;
@@ -755,7 +970,10 @@ export const methods = {
   },
 
   /**
-   * Applies a sepia tone to the image.
+   * Applies a sepia tone to the image. `amount` blends between the original
+   * image (`0`) and full sepia (`1`, the default), like CSS's
+   * `sepia(amount)` filter. Values outside 0-1 are clamped.
+   * @param amount how much sepia to apply, from 0 to 1 (default 1)
    * @example
    * ```ts
    * import { Jimp } from "jimp";
@@ -763,9 +981,12 @@ export const methods = {
    * const image = await Jimp.read("test/image.png");
    *
    * image.sepia();
+   * image.sepia(0.5); // half way between the original and full sepia
    * ```
    */
-  sepia<I extends JimpClass>(image: I) {
+  sepia<I extends JimpClass>(image: I, amount = 1) {
+    const t = Math.min(1, Math.max(0, z.number().parse(amount)));
+
     image.scan((_, __, idx) => {
       const r = image.bitmap.data[idx]!;
       const g = image.bitmap.data[idx + 1]!;
@@ -775,9 +996,10 @@ export const methods = {
       const green = r * 0.349 + g * 0.686 + b * 0.168;
       const blue = r * 0.272 + g * 0.534 + b * 0.131;
 
-      image.bitmap.data[idx] = red < 255 ? red : 255;
-      image.bitmap.data[idx + 1] = green < 255 ? green : 255;
-      image.bitmap.data[idx + 2] = blue < 255 ? blue : 255;
+      image.bitmap.data[idx] = (red < 255 ? red : 255) * t + r * (1 - t);
+      image.bitmap.data[idx + 1] =
+        (green < 255 ? green : 255) * t + g * (1 - t);
+      image.bitmap.data[idx + 2] = (blue < 255 ? blue : 255) * t + b * (1 - t);
     });
 
     return image;
@@ -971,7 +1193,8 @@ export const methods = {
   },
 
   /**
-   * Pixelates the image or a region
+   * Pixelates the image or a region. The region is clamped to the image, and
+   * its width and height default to the rest of the image.
    * @example
    * ```ts
    * import { Jimp } from "jimp";
@@ -1022,15 +1245,20 @@ export const methods = {
 
   /**
    * Applies a convolution kernel to the image or a region. Unlike
-   * `convolution`, the kernel is applied to the alpha channel too.
+   * `convolution`, the kernel is applied to the alpha channel too, unless
+   * `preserveAlpha` is true (like the CSS `feConvolveMatrix`).
    *
    * Each color channel becomes `sum / divisor + bias` and alpha becomes
    * `sum / divisor`, clamped to 0-255. The kernel isn't normalized, so pass
    * the sum of its weights as the `divisor` to keep the brightness of the
    * image, and a `bias` to shift results that can be negative into the
-   * visible range.
+   * visible range. Kernels whose weights sum to 0, like edge detection, make
+   * the image transparent unless `preserveAlpha` is true.
    *
    * The kernel is laid out and anchored the same way as in `convolution`.
+   *
+   * The region is clamped to the image, and its width and height default to
+   * the rest of the image.
    * @example
    * ```ts
    * import { Jimp } from "jimp";
@@ -1066,6 +1294,16 @@ export const methods = {
    *   ],
    *   divisor: 16,
    * });
+   *
+   * // edge detection that keeps the image's alpha
+   * image.convolute({
+   *   kernel: [
+   *     [-1, -1, -1],
+   *     [-1, 8, -1],
+   *     [-1, -1, -1],
+   *   ],
+   *   preserveAlpha: true,
+   * });
    * ```
    */
   convolute<I extends JimpClass>(image: I, options: ConvoluteOptions) {
@@ -1078,6 +1316,7 @@ export const methods = {
       h = image.bitmap.height - y,
       divisor = 1,
       bias = 0,
+      preserveAlpha = false,
     } = "kernel" in parsed
       ? parsed
       : ({ kernel: parsed } as ConvoluteComplexOptions);
@@ -1090,7 +1329,10 @@ export const methods = {
       image.bitmap.data[idx] = limit255(value[0]! / divisor + bias);
       image.bitmap.data[idx + 1] = limit255(value[1]! / divisor + bias);
       image.bitmap.data[idx + 2] = limit255(value[2]! / divisor + bias);
-      image.bitmap.data[idx + 3] = limit255(value[3]! / divisor);
+
+      if (!preserveAlpha) {
+        image.bitmap.data[idx + 3] = limit255(value[3]! / divisor);
+      }
     });
 
     return image;
@@ -1098,6 +1340,13 @@ export const methods = {
 
   /**
    * Apply multiple color modification rules
+   *
+   * `greyscale` gives the same result as `greyscale()` (Rec. 709 luminance).
+   * `multiply` takes three factors to multiply red, green and blue by, or a
+   * color to multiply with (each channel divided by 255, like the multiply
+   * blend mode). Results are rounded and clamped to 0-255.
+   * `desaturate` scales HSL saturation, so `desaturate` 100 gives a different
+   * grey: the HSL lightness, `(max(r, g, b) + min(r, g, b)) / 2`.
    * @param  actions list of color modification rules, in following format: { apply: '<rule-name>', params: [ <rule-parameters> ]  }
    * @example
    * ```ts
@@ -1110,6 +1359,11 @@ export const methods = {
    *   { apply: "lighten", params: [50] },
    *   { apply: "xor", params: ["#06D"] },
    * ]);
+   *
+   * // multiply red by 1.2, green by 1.1 and leave blue as is
+   * image.color([{ apply: "multiply", params: [1.2, 1.1, 1] }]);
+   * // multiply with a color, like the multiply blend mode
+   * image.color([{ apply: "multiply", params: ["#ffcc99"] }]);
    * ```
    */
   color<I extends JimpClass>(image: I, actions: ColorAction[]) {
@@ -1121,7 +1375,10 @@ export const methods = {
 
     // Work out everything that doesn't depend on the pixel once per call.
     // The caller's actions aren't modified so they can be reused.
-    const steps = actions.map(compileColorAction);
+    const colorSpace = getColorSpace(image);
+    const steps = actions.map((action) =>
+      compileColorAction(action, colorSpace),
+    );
     const data = image.bitmap.data;
     const end = image.bitmap.width * image.bitmap.height * 4;
 
@@ -1150,6 +1407,13 @@ export const methods = {
             r = Math.round((step.r - r) * step.amount + r);
             g = Math.round((step.g - g) * step.amount + g);
             b = Math.round((step.b - b) * step.amount + b);
+            break;
+          }
+
+          case ColorOp.Multiply: {
+            r = Math.round(limit255(r * step.r));
+            g = Math.round(limit255(g * step.g));
+            b = Math.round(limit255(b * step.b));
             break;
           }
 
@@ -1187,12 +1451,10 @@ export const methods = {
           }
 
           case ColorOp.Greyscale: {
-            // tinycolor's greyscale is desaturate(100)
-            toHsl(r, g, b);
-            fromHsl(hsl[0]!, Math.min(1, Math.max(0, hsl[1]! - 1)), hsl[2]!);
-            r = rgb[0]!;
-            g = rgb[1]!;
-            b = rgb[2]!;
+            // The same as greyscale(), rather than tinycolor's greyscale
+            // (HSL lightness, like desaturate 100). Clamped like the HSL
+            // steps, since earlier steps in a chain can leave any value.
+            r = g = b = limit255(luminance(r, g, b));
             break;
           }
 

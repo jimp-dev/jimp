@@ -7,18 +7,14 @@ import z from "zod";
 import { loadWasm } from "./load-wasm.js";
 
 const JpegOptionsSchema = z.object({
-  colorSpace: z.union([z.literal("display-p3"), z.literal("srgb")]).optional(),
   jpegColorSpace: z
     .union([z.literal("rgb"), z.literal("grayscale"), z.literal("ycbcr")])
     .optional()
     .default("ycbcr"),
   /**
    * Image quality, between 0 and 100.
-   * For lossy, 0 gives the smallest size and 100 the largest.
-   * For lossless, this parameter is the amount of effort put
-   * into the compression: 0 is the fastest but gives larger
-   * files compared to the slowest, but best, 100.
-   * @default 100
+   * 0 gives the smallest size and 100 the largest.
+   * @default 75
    */
   quality: z.number().min(0).max(100).optional().default(75),
   arithmetic: z.boolean().optional().default(false),
@@ -50,7 +46,7 @@ const JpegOptionsSchema = z.object({
    * @default true
    */
   icc: z.boolean().optional(),
-});
+}).strict();
 
 type JpegOptions = z.infer<typeof JpegOptionsSchema>;
 
@@ -95,7 +91,6 @@ export default function jpeg({ wasm }: JpegFormatOptions = {}) {
     encode: async (bitmap, options: Partial<JpegOptions> = {}) => {
       const {
         quality,
-        colorSpace = "srgb",
         arithmetic,
         autoSubsample,
         baseline,
@@ -117,7 +112,8 @@ export default function jpeg({ wasm }: JpegFormatOptions = {}) {
         {
           ...bitmap,
           data: new Uint8ClampedArray(bitmap.data),
-          colorSpace,
+          // ImageData needs one, but the codec only reads the pixels
+          colorSpace: "srgb",
         },
         {
           quality,

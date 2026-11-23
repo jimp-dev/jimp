@@ -17,14 +17,15 @@ import {
   SRGB,
 } from "@jimp/utils";
 import { to } from "await-to-js";
-import { existsSync, readFile, writeFile } from "@jimp/file-ops";
+import { hasFileSystem, readFile, writeFile } from "@jimp/file-ops";
 import mime from "mime/lite.js";
+import Mime from "mime/Mime.js";
 import type { ExifData } from "exif-parser";
 
-import { composite } from "./utils/composite.js";
+import { composite, CompositeSource } from "./utils/composite.js";
 import { BlendMode } from "./index.js";
 import {
-  attemptExifRotate,
+  readExif,
   getExifOrientation,
 } from "./utils/image-bitmap.js";
 import { copyExif, writeJpegExif } from "./utils/exif.js";
@@ -54,6 +55,43 @@ function bufferFromArrayBuffer(arrayBuffer: ArrayBuffer) {
   return buffer;
 }
 
+/** Encoded image data that `Jimp.read` and `Jimp.fromBuffer` accept */
+export type ImageInput = Buffer | ArrayBuffer | ArrayBufferView | Blob;
+
+/** Get a Buffer of encoded image data, without copying it where possible */
+async function toBuffer(input: ImageInput) {
+  if (Buffer.isBuffer(input)) {
+    return input;
+  }
+
+  if (input instanceof ArrayBuffer) {
+    return bufferFromArrayBuffer(input);
+  }
+
+  // Uint8Array, DataView, a Node Buffer when a Buffer polyfill is used, ...
+  if (ArrayBuffer.isView(input)) {
+    return Buffer.from(input.buffer, input.byteOffset, input.byteLength);
+  }
+
+  if (typeof Blob !== "undefined" && input instanceof Blob) {
+    return bufferFromArrayBuffer(await input.arrayBuffer());
+  }
+
+  throw new Error(
+    "Expected image data as a Buffer, ArrayBuffer, Uint8Array (or other ArrayBuffer view) or Blob"
+  );
+}
+
+/**
+ * Extensions mime/lite doesn't know, because they're registered under a
+ * different MIME type than the one file-type detects (and formats use), e.g.
+ * image/vnd.microsoft.icon for ICO files
+ */
+const unregisteredMime = new Mime({ "image/x-icon": ["ico"] });
+
+/** Strings that are fetched rather than read from the file system */
+const URL_PATTERN = /^(https?|data|blob):/i;
+
 async function detectFileTypeFromBuffer(buffer: Buffer | ArrayBuffer) {
   const { fileTypeFromBuffer } = await import("file-type");
   return fileTypeFromBuffer(
@@ -65,6 +103,7 @@ async function detectFileTypeFromBuffer(buffer: Buffer | ArrayBuffer) {
 
 export { getExifOrientation } from "./utils/image-bitmap.js";
 export { composite } from "./utils/composite.js";
+export type { CompositeSource } from "./utils/composite.js";
 export type { ColorSpaceName } from "@jimp/types";
 export * from "./utils/constants.js";
 
@@ -236,20 +275,83 @@ type JimpFormat<
 // it expands them into a separate copy for each place the class type is
 // repeated, and TypeScript treats those copies as unrelated types.
 export type CreateMimeTypeToExportOptions<T extends Format<string, any>> =
-  T extends Format<infer M, infer O> ? Record<M, O> : never;
+  T extends Format<infer M, infer O> ? Record<M, DeclaredOptions<O>> : never;
+/**
+ * The encode options of a format. Formats whose encode doesn't take options
+ * (GIF, TIFF, BMP) are inferred as `Record<string, any>`, which would accept
+ * anything, so they take none.
+ */
+type DeclaredOptions<O> = string extends keyof NonNullable<O> ? undefined : O;
 export type CreateMimeTypeToDecodeOptions<T extends Format<string, any>> =
   T extends Format<infer M, any, infer O> ? Record<M, O> : never;
+
+/** Options for `Jimp.read` and `Jimp.fromBuffer` that apply to every format */
+export interface ReadOptions {
+  /**
+   * Rotate and flip the pixels to match the EXIF Orientation tag of a JPEG,
+   * as cameras store photos sideways and set the tag instead of rotating
+   * them. The tag is then set to 1, so it isn't applied twice.
+   *
+   * With `false` the pixels and the tag are kept as stored, so
+   * `getExifOrientation(image)` returns the original orientation and writing
+   * with `exif: true` keeps it, leaving viewers to rotate the image.
+   * @default true
+   */
+  exifRotate?: boolean;
+}
+/**
+ * The options `Jimp.read` and `Jimp.fromBuffer` take: `ReadOptions` and each
+ * format's decode options under its MIME type. Takes the result of
+ * `CreateMimeTypeToDecodeOptions`.
+ */
+export type CreateReadOptions<MimeTypeToDecodeOptions> = ReadOptions &
+  Partial<UnionToIntersection<MimeTypeToDecodeOptions>>;
 export type GetOptionsForMimeType<Mime extends string, MimeTypeMap> =
   MimeTypeMap extends Record<Mime, infer O> ? O : never;
 type ExportOptions<MimeTypeMap> =
   MimeTypeMap extends Record<string, infer O> ? O : never;
 
-type PathWithExtension<E extends string> = `${string}.${E}`;
 type MimeToExtension<M extends string> = `${string}/${M}`;
 export type CreateExtensionToMimeType<M extends string> =
   M extends MimeToExtension<infer E> ? Record<E, M> : never;
 export type GetMimeTypeForExtension<Mime extends string, MimeTypeMap> =
   MimeTypeMap extends Record<Mime, infer M> ? M : never;
+
+/** The file extension of a path, e.g. "png" for "./output/image.png" */
+export type PathExtension<Path extends string> =
+  Path extends `${string}.${infer Rest}`
+    ? [PathExtension<Rest>] extends [never]
+      ? Rest
+      : PathExtension<Rest>
+    : never;
+/** Extensions `mime` maps to a type with a differently spelled subtype */
+type ExtensionAliases =
+  | Record<"jpg" | "jpe", "image/jpeg">
+  | Record<"tif", "image/tiff">
+  | Record<"ico", "image/x-icon">;
+type OrIfNever<T, Fallback> = [T] extends [never] ? Fallback : T;
+/**
+ * The options `write` takes for a path: those of the format its extension
+ * maps to, or those of every format when that isn't known, e.g. for a
+ * `string` from `path.join` or an extension no format handles.
+ */
+export type GetOptionsForPath<
+  Path extends string,
+  ExtensionToMimeType,
+  MimeTypeToExportOptions,
+> = string extends Path
+  ? ExportOptions<MimeTypeToExportOptions>
+  : OrIfNever<
+      GetOptionsForMimeType<
+        GetMimeTypeForExtension<
+          Lowercase<PathExtension<Path>>,
+          ExtensionToMimeType | ExtensionAliases
+        > &
+          string,
+        MimeTypeToExportOptions
+      >,
+      ExportOptions<MimeTypeToExportOptions>
+    >;
 
 /**
  * Create a Jimp class that support the given image formats and methods
@@ -279,6 +381,7 @@ export function createJimp<
   type MimeTypeToDecodeOptions = CreateMimeTypeToDecodeOptions<
     ReturnType<Formats[number]>
   >;
+  type JimpReadOptions = CreateReadOptions<MimeTypeToDecodeOptions>;
   type ExtensionToMimeType = CreateExtensionToMimeType<SupportedMimeTypes>;
 
   const plugins = pluginsArg || [];
@@ -300,8 +403,9 @@ export function createJimp<
     mime?: string;
 
     /**
-     * The ICC colour profile the pixels are in, as read from a JPEG, PNG or
-     * WebP, or undefined for sRGB. It's written to JPEG, PNG and WebP output.
+     * The ICC colour profile the pixels are in, as read from a JPEG, PNG,
+     * WebP or JPEG 2000 (JP2/JPX), or undefined for sRGB. It's written to
+     * JPEG, PNG and WebP output.
      *
      * Setting it changes how the pixels are interpreted, without converting
      * them. Use `toColorSpace` to convert.
@@ -362,7 +466,12 @@ export function createJimp<
     }
 
     /**
-     * Create a Jimp instance from a URL, a file path, or a Buffer
+     * Create a Jimp instance from a URL, a file path, or encoded image data
+     * (a Buffer, ArrayBuffer, Uint8Array or other ArrayBuffer view, or Blob).
+     *
+     * In Node, strings that aren't `http:`, `https:`, `data:` or `blob:` URLs
+     * are read as file paths, so a missing file throws Node's `ENOENT` error.
+     * In browsers, strings are always fetched.
      * @example
      * ```ts
      * import { Jimp } from "jimp";
@@ -372,17 +481,30 @@ export function createJimp<
      *
      * // Read from a URL
      * const image = await Jimp.read("https://upload.wikimedia.org/wikipedia/commons/0/01/Bot-Test.jpg");
+     *
+     * // Read a file picked in the browser
+     * const image = await Jimp.read(input.files[0]);
+     *
+     * // Keep a JPEG's pixels as stored instead of rotating them to match its
+     * // EXIF orientation, and pass options to the JPEG decoder
+     * const image = await Jimp.read("photo.jpg", {
+     *   exifRotate: false,
+     *   "image/jpeg": { maxMemoryUsageInMB: 1024 },
+     * });
      * ```
+     * @param url the URL, path or data to read
+     * @param options `exifRotate` and each format's decode options, keyed by
+     * MIME type. See `ReadOptions`.
      */
     static async read(
-      url: string | Buffer | ArrayBuffer,
-      options?: MimeTypeToDecodeOptions
+      url: string | ImageInput,
+      options?: JimpReadOptions
     ): Promise<Instance> {
-      if (Buffer.isBuffer(url) || url instanceof ArrayBuffer) {
+      if (typeof url !== "string") {
         return this.fromBuffer(url, options);
       }
 
-      if (existsSync(url)) {
+      if (hasFileSystem && !URL_PATTERN.test(url)) {
         return this.fromBuffer(await readFile(url), options);
       }
 
@@ -444,7 +566,10 @@ export function createJimp<
     /**
      * Parse a bitmap with the loaded image types.
      *
-     * @param buffer Raw image data
+     * @param buffer Encoded image data: a Buffer, ArrayBuffer, Uint8Array (or
+     * other ArrayBuffer view) or Blob
+     * @param options `exifRotate` and each format's decode options, keyed by
+     * MIME type, as for `read`
      * @example
      * ```ts
      * import { Jimp } from "jimp";
@@ -455,11 +580,10 @@ export function createJimp<
      * ```
      */
     static async fromBuffer(
-      buffer: Buffer | ArrayBuffer,
-      options?: MimeTypeToDecodeOptions
+      buffer: ImageInput,
+      options?: JimpReadOptions
     ): Promise<Instance> {
-      const actualBuffer =
-        buffer instanceof ArrayBuffer ? bufferFromArrayBuffer(buffer) : buffer;
+      const actualBuffer = await toBuffer(buffer);
 
       const mime = await detectFileTypeFromBuffer(actualBuffer);
 
@@ -474,12 +598,15 @@ export function createJimp<
       }
 
       const image = new CustomJimp(
-        await format.decode(actualBuffer, options?.[format.mime])
+        await format.decode(
+          actualBuffer,
+          (options as Record<string, any> | undefined)?.[format.mime]
+        )
       ) as Instance;
 
       image.mime = mime.mime;
 
-      attemptExifRotate(image, actualBuffer);
+      readExif(image, actualBuffer, { rotate: options?.exifRotate ?? true });
       image.iccProfile = readIccProfile(actualBuffer);
 
       return image;
@@ -714,9 +841,11 @@ export function createJimp<
     }
 
     /**
-     * Write the image to a file
+     * Write the image to a file. The format is picked from the path's extension.
      * @param path the path to write the image to
-     * @param options the options to use when writing the image
+     * @param options the options to use when writing the image. For a literal
+     * path they're checked against its format's options (`.jpg` takes JPEG
+     * options, `.gif` none, ...); for a `string` against those of every format.
      * @example
      * ```ts
      * import { Jimp } from "jimp";
@@ -724,26 +853,18 @@ export function createJimp<
      * const image = await Jimp.read("test/image.png");
      *
      * await image.write("test/output.png");
+     * await image.write("test/output.jpg", { quality: 80 });
      * ```
      */
-    async write<
-      Extension extends string,
-      Mime extends GetMimeTypeForExtension<Extension, ExtensionToMimeType>,
-      Options extends GetOptionsForMimeType<Mime, MimeTypeToExportOptions>,
-    >(path: PathWithExtension<Extension>, options?: Options): Promise<void>;
-    // Non-literal paths (path.join, user input) can't be narrowed to a format.
-    // The guard keeps literal paths with mismatched options from landing here.
     async write<Path extends string>(
-      path: string extends Path ? Path : never,
-      options?: ExportOptions<MimeTypeToExportOptions>
-    ): Promise<void>;
-    async write<
-      Options extends GetOptionsForMimeType<
-        SupportedMimeTypes,
+      path: Path,
+      options?: GetOptionsForPath<
+        Path,
+        ExtensionToMimeType,
         MimeTypeToExportOptions
-      >,
-    >(path: string, options?: Options) {
-      const mimeType = mime.getType(path);
+      >
+    ) {
+      const mimeType = mime.getType(path) ?? unregisteredMime.getType(path);
 
       if (!mimeType) {
         throw new Error(
@@ -753,7 +874,13 @@ export function createJimp<
 
       await writeFile(
         path,
-        await this.getBuffer(mimeType as SupportedMimeTypes, options)
+        await this.getBuffer(
+          mimeType as SupportedMimeTypes,
+          options as GetOptionsForMimeType<
+            SupportedMimeTypes,
+            MimeTypeToExportOptions
+          >
+        )
       );
     }
 
@@ -786,84 +913,81 @@ export function createJimp<
 
       copyExif(this, clone);
       clone.iccProfile = this.iccProfile;
+      clone.background = this.background;
+      clone.mime = (this as { mime?: string }).mime;
 
       return clone as unknown as S;
     }
 
     /**
-     * Returns the offset of a pixel in the bitmap buffer
+     * Returns the offset of a pixel in the bitmap buffer.
+     *
+     * Coordinates are rounded to the nearest pixel (`Math.round`). How
+     * coordinates outside the image are handled depends on `edgeHandling`:
+     *
+     * - `Edge.EXTEND` (default): use the nearest edge pixel
+     * - `Edge.WRAP`: wrap around to the other side of the image
+     * - `Edge.CROP`: return -1
+     *
      * @param x the x coordinate
      * @param y the y coordinate
-     * @param edgeHandling (optional) define how to sum pixels from outside the border
-     * @returns the index of the pixel or -1 if not found
+     * @param edgeHandling (optional) how to handle coordinates outside the image
+     * @returns the index of the pixel, or -1 if it is outside the image and `edgeHandling` is `Edge.CROP`
      * @example
      * ```ts
-     * import { Jimp } from "jimp";
+     * import { Jimp, Edge } from "jimp";
      *
      * const image = new Jimp({ width: 3, height: 3, color: 0xffffffff });
      *
-     * image.getPixelIndex(1, 1); // 2
+     * image.getPixelIndex(1, 1); // 16
+     * image.getPixelIndex(5, 1); // 20, the edge pixel (2, 1)
+     * image.getPixelIndex(-1, 1, Edge.WRAP); // 20, the pixel (2, 1)
+     * image.getPixelIndex(5, 1, Edge.CROP); // -1
      * ```
      */
     getPixelIndex(x: number, y: number, edgeHandling?: Edge) {
-      let xi;
-      let yi;
-
       if (!edgeHandling) {
         edgeHandling = Edge.EXTEND;
       }
 
-      if (typeof x !== "number" || typeof y !== "number") {
+      if (
+        typeof x !== "number" ||
+        typeof y !== "number" ||
+        Number.isNaN(x) ||
+        Number.isNaN(y)
+      ) {
         throw new Error("x and y must be numbers");
       }
 
+      const { width, height } = this.bitmap;
+
       // round input
-      x = Math.round(x);
-      y = Math.round(y);
-      xi = x;
-      yi = y;
+      let xi = Math.round(x);
+      let yi = Math.round(y);
 
       if (edgeHandling === Edge.EXTEND) {
-        if (x < 0) xi = 0;
-        if (x >= this.bitmap.width) xi = this.bitmap.width - 1;
-        if (y < 0) yi = 0;
-        if (y >= this.bitmap.height) yi = this.bitmap.height - 1;
+        xi = Math.min(Math.max(xi, 0), width - 1);
+        yi = Math.min(Math.max(yi, 0), height - 1);
+      } else if (edgeHandling === Edge.WRAP) {
+        xi = ((xi % width) + width) % width;
+        yi = ((yi % height) + height) % height;
       }
-
-      if (edgeHandling === Edge.WRAP) {
-        if (x < 0) {
-          xi = this.bitmap.width + x;
-        }
-
-        if (x >= this.bitmap.width) {
-          xi = x % this.bitmap.width;
-        }
-
-        if (y < 0) {
-          yi = this.bitmap.height + y;
-        }
-
-        if (y >= this.bitmap.height) {
-          yi = y % this.bitmap.height;
-        }
-      }
-
-      let i = (this.bitmap.width * yi + xi) << 2;
 
       // if out of bounds index is -1
-      if (xi < 0 || xi >= this.bitmap.width) {
-        i = -1;
+      if (!(xi >= 0 && xi < width && yi >= 0 && yi < height)) {
+        return -1;
       }
 
-      if (yi < 0 || yi >= this.bitmap.height) {
-        i = -1;
-      }
-
-      return i;
+      return (width * yi + xi) << 2;
     }
 
     /**
-     * Returns the hex color value of a pixel
+     * Returns the hex color value of a pixel.
+     *
+     * Coordinates are rounded to the nearest pixel. Coordinates outside the
+     * image return the color of the nearest edge pixel, like
+     * `getPixelIndex`'s default `Edge.EXTEND`.
+     *
      * @param x the x coordinate
      * @param y the y coordinate
      * @returns the color of the pixel
@@ -877,16 +1001,15 @@ export function createJimp<
      * ```
      */
     getPixelColor(x: number, y: number) {
-      if (typeof x !== "number" || typeof y !== "number") {
-        throw new Error("x and y must be numbers");
-      }
-
       const idx = this.getPixelIndex(x, y);
       return this.bitmap.data.readUInt32BE(idx);
     }
 
     /**
-     * Sets the hex colour value of a pixel
+     * Sets the hex colour value of a pixel.
+     *
+     * Coordinates are rounded to the nearest pixel. Coordinates outside the
+     * image are ignored, so nothing is drawn (like canvas).
      *
      * @param hex color to set
      * @param x the x coordinate
@@ -899,6 +1022,7 @@ export function createJimp<
      * const image = new Jimp({ width: 3, height: 3, color: 0xffffffff });
      *
      * image.setPixelColor(0xff0000ff, 0, 0);
+     * image.setPixelColor(0xff0000ff, 5, 0); // outside the image, does nothing
      * ```
      */
     setPixelColor<S extends JimpClass>(
@@ -910,19 +1034,25 @@ export function createJimp<
       if (
         typeof hex !== "number" ||
         typeof x !== "number" ||
-        typeof y !== "number"
+        typeof y !== "number" ||
+        Number.isNaN(x) ||
+        Number.isNaN(y)
       ) {
         throw new Error("hex, x and y must be numbers");
       }
 
-      const idx = this.getPixelIndex(x, y);
-      this.bitmap.data.writeUInt32BE(hex, idx);
+      const idx = this.getPixelIndex(x, y, Edge.CROP);
+
+      if (idx !== -1) {
+        this.bitmap.data.writeUInt32BE(hex, idx);
+      }
 
       return this;
     }
 
     /**
-     * Determine if the image contains opaque pixels.
+     * Determine if the image contains any pixels that aren't fully opaque
+     * (alpha below 255).
      *
      * @example
      * ```ts
@@ -931,8 +1061,8 @@ export function createJimp<
      * const image = new Jimp({ width: 3, height: 3, color: 0xffffffaa });
      * const image2 = new Jimp({ width: 3, height: 3, color: 0xff0000ff });
      *
-     * image.hasAlpha(); // false
-     * image2.hasAlpha(); // true
+     * image.hasAlpha(); // true
+     * image2.hasAlpha(); // false
      * ```
      */
     hasAlpha() {
@@ -966,7 +1096,7 @@ export function createJimp<
      */
     composite<S extends JimpClass>(
       this: S,
-      src: JimpClass,
+      src: CompositeSource,
       x = 0,
       y = 0,
       options: {
@@ -980,7 +1110,9 @@ export function createJimp<
     }
 
     /**
-     * Scan through the image and call the callback for each pixel
+     * Scan through the image and call the callback for each pixel.
+     * A region is clamped to the image, so the callback is only called for
+     * pixels inside the image.
      *
      * @example
      * ```ts
@@ -1022,18 +1154,20 @@ export function createJimp<
     }
 
     /**
-     * Iterate scan through a region of the bitmap
+     * Iterate scan through a region of the bitmap.
+     * The region is clamped to the image, so only pixels inside the image are
+     * yielded.
      * @param x the x coordinate to begin the scan at
      * @param y the y coordinate to begin the scan at
-     * @param w the width of the scan region
-     * @param h the height of the scan region
+     * @param w the width of the scan region, defaults to the rest of the width
+     * @param h the height of the scan region, defaults to the rest of the height
      * @example
      * ```ts
      * import { Jimp } from "jimp";
      *
      * const image = new Jimp({ width: 3, height: 3, color: 0xffffffff });
      *
-     * for (const { x, y, idx, image } of j.scanIterator()) {
+     * for (const { x, y, idx } of image.scanIterator()) {
      *   // do something with the pixel
      * }
      * ```
@@ -1042,8 +1176,8 @@ export function createJimp<
       this: S,
       x = 0,
       y = 0,
-      w = this.bitmap.width,
-      h = this.bitmap.height
+      w = this.bitmap.width - x,
+      h = this.bitmap.height - y
     ) {
       if (typeof x !== "number" || typeof y !== "number") {
         throw new Error("x and y must be numbers");

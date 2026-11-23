@@ -6,6 +6,7 @@
 
 import bmp, { msBmp } from "@jimp/js-bmp";
 import gif from "@jimp/js-gif";
+import ico, { msIcon } from "@jimp/js-ico";
 import jpeg from "@jimp/js-jpeg";
 import png from "@jimp/js-png";
 import tiff from "@jimp/js-tiff";
@@ -54,12 +55,13 @@ export const defaultPlugins = [
   quantize.methods,
 ];
 
-export const defaultFormats = [bmp, msBmp, gif, jpeg, png, tiff];
+export const defaultFormats = [bmp, msBmp, gif, ico, msIcon, jpeg, png, tiff];
 
 /** Convenience object for getting the MIME types of the default formats */
 export const JimpMime = {
   bmp: bmp().mime,
   gif: gif().mime,
+  ico: ico().mime,
   jpeg: jpeg().mime,
   png: png().mime,
   tiff: tiff().mime,
@@ -190,19 +192,20 @@ export type { JPEGOptions } from "@jimp/js-jpeg";
 export { PNGColorType, PNGFilterType } from "@jimp/js-png";
 export { BmpCompression } from "@jimp/js-bmp";
 export type { EncodeOptions } from "@jimp/js-bmp";
-export type { BmpColor } from "@jimp/js-bmp";
 export { HorizontalAlign, VerticalAlign, BlendMode } from "@jimp/core";
 export type {
   RawImageData,
   JimpConstructorOptions,
   JimpSimpleConstructorOptions,
   ColorSpaceName,
+  ReadOptions,
 } from "@jimp/core";
 export { Edge } from "@jimp/types";
 export type { Bitmap, RGBAColor, RGBColor } from "@jimp/types";
 export { loadFont } from "@jimp/plugin-print/load-font";
 export { measureText, measureTextHeight } from "@jimp/plugin-print";
 export { diff } from "@jimp/diff";
+export type { DiffOptions, DiffColor } from "@jimp/diff";
 export {
   intToRGBA,
   rgbaToInt,
@@ -212,6 +215,7 @@ export {
 } from "@jimp/utils";
 export type { FlipOptions } from "@jimp/plugin-flip";
 export type { FisheyeOptions } from "@jimp/plugin-fisheye";
+export type { AffineOptions, SkewOptions } from "@jimp/plugin-rotate";
 export type { DisplaceOptions } from "@jimp/plugin-displace";
 export type { CoverOptions } from "@jimp/plugin-cover";
 export type { ContainOptions } from "@jimp/plugin-contain";

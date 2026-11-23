@@ -109,6 +109,31 @@ describe("Convolution divisor and bias", () => {
     ]).toEqual([132, 145, 157, 210, 155, 170, 185, 220, 132, 145, 157, 210]);
   });
 
+  test("convolute leaves alpha alone with preserveAlpha", () => {
+    // An edge-detection kernel sums to 0, so without preserveAlpha the end
+    // pixels' alpha becomes 8 * 200 - 5 * 200 - 3 * 240 < 0, clamped to 0
+    const edge = [
+      [-1, -1, -1],
+      [-1, 8, -1],
+      [-1, -1, -1],
+    ];
+
+    expect([...makeImage().convolute(edge).bitmap.data]).toEqual([
+      0, 0, 0, 0, 255, 255, 255, 240, 0, 0, 0, 0,
+    ]);
+    expect([
+      ...makeImage().convolute({ kernel: edge, preserveAlpha: true }).bitmap
+        .data,
+    ]).toEqual([0, 0, 0, 200, 255, 255, 255, 240, 0, 0, 0, 200]);
+    expect(
+      makeImage().convolute({ kernel: edge, preserveAlpha: true }).bitmap.data,
+    ).toEqual(makeImage().convolution(edge).bitmap.data);
+    expect([
+      ...makeImage().convolute({ kernel, divisor: 16, preserveAlpha: true })
+        .bitmap.data,
+    ]).toEqual([32, 45, 57, 200, 55, 70, 85, 240, 32, 45, 57, 200]);
+  });
+
   test("a negative divisor with a bias inverts the image", () => {
     expect([
       ...makeImage().convolution({ kernel: [[1]], divisor: -1, bias: 255 })
@@ -469,6 +494,13 @@ describe("Convolution kernel sizes (#749)", () => {
   });
 
   test("rejects ragged and empty kernels", () => {
+    expect(() => makeGreyImage().convolute([[]])).toThrow(
+      "kernel rows must not be empty",
+    );
+    expect(() => makeGreyImage().convolution({ kernel: [[], []] })).toThrow(
+      "kernel rows must not be empty",
+    );
+
     const ragged = [
       [1, 2, 1],
       [2, 4],
@@ -486,6 +518,65 @@ describe("Convolution kernel sizes (#749)", () => {
     );
     expect(() => makeGreyImage().convolute([])).toThrow(
       "kernel must be a matrix",
+    );
+  });
+});
+
+describe("Regions outside the image", () => {
+  // Deterministic noise
+  const makeNoise = () => {
+    const width = 6;
+    const height = 4;
+    const data = Buffer.from(
+      Array.from({ length: width * height * 4 }, (_, i) => (i * 73 + 41) % 256),
+    );
+    return jimp.fromBitmap({ width, height, data });
+  };
+
+  const kernel = [
+    [0, 1, 0],
+    [1, -4, 1],
+    [0, 1, 0],
+  ];
+
+  test("convolute doesn't wrap past the right edge onto the next row", () => {
+    expect(
+      makeNoise().convolute({ kernel, x: 4, y: 1, w: 10, h: 2, bias: 128 })
+        .bitmap,
+    ).toEqual(
+      makeNoise().convolute({ kernel, x: 4, y: 1, w: 2, h: 2, bias: 128 })
+        .bitmap,
+    );
+  });
+
+  test("convolute clamps negative x and y", () => {
+    expect(
+      makeNoise().convolute({ kernel, x: -2, y: -1, w: 4, h: 3, bias: 128 })
+        .bitmap,
+    ).toEqual(
+      makeNoise().convolute({ kernel, x: 0, y: 0, w: 2, h: 2, bias: 128 })
+        .bitmap,
+    );
+  });
+
+  test("pixelate doesn't wrap past the right edge onto the next row", () => {
+    expect(
+      makeNoise().pixelate({ size: 2, x: 4, y: 1, w: 10, h: 2 }).bitmap,
+    ).toEqual(makeNoise().pixelate({ size: 2, x: 4, y: 1, w: 2, h: 2 }).bitmap);
+  });
+
+  test("pixelate clamps negative x and y", () => {
+    expect(
+      makeNoise().pixelate({ size: 2, x: -2, y: -1, w: 4, h: 3 }).bitmap,
+    ).toEqual(makeNoise().pixelate({ size: 2, x: 0, y: 0, w: 2, h: 2 }).bitmap);
+  });
+
+  test("the region defaults to the rest of the image", () => {
+    expect(makeNoise().pixelate({ size: 2, x: -2, y: -1 }).bitmap).toEqual(
+      makeNoise().pixelate(2).bitmap,
+    );
+    expect(makeNoise().convolute({ kernel, x: 2, y: 1 }).bitmap).toEqual(
+      makeNoise().convolute({ kernel, x: 2, y: 1, w: 4, h: 3 }).bitmap,
     );
   });
 });

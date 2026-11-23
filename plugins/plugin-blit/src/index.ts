@@ -30,6 +30,12 @@ export const methods = {
    * It involves the transfer of a block of pixel data from one area of a computer's memory to another area, typically for the purpose of rendering images on the screen or manipulating them in various ways.
    * It's a fundamental operation in computer graphics utilized in various applications, from operating systems to video games.
    *
+   * Only the part of the source region (`srcX`, `srcY`, `srcW`, `srcH`) that's
+   * inside the source is drawn, and only where it lands inside this image.
+   * The pixels drawn stay where they'd have been if the whole region had been
+   * drawn: a region starting at `srcX: -10` leaves the first 10 columns at
+   * `x` untouched.
+   *
    * @example
    * ```ts
    * import { Jimp } from "jimp";

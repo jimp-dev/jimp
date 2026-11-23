@@ -69,6 +69,35 @@ describe("Blit over image", function () {
       targetImg.clone().blit({ src: srcImg, x: 3, y: 3 }),
     ).toMatchSnapshot();
   });
+
+  test("a source region past the right edge doesn't wrap onto the next row", () => {
+    const image = targetImg
+      .clone()
+      .blit({ src: srcImg, x: 0, y: 0, srcX: 4, srcY: 1, srcW: 4, srcH: 2 });
+
+    expect(image).toMatchSnapshot();
+    expect(image.bitmap).toEqual(
+      targetImg
+        .clone()
+        .blit({ src: srcImg, x: 0, y: 0, srcX: 4, srcY: 1, srcW: 2, srcH: 2 })
+        .bitmap,
+    );
+  });
+
+  test("a source region outside the source is clamped in place", () => {
+    // The pixels that are drawn land where they would without clamping
+    expect(
+      targetImg
+        .clone()
+        .blit({ src: srcImg, x: 2, y: 2, srcX: -1, srcY: -1, srcW: 3, srcH: 3 })
+        .bitmap,
+    ).toEqual(
+      targetImg
+        .clone()
+        .blit({ src: srcImg, x: 3, y: 3, srcX: 0, srcY: 0, srcW: 2, srcH: 2 })
+        .bitmap,
+    );
+  });
 });
 
 describe("Blit alpha compositing", () => {

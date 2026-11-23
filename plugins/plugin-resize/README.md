@@ -43,3 +43,15 @@ They take about as long as `BICUBIC`, or less (median of 7 runs on random RGBA d
 | 2000×1500 → 500×375   | 286 ms    | 94 ms     | 69 ms      | 82 ms      |
 | 2000×1500 → 1500×1125 | 155 ms    | 166 ms    | 160 ms     | 152 ms     |
 | 500×375 → 2000×1500   | 419 ms    | 212 ms    | 193 ms     | 171 ms     |
+
+## Keeping the colour of transparent pixels
+
+By default resizing treats alpha as opacity: colour is weighted by alpha (premultiplied), so transparent pixels don't darken the edges of what they surround. Pixels that end up fully transparent have no colour left and come out as transparent black.
+
+That's right for ordinary images, but not when alpha holds other data, like a game texture whose alpha is an emissive or self-illumination mask, or one that packs another channel into it. Pass `premultiplyAlpha: false` to resample every channel, alpha included, on its own:
+
+```ts
+image.resize({ w: 256, premultiplyAlpha: false });
+```
+
+The colour comes out as if the image were opaque and the alpha comes out exactly as it does by default, so transparent pixels keep their colour. Opaque images give the same result either way. `scale`, `scaleToFit`, `cover` and `contain` take the option too. `NEAREST_NEIGHBOR` copies pixels, so it keeps their colour either way. The name and meaning match `premultiplyAlpha` in the web platform's `createImageBitmap`.

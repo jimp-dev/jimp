@@ -1,5 +1,8 @@
 import { BmFont } from "./types.js";
 
+/** Line breaks: `\n`, `\r\n` or `\r` */
+const LINE_BREAK = /\r\n?|\n/;
+
 /**
  * The last character of `text`. Characters outside the BMP are two UTF-16
  * code units long, so `text[text.length - 1]` would only be half of one.
@@ -44,7 +47,8 @@ export function kerning(
   return (first && second && font.kernings[first]?.[second]) || 0;
 }
 
-export function measureText(font: BmFont, text: string) {
+/** The width of a single line of text */
+function measureLine(font: BmFont, text: string) {
   // Glyphs are keyed by code point, so walk the text by code point too
   const characters = Array.from(text);
   let x = 0;
@@ -63,6 +67,20 @@ export function measureText(font: BmFont, text: string) {
 }
 
 /**
+ * Measures the width of `text` when printed with `font`. Line breaks
+ * (`\n`, `\r\n` or `\r`) start a new line like they do in `print`, so this
+ * is the width of the widest line. Empty lines are 0 wide.
+ * @param font a bitmap font loaded with `loadFont`
+ * @param text the text to measure
+ * @returns the width in pixels
+ */
+export function measureText(font: BmFont, text: string) {
+  return text
+    .split(LINE_BREAK)
+    .reduce((width, line) => Math.max(width, measureLine(font, line)), 0);
+}
+
+/**
  * Measures `text` appended to a string that is `width` wide and ends with
  * `lastChar`. Same result as measuring the joined string, without walking
  * the part that was already measured.
@@ -75,22 +93,49 @@ function measureAppendedText(
 ) {
   const [nextChar] = text;
 
-  return width + kerning(font, lastChar, nextChar) + measureText(font, text);
+  return width + kerning(font, lastChar, nextChar) + measureLine(font, text);
 }
 
+/**
+ * Splits `text` into lines at line breaks, keeping empty lines, and wraps
+ * each of them at `maxWidth`. Each line is the list of its words, separated
+ * by single spaces, so `line.join(" ")` is the text of the line.
+ */
 export function splitLines(font: BmFont, text: string, maxWidth: number) {
-  const words = text.replace(/[\r\n]+/g, " \n").split(" ");
+  const lines = text
+    .split(LINE_BREAK)
+    .flatMap((paragraph) => wrapLine(font, paragraph, maxWidth));
+
+  // Measured once at the end so lines started by a wrap or a newline count too
+  const longestLine = lines.reduce(
+    (width, line) => Math.max(width, measureLine(font, line.join(" "))),
+    0,
+  );
+
+  return {
+    lines,
+    longestLine,
+  };
+}
+
+/** Whether a line, as a list of words, is empty or only spaces */
+function isOnlySpaces(line: string[]) {
+  return line.every((word) => word === "");
+}
+
+/** Wraps a line of text without line breaks at `maxWidth` */
+function wrapLine(font: BmFont, text: string, maxWidth: number) {
+  const words = text.split(" ");
 
   const lines: string[][] = [];
   let currentLine: string[] = [];
-  let longestLine = 0;
   // Width and last character of currentLine.join(" "), kept up to date so
   // the whole line is not re-measured for every word.
   let lineWidth = 0;
   let lineLastChar: string | undefined;
 
   words.forEach((word) => {
-    const wordWidth = measureText(font, word + (words.length > 1 ? " " : ""));
+    const wordWidth = measureLine(font, word);
 
     // If a word is longer than the allowable width we need to split it across lines.
     if (wordWidth > maxWidth) {
@@ -122,7 +167,7 @@ export function splitLines(font: BmFont, text: string, maxWidth: number) {
           lines.push([...currentLine, current]);
           currentLine = [];
           current = char;
-          currentWidth = measureText(font, char);
+          currentWidth = measureLine(font, char);
           currentLastChar = char;
         } else {
           lines.push([...currentLine, current + char]);
@@ -149,36 +194,46 @@ export function splitLines(font: BmFont, text: string, maxWidth: number) {
     const appended = currentLine.length > 0 ? ` ${word}` : word;
     const length = measureAppendedText(font, lineWidth, lineLastChar, appended);
 
-    if (length <= maxWidth && !word.includes("\n")) {
-      if (length > longestLine) {
-        longestLine = length;
-      }
-
+    if (length <= maxWidth) {
       currentLine.push(word);
       lineWidth = length;
       lineLastChar = lastCharacter(appended);
     } else {
-      const nextLine = word.replace("\n", "");
+      // Spaces where the line wraps are dropped, not left on a line of their own
+      if (!isOnlySpaces(currentLine)) {
+        lines.push(currentLine);
+      }
 
-      lines.push(currentLine);
-      currentLine = [nextLine];
-      lineWidth = measureText(font, nextLine);
-      lineLastChar = lastCharacter(nextLine);
+      currentLine = [word];
+      lineWidth = wordWidth;
+      lineLastChar = lastCharacter(word);
     }
   });
 
-  lines.push(currentLine);
+  // A line of only spaces is kept, unless it's the spaces left after a wrap
+  if (lines.length === 0 || !isOnlySpaces(currentLine)) {
+    lines.push(currentLine);
+  }
 
-  return {
-    lines,
-    longestLine,
-  };
+  return lines;
 }
 
+/**
+ * Measures the height of `text` when printed with `font`, wrapped at
+ * `maxWidth` like `print` does. Every line break starts a new line, so
+ * `"a\n\nb"` is three lines high, and leading or trailing line breaks add
+ * empty lines too.
+ * @param font a bitmap font loaded with `loadFont`
+ * @param text the text to measure
+ * @param maxWidth the width to wrap the text at. Without it the text only
+ * breaks at newlines.
+ * @returns the height in pixels: the number of lines, including empty ones,
+ * times the font's line height
+ */
 export function measureTextHeight(
   font: BmFont,
   text: string,
-  maxWidth: number,
+  maxWidth = Infinity,
 ) {
   const { lines } = splitLines(font, text, maxWidth);
 

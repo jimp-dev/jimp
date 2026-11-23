@@ -44,13 +44,25 @@ describe("methods that return the image", () => {
     expect(image.getPixelColor(0, 0)).toBe(white);
   });
 
-  test("composite still rejects images from another Jimp class", () => {
+  test("composite draws images from another Jimp class", () => {
     const image = makeImage();
     const OtherJimp = createJimp();
-    const other = new OtherJimp({ width: 1, height: 1 });
+    const other = new OtherJimp({ width: 1, height: 1, color: red });
 
-    expect(() => image.composite(other)).toThrow(
-      "The source must be a Jimp image",
+    image.composite(other, 1, 0);
+    expect(image.getPixelColor(1, 0)).toBe(red);
+
+    // And the other way around
+    const otherBase = new OtherJimp({ width: 2, height: 1, color: white });
+    otherBase.composite(new Jimp({ width: 1, height: 1, color: blue }), 1, 0);
+    expect(otherBase.getPixelColor(1, 0)).toBe(blue);
+  });
+
+  test("composite rejects sources that aren't images", () => {
+    const image = makeImage();
+
+    expect(() => image.composite({} as Jimp)).toThrow(
+      "The source must be a Jimp image: an object with a bitmap of width, height and data",
     );
   });
 
@@ -111,6 +123,15 @@ describe("clone", () => {
     expect(copy.width).toBe(1);
   });
 
+  test("copies the MIME type and background", async () => {
+    const image = await Jimp.read(await makeImage().getBuffer("image/png"));
+    image.background = blue;
+    const copy = image.clone();
+
+    expect(copy.mime).toBe("image/png");
+    expect(copy.background).toBe(blue);
+  });
+
   test("keeps the class of images from createJimp", () => {
     const CustomJimp = createJimp({ plugins: [crop.methods], formats: [png] });
     const copy = new CustomJimp({ width: 2, height: 2 }).clone();
@@ -122,6 +143,41 @@ describe("clone", () => {
 });
 
 describe("static readers", () => {
+  test("accept encoded data in any binary container", async () => {
+    const pngBuffer = await new Jimp({
+      width: 2,
+      height: 1,
+      color: red,
+    }).getBuffer("image/png");
+    // A view into the middle of a larger ArrayBuffer
+    const padded = new Uint8Array(pngBuffer.length + 8);
+    padded.set(pngBuffer, 4);
+    const inputs = {
+      Uint8Array: new Uint8Array(pngBuffer),
+      "Uint8Array view": padded.subarray(4, 4 + pngBuffer.length),
+      DataView: new DataView(padded.buffer, 4, pngBuffer.length),
+      ArrayBuffer: padded.slice(4, 4 + pngBuffer.length).buffer,
+      Blob: new Blob([pngBuffer]),
+    };
+
+    for (const [name, input] of Object.entries(inputs)) {
+      for (const image of [
+        await Jimp.read(input),
+        await Jimp.fromBuffer(input),
+      ]) {
+        expect(image.mime, name).toBe("image/png");
+        expect(image.width, name).toBe(2);
+        expect(image.getPixelColor(1, 0), name).toBe(red);
+      }
+    }
+  });
+
+  test("fromBuffer explains unsupported input", async () => {
+    await expect(Jimp.fromBuffer(42 as unknown as Buffer)).rejects.toThrow(
+      "Expected image data as a Buffer, ArrayBuffer, Uint8Array (or other ArrayBuffer view) or Blob",
+    );
+  });
+
   test("return images with the plugin methods", async () => {
     const png = await makeImage().getBuffer("image/png");
     const images = [
@@ -155,5 +211,20 @@ describe("static readers", () => {
       expect(image.crop({ x: 0, y: 0, w: 1, h: 1 })).toBe(image);
       expect("resize" in image).toBe(false);
     }
+  });
+});
+
+describe("constructor", () => {
+  test("fills the image with a CSS color and uses it as the background", () => {
+    const image = new Jimp({ width: 1, height: 1, color: "red" });
+
+    expect(image.getPixelColor(0, 0)).toBe(red);
+    expect(image.background).toBe(red);
+  });
+
+  test("throws for an invalid CSS color", () => {
+    expect(() => new Jimp({ width: 1, height: 1, color: "nope" })).toThrow(
+      'Invalid color "nope"',
+    );
   });
 });

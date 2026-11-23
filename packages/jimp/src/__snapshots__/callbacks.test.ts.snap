@@ -60,12 +60,12 @@ exports[`Callbacks > with contain 1`] = `
 Visualization:
 
 C0 
-▿▰ 
+ 9 
 
 Data:
 
 AA-8E-1Cᶠᶠ 39-55-C6ᶠᶠ 00-00-00⁰⁰
-AA-8E-1Cᵃᵃ 39-55-C6ᵃᵃ 00-00-00⁰⁰
+AA-AA-2Aᵃᵃ 56-56-D4ᵃᵃ 00-00-00⁰⁰
 `;
 
 exports[`Callbacks > with contrast 1`] = `
@@ -164,13 +164,13 @@ exports[`Callbacks > with greyscale 1`] = `
 Visualization:
 
 ◇D▩
-3▴D
+D3▩
 ▥81
 
 Data:
 
 36-36-36ᶠᶠ B6-B6-B6ᶠᶠ 12-12-12ᶠᶠ
-EC-EC-ECᶠᶠ C8-C8-C8ᶠᶠ 48-48-48ᶠᶠ
+ED-ED-EDᶠᶠ C9-C9-C9ᶠᶠ 49-49-49ᶠᶠ
 36-36-36⁷ᶠ B6-B6-B6⁷ᶠ 12-12-12⁷ᶠ
 `;
 
@@ -234,36 +234,36 @@ exports[`Callbacks > with resize 1`] = `
 Visualization:
 
 C0
-▿▰
+ 9
 
 Data:
 
 AA-8E-1Cᶠᶠ 39-55-C6ᶠᶠ
-AA-8E-1Cᵃᵃ 39-55-C6ᵃᵃ
+AA-AA-2Aᵃᵃ 56-56-D4ᵃᵃ
 `;
 
 exports[`Callbacks > with scale 1`] = `
 Visualization:
 
 C0
-▿▰
+ 9
 
 Data:
 
 AA-8E-1Cᶠᶠ 39-55-C6ᶠᶠ
-AA-8E-1Cᵃᵃ 39-55-C6ᵃᵃ
+AA-AA-2Aᵃᵃ 56-56-D4ᵃᵃ
 `;
 
 exports[`Callbacks > with scaleToFit 1`] = `
 Visualization:
 
 C0
-▿▰
+ 9
 
 Data:
 
 AA-8E-1Cᶠᶠ 39-55-C6ᶠᶠ
-AA-8E-1Cᵃᵃ 39-55-C6ᵃᵃ
+AA-AA-2Aᵃᵃ 56-56-D4ᵃᵃ
 `;
 
 exports[`Callbacks > with sepia 1`] = `

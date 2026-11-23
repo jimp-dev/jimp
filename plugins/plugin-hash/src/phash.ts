@@ -20,7 +20,6 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-import { methods as color } from "@jimp/plugin-color";
 import { methods } from "@jimp/plugin-resize";
 import { JimpClass } from "@jimp/types";
 import { clone } from "@jimp/utils";
@@ -93,14 +92,12 @@ class ImagePHash {
      * The image is reduced to a grayscale just to further simplify
      * the number of computations.
      */
-    img = color.greyscale(img);
-
     const vals = [];
 
     for (let x = 0; x < img.bitmap.width; x++) {
       const row = [];
       for (let y = 0; y < img.bitmap.height; y++) {
-        row[y] = intToRGBA(img.getPixelColor(x, y)).b;
+        row[y] = legacyGrey(img, x, y);
       }
       vals[x] = row;
     }
@@ -162,18 +159,16 @@ class ImagePHash {
 // DCT function stolen from http://stackoverflow.com/questions/4240490/problems-with-dct-and-idct-algorithm-in-java
 
 /**
- Convert a 32-bit integer color value to an RGBA object.
+ The Rec. 709 luminance of a pixel, truncated like `greyscale()` did before
+ it rounded. Kept so the hashes users have stored don't change.
  */
-function intToRGBA(i: number) {
-  const a = i & 0xff;
-  i >>>= 8;
-  const b = i & 0xff;
-  i >>>= 8;
-  const g = i & 0xff;
-  i >>>= 8;
-  const r = i & 0xff;
+function legacyGrey(img: JimpClass, x: number, y: number) {
+  const { data } = img.bitmap;
+  const idx = img.getPixelIndex(x, y);
 
-  return { r, g, b, a };
+  return Math.floor(
+    0.2126 * data[idx]! + 0.7152 * data[idx + 1]! + 0.0722 * data[idx + 2]!,
+  );
 }
 
 /** Grey level transparent pixels are composited onto before hashing. */

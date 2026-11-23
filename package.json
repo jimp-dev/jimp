@@ -5,7 +5,7 @@
   "description": "The jimp monorepo.",
   "repository": "jimp-dev/jimp",
   "engines": {
-    "node": ">=18"
+    "node": ">=22"
   },
   "author": "Andrew Lisowski <lisowski54@gmail.com>",
   "scripts": {

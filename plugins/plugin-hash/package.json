@@ -6,7 +6,7 @@
   ],
   "repository": "jimp-dev/jimp",
   "engines": {
-    "node": ">=18"
+    "node": ">=22"
   },
   "scripts": {
     "lint": "eslint .",
@@ -37,7 +37,6 @@
     "@jimp/js-jpeg": "workspace:*",
     "@jimp/js-png": "workspace:*",
     "@jimp/js-tiff": "workspace:*",
-    "@jimp/plugin-color": "workspace:*",
     "@jimp/plugin-resize": "workspace:*",
     "@jimp/types": "workspace:*",
     "@jimp/utils": "workspace:*",

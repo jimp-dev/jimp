@@ -24,4 +24,23 @@ describe("Normalize", () => {
 
     expect(image.normalize()).toMatchSnapshot();
   });
+
+  test("leaves a solid color image unchanged", () => {
+    const data = Buffer.from([128, 64, 32, 255, 128, 64, 32, 200]);
+    const image = jimp.fromBitmap({ width: 2, height: 1, data });
+
+    expect([...image.normalize().bitmap.data]).toEqual([
+      128, 64, 32, 255, 128, 64, 32, 200,
+    ]);
+  });
+
+  test("only leaves channels with a single value unchanged", () => {
+    // Red spans 50-150, green is always 64, blue is always 0
+    const data = Buffer.from([50, 64, 0, 255, 150, 64, 0, 255]);
+    const image = jimp.fromBitmap({ width: 2, height: 1, data });
+
+    expect([...image.normalize().bitmap.data]).toEqual([
+      0, 64, 0, 255, 255, 64, 0, 255,
+    ]);
+  });
 });

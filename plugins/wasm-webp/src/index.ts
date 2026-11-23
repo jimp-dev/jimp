@@ -8,7 +8,6 @@ import z from "zod";
 import { loadWasm } from "./load-wasm.js";
 
 const WebpOptionsSchema = z.object({
-  colorSpace: z.union([z.literal("display-p3"), z.literal("srgb")]).optional(),
   /**
    * Image quality, between 0 and 100.
    * For lossy, 0 gives the smallest size and 100 the largest.
@@ -38,11 +37,6 @@ const WebpOptionsSchema = z.object({
   segments: z.number().min(1).max(4).optional().default(4),
   /** Number of entropy-analysis passes (in 1..10). */
   pass: z.number().min(1).max(10).optional().default(1),
-  /** If true, export the compressed picture back. In-loop filtering is not applied. */
-  showCompressed: z
-    .union([z.literal(1), z.literal(0)])
-    .optional()
-    .default(0),
   /** Preprocessing filter (0 = none, 1 = segment-smooth). */
   preprocessing: z
     .union([z.literal(1), z.literal(0)])
@@ -82,8 +76,6 @@ const WebpOptionsSchema = z.object({
     .union([z.literal(1), z.literal(0)])
     .optional()
     .default(0),
-  /** If non-zero, try and use multi-threaded encoding. */
-  threadLevel: z.number().min(0).optional().default(0),
   /** Reduce memory usage (slower encoding). */
   lowMemory: z
     .union([z.literal(1), z.literal(0)])
@@ -91,11 +83,6 @@ const WebpOptionsSchema = z.object({
     .default(0),
   /** Near lossless encoding (0 = max loss, 100 = off). */
   nearLossless: z.number().min(0).max(100).optional().default(100),
-  /** Reserved for future lossless feature. */
-  useDeltaPalette: z
-    .union([z.literal(1), z.literal(0)])
-    .optional()
-    .default(0),
   /** If needed, use sharp (and slow) RGB->YUV conversion. */
   useSharpYuv: z
     .union([z.literal(1), z.literal(0)])
@@ -109,7 +96,7 @@ const WebpOptionsSchema = z.object({
    * @default true
    */
   icc: z.boolean().optional(),
-});
+}).strict();
 
 type WebpOptions = z.infer<typeof WebpOptionsSchema>;
 
@@ -178,26 +165,23 @@ export default function webp({ wasm }: WebpFormatOptions = {}) {
         method,
         lowMemory,
         nearLossless,
-        useDeltaPalette,
         useSharpYuv,
-        threadLevel,
         partitionLimit,
         partitions,
         pass,
         preprocessing,
-        showCompressed,
         segments,
         snsStrength,
         targetPSNR,
         targetSize,
-        colorSpace = "srgb",
       } = WebpOptionsSchema.parse(options);
       await initEncoderOnce(wasm?.encoder);
       const arrayBuffer = await encode(
         {
           ...bitmap,
           data: new Uint8ClampedArray(bitmap.data),
-          colorSpace,
+          // ImageData needs one, but the codec only reads the pixels
+          colorSpace: "srgb",
         },
         {
           quality,
@@ -214,14 +198,11 @@ export default function webp({ wasm }: WebpFormatOptions = {}) {
           method,
           low_memory: lowMemory,
           near_lossless: nearLossless,
-          use_delta_palette: useDeltaPalette,
           use_sharp_yuv: useSharpYuv,
-          thread_level: threadLevel,
           partition_limit: partitionLimit,
           partitions,
           pass,
           preprocessing,
-          show_compressed: showCompressed,
           segments,
           sns_strength: snsStrength,
           target_PSNR: targetPSNR,

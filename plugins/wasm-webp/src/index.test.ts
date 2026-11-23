@@ -8,6 +8,17 @@ const format = webp();
 const image = makeTestImage("▴▴▴▴▸▸▸▸", "▴▴▴▴▸▸▸▸", "▾▾▾▾◆◆◆◆", "▾▾▾▾◆◆◆◆");
 
 describe("WASM WebP", () => {
+  test("rejects options it doesn't support", async () => {
+    await expect(
+      // @ts-expect-error the codec doesn't use the colour space
+      format.encode(image, { colorSpace: "srgb" }),
+    ).rejects.toThrow();
+    await expect(
+      // @ts-expect-error libwebp ignores threadLevel
+      format.encode(image, { threadLevel: 1 }),
+    ).rejects.toThrow();
+  });
+
   test("round-trips an image", async () => {
     // Run two of each at once so both race to initialize the codec
     const [buffer] = await Promise.all([

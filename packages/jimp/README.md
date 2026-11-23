@@ -58,6 +58,15 @@ const image = await Jimp.fromBuffer(buffer);
 const blank = new Jimp({ width: 256, height: 256, color: 0xffffffff });
 ```
 
+JPEGs are rotated to match their EXIF orientation when they're read, so photos taken in portrait come out upright. Pass `exifRotate: false` to keep the pixels as stored. Decode options for a format go under its MIME type:
+
+```js
+const image = await Jimp.read("photo.jpg", {
+  exifRotate: false,
+  "image/jpeg": { maxMemoryUsageInMB: 1024 },
+});
+```
+
 Most methods take an options object rather than positional arguments:
 
 ```js
@@ -88,7 +97,7 @@ const font = await loadFont(SANS_32_BLACK);
 image.print({ font, x: 10, y: 10, text: "Hello world!" });
 ```
 
-The bundled fonts only cover printable ASCII, and characters a font has no glyph for are printed as `?`. To print other text, such as Japanese, generate a BMFont that includes those characters. See [custom fonts](https://github.com/jimp-dev/jimp/tree/main/plugins/plugin-print#custom-fonts).
+The bundled fonts cover printable ASCII (the 8, 16, 32, 64 and 128px ones also Latin-1 and `€`, but not the backtick), and characters a font has no glyph for are printed as `?`. To print other text, such as Japanese, generate a BMFont that includes those characters. See [custom fonts](https://github.com/jimp-dev/jimp/tree/main/plugins/plugin-print#custom-fonts).
 
 ## Supported formats
 
@@ -100,10 +109,11 @@ The bundled fonts only cover printable ASCII, and characters a font has no glyph
 - [`@jimp/js-png`](https://www.npmjs.com/package/@jimp/js-png)
 - [`@jimp/js-tiff`](https://www.npmjs.com/package/@jimp/js-tiff)
 
-The optional WASM plugins add AVIF and WebP, or swap in WASM codecs for JPEG and PNG. They aren't dependencies of `jimp` and only work in ESM. Install the ones you need and add them to a [custom Jimp](https://jimp-dev.github.io/jimp/guides/custom-jimp/), as shown in the [WASM plugins guide](https://jimp-dev.github.io/jimp/guides/webp/).
+The optional WASM plugins add AVIF, JPEG 2000 and WebP, or swap in WASM codecs for JPEG and PNG. They aren't dependencies of `jimp` and only work in ESM. Install the ones you need and add them to a [custom Jimp](https://jimp-dev.github.io/jimp/guides/custom-jimp/), as shown in the [WASM plugins guide](https://jimp-dev.github.io/jimp/guides/webp/).
 
 - [`@jimp/wasm-avif`](https://www.npmjs.com/package/@jimp/wasm-avif)
 - [`@jimp/wasm-jpeg`](https://www.npmjs.com/package/@jimp/wasm-jpeg)
+- [`@jimp/wasm-jpeg2000`](https://www.npmjs.com/package/@jimp/wasm-jpeg2000)
 - [`@jimp/wasm-png`](https://www.npmjs.com/package/@jimp/wasm-png)
 - [`@jimp/wasm-webp`](https://www.npmjs.com/package/@jimp/wasm-webp)
 

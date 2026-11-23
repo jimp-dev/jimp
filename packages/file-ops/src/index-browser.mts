@@ -1,4 +1,5 @@
 export const existsSync = () => false;
+export const hasFileSystem = false;
 
 export const readFile = async () => {
   throw new Error("Not supported");

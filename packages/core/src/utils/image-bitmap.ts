@@ -140,16 +140,26 @@ function exifRotate<I extends JimpClass>(img: I) {
   }
 }
 
-export async function attemptExifRotate<I extends JimpClass>(
+/**
+ * Reads the EXIF data of a JPEG and, with `rotate`, rotates the pixels to
+ * match its orientation.
+ * @param image a Jimp image object
+ * @param buffer the encoded image the bitmap was decoded from
+ */
+export function readExif<I extends JimpClass>(
   image: I,
-  buffer: Buffer
+  buffer: Buffer,
+  { rotate }: { rotate: boolean }
 ) {
   try {
     (image as unknown as { _exif: ExifData })._exif =
       EXIFParser.create(buffer).parse();
 
     storeJpegExif(image, buffer);
-    exifRotate(image); // EXIF data
+
+    if (rotate) {
+      exifRotate(image);
+    }
   } catch {
     // do nothing
   }

@@ -122,6 +122,22 @@ function inkedColumns(image: InstanceType<typeof Jimp>) {
   return columns;
 }
 
+/** The rows of `image` that have anything drawn on them */
+function inkedRows(image: InstanceType<typeof Jimp>) {
+  const rows: number[] = [];
+
+  for (let y = 0; y < image.bitmap.height; y++) {
+    for (let x = 0; x < image.bitmap.width; x++) {
+      if (image.getPixelColor(x, y) !== 0xffffffff) {
+        rows.push(y);
+        break;
+      }
+    }
+  }
+
+  return rows;
+}
+
 async function createTextImage(
   width: number,
   height: number,
@@ -322,6 +338,49 @@ describe("Write text over image", function () {
       }
     });
 
+    test("throws a clear error when a page isn't a PNG (#1024)", async () => {
+      const dir = await fs.mkdtemp(path.join(os.tmpdir(), "jimp-font-"));
+      const fontFile = path.join(dir, "font.fnt");
+      // An uncompressed 32-bit 4x4 TGA, BMFont's default page format
+      const tgaHeader = Buffer.alloc(18);
+      tgaHeader[2] = 2;
+      tgaHeader.writeUInt16LE(4, 12);
+      tgaHeader.writeUInt16LE(4, 14);
+      tgaHeader[16] = 32;
+      tgaHeader[17] = 0x28;
+      const tga = Buffer.concat([tgaHeader, Buffer.alloc(4 * 4 * 4, 0xff)]);
+      const advice =
+        "Jimp fonts need PNG pages. In BMFont, set the texture format to png when exporting.";
+
+      try {
+        await fs.writeFile(path.join(dir, "font_0.tga"), tga);
+        await fs.writeFile(fontFile, createFontFile("font_0.tga"));
+
+        await expect(loadFont(fontFile)).rejects.toThrow(
+          `loadFont: font page ${JSON.stringify(path.join(dir, "font_0.tga"))} is a TGA image; ${advice}`,
+        );
+
+        // A page that isn't a PNG whatever its name says
+        await fs.writeFile(path.join(dir, "font_0.png"), tga);
+        await fs.writeFile(fontFile, createFontFile("font_0.png"));
+
+        await expect(loadFont(fontFile)).rejects.toThrow(
+          `loadFont: font page ${JSON.stringify(path.join(dir, "font_0.png"))} isn't a PNG image; ${advice}`,
+        );
+
+        await fs.writeFile(
+          path.join(dir, "font_0.png"),
+          await new Jimp({ width: 4, height: 4 }).getBuffer("image/jpeg"),
+        );
+
+        await expect(loadFont(fontFile)).rejects.toThrow(
+          `loadFont: font page ${JSON.stringify(path.join(dir, "font_0.png"))} isn't a PNG image; ${advice}`,
+        );
+      } finally {
+        await fs.rm(dir, { recursive: true, force: true });
+      }
+    });
+
     test("loads fonts and their pages from disk without fetch", async () => {
       await withoutFetch(async () => {
         const font = await loadFont(fonts.SANS_16_BLACK);
@@ -340,6 +399,39 @@ describe("Write text over image", function () {
           'loadFont: can\'t load "https://example.com/font.fnt" because this runtime has no global fetch.',
         ),
       );
+    });
+
+    test("throws a clear error when the server responds with an error", async () => {
+      const server = http.createServer((_, res) => {
+        res.writeHead(404, "Not Found", { "Content-Type": "text/html" });
+        res.end("<html><body class=error>Not found</body></html>");
+      });
+
+      await new Promise<void>((resolve) => server.listen(0, resolve));
+
+      try {
+        const { port } = server.address() as AddressInfo;
+        const url = `http://localhost:${port}/fonts/font.fnt`;
+
+        await expect(loadFont(url)).rejects.toThrow(
+          `loadFont: couldn't load ${JSON.stringify(url)}: HTTP 404 Not Found`,
+        );
+      } finally {
+        server.close();
+      }
+    });
+
+    test("throws a clear error when fetch fails", async () => {
+      const { fetch } = globalThis;
+      globalThis.fetch = () => Promise.reject(new TypeError("fetch failed"));
+
+      try {
+        await expect(loadFont("https://example.com/font.fnt")).rejects.toThrow(
+          'loadFont: couldn\'t fetch "https://example.com/font.fnt": fetch failed',
+        );
+      } finally {
+        globalThis.fetch = fetch;
+      }
     });
   });
 
@@ -788,6 +880,16 @@ describe("Write text over image", function () {
     expect(lines).toEqual([["xxxx"], ["yy"]]);
   });
 
+  test("words that fit on a line of their own are wrapped, not split", async () => {
+    const font = await loadFont(fonts.SANS_16_BLACK);
+    const maxWidth = measureText(font, "wide") + 1;
+
+    expect(splitLines(font, "Hi wide", maxWidth).lines).toEqual([
+      ["Hi"],
+      ["wide"],
+    ]);
+  });
+
   test("line wrapping does not re-measure the whole line for every word", async () => {
     const font = await loadFont(fonts.SANS_16_BLACK);
     let lookups = 0;
@@ -811,5 +913,283 @@ describe("Write text over image", function () {
     });
 
     expect(textImage).toMatchImageSnapshot();
+  });
+
+  test("text with blank lines", async () => {
+    const textImage = await createTextImage(100, 240, fonts.SANS_16_BLACK, {
+      text: "One\n\nTwo\r\n\r\n\r\nThree",
+    });
+
+    expect(textImage).toMatchImageSnapshot();
+  });
+
+  describe("blank lines and spaces", () => {
+    let dir: string;
+    let font: Awaited<ReturnType<typeof loadFont>>;
+
+    beforeAll(async () => {
+      dir = await fs.mkdtemp(path.join(os.tmpdir(), "jimp-font-"));
+      // A is 4x4, a space is 2 wide and lines are 4 high
+      font = await createQuestionMarkFont(dir, true);
+    });
+
+    afterAll(async () => {
+      await fs.rm(dir, { recursive: true, force: true });
+    });
+
+    test("every line break starts a new line", () => {
+      expect(splitLines(font, "A\n\nA", Infinity).lines).toEqual([
+        ["A"],
+        [""],
+        ["A"],
+      ]);
+      expect(splitLines(font, "\n\nA", Infinity).lines).toEqual([
+        [""],
+        [""],
+        ["A"],
+      ]);
+      expect(splitLines(font, "A\n\n", Infinity).lines).toEqual([
+        ["A"],
+        [""],
+        [""],
+      ]);
+      expect(splitLines(font, "A\r\n\r\nA\r\rA", Infinity).lines).toEqual([
+        ["A"],
+        [""],
+        ["A"],
+        [""],
+        ["A"],
+      ]);
+      expect(splitLines(font, "", Infinity).lines).toEqual([[""]]);
+    });
+
+    test("measureTextHeight counts empty lines", () => {
+      expect(measureTextHeight(font, "A\n\nA")).toBe(12);
+      expect(measureTextHeight(font, "A\r\n\r\nA")).toBe(12);
+      expect(measureTextHeight(font, "\nA\n")).toBe(12);
+      expect(measureTextHeight(font, "\n")).toBe(8);
+      expect(measureTextHeight(font, "A A\n\nA", 5)).toBe(16);
+    });
+
+    test("measureText measures empty lines as 0 wide", () => {
+      expect(measureText(font, "\n\nA A\n\n")).toBe(10);
+      expect(measureText(font, "\n\n")).toBe(0);
+    });
+
+    test("print leaves empty lines blank", () => {
+      const image = new Jimp({ width: 4, height: 20, color: 0xffffffff });
+      image.print({ font, x: 0, y: 0, text: "\nA\r\n\r\nA" });
+
+      expect(inkedRows(image)).toEqual([4, 5, 6, 7, 12, 13, 14, 15]);
+    });
+
+    test("empty lines count when aligning vertically", () => {
+      const image = new Jimp({ width: 4, height: 20, color: 0xffffffff });
+      image.print({
+        font,
+        x: 0,
+        y: 0,
+        text: { text: "A\n\n", alignmentY: VerticalAlign.BOTTOM },
+      });
+
+      expect(inkedRows(image)).toEqual([8, 9, 10, 11]);
+    });
+
+    test("cb gets the bottom of the last line, even if it's empty", () => {
+      const ends: { x: number; y: number }[] = [];
+
+      for (const text of ["A\n\n", "\n\nA", "A\r\n\r\nA A"]) {
+        new Jimp({ width: 20, height: 20, color: 0xffffffff }).print({
+          font,
+          x: 2,
+          y: 1,
+          text,
+          cb: (end) => ends.push(end),
+        });
+      }
+
+      expect(ends).toEqual([
+        { x: 6, y: 13 },
+        { x: 6, y: 13 },
+        { x: 12, y: 13 },
+      ]);
+    });
+
+    test("runs of spaces and lines of only spaces are kept", () => {
+      expect(splitLines(font, "A  A\n   \nA", Infinity).lines).toEqual([
+        ["A", "", "A"],
+        ["", "", "", ""],
+        ["A"],
+      ]);
+
+      const image = new Jimp({ width: 20, height: 4, color: 0xffffffff });
+      image.print({ font, x: 0, y: 0, text: "  A  A" });
+
+      expect(inkedColumns(image)).toEqual([4, 5, 6, 7, 12, 13, 14, 15]);
+    });
+
+    test("spaces where a line wraps don't make a line of their own", () => {
+      expect(splitLines(font, "A   A", 5).lines).toEqual([["A"], ["A"]]);
+      expect(splitLines(font, "   A A", 5).lines).toEqual([["A"], ["A"]]);
+      expect(splitLines(font, "A A   ", 5).lines).toEqual([["A"], ["A"]]);
+      expect(measureTextHeight(font, "A   A", 5)).toBe(8);
+    });
+
+    test("words after a line break are split at maxWidth too", () => {
+      expect(splitLines(font, "A\nAAAAA", 9).lines).toEqual([
+        ["A"],
+        ["AA"],
+        ["AA"],
+        ["A"],
+      ]);
+    });
+  });
+
+  describe("alignment without maxWidth or maxHeight", () => {
+    let dir: string;
+    let font: Awaited<ReturnType<typeof loadFont>>;
+
+    beforeAll(async () => {
+      dir = await fs.mkdtemp(path.join(os.tmpdir(), "jimp-font-"));
+      font = await createQuestionMarkFont(dir, true);
+    });
+
+    afterAll(async () => {
+      await fs.rm(dir, { recursive: true, force: true });
+    });
+
+    test("center-aligns within the image right of x", () => {
+      const image = new Jimp({ width: 20, height: 4, color: 0xffffffff });
+      image.print({
+        font,
+        x: 4,
+        y: 0,
+        text: { text: "A", alignmentX: HorizontalAlign.CENTER },
+      });
+
+      // A box from 4 to 20, so the 4 wide A starts at 4 + (16 - 4) / 2
+      expect(inkedColumns(image)).toEqual([10, 11, 12, 13]);
+    });
+
+    test("right-aligns to the right edge of the image", () => {
+      const image = new Jimp({ width: 20, height: 4, color: 0xffffffff });
+      image.print({
+        font,
+        x: 4,
+        y: 0,
+        text: { text: "A", alignmentX: HorizontalAlign.RIGHT },
+      });
+
+      expect(inkedColumns(image)).toEqual([16, 17, 18, 19]);
+    });
+
+    test("aligns each line, without wrapping", () => {
+      // The image is one line high, so y: -4 shows the second line
+      const [first, second] = [0, -4].map((y) =>
+        new Jimp({ width: 20, height: 4, color: 0xffffffff }).print({
+          font,
+          x: 0,
+          y,
+          text: { text: "A A\nA", alignmentX: HorizontalAlign.RIGHT },
+        }),
+      );
+
+      // "A A" (10 wide) stays on one line
+      expect(inkedColumns(first!)).toEqual([10, 11, 12, 13, 16, 17, 18, 19]);
+      expect(inkedColumns(second!)).toEqual([16, 17, 18, 19]);
+    });
+
+    test("middle-aligns within the image below y", () => {
+      const image = new Jimp({ width: 4, height: 20, color: 0xffffffff });
+      image.print({
+        font,
+        x: 0,
+        y: 4,
+        text: { text: "A", alignmentY: VerticalAlign.MIDDLE },
+      });
+
+      expect(inkedRows(image)).toEqual([10, 11, 12, 13]);
+    });
+
+    test("bottom-aligns to the bottom edge of the image", () => {
+      const image = new Jimp({ width: 4, height: 20, color: 0xffffffff });
+      image.print({
+        font,
+        x: 0,
+        y: 4,
+        text: { text: "A", alignmentY: VerticalAlign.BOTTOM },
+      });
+
+      expect(inkedRows(image)).toEqual([16, 17, 18, 19]);
+    });
+
+    test("maxHeight only aligns, it doesn't clip", () => {
+      const image = new Jimp({ width: 4, height: 20, color: 0xffffffff });
+      image.print({ font, x: 0, y: 0, text: "A\nA\nA", maxHeight: 4 });
+
+      expect(inkedRows(image)).toEqual([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]);
+    });
+  });
+
+  describe("measuring text with newlines or without maxWidth", () => {
+    test("measureTextHeight without maxWidth only breaks at newlines", async () => {
+      const font = await loadFont(fonts.SANS_32_BLACK);
+      const { lineHeight } = font.common;
+
+      expect(lineHeight).toBe(36);
+      expect(measureTextHeight(font, "Hello")).toBe(lineHeight);
+      expect(measureTextHeight(font, "Hello world")).toBe(lineHeight);
+      expect(measureTextHeight(font, "Hello\nworld")).toBe(lineHeight * 2);
+    });
+
+    test("measureText measures the widest line", async () => {
+      const font = await loadFont(fonts.SANS_32_BLACK);
+      const hello = measureText(font, "Hello");
+      const world = measureText(font, "wide world");
+
+      expect(world).toBeGreaterThan(hello);
+      expect(measureText(font, "Hello\nHello")).toBe(hello);
+      expect(measureText(font, "Hello\nwide world")).toBe(world);
+      expect(measureText(font, "wide world\r\nHello")).toBe(world);
+      expect(measureText(font, "Hello\rwide world\n")).toBe(world);
+    });
+
+    test("measureText ignores the newline glyph some fonts have", async () => {
+      // The 10, 12 and 14px fonts have a glyph for \n
+      const font = await loadFont(fonts.SANS_10_BLACK);
+
+      expect(font.chars["\n"]).toBeDefined();
+      expect(measureText(font, "Hello\nHello")).toBe(
+        measureText(font, "Hello"),
+      );
+    });
+
+    test("cb gets the end of the widest line, even after a wrap or newline", async () => {
+      const font = await loadFont(fonts.SANS_32_BLACK);
+      const wide = measureText(font, "wide world");
+      const image = new Jimp({ width: 400, height: 200, color: 0xffffffff });
+      const ends: { x: number; y: number }[] = [];
+
+      image.print({
+        font,
+        x: 10,
+        y: 0,
+        text: "Hi\nwide world",
+        cb: (end) => ends.push(end),
+      });
+      image.print({
+        font,
+        x: 10,
+        y: 0,
+        text: "Hi wide",
+        maxWidth: measureText(font, "wide") + 1,
+        cb: (end) => ends.push(end),
+      });
+
+      expect(ends).toEqual([
+        { x: 10 + wide, y: 72 },
+        { x: 10 + measureText(font, "wide"), y: 72 },
+      ]);
+    });
   });
 });

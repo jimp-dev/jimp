@@ -88,6 +88,75 @@ describe("BMP", () => {
     expect(decoded.getPixelColor(4, 2)).toBe(0x336699ff);
   });
 
+  test("writes the header options", async () => {
+    const image = new jimp({ width: 2, height: 2, color: 0x336699ff });
+    const buffer = await image.getBuffer("image/bmp", {
+      hr: 2835,
+      vr: 1417,
+      reserved1: 7,
+      reserved2: 9,
+    });
+
+    expect(buffer.readUInt32LE(38)).toBe(2835);
+    expect(buffer.readUInt32LE(42)).toBe(1417);
+    expect(buffer.readUInt32LE(6)).toBe((7 << 16) | 9);
+  });
+
+  test("writes a 24 bit BMP without a palette by default", async () => {
+    const image = new jimp({ width: 2, height: 2, color: 0x336699ff });
+    const buffer = await image.getBuffer("image/bmp", {
+      palette: [{ red: 0, green: 0, blue: 0, quad: 0 }],
+      colors: 1,
+      importantColors: 1,
+    } as object);
+
+    expect(buffer).toEqual(await image.getBuffer("image/bmp"));
+    expect(buffer.readUInt16LE(28)).toBe(24);
+  });
+
+  describe("bitPP", () => {
+    // an odd width, so rows need padding
+    function colourful() {
+      const image = new jimp({ width: 13, height: 5 });
+
+      image.scan((x, y, idx) => {
+        image.bitmap.data[idx] = (x * 53 + y * 97) & 0xff;
+        image.bitmap.data[idx + 1] = (x * 29) & 0xff;
+        image.bitmap.data[idx + 2] = (y * 61) & 0xff;
+        image.bitmap.data[idx + 3] = 0xff;
+      });
+
+      return image;
+    }
+
+    test.each([
+      [24 as const, 0],
+      [32 as const, 0],
+      // 5 bits per channel
+      [16 as const, 7],
+    ])("round trips a %d bit BMP", async (bitPP, tolerance) => {
+      const image = colourful();
+      const buffer = await image.getBuffer("image/bmp", { bitPP });
+      const decoded = await jimp.read(buffer);
+
+      expect(buffer.readUInt16LE(28)).toBe(bitPP);
+      expect(decoded.width).toBe(13);
+      expect(decoded.height).toBe(5);
+
+      for (let i = 0; i < image.bitmap.data.length; i++) {
+        expect(
+          Math.abs(decoded.bitmap.data[i]! - image.bitmap.data[i]!),
+        ).toBeLessThanOrEqual(tolerance);
+      }
+    });
+
+    test.each([1, 4, 8, 15, 64])("rejects %d bits", async (bitPP) => {
+      await expect(
+        colourful().getBuffer("image/bmp", { bitPP } as object),
+      ).rejects.toThrow(`Unsupported BMP bit depth ${bitPP}, use 16, 24, 32`);
+    });
+  });
+
   test("decodes an uncompressed 24 bit BMP", async () => {
     // 2x2, bottom-up, each row padded to 8 bytes
     const image = await jimp.read(

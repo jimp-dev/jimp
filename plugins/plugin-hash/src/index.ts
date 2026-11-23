@@ -171,10 +171,44 @@ export function distance<I extends JimpClass>(
 }
 
 /**
+ * Turn a hash from `hash()` back into the binary pHash it was made from, so
+ * hashes in any base can be compared bit by bit.
+ */
+function hashToBinary(hash: string, base: number) {
+  const subAlphabet = alphabet.slice(0, base);
+
+  if (base === 2) {
+    return hash;
+  }
+
+  if ([...hash].every((char) => subAlphabet.includes(char))) {
+    // pHashes are smallerSize * smallerSize bits, with smallerSize from 2 to 64
+    for (let smallerSize = 2; smallerSize <= 64; smallerSize++) {
+      const bits = smallerSize * smallerSize;
+      const length = getMaxHashLength(base, bits);
+
+      if (length === hash.length) {
+        return anyBase(subAlphabet, anyBase.BIN)(hash).padStart(bits, "0");
+      }
+
+      if (length > hash.length) {
+        break;
+      }
+    }
+  }
+
+  throw new Error(
+    `"${hash}" isn't a base ${base} hash. Pass the base the hashes were made ` +
+      "with to compareHashes, e.g. compareHashes(hash1, hash2, 16).",
+  );
+}
+
+/**
  * Calculates the hamming distance of two images based on their perceptual hash
- * @param hash1 A pHash
- * @param hash2 A pHash made with the same `size` and `smallerSize` (and, for `hash`, the same base). Throws if the hashes are different lengths.
- * @returns A number ranging from 0 to 1, 0 means they are believed to be identical
+ * @param hash1 A hash from `pHash` or `hash`
+ * @param hash2 A hash made the same way as `hash1`, with the same `size` and `smallerSize` (and, for `hash`, the same base). Throws if the hashes are different lengths.
+ * @param base The base of `hash()` hashes, from 2 to 64. Defaults to 2 for binary hashes such as `pHash()`, and otherwise to 64, the default of `hash()`.
+ * @returns A number ranging from 0 to 1, the fraction of bits that differ. 0 means they are believed to be identical
  * @example
  * ```ts
  * import { Jimp, compareHashes } from "jimp";
@@ -183,9 +217,27 @@ export function distance<I extends JimpClass>(
  * const image2 = await Jimp.read("test/image.png");
  *
  * compareHashes(image1.pHash(), image2.pHash()); // 0.5
+ * compareHashes(image1.hash(), image2.hash()); // the same distance
+ * compareHashes(image1.hash(16), image2.hash(16), 16);
  * ```
  */
-export function compareHashes(hash1: string, hash2: string) {
+export function compareHashes(hash1: string, hash2: string, base?: number) {
   const phash = new ImagePHash();
-  return phash.distance(hash1, hash2);
+
+  if (hash1.length !== hash2.length) {
+    // throws a helpful error
+    return phash.distance(hash1, hash2);
+  }
+
+  const isBinary = /^[01]*$/.test(hash1) && /^[01]*$/.test(hash2);
+  const hashBase = base ?? (isBinary ? 2 : 64);
+
+  if (hashBase < 2 || hashBase > 64) {
+    throw new Error("base must be a number between 2 and 64");
+  }
+
+  return phash.distance(
+    hashToBinary(hash1, hashBase),
+    hashToBinary(hash2, hashBase),
+  );
 }

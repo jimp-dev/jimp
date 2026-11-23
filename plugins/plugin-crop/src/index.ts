@@ -1,6 +1,6 @@
 import { Buffer } from "buffer";
-import { JimpClass } from "@jimp/types";
-import { colorDiff, intToRGBA, scan } from "@jimp/utils";
+import { JimpClass, RGBAColor } from "@jimp/types";
+import { clampRegion, colorDiff, intToRGBA } from "@jimp/utils";
 import { z } from "zod";
 
 export const CropOptionsSchema = z.object({
@@ -19,7 +19,10 @@ export type CropOptions = z.infer<typeof CropOptionsSchema>;
 const AutocropComplexOptionsSchema = z.object({
   /** percent of color difference tolerance (default value) */
   tolerance: z.number().min(0).max(1).optional(),
-  /** flag to force cropping only if the image has a real "frame" i.e. all 4 sides have some border (default value) */
+  /**
+   * only crop if the image has a real "frame", i.e. every side that isn't in
+   * `ignoreSides` has some border (default true)
+   */
   cropOnlyFrames: z.boolean().optional(),
   /** force cropping top be symmetric */
   cropSymmetric: z.boolean().optional(),
@@ -39,6 +42,18 @@ export type AutocropComplexOptions = z.infer<
   typeof AutocropComplexOptionsSchema
 >;
 export type AutocropOptions = number | AutocropComplexOptions;
+
+/**
+ * How different a pixel is from the border color, like `colorDiff`, except
+ * that fully transparent pixels all match, whatever color they hide.
+ */
+function borderColorDiff(rgba1: RGBAColor, rgba2: RGBAColor) {
+  if (rgba1.a === 0 && rgba2.a === 0) {
+    return 0;
+  }
+
+  return colorDiff(rgba1, rgba2);
+}
 
 function getAutocropRect<I extends JimpClass>(
   image: I,
@@ -88,7 +103,7 @@ function getAutocropRect<I extends JimpClass>(
         const colorXY = image.getPixelColor(x, y);
         const rgba2 = intToRGBA(colorXY);
 
-        if (colorDiff(rgba1, rgba2) > tolerance) {
+        if (borderColorDiff(rgba1, rgba2) > tolerance) {
           // this pixel is too distant from the first one: abort this side scan
           break north;
         }
@@ -106,7 +121,7 @@ function getAutocropRect<I extends JimpClass>(
         const colorXY = image.getPixelColor(x, y);
         const rgba2 = intToRGBA(colorXY);
 
-        if (colorDiff(rgba1, rgba2) > tolerance) {
+        if (borderColorDiff(rgba1, rgba2) > tolerance) {
           // this pixel is too distant from the first one: abort this side scan
           break west;
         }
@@ -128,7 +143,7 @@ function getAutocropRect<I extends JimpClass>(
         const colorXY = image.getPixelColor(x, y);
         const rgba2 = intToRGBA(colorXY);
 
-        if (colorDiff(rgba1, rgba2) > tolerance) {
+        if (borderColorDiff(rgba1, rgba2) > tolerance) {
           // this pixel is too distant from the first one: abort this side scan
           break south;
         }
@@ -150,7 +165,7 @@ function getAutocropRect<I extends JimpClass>(
         const colorXY = image.getPixelColor(x, y);
         const rgba2 = intToRGBA(colorXY);
 
-        if (colorDiff(rgba1, rgba2) > tolerance) {
+        if (borderColorDiff(rgba1, rgba2) > tolerance) {
           // this pixel is too distant from the first one: abort this side scan
           break east;
         }
@@ -160,6 +175,14 @@ function getAutocropRect<I extends JimpClass>(
       eastPixelsToCrop++;
     }
   }
+
+  // A frame has a border on every side that was scanned. This is checked
+  // before leaveBorder, which can leave nothing to crop on a side.
+  const isFrame =
+    (ignoreSides.north || northPixelsToCrop > 0) &&
+    (ignoreSides.east || eastPixelsToCrop > 0) &&
+    (ignoreSides.south || southPixelsToCrop > 0) &&
+    (ignoreSides.west || westPixelsToCrop > 0);
 
   // apply leaveBorder
   westPixelsToCrop -= leaveBorder;
@@ -186,25 +209,8 @@ function getAutocropRect<I extends JimpClass>(
   const widthOfRemainingPixels = w - (westPixelsToCrop + eastPixelsToCrop);
   const heightOfRemainingPixels = h - (southPixelsToCrop + northPixelsToCrop);
 
-  let doCrop = false;
-
-  if (cropOnlyFrames) {
-    // crop image if all sides should be cropped
-    doCrop =
-      eastPixelsToCrop !== 0 &&
-      northPixelsToCrop !== 0 &&
-      westPixelsToCrop !== 0 &&
-      southPixelsToCrop !== 0;
-  } else {
-    // crop image if at least one side should be cropped
-    doCrop =
-      eastPixelsToCrop !== 0 ||
-      northPixelsToCrop !== 0 ||
-      westPixelsToCrop !== 0 ||
-      southPixelsToCrop !== 0;
-  }
-
-  if (!doCrop) {
+  // with cropOnlyFrames, only crop images that have a frame
+  if (cropOnlyFrames && !isFrame) {
     return {
       x: 0,
       y: 0,
@@ -225,6 +231,11 @@ export const methods = {
   /**
    * Crops the image at a given point to a give size.
    *
+   * The rectangle is clamped to the image, so the part of it outside the
+   * image is ignored and the result is never larger than the image. It throws
+   * if nothing would be left: the rectangle is entirely outside the image, or
+   * its width or height is 0 or less.
+   *
    * @example
    * ```ts
    * import { Jimp } from "jimp";
@@ -234,12 +245,20 @@ export const methods = {
    * ```
    */
   crop<I extends JimpClass>(image: I, options: CropOptions) {
-    let { x, y, w, h } = CropOptionsSchema.parse(options);
-    // round input
-    x = Math.round(x);
-    y = Math.round(y);
-    w = Math.round(w);
-    h = Math.round(h);
+    const parsed = CropOptionsSchema.parse(options);
+    const { x, y, w, h } = clampRegion(
+      image,
+      parsed.x,
+      parsed.y,
+      parsed.w,
+      parsed.h,
+    );
+
+    if (w === 0 || h === 0) {
+      throw new Error(
+        `The crop region (x: ${parsed.x}, y: ${parsed.y}, w: ${parsed.w}, h: ${parsed.h}) doesn't overlap the ${image.bitmap.width}x${image.bitmap.height} image, so the result would be empty`,
+      );
+    }
 
     if (x === 0 && w === image.bitmap.width) {
       // shortcut
@@ -248,14 +267,15 @@ export const methods = {
 
       image.bitmap.data = image.bitmap.data.slice(start, end);
     } else {
-      const bitmap = Buffer.allocUnsafe(w * h * 4);
-      let offset = 0;
+      const { data, width } = image.bitmap;
+      const rowLength = w << 2;
+      const bitmap = Buffer.allocUnsafe(h * rowLength);
 
-      scan(image, x, y, w, h, function (_, __, idx) {
-        const data = image.bitmap.data.readUInt32BE(idx);
-        bitmap.writeUInt32BE(data, offset);
-        offset += 4;
-      });
+      // Copy whole rows, which is much faster than pixel by pixel
+      for (let row = 0; row < h; row++) {
+        const start = ((y + row) * width + x) << 2;
+        data.copy(bitmap, row * rowLength, start, start + rowLength);
+      }
 
       image.bitmap.data = bitmap;
     }

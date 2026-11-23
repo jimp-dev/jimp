@@ -8,7 +8,7 @@
   ],
   "repository": "jimp-dev/jimp",
   "engines": {
-    "node": ">=18"
+    "node": ">=22"
   },
   "scripts": {
     "lint": "eslint .",
@@ -26,6 +26,7 @@
     "jpg",
     "jpeg",
     "bmp",
+    "ico",
     "resize",
     "scale",
     "crop"
@@ -37,6 +38,7 @@
     "@jimp/diff": "workspace:*",
     "@jimp/js-bmp": "workspace:*",
     "@jimp/js-gif": "workspace:*",
+    "@jimp/js-ico": "workspace:*",
     "@jimp/js-jpeg": "workspace:*",
     "@jimp/js-png": "workspace:*",
     "@jimp/js-tiff": "workspace:*",

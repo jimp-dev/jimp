@@ -13,6 +13,8 @@ This is useful as a simplified method for processing scanned drawings, signature
 
 `threshold` greyscales the image (unless `autoGreyscale: false`), keeps
 pixels whose value is below `max` and sets the rest to `replace` (default 255).
+With `autoGreyscale: false` the image keeps its colors and each red, green and
+blue channel is compared with `max` and replaced on its own.
 
 ```ts
 import { Jimp } from "jimp";
@@ -45,8 +47,9 @@ image.threshold({ max: level });
 
 How the level is computed:
 
-- It uses the same values `threshold` compares: Rec. 709 luminance, or the
-  red channel when `autoGreyscale` is `false`.
+- It uses Rec. 709 luminance. With `autoGreyscale: false` the image should
+  already be grey (like OpenCV, which only runs Otsu on single-channel
+  images), and it reads the red channel.
 - Each pixel counts in proportion to its alpha. Fully transparent pixels are
   ignored, and a pixel at alpha 128 counts about half as much as an opaque
   one.

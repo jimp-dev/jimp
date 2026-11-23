@@ -34,6 +34,12 @@ describe("decoder options", () => {
     await expect(Jimp.fromBuffer(buffer, options)).rejects.toThrow(error);
   });
 
+  test("are passed through alongside exifRotate", async () => {
+    await expect(
+      Jimp.read(path, { ...options, exifRotate: false }),
+    ).rejects.toThrow(error);
+  });
+
   test("do not affect decoding when the limit is not hit", async () => {
     const image = await Jimp.read(path, {
       "image/jpeg": { maxMemoryUsageInMB: 1024 },

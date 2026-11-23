@@ -1,12 +1,26 @@
-import { Edge, JimpClass } from "@jimp/types";
+import { Edge, JimpClass, JimpClassSchema } from "@jimp/types";
 
 import { BlendMode } from "./constants.js";
 import * as compositeModes from "./composite-modes.js";
-import { limit255, pixelsInColorSpaceOf } from "@jimp/utils";
+import { limit255, pixelsInColorSpaceOf, scan } from "@jimp/utils";
+
+const blendModes: string[] = Object.values(BlendMode);
+
+/** Clamp an opacity to 0..1, using 1 if it isn't a number */
+function toOpacity(value: number) {
+  if (typeof value !== "number" || Number.isNaN(value)) {
+    return 1;
+  }
+
+  return Math.min(Math.max(value, 0), 1);
+}
+
+/** The image to draw: any Jimp image, from any Jimp class */
+export type CompositeSource = Pick<JimpClass, "bitmap" | "iccProfile">;
 
 export function composite<I extends JimpClass>(
   baseImage: I,
-  src: I,
+  src: CompositeSource,
   x = 0,
   y = 0,
   options: {
@@ -15,8 +29,12 @@ export function composite<I extends JimpClass>(
     opacityDest?: number;
   } = {}
 ) {
-  if (!(src instanceof baseImage.constructor)) {
-    throw new Error("The source must be a Jimp image");
+  // Check the shape rather than the class, so images made by different Jimp
+  // classes (e.g. one from createJimp and one from the default Jimp) mix
+  if (!JimpClassSchema.safeParse(src).success) {
+    throw new Error(
+      "The source must be a Jimp image: an object with a bitmap of width, height and data"
+    );
   }
 
   if (typeof x !== "number" || typeof y !== "number") {
@@ -24,18 +42,13 @@ export function composite<I extends JimpClass>(
   }
 
   const { mode = BlendMode.SRC_OVER } = options;
-  let { opacitySource = 1.0, opacityDest = 1.0 } = options;
+  const opacitySource = toOpacity(options.opacitySource ?? 1);
+  const opacityDest = toOpacity(options.opacityDest ?? 1);
 
-  if (
-    typeof opacitySource !== "number" ||
-    opacitySource < 0 ||
-    opacitySource > 1
-  ) {
-    opacitySource = 1.0;
-  }
-
-  if (typeof opacityDest !== "number" || opacityDest < 0 || opacityDest > 1) {
-    opacityDest = 1.0;
+  if (!blendModes.includes(mode)) {
+    throw new Error(
+      `Unknown blend mode "${mode}", expected one of: ${blendModes.join(", ")}`
+    );
   }
 
   const blendmode = compositeModes[mode];
@@ -54,7 +67,9 @@ export function composite<I extends JimpClass>(
   // Draw the source's colours, not its values, if it's in another colour space
   const srcData = pixelsInColorSpaceOf(src, baseImage);
 
-  src.scan((sx, sy, idx) => {
+  const { width, height } = src.bitmap;
+
+  scan(src, 0, 0, width, height, (sx, sy, idx) => {
     const dstIdx = baseImage.getPixelIndex(x + sx, y + sy, Edge.CROP);
 
     if (dstIdx === -1) {

@@ -30,6 +30,12 @@ export const methods = {
       const hx = x / width;
       const hy = y / height;
       const rActual = Math.sqrt(Math.pow(hx - 0.5, 2) + Math.pow(hy - 0.5, 2));
+
+      // The center pixel has no direction, it's set below
+      if (rActual === 0) {
+        return;
+      }
+
       const rn = 2 * Math.pow(rActual, radius);
       const cosA = (hx - 0.5) / rActual;
       const sinA = (hy - 0.5) / rActual;

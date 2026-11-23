@@ -3,32 +3,38 @@ import * as BMP from "bmp-ts";
 import { scan } from "@jimp/utils";
 import { Bitmap, Format } from "@jimp/types";
 
-export type { BmpColor } from "bmp-ts";
 export { BmpCompression } from "bmp-ts";
 
-type Pretty<T> = {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  [K in keyof T]: T[K] extends (...args: any[]) => any
-    ? T[K]
-    : T[K] extends object
-      ? Pretty<T[K]>
-      : T[K];
-};
+/** The bit depths Jimp can write */
+const BIT_DEPTHS = [16, 24, 32];
 
-export type EncodeOptions = Pretty<
-  Partial<
-    Pick<
-      BMP.BmpImage,
-      | "palette"
-      | "colors"
-      | "importantColors"
-      | "hr"
-      | "vr"
-      | "reserved1"
-      | "reserved2"
-    >
-  >
->;
+/**
+ * Options for the BMP that is written. Jimp writes uncompressed BMPs without
+ * a palette.
+ */
+export interface EncodeOptions {
+  /**
+   * Bits per pixel:
+   * - 24 writes 8 bits each of red, green and blue.
+   * - 16 writes 5 bits each of red, green and blue, for a smaller file with
+   *   less colour precision.
+   * - 32 writes 8 bits each of red, green, blue and alpha. BMPs are written
+   *   over the image's background, so the alpha is always opaque.
+   *
+   * 1, 4 and 8-bit BMPs, which need a palette, aren't supported yet, see
+   * https://github.com/jimp-dev/jimp/issues/633.
+   * @default 24
+   */
+  bitPP?: 16 | 24 | 32;
+  /** Horizontal resolution, in pixels per metre */
+  hr?: number;
+  /** Vertical resolution, in pixels per metre */
+  vr?: number;
+  /** Stored in the reserved bytes of the file header, which readers ignore */
+  reserved1?: number;
+  /** Stored in the reserved bytes of the file header, which readers ignore */
+  reserved2?: number;
+}
 
 export interface DecodeBmpOptions {
   toRGBA?: boolean;
@@ -40,7 +46,16 @@ export interface DecodeBmpOptions {
   maxResolutionInMP?: number;
 }
 
-function encode(image: Bitmap, options: EncodeOptions = {}) {
+function encode(
+  image: Bitmap,
+  { bitPP = 24, hr, vr, reserved1, reserved2 }: EncodeOptions = {}
+) {
+  if (!BIT_DEPTHS.includes(bitPP)) {
+    throw new Error(
+      `Unsupported BMP bit depth ${bitPP}, use ${BIT_DEPTHS.join(", ")}`
+    );
+  }
+
   scan(
     { bitmap: image },
     0,
@@ -60,7 +75,17 @@ function encode(image: Bitmap, options: EncodeOptions = {}) {
     }
   );
 
-  return BMP.encode({ ...image, ...options }).data;
+  // Only pass the supported options, so a stray palette can't reach bmp-ts
+  return BMP.encode({
+    data: image.data,
+    width: image.width,
+    height: image.height,
+    bitPP,
+    hr,
+    vr,
+    reserved1,
+    reserved2,
+  }).data;
 }
 
 function decode(data: Buffer, options?: DecodeBmpOptions) {

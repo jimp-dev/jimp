@@ -89,3 +89,15 @@ Data:
 00-00-00⁰⁰ 00-00-00⁰⁰ FF-FF-00ᶠᶠ FF-FF-00ᶠᶠ 00-00-00⁰⁰ 00-00-00⁰⁰
 00-00-00⁰⁰ FF-FF-00ᶠᶠ 80-80-80ᶠᶠ 80-80-80ᶠᶠ FF-FF-00ᶠᶠ 00-00-00⁰⁰
 `;
+
+exports[`crop > out of bounds > past the right edge doesn't wrap onto the next row 1`] = `
+Visualization:
+
+◆ 
+▦◆
+
+Data:
+
+FF-FF-00ᶠᶠ 00-00-00⁰⁰
+80-80-80ᶠᶠ FF-FF-00ᶠᶠ
+`;

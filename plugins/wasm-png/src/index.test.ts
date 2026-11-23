@@ -8,6 +8,13 @@ const format = png();
 const image = makeTestImage("▴▴▴▴▸▸▸▸", "▴▴▴▴▸▸▸▸", "▾▾▾▾◆◆◆◆", "▾▾▾▾◆◆◆◆");
 
 describe("WASM PNG", () => {
+  test("rejects options it doesn't support", async () => {
+    await expect(
+      // @ts-expect-error the codec doesn't use the colour space
+      format.encode(image, { colorSpace: "srgb" }),
+    ).rejects.toThrow();
+  });
+
   test("round-trips an image", async () => {
     // Run two of each at once so both race to initialize the codec
     const [buffer] = await Promise.all([

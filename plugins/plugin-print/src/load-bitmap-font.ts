@@ -131,7 +131,24 @@ export async function loadBitmapFontData(
       );
     }
 
-    const res = await fetch(bufferOrUrl);
+    let res: Response;
+
+    try {
+      res = await fetch(bufferOrUrl);
+    } catch (error) {
+      throw new Error(
+        `loadFont: couldn't fetch ${JSON.stringify(bufferOrUrl)}: ${(error as Error).message}`,
+        { cause: error },
+      );
+    }
+
+    // Otherwise the error page is parsed as a font
+    if (!res.ok) {
+      throw new Error(
+        `loadFont: couldn't load ${JSON.stringify(bufferOrUrl)}: HTTP ${res.status}${res.statusText ? ` ${res.statusText}` : ""}`,
+      );
+    }
+
     const text = await res.text();
 
     return parseFont(bufferOrUrl, text);
@@ -220,9 +237,41 @@ export async function processBitmapFont(file: string, font: LoadedFont) {
     chars,
     kernings,
     pages: await Promise.all(
-      font.pages.map(async (page) =>
-        CharacterJimp.read(resolvePagePath(file, page))
-      )
+      font.pages.map((page) => readPage(resolvePagePath(file, page)))
     ),
   };
+}
+
+const PNG_ONLY =
+  "Jimp fonts need PNG pages. In BMFont, set the texture format to png when exporting.";
+
+/** Read a font page, explaining why pages in other formats can't be decoded */
+async function readPage(pagePath: string) {
+  try {
+    return await CharacterJimp.read(pagePath);
+  } catch (error) {
+    const { message } = error as Error;
+
+    if (
+      !message.startsWith("Could not find MIME") &&
+      !message.endsWith("does not support decoding")
+    ) {
+      throw error;
+    }
+
+    // BMFont exports TGA pages by default, which look like icons to Jimp
+    const extension = path
+      .extname(pagePath.replace(/[?#].*$/, ""))
+      .slice(1)
+      .toUpperCase();
+    const kind =
+      extension && extension !== "PNG"
+        ? `is a ${extension} image`
+        : "isn't a PNG image";
+
+    throw new Error(
+      `loadFont: font page ${JSON.stringify(pagePath)} ${kind}; ${PNG_ONLY}`,
+      { cause: error },
+    );
+  }
 }

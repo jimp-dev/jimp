@@ -17,6 +17,9 @@ const SharpenOptionsSchema = z.object({
 
 export type SharpenOptions = z.infer<typeof SharpenOptionsSchema>;
 
+/** The largest radius `blur` supports, the size of its lookup tables */
+const MAX_BLUR_RADIUS = mulTable.length - 1;
+
 /*
     Superfast Blur (0.5)
     http://www.quasimondo.com/BoxBlurForCanvas/FastBlur.js
@@ -185,7 +188,8 @@ function gaussianBlur(
 export const methods = {
   /**
    * A fast blur algorithm that produces similar effect to a Gaussian blur - but MUCH quicker
-   * @param r the pixel radius of the blur
+   * @param r the pixel radius of the blur, greater than 0. It's rounded to a
+   * whole number of pixels, at least 1 and at most 256.
    * @example
    * ```ts
    * import { Jimp } from "jimp";
@@ -200,9 +204,12 @@ export const methods = {
       throw new Error("r must be a number");
     }
 
-    if (r < 1) {
+    if (!(r > 0)) {
       throw new Error("r must be greater than 0");
     }
+
+    // The lookup tables only have whole radii up to 256
+    r = Math.min(MAX_BLUR_RADIUS, Math.max(1, Math.round(r)));
 
     let rsum: number;
     let gsum: number;
@@ -224,7 +231,9 @@ export const methods = {
     const rad1 = r + 1;
 
     const mulSum = mulTable[r]!;
-    const shgSum = shgTable[r]!;
+    // Divide instead of shifting by shgTable[r], which only works on 32 bit
+    // numbers, and large radii can overflow them
+    const divSum = 2 ** shgTable[r]!;
 
     const red = [];
     const green = [];
@@ -299,10 +308,18 @@ export const methods = {
         yi = x << 2;
 
         for (y = 0; y < image.bitmap.height; y++) {
-          image.bitmap.data[yi] = limit255((rsum * mulSum) >>> shgSum);
-          image.bitmap.data[yi + 1] = limit255((gsum * mulSum) >>> shgSum);
-          image.bitmap.data[yi + 2] = limit255((bsum * mulSum) >>> shgSum);
-          image.bitmap.data[yi + 3] = limit255((asum * mulSum) >>> shgSum);
+          image.bitmap.data[yi] = limit255(
+            Math.floor((rsum * mulSum) / divSum),
+          );
+          image.bitmap.data[yi + 1] = limit255(
+            Math.floor((gsum * mulSum) / divSum),
+          );
+          image.bitmap.data[yi + 2] = limit255(
+            Math.floor((bsum * mulSum) / divSum),
+          );
+          image.bitmap.data[yi + 3] = limit255(
+            Math.floor((asum * mulSum) / divSum),
+          );
 
           if (x === 0) {
             vmin[y] = ((p = y + rad1) < hm ? p : hm) * image.bitmap.width;
@@ -330,7 +347,8 @@ export const methods = {
   /**
    * Applies a true Gaussian blur to the image. Slower than `blur`, especially
    * for large radii.
-   * @param r the pixel radius of the blur
+   * @param r the standard deviation of the blur in pixels, greater than 0.
+   * It doesn't have to be a whole number.
    * @example
    * ```ts
    * import { Jimp } from "jimp";
@@ -345,7 +363,7 @@ export const methods = {
       throw new Error("r must be a number");
     }
 
-    if (r < 1) {
+    if (!(r > 0)) {
       throw new Error("r must be greater than 0");
     }
 

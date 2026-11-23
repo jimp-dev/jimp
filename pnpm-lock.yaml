@@ -177,13 +177,13 @@ importers:
     devDependencies:
       '@auto-it/all-contributors':
         specifier: ^11.2.1
-        version: 11.2.1(@types/node@22.5.2)(supports-color@7.2.0)(typescript@5.5.4)
+        version: 11.2.1(@types/node@22.20.5)(supports-color@7.2.0)(typescript@5.5.4)
       '@auto-it/first-time-contributor':
         specifier: ^11.2.1
-        version: 11.2.1(@types/node@22.5.2)(supports-color@7.2.0)(typescript@5.5.4)
+        version: 11.2.1(@types/node@22.20.5)(supports-color@7.2.0)(typescript@5.5.4)
       '@auto-it/released':
         specifier: ^11.2.1
-        version: 11.2.1(@types/node@22.5.2)(supports-color@7.2.0)(typescript@5.5.4)
+        version: 11.2.1(@types/node@22.20.5)(supports-color@7.2.0)(typescript@5.5.4)
       '@babel/core':
         specifier: ^7.25.2
         version: 7.25.2(supports-color@7.2.0)
@@ -198,10 +198,10 @@ importers:
         version: link:packages/config-typescript
       '@turbo/gen':
         specifier: ^2.1.1
-        version: 2.1.1(@types/node@22.5.2)(supports-color@7.2.0)(typescript@5.5.4)
+        version: 2.1.1(@types/node@22.20.5)(supports-color@7.2.0)(typescript@5.5.4)
       auto:
         specifier: ^11.2.1
-        version: 11.2.1(@types/node@22.5.2)(supports-color@7.2.0)(typescript@5.5.4)
+        version: 11.2.1(@types/node@22.20.5)(supports-color@7.2.0)(typescript@5.5.4)
       npm-check-updates:
         specifier: ^17.1.1
         version: 17.1.1
@@ -249,7 +249,7 @@ importers:
         version: 1.46.1
       vite-plugin-node-polyfills:
         specifier: ^0.22.0
-        version: 0.22.0(rollup@4.21.2)(vite@5.4.2(@types/node@22.5.2)(terser@5.30.3))
+        version: 0.22.0(rollup@4.21.2)(vite@5.4.2(@types/node@22.20.5)(terser@5.30.3))
     devDependencies:
       '@jimp/config-typescript':
         specifier: workspace:*
@@ -265,7 +265,7 @@ importers:
         version: 5.5.4
       vitest:
         specifier: ^2.0.5
-        version: 2.0.5(@types/node@22.5.2)(@vitest/browser@2.0.5)(supports-color@7.2.0)(terser@5.30.3)
+        version: 2.0.5(@types/node@22.20.5)(@vitest/browser@2.0.5)(supports-color@7.2.0)(terser@5.30.3)
 
   packages/core:
     dependencies:
@@ -310,8 +310,8 @@ importers:
         specifier: ^3.0.4
         version: 3.0.4
       '@types/node':
-        specifier: ^18.19.48
-        version: 18.19.48
+        specifier: ^22.20.5
+        version: 22.20.5
       eslint:
         specifier: ^9.9.1
         version: 9.9.1(supports-color@7.2.0)
@@ -323,10 +323,10 @@ importers:
         version: 5.5.4
       vite-plugin-node-polyfills:
         specifier: ^0.22.0
-        version: 0.22.0(rollup@4.21.2)(vite@5.4.2(@types/node@18.19.48)(terser@5.30.3))
+        version: 0.22.0(rollup@4.21.2)(vite@5.4.2(@types/node@22.20.5)(terser@5.30.3))
       vitest:
         specifier: ^2.0.5
-        version: 2.0.5(@types/node@18.19.48)(@vitest/browser@2.0.5)(supports-color@7.2.0)(terser@5.30.3)
+        version: 2.0.5(@types/node@22.20.5)(@vitest/browser@2.0.5)(supports-color@7.2.0)(terser@5.30.3)
 
   packages/diff:
     dependencies:
@@ -342,6 +342,9 @@ importers:
       pixelmatch:
         specifier: ^5.3.0
         version: 5.3.0
+      zod:
+        specifier: ^4.6.7
+        version: 4.6.7
     devDependencies:
       '@jimp/config-eslint':
         specifier: workspace:*
@@ -369,7 +372,7 @@ importers:
         version: 5.5.4
       vitest:
         specifier: ^2.0.5
-        version: 2.0.5(@types/node@22.5.2)(@vitest/browser@2.0.5)(supports-color@7.2.0)(terser@5.30.3)
+        version: 2.0.5(@types/node@22.20.5)(@vitest/browser@2.0.5)(supports-color@7.2.0)(terser@5.30.3)
 
   packages/docs:
     dependencies:
@@ -378,10 +381,10 @@ importers:
         version: 0.9.3(prettier@3.3.3)(typescript@5.5.4)
       '@astrojs/react':
         specifier: ^3.6.2
-        version: 3.6.2(@types/react-dom@18.2.23)(@types/react@18.3.5)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(supports-color@7.2.0)(vite@5.4.2(@types/node@22.5.2)(terser@5.30.3))
+        version: 3.6.2(@types/react-dom@18.2.23)(@types/react@18.3.5)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(supports-color@7.2.0)(vite@5.4.2(@types/node@22.20.5)(terser@5.30.3))
       '@astrojs/starlight':
         specifier: ^0.26.1
-        version: 0.26.1(astro@4.15.1(@types/node@22.5.2)(rollup@4.21.2)(supports-color@7.2.0)(terser@5.30.3)(typescript@5.5.4))(supports-color@7.2.0)
+        version: 0.26.1(astro@4.15.1(@types/node@22.20.5)(rollup@4.21.2)(supports-color@7.2.0)(terser@5.30.3)(typescript@5.5.4))(supports-color@7.2.0)
       '@esbuild-plugins/node-globals-polyfill':
         specifier: ^0.2.3
         version: 0.2.3(esbuild@0.21.5)
@@ -399,7 +402,7 @@ importers:
         version: 18.3.5
       astro:
         specifier: ^4.15.1
-        version: 4.15.1(@types/node@22.5.2)(rollup@4.21.2)(supports-color@7.2.0)(terser@5.30.3)(typescript@5.5.4)
+        version: 4.15.1(@types/node@22.20.5)(rollup@4.21.2)(supports-color@7.2.0)(terser@5.30.3)(typescript@5.5.4)
       eslint:
         specifier: ^9.9.1
         version: 9.9.1(supports-color@7.2.0)
@@ -417,7 +420,7 @@ importers:
         version: 0.33.5
       starlight-typedoc:
         specifier: ^0.15.0
-        version: 0.15.0(@astrojs/starlight@0.26.1(astro@4.15.1(@types/node@22.5.2)(rollup@4.21.2)(supports-color@7.2.0)(terser@5.30.3)(typescript@5.5.4))(supports-color@7.2.0))(astro@4.15.1(@types/node@22.5.2)(rollup@4.21.2)(supports-color@7.2.0)(terser@5.30.3)(typescript@5.5.4))(typedoc-plugin-markdown@4.2.6(typedoc@0.26.6(typescript@5.5.4)))(typedoc@0.26.6(typescript@5.5.4))
+        version: 0.15.0(@astrojs/starlight@0.26.1(astro@4.15.1(@types/node@22.20.5)(rollup@4.21.2)(supports-color@7.2.0)(terser@5.30.3)(typescript@5.5.4))(supports-color@7.2.0))(astro@4.15.1(@types/node@22.20.5)(rollup@4.21.2)(supports-color@7.2.0)(terser@5.30.3)(typescript@5.5.4))(typedoc-plugin-markdown@4.2.6(typedoc@0.26.6(typescript@5.5.4)))(typedoc@0.26.6(typescript@5.5.4))
       typedoc:
         specifier: ^0.26.6
         version: 0.26.6(typescript@5.5.4)
@@ -433,7 +436,7 @@ importers:
     devDependencies:
       vite-plugin-node-polyfills:
         specifier: ^0.22.0
-        version: 0.22.0(rollup@4.21.2)(vite@5.4.2(@types/node@22.5.2)(terser@5.30.3))
+        version: 0.22.0(rollup@4.21.2)(vite@5.4.2(@types/node@22.20.5)(terser@5.30.3))
 
   packages/file-ops:
     devDependencies:
@@ -444,8 +447,8 @@ importers:
         specifier: workspace:*
         version: link:../config-typescript
       '@types/node':
-        specifier: ^18.19.48
-        version: 18.19.48
+        specifier: ^22.20.5
+        version: 22.20.5
       eslint:
         specifier: ^9.9.1
         version: 9.9.1(supports-color@7.2.0)
@@ -457,7 +460,7 @@ importers:
         version: 5.5.4
       vitest:
         specifier: ^2.0.5
-        version: 2.0.5(@types/node@18.19.48)(@vitest/browser@2.0.5)(supports-color@7.2.0)(terser@5.30.3)
+        version: 2.0.5(@types/node@22.20.5)(@vitest/browser@2.0.5)(supports-color@7.2.0)(terser@5.30.3)
 
   packages/jimp:
     dependencies:
@@ -473,6 +476,9 @@ importers:
       '@jimp/js-gif':
         specifier: workspace:*
         version: link:../../plugins/js-gif
+      '@jimp/js-ico':
+        specifier: workspace:*
+        version: link:../../plugins/js-ico
       '@jimp/js-jpeg':
         specifier: workspace:*
         version: link:../../plugins/js-jpeg
@@ -575,7 +581,7 @@ importers:
         version: 0.4.4(rollup@4.21.2)
       '@vitest/browser':
         specifier: ^2.0.5
-        version: 2.0.5(@types/node@22.5.2)(playwright@1.46.1)(typescript@5.5.4)(vitest@2.0.5)
+        version: 2.0.5(playwright@1.46.1)(typescript@5.5.4)(vitest@2.0.5)
       buffer:
         specifier: ^6.0.3
         version: 6.0.3
@@ -608,10 +614,10 @@ importers:
         version: 5.5.4
       vite-plugin-node-polyfills:
         specifier: ^0.22.0
-        version: 0.22.0(rollup@4.21.2)(vite@5.4.2(@types/node@22.5.2)(terser@5.30.3))
+        version: 0.22.0(rollup@4.21.2)(vite@5.4.2(@types/node@22.20.5)(terser@5.30.3))
       vitest:
         specifier: ^2.0.5
-        version: 2.0.5(@types/node@22.5.2)(@vitest/browser@2.0.5)(supports-color@7.2.0)(terser@5.30.3)
+        version: 2.0.5(@types/node@22.20.5)(@vitest/browser@2.0.5)(supports-color@7.2.0)(terser@5.30.3)
 
   packages/test-utils:
     dependencies:
@@ -635,8 +641,8 @@ importers:
         specifier: ^6.4.0
         version: 6.4.0
       '@types/node':
-        specifier: ^18.19.48
-        version: 18.19.48
+        specifier: ^22.20.5
+        version: 22.20.5
       eslint:
         specifier: ^9.9.1
         version: 9.9.1(supports-color@7.2.0)
@@ -648,7 +654,7 @@ importers:
         version: 5.5.4
       vitest:
         specifier: ^2.0.5
-        version: 2.0.5(@types/node@18.19.48)(@vitest/browser@2.0.5)(supports-color@7.2.0)(terser@5.30.3)
+        version: 2.0.5(@types/node@22.20.5)(@vitest/browser@2.0.5)(supports-color@7.2.0)(terser@5.30.3)
 
   packages/types:
     dependencies:
@@ -663,8 +669,8 @@ importers:
         specifier: workspace:*
         version: link:../config-typescript
       '@types/node':
-        specifier: ^18.19.48
-        version: 18.19.48
+        specifier: ^22.20.5
+        version: 22.20.5
       eslint:
         specifier: ^9.9.1
         version: 9.9.1(supports-color@7.2.0)
@@ -676,10 +682,10 @@ importers:
         version: 5.5.4
       vite-plugin-node-polyfills:
         specifier: ^0.22.0
-        version: 0.22.0(rollup@4.21.2)(vite@5.4.2(@types/node@18.19.48)(terser@5.30.3))
+        version: 0.22.0(rollup@4.21.2)(vite@5.4.2(@types/node@22.20.5)(terser@5.30.3))
       vitest:
         specifier: ^2.0.5
-        version: 2.0.5(@types/node@18.19.48)(@vitest/browser@2.0.5)(supports-color@7.2.0)(terser@5.30.3)
+        version: 2.0.5(@types/node@22.20.5)(@vitest/browser@2.0.5)(supports-color@7.2.0)(terser@5.30.3)
 
   packages/utils:
     dependencies:
@@ -700,8 +706,8 @@ importers:
         specifier: workspace:*
         version: link:../config-typescript
       '@types/node':
-        specifier: ^18.19.48
-        version: 18.19.48
+        specifier: ^22.20.5
+        version: 22.20.5
       '@types/tinycolor2':
         specifier: ^1.4.6
         version: 1.4.6
@@ -716,10 +722,10 @@ importers:
         version: 5.5.4
       vite-plugin-node-polyfills:
         specifier: ^0.22.0
-        version: 0.22.0(rollup@4.21.2)(vite@5.4.2(@types/node@18.19.48)(terser@5.30.3))
+        version: 0.22.0(rollup@4.21.2)(vite@5.4.2(@types/node@22.20.5)(terser@5.30.3))
       vitest:
         specifier: ^2.0.5
-        version: 2.0.5(@types/node@18.19.48)(@vitest/browser@2.0.5)(supports-color@7.2.0)(terser@5.30.3)
+        version: 2.0.5(@types/node@22.20.5)(@vitest/browser@2.0.5)(supports-color@7.2.0)(terser@5.30.3)
 
   plugins/js-bmp:
     dependencies:
@@ -752,11 +758,11 @@ importers:
         specifier: workspace:*
         version: link:../../packages/test-utils
       '@types/node':
-        specifier: ^18.19.48
-        version: 18.19.48
+        specifier: ^22.20.5
+        version: 22.20.5
       '@vitest/browser':
         specifier: ^2.0.5
-        version: 2.0.5(@types/node@18.19.48)(playwright@1.46.1)(typescript@5.5.4)(vitest@2.0.5)
+        version: 2.0.5(playwright@1.46.1)(typescript@5.5.4)(vitest@2.0.5)
       eslint:
         specifier: ^9.9.1
         version: 9.9.1(supports-color@7.2.0)
@@ -768,10 +774,10 @@ importers:
         version: 5.5.4
       vite-plugin-node-polyfills:
         specifier: ^0.22.0
-        version: 0.22.0(rollup@4.21.2)(vite@5.4.2(@types/node@18.19.48)(terser@5.30.3))
+        version: 0.22.0(rollup@4.21.2)(vite@5.4.2(@types/node@22.20.5)(terser@5.30.3))
       vitest:
         specifier: ^2.0.5
-        version: 2.0.5(@types/node@18.19.48)(@vitest/browser@2.0.5)(supports-color@7.2.0)(terser@5.30.3)
+        version: 2.0.5(@types/node@22.20.5)(@vitest/browser@2.0.5)(supports-color@7.2.0)(terser@5.30.3)
 
   plugins/js-gif:
     dependencies:
@@ -801,14 +807,14 @@ importers:
         specifier: workspace:*
         version: link:../../packages/test-utils
       '@types/node':
-        specifier: ^18.19.48
-        version: 18.19.48
+        specifier: ^22.20.5
+        version: 22.20.5
       '@types/omggif':
         specifier: ^1.0.5
         version: 1.0.5
       '@vitest/browser':
         specifier: ^2.0.5
-        version: 2.0.5(@types/node@18.19.48)(playwright@1.46.1)(typescript@5.5.4)(vitest@2.0.5)
+        version: 2.0.5(playwright@1.46.1)(typescript@5.5.4)(vitest@2.0.5)
       eslint:
         specifier: ^9.9.1
         version: 9.9.1(supports-color@7.2.0)
@@ -820,10 +826,65 @@ importers:
         version: 5.5.4
       vite-plugin-node-polyfills:
         specifier: ^0.22.0
-        version: 0.22.0(rollup@4.21.2)(vite@5.4.2(@types/node@18.19.48)(terser@5.30.3))
+        version: 0.22.0(rollup@4.21.2)(vite@5.4.2(@types/node@22.20.5)(terser@5.30.3))
       vitest:
         specifier: ^2.0.5
-        version: 2.0.5(@types/node@18.19.48)(@vitest/browser@2.0.5)(supports-color@7.2.0)(terser@5.30.3)
+        version: 2.0.5(@types/node@22.20.5)(@vitest/browser@2.0.5)(supports-color@7.2.0)(terser@5.30.3)
+
+  plugins/js-ico:
+    dependencies:
+      '@jimp/js-png':
+        specifier: workspace:*
+        version: link:../js-png
+      '@jimp/plugin-resize':
+        specifier: workspace:*
+        version: link:../plugin-resize
+      '@jimp/types':
+        specifier: workspace:*
+        version: link:../../packages/types
+      bmp-ts:
+        specifier: ^1.1.3
+        version: 1.1.3
+      buffer:
+        specifier: ^6.0.3
+        version: 6.0.3
+    devDependencies:
+      '@jimp/config-eslint':
+        specifier: workspace:*
+        version: link:../../packages/config-eslint
+      '@jimp/config-typescript':
+        specifier: workspace:*
+        version: link:../../packages/config-typescript
+      '@jimp/config-vitest':
+        specifier: workspace:*
+        version: link:../../packages/config-vitest
+      '@jimp/core':
+        specifier: workspace:*
+        version: link:../../packages/core
+      '@jimp/test-utils':
+        specifier: workspace:*
+        version: link:../../packages/test-utils
+      '@types/node':
+        specifier: ^22.20.5
+        version: 22.20.5
+      '@vitest/browser':
+        specifier: ^2.0.5
+        version: 2.0.5(playwright@1.46.1)(typescript@5.5.4)(vitest@2.0.5)
+      eslint:
+        specifier: ^9.9.1
+        version: 9.9.1(supports-color@7.2.0)
+      tshy:
+        specifier: ^3.0.2
+        version: 3.0.2
+      typescript:
+        specifier: ^5.5.4
+        version: 5.5.4
+      vite-plugin-node-polyfills:
+        specifier: ^0.22.0
+        version: 0.22.0(rollup@4.21.2)(vite@5.4.2(@types/node@22.20.5)(terser@5.30.3))
+      vitest:
+        specifier: ^2.0.5
+        version: 2.0.5(@types/node@22.20.5)(@vitest/browser@2.0.5)(supports-color@7.2.0)(terser@5.30.3)
 
   plugins/js-jpeg:
     dependencies:
@@ -850,11 +911,11 @@ importers:
         specifier: workspace:*
         version: link:../../packages/test-utils
       '@types/node':
-        specifier: ^18.19.48
-        version: 18.19.48
+        specifier: ^22.20.5
+        version: 22.20.5
       '@vitest/browser':
         specifier: ^2.0.5
-        version: 2.0.5(@types/node@18.19.48)(playwright@1.46.1)(typescript@5.5.4)(vitest@2.0.5)
+        version: 2.0.5(playwright@1.46.1)(typescript@5.5.4)(vitest@2.0.5)
       eslint:
         specifier: ^9.9.1
         version: 9.9.1(supports-color@7.2.0)
@@ -866,10 +927,10 @@ importers:
         version: 5.5.4
       vite-plugin-node-polyfills:
         specifier: ^0.22.0
-        version: 0.22.0(rollup@4.21.2)(vite@5.4.2(@types/node@18.19.48)(terser@5.30.3))
+        version: 0.22.0(rollup@4.21.2)(vite@5.4.2(@types/node@22.20.5)(terser@5.30.3))
       vitest:
         specifier: ^2.0.5
-        version: 2.0.5(@types/node@18.19.48)(@vitest/browser@2.0.5)(supports-color@7.2.0)(terser@5.30.3)
+        version: 2.0.5(@types/node@22.20.5)(@vitest/browser@2.0.5)(supports-color@7.2.0)(terser@5.30.3)
 
   plugins/js-png:
     dependencies:
@@ -900,7 +961,7 @@ importers:
         version: 6.0.5
       '@vitest/browser':
         specifier: ^2.0.5
-        version: 2.0.5(@types/node@22.5.2)(playwright@1.46.1)(typescript@5.5.4)(vitest@2.0.5)
+        version: 2.0.5(playwright@1.46.1)(typescript@5.5.4)(vitest@2.0.5)
       eslint:
         specifier: ^9.9.1
         version: 9.9.1(supports-color@7.2.0)
@@ -912,10 +973,10 @@ importers:
         version: 5.5.4
       vite-plugin-node-polyfills:
         specifier: ^0.22.0
-        version: 0.22.0(rollup@4.21.2)(vite@5.4.2(@types/node@22.5.2)(terser@5.30.3))
+        version: 0.22.0(rollup@4.21.2)(vite@5.4.2(@types/node@22.20.5)(terser@5.30.3))
       vitest:
         specifier: ^2.0.5
-        version: 2.0.5(@types/node@22.5.2)(@vitest/browser@2.0.5)(supports-color@7.2.0)(terser@5.30.3)
+        version: 2.0.5(@types/node@22.20.5)(@vitest/browser@2.0.5)(supports-color@7.2.0)(terser@5.30.3)
 
   plugins/js-tiff:
     dependencies:
@@ -945,11 +1006,11 @@ importers:
         specifier: workspace:*
         version: link:../../packages/test-utils
       '@types/node':
-        specifier: ^18.19.48
-        version: 18.19.48
+        specifier: ^22.20.5
+        version: 22.20.5
       '@vitest/browser':
         specifier: ^2.0.5
-        version: 2.0.5(@types/node@18.19.48)(playwright@1.46.1)(typescript@5.5.4)(vitest@2.0.5)
+        version: 2.0.5(playwright@1.46.1)(typescript@5.5.4)(vitest@2.0.5)
       eslint:
         specifier: ^9.9.1
         version: 9.9.1(supports-color@7.2.0)
@@ -961,10 +1022,10 @@ importers:
         version: 5.5.4
       vite-plugin-node-polyfills:
         specifier: ^0.22.0
-        version: 0.22.0(rollup@4.21.2)(vite@5.4.2(@types/node@18.19.48)(terser@5.30.3))
+        version: 0.22.0(rollup@4.21.2)(vite@5.4.2(@types/node@22.20.5)(terser@5.30.3))
       vitest:
         specifier: ^2.0.5
-        version: 2.0.5(@types/node@18.19.48)(@vitest/browser@2.0.5)(supports-color@7.2.0)(terser@5.30.3)
+        version: 2.0.5(@types/node@22.20.5)(@vitest/browser@2.0.5)(supports-color@7.2.0)(terser@5.30.3)
 
   plugins/plugin-blit:
     dependencies:
@@ -1001,7 +1062,7 @@ importers:
         version: link:../../packages/test-utils
       '@vitest/browser':
         specifier: ^2.0.5
-        version: 2.0.5(@types/node@22.5.2)(playwright@1.46.1)(typescript@5.5.4)(vitest@2.0.5)
+        version: 2.0.5(playwright@1.46.1)(typescript@5.5.4)(vitest@2.0.5)
       eslint:
         specifier: ^9.9.1
         version: 9.9.1(supports-color@7.2.0)
@@ -1013,10 +1074,10 @@ importers:
         version: 5.5.4
       vite-plugin-node-polyfills:
         specifier: ^0.22.0
-        version: 0.22.0(rollup@4.21.2)(vite@5.4.2(@types/node@22.5.2)(terser@5.30.3))
+        version: 0.22.0(rollup@4.21.2)(vite@5.4.2(@types/node@22.20.5)(terser@5.30.3))
       vitest:
         specifier: ^2.0.5
-        version: 2.0.5(@types/node@22.5.2)(@vitest/browser@2.0.5)(supports-color@7.2.0)(terser@5.30.3)
+        version: 2.0.5(@types/node@22.20.5)(@vitest/browser@2.0.5)(supports-color@7.2.0)(terser@5.30.3)
 
   plugins/plugin-blur:
     dependencies:
@@ -1053,7 +1114,7 @@ importers:
         version: link:../../packages/types
       '@vitest/browser':
         specifier: ^2.0.5
-        version: 2.0.5(@types/node@22.5.2)(playwright@1.46.1)(typescript@5.5.4)(vitest@2.0.5)
+        version: 2.0.5(playwright@1.46.1)(typescript@5.5.4)(vitest@2.0.5)
       eslint:
         specifier: ^9.9.1
         version: 9.9.1(supports-color@7.2.0)
@@ -1065,10 +1126,10 @@ importers:
         version: 5.5.4
       vite-plugin-node-polyfills:
         specifier: ^0.22.0
-        version: 0.22.0(rollup@4.21.2)(vite@5.4.2(@types/node@22.5.2)(terser@5.30.3))
+        version: 0.22.0(rollup@4.21.2)(vite@5.4.2(@types/node@22.20.5)(terser@5.30.3))
       vitest:
         specifier: ^2.0.5
-        version: 2.0.5(@types/node@22.5.2)(@vitest/browser@2.0.5)(supports-color@7.2.0)(terser@5.30.3)
+        version: 2.0.5(@types/node@22.20.5)(@vitest/browser@2.0.5)(supports-color@7.2.0)(terser@5.30.3)
 
   plugins/plugin-border:
     dependencies:
@@ -1107,11 +1168,11 @@ importers:
         specifier: workspace:*
         version: link:../../packages/test-utils
       '@types/node':
-        specifier: ^18.19.48
-        version: 18.19.48
+        specifier: ^22.20.5
+        version: 22.20.5
       '@vitest/browser':
         specifier: ^2.0.5
-        version: 2.0.5(@types/node@18.19.48)(playwright@1.46.1)(typescript@5.5.4)(vitest@2.0.5)
+        version: 2.0.5(playwright@1.46.1)(typescript@5.5.4)(vitest@2.0.5)
       eslint:
         specifier: ^9.9.1
         version: 9.9.1(supports-color@7.2.0)
@@ -1123,10 +1184,10 @@ importers:
         version: 5.5.4
       vite-plugin-node-polyfills:
         specifier: ^0.22.0
-        version: 0.22.0(rollup@4.21.2)(vite@5.4.2(@types/node@18.19.48)(terser@5.30.3))
+        version: 0.22.0(rollup@4.21.2)(vite@5.4.2(@types/node@22.20.5)(terser@5.30.3))
       vitest:
         specifier: ^2.0.5
-        version: 2.0.5(@types/node@18.19.48)(@vitest/browser@2.0.5)(supports-color@7.2.0)(terser@5.30.3)
+        version: 2.0.5(@types/node@22.20.5)(@vitest/browser@2.0.5)(supports-color@7.2.0)(terser@5.30.3)
 
   plugins/plugin-circle:
     dependencies:
@@ -1154,7 +1215,7 @@ importers:
         version: link:../../packages/test-utils
       '@vitest/browser':
         specifier: ^2.0.5
-        version: 2.0.5(@types/node@22.5.2)(playwright@1.46.1)(typescript@5.5.4)(vitest@2.0.5)
+        version: 2.0.5(playwright@1.46.1)(typescript@5.5.4)(vitest@2.0.5)
       eslint:
         specifier: ^9.9.1
         version: 9.9.1(supports-color@7.2.0)
@@ -1166,10 +1227,10 @@ importers:
         version: 5.5.4
       vite-plugin-node-polyfills:
         specifier: ^0.22.0
-        version: 0.22.0(rollup@4.21.2)(vite@5.4.2(@types/node@22.5.2)(terser@5.30.3))
+        version: 0.22.0(rollup@4.21.2)(vite@5.4.2(@types/node@22.20.5)(terser@5.30.3))
       vitest:
         specifier: ^2.0.5
-        version: 2.0.5(@types/node@22.5.2)(@vitest/browser@2.0.5)(supports-color@7.2.0)(terser@5.30.3)
+        version: 2.0.5(@types/node@22.20.5)(@vitest/browser@2.0.5)(supports-color@7.2.0)(terser@5.30.3)
 
   plugins/plugin-color:
     dependencies:
@@ -1208,14 +1269,14 @@ importers:
         specifier: workspace:*
         version: link:../../packages/test-utils
       '@types/node':
-        specifier: ^18.19.48
-        version: 18.19.48
+        specifier: ^22.20.5
+        version: 22.20.5
       '@types/tinycolor2':
         specifier: ^1.4.6
         version: 1.4.6
       '@vitest/browser':
         specifier: ^2.0.5
-        version: 2.0.5(@types/node@18.19.48)(playwright@1.46.1)(typescript@5.5.4)(vitest@2.0.5)
+        version: 2.0.5(playwright@1.46.1)(typescript@5.5.4)(vitest@2.0.5)
       eslint:
         specifier: ^9.9.1
         version: 9.9.1(supports-color@7.2.0)
@@ -1230,10 +1291,10 @@ importers:
         version: 5.5.4
       vite-plugin-node-polyfills:
         specifier: ^0.22.0
-        version: 0.22.0(rollup@4.21.2)(vite@5.4.2(@types/node@18.19.48)(terser@5.30.3))
+        version: 0.22.0(rollup@4.21.2)(vite@5.4.2(@types/node@22.20.5)(terser@5.30.3))
       vitest:
         specifier: ^2.0.5
-        version: 2.0.5(@types/node@18.19.48)(@vitest/browser@2.0.5)(supports-color@7.2.0)(terser@5.30.3)
+        version: 2.0.5(@types/node@22.20.5)(@vitest/browser@2.0.5)(supports-color@7.2.0)(terser@5.30.3)
 
   plugins/plugin-contain:
     dependencies:
@@ -1270,7 +1331,7 @@ importers:
         version: link:../../packages/test-utils
       '@vitest/browser':
         specifier: ^2.0.5
-        version: 2.0.5(@types/node@22.5.2)(playwright@1.46.1)(typescript@5.5.4)(vitest@2.0.5)
+        version: 2.0.5(playwright@1.46.1)(typescript@5.5.4)(vitest@2.0.5)
       eslint:
         specifier: ^9.9.1
         version: 9.9.1(supports-color@7.2.0)
@@ -1282,10 +1343,10 @@ importers:
         version: 5.5.4
       vite-plugin-node-polyfills:
         specifier: ^0.22.0
-        version: 0.22.0(rollup@4.21.2)(vite@5.4.2(@types/node@22.5.2)(terser@5.30.3))
+        version: 0.22.0(rollup@4.21.2)(vite@5.4.2(@types/node@22.20.5)(terser@5.30.3))
       vitest:
         specifier: ^2.0.5
-        version: 2.0.5(@types/node@22.5.2)(@vitest/browser@2.0.5)(supports-color@7.2.0)(terser@5.30.3)
+        version: 2.0.5(@types/node@22.20.5)(@vitest/browser@2.0.5)(supports-color@7.2.0)(terser@5.30.3)
 
   plugins/plugin-cover:
     dependencies:
@@ -1319,7 +1380,7 @@ importers:
         version: link:../../packages/test-utils
       '@vitest/browser':
         specifier: ^2.0.5
-        version: 2.0.5(@types/node@22.5.2)(playwright@1.46.1)(typescript@5.5.4)(vitest@2.0.5)
+        version: 2.0.5(playwright@1.46.1)(typescript@5.5.4)(vitest@2.0.5)
       eslint:
         specifier: ^9.9.1
         version: 9.9.1(supports-color@7.2.0)
@@ -1331,10 +1392,10 @@ importers:
         version: 5.5.4
       vite-plugin-node-polyfills:
         specifier: ^0.22.0
-        version: 0.22.0(rollup@4.21.2)(vite@5.4.2(@types/node@22.5.2)(terser@5.30.3))
+        version: 0.22.0(rollup@4.21.2)(vite@5.4.2(@types/node@22.20.5)(terser@5.30.3))
       vitest:
         specifier: ^2.0.5
-        version: 2.0.5(@types/node@22.5.2)(@vitest/browser@2.0.5)(supports-color@7.2.0)(terser@5.30.3)
+        version: 2.0.5(@types/node@22.20.5)(@vitest/browser@2.0.5)(supports-color@7.2.0)(terser@5.30.3)
 
   plugins/plugin-crop:
     dependencies:
@@ -1367,11 +1428,11 @@ importers:
         specifier: workspace:*
         version: link:../../packages/test-utils
       '@types/node':
-        specifier: ^18.19.48
-        version: 18.19.48
+        specifier: ^22.20.5
+        version: 22.20.5
       '@vitest/browser':
         specifier: ^2.0.5
-        version: 2.0.5(@types/node@18.19.48)(playwright@1.46.1)(typescript@5.5.4)(vitest@2.0.5)
+        version: 2.0.5(playwright@1.46.1)(typescript@5.5.4)(vitest@2.0.5)
       eslint:
         specifier: ^9.9.1
         version: 9.9.1(supports-color@7.2.0)
@@ -1383,10 +1444,10 @@ importers:
         version: 5.5.4
       vite-plugin-node-polyfills:
         specifier: ^0.22.0
-        version: 0.22.0(rollup@4.21.2)(vite@5.4.2(@types/node@18.19.48)(terser@5.30.3))
+        version: 0.22.0(rollup@4.21.2)(vite@5.4.2(@types/node@22.20.5)(terser@5.30.3))
       vitest:
         specifier: ^2.0.5
-        version: 2.0.5(@types/node@18.19.48)(@vitest/browser@2.0.5)(supports-color@7.2.0)(terser@5.30.3)
+        version: 2.0.5(@types/node@22.20.5)(@vitest/browser@2.0.5)(supports-color@7.2.0)(terser@5.30.3)
 
   plugins/plugin-displace:
     dependencies:
@@ -1406,6 +1467,18 @@ importers:
       '@jimp/config-typescript':
         specifier: workspace:*
         version: link:../../packages/config-typescript
+      '@jimp/config-vitest':
+        specifier: workspace:*
+        version: link:../../packages/config-vitest
+      '@jimp/core':
+        specifier: workspace:*
+        version: link:../../packages/core
+      '@jimp/test-utils':
+        specifier: workspace:*
+        version: link:../../packages/test-utils
+      '@vitest/browser':
+        specifier: ^2.0.5
+        version: 2.0.5(playwright@1.46.1)(typescript@5.5.4)(vitest@2.0.5)
       eslint:
         specifier: ^9.9.1
         version: 9.9.1(supports-color@7.2.0)
@@ -1415,9 +1488,12 @@ importers:
       typescript:
         specifier: ^5.5.4
         version: 5.5.4
+      vite-plugin-node-polyfills:
+        specifier: ^0.22.0
+        version: 0.22.0(rollup@4.21.2)(vite@5.4.2(@types/node@22.20.5)(terser@5.30.3))
       vitest:
         specifier: ^2.0.5
-        version: 2.0.5(@types/node@22.5.2)(@vitest/browser@2.0.5)(supports-color@7.2.0)(terser@5.30.3)
+        version: 2.0.5(@types/node@22.20.5)(@vitest/browser@2.0.5)(supports-color@7.2.0)(terser@5.30.3)
 
   plugins/plugin-dither:
     dependencies:
@@ -1451,7 +1527,7 @@ importers:
         version: link:../../packages/test-utils
       '@vitest/browser':
         specifier: ^2.0.5
-        version: 2.0.5(@types/node@22.5.2)(playwright@1.46.1)(typescript@5.5.4)(vitest@2.0.5)
+        version: 2.0.5(playwright@1.46.1)(typescript@5.5.4)(vitest@2.0.5)
       eslint:
         specifier: ^9.9.1
         version: 9.9.1(supports-color@7.2.0)
@@ -1463,10 +1539,10 @@ importers:
         version: 5.5.4
       vite-plugin-node-polyfills:
         specifier: ^0.22.0
-        version: 0.22.0(rollup@4.21.2)(vite@5.4.2(@types/node@22.5.2)(terser@5.30.3))
+        version: 0.22.0(rollup@4.21.2)(vite@5.4.2(@types/node@22.20.5)(terser@5.30.3))
       vitest:
         specifier: ^2.0.5
-        version: 2.0.5(@types/node@22.5.2)(@vitest/browser@2.0.5)(supports-color@7.2.0)(terser@5.30.3)
+        version: 2.0.5(@types/node@22.20.5)(@vitest/browser@2.0.5)(supports-color@7.2.0)(terser@5.30.3)
 
   plugins/plugin-fisheye:
     dependencies:
@@ -1497,7 +1573,7 @@ importers:
         version: link:../../packages/test-utils
       '@vitest/browser':
         specifier: ^2.0.5
-        version: 2.0.5(@types/node@22.5.2)(playwright@1.46.1)(typescript@5.5.4)(vitest@2.0.5)
+        version: 2.0.5(playwright@1.46.1)(typescript@5.5.4)(vitest@2.0.5)
       eslint:
         specifier: ^9.9.1
         version: 9.9.1(supports-color@7.2.0)
@@ -1509,10 +1585,10 @@ importers:
         version: 5.5.4
       vite-plugin-node-polyfills:
         specifier: ^0.22.0
-        version: 0.22.0(rollup@4.21.2)(vite@5.4.2(@types/node@22.5.2)(terser@5.30.3))
+        version: 0.22.0(rollup@4.21.2)(vite@5.4.2(@types/node@22.20.5)(terser@5.30.3))
       vitest:
         specifier: ^2.0.5
-        version: 2.0.5(@types/node@22.5.2)(@vitest/browser@2.0.5)(supports-color@7.2.0)(terser@5.30.3)
+        version: 2.0.5(@types/node@22.20.5)(@vitest/browser@2.0.5)(supports-color@7.2.0)(terser@5.30.3)
 
   plugins/plugin-flip:
     dependencies:
@@ -1542,11 +1618,11 @@ importers:
         specifier: workspace:*
         version: link:../../packages/test-utils
       '@types/node':
-        specifier: ^18.19.48
-        version: 18.19.48
+        specifier: ^22.20.5
+        version: 22.20.5
       '@vitest/browser':
         specifier: ^2.0.5
-        version: 2.0.5(@types/node@18.19.48)(playwright@1.46.1)(typescript@5.5.4)(vitest@2.0.5)
+        version: 2.0.5(playwright@1.46.1)(typescript@5.5.4)(vitest@2.0.5)
       eslint:
         specifier: ^9.9.1
         version: 9.9.1(supports-color@7.2.0)
@@ -1558,10 +1634,10 @@ importers:
         version: 5.5.4
       vite-plugin-node-polyfills:
         specifier: ^0.22.0
-        version: 0.22.0(rollup@4.21.2)(vite@5.4.2(@types/node@18.19.48)(terser@5.30.3))
+        version: 0.22.0(rollup@4.21.2)(vite@5.4.2(@types/node@22.20.5)(terser@5.30.3))
       vitest:
         specifier: ^2.0.5
-        version: 2.0.5(@types/node@18.19.48)(@vitest/browser@2.0.5)(supports-color@7.2.0)(terser@5.30.3)
+        version: 2.0.5(@types/node@22.20.5)(@vitest/browser@2.0.5)(supports-color@7.2.0)(terser@5.30.3)
 
   plugins/plugin-hash:
     dependencies:
@@ -1580,9 +1656,6 @@ importers:
       '@jimp/js-tiff':
         specifier: workspace:*
         version: link:../js-tiff
-      '@jimp/plugin-color':
-        specifier: workspace:*
-        version: link:../plugin-color
       '@jimp/plugin-resize':
         specifier: workspace:*
         version: link:../plugin-resize
@@ -1616,7 +1689,7 @@ importers:
         version: 1.1.3
       '@vitest/browser':
         specifier: ^2.0.5
-        version: 2.0.5(@types/node@22.5.2)(playwright@1.46.1)(typescript@5.5.4)(vitest@2.0.5)
+        version: 2.0.5(playwright@1.46.1)(typescript@5.5.4)(vitest@2.0.5)
       eslint:
         specifier: ^9.9.1
         version: 9.9.1(supports-color@7.2.0)
@@ -1628,10 +1701,10 @@ importers:
         version: 5.5.4
       vite-plugin-node-polyfills:
         specifier: ^0.22.0
-        version: 0.22.0(rollup@4.21.2)(vite@5.4.2(@types/node@22.5.2)(terser@5.30.3))
+        version: 0.22.0(rollup@4.21.2)(vite@5.4.2(@types/node@22.20.5)(terser@5.30.3))
       vitest:
         specifier: ^2.0.5
-        version: 2.0.5(@types/node@22.5.2)(@vitest/browser@2.0.5)(supports-color@7.2.0)(terser@5.30.3)
+        version: 2.0.5(@types/node@22.20.5)(@vitest/browser@2.0.5)(supports-color@7.2.0)(terser@5.30.3)
 
   plugins/plugin-mask:
     dependencies:
@@ -1659,7 +1732,7 @@ importers:
         version: link:../../packages/test-utils
       '@vitest/browser':
         specifier: ^2.0.5
-        version: 2.0.5(@types/node@22.5.2)(playwright@1.46.1)(typescript@5.5.4)(vitest@2.0.5)
+        version: 2.0.5(playwright@1.46.1)(typescript@5.5.4)(vitest@2.0.5)
       eslint:
         specifier: ^9.9.1
         version: 9.9.1(supports-color@7.2.0)
@@ -1671,10 +1744,10 @@ importers:
         version: 5.5.4
       vite-plugin-node-polyfills:
         specifier: ^0.22.0
-        version: 0.22.0(rollup@4.21.2)(vite@5.4.2(@types/node@22.5.2)(terser@5.30.3))
+        version: 0.22.0(rollup@4.21.2)(vite@5.4.2(@types/node@22.20.5)(terser@5.30.3))
       vitest:
         specifier: ^2.0.5
-        version: 2.0.5(@types/node@22.5.2)(@vitest/browser@2.0.5)(supports-color@7.2.0)(terser@5.30.3)
+        version: 2.0.5(@types/node@22.20.5)(@vitest/browser@2.0.5)(supports-color@7.2.0)(terser@5.30.3)
 
   plugins/plugin-print:
     dependencies:
@@ -1722,8 +1795,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/test-utils
       '@types/node':
-        specifier: ^18.19.48
-        version: 18.19.48
+        specifier: ^22.20.5
+        version: 22.20.5
       eslint:
         specifier: ^9.9.1
         version: 9.9.1(supports-color@7.2.0)
@@ -1735,10 +1808,10 @@ importers:
         version: 5.5.4
       vite-plugin-node-polyfills:
         specifier: ^0.22.0
-        version: 0.22.0(rollup@4.21.2)(vite@5.4.2(@types/node@18.19.48)(terser@5.30.3))
+        version: 0.22.0(rollup@4.21.2)(vite@5.4.2(@types/node@22.20.5)(terser@5.30.3))
       vitest:
         specifier: ^2.0.5
-        version: 2.0.5(@types/node@18.19.48)(@vitest/browser@2.0.5)(supports-color@7.2.0)(terser@5.30.3)
+        version: 2.0.5(@types/node@22.20.5)(@vitest/browser@2.0.5)(supports-color@7.2.0)(terser@5.30.3)
 
   plugins/plugin-quantize:
     dependencies:
@@ -1784,10 +1857,10 @@ importers:
         version: 5.5.4
       vite-plugin-node-polyfills:
         specifier: ^0.22.0
-        version: 0.22.0(rollup@4.21.2)(vite@5.4.2(@types/node@22.5.2)(terser@5.30.3))
+        version: 0.22.0(rollup@4.21.2)(vite@5.4.2(@types/node@22.20.5)(terser@5.30.3))
       vitest:
         specifier: ^2.0.5
-        version: 2.0.5(@types/node@22.5.2)(@vitest/browser@2.0.5)(supports-color@7.2.0)(terser@5.30.3)
+        version: 2.0.5(@types/node@22.20.5)(@vitest/browser@2.0.5)(supports-color@7.2.0)(terser@5.30.3)
 
   plugins/plugin-resize:
     dependencies:
@@ -1823,11 +1896,11 @@ importers:
         specifier: workspace:*
         version: link:../../packages/test-utils
       '@types/node':
-        specifier: ^18.19.48
-        version: 18.19.48
+        specifier: ^22.20.5
+        version: 22.20.5
       '@vitest/browser':
         specifier: ^2.0.5
-        version: 2.0.5(@types/node@18.19.48)(playwright@1.46.1)(typescript@5.5.4)(vitest@2.0.5)
+        version: 2.0.5(playwright@1.46.1)(typescript@5.5.4)(vitest@2.0.5)
       eslint:
         specifier: ^9.9.1
         version: 9.9.1(supports-color@7.2.0)
@@ -1839,10 +1912,10 @@ importers:
         version: 5.5.4
       vite-plugin-node-polyfills:
         specifier: ^0.22.0
-        version: 0.22.0(rollup@4.21.2)(vite@5.4.2(@types/node@18.19.48)(terser@5.30.3))
+        version: 0.22.0(rollup@4.21.2)(vite@5.4.2(@types/node@22.20.5)(terser@5.30.3))
       vitest:
         specifier: ^2.0.5
-        version: 2.0.5(@types/node@18.19.48)(@vitest/browser@2.0.5)(supports-color@7.2.0)(terser@5.30.3)
+        version: 2.0.5(@types/node@22.20.5)(@vitest/browser@2.0.5)(supports-color@7.2.0)(terser@5.30.3)
 
   plugins/plugin-rotate:
     dependencies:
@@ -1878,11 +1951,11 @@ importers:
         specifier: workspace:*
         version: link:../../packages/test-utils
       '@types/node':
-        specifier: ^18.19.48
-        version: 18.19.48
+        specifier: ^22.20.5
+        version: 22.20.5
       '@vitest/browser':
         specifier: ^2.0.5
-        version: 2.0.5(@types/node@18.19.48)(playwright@1.46.1)(typescript@5.5.4)(vitest@2.0.5)
+        version: 2.0.5(playwright@1.46.1)(typescript@5.5.4)(vitest@2.0.5)
       eslint:
         specifier: ^9.9.1
         version: 9.9.1(supports-color@7.2.0)
@@ -1894,10 +1967,10 @@ importers:
         version: 5.5.4
       vite-plugin-node-polyfills:
         specifier: ^0.22.0
-        version: 0.22.0(rollup@4.21.2)(vite@5.4.2(@types/node@18.19.48)(terser@5.30.3))
+        version: 0.22.0(rollup@4.21.2)(vite@5.4.2(@types/node@22.20.5)(terser@5.30.3))
       vitest:
         specifier: ^2.0.5
-        version: 2.0.5(@types/node@18.19.48)(@vitest/browser@2.0.5)(supports-color@7.2.0)(terser@5.30.3)
+        version: 2.0.5(@types/node@22.20.5)(@vitest/browser@2.0.5)(supports-color@7.2.0)(terser@5.30.3)
 
   plugins/plugin-shadow:
     dependencies:
@@ -1940,7 +2013,7 @@ importers:
         version: link:../../packages/test-utils
       '@vitest/browser':
         specifier: ^2.0.5
-        version: 2.0.5(@types/node@22.5.2)(playwright@1.46.1)(typescript@5.5.4)(vitest@2.0.5)
+        version: 2.0.5(playwright@1.46.1)(typescript@5.5.4)(vitest@2.0.5)
       eslint:
         specifier: ^9.9.1
         version: 9.9.1(supports-color@7.2.0)
@@ -1952,10 +2025,10 @@ importers:
         version: 5.5.4
       vite-plugin-node-polyfills:
         specifier: ^0.22.0
-        version: 0.22.0(rollup@4.21.2)(vite@5.4.2(@types/node@22.5.2)(terser@5.30.3))
+        version: 0.22.0(rollup@4.21.2)(vite@5.4.2(@types/node@22.20.5)(terser@5.30.3))
       vitest:
         specifier: ^2.0.5
-        version: 2.0.5(@types/node@22.5.2)(@vitest/browser@2.0.5)(supports-color@7.2.0)(terser@5.30.3)
+        version: 2.0.5(@types/node@22.20.5)(@vitest/browser@2.0.5)(supports-color@7.2.0)(terser@5.30.3)
 
   plugins/plugin-threshold:
     dependencies:
@@ -1998,7 +2071,7 @@ importers:
         version: link:../../packages/test-utils
       '@vitest/browser':
         specifier: ^2.0.5
-        version: 2.0.5(@types/node@22.5.2)(playwright@1.46.1)(typescript@5.5.4)(vitest@2.0.5)
+        version: 2.0.5(playwright@1.46.1)(typescript@5.5.4)(vitest@2.0.5)
       eslint:
         specifier: ^9.9.1
         version: 9.9.1(supports-color@7.2.0)
@@ -2010,10 +2083,10 @@ importers:
         version: 5.5.4
       vite-plugin-node-polyfills:
         specifier: ^0.22.0
-        version: 0.22.0(rollup@4.21.2)(vite@5.4.2(@types/node@22.5.2)(terser@5.30.3))
+        version: 0.22.0(rollup@4.21.2)(vite@5.4.2(@types/node@22.20.5)(terser@5.30.3))
       vitest:
         specifier: ^2.0.5
-        version: 2.0.5(@types/node@22.5.2)(@vitest/browser@2.0.5)(supports-color@7.2.0)(terser@5.30.3)
+        version: 2.0.5(@types/node@22.20.5)(@vitest/browser@2.0.5)(supports-color@7.2.0)(terser@5.30.3)
 
   plugins/wasm-avif:
     dependencies:
@@ -2049,11 +2122,11 @@ importers:
         specifier: workspace:*
         version: link:../../packages/types
       '@types/node':
-        specifier: ^18.19.48
-        version: 18.19.48
+        specifier: ^22.20.5
+        version: 22.20.5
       '@vitest/browser':
         specifier: ^2.0.5
-        version: 2.0.5(@types/node@18.19.48)(playwright@1.46.1)(typescript@5.5.4)(vitest@2.0.5)
+        version: 2.0.5(playwright@1.46.1)(typescript@5.5.4)(vitest@2.0.5)
       eslint:
         specifier: ^9.9.1
         version: 9.9.1(supports-color@7.2.0)
@@ -2065,10 +2138,10 @@ importers:
         version: 5.5.4
       vite-plugin-node-polyfills:
         specifier: ^0.22.0
-        version: 0.22.0(rollup@4.21.2)(vite@5.4.2(@types/node@18.19.48)(terser@5.30.3))
+        version: 0.22.0(rollup@4.21.2)(vite@5.4.2(@types/node@22.20.5)(terser@5.30.3))
       vitest:
         specifier: ^2.0.5
-        version: 2.0.5(@types/node@18.19.48)(@vitest/browser@2.0.5)(supports-color@7.2.0)(terser@5.30.3)
+        version: 2.0.5(@types/node@22.20.5)(@vitest/browser@2.0.5)(supports-color@7.2.0)(terser@5.30.3)
 
   plugins/wasm-jpeg:
     dependencies:
@@ -2104,11 +2177,11 @@ importers:
         specifier: workspace:*
         version: link:../../packages/types
       '@types/node':
-        specifier: ^18.19.48
-        version: 18.19.48
+        specifier: ^22.20.5
+        version: 22.20.5
       '@vitest/browser':
         specifier: ^2.0.5
-        version: 2.0.5(@types/node@18.19.48)(playwright@1.46.1)(typescript@5.5.4)(vitest@2.0.5)
+        version: 2.0.5(playwright@1.46.1)(typescript@5.5.4)(vitest@2.0.5)
       eslint:
         specifier: ^9.9.1
         version: 9.9.1(supports-color@7.2.0)
@@ -2120,10 +2193,65 @@ importers:
         version: 5.5.4
       vite-plugin-node-polyfills:
         specifier: ^0.22.0
-        version: 0.22.0(rollup@4.21.2)(vite@5.4.2(@types/node@18.19.48)(terser@5.30.3))
+        version: 0.22.0(rollup@4.21.2)(vite@5.4.2(@types/node@22.20.5)(terser@5.30.3))
       vitest:
         specifier: ^2.0.5
-        version: 2.0.5(@types/node@18.19.48)(@vitest/browser@2.0.5)(supports-color@7.2.0)(terser@5.30.3)
+        version: 2.0.5(@types/node@22.20.5)(@vitest/browser@2.0.5)(supports-color@7.2.0)(terser@5.30.3)
+
+  plugins/wasm-jpeg2000:
+    dependencies:
+      '@cornerstonejs/codec-openjpeg':
+        specifier: 1.3.6
+        version: 1.3.6
+      buffer:
+        specifier: ^6.0.3
+        version: 6.0.3
+      zod:
+        specifier: ^4.6.7
+        version: 4.6.7
+    devDependencies:
+      '@jimp/config-eslint':
+        specifier: workspace:*
+        version: link:../../packages/config-eslint
+      '@jimp/config-typescript':
+        specifier: workspace:*
+        version: link:../../packages/config-typescript
+      '@jimp/config-vitest':
+        specifier: workspace:*
+        version: link:../../packages/config-vitest
+      '@jimp/core':
+        specifier: workspace:*
+        version: link:../../packages/core
+      '@jimp/js-png':
+        specifier: workspace:*
+        version: link:../js-png
+      '@jimp/test-utils':
+        specifier: workspace:*
+        version: link:../../packages/test-utils
+      '@jimp/types':
+        specifier: workspace:*
+        version: link:../../packages/types
+      '@types/node':
+        specifier: ^22.20.5
+        version: 22.20.5
+      '@vitest/browser':
+        specifier: ^2.0.5
+        version: 2.0.5(playwright@1.46.1)(typescript@5.5.4)(vitest@2.0.5)
+      eslint:
+        specifier: ^9.9.1
+        version: 9.9.1(supports-color@7.2.0)
+      tshy:
+        specifier: ^3.0.2
+        version: 3.0.2
+      typescript:
+        specifier: ^5.5.4
+        version: 5.5.4
+      vite-plugin-node-polyfills:
+        specifier: ^0.22.0
+        version: 0.22.0(rollup@4.21.2)(vite@5.4.2(@types/node@22.20.5)(terser@5.30.3))
+      vitest:
+        specifier: ^2.0.5
+        version: 2.0.5(@types/node@22.20.5)(@vitest/browser@2.0.5)(supports-color@7.2.0)(terser@5.30.3)
 
   plugins/wasm-png:
     dependencies:
@@ -2162,11 +2290,11 @@ importers:
         specifier: workspace:*
         version: link:../../packages/types
       '@types/node':
-        specifier: ^18.19.48
-        version: 18.19.48
+        specifier: ^22.20.5
+        version: 22.20.5
       '@vitest/browser':
         specifier: ^2.0.5
-        version: 2.0.5(@types/node@18.19.48)(playwright@1.46.1)(typescript@5.5.4)(vitest@2.0.5)
+        version: 2.0.5(playwright@1.46.1)(typescript@5.5.4)(vitest@2.0.5)
       eslint:
         specifier: ^9.9.1
         version: 9.9.1(supports-color@7.2.0)
@@ -2178,10 +2306,10 @@ importers:
         version: 5.5.4
       vite-plugin-node-polyfills:
         specifier: ^0.22.0
-        version: 0.22.0(rollup@4.21.2)(vite@5.4.2(@types/node@18.19.48)(terser@5.30.3))
+        version: 0.22.0(rollup@4.21.2)(vite@5.4.2(@types/node@22.20.5)(terser@5.30.3))
       vitest:
         specifier: ^2.0.5
-        version: 2.0.5(@types/node@18.19.48)(@vitest/browser@2.0.5)(supports-color@7.2.0)(terser@5.30.3)
+        version: 2.0.5(@types/node@22.20.5)(@vitest/browser@2.0.5)(supports-color@7.2.0)(terser@5.30.3)
 
   plugins/wasm-webp:
     dependencies:
@@ -2220,11 +2348,11 @@ importers:
         specifier: workspace:*
         version: link:../../packages/types
       '@types/node':
-        specifier: ^18.19.48
-        version: 18.19.48
+        specifier: ^22.20.5
+        version: 22.20.5
       '@vitest/browser':
         specifier: ^2.0.5
-        version: 2.0.5(@types/node@18.19.48)(playwright@1.46.1)(typescript@5.5.4)(vitest@2.0.5)
+        version: 2.0.5(playwright@1.46.1)(typescript@5.5.4)(vitest@2.0.5)
       eslint:
         specifier: ^9.9.1
         version: 9.9.1(supports-color@7.2.0)
@@ -2236,10 +2364,10 @@ importers:
         version: 5.5.4
       vite-plugin-node-polyfills:
         specifier: ^0.22.0
-        version: 0.22.0(rollup@4.21.2)(vite@5.4.2(@types/node@18.19.48)(terser@5.30.3))
+        version: 0.22.0(rollup@4.21.2)(vite@5.4.2(@types/node@22.20.5)(terser@5.30.3))
       vitest:
         specifier: ^2.0.5
-        version: 2.0.5(@types/node@18.19.48)(@vitest/browser@2.0.5)(supports-color@7.2.0)(terser@5.30.3)
+        version: 2.0.5(@types/node@22.20.5)(@vitest/browser@2.0.5)(supports-color@7.2.0)(terser@5.30.3)
 
 packages:
 
@@ -2972,6 +3100,10 @@ packages:
 
   '@bundled-es-modules/tough-cookie@0.1.6':
     resolution: {integrity: sha512-dvMHbL464C0zI+Yqxbz6kZ5TOEp7GLW+pry/RWndAR8MJQAXZ2rPmIs8tziTZjeIyhSNZgZbCePtfSbdWqStJw==}
+
+  '@cornerstonejs/codec-openjpeg@1.3.6':
+    resolution: {integrity: sha512-bSdZXF+2GxfBkWHUr7yGLQtIwbAm9wOl3e4ARee/9Z9lfKyVqhUCixI6+ZjIn9YKTIuDcn/NZNK94XEUg1SBtw==}
+    engines: {node: '>=0.14'}
 
   '@cspotcode/source-map-support@0.8.1':
     resolution: {integrity: sha512-IchNf6dN4tHoMFIn/7OE8LWZ19Y6q/67Bmf6vnGREv8RSbBVb9LPJxEcnwrcwX6ixSvaiGoomAUvu4YSxXrVgw==}
@@ -3789,11 +3921,8 @@ packages:
   '@types/node@17.0.45':
     resolution: {integrity: sha512-w+tIMs3rq2afQdsPJlODhoUEKzFP1ayaoyl1CcnwtIlsVe7K7bA1NGm4s3PraqTLlXnbIN84zuBlxBWo1u9BLw==}
 
-  '@types/node@18.19.48':
-    resolution: {integrity: sha512-7WevbG4ekUcRQSZzOwxWgi5dZmTak7FaxXDoW7xVxPBmKx1rTzfmRLkeCgJzcbBnOV2dkhAPc8cCeT6agocpjg==}
-
-  '@types/node@22.5.2':
-    resolution: {integrity: sha512-acJsPTEqYqulZS/Yp/S3GgeE6GZ0qYODUR8aVr/DkhHQ8l9nd4j5x1/ZJy9/gHrRlFMqkO6i0I3E27Alu4jjPg==}
+  '@types/node@22.20.5':
+    resolution: {integrity: sha512-U2+DNr+wSjpsTS/wZGYHq7GcwfuSmKiKvoPvK22zwTlRhU91yOniN4qRR5KhIjvif7ysw/dz/hKmfDH0Ris4aA==}
 
   '@types/omggif@1.0.5':
     resolution: {integrity: sha512-gDQJflz1rOgEcUXkMAl80bDGN46f5mp8GbcM5dyvq+zsFV6YRBRtmNxlJJ5mjY77T7BRkRFzdIBVmK90QYhCxA==}
@@ -7492,11 +7621,8 @@ packages:
   unbox-primitive@1.0.2:
     resolution: {integrity: sha512-61pPlCD9h51VoreyJ0BReideM3MDKMKnh6+V9L08331ipq6Q8OFXZYiqP6n/tbHx4s5I9uRhcye6BrbkizkBDw==}
 
-  undici-types@5.26.5:
-    resolution: {integrity: sha512-JlCMO+ehdEIKqlFxk6IfVoAUVmgz7cU7zD/h9XZ0qzeosSHmUJVOzSQvvYSYWXkFXC+IfLKSIffhv0sVZup6pA==}
-
-  undici-types@6.19.8:
-    resolution: {integrity: sha512-ve2KP6f/JnbPBFyobGHuerC9g1FYGn/F8n1LWTwNxCEzd6IfqTwUQcNXgEtmmQ6DlRrC1hrSrBnCZPokRrDHjw==}
+  undici-types@6.21.0:
+    resolution: {integrity: sha512-iwDZqg0QAGrg9Rav5H4n0M64c3mkR59cJ6wQp+7C4nI0gsmExaedaYLNO44eT4AtBBwjbTiGPMlt2Md0T9H9JQ==}
 
   unicode-canonical-property-names-ecmascript@2.0.1:
     resolution: {integrity: sha512-dA8WbNeb2a6oQzAQ55YlT5vQAWGV9WXOsi3SskE3bcCdM0P4SDd+24zS/OCacdRq5BkdsRj9q3Pg6YyQoxIGqg==}
@@ -8083,12 +8209,12 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@astrojs/mdx@3.1.5(astro@4.15.1(@types/node@22.5.2)(rollup@4.21.2)(supports-color@7.2.0)(terser@5.30.3)(typescript@5.5.4))(supports-color@7.2.0)':
+  '@astrojs/mdx@3.1.5(astro@4.15.1(@types/node@22.20.5)(rollup@4.21.2)(supports-color@7.2.0)(terser@5.30.3)(typescript@5.5.4))(supports-color@7.2.0)':
     dependencies:
       '@astrojs/markdown-remark': 5.2.0(supports-color@7.2.0)
       '@mdx-js/mdx': 3.0.1(supports-color@7.2.0)
       acorn: 8.12.1
-      astro: 4.15.1(@types/node@22.5.2)(rollup@4.21.2)(supports-color@7.2.0)(terser@5.30.3)(typescript@5.5.4)
+      astro: 4.15.1(@types/node@22.20.5)(rollup@4.21.2)(supports-color@7.2.0)(terser@5.30.3)(typescript@5.5.4)
       es-module-lexer: 1.5.4
       estree-util-visit: 2.0.0
       gray-matter: 4.0.3
@@ -8107,11 +8233,11 @@ snapshots:
     dependencies:
       prismjs: 1.29.0
 
-  '@astrojs/react@3.6.2(@types/react-dom@18.2.23)(@types/react@18.3.5)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(supports-color@7.2.0)(vite@5.4.2(@types/node@22.5.2)(terser@5.30.3))':
+  '@astrojs/react@3.6.2(@types/react-dom@18.2.23)(@types/react@18.3.5)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(supports-color@7.2.0)(vite@5.4.2(@types/node@22.20.5)(terser@5.30.3))':
     dependencies:
       '@types/react': 18.3.5
       '@types/react-dom': 18.2.23
-      '@vitejs/plugin-react': 4.3.1(supports-color@7.2.0)(vite@5.4.2(@types/node@22.5.2)(terser@5.30.3))
+      '@vitejs/plugin-react': 4.3.1(supports-color@7.2.0)(vite@5.4.2(@types/node@22.20.5)(terser@5.30.3))
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
       ultrahtml: 1.5.3
@@ -8125,15 +8251,15 @@ snapshots:
       stream-replace-string: 2.0.0
       zod: 3.23.8
 
-  '@astrojs/starlight@0.26.1(astro@4.15.1(@types/node@22.5.2)(rollup@4.21.2)(supports-color@7.2.0)(terser@5.30.3)(typescript@5.5.4))(supports-color@7.2.0)':
+  '@astrojs/starlight@0.26.1(astro@4.15.1(@types/node@22.20.5)(rollup@4.21.2)(supports-color@7.2.0)(terser@5.30.3)(typescript@5.5.4))(supports-color@7.2.0)':
     dependencies:
-      '@astrojs/mdx': 3.1.5(astro@4.15.1(@types/node@22.5.2)(rollup@4.21.2)(supports-color@7.2.0)(terser@5.30.3)(typescript@5.5.4))(supports-color@7.2.0)
+      '@astrojs/mdx': 3.1.5(astro@4.15.1(@types/node@22.20.5)(rollup@4.21.2)(supports-color@7.2.0)(terser@5.30.3)(typescript@5.5.4))(supports-color@7.2.0)
       '@astrojs/sitemap': 3.1.6
       '@pagefind/default-ui': 1.0.4
       '@types/hast': 3.0.4
       '@types/mdast': 4.0.4
-      astro: 4.15.1(@types/node@22.5.2)(rollup@4.21.2)(supports-color@7.2.0)(terser@5.30.3)(typescript@5.5.4)
-      astro-expressive-code: 0.35.6(astro@4.15.1(@types/node@22.5.2)(rollup@4.21.2)(supports-color@7.2.0)(terser@5.30.3)(typescript@5.5.4))
+      astro: 4.15.1(@types/node@22.20.5)(rollup@4.21.2)(supports-color@7.2.0)(terser@5.30.3)(typescript@5.5.4)
+      astro-expressive-code: 0.35.6(astro@4.15.1(@types/node@22.20.5)(rollup@4.21.2)(supports-color@7.2.0)(terser@5.30.3)(typescript@5.5.4))
       bcp-47: 2.1.0
       hast-util-from-html: 2.0.1
       hast-util-select: 6.0.2
@@ -8168,10 +8294,10 @@ snapshots:
     dependencies:
       yaml: 2.5.0
 
-  '@auto-it/all-contributors@11.2.1(@types/node@22.5.2)(supports-color@7.2.0)(typescript@5.5.4)':
+  '@auto-it/all-contributors@11.2.1(@types/node@22.20.5)(supports-color@7.2.0)(typescript@5.5.4)':
     dependencies:
       '@auto-it/bot-list': 11.2.1
-      '@auto-it/core': 11.2.1(@types/node@22.5.2)(supports-color@7.2.0)(typescript@5.5.4)
+      '@auto-it/core': 11.2.1(@types/node@22.20.5)(supports-color@7.2.0)(typescript@5.5.4)
       '@octokit/rest': 18.12.0
       all-contributors-cli: 6.19.0
       anymatch: 3.1.3
@@ -8192,7 +8318,7 @@ snapshots:
 
   '@auto-it/bot-list@11.2.1': {}
 
-  '@auto-it/core@11.2.1(@types/node@22.5.2)(supports-color@7.2.0)(typescript@5.5.4)':
+  '@auto-it/core@11.2.1(@types/node@22.20.5)(supports-color@7.2.0)(typescript@5.5.4)':
     dependencies:
       '@auto-it/bot-list': 11.2.1
       '@endemolshinegroup/cosmiconfig-typescript-loader': 3.0.2(cosmiconfig@7.0.0)(typescript@5.5.4)
@@ -8229,24 +8355,24 @@ snapshots:
       tapable: 2.2.1
       terminal-link: 2.1.1
       tinycolor2: 1.6.0
-      ts-node: 10.9.2(@types/node@22.5.2)(typescript@5.5.4)
+      ts-node: 10.9.2(@types/node@22.20.5)(typescript@5.5.4)
       tslib: 2.1.0
       type-fest: 0.21.3
       typescript: 5.5.4
       typescript-memoize: 1.1.1
       url-join: 4.0.1
     optionalDependencies:
-      '@types/node': 22.5.2
+      '@types/node': 22.20.5
     transitivePeerDependencies:
       - '@swc/core'
       - '@swc/wasm'
       - encoding
       - supports-color
 
-  '@auto-it/first-time-contributor@11.2.1(@types/node@22.5.2)(supports-color@7.2.0)(typescript@5.5.4)':
+  '@auto-it/first-time-contributor@11.2.1(@types/node@22.20.5)(supports-color@7.2.0)(typescript@5.5.4)':
     dependencies:
       '@auto-it/bot-list': 11.2.1
-      '@auto-it/core': 11.2.1(@types/node@22.5.2)(supports-color@7.2.0)(typescript@5.5.4)
+      '@auto-it/core': 11.2.1(@types/node@22.20.5)(supports-color@7.2.0)(typescript@5.5.4)
       array.prototype.flatmap: 1.3.2
       endent: 2.1.0
       tslib: 2.1.0
@@ -8259,9 +8385,9 @@ snapshots:
       - supports-color
       - typescript
 
-  '@auto-it/npm@11.2.1(@types/node@22.5.2)(supports-color@7.2.0)(typescript@5.5.4)':
+  '@auto-it/npm@11.2.1(@types/node@22.20.5)(supports-color@7.2.0)(typescript@5.5.4)':
     dependencies:
-      '@auto-it/core': 11.2.1(@types/node@22.5.2)(supports-color@7.2.0)(typescript@5.5.4)
+      '@auto-it/core': 11.2.1(@types/node@22.20.5)(supports-color@7.2.0)(typescript@5.5.4)
       '@auto-it/package-json-utils': 11.2.1
       await-to-js: 3.0.0
       endent: 2.1.0
@@ -8288,10 +8414,10 @@ snapshots:
       parse-author: 2.0.0
       parse-github-url: 1.0.2
 
-  '@auto-it/released@11.2.1(@types/node@22.5.2)(supports-color@7.2.0)(typescript@5.5.4)':
+  '@auto-it/released@11.2.1(@types/node@22.20.5)(supports-color@7.2.0)(typescript@5.5.4)':
     dependencies:
       '@auto-it/bot-list': 11.2.1
-      '@auto-it/core': 11.2.1(@types/node@22.5.2)(supports-color@7.2.0)(typescript@5.5.4)
+      '@auto-it/core': 11.2.1(@types/node@22.20.5)(supports-color@7.2.0)(typescript@5.5.4)
       deepmerge: 4.3.1
       fp-ts: 2.16.3
       io-ts: 2.2.21(fp-ts@2.16.3)
@@ -8304,9 +8430,9 @@ snapshots:
       - supports-color
       - typescript
 
-  '@auto-it/version-file@11.2.1(@types/node@22.5.2)(supports-color@7.2.0)(typescript@5.5.4)':
+  '@auto-it/version-file@11.2.1(@types/node@22.20.5)(supports-color@7.2.0)(typescript@5.5.4)':
     dependencies:
-      '@auto-it/core': 11.2.1(@types/node@22.5.2)(supports-color@7.2.0)(typescript@5.5.4)
+      '@auto-it/core': 11.2.1(@types/node@22.20.5)(supports-color@7.2.0)(typescript@5.5.4)
       fp-ts: 2.16.3
       io-ts: 2.2.21(fp-ts@2.16.3)
       semver: 7.6.0
@@ -9138,6 +9264,8 @@ snapshots:
       '@types/tough-cookie': 4.0.5
       tough-cookie: 4.1.4
 
+  '@cornerstonejs/codec-openjpeg@1.3.6': {}
+
   '@cspotcode/source-map-support@0.8.1':
     dependencies:
       '@jridgewell/trace-mapping': 0.3.9
@@ -9402,7 +9530,7 @@ snapshots:
       '@inquirer/figures': 1.0.5
       '@inquirer/type': 1.5.2
       '@types/mute-stream': 0.0.4
-      '@types/node': 22.5.2
+      '@types/node': 22.20.5
       '@types/wrap-ansi': 3.0.0
       ansi-escapes: 4.3.2
       cli-spinners: 2.9.2
@@ -9441,7 +9569,7 @@ snapshots:
       '@jest/schemas': 29.6.3
       '@types/istanbul-lib-coverage': 2.0.6
       '@types/istanbul-reports': 3.0.4
-      '@types/node': 18.19.48
+      '@types/node': 22.20.5
       '@types/yargs': 17.0.32
       chalk: 4.1.2
 
@@ -9817,7 +9945,7 @@ snapshots:
 
   '@tsconfig/node16@1.0.4': {}
 
-  '@turbo/gen@2.1.1(@types/node@22.5.2)(supports-color@7.2.0)(typescript@5.5.4)':
+  '@turbo/gen@2.1.1(@types/node@22.20.5)(supports-color@7.2.0)(typescript@5.5.4)':
     dependencies:
       '@turbo/workspaces': 2.1.1
       commander: 10.0.1
@@ -9827,7 +9955,7 @@ snapshots:
       node-plop: 0.26.3
       picocolors: 1.0.1
       proxy-agent: 6.4.0(supports-color@7.2.0)
-      ts-node: 10.9.2(@types/node@22.5.2)(typescript@5.5.4)
+      ts-node: 10.9.2(@types/node@22.20.5)(typescript@5.5.4)
       update-check: 1.5.4
       validate-npm-package-name: 5.0.0
     transitivePeerDependencies:
@@ -9909,7 +10037,7 @@ snapshots:
   '@types/glob@7.2.0':
     dependencies:
       '@types/minimatch': 5.1.2
-      '@types/node': 18.19.48
+      '@types/node': 22.20.5
 
   '@types/hast@3.0.4':
     dependencies:
@@ -9961,7 +10089,7 @@ snapshots:
 
   '@types/mute-stream@0.0.4':
     dependencies:
-      '@types/node': 18.19.48
+      '@types/node': 22.20.5
 
   '@types/nlcst@2.0.3':
     dependencies:
@@ -9971,13 +10099,9 @@ snapshots:
 
   '@types/node@17.0.45': {}
 
-  '@types/node@18.19.48':
+  '@types/node@22.20.5':
     dependencies:
-      undici-types: 5.26.5
-
-  '@types/node@22.5.2':
-    dependencies:
-      undici-types: 6.19.8
+      undici-types: 6.21.0
 
   '@types/omggif@1.0.5': {}
 
@@ -9985,11 +10109,11 @@ snapshots:
 
   '@types/pixelmatch@5.2.6':
     dependencies:
-      '@types/node': 18.19.48
+      '@types/node': 22.20.5
 
   '@types/pngjs@6.0.5':
     dependencies:
-      '@types/node': 18.19.48
+      '@types/node': 22.20.5
 
   '@types/prop-types@15.7.12': {}
 
@@ -10006,7 +10130,7 @@ snapshots:
 
   '@types/sax@1.2.7':
     dependencies:
-      '@types/node': 18.19.48
+      '@types/node': 22.20.5
 
   '@types/stack-utils@2.0.3': {}
 
@@ -10014,7 +10138,7 @@ snapshots:
 
   '@types/through@0.0.33':
     dependencies:
-      '@types/node': 18.19.48
+      '@types/node': 22.20.5
 
   '@types/tinycolor2@1.4.6': {}
 
@@ -10115,18 +10239,18 @@ snapshots:
 
   '@ungap/structured-clone@1.2.0': {}
 
-  '@vitejs/plugin-react@4.3.1(supports-color@7.2.0)(vite@5.4.2(@types/node@22.5.2)(terser@5.30.3))':
+  '@vitejs/plugin-react@4.3.1(supports-color@7.2.0)(vite@5.4.2(@types/node@22.20.5)(terser@5.30.3))':
     dependencies:
       '@babel/core': 7.25.2(supports-color@7.2.0)
       '@babel/plugin-transform-react-jsx-self': 7.24.7(@babel/core@7.25.2(supports-color@7.2.0))
       '@babel/plugin-transform-react-jsx-source': 7.24.1(@babel/core@7.25.2(supports-color@7.2.0))
       '@types/babel__core': 7.20.5
       react-refresh: 0.14.2
-      vite: 5.4.2(@types/node@22.5.2)(terser@5.30.3)
+      vite: 5.4.2(@types/node@22.20.5)(terser@5.30.3)
     transitivePeerDependencies:
       - supports-color
 
-  '@vitest/browser@2.0.5(@types/node@18.19.48)(playwright@1.46.1)(typescript@5.5.4)(vitest@2.0.5)':
+  '@vitest/browser@2.0.5(playwright@1.46.1)(typescript@5.5.4)(vitest@2.0.5)':
     dependencies:
       '@testing-library/dom': 10.4.0
       '@testing-library/user-event': 14.5.2(@testing-library/dom@10.4.0)
@@ -10134,31 +10258,11 @@ snapshots:
       magic-string: 0.30.11
       msw: 2.4.1(typescript@5.5.4)
       sirv: 2.0.4
-      vitest: 2.0.5(@types/node@18.19.48)(@vitest/browser@2.0.5)(supports-color@7.2.0)(terser@5.30.3)
+      vitest: 2.0.5(@types/node@22.20.5)(@vitest/browser@2.0.5)(supports-color@7.2.0)(terser@5.30.3)
       ws: 8.18.0
     optionalDependencies:
       playwright: 1.46.1
     transitivePeerDependencies:
-      - '@types/node'
-      - bufferutil
-      - graphql
-      - typescript
-      - utf-8-validate
-
-  '@vitest/browser@2.0.5(@types/node@22.5.2)(playwright@1.46.1)(typescript@5.5.4)(vitest@2.0.5)':
-    dependencies:
-      '@testing-library/dom': 10.4.0
-      '@testing-library/user-event': 14.5.2(@testing-library/dom@10.4.0)
-      '@vitest/utils': 2.0.5
-      magic-string: 0.30.11
-      msw: 2.4.1(typescript@5.5.4)
-      sirv: 2.0.4
-      vitest: 2.0.5(@types/node@22.5.2)(@vitest/browser@2.0.5)(supports-color@7.2.0)(terser@5.30.3)
-      ws: 8.18.0
-    optionalDependencies:
-      playwright: 1.46.1
-    transitivePeerDependencies:
-      - '@types/node'
       - bufferutil
       - graphql
       - typescript
@@ -10409,12 +10513,12 @@ snapshots:
 
   astring@1.8.6: {}
 
-  astro-expressive-code@0.35.6(astro@4.15.1(@types/node@22.5.2)(rollup@4.21.2)(supports-color@7.2.0)(terser@5.30.3)(typescript@5.5.4)):
+  astro-expressive-code@0.35.6(astro@4.15.1(@types/node@22.20.5)(rollup@4.21.2)(supports-color@7.2.0)(terser@5.30.3)(typescript@5.5.4)):
     dependencies:
-      astro: 4.15.1(@types/node@22.5.2)(rollup@4.21.2)(supports-color@7.2.0)(terser@5.30.3)(typescript@5.5.4)
+      astro: 4.15.1(@types/node@22.20.5)(rollup@4.21.2)(supports-color@7.2.0)(terser@5.30.3)(typescript@5.5.4)
       rehype-expressive-code: 0.35.6
 
-  astro@4.15.1(@types/node@22.5.2)(rollup@4.21.2)(supports-color@7.2.0)(terser@5.30.3)(typescript@5.5.4):
+  astro@4.15.1(@types/node@22.20.5)(rollup@4.21.2)(supports-color@7.2.0)(terser@5.30.3)(typescript@5.5.4):
     dependencies:
       '@astrojs/compiler': 2.10.3
       '@astrojs/internal-helpers': 0.4.1
@@ -10474,8 +10578,8 @@ snapshots:
       tsconfck: 3.1.3(typescript@5.5.4)
       unist-util-visit: 5.0.0
       vfile: 6.0.3
-      vite: 5.4.2(@types/node@22.5.2)(terser@5.30.3)
-      vitefu: 0.2.5(vite@5.4.2(@types/node@22.5.2)(terser@5.30.3))
+      vite: 5.4.2(@types/node@22.20.5)(terser@5.30.3)
+      vitefu: 0.2.5(vite@5.4.2(@types/node@22.20.5)(terser@5.30.3))
       which-pm: 3.0.0
       xxhash-wasm: 1.0.2
       yargs-parser: 21.1.1
@@ -10501,12 +10605,12 @@ snapshots:
 
   author-regex@1.0.0: {}
 
-  auto@11.2.1(@types/node@22.5.2)(supports-color@7.2.0)(typescript@5.5.4):
+  auto@11.2.1(@types/node@22.20.5)(supports-color@7.2.0)(typescript@5.5.4):
     dependencies:
-      '@auto-it/core': 11.2.1(@types/node@22.5.2)(supports-color@7.2.0)(typescript@5.5.4)
-      '@auto-it/npm': 11.2.1(@types/node@22.5.2)(supports-color@7.2.0)(typescript@5.5.4)
-      '@auto-it/released': 11.2.1(@types/node@22.5.2)(supports-color@7.2.0)(typescript@5.5.4)
-      '@auto-it/version-file': 11.2.1(@types/node@22.5.2)(supports-color@7.2.0)(typescript@5.5.4)
+      '@auto-it/core': 11.2.1(@types/node@22.20.5)(supports-color@7.2.0)(typescript@5.5.4)
+      '@auto-it/npm': 11.2.1(@types/node@22.20.5)(supports-color@7.2.0)(typescript@5.5.4)
+      '@auto-it/released': 11.2.1(@types/node@22.20.5)(supports-color@7.2.0)(typescript@5.5.4)
+      '@auto-it/version-file': 11.2.1(@types/node@22.20.5)(supports-color@7.2.0)(typescript@5.5.4)
       await-to-js: 3.0.0
       chalk: 4.1.2
       command-line-application: 0.10.1
@@ -12379,7 +12483,7 @@ snapshots:
   jest-util@29.7.0:
     dependencies:
       '@jest/types': 29.6.3
-      '@types/node': 18.19.48
+      '@types/node': 22.20.5
       chalk: 4.1.2
       ci-info: 3.9.0
       graceful-fs: 4.2.11
@@ -14222,10 +14326,10 @@ snapshots:
 
   stackback@0.0.2: {}
 
-  starlight-typedoc@0.15.0(@astrojs/starlight@0.26.1(astro@4.15.1(@types/node@22.5.2)(rollup@4.21.2)(supports-color@7.2.0)(terser@5.30.3)(typescript@5.5.4))(supports-color@7.2.0))(astro@4.15.1(@types/node@22.5.2)(rollup@4.21.2)(supports-color@7.2.0)(terser@5.30.3)(typescript@5.5.4))(typedoc-plugin-markdown@4.2.6(typedoc@0.26.6(typescript@5.5.4)))(typedoc@0.26.6(typescript@5.5.4)):
+  starlight-typedoc@0.15.0(@astrojs/starlight@0.26.1(astro@4.15.1(@types/node@22.20.5)(rollup@4.21.2)(supports-color@7.2.0)(terser@5.30.3)(typescript@5.5.4))(supports-color@7.2.0))(astro@4.15.1(@types/node@22.20.5)(rollup@4.21.2)(supports-color@7.2.0)(terser@5.30.3)(typescript@5.5.4))(typedoc-plugin-markdown@4.2.6(typedoc@0.26.6(typescript@5.5.4)))(typedoc@0.26.6(typescript@5.5.4)):
     dependencies:
-      '@astrojs/starlight': 0.26.1(astro@4.15.1(@types/node@22.5.2)(rollup@4.21.2)(supports-color@7.2.0)(terser@5.30.3)(typescript@5.5.4))(supports-color@7.2.0)
-      astro: 4.15.1(@types/node@22.5.2)(rollup@4.21.2)(supports-color@7.2.0)(terser@5.30.3)(typescript@5.5.4)
+      '@astrojs/starlight': 0.26.1(astro@4.15.1(@types/node@22.20.5)(rollup@4.21.2)(supports-color@7.2.0)(terser@5.30.3)(typescript@5.5.4))(supports-color@7.2.0)
+      astro: 4.15.1(@types/node@22.20.5)(rollup@4.21.2)(supports-color@7.2.0)(terser@5.30.3)(typescript@5.5.4)
       github-slugger: 2.0.0
       typedoc: 0.26.6(typescript@5.5.4)
       typedoc-plugin-markdown: 4.2.6(typedoc@0.26.6(typescript@5.5.4))
@@ -14448,14 +14552,14 @@ snapshots:
     dependencies:
       typescript: 5.5.4
 
-  ts-node@10.9.2(@types/node@22.5.2)(typescript@5.5.4):
+  ts-node@10.9.2(@types/node@22.20.5)(typescript@5.5.4):
     dependencies:
       '@cspotcode/source-map-support': 0.8.1
       '@tsconfig/node10': 1.0.9
       '@tsconfig/node12': 1.0.11
       '@tsconfig/node14': 1.0.3
       '@tsconfig/node16': 1.0.4
-      '@types/node': 22.5.2
+      '@types/node': 22.20.5
       acorn: 8.11.3
       acorn-walk: 8.3.2
       arg: 4.1.3
@@ -14629,9 +14733,7 @@ snapshots:
       has-symbols: 1.0.3
       which-boxed-primitive: 1.0.2
 
-  undici-types@5.26.5: {}
-
-  undici-types@6.19.8: {}
+  undici-types@6.21.0: {}
 
   unicode-canonical-property-names-ecmascript@2.0.1: {}
 
@@ -14800,13 +14902,13 @@ snapshots:
       '@types/unist': 3.0.2
       vfile-message: 4.0.2
 
-  vite-node@2.0.5(@types/node@18.19.48)(supports-color@7.2.0)(terser@5.30.3):
+  vite-node@2.0.5(@types/node@22.20.5)(supports-color@7.2.0)(terser@5.30.3):
     dependencies:
       cac: 6.7.14
       debug: 4.3.6(supports-color@7.2.0)
       pathe: 1.1.2
       tinyrainbow: 1.2.0
-      vite: 5.4.2(@types/node@18.19.48)(terser@5.30.3)
+      vite: 5.4.2(@types/node@22.20.5)(terser@5.30.3)
     transitivePeerDependencies:
       - '@types/node'
       - less
@@ -14818,65 +14920,29 @@ snapshots:
       - supports-color
       - terser
 
-  vite-node@2.0.5(@types/node@22.5.2)(supports-color@7.2.0)(terser@5.30.3):
-    dependencies:
-      cac: 6.7.14
-      debug: 4.3.6(supports-color@7.2.0)
-      pathe: 1.1.2
-      tinyrainbow: 1.2.0
-      vite: 5.4.2(@types/node@22.5.2)(terser@5.30.3)
-    transitivePeerDependencies:
-      - '@types/node'
-      - less
-      - lightningcss
-      - sass
-      - sass-embedded
-      - stylus
-      - sugarss
-      - supports-color
-      - terser
-
-  vite-plugin-node-polyfills@0.22.0(rollup@4.21.2)(vite@5.4.2(@types/node@18.19.48)(terser@5.30.3)):
+  vite-plugin-node-polyfills@0.22.0(rollup@4.21.2)(vite@5.4.2(@types/node@22.20.5)(terser@5.30.3)):
     dependencies:
       '@rollup/plugin-inject': 5.0.5(rollup@4.21.2)
       node-stdlib-browser: 1.2.0
-      vite: 5.4.2(@types/node@18.19.48)(terser@5.30.3)
+      vite: 5.4.2(@types/node@22.20.5)(terser@5.30.3)
     transitivePeerDependencies:
       - rollup
 
-  vite-plugin-node-polyfills@0.22.0(rollup@4.21.2)(vite@5.4.2(@types/node@22.5.2)(terser@5.30.3)):
-    dependencies:
-      '@rollup/plugin-inject': 5.0.5(rollup@4.21.2)
-      node-stdlib-browser: 1.2.0
-      vite: 5.4.2(@types/node@22.5.2)(terser@5.30.3)
-    transitivePeerDependencies:
-      - rollup
-
-  vite@5.4.2(@types/node@18.19.48)(terser@5.30.3):
+  vite@5.4.2(@types/node@22.20.5)(terser@5.30.3):
     dependencies:
       esbuild: 0.21.5
       postcss: 8.4.42
       rollup: 4.21.2
     optionalDependencies:
-      '@types/node': 18.19.48
+      '@types/node': 22.20.5
       fsevents: 2.3.3
       terser: 5.30.3
 
-  vite@5.4.2(@types/node@22.5.2)(terser@5.30.3):
-    dependencies:
-      esbuild: 0.21.5
-      postcss: 8.4.42
-      rollup: 4.21.2
+  vitefu@0.2.5(vite@5.4.2(@types/node@22.20.5)(terser@5.30.3)):
     optionalDependencies:
-      '@types/node': 22.5.2
-      fsevents: 2.3.3
-      terser: 5.30.3
+      vite: 5.4.2(@types/node@22.20.5)(terser@5.30.3)
 
-  vitefu@0.2.5(vite@5.4.2(@types/node@22.5.2)(terser@5.30.3)):
-    optionalDependencies:
-      vite: 5.4.2(@types/node@22.5.2)(terser@5.30.3)
-
-  vitest@2.0.5(@types/node@18.19.48)(@vitest/browser@2.0.5)(supports-color@7.2.0)(terser@5.30.3):
+  vitest@2.0.5(@types/node@22.20.5)(@vitest/browser@2.0.5)(supports-color@7.2.0)(terser@5.30.3):
     dependencies:
       '@ampproject/remapping': 2.3.0
       '@vitest/expect': 2.0.5
@@ -14894,46 +14960,12 @@ snapshots:
       tinybench: 2.9.0
       tinypool: 1.0.1
       tinyrainbow: 1.2.0
-      vite: 5.4.2(@types/node@18.19.48)(terser@5.30.3)
-      vite-node: 2.0.5(@types/node@18.19.48)(supports-color@7.2.0)(terser@5.30.3)
+      vite: 5.4.2(@types/node@22.20.5)(terser@5.30.3)
+      vite-node: 2.0.5(@types/node@22.20.5)(supports-color@7.2.0)(terser@5.30.3)
       why-is-node-running: 2.3.0
     optionalDependencies:
-      '@types/node': 18.19.48
-      '@vitest/browser': 2.0.5(@types/node@18.19.48)(playwright@1.46.1)(typescript@5.5.4)(vitest@2.0.5)
-    transitivePeerDependencies:
-      - less
-      - lightningcss
-      - sass
-      - sass-embedded
-      - stylus
-      - sugarss
-      - supports-color
-      - terser
-
-  vitest@2.0.5(@types/node@22.5.2)(@vitest/browser@2.0.5)(supports-color@7.2.0)(terser@5.30.3):
-    dependencies:
-      '@ampproject/remapping': 2.3.0
-      '@vitest/expect': 2.0.5
-      '@vitest/pretty-format': 2.0.5
-      '@vitest/runner': 2.0.5
-      '@vitest/snapshot': 2.0.5
-      '@vitest/spy': 2.0.5
-      '@vitest/utils': 2.0.5
-      chai: 5.1.1
-      debug: 4.3.6(supports-color@7.2.0)
-      execa: 8.0.1
-      magic-string: 0.30.11
-      pathe: 1.1.2
-      std-env: 3.7.0
-      tinybench: 2.9.0
-      tinypool: 1.0.1
-      tinyrainbow: 1.2.0
-      vite: 5.4.2(@types/node@22.5.2)(terser@5.30.3)
-      vite-node: 2.0.5(@types/node@22.5.2)(supports-color@7.2.0)(terser@5.30.3)
-      why-is-node-running: 2.3.0
-    optionalDependencies:
-      '@types/node': 22.5.2
-      '@vitest/browser': 2.0.5(@types/node@22.5.2)(playwright@1.46.1)(typescript@5.5.4)(vitest@2.0.5)
+      '@types/node': 22.20.5
+      '@vitest/browser': 2.0.5(playwright@1.46.1)(typescript@5.5.4)(vitest@2.0.5)
     transitivePeerDependencies:
       - less
       - lightningcss
