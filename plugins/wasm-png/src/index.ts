@@ -8,7 +8,6 @@ import z from "zod";
 import { loadWasm } from "./load-wasm.js";
 
 const PngOptionsSchema = z.object({
-  colorSpace: z.union([z.literal("display-p3"), z.literal("srgb")]).optional(),
   optimize: z
     .object({
       /** whether to use PNG interlacing or not. Interlacing will increase the size of an optimised image. */
@@ -27,7 +26,7 @@ const PngOptionsSchema = z.object({
    * @default true
    */
   icc: z.boolean().optional(),
-});
+}).strict();
 
 type PngOptions = z.infer<typeof PngOptionsSchema>;
 
@@ -87,12 +86,13 @@ export default function png({ wasm }: PngFormatOptions = {}) {
     mime: "image/png",
     hasAlpha: true,
     encode: async (bitmap, options: Partial<PngOptions> = {}) => {
-      const { colorSpace = "srgb", optimize } = PngOptionsSchema.parse(options);
+      const { optimize } = PngOptionsSchema.parse(options);
       await initPngOnce(wasm?.png);
       let arrayBuffer = await encode({
         ...bitmap,
         data: new Uint8ClampedArray(bitmap.data),
-        colorSpace,
+        // ImageData needs one, but the codec only reads the pixels
+        colorSpace: "srgb",
       });
 
       if (optimize) {
