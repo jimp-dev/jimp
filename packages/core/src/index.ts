@@ -328,7 +328,8 @@ export type PathExtension<Path extends string> =
 type ExtensionAliases =
   | Record<"jpg" | "jpe", "image/jpeg">
   | Record<"tif", "image/tiff">
-  | Record<"ico", "image/x-icon">;
+  | Record<"ico", "image/x-icon">
+  | Record<"svg", "image/svg+xml">;
 type OrIfNever<T, Fallback> = [T] extends [never] ? Fallback : T;
 /**
  * The options `write` takes for a path: those of the format its extension
@@ -585,16 +586,19 @@ export function createJimp<
     ): Promise<Instance> {
       const actualBuffer = await toBuffer(buffer);
 
-      const mime = await detectFileTypeFromBuffer(actualBuffer);
+      const mime = (await detectFileTypeFromBuffer(actualBuffer))?.mime;
+      const format =
+        formats.find((format) => format.mime === mime) ??
+        // Text-based formats like SVG, which file-type finds nothing (or
+        // application/xml) for
+        formats.find((format) => format.detect?.(actualBuffer));
 
-      if (!mime || !mime.mime) {
+      if (!format && !mime) {
         throw new Error("Could not find MIME for Buffer");
       }
 
-      const format = formats.find((format) => format.mime === mime.mime);
-
       if (!format || !format.decode) {
-        throw new Error(`Mime type ${mime.mime} does not support decoding`);
+        throw new Error(`Mime type ${mime} does not support decoding`);
       }
 
       const image = new CustomJimp(
@@ -604,7 +608,7 @@ export function createJimp<
         )
       ) as Instance;
 
-      image.mime = mime.mime;
+      image.mime = format.mime;
 
       readExif(image, actualBuffer, { rotate: options?.exifRotate ?? true });
       image.iccProfile = readIccProfile(actualBuffer);
