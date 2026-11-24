@@ -601,9 +601,6 @@ importers:
       '@jimp/wasm-webp':
         specifier: workspace:*
         version: link:../../plugins/wasm-webp
-      '@rollup/plugin-alias':
-        specifier: ^6.0.1
-        version: 6.0.1(rollup@4.68.8)
       '@rollup/plugin-commonjs':
         specifier: ^29.0.3
         version: 29.0.3(rollup@4.68.8)
@@ -655,6 +652,43 @@ importers:
       vite-plugin-node-polyfills:
         specifier: ^0.28.0
         version: 0.28.0(rollup@4.68.8)(vite@8.3.8(@types/node@22.20.5)(esbuild@0.28.2)(terser@5.51.4)(yaml@2.9.1))
+      vitest:
+        specifier: ^5.1.1
+        version: 5.1.1(@types/node@22.20.5)(@vitest/browser-playwright@5.1.1)(@vitest/ui@5.1.1)(vite@8.3.8(@types/node@22.20.5)(esbuild@0.28.2)(terser@5.51.4)(yaml@2.9.1))
+
+  packages/pngjs:
+    dependencies:
+      pako:
+        specifier: ^3.0.3
+        version: 3.0.3
+    devDependencies:
+      '@jimp/config-eslint':
+        specifier: workspace:*
+        version: link:../config-eslint
+      '@jimp/config-typescript':
+        specifier: workspace:*
+        version: link:../config-typescript
+      '@types/node':
+        specifier: ^22.20.5
+        version: 22.20.5
+      '@types/pngjs':
+        specifier: ^6.0.5
+        version: 6.0.5
+      '@vitest/browser-playwright':
+        specifier: ^5.1.1
+        version: 5.1.1(playwright@1.65.1)(vite@8.3.8(@types/node@22.20.5)(esbuild@0.28.2)(terser@5.51.4)(yaml@2.9.1))(vitest@5.1.1)
+      eslint:
+        specifier: ^10.15.0
+        version: 10.15.0(supports-color@7.2.0)
+      pngjs:
+        specifier: ^7.0.0
+        version: 7.0.0
+      tshy:
+        specifier: ~4.0.0
+        version: 4.0.0
+      typescript:
+        specifier: ^7.0.2
+        version: 7.0.2
       vitest:
         specifier: ^5.1.1
         version: 5.1.1(@types/node@22.20.5)(@vitest/browser-playwright@5.1.1)(@vitest/ui@5.1.1)(vite@8.3.8(@types/node@22.20.5)(esbuild@0.28.2)(terser@5.51.4)(yaml@2.9.1))
@@ -980,12 +1014,12 @@ importers:
       '@jimp/core':
         specifier: workspace:*
         version: link:../../packages/core
+      '@jimp/pngjs':
+        specifier: workspace:*
+        version: link:../../packages/pngjs
       '@jimp/types':
         specifier: workspace:*
         version: link:../../packages/types
-      pngjs:
-        specifier: ^7.0.0
-        version: 7.0.0
     devDependencies:
       '@jimp/config-eslint':
         specifier: workspace:*
@@ -999,9 +1033,9 @@ importers:
       '@jimp/test-utils':
         specifier: workspace:*
         version: link:../../packages/test-utils
-      '@types/pngjs':
-        specifier: ^6.0.5
-        version: 6.0.5
+      '@types/node':
+        specifier: ^22.20.5
+        version: 22.20.5
       '@vitest/browser':
         specifier: ^5.1.1
         version: 5.1.1(vite@8.3.8(@types/node@22.20.5)(esbuild@0.28.2)(terser@5.51.4)(yaml@2.9.1))(vitest@5.1.1)
@@ -4506,15 +4540,6 @@ packages:
   '@rolldown/pluginutils@1.1.1':
     resolution: {integrity: sha512-glFIJDvLNDtJhT9qrMFWLPbvS+skxgt4L0K8Ei2YtnhPysAJnsI7nyxSJxKj4ADeKX0OLjC4ntRkwpLOoS3rwA==}
 
-  '@rollup/plugin-alias@6.0.1':
-    resolution: {integrity: sha512-08wjv2HEuyxIuriLELnksoX+so83XnJ5E4hbVeCHkWlwOcaRQaHYxpUTAplnZjrlh/l5mZgvH1itNC9kcTfTTA==}
-    engines: {node: '>=20.19.0'}
-    peerDependencies:
-      rollup: '>=4.0.0'
-    peerDependenciesMeta:
-      rollup:
-        optional: true
-
   '@rollup/plugin-commonjs@29.0.3':
     resolution: {integrity: sha512-ZaOxZceP7SOUW7Lqw5IRVweSQYWaeIPnXIGLiB690EBA3FGJTO40EEr2L5yZplJWsgTCogILRSpcAe7+U0Otdg==}
     engines: {node: '>=16.0.0 || 14 >= 14.17'}
@@ -7278,6 +7303,9 @@ packages:
 
   pako@1.0.11:
     resolution: {integrity: sha512-4hLB8Py4zZce5s4yd9XzopqwVv/yGNhV1Bl8NTmCq1763HeK2+EwVTv+leGeL13Dnh2wfbqowVPXCIO0z4taYw==}
+
+  pako@3.0.3:
+    resolution: {integrity: sha512-tmrebBBYI5FOw8QICGwJNqE8fotC8R+gwcxOvoFNv+GKehOI6Lc6YBolNcQNnC4v96l1wt7rh102ifD4kVeZAQ==}
 
   parent-module@1.0.1:
     resolution: {integrity: sha512-GQ2EWRpQV8/o+Aw8YqtfZZPfNRWZYkbidE9k5rpl/hC3vtHHBfGm2Ifi6qWV+coDGkrUKZAxE3Lot5kcsRlh+g==}
@@ -10732,10 +10760,6 @@ snapshots:
 
   '@rolldown/pluginutils@1.1.1': {}
 
-  '@rollup/plugin-alias@6.0.1(rollup@4.68.8)':
-    optionalDependencies:
-      rollup: 4.68.8
-
   '@rollup/plugin-commonjs@29.0.3(rollup@4.68.8)':
     dependencies:
       '@rollup/pluginutils': 5.1.0(rollup@4.68.8)
@@ -13837,6 +13861,8 @@ snapshots:
       '@pagefind/windows-x64': 1.6.0
 
   pako@1.0.11: {}
+
+  pako@3.0.3: {}
 
   parent-module@1.0.1:
     dependencies:

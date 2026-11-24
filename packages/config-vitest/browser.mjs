@@ -14,8 +14,6 @@ const imagesFolder = path.join(
 export default defineConfig({
   resolve: {
     alias: [
-      // Exact match, so imports of "pngjs/browser.js" itself aren't rewritten.
-      { find: /^pngjs$/, replacement: "pngjs/browser.js" },
       // nodePolyfills injects this import into every module that uses Buffer,
       // including built deps like @jimp/test-utils that can't resolve it under pnpm.
       {

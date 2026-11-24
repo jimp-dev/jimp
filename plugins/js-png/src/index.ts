@@ -1,14 +1,40 @@
-import type { PNGOptions as PNGJSOptions } from "pngjs";
+import { PNG, decode, decodeFrames, encode, readHeader } from "@jimp/pngjs";
+import type {
+  ColorType,
+  LegacyColorType,
+  PNGOptions as PNGJSOptions,
+} from "@jimp/pngjs";
 import { Format } from "@jimp/types";
 import { PNGFilterType, PNGColorType } from "./constants.js";
-import { PNG } from "./pngjs.js";
 
-export type { PNGOptions as PNGJSOptions } from "pngjs";
-export type PNGOptions = Pick<
-  PNGJSOptions,
-  "deflateLevel" | "deflateStrategy" | "bitDepth" | "bgColor"
-> & {
+export type { PNGOptions as PNGJSOptions } from "@jimp/pngjs";
+// Written out rather than picked from @jimp/pngjs's types, so the declarations
+// of packages that use these options don't need @jimp/pngjs to resolve
+export interface PNGOptions {
+  /** zlib's compression level, 0-9 @default 9 */
+  deflateLevel?: number;
+  /** zlib's strategy, e.g. 3 (run-length) @default 3 */
+  deflateStrategy?: number;
+  /**
+   * Bits per sample (or palette index). By default the smallest that keeps
+   * every pixel exactly. 16 stores each 8-bit sample in 16 bits.
+   */
+  bitDepth?: 1 | 2 | 4 | 8 | 16;
+  /**
+   * The background transparent pixels are blended with when `colorType` has
+   * no alpha channel
+   * @default white
+   */
+  bgColor?: { red: number; green: number; blue: number };
+  /**
+   * The filter for each line. By default the best of all five for each line,
+   * or none for palette and low bit depth images, which filters rarely help.
+   */
   filterType?: PNGFilterType;
+  /**
+   * The colour type to write. By default the smallest that keeps every pixel
+   * exactly, see the README.
+   */
   colorType?: PNGColorType;
   inputColorType?: PNGColorType;
   /**
@@ -28,7 +54,7 @@ export type PNGOptions = Pick<
    * @default true
    */
   icc?: boolean;
-};
+}
 
 export interface DecodePngOptions {
   checkCRC?: boolean | undefined;
@@ -36,131 +62,115 @@ export interface DecodePngOptions {
 
 export * from "./constants.js";
 
-/**
- * pngjs throws on any bytes after the IEND chunk, but browsers and other
- * decoders ignore them, and tools like ffmpeg write such files. Walk the
- * chunks and return the data up to the end of IEND. If there is nothing after
- * IEND, or the chunks can't be walked, return the data as is so pngjs reports
- * its own error.
- */
-function trimTrailingData(data: Buffer) {
-  // The 8-byte signature, then chunks of: 4-byte length, 4-byte type, data,
-  // 4-byte CRC.
-  let offset = 8;
-
-  while (offset + 8 <= data.length) {
-    const length =
-      data[offset]! * 0x1000000 +
-      ((data[offset + 1]! << 16) |
-        (data[offset + 2]! << 8) |
-        data[offset + 3]!);
-    const end = offset + 12 + length;
-
-    if (end > data.length) {
-      return data;
-    }
-
-    if (
-      data[offset + 4] === 0x49 && // I
-      data[offset + 5] === 0x45 && // E
-      data[offset + 6] === 0x4e && // N
-      data[offset + 7] === 0x44 // D
-    ) {
-      return end < data.length ? data.subarray(0, end) : data;
-    }
-
-    offset = end;
-  }
-
-  return data;
+function toBuffer(data: Uint8Array) {
+  return Buffer.isBuffer(data)
+    ? data
+    : Buffer.from(data.buffer, data.byteOffset, data.byteLength);
 }
 
 /**
- * Pick the smallest colour type that stores the RGBA bitmap without loss:
- * drop the alpha channel if every pixel is opaque, and the colour channels if
- * every pixel has R = G = B.
+ * APNG counts how many times the animation plays, 0 for forever. Jimp counts
+ * the repeats after the first play, and uses null for playing once.
  */
-function getLosslessColorType(data: Buffer) {
-  let hasAlpha = false;
-  let hasColor = false;
-
-  for (let i = 0; i < data.length; i += 4) {
-    if (!hasAlpha && data[i + 3] !== 255) {
-      hasAlpha = true;
-
-      if (hasColor) {
-        break;
-      }
-    }
-
-    if (!hasColor && (data[i] !== data[i + 1] || data[i] !== data[i + 2])) {
-      hasColor = true;
-
-      if (hasAlpha) {
-        break;
-      }
-    }
-  }
-
-  if (hasColor) {
-    return hasAlpha ? PNGColorType.COLOR_ALPHA : PNGColorType.COLOR;
-  }
-
-  return hasAlpha ? PNGColorType.GRAYSCALE_ALPHA : PNGColorType.GRAYSCALE;
+function toLoop(plays: number) {
+  return plays === 0 ? 0 : plays === 1 ? null : plays - 1;
 }
 
 export default function png() {
   return {
     mime: "image/png",
     hasAlpha: true,
+    /**
+     * file-type says animated PNGs are "image/apng", which no format has, so
+     * recognise them here
+     */
+    detect: (data) => {
+      try {
+        readHeader(data);
+        return true;
+      } catch {
+        return false;
+      }
+    },
     encode: (
       bitmap,
       {
         deflateLevel = 9,
         deflateStrategy = 3,
-        filterType = PNGFilterType.AUTO,
+        filterType,
         colorType,
         inputColorType,
         inputHasAlpha,
         bitDepth,
         bgColor,
-      }: PNGOptions = {}
+      }: PNGOptions = {},
     ) => {
-      const png = new PNG({
-        width: bitmap.width,
-        height: bitmap.height,
-      });
+      // pngjs reads input that isn't RGBA, which a Jimp bitmap never is
+      if (inputColorType !== undefined) {
+        const png = new PNG({ width: bitmap.width, height: bitmap.height });
 
-      png.data = bitmap.data;
+        png.data = bitmap.data;
 
-      return PNG.sync.write(png, {
-        inputColorType,
-        bitDepth,
-        bgColor,
-        deflateLevel,
-        deflateStrategy,
-        filterType,
-        colorType:
-          typeof colorType !== "undefined"
-            ? colorType
-            : inputHasAlpha === false
-              ? PNGColorType.COLOR
-              : getLosslessColorType(bitmap.data),
-        // The bitmap is always RGBA. Telling pngjs otherwise makes it read the
-        // data as RGB, which garbles the image.
-        inputHasAlpha: true,
-      });
+        return PNG.sync.write(png, {
+          inputColorType: inputColorType as PNGJSOptions["inputColorType"],
+          bitDepth,
+          bgColor,
+          deflateLevel,
+          deflateStrategy,
+          filterType,
+          colorType: (colorType ?? PNGColorType.COLOR_ALPHA) as LegacyColorType,
+          inputHasAlpha: true,
+        });
+      }
+
+      return toBuffer(
+        encode(bitmap, {
+          deflateLevel,
+          deflateStrategy,
+          filterType,
+          colorType: (colorType ??
+            (inputHasAlpha === false ? PNGColorType.COLOR : undefined)) as
+            ColorType | undefined,
+          bitDepth,
+          background: bgColor,
+        }),
+      );
     },
     decode: (data, options?: DecodePngOptions) => {
       // Jimp bitmaps are 8-bit, so samples are always rescaled to 8 bits
-      const result = PNG.sync.read(trimTrailingData(data), {
-        checkCRC: options?.checkCRC,
-      });
+      const result = decode(data, { checkCRC: options?.checkCRC });
 
       return {
-        data: result.data,
+        data: toBuffer(result.data),
         width: result.width,
         height: result.height,
+      };
+    },
+    /** Decodes every frame of an animated PNG (APNG) */
+    decodeFrames: (
+      data,
+      options?: DecodePngOptions,
+      { maxFrames = Infinity } = {},
+    ) => {
+      const { width, height, frames, plays } = decodeFrames(data, {
+        checkCRC: options?.checkCRC,
+        maxFrames,
+      });
+
+      if (plays === undefined) {
+        return {
+          frames: [
+            { bitmap: { data: toBuffer(frames[0]!.data), width, height } },
+          ],
+        };
+      }
+
+      return {
+        frames: frames.map((frame) => ({
+          bitmap: { data: toBuffer(frame.data), width, height },
+          delay: frame.delay,
+        })),
+        loop: toLoop(plays),
       };
     },
   } satisfies Format<"image/png">;

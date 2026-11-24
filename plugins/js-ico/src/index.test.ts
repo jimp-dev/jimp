@@ -234,13 +234,13 @@ describe("ICO", () => {
     ]);
 
     test("lists the images", () => {
-      // js-png writes opaque images as RGB
+      // js-png writes images of one colour as 1-bit palette PNGs
       expect(readIcoEntries(icon)).toEqual([
-        { index: 0, width: 1, height: 1, bitDepth: 24, format: "png" },
+        { index: 0, width: 1, height: 1, bitDepth: 1, format: "png" },
         { index: 1, width: 2, height: 2, bitDepth: 24, format: "bmp" },
         { index: 2, width: 2, height: 2, bitDepth: 32, format: "bmp" },
-        { index: 3, width: 4, height: 1, bitDepth: 24, format: "png" },
-        { index: 4, width: 3, height: 3, bitDepth: 24, format: "png" },
+        { index: 3, width: 4, height: 1, bitDepth: 1, format: "png" },
+        { index: 4, width: 3, height: 3, bitDepth: 1, format: "png" },
       ]);
     });
 

@@ -1,7 +1,6 @@
 import esbuild from "rollup-plugin-esbuild";
 import { nodeResolve } from "@rollup/plugin-node-resolve";
 import commonjs from "@rollup/plugin-commonjs";
-import alias from "@rollup/plugin-alias";
 import nodePolyfills from "rollup-plugin-polyfill-node";
 import inject from "@rollup/plugin-inject";
 import terser from "@rollup/plugin-terser";
@@ -81,28 +80,6 @@ function bufferV6Plugin() {
   };
 }
 
-/**
- * pngjs/browser.js is a browserify bundle with its own copy of buffer v5, which
- * sets prototypes by assigning `__proto__`. Use Object.setPrototypeOf instead.
- */
-function pngjsSetPrototypeOfPlugin() {
-  return {
-    name: "pngjs-set-prototype-of",
-    transform(code, id) {
-      if (id.endsWith("pngjs/browser.js")) {
-        return {
-          code: code.replace(
-            /([\w.]+)\.__proto__ = ([^;\n]+)/g,
-            "Object.setPrototypeOf($1, $2)",
-          ),
-          // Only columns change, so the existing mappings stay usable
-          map: null,
-        };
-      }
-    },
-  };
-}
-
 export default [
   {
     input: `src/index.ts`,
@@ -118,12 +95,6 @@ export default [
       // buffer v6 (see bufferV6Plugin) can't be found.
       commonjs({ strictRequires: "auto" }),
       inject({ Buffer: ["buffer", "Buffer"] }),
-
-      // Use the browser version of some packages
-      alias({
-        entries: [{ find: /^pngjs$/, replacement: "pngjs/browser.js" }],
-      }),
-      pngjsSetPrototypeOfPlugin(),
 
       terser(),
     ],

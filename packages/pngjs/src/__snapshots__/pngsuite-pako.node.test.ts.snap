@@ -1,0 +1,29 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`PngSuite with pako > rejects xc1n0g08.png with an Error 1`] = `"Unsupported color type 1"`;
+
+exports[`PngSuite with pako > rejects xc9n2c08.png with an Error 1`] = `"Unsupported color type 9"`;
+
+exports[`PngSuite with pako > rejects xcrn0g04.png with an Error 1`] = `"Invalid file signature: not a PNG file"`;
+
+exports[`PngSuite with pako > rejects xcsn0g01.png with an Error 1`] = `"CRC error in IDAT chunk"`;
+
+exports[`PngSuite with pako > rejects xd0n2c08.png with an Error 1`] = `"Unsupported bit depth 0 for color type 2"`;
+
+exports[`PngSuite with pako > rejects xd3n2c08.png with an Error 1`] = `"Unsupported bit depth 3 for color type 2"`;
+
+exports[`PngSuite with pako > rejects xd9n2c08.png with an Error 1`] = `"Unsupported bit depth 99 for color type 2"`;
+
+exports[`PngSuite with pako > rejects xdtn0g01.png with an Error 1`] = `"No image data: the file has no IDAT chunk"`;
+
+exports[`PngSuite with pako > rejects xhdn0g08.png with an Error 1`] = `"CRC error in IHDR chunk"`;
+
+exports[`PngSuite with pako > rejects xlfn0g04.png with an Error 1`] = `"Invalid file signature: not a PNG file"`;
+
+exports[`PngSuite with pako > rejects xs1n0g01.png with an Error 1`] = `"Invalid file signature: not a PNG file"`;
+
+exports[`PngSuite with pako > rejects xs2n0g01.png with an Error 1`] = `"Invalid file signature: not a PNG file"`;
+
+exports[`PngSuite with pako > rejects xs4n0g01.png with an Error 1`] = `"Invalid file signature: not a PNG file"`;
+
+exports[`PngSuite with pako > rejects xs7n0g01.png with an Error 1`] = `"Invalid file signature: not a PNG file"`;

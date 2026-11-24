@@ -1,6 +1,6 @@
 ---
 title: "Jimp.readFrames()"
-description: "Load every frame of an animated GIF or every page of a multi-page TIFF."
+description: "Load every frame of an animated GIF or PNG, or every page of a multi-page TIFF."
 category: io
 method: "Jimp.readFrames"
 plugin: "@jimp/core"
@@ -9,7 +9,7 @@ plugin: "@jimp/core"
 import { Aside } from "@astrojs/starlight/components";
 import Related from "../../../components/Related.astro";
 
-`Jimp.readFrames` loads an animated GIF or a multi-page TIFF and decodes each frame or page into its own Jimp image.
+`Jimp.readFrames` loads an animated GIF or PNG (APNG) or a multi-page TIFF and decodes each frame or page into its own Jimp image.
 [`Jimp.read`](/jimp/methods/read/) only gives you the first one.
 
 ## Signature
@@ -52,8 +52,8 @@ Both are static methods. `readFrames` takes the same input as `Jimp.read`: a fil
 | Property          | Type                     | Description                                                                                                                                     |
 | ----------------- | ------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------- |
 | `frames`          | `{ image, delay? }[]`    | The frames in order. Each `image` is an ordinary Jimp image, with every method.                                                                |
-| `frames[i].delay` | `number \| undefined`    | How long a GIF frame is shown, in milliseconds. Undefined for TIFF pages and single-frame formats.                                             |
-| `loop`            | `number \| null \| undefined` | GIF only: how many times the animation repeats after it first plays. `0` repeats forever, and `null` means the GIF has no loop count, so it plays once. Undefined for other formats. |
+| `frames[i].delay` | `number \| undefined`    | How long a GIF or APNG frame is shown, in milliseconds. Undefined for TIFF pages and single-frame images.                                      |
+| `loop`            | `number \| null \| undefined` | GIF and APNG only: how many times the animation repeats after it first plays. `0` repeats forever, and `null` means it plays once. Undefined for other images. |
 
 The types are exported from `jimp` as `JimpFrames`, `JimpFrame` and `ReadFramesOptions`.
 
@@ -112,11 +112,14 @@ Most GIFs don't store every frame in full. A frame can cover just the part of th
 
 Parts of a frame outside the image are clipped. All frames have the size of the GIF.
 
+APNG frames are put together the same way, following each frame's dispose operation (none, background or previous) and blend operation (replace, or draw over the frame before).
+
 ## Supported formats
 
 | Format                 | What you get                                                                     |
 | ---------------------- | -------------------------------------------------------------------------------- |
 | GIF                    | Every frame, each a complete image, with its `delay`, and the GIF's `loop` count |
+| PNG (APNG)             | Every frame, each a complete image, with its `delay`, and the `loop` count. A PNG that isn't animated is one frame |
 | TIFF                   | Every page, each with its own size                                               |
 | Every other format     | One frame, the same image `Jimp.read` returns                                    |
 
