@@ -1358,6 +1358,15 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "2002Bishwajeet",
+      "name": "Bishwajeet Parhi",
+      "avatar_url": "https://avatars.githubusercontent.com/u/62933155?v=4",
+      "profile": "https://about.bishwajeetparhi.dev/",
+      "contributions": [
+        "doc"
+      ]
     }
   ],
   "contributorsPerLine": 7,
