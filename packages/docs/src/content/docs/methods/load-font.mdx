@@ -10,6 +10,7 @@ import Related from "../../../components/Related.astro";
 
 `loadFont` loads a bitmap font in the [BMFont](https://www.angelcode.com/products/bmfont/) format so you can draw text with [`print`](/jimp/methods/print/) and measure it with [`measureText`](/jimp/methods/measure-text/).
 Pass it one of the fonts bundled in `jimp/fonts`, or the path or URL of your own `.fnt` file.
+To print with a TrueType, OpenType or WOFF font at any size and color, use [`loadTTF`](/jimp/methods/load-ttf/) instead.
 
 ## Signature
 
@@ -107,4 +108,4 @@ In the browser and in web workers, `loadFont` always loads with `fetch`, so the 
 
 ## Related
 
-<Related methods={["print", "measureText", "measureTextHeight"]} />
+<Related methods={["print", "loadTTF", "measureText", "measureTextHeight"]} />

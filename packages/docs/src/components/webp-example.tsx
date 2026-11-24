@@ -105,11 +105,7 @@ export function WebpExample() {
         const options: WebpEncodeOptions = settings.lossless
           ? { lossless: 1 }
           : { quality: settings.quality };
-        // @jimp/wasm-webp's emitted .d.ts refers to `z.z.core.$strict`, which
-        // doesn't resolve, so its options type is lost and core's getBuffer
-        // types them as `undefined`. Remove the cast once the plugin's types
-        // are fixed.
-        const buffer = await source.image.getBuffer("image/webp", options as never);
+        const buffer = await source.image.getBuffer("image/webp", options);
         if (run !== generation.current) return;
         const url = URL.createObjectURL(new Blob([buffer], { type: "image/webp" }));
         setOutput((previous) => {

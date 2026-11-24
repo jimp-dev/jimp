@@ -113,6 +113,7 @@ export const methods: MethodEntry[] = [
   // Text
   m("print", "print", "text", "@jimp/plugin-print"),
   m("load-font", "loadFont", "text", "@jimp/plugin-print"),
+  m("load-ttf", "loadTTF", "text", "@jimp/plugin-print"),
   m("measure-text", "measureText", "text", "@jimp/plugin-print"),
   m("measure-text-height", "measureTextHeight", "text", "@jimp/plugin-print"),
 

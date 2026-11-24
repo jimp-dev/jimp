@@ -1,6 +1,6 @@
 ---
 title: "print()"
-description: "Draw text on the image with a bitmap font."
+description: "Draw text on the image with a bitmap or TrueType font."
 category: text
 method: "print"
 plugin: "@jimp/plugin-print"
@@ -9,14 +9,15 @@ plugin: "@jimp/plugin-print"
 import Playground from "../../../components/playground/Playground";
 import Related from "../../../components/Related.astro";
 
-`print` draws text onto the image with a bitmap font from [`loadFont`](/jimp/methods/load-font/).
+`print` draws text onto the image with a bitmap font from [`loadFont`](/jimp/methods/load-font/), or a TrueType, OpenType or WOFF font from [`loadTTF`](/jimp/methods/load-ttf/).
 The text is laid out in a box that starts at `x`, `y`: set `maxWidth` to wrap lines, and align the text inside the box.
+Bitmap fonts print at the size and in the color they were made with; fonts from `loadTTF` print at any `size`, in any color or gradient, with an optional outline.
 
 ## Signature
 
 ```ts title="print.d.ts"
 image.print(options: {
-  font: BmFont;
+  font: BmFont | VectorFont;
   x: number;
   y: number;
   text:
@@ -30,17 +31,27 @@ image.print(options: {
   maxWidth?: number;
   maxHeight?: number;
   cb?: (end: { x: number; y: number }) => void;
+
+  // Only with a VectorFont from loadTTF
+  size: number;
+  color?: Paint;
+  stroke?: Paint;
+  strokeWidth?: number;
+  lineHeight?: number;
+  letterSpacing?: number;
 }): this
 ```
 
 `print` draws on the image in place and returns it, so you can chain more calls after it.
-`BmFont` is the font object that [`loadFont`](/jimp/methods/load-font/) resolves to.
+`BmFont` is the font object that [`loadFont`](/jimp/methods/load-font/) resolves to, and `VectorFont` the one [`loadTTF`](/jimp/methods/load-ttf/) resolves to.
+`size` is required with a `VectorFont`, and the options below it can only be used with one.
+A `Paint` is a color or a gradient, the same as the [`plugin-draw`](https://github.com/jimp-dev/jimp/tree/main/plugins/plugin-draw) methods take.
 
 ## Options
 
 | Option            | Type                         | Default            | Description                                                                                                         |
 | ----------------- | ---------------------------- | ------------------ | ------------------------------------------------------------------------------------------------------------------- |
-| `font`            | `BmFont`                     | required           | A font loaded with `loadFont`.                                                                                      |
+| `font`            | `BmFont \| VectorFont`       | required           | A font loaded with `loadFont` or `loadTTF`.                                                                         |
 | `x`               | `number`                     | required           | Left edge of the text box.                                                                                          |
 | `y`               | `number`                     | required           | Top edge of the text box.                                                                                           |
 | `text`            | `string \| number \| object` | required           | The text to draw. Pass `{ text, alignmentX, alignmentY }` to align it.                                              |
@@ -49,6 +60,17 @@ image.print(options: {
 | `maxWidth`        | `number`                     | to the right edge  | Width of the text box. Lines wider than this wrap. Without it the box reaches the right edge of the image, and the text only breaks at line breaks. |
 | `maxHeight`       | `number`                     | to the bottom edge | Height of the text box, used only for `alignmentY`. Without it the box reaches the bottom edge of the image. It doesn't clip. |
 | `cb`              | `function`                   | none               | Called after drawing with `{ x, y }`: `x` plus the width of the widest line, and the bottom of the last line. `this` is the image. |
+
+These options only work with a font from `loadTTF`. With a bitmap font they throw.
+
+| Option          | Type     | Default                       | Description                                                                                                       |
+| --------------- | -------- | ----------------------------- | ----------------------------------------------------------------------------------------------------------------- |
+| `size`          | `number` | required                      | Font size in pixels: the size of the font's em square, like CSS `font-size`.                                       |
+| `color`         | `Paint`  | black, or none with a `stroke` | What to fill the glyphs with: a hex number (`0xRRGGBBAA`), a CSS color, `{ r, g, b, a }`, or a linear or radial gradient. |
+| `stroke`        | `Paint`  | none                          | What to outline the glyphs with, a color or gradient like `color`. With a `stroke` and no `color` the text is outline only. |
+| `strokeWidth`   | `number` | `1`                           | Width of the outline in pixels, centered on the glyphs' edges, with round corners.                                 |
+| `lineHeight`    | `number` | the font's line height        | Height of each line in pixels. The glyphs are centered vertically in it, like CSS.                                 |
+| `letterSpacing` | `number` | `0`                           | Extra space between characters in pixels. Can be negative. Turns off optional ligatures such as `fi`, like CSS.    |
 
 ## Example
 
@@ -137,10 +159,93 @@ image.print({ font, x: 10, y: bottom + 8, text: "Second paragraph" });
 
 To know the size before drawing, use [`measureText`](/jimp/methods/measure-text/) and [`measureTextHeight`](/jimp/methods/measure-text-height/).
 
+## TrueType, OpenType and WOFF fonts
+
+Load a `.ttf`, `.otf` or `.woff` file with [`loadTTF`](/jimp/methods/load-ttf/) from `jimp/load-ttf`, and pass it to `print` with a `size`.
+The glyphs are drawn from their outlines, antialiased, with the font's kerning and ligatures:
+
+```ts title="example.ts"
+import { Jimp } from "jimp";
+import { loadTTF } from "jimp/load-ttf";
+
+const font = await loadTTF("fonts/Inter-Regular.otf");
+const image = new Jimp({ width: 400, height: 100, color: "white" });
+
+image.print({ font, size: 32, x: 10, y: 10, text: "Hello, world", color: "#1d3557" });
+
+await image.write("hello.png");
+```
+
+Alignment, `maxWidth`, `maxHeight` and `cb` work the same as with bitmap fonts.
+
+### Gradients and outlines
+
+`color` and `stroke` take a color or a gradient. Gradient coordinates are in image pixels, so this one runs from the top of the text (`y1: 20`) to its bottom (`y2: 90`):
+
+```ts title="example.ts"
+import { HorizontalAlign, Jimp, VerticalAlign } from "jimp";
+import { loadTTF } from "jimp/load-ttf";
+
+const font = await loadTTF("fonts/Inter-Regular.otf");
+const image = new Jimp({ width: 320, height: 110, color: "white" });
+
+image.print({
+  font,
+  size: 80,
+  x: 0,
+  y: 0,
+  text: {
+    text: "Jimp",
+    alignmentX: HorizontalAlign.CENTER,
+    alignmentY: VerticalAlign.MIDDLE,
+  },
+  color: {
+    type: "linear",
+    x1: 0,
+    y1: 20,
+    x2: 0,
+    y2: 90,
+    stops: [
+      { offset: 0, color: "#ffd166" },
+      { offset: 1, color: "#e63946" },
+    ],
+  },
+  stroke: "#1d3557",
+  strokeWidth: 3,
+});
+```
+
+A radial gradient is `{ type: "radial", cx, cy, r, stops }`.
+Pass a `stroke` without a `color` to draw only the outline:
+
+```ts title="example.ts"
+image.print({ font, size: 64, x: 10, y: 10, text: "Outline", stroke: "black", strokeWidth: 2 });
+```
+
+### Line height and letter spacing
+
+`lineHeight` sets the distance between lines in pixels, and `letterSpacing` adds space between characters:
+
+```ts title="example.ts"
+image.print({
+  font,
+  size: 24,
+  x: 10,
+  y: 10,
+  text: "Spaced out\nand tall",
+  lineHeight: 40,
+  letterSpacing: 2,
+});
+```
+
+Pass the same `size`, `lineHeight` and `letterSpacing` to [`measureText`](/jimp/methods/measure-text/) and [`measureTextHeight`](/jimp/methods/measure-text-height/) to measure the text before you draw it.
+
 ## Try it
 
 Pick a font, some text and an alignment, and click the image to move the box's top left corner. Turn on the text box to set `maxWidth` and `maxHeight`.
-The code shows the `jimp/fonts` constant you'd use in Node.js; this page loads the same fonts by URL.
+The `loadTTF` fonts are TrueType and WOFF files, with `size`, `color` and `stroke` controls.
+The code shows the `jimp/fonts` constant you'd use in Node.js for the bitmap fonts; this page loads the same fonts by URL.
+The TrueType and WOFF fonts here only have printable ASCII characters, so others print as a box.
 
 <Playground method="print" client:visible />
 
@@ -150,9 +255,12 @@ The code shows the `jimp/fonts` constant you'd use in Node.js; this page loads t
 - **Wrapping.** With `maxWidth`, lines break at spaces and words move to the next line whole. Only a word wider than `maxWidth` on its own is split between characters. The spaces where a line wraps are dropped; other spaces, including runs of spaces and leading spaces, are printed as they are.
 - **`maxHeight` doesn't clip.** Text that doesn't fit runs past the bottom of the box. Measure first with [`measureTextHeight`](/jimp/methods/measure-text-height/) if it has to fit.
 - **Text can overflow the box.** Without `maxWidth`, a long line isn't wrapped: left-aligned text runs past the right edge of the image, and centered or right-aligned text can start left of `x`.
-- **Missing characters.** A character the font has no glyph for is drawn as `?`. Whitespace with no glyph is left blank. The 8, 16, 32, 64 and 128 px bundled fonts cover printable ASCII (except `` ` ``), Latin-1 letters and symbols such as `é` and `£`, and `€`. The 10, 12 and 14 px fonts cover printable ASCII only. For other scripts, [make your own font](/jimp/concepts/text-and-fonts/#making-your-own-fonts).
-- **Text color comes from the font.** Glyphs are copied from the font's image pages as they are, so a `_BLACK` font prints black and a `_WHITE` font prints white. See [Coloring text](/jimp/concepts/text-and-fonts/#coloring-text) for other colors.
-- **Validation.** `x`, `y`, `maxWidth` and `maxHeight` must be numbers, and `alignmentX` and `alignmentY` must be enum values. Anything else throws a `ZodError`, for example `Invalid input: expected number, received undefined` at path `x`. A missing `font` throws `Cannot read properties of undefined (reading 'chars')`.
+- **Missing characters.** With a bitmap font, a character the font has no glyph for is drawn as `?`, and whitespace with no glyph is left blank. The 8, 16, 32, 64 and 128 px bundled fonts cover printable ASCII (except `` ` ``), Latin-1 letters and symbols such as `é` and `£`, and `€`. The 10, 12 and 14 px fonts cover printable ASCII only. With a `loadTTF` font, missing characters are drawn with the font's `.notdef` glyph, usually a box. There's no fallback to another font: for other scripts, use a TrueType font that covers them, or [make your own bitmap font](/jimp/concepts/text-and-fonts/#making-your-own-fonts).
+- **Bitmap text color comes from the font.** Glyphs are copied from the font's image pages as they are, so a `_BLACK` font prints black and a `_WHITE` font prints white. See [Coloring text](/jimp/concepts/text-and-fonts/#coloring-text) for other colors, or use a `loadTTF` font and `color`.
+- **Vector text.** `loadTTF` fonts are placed at fractional x positions, and each line's baseline is rounded to a whole pixel to keep horizontal edges sharp. There's no hinting. CSS colors in `color` and `stroke` are converted to the image's [color space](/jimp/guides/color-spaces/); an invalid one throws `Invalid color "…"` before anything is drawn. Text is laid out left to right only. See [the limitations](/jimp/concepts/text-and-fonts/#limitations).
+- **Validation.** `x`, `y`, `maxWidth` and `maxHeight` must be numbers, and `alignmentX` and `alignmentY` must be enum values. Anything else throws a `ZodError`, for example `Invalid input: expected number, received undefined` at path `x`. A missing `font` throws `Cannot read properties of undefined (reading 'chars')`. With a `loadTTF` font, a missing `size` fails validation at path `size`, and negative `size`, `lineHeight` or `strokeWidth` values throw.
+- **Vector options with a bitmap font** throw, for example `print: size, color can only be used with fonts loaded with loadTTF. Bitmap fonts from loadFont are drawn at the size and in the color they were made with.`
+- **Added in 2.0:** TrueType, OpenType and WOFF fonts from `loadTTF`, and the `size`, `color`, `stroke`, `strokeWidth`, `lineHeight` and `letterSpacing` options.
 - **v0 signature.** In v0 the call was `image.print(font, x, y, text, maxWidth, maxHeight, cb)`. Passing the font first in v1 fails validation because `x` and `y` are missing. See [Migrate to v1](/jimp/guides/migrate-to-v1/#fonts).
 - **Changed in 2.0:** `alignmentX` without `maxWidth` used to throw (`Invalid input: expected number, received Infinity`). It now aligns the text within the image, to the right of `x`.
 - **Changed in 2.0:** `alignmentY` without `maxHeight` used to be ignored. It now aligns the text within the image, below `y`, so `BOTTOM` moves the text to the bottom edge of the image.
@@ -161,4 +269,4 @@ The code shows the `jimp/fonts` constant you'd use in Node.js; this page loads t
 
 ## Related
 
-<Related methods={["loadFont", "measureText", "measureTextHeight", "composite", "blit"]} />
+<Related methods={["loadFont", "loadTTF", "measureText", "measureTextHeight", "composite", "blit"]} />

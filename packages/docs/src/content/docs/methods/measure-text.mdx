@@ -9,6 +9,7 @@ plugin: "@jimp/plugin-print"
 import Related from "../../../components/Related.astro";
 
 `measureText` returns how many pixels wide text is when printed in a font without wrapping: the width of its widest line.
+It works with bitmap fonts from [`loadFont`](/jimp/methods/load-font/) and TrueType, OpenType and WOFF fonts from [`loadTTF`](/jimp/methods/load-ttf/).
 Use it to size a canvas or a label before you [`print`](/jimp/methods/print/), or to pick a font size that fits.
 
 ## Signature
@@ -17,16 +18,25 @@ Use it to size a canvas or a label before you [`print`](/jimp/methods/print/), o
 import { measureText } from "jimp";
 
 measureText(font: BmFont, text: string): number
+measureText(
+  font: VectorFont,
+  text: string,
+  options: { size: number; lineHeight?: number; letterSpacing?: number },
+): number
 ```
 
 `measureText` is a function, not an image method. It doesn't draw anything; it returns a width in pixels.
+A `loadTTF` font needs the third argument: the `size` and `letterSpacing` you print with.
 
 ## Parameters
 
 | Parameter | Type     | Default  | Description                                       |
 | --------- | -------- | -------- | ------------------------------------------------- |
-| `font`    | `BmFont` | required | A font from [`loadFont`](/jimp/methods/load-font/). |
+| `font`    | `BmFont \| VectorFont` | required | A font from [`loadFont`](/jimp/methods/load-font/) or [`loadTTF`](/jimp/methods/load-ttf/). |
 | `text`    | `string` | required | The text to measure. `\n`, `\r\n` and `\r` start a new line. |
+| `options.size` | `number` | required with a `loadTTF` font | The font size in pixels, as `print`'s `size`. |
+| `options.lineHeight` | `number` | the font's line height | As `print`'s `lineHeight`. It doesn't change the width. |
+| `options.letterSpacing` | `number` | `0` | As `print`'s `letterSpacing`. |
 
 ## Example
 
@@ -67,13 +77,28 @@ for (const path of [SANS_128_BLACK, SANS_64_BLACK, SANS_32_BLACK, SANS_16_BLACK]
 }
 ```
 
+### With a TrueType font
+
+Pass the same `size` and `letterSpacing` you print with. The width is in fractional pixels:
+
+```ts title="example.ts"
+import { measureText } from "jimp";
+import { loadTTF } from "jimp/load-ttf";
+
+const font = await loadTTF("fonts/Inter-Regular.otf");
+
+measureText(font, "Hello, world", { size: 32 }); // 180.03125
+measureText(font, "Sale", { size: 48, letterSpacing: 4 }); // 109.359375
+```
+
 ## Notes
 
 - **Widest line.** Line breaks (`\n`, `\r\n` or `\r`) split the text into lines as they do in `print`, and the result is the width of the widest one. Empty lines are `0` wide. `measureText` doesn't wrap; for the height of wrapped or multi-line text, use [`measureTextHeight`](/jimp/methods/measure-text-height/).
-- **It matches `print`.** The width is the sum of each glyph's advance plus the font's kerning, the same spacing `print` uses. Characters the font doesn't have are measured as `?`, which is how `print` draws them.
+- **It matches `print`.** The width is the sum of each glyph's advance plus the font's kerning, the same spacing `print` uses. With a bitmap font, characters the font doesn't have are measured as `?`, which is how `print` draws them. With a `loadTTF` font, they're measured as the font's `.notdef` glyph, and ligatures are applied.
 - **Trailing spaces count.** `"Hi "` is wider than `"Hi"`, because a space has an advance width.
+- **Added in 2.0:** fonts from `loadTTF`, with the `options` argument. Leaving `options` out with one throws a `ZodError` (`Invalid input: expected object, received undefined`).
 - **Changed in 2.0:** line breaks used to be skipped, so `"Hello\nHello"` measured as one line twice as wide. Characters without a glyph used to count as `0` wide, so text with them measured narrower than it printed.
 
 ## Related
 
-<Related methods={["measureTextHeight", "print", "loadFont"]} />
+<Related methods={["measureTextHeight", "print", "loadFont", "loadTTF"]} />
