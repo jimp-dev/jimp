@@ -54,12 +54,30 @@ const options = [
   </div>
 </jimp-theme-switch>
 
+<script is:inline>
+  // Mark the stored choice before first paint, so the switch doesn't show up
+  // with nothing selected (or flicker in the header between pages).
+  (() => {
+    let theme = "";
+    try {
+      theme = localStorage.getItem("starlight-theme") || "";
+    } catch {}
+    const value = theme === "light" || theme === "dark" ? theme : "auto";
+    document
+      .querySelectorAll(`jimp-theme-switch [data-theme-value="${value}"]`)
+      .forEach((button) => button.setAttribute("aria-checked", "true"));
+  })();
+</script>
+
 <script>
   type Theme = "auto" | "dark" | "light";
 
   /** View Transitions aren't in TypeScript's DOM types yet. */
   type TransitionDocument = Document & {
-    startViewTransition?: (update: () => void) => { ready: Promise<void> };
+    startViewTransition?: (update: () => void) => {
+      ready: Promise<void>;
+      finished: Promise<void>;
+    };
   };
 
   const storageKey = "starlight-theme";
@@ -126,7 +144,12 @@ const options = [
     const radius = Math.hypot(Math.max(x, innerWidth - x), Math.max(y, innerHeight - y));
 
     stamp(origin);
-    doc.startViewTransition(set).ready.then(() => {
+    // Wipe the page as one image; see the global styles below.
+    const root = document.documentElement;
+    root.classList.add("theme-wipe");
+    const transition = doc.startViewTransition(set);
+    transition.finished.finally(() => root.classList.remove("theme-wipe"));
+    transition.ready.then(() => {
       document.documentElement.animate(
         {
           clipPath: [`circle(0px at ${x}px ${y}px)`, `circle(${radius}px at ${x}px ${y}px)`],
@@ -213,8 +236,9 @@ const options = [
 </style>
 
 <style is:global>
-  ::view-transition-old(root),
-  ::view-transition-new(root) {
+  /* The wipe replaces the default cross-fade. Page navigations keep it. */
+  .theme-wipe::view-transition-old(root),
+  .theme-wipe::view-transition-new(root) {
     animation: none;
     mix-blend-mode: normal;
   }

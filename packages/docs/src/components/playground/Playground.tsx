@@ -463,11 +463,13 @@ export default function Playground({
           dangerouslySetInnerHTML={{ __html: svg(resolveIcon("palette")) }}
         />
         <b className="pg-title">{single && op ? `Try ${op.label}()` : (title ?? "Playground")}</b>
-        {source && (
-          <span className="pg-file">
-            {source.name} · {source.image.bitmap.width}×{source.image.bitmap.height}
-          </span>
-        )}
+        {/* Hold the label's space while the image loads so the bar doesn't
+            rewrap when it appears. The previews are 3-digit sizes. */}
+        <span className="pg-file" style={source ? undefined : { visibility: "hidden" }}>
+          {source
+            ? `${source.name} · ${source.image.bitmap.width}×${source.image.bitmap.height}`
+            : `${src.split("/").pop()} · 000×000`}
+        </span>
         <span className="pg-grow" />
         <div className="pg-seg" role="group" aria-label="Code for">
           {(["node", "browser"] as const).map((f) => (

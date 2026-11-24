@@ -1,0 +1,89 @@
+/*
+ * Fallback faces for the web fonts, sized so text takes the same room in
+ * Arial as in the real font and the page doesn't move when the fonts swap in.
+ *
+ * Astro can generate these, but it sizes them from each font's average
+ * lowercase width, which is far off for these fonts: Luckiest Guy draws
+ * lowercase as capitals (Astro's fallback came out 2.5× too narrow) and
+ * Fredoka's came out 11% too wide. These were measured against the text the
+ * site actually renders in each font and weight. The ascent and descent
+ * overrides keep each font's line height.
+ *
+ * Luckiest Guy is sized for mixed-case titles. The all-caps logo gets a fixed
+ * width in Header.astro instead.
+ */
+
+@font-face {
+  font-family: "Luckiest Guy Fallback";
+  src: local("Arial");
+  font-weight: 400;
+  size-adjust: 116.1%;
+  ascent-override: 60.56%;
+  descent-override: 25.57%;
+  line-gap-override: 0%;
+}
+
+@font-face {
+  font-family: "Fredoka Fallback";
+  src: local("Arial");
+  font-weight: 500;
+  size-adjust: 101.02%;
+  ascent-override: 96.42%;
+  descent-override: 23.36%;
+  line-gap-override: 0%;
+}
+@font-face {
+  font-family: "Fredoka Fallback";
+  src: local("Arial");
+  font-weight: 600;
+  size-adjust: 99.8%;
+  ascent-override: 97.6%;
+  descent-override: 23.65%;
+  line-gap-override: 0%;
+}
+@font-face {
+  font-family: "Fredoka Fallback";
+  src: local("Arial Bold");
+  font-weight: 700;
+  size-adjust: 93.19%;
+  ascent-override: 104.52%;
+  descent-override: 25.32%;
+  line-gap-override: 0%;
+}
+
+@font-face {
+  font-family: "Nunito Sans Fallback";
+  src: local("Arial");
+  font-weight: 400;
+  size-adjust: 100.81%;
+  ascent-override: 100.28%;
+  descent-override: 35.01%;
+  line-gap-override: 0%;
+}
+@font-face {
+  font-family: "Nunito Sans Fallback";
+  src: local("Arial");
+  font-weight: 600;
+  size-adjust: 103.14%;
+  ascent-override: 98.03%;
+  descent-override: 34.23%;
+  line-gap-override: 0%;
+}
+@font-face {
+  font-family: "Nunito Sans Fallback";
+  src: local("Arial Bold");
+  font-weight: 700;
+  size-adjust: 96.72%;
+  ascent-override: 104.53%;
+  descent-override: 36.5%;
+  line-gap-override: 0%;
+}
+@font-face {
+  font-family: "Nunito Sans Fallback";
+  src: local("Arial Bold");
+  font-weight: 800;
+  size-adjust: 98.85%;
+  ascent-override: 102.27%;
+  descent-override: 35.71%;
+  line-gap-override: 0%;
+}

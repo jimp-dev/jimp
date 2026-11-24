@@ -75,6 +75,11 @@ import { uiIcon } from "../components/icons";
   @media (max-width: 49.99rem) {
     button {
       display: grid;
+      /* Its own layer in page transitions, so it stays above the header's. */
+      view-transition-name: jimp-menu-button;
+    }
+    :global(.theme-wipe) button {
+      view-transition-name: none;
     }
   }
 </style>

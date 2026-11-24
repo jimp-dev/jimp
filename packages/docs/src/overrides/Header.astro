@@ -131,7 +131,10 @@ const shortDate = (iso: string) =>
     flex: none;
     text-decoration: none;
   }
+  /* "JIMP"'s width in Luckiest Guy, so the nav doesn't move if the logo
+     paints in the fallback font first. */
   .word {
+    width: calc(2.2em + 4px);
     font-family: var(--jp-display);
     font-size: 34px;
     line-height: 1;

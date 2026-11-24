@@ -40,8 +40,11 @@ export default defineConfig({
   // The overrides' scoped styles were written against Starlight's old
   // zero-specificity `:where()` scoping.
   scopedStyleStrategy: "where",
+  // Fetch pages on hover so clicking through the docs is quick.
+  prefetch: { prefetchAll: true },
   // Self-hosted at build time, with fallbacks sized to match each font so the
-  // page doesn't shift when the web fonts finish loading. See Head.astro.
+  // page doesn't shift when the web fonts finish loading. See Head.astro, and
+  // src/styles/fonts.css for the fallbacks Astro's generated ones got wrong.
   fonts: [
     {
       provider: fontProviders.google(),
@@ -49,7 +52,8 @@ export default defineConfig({
       cssVariable: "--font-luckiest-guy",
       weights: [400],
       subsets: ["latin", "latin-ext"],
-      fallbacks: ["sans-serif"],
+      fallbacks: ["Luckiest Guy Fallback", "sans-serif"],
+      optimizedFallbacks: false,
     },
     {
       provider: fontProviders.google(),
@@ -57,7 +61,8 @@ export default defineConfig({
       cssVariable: "--font-fredoka",
       weights: [500, 600, 700],
       subsets: ["latin", "latin-ext"],
-      fallbacks: ["sans-serif"],
+      fallbacks: ["Fredoka Fallback", "sans-serif"],
+      optimizedFallbacks: false,
     },
     {
       provider: fontProviders.google(),
@@ -66,7 +71,8 @@ export default defineConfig({
       weights: [400, 600, 700, 800],
       styles: ["normal", "italic"],
       subsets: ["latin", "latin-ext"],
-      fallbacks: ["sans-serif"],
+      fallbacks: ["Nunito Sans Fallback", "sans-serif"],
+      optimizedFallbacks: false,
     },
     {
       provider: fontProviders.google(),
@@ -112,6 +118,7 @@ export default defineConfig({
         },
       ],
       customCss: [
+        "./src/styles/fonts.css",
         "./src/styles/tokens.css",
         "./src/styles/base.css",
         "./src/styles/starlight.css",

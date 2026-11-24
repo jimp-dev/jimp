@@ -54,6 +54,19 @@ const { hasSidebar } = Astro.locals.starlightRoute;
     box-shadow: 0 4px 0 rgba(27, 24, 64, 0.18);
   }
 
+  /* Hold the header and sidebar still while the page content cross-fades
+     between pages (see base.css). The theme switch's wipe moves the page as
+     one image, so they drop their names for it. */
+  .header {
+    view-transition-name: jimp-header;
+  }
+  .sidebar-pane {
+    view-transition-name: jimp-sidebar;
+  }
+  :global(.theme-wipe) :is(.header, .sidebar-pane) {
+    view-transition-name: none;
+  }
+
   .shell {
     flex: 1;
     width: 100%;
@@ -76,15 +89,16 @@ const { hasSidebar } = Astro.locals.starlightRoute;
   }
 
   /* Stretch the sidebar column to the page's height so the pane inside has
-     room to stick while the content scrolls. */
+     room to stick while the content scrolls. It sticks where it starts, below
+     the shell's 26px top margin, so it doesn't jump as you scroll. */
   .sidebar {
     align-self: stretch;
   }
 
   .sidebar-pane {
     position: sticky;
-    top: calc(var(--sl-nav-height) + 22px);
-    max-height: calc(100vh - var(--sl-nav-height) - 44px);
+    top: calc(var(--sl-nav-height) + 26px);
+    max-height: calc(100vh - var(--sl-nav-height) - 48px);
     overflow: auto;
     overscroll-behavior: contain;
     scrollbar-width: thin;
