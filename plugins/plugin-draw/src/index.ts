@@ -35,6 +35,7 @@ export {
   type LineJoin,
   type StrokeOptions,
 } from "./stroke.js";
+export { PaintSchema } from "./paint.js";
 export type {
   Color,
   GradientStop,
@@ -321,11 +322,28 @@ const FloodFillOptionsSchema = z.object({
 
 export type FloodFillOptions = z.infer<typeof FloodFillOptionsSchema>;
 
-type ShapeStyle = z.infer<typeof ShapeStyleSchema> &
+/** How {@link drawShape} fills and strokes a shape */
+export type ShapeStyle = z.infer<typeof ShapeStyleSchema> &
   Omit<StrokeOptions, "width" | "tolerance"> & { fillRule?: FillRule };
 
-/** Fill and then stroke a shape, the way SVG draws them */
-function drawShape<I extends JimpClass>(
+/**
+ * Fills and then strokes polygons, the way SVG draws shapes and the drawing
+ * methods do. With neither `fill` nor `stroke` they're filled black. Both
+ * paints are resolved before anything is drawn, so an invalid stroke color
+ * throws without leaving the fill drawn.
+ * @example
+ * ```ts
+ * import { drawShape, flattenPath } from "@jimp/plugin-draw";
+ *
+ * drawShape(image, flattenPath(glyph.path.commands, { transform }), {
+ *   fill: "white",
+ *   stroke: "black",
+ *   strokeWidth: 2,
+ *   join: "round",
+ * });
+ * ```
+ */
+export function drawShape<I extends DrawTarget>(
   image: I,
   polylines: Polyline[],
   style: ShapeStyle,

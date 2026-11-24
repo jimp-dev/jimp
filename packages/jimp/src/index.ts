@@ -230,6 +230,13 @@ export { Edge } from "@jimp/types";
 export type { Bitmap, RGBAColor, RGBColor } from "@jimp/types";
 export { loadFont } from "@jimp/plugin-print/load-font";
 export { measureText, measureTextHeight } from "@jimp/plugin-print";
+// loadTTF is in "jimp/load-ttf", so the font parser is only bundled when it's used
+export type {
+  PrintFontOptions,
+  VectorFont,
+  VectorTextLayoutOptions,
+  VectorTextOptions,
+} from "@jimp/plugin-print";
 export { diff } from "@jimp/diff";
 export type { DiffOptions, DiffColor } from "@jimp/diff";
 export {

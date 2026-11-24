@@ -168,6 +168,8 @@ The rasterizer the methods use is exported, so other plugins can draw their own 
 | `fillPolylines`   | Fills polylines on an image with a color or gradient                                                            |
 | `fillPath`        | Flattens and fills a path on an image                                                                           |
 | `strokePath`      | Flattens and strokes a path on an image                                                                         |
+| `drawShape`       | Fills and then strokes polylines, like the drawing methods, with `fill`, `stroke`, `strokeWidth` and `join`     |
+| `PaintSchema`     | The zod schema of a color or gradient, to validate options that take one                                        |
 
 Path commands use the same objects as opentype.js, so a glyph's `path.commands` can be drawn as they are. Transforms are `[a, b, c, d, e, f]` matrices, like CSS's `matrix()`.
 

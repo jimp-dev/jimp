@@ -10,9 +10,23 @@ import {
   measureTextHeight,
   splitLines,
 } from "./measure-text.js";
+import type { VectorFont } from "./load-ttf.js";
 import { BmCharacter, BmFont } from "./types.js";
+import {
+  isVectorFont,
+  printVectorText,
+  VectorTextOptionsSchema,
+  type VectorTextOptions,
+} from "./vector-text.js";
 
 export { measureText, measureTextHeight } from "./measure-text.js";
+export type {
+  VectorTextLayoutOptions,
+  VectorTextOptions,
+} from "./vector-text.js";
+// loadTTF is in "./load-ttf", so opentype.js is only bundled when it's used
+export type { FontSource, VectorFont } from "./load-ttf.js";
+export type { OpenTypeFont, OpenTypeGlyph } from "./opentype.js";
 export * from "./types.js";
 
 const PrintOptionsSchema = z.object({
@@ -40,6 +54,22 @@ const PrintOptionsSchema = z.object({
 });
 
 export type PrintOptions = z.infer<typeof PrintOptionsSchema>;
+
+/**
+ * The font to print with: a bitmap font from `loadFont`, or a TrueType,
+ * OpenType or WOFF font from `loadTTF` with the options only those take
+ */
+export type PrintFontOptions<I extends JimpClass = JimpClass> =
+  | ({
+      /** a bitmap font loaded with `loadFont` */
+      font: BmFont<I>;
+    } & { [K in keyof VectorTextOptions]?: never })
+  | ({
+      /** a TrueType, OpenType or WOFF font loaded with `loadTTF` */
+      font: VectorFont;
+    } & VectorTextOptions);
+
+const VECTOR_ONLY_OPTIONS = Object.keys(VectorTextOptionsSchema.shape);
 
 function xOffsetBasedOnAlignment<I extends JimpClass>(
   font: BmFont<I>,
@@ -112,7 +142,8 @@ function printText<I extends JimpClass>(
 
 export const methods = {
   /**
-   * Draws a text on a image on a given boundary
+   * Draws text on an image, with a bitmap font from `loadFont` or a
+   * TrueType, OpenType or WOFF font from `loadTTF`.
    *
    * The text is laid out in a box whose top left corner is at `x`, `y`.
    * `maxWidth` and `maxHeight` set the size of the box. Without them the box
@@ -128,23 +159,38 @@ export const methods = {
    * - `maxHeight` is only used for `alignmentY`. Text taller than it isn't
    *   clipped, use `measureTextHeight` to check whether it fits.
    *
-   * The font must include a glyph for every character you print. Characters
-   * it has no glyph for are drawn as `?`. The bundled fonts cover printable
-   * ASCII, and the 8, 16, 32, 64 and 128px ones also Latin-1 and `€`. For
-   * other text (e.g. Japanese) generate a BMFont that includes those
-   * characters.
+   * Bitmap fonts have their glyphs copied onto the image, at the size and in
+   * the color they were made with. The font must include a glyph for every
+   * character you print. Characters it has no glyph for are drawn as `?`.
+   * The bundled fonts cover printable ASCII, and the 8, 16, 32, 64 and 128px
+   * ones also Latin-1 and `€`. For other text (e.g. Japanese) generate a
+   * BMFont that includes those characters, or use a font from `loadTTF`.
+   *
+   * Fonts from `loadTTF` are drawn from their outlines, antialiased, at any
+   * `size`, filled with `color` and outlined with `stroke`. Kerning and
+   * ligatures from the font are applied. Characters the font has no glyph
+   * for are drawn with its `.notdef` glyph, usually a box. Glyphs are placed
+   * at fractional x positions, and each line's baseline is rounded to a
+   * whole pixel to keep horizontal edges sharp.
    * @param options the font, position and text to print
-   * @param options.font a bitmap font loaded with `loadFont`
+   * @param options.font a bitmap font loaded with `loadFont`, or a TrueType, OpenType or WOFF font loaded with `loadTTF`
    * @param options.x the x position of the left edge of the text box
    * @param options.y the y position of the top edge of the text box
    * @param options.text the text to draw (string or object with `text`, `alignmentX`, and/or `alignmentY`)
    * @param options.maxWidth the width to wrap the text at and to align it within. Defaults to the width of the image right of `x`, but text only wraps when it is set.
    * @param options.maxHeight the height to align the text within. Defaults to the height of the image below `y`. Text taller than it is not clipped.
    * @param options.cb a callback for when complete that has the end co-ordinates of the text: `x` is the left edge of the box plus the width of the widest line, `y` the bottom of the last line
+   * @param options.size for `loadTTF` fonts, required: the font size in pixels, the size of the font's em square, like CSS's `font-size`
+   * @param options.color for `loadTTF` fonts: what to fill the glyphs with, a hex number (`0xRRGGBBAA`), a CSS color (converted to the image's colour space), `{ r, g, b, a }`, or a linear or radial gradient in image coordinates. Defaults to black, or to no fill when there's a `stroke`.
+   * @param options.stroke for `loadTTF` fonts: what to outline the glyphs with, a color or gradient like `color`
+   * @param options.strokeWidth for `loadTTF` fonts: the width of the outline in pixels, centered on the glyphs' edges, with round corners. Defaults to 1.
+   * @param options.lineHeight for `loadTTF` fonts: the height of each line in pixels. Defaults to the font's line height. The glyphs are centered vertically in it, like CSS.
+   * @param options.letterSpacing for `loadTTF` fonts: extra space between characters in pixels, which can be negative. Turns off ligatures like `fi`, like CSS.
    * @example
    * ```ts
    * import { HorizontalAlign, Jimp, VerticalAlign, loadFont } from "jimp";
    * import { SANS_32_BLACK } from "jimp/fonts";
+   * import { loadTTF } from "jimp/load-ttf";
    *
    * const image = await Jimp.read("test/image.png");
    * const font = await loadFont(SANS_32_BLACK);
@@ -162,14 +208,35 @@ export const methods = {
    *     alignmentY: VerticalAlign.MIDDLE,
    *   },
    * });
+   *
+   * // A TrueType font, at any size, with a gradient and an outline
+   * const inter = await loadTTF("fonts/Inter-Regular.ttf");
+   *
+   * image.print({
+   *   font: inter,
+   *   size: 48,
+   *   x: 10,
+   *   y: 60,
+   *   text: "Jimp",
+   *   color: {
+   *     type: "linear",
+   *     x1: 0,
+   *     y1: 60,
+   *     x2: 0,
+   *     y2: 120,
+   *     stops: [
+   *       { offset: 0, color: "#ffd166" },
+   *       { offset: 1, color: "#e63946" },
+   *     ],
+   *   },
+   *   stroke: "#1d3557",
+   *   strokeWidth: 2,
+   * });
    * ```
    */
   print<I extends JimpClass>(
     image: I,
-    options: PrintOptions & {
-      /** the BMFont instance */
-      font: BmFont<I>;
-    },
+    options: PrintOptions & PrintFontOptions<I>,
   ) {
     const { font, ...printOptions } = options;
     let {
@@ -212,6 +279,30 @@ export const methods = {
       maxWidth === Infinity ? Math.max(0, image.bitmap.width - x) : maxWidth;
     const boxHeight =
       maxHeight === Infinity ? Math.max(0, image.bitmap.height - y) : maxHeight;
+
+    if (isVectorFont(font)) {
+      const end = printVectorText(
+        image,
+        font,
+        { x, y, text, maxWidth, boxWidth, boxHeight, alignmentX, alignmentY },
+        printOptions as VectorTextOptions,
+      );
+
+      cb.bind(image)(end);
+
+      return image;
+    }
+
+    // Bitmap fonts have a fixed size and color
+    const vectorOptions = VECTOR_ONLY_OPTIONS.filter(
+      (key) => (printOptions as Record<string, unknown>)[key] !== undefined,
+    );
+
+    if (vectorOptions.length > 0) {
+      throw new Error(
+        `print: ${vectorOptions.join(", ")} can only be used with fonts loaded with loadTTF. Bitmap fonts from loadFont are drawn at the size and in the color they were made with.`,
+      );
+    }
 
     if (alignmentY === VerticalAlign.BOTTOM) {
       y += boxHeight - measureTextHeight(font, text, maxWidth);
