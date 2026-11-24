@@ -7372,10 +7372,6 @@ packages:
     resolution: {integrity: sha512-vYt7UD1U9Wg6138shLtLOvdAu+8DsC/ilFtEVHcH+wydcSpNE20AfSOduf6MkRFahL5FY7X1oU7nKVZFtfq8Fg==}
     engines: {node: '>=6'}
 
-  qs@6.12.0:
-    resolution: {integrity: sha512-trVZiI6RMOkO476zLGaBIzszOdFPnCCXHPG9kn0yuS1uz6xdVxPfZdB3vUig9pxPFDM9BRAgz/YUIVQ1/vuiUg==}
-    engines: {node: '>=0.6'}
-
   qs@6.17.1:
     resolution: {integrity: sha512-jd3COkaKVgGUW+ZHyEHCG9bH7RoaaiWuMgzsIBjUMVjLAaWGWpoUAVwljVvBHxRu/2qEHnadLGZrkutYUBPQJA==}
     engines: {node: '>=0.6'}
@@ -14354,10 +14350,6 @@ snapshots:
 
   punycode@2.3.1: {}
 
-  qs@6.12.0:
-    dependencies:
-      side-channel: 1.0.6
-
   qs@6.17.1:
     dependencies:
       es-define-property: 1.0.1
@@ -15426,7 +15418,7 @@ snapshots:
   url@0.11.3:
     dependencies:
       punycode: 1.4.1
-      qs: 6.12.0
+      qs: 6.17.1
 
   url@0.11.4:
     dependencies:
