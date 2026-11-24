@@ -1,0 +1,22 @@
+name: "LFS pull"
+description: Download the Git LFS test fixtures, cached so CI doesn't use up the LFS bandwidth quota
+
+runs:
+  using: "composite"
+  steps:
+    # The key changes whenever any LFS file is added, changed or removed
+    - name: Hash LFS object list
+      id: lfs-id
+      shell: bash
+      run: echo "hash=$(git lfs ls-files --long | cut -d ' ' -f1 | sort | git hash-object --stdin)" >> "$GITHUB_OUTPUT"
+
+    - name: Restore LFS cache
+      uses: actions/cache@v4
+      with:
+        path: .git/lfs
+        key: lfs-${{ steps.lfs-id.outputs.hash }}
+        restore-keys: lfs-
+
+    - name: Pull LFS objects
+      shell: bash
+      run: git lfs pull
