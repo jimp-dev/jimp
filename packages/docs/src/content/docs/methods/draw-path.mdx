@@ -1,0 +1,156 @@
+---
+title: "drawPath()"
+description: "Draw SVG path data: lines, curves and arcs, filled or stroked."
+category: draw
+method: "drawPath"
+plugin: "@jimp/plugin-draw"
+---
+
+import Playground from "../../../components/playground/Playground";
+import Related from "../../../components/Related.astro";
+
+`drawPath` draws any shape you can describe as a path: straight lines, Bézier curves and arcs, in one or more pieces.
+It reads the same path data as SVG's `d` attribute, so you can paste icons and shapes from an SVG file, or pass a list of command objects.
+
+## Signature
+
+```ts title="draw-path.d.ts"
+image.drawPath(options: {
+  path: string | PathCommand[];
+  fill?: Paint;
+  stroke?: Paint;
+  strokeWidth?: number;
+  cap?: "butt" | "round" | "square";
+  join?: "miter" | "round" | "bevel";
+  miterLimit?: number;
+  fillRule?: "nonzero" | "evenodd";
+}): this
+```
+
+`drawPath` draws on the image in place and returns it, so you can chain more calls after it.
+`Paint` is a color or a gradient; see [Colors and gradients](/jimp/concepts/drawing/#colors-and-gradients). The options type is exported from `jimp` as `DrawPathOptions`, and the command type as `PathCommand`.
+
+## Options
+
+| Option        | Type                            | Default                       | Description                                                                                                  |
+| ------------- | ------------------------------- | ----------------------------- | ------------------------------------------------------------------------------------------------------------ |
+| `path`        | `string \| PathCommand[]`       | required                      | SVG path data, like `"M 10 10 L 90 10 Q 90 90 10 90 Z"`, or a list of [command objects](#command-objects).   |
+| `fill`        | `Paint`                         | black, if there's no `stroke` | What to fill the path with: a color or a gradient.                                                           |
+| `stroke`      | `Paint`                         | none                          | What to draw the outline with: a color or a gradient.                                                        |
+| `strokeWidth` | `number`                        | `1`                           | The width of the outline in pixels, centered on the path. Must be `0` or more.                               |
+| `cap`         | `"butt" \| "round" \| "square"` | `"butt"`                      | How the ends of open subpaths (ones that don't end with `Z`) look.                                           |
+| `join`        | `"miter" \| "round" \| "bevel"` | `"miter"`                     | How corners between segments look.                                                                           |
+| `miterLimit`  | `number`                        | `10`                          | How long a miter corner can be, as a multiple of `strokeWidth`, before it's beveled. Must be `1` or more.    |
+| `fillRule`    | `"nonzero" \| "evenodd"`        | `"nonzero"`                   | Which parts of overlapping subpaths are filled. See [Fill rules](/jimp/concepts/drawing/#fill-rules).        |
+
+### Path data
+
+`drawPath` reads every SVG path command, in upper case (absolute coordinates) or lower case (relative to the current point):
+
+| Command    | Draws                                                                                         |
+| ---------- | --------------------------------------------------------------------------------------------- |
+| `M x y`    | Starts a new subpath at (x, y). Every path must start with `M` or `m`.                         |
+| `L x y`    | A straight line to (x, y).                                                                     |
+| `H x`      | A horizontal line to x.                                                                        |
+| `V y`      | A vertical line to y.                                                                          |
+| `Q x1 y1 x y` | A quadratic Bézier curve to (x, y) with control point (x1, y1).                             |
+| `T x y`    | A quadratic curve whose control point mirrors the previous one.                                |
+| `C x1 y1 x2 y2 x y` | A cubic Bézier curve to (x, y) with control points (x1, y1) and (x2, y2).             |
+| `S x2 y2 x y` | A cubic curve whose first control point mirrors the previous one.                           |
+| `A rx ry rotation large-arc sweep x y` | An elliptical arc to (x, y).                                       |
+| `Z`        | Closes the subpath with a straight line back to its start.                                    |
+
+The syntax is SVG's: commas are optional, a command repeats while numbers follow it, and compact forms such as `M10-5.5.5.5` work.
+
+### Command objects
+
+Instead of a string, `path` can be a list of objects with absolute coordinates:
+
+| Command                                  | Draws                                   |
+| ---------------------------------------- | --------------------------------------- |
+| `{ type: "M", x, y }`                    | Starts a new subpath at (x, y).         |
+| `{ type: "L", x, y }`                    | A straight line to (x, y).              |
+| `{ type: "Q", x1, y1, x, y }`            | A quadratic Bézier curve to (x, y).     |
+| `{ type: "C", x1, y1, x2, y2, x, y }`    | A cubic Bézier curve to (x, y).         |
+| `{ type: "Z" }`                          | Closes the subpath.                     |
+
+These are the same objects opentype.js uses for glyph outlines, so a glyph's `path.commands` can be drawn as they are.
+
+## Example
+
+```ts title="example.ts"
+import { Jimp } from "jimp";
+
+const image = new Jimp({ width: 100, height: 100, color: "white" });
+
+// A heart: two arcs and two curves
+image.drawPath({
+  path: "M 10 30 A 20 20 0 0 1 50 30 A 20 20 0 0 1 90 30 Q 90 60 50 90 Q 10 60 10 30 Z",
+  fill: "crimson",
+});
+
+await image.write("heart.png");
+```
+
+### A ring
+
+A path can have several subpaths. Here two circles make a ring: with `fillRule: "evenodd"` the inner circle is a hole:
+
+```ts title="example.ts"
+image.drawPath({
+  path:
+    "M 10 50 A 40 40 0 1 0 90 50 A 40 40 0 1 0 10 50 Z " +
+    "M 30 50 A 20 20 0 1 0 70 50 A 20 20 0 1 0 30 50 Z",
+  fill: "#2a9d8f",
+  fillRule: "evenodd",
+});
+```
+
+With the default `"nonzero"` rule, both circles are drawn the same way round, so the hole is filled. See [Fill rules](/jimp/concepts/drawing/#fill-rules).
+
+### A curved stroke
+
+Paths that don't end with `Z` are open. Stroke them for curved lines:
+
+```ts title="example.ts"
+image.drawPath({
+  path: "M 10 80 Q 50 10 90 80",
+  stroke: "#1d3557",
+  strokeWidth: 6,
+  cap: "round",
+});
+```
+
+### From command objects
+
+```ts title="example.ts"
+image.drawPath({
+  path: [
+    { type: "M", x: 10, y: 10 },
+    { type: "L", x: 90, y: 10 },
+    { type: "Q", x1: 90, y1: 90, x: 10, y: 90 },
+    { type: "Z" },
+  ],
+  fill: "#ffd83a",
+});
+```
+
+## Try it
+
+Pick a path and place it on the image. Switch `fillRule` on the ring to see the hole, or stroke the open wave.
+
+<Playground method="drawPath" client:visible />
+
+## Notes
+
+- **Coordinates are image pixels.** There's no `viewBox` or transform, so scale and move the numbers yourself. To draw a path with a transform, such as an icon at a different size, use [`fillPath` and `strokePath`](/jimp/concepts/drawing/#drawing-from-plugins) from `@jimp/plugin-draw`.
+- **A fill closes every subpath.** Open subpaths are filled as if they ended with `Z`. Only the stroke leaves them open.
+- **No paint means black.** With neither `fill` nor `stroke`, the path is filled black. With only `stroke`, it isn't filled.
+- **Curves are smooth at any size.** Each curve and arc is split into the fewest straight segments that stay within 0.1 pixels of it.
+- **Invalid path data throws** with the position of the problem, such as `Invalid path data: expected a command at position 8 but found "X"`, and a path that doesn't start with a move throws `Invalid path data: it must start with a move command (M or m), not "L"`. Command objects with an unknown `type` or a missing coordinate throw a `ZodError`.
+- **Clipped to the image.** Coordinates can be anywhere, including outside the image. Only the part inside is drawn, and nothing throws.
+- **Added in 2.0.**
+
+## Related
+
+<Related methods={["drawPolygon", "drawLine", "drawEllipse", "drawRect", "print"]} />

@@ -1,0 +1,106 @@
+---
+title: "floodFill()"
+description: "Fill the area connected to a point, like a paint bucket."
+category: draw
+method: "floodFill"
+plugin: "@jimp/plugin-draw"
+---
+
+import Playground from "../../../components/playground/Playground";
+import Related from "../../../components/Related.astro";
+
+`floodFill` works like the paint bucket in an image editor: it starts at a pixel and fills every pixel connected to it that has the same color, or a similar one.
+Use it to recolor a background, fill a shape you drew with outlines, or color in a region of a diagram.
+
+## Signature
+
+```ts title="flood-fill.d.ts"
+image.floodFill(options: {
+  x: number;
+  y: number;
+  color: Paint;
+  tolerance?: number;
+}): this
+```
+
+`floodFill` draws on the image in place and returns it, so you can chain more calls after it.
+`Paint` is a color or a gradient; see [Colors and gradients](/jimp/concepts/drawing/#colors-and-gradients). The options type is exported from `jimp` as `FloodFillOptions`.
+
+## Options
+
+| Option      | Type     | Default  | Description                                                                                                           |
+| ----------- | -------- | -------- | --------------------------------------------------------------------------------------------------------------------- |
+| `x`         | `number` | required | The x of the pixel to start from. Fractions are rounded down.                                                         |
+| `y`         | `number` | required | The y of the pixel to start from. Fractions are rounded down.                                                         |
+| `color`     | `Paint`  | required | What to fill with: a color or a gradient.                                                                             |
+| `tolerance` | `number` | `0`      | How different, from `0` to `1`, a pixel can be from the starting pixel and still be filled. `0` fills only the exact color; `1` fills everything connected. |
+
+## Example
+
+```ts title="example.ts"
+import { Jimp } from "jimp";
+
+const image = await Jimp.read("logo.png");
+
+// Replace the background, starting from the top-left pixel
+image.floodFill({ x: 0, y: 0, color: "#ffcc00", tolerance: 0.1 });
+
+await image.write("logo-yellow.png");
+```
+
+### Color in a shape
+
+Draw an outline, then fill its inside by starting anywhere within it:
+
+```ts title="example.ts"
+const image = new Jimp({ width: 120, height: 120, color: "white" });
+
+image
+  .drawEllipse({ cx: 60, cy: 60, rx: 50, ry: 50, stroke: "black", strokeWidth: 3 })
+  .floodFill({ x: 60, y: 60, color: "#5cc8ff", tolerance: 0.5 });
+```
+
+The tolerance takes in the antialiased pixels just inside the outline, so the fill meets the line without a light fringe.
+
+### A gradient fill
+
+`color` can be a gradient. Its coordinates are in image pixels:
+
+```ts title="example.ts"
+image.floodFill({
+  x: 60,
+  y: 60,
+  tolerance: 0.5,
+  color: {
+    type: "radial",
+    cx: 60,
+    cy: 60,
+    r: 50,
+    stops: [
+      { offset: 0, color: "white" },
+      { offset: 1, color: "#3a7bff" },
+    ],
+  },
+});
+```
+
+## Try it
+
+Pick the starting point on the image and raise `tolerance` to take in more of the edges. The default point is on the transparent background.
+
+<Playground method="floodFill" client:visible />
+
+## Notes
+
+- **Four directions.** A pixel is connected to the pixels above, below, left and right of it, not diagonally, so a fill doesn't leak through a 1-pixel diagonal line.
+- **How tolerance is measured.** Two colors match when every channel (red, green, blue and alpha) differs by at most `tolerance × 255`. Red, green and blue are multiplied by alpha first, so every fully transparent pixel matches every other, whatever color is hidden in it.
+- **The fill is drawn over the pixels.** Each matched pixel is blended with the fill color like any other drawing, so a semi-transparent color tints what's there instead of replacing it. Pixels that don't match aren't touched.
+- **Edges aren't antialiased.** A pixel is either filled or not. Raise `tolerance` to take in the soft edge of an antialiased outline.
+- **A start outside the image fills nothing** and doesn't throw.
+- **Fast on large images.** It's a scanline fill with an explicit stack instead of recursion, so it can fill a whole 1920 × 1080 image without running out of stack, in tens of milliseconds.
+- **Validation.** `x` and `y` must be finite numbers and `tolerance` must be from `0` to `1`; anything else throws a `ZodError` naming the option. An invalid CSS color throws `Invalid color "notacolor"`.
+- **Added in 2.0.**
+
+## Related
+
+<Related methods={["drawEllipse", "drawPolygon", "mask", "color", "threshold"]} />

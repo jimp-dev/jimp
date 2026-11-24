@@ -225,6 +225,18 @@ canvas.iccProfile = image.iccProfile;
 
 You can return a different image from a method, such as `canvas` after drawing on it. Jimp copies its bitmap onto the image the method was called on, so the user still sees their own image change.
 
+To draw shapes, such as lines, outlines or glyphs, import the rasterizer from `@jimp/plugin-draw` instead of setting pixels yourself. `fillPath`, `strokePath` and `drawShape` antialias edges, take the same colors and gradients as [`drawRect`](/jimp/methods/draw-rect/), and convert CSS colors to the image's color space. See [Drawing from plugins](/jimp/concepts/drawing/#drawing-from-plugins).
+
+```ts title="src/index.ts"
+import { strokePath } from "@jimp/plugin-draw";
+
+// Inside a method: underline the image with a 4-pixel rounded line
+strokePath(image, `M 8 ${image.bitmap.height - 8} H ${image.bitmap.width - 8}`, options.color, {
+  width: 4,
+  cap: "round",
+});
+```
+
 ### Color spaces
 
 An image can be in a color space other than sRGB, such as Display P3; see [Color Spaces](/jimp/guides/color-spaces/).
@@ -534,5 +546,6 @@ Publish the plugin as an ES module with its type declarations:
 
 - [Custom Jimp](/jimp/guides/custom-jimp/) to combine plugins and formats
 - [Colors and pixels](/jimp/concepts/colors-and-pixels/) for the bitmap layout
+- [Drawing](/jimp/concepts/drawing/#drawing-from-plugins) for the exported rasterizer, to draw shapes and text outlines
 - [TypeScript](/jimp/concepts/typescript/) for Jimp's types
 - [WEBP / WASM](/jimp/guides/webp/) for the WASM format plugins

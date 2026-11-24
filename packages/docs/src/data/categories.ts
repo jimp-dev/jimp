@@ -10,6 +10,7 @@ export const categories = {
   effects: { label: "Blur & effects", color: "#ffd83a" },
   color: { label: "Color", color: "#ff9ccf" },
   compose: { label: "Compositing", color: "#ffb35c" },
+  draw: { label: "Drawing", color: "#b5e86b" },
   text: { label: "Text", color: "#c9a8ff" },
   pixels: { label: "Pixels", color: "#8ff0c8" },
   compare: { label: "Comparing", color: "#ff8f8f" },

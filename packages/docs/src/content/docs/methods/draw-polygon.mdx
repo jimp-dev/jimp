@@ -1,0 +1,147 @@
+---
+title: "drawPolygon()"
+description: "Draw a polygon or polyline through a list of points."
+category: draw
+method: "drawPolygon"
+plugin: "@jimp/plugin-draw"
+---
+
+import Playground from "../../../components/playground/Playground";
+import Related from "../../../components/Related.astro";
+
+`drawPolygon` draws a shape with straight sides through a list of points: a triangle, a star, an arrow, or any outline you can list the corners of.
+With `closed: false` it draws a polyline instead, an open line through the points, for charts and zigzags.
+
+## Signature
+
+```ts title="draw-polygon.d.ts"
+image.drawPolygon(options: {
+  points: ([number, number] | { x: number; y: number })[];
+  closed?: boolean;
+  fill?: Paint;
+  stroke?: Paint;
+  strokeWidth?: number;
+  cap?: "butt" | "round" | "square";
+  join?: "miter" | "round" | "bevel";
+  miterLimit?: number;
+  fillRule?: "nonzero" | "evenodd";
+}): this
+```
+
+`drawPolygon` draws on the image in place and returns it, so you can chain more calls after it.
+`Paint` is a color or a gradient; see [Colors and gradients](/jimp/concepts/drawing/#colors-and-gradients). The options type is exported from `jimp` as `DrawPolygonOptions`.
+
+## Options
+
+| Option        | Type                                         | Default                       | Description                                                                                                        |
+| ------------- | -------------------------------------------- | ----------------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| `points`      | `array`                                      | required                      | The corners, in order, as `[x, y]` pairs or `{ x, y }` objects. You can mix both.                                  |
+| `closed`      | `boolean`                                    | `true`                        | Whether the outline joins the last point back to the first. `false` draws a polyline. A fill is always closed.     |
+| `fill`        | `Paint`                                      | black, if there's no `stroke` | What to fill the shape with: a color or a gradient.                                                                |
+| `stroke`      | `Paint`                                      | none                          | What to draw the outline with: a color or a gradient.                                                              |
+| `strokeWidth` | `number`                                     | `1`                           | The width of the outline in pixels, centered on it. Must be `0` or more.                                           |
+| `cap`         | `"butt" \| "round" \| "square"`              | `"butt"`                      | How the ends of an open outline look. Only used with `closed: false`.                                              |
+| `join`        | `"miter" \| "round" \| "bevel"`              | `"miter"`                     | How the outline's corners look.                                                                                    |
+| `miterLimit`  | `number`                                     | `10`                          | How long a miter corner can be, as a multiple of `strokeWidth`, before it's beveled. Must be `1` or more.          |
+| `fillRule`    | `"nonzero" \| "evenodd"`                     | `"nonzero"`                   | Which parts of a shape that crosses itself are filled. See [Fill rules](/jimp/concepts/drawing/#fill-rules).       |
+
+## Example
+
+```ts title="example.ts"
+import { Jimp } from "jimp";
+
+const image = new Jimp({ width: 100, height: 100, color: "white" });
+
+// A five-pointed star
+image.drawPolygon({
+  points: [
+    [50, 5],
+    [79, 95],
+    [2, 40],
+    [98, 40],
+    [21, 95],
+  ],
+  fill: "gold",
+  stroke: "black",
+  strokeWidth: 2,
+  join: "round",
+});
+
+await image.write("star.png");
+```
+
+### A star with a hole
+
+The star above is drawn as one outline that crosses itself. With the default `fillRule: "nonzero"` the pentagon in the middle is filled. With `"evenodd"` it's left empty, because a point there is inside the outline twice:
+
+```ts title="example.ts"
+image.drawPolygon({
+  points: [
+    [50, 5],
+    [79, 95],
+    [2, 40],
+    [98, 40],
+    [21, 95],
+  ],
+  fill: "gold",
+  fillRule: "evenodd",
+});
+```
+
+### A polyline
+
+Set `closed: false` to draw a line through the points without joining the ends. Use `cap` and `join` to round it off:
+
+```ts title="example.ts"
+image.drawPolygon({
+  points: [
+    { x: 10, y: 90 },
+    { x: 40, y: 60 },
+    { x: 60, y: 90 },
+    { x: 90, y: 60 },
+  ],
+  closed: false,
+  stroke: "#e63946",
+  strokeWidth: 4,
+  cap: "round",
+  join: "round",
+});
+```
+
+### A line chart
+
+Polylines are a quick way to plot values. Map each value to a point, then stroke them:
+
+```ts title="example.ts"
+const values = [12, 40, 28, 64, 51, 80];
+const chart = new Jimp({ width: 300, height: 100, color: "white" });
+
+chart.drawPolygon({
+  points: values.map((v, i) => [10 + i * 56, 95 - v]),
+  closed: false,
+  stroke: "#3a7bff",
+  strokeWidth: 3,
+  join: "round",
+});
+```
+
+## Try it
+
+Pick a shape, place its center on the image and change the size. Switch `fillRule` to `evenodd` on the star to see the hole, or turn off `closed` to draw a polyline.
+
+<Playground method="drawPolygon" client:visible />
+
+## Notes
+
+- **A fill is always closed.** `closed: false` only changes the outline. With a `fill`, the shape is filled as if the last point joined the first.
+- **Polylines need a stroke.** With `closed: false` and no `stroke`, the shape is filled black like any other, which is rarely what you want. Pass `stroke` for a line.
+- **No paint means black.** With neither `fill` nor `stroke`, the shape is filled black. With only `stroke`, it isn't filled.
+- **Few points.** An empty `points` array draws nothing. One point with `cap: "round"` or `"square"` and a `stroke` draws a dot, as in SVG.
+- **Miter limit.** Sharp corners with `join: "miter"` can stick out a long way. When a corner would be longer than `miterLimit` times `strokeWidth`, it's beveled instead.
+- **Clipped to the image.** Points can be anywhere, including outside the image or at fractional coordinates. Only the part inside is drawn, and nothing throws.
+- **Validation.** Every coordinate must be a finite number: `NaN` or `Infinity` throws a `ZodError` whose `path` points to the bad point, such as `["points", 2]`. An invalid CSS color throws `Invalid color "notacolor"`.
+- **Added in 2.0.**
+
+## Related
+
+<Related methods={["drawPath", "drawLine", "drawRect", "drawEllipse", "floodFill"]} />

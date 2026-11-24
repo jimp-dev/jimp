@@ -59,6 +59,13 @@ export const concepts: DocPage[] = [
     icon: "layers",
   },
   {
+    slug: "concepts/drawing",
+    title: "Drawing",
+    blurb: "Lines, shapes, paths, gradients and flood fill, antialiased.",
+    color: "#b5e86b",
+    icon: "draw",
+  },
+  {
     slug: "concepts/text-and-fonts",
     title: "Text and fonts",
     blurb: "Print text with bitmap fonts, measure it and align it.",

@@ -1,0 +1,110 @@
+---
+title: "drawEllipse()"
+description: "Draw a filled or outlined ellipse or circle around a center point."
+category: draw
+method: "drawEllipse"
+plugin: "@jimp/plugin-draw"
+---
+
+import Playground from "../../../components/playground/Playground";
+import Related from "../../../components/Related.astro";
+
+`drawEllipse` draws an ellipse centered on a point, or a circle when both radii are the same.
+Use it for dots, markers, avatars and highlights.
+
+## Signature
+
+```ts title="draw-ellipse.d.ts"
+image.drawEllipse(options: {
+  cx: number;
+  cy: number;
+  rx: number;
+  ry: number;
+  fill?: Paint;
+  stroke?: Paint;
+  strokeWidth?: number;
+}): this
+```
+
+`drawEllipse` draws on the image in place and returns it, so you can chain more calls after it.
+`Paint` is a color or a gradient; see [Colors and gradients](/jimp/concepts/drawing/#colors-and-gradients). The options type is exported from `jimp` as `DrawEllipseOptions`.
+
+## Options
+
+| Option        | Type     | Default                       | Description                                                                    |
+| ------------- | -------- | ----------------------------- | ------------------------------------------------------------------------------ |
+| `cx`          | `number` | required                      | The x of the center, in pixels.                                                |
+| `cy`          | `number` | required                      | The y of the center, in pixels.                                                |
+| `rx`          | `number` | required                      | The horizontal radius. Must be `0` or more.                                    |
+| `ry`          | `number` | required                      | The vertical radius. Use the same as `rx` for a circle. Must be `0` or more.   |
+| `fill`        | `Paint`  | black, if there's no `stroke` | What to fill the ellipse with: a color or a gradient.                          |
+| `stroke`      | `Paint`  | none                          | What to draw the outline with: a color or a gradient.                          |
+| `strokeWidth` | `number` | `1`                           | The width of the outline in pixels, centered on the edge. Must be `0` or more. |
+
+## Example
+
+```ts title="example.ts"
+import { Jimp } from "jimp";
+
+const image = new Jimp({ width: 200, height: 100, color: "white" });
+
+image
+  .drawEllipse({ cx: 50, cy: 50, rx: 40, ry: 40, fill: "#f4a261" })
+  .drawEllipse({ cx: 150, cy: 50, rx: 40, ry: 25, stroke: "black", strokeWidth: 3 });
+
+await image.write("ellipses.png");
+```
+
+### A shaded ball
+
+A [radial gradient](/jimp/concepts/drawing/#gradients) with its center up and to the left of the circle's looks like light falling on a ball:
+
+```ts title="example.ts"
+image.drawEllipse({
+  cx: 100,
+  cy: 50,
+  rx: 40,
+  ry: 40,
+  fill: {
+    type: "radial",
+    cx: 88,
+    cy: 38,
+    r: 50,
+    stops: [
+      { offset: 0, color: "white" },
+      { offset: 1, color: "#3a7bff" },
+    ],
+  },
+});
+```
+
+### A rotated ellipse
+
+`drawEllipse` draws ellipses lined up with the image's axes. For one at an angle, use [`drawPath`](/jimp/methods/draw-path/) with two arcs, whose third number is the rotation in degrees. This is a 60 × 25 ellipse around `(100, 50)`, turned 30°:
+
+```ts title="example.ts"
+image.drawPath({
+  path: "M 151.96 80 A 60 25 30 1 0 48.04 20 A 60 25 30 1 0 151.96 80 Z",
+  fill: "#f4a261",
+});
+```
+
+## Try it
+
+Pick the center on the image and drag the sliders to change the radii. Turn on **gradient fill** for a radial gradient.
+
+<Playground method="drawEllipse" client:visible />
+
+## Notes
+
+- **The outline straddles the edge.** Half of `strokeWidth` is inside the ellipse and half outside, like SVG and canvas.
+- **No paint means black.** With neither `fill` nor `stroke`, the ellipse is filled black. With only `stroke`, it isn't filled.
+- **Symmetric and accurate.** The curve is split into short straight segments within 0.1 pixels of the true ellipse, chosen so the area matches and the result is symmetric. Small circles keep their full weight.
+- **Zero radius.** An `rx` or `ry` of `0` fills nothing.
+- **Clipped to the image.** The center can be anywhere, including outside the image. Only the part inside is drawn, and nothing throws.
+- **Validation.** Coordinates must be finite numbers and the radii and `strokeWidth` must be `0` or more; anything else throws a `ZodError` naming the option. An invalid CSS color throws `Invalid color "notacolor"`.
+- **Added in 2.0.**
+
+## Related
+
+<Related methods={["drawRect", "drawPath", "drawPolygon", "circle", "floodFill"]} />
