@@ -10,9 +10,18 @@ import {
   measureTextHeight,
   splitLines,
 } from "./measure-text.js";
+import { vectorTextMethods } from "./print-text.js";
 import { BmCharacter, BmFont } from "./types.js";
 
 export { measureText, measureTextHeight } from "./measure-text.js";
+export {
+  measureVectorText,
+  type PrintTextOptions,
+  type TextLayoutOptions,
+} from "./print-text.js";
+// loadTTF is in "./load-ttf", so opentype.js is only bundled when it's used
+export type { FontSource, VectorFont } from "./load-ttf.js";
+export type { OpenTypeFont, OpenTypeGlyph } from "./opentype.js";
 export * from "./types.js";
 
 const PrintOptionsSchema = z.object({
@@ -253,4 +262,6 @@ export const methods = {
 
     return image;
   },
+
+  ...vectorTextMethods,
 };

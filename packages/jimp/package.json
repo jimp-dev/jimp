@@ -62,7 +62,6 @@
     "@jimp/plugin-quantize": "workspace:*",
     "@jimp/plugin-resize": "workspace:*",
     "@jimp/plugin-rotate": "workspace:*",
-    "@jimp/plugin-text": "workspace:*",
     "@jimp/plugin-threshold": "workspace:*",
     "@jimp/types": "workspace:*",
     "@jimp/utils": "workspace:*"

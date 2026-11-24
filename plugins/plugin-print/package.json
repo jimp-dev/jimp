@@ -12,6 +12,7 @@
   "scripts": {
     "lint": "eslint .",
     "test": "vitest",
+    "test:browser": "vitest --config vitest.config.browser.mjs",
     "build": "tshy && node scripts/copy-fonts.mjs",
     "dev": "tshy --watch",
     "clean": "rimraf node_modules .tshy .tshy-build dist .turbo"
@@ -21,9 +22,11 @@
   "devDependencies": {
     "@jimp/config-eslint": "workspace:*",
     "@jimp/config-typescript": "workspace:*",
+    "@jimp/config-vitest": "workspace:*",
     "@jimp/js-png": "workspace:*",
     "@jimp/test-utils": "workspace:*",
     "@types/node": "^22.20.5",
+    "@vitest/browser": "^4.1.12",
     "eslint": "^9.9.1",
     "tshy": "^3.0.2",
     "typescript": "^5.5.4",
@@ -38,7 +41,8 @@
       "./package.json": "./package.json",
       ".": "./src/index.ts",
       "./load-font": "./src/load-font.ts",
-      "./fonts": "./src/fonts.ts"
+      "./fonts": "./src/fonts.ts",
+      "./load-ttf": "./src/load-ttf.ts"
     }
   },
   "exports": {
@@ -72,6 +76,16 @@
         "types": "./dist/commonjs/fonts.d.ts",
         "default": "./dist/commonjs/fonts.js"
       }
+    },
+    "./load-ttf": {
+      "import": {
+        "types": "./dist/esm/load-ttf.d.ts",
+        "default": "./dist/esm/load-ttf.js"
+      },
+      "require": {
+        "types": "./dist/commonjs/load-ttf.d.ts",
+        "default": "./dist/commonjs/load-ttf.js"
+      }
     }
   },
   "main": "./dist/commonjs/index.js",
@@ -83,6 +97,9 @@
       ],
       "fonts": [
         "./dist/commonjs/fonts.d.ts"
+      ],
+      "load-ttf": [
+        "./dist/commonjs/load-ttf.d.ts"
       ]
     }
   },
@@ -92,8 +109,10 @@
     "@jimp/js-jpeg": "workspace:*",
     "@jimp/js-png": "workspace:*",
     "@jimp/plugin-blit": "workspace:*",
+    "@jimp/plugin-draw": "workspace:*",
     "@jimp/types": "workspace:*",
     "buffer": "^6.0.3",
+    "opentype.js": "^2.0.0",
     "parse-bmfont-ascii": "^1.0.6",
     "parse-bmfont-binary": "^1.0.6",
     "parse-bmfont-xml": "^1.1.6",

@@ -7,7 +7,7 @@ import { loadTTF } from "./load-ttf.js";
 
 const require = createRequire(import.meta.url);
 const font = path.join(
-  path.dirname(require.resolve("@jimp/plugin-text/package.json")),
+  path.dirname(require.resolve("@jimp/plugin-print/package.json")),
   "fixtures/Inter-Regular.otf",
 );
 

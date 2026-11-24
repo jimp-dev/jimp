@@ -13,11 +13,8 @@ import {
   shapeLine,
   splitLines,
   type LayoutOptions,
-} from "./layout.js";
+} from "./vector-layout.js";
 import type { VectorFont } from "./load-ttf.js";
-
-export { loadTTF, type FontSource, type VectorFont } from "./load-ttf.js";
-export type { OpenTypeFont, OpenTypeGlyph } from "./opentype.js";
 
 const TextLayoutSchema = z.object({
   /**
@@ -169,7 +166,8 @@ export function measureVectorText(
   return { width, height, lines: lines.map((line) => line.text) };
 }
 
-export const methods = {
+/** `printText`, which `methods` in index.ts includes */
+export const vectorTextMethods = {
   /**
    * Draws text with a TrueType, OpenType or WOFF font loaded with `loadTTF`.
    * Glyphs are drawn from the font's outlines, antialiased, at any size, in

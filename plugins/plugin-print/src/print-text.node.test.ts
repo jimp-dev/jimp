@@ -9,12 +9,8 @@ import type { AddressInfo } from "net";
 import path from "path";
 import { fileURLToPath, pathToFileURL } from "url";
 
-import {
-  loadTTF,
-  measureVectorText,
-  methods,
-  type VectorFont,
-} from "./index.js";
+import { measureVectorText, methods } from "./index.js";
+import { loadTTF, type VectorFont } from "./load-ttf.js";
 
 const Jimp = createJimp({ formats: [png], plugins: [methods, drawMethods] });
 

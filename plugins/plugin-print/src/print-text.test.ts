@@ -1,12 +1,8 @@
 import { beforeAll, describe, expect, test } from "vitest";
 import { createJimp, HorizontalAlign, VerticalAlign } from "@jimp/core";
 
-import {
-  loadTTF,
-  measureVectorText,
-  methods,
-  type VectorFont,
-} from "./index.js";
+import { measureVectorText, methods } from "./index.js";
+import { loadTTF, type VectorFont } from "./load-ttf.js";
 
 const Jimp = createJimp({ plugins: [methods] });
 
