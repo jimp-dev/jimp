@@ -2,7 +2,7 @@ import { Buffer } from "buffer";
 import decode, { init as initDecoder } from "@jsquash/jxl/decode.js";
 import encode, { init as initEncoder } from "@jsquash/jxl/encode.js";
 import { Bitmap, Format } from "@jimp/types";
-import z from "zod";
+import { z } from "zod";
 
 import { readJxlHeader, TransferFunction } from "./header.js";
 import { loadWasm } from "./load-wasm.js";

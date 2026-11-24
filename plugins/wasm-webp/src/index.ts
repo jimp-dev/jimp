@@ -3,7 +3,7 @@ import decode, { init as initDecoder } from "@jsquash/webp/decode.js";
 import encode, { init as initEncoder } from "@jsquash/webp/encode.js";
 import { Format } from "@jimp/types";
 import { simd } from "wasm-feature-detect";
-import z from "zod";
+import { z } from "zod";
 
 import { loadWasm } from "./load-wasm.js";
 

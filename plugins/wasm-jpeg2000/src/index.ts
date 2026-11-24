@@ -3,7 +3,7 @@ import OpenJPEGWASM, {
   OpenJpegModule,
 } from "@cornerstonejs/codec-openjpeg/wasmjs";
 import { Bitmap, Format } from "@jimp/types";
-import z from "zod";
+import { z } from "zod";
 
 import {
   CodestreamHeader,

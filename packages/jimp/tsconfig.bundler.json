@@ -1,0 +1,11 @@
+{
+  // Type tests again with the resolution bundlers (Vite, Next.js, Astro) use,
+  // which reads some published .d.ts files differently than NodeNext does
+  "extends": "@jimp/config-typescript/base.json",
+  "compilerOptions": {
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "noEmit": true
+  },
+  "include": ["src/**/*.test-d.ts"]
+}

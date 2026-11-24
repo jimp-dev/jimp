@@ -25,4 +25,20 @@ export default [
       "turbo/no-undeclared-env-vars": "error",
     },
   },
+  {
+    rules: {
+      "no-restricted-syntax": [
+        "error",
+        {
+          // tsc names the schema types after the import, e.g.
+          // `z.z.core.$strict`, which only resolves with NodeNext. With
+          // bundler resolution the options are typed as `any`.
+          selector:
+            "ImportDeclaration[source.value='zod'] > ImportDefaultSpecifier",
+          message:
+            'Use `import { z } from "zod"`: the default import breaks the published types.',
+        },
+      ],
+    },
+  },
 ];

@@ -2,7 +2,7 @@ import { Buffer } from "buffer";
 import decode, { init as initDecoder } from "@jsquash/avif/decode.js";
 import encode, { init as initEncoder } from "@jsquash/avif/encode.js";
 import { Format } from "@jimp/types";
-import z from "zod";
+import { z } from "zod";
 
 import { loadWasm } from "./load-wasm.js";
 
