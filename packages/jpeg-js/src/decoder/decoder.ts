@@ -64,6 +64,7 @@ import {
   type OutputComponent,
 } from "./output.js";
 import { decodeScan, NATURAL_ORDER, type ScanComponent } from "./scan.js";
+import { smoothAndTransform, smoothingUseful } from "./smoothing.js";
 import { STANDARD_TABLES } from "./standard-tables.js";
 
 export interface DecoderOptions {
@@ -88,6 +89,9 @@ interface Component extends ScanComponent {
   plane: SampleArray | null;
   /** Some scan has covered this component. */
   scanned: boolean;
+  /** Progression of each coefficient, see SmoothingComponent. */
+  coefBits: Int8Array;
+  previousCoefBits: Int8Array;
 }
 
 interface Frame {
@@ -151,6 +155,8 @@ export class JpegDecoder {
   private scans = 0;
   private idct: IdctContext | null = null;
   private memoryUsed = 0;
+  /** See ScanResult.lastGoodRow. */
+  private lastGoodRow = 0;
 
   constructor(private readonly options: DecoderOptions) {}
 
@@ -644,6 +650,8 @@ export class JpegDecoder {
         acTable: null,
         pred: 0,
         scanned: false,
+        coefBits: new Int8Array(64).fill(-1),
+        previousCoefBits: new Int8Array(64),
       });
     }
 
@@ -735,8 +743,18 @@ export class JpegDecoder {
         throw new JpegFormatError(`Invalid component ID ${id} in SOS marker`);
       }
 
-      component.dcTable = this.huffmanTable(this.dcTables, tables >> 4, true);
-      component.acTable = this.huffmanTable(this.acTables, tables & 15, false);
+      component.dcTable = this.huffmanTable(
+        this.dcTables,
+        tables >> 4,
+        true,
+        frame.progressive,
+      );
+      component.acTable = this.huffmanTable(
+        this.acTables,
+        tables & 15,
+        false,
+        frame.progressive,
+      );
       components.push(component);
     }
 
@@ -828,6 +846,22 @@ export class JpegDecoder {
       return this.decodeStreamingScan(frame, data, scanStart, components);
     }
 
+    if (frame.progressive) {
+      // Track the progression for block smoothing, like jdphuff.c
+      for (const { coefBits, previousCoefBits } of components) {
+        const from = Math.min(spectralStart, 1);
+        const to = Math.max(spectralEnd, 9);
+
+        for (let i = from; i <= to; i++) {
+          previousCoefBits[i] = this.scans > 1 ? coefBits[i]! : 0;
+        }
+
+        for (let i = spectralStart; i <= spectralEnd; i++) {
+          coefBits[i] = approxLow;
+        }
+      }
+    }
+
     for (const component of components) {
       if (component.coefficients.length === 0) {
         if (!frame.progressive) {
@@ -847,7 +881,7 @@ export class JpegDecoder {
       component.scanned = true;
     }
 
-    return decodeScan(
+    const result = decodeScan(
       data,
       scanStart,
       {
@@ -863,6 +897,10 @@ export class JpegDecoder {
       },
       this.scanOptions(),
     );
+
+    this.lastGoodRow = result.lastGoodRow;
+
+    return result.offset;
   }
 
   private scanOptions() {
@@ -876,12 +914,13 @@ export class JpegDecoder {
     tables: (HuffmanTable | undefined)[],
     id: number,
     isDC: boolean,
+    progressive: boolean,
   ) {
     let table = tables[id];
 
     // Like libjpeg-turbo, fall back on the tables of the JPEG standard
-    // (Annex K), which Motion JPEG frames leave out
-    if (!table && id < 2) {
+    // (Annex K) in sequential JPEGs: Motion JPEG frames leave them out
+    if (!table && !progressive && id < 2) {
       const standard = STANDARD_TABLES[isDC ? "dc" : "ac"][id]!;
 
       table = buildHuffmanTable(standard.counts, standard.symbols, isDC);
@@ -1022,7 +1061,7 @@ export class JpegDecoder {
         onRow,
       },
       this.scanOptions(),
-    );
+    ).offset;
   }
 
   /** Skips the data of a scan that isn't decoded. */
@@ -1046,6 +1085,13 @@ export class JpegDecoder {
   /** IDCT of the stored coefficients of a progressive or multi-scan JPEG. */
   private finishCoefficients(frame: Frame) {
     const idct = this.idct!;
+    const latched = frame.components.every((c) => c.quantTable);
+    const smoothing =
+      frame.progressive &&
+      latched &&
+      smoothingUseful(
+        frame.components.map((c) => ({ ...c, quantTable: c.quantTable! })),
+      );
 
     for (const component of frame.components) {
       if (!component.scanned) {
@@ -1064,6 +1110,19 @@ export class JpegDecoder {
       this.createPlane(frame, component);
 
       if (!component.scanned) {
+        continue;
+      }
+
+      if (smoothing) {
+        smoothAndTransform(
+          idct,
+          { ...component, quantTable },
+          component.plane!,
+          this.scans,
+          this.lastGoodRow,
+          frame.mcusPerColumn,
+        );
+        component.coefficients = new Int16Array(0);
         continue;
       }
 

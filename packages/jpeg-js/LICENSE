@@ -8,10 +8,11 @@ full text of each license.
                    by notmasteryet, as maintained in pdf.js by Mozilla and
                    copied into jpeg-js: marker parsing and frame setup.
   src/decoder/huffman.ts, src/decoder/scan.ts, src/decoder/idct.ts,
-  src/decoder/output.ts
+  src/decoder/smoothing.ts, src/decoder/output.ts
                    Independent JPEG Group License (section 4, README.ijg).
                    Ports of libjpeg-turbo's Huffman decoding, progressive
-                   decoding, inverse DCT, upsampling and colour conversion.
+                   decoding, inverse DCT, block smoothing, upsampling and
+                   colour conversion.
   src/encoder/encoder.ts
                    BSD 3-Clause License, Adobe Systems (section 3). The
                    JPGEncoder of as3corelib, ported to JavaScript by Andreas

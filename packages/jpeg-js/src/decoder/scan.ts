@@ -351,17 +351,25 @@ function describeMarker(marker: number) {
     : `marker 0xFF${marker.toString(16).toUpperCase().padStart(2, "0")}`;
 }
 
+export interface ScanResult {
+  /** Offset of the marker after the scan's data, or the data's length. */
+  offset: number;
+  /**
+   * The last row of MCUs (of the frame) that was decoded from data, like
+   * libjpeg's last_good_iMCU_row. Block smoothing uses it.
+   */
+  lastGoodRow: number;
+}
+
 /**
  * Decodes a scan starting at `offset`, the first byte after its SOS segment.
- * Returns the offset of the marker that follows the scan's data, or the
- * length of the data if there is none.
  */
 export function decodeScan(
   data: Uint8Array,
   offset: number,
   scan: Scan,
   options: ScanOptions,
-) {
+): ScanResult {
   const decoder = new ScanDecoder(data, offset, scan, options);
   const reader = decoder.reader;
   const { components, progressive, restartInterval, onRow } = scan;
@@ -392,6 +400,9 @@ export function decodeScan(
   let nextRestart = 0;
   let mcuRow = 0;
   let mcuCol = 0;
+  let lastGoodRow = 0;
+  // Rows of blocks per row of the frame's MCUs, in a non-interleaved scan
+  const rowsPerFrameRow = single ? first.v : 1;
 
   for (let mcu = 0; mcu < total; mcu++) {
     if (restartInterval) {
@@ -415,6 +426,8 @@ export function decodeScan(
     }
 
     if (!decoder.insufficient) {
+      lastGoodRow = Math.floor(mcuRow / rowsPerFrameRow);
+
       // Rows of the coefficient buffer: relative to the current MCU row when
       // it only holds one
       const rowBase = onRow ? 0 : mcuRow;
@@ -471,7 +484,7 @@ export function decodeScan(
     reader.findMarker();
   }
 
-  return reader.markerOffset;
+  return { offset: reader.markerOffset, lastGoodRow };
 }
 
 /**

@@ -4,7 +4,7 @@ import { describe, expect, test } from "vitest";
 import jpeg, { decode, decodeJpeg, encode, encodeJpeg } from "./index.js";
 
 const fixture = (name: string) =>
-  readFileSync(new URL(`../test/fixtures/${name}`, import.meta.url));
+  readFileSync(new URL(`../test/corpus/jpeg-js/${name}`, import.meta.url));
 
 describe("@jimp/jpeg-js", () => {
   test("decodes a JPEG", () => {
