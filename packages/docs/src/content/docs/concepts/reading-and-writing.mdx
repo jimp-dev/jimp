@@ -121,6 +121,20 @@ const bytes = await image.getBuffer(JimpMime.png);
 const url = await image.getBase64("image/jpeg", { quality: 80 });
 ```
 
+### Animations and pages
+
+A Jimp image is one picture. [`Jimp.readFrames`](/jimp/methods/read-frames/) reads every frame of an animated GIF or page of a multi-page TIFF as a list of images, and [`Jimp.writeFrames`](/jimp/methods/write-frames/) or [`Jimp.encodeFrames`](/jimp/methods/encode-frames/) write a list back:
+
+```ts title="example.ts"
+const { frames, loop } = await Jimp.readFrames("animation.gif");
+
+for (const { image } of frames) {
+  image.flip({ horizontal: true });
+}
+
+await Jimp.writeFrames("flipped.gif", frames, { loop });
+```
+
 ### MIME types and `JimpMime`
 
 `getBuffer` and `getBase64` take the output format as a MIME type string.
@@ -191,7 +205,7 @@ Pass `icc: false` to write sRGB without a profile. See [Color Spaces](/jimp/guid
 
 ## Read options
 
-`Jimp.read` and `Jimp.fromBuffer` take a second argument with options for the decoders, keyed by MIME type.
+`Jimp.read`, `Jimp.fromBuffer` and `Jimp.readFrames` take a second argument with options for the decoders, keyed by MIME type.
 They're mostly used to raise the size limits that protect against huge or malicious files:
 
 ```ts title="example.ts"
@@ -227,4 +241,4 @@ The [browser guide](/jimp/guides/browser/) covers uploads, canvas and web worker
 - [Color Spaces](/jimp/guides/color-spaces/): ICC profiles, Display P3 and `toColorSpace`
 - [Reading Large Images](/jimp/guides/reading-large-images/): decode options and size limits
 - [Using in Browser](/jimp/guides/browser/)
-- Methods: [`Jimp.read`](/jimp/methods/read/), [`Jimp.fromBuffer`](/jimp/methods/from-buffer/), [`Jimp.fromBitmap`](/jimp/methods/from-bitmap/), [`new Jimp`](/jimp/methods/new-jimp/), [`getBuffer`](/jimp/methods/get-buffer/), [`getBase64`](/jimp/methods/get-base64/), [`write`](/jimp/methods/write/), [`clone`](/jimp/methods/clone/)
+- Methods: [`Jimp.read`](/jimp/methods/read/), [`Jimp.fromBuffer`](/jimp/methods/from-buffer/), [`Jimp.fromBitmap`](/jimp/methods/from-bitmap/), [`new Jimp`](/jimp/methods/new-jimp/), [`getBuffer`](/jimp/methods/get-buffer/), [`getBase64`](/jimp/methods/get-base64/), [`write`](/jimp/methods/write/), [`clone`](/jimp/methods/clone/), [`Jimp.readFrames`](/jimp/methods/read-frames/), [`Jimp.encodeFrames`](/jimp/methods/encode-frames/), [`Jimp.writeFrames`](/jimp/methods/write-frames/)

@@ -87,6 +87,7 @@ Some formats have no extension `write` can map, such as JPEG 2000 codestreams (`
 
 - **The original format isn't kept automatically.** An image read from a JPEG and written to `out.png` becomes a PNG. Jimp goes by the extension only.
 - **Writing replaces existing files** without asking.
+- **One image per file.** To write an animated GIF or a multi-page TIFF, use [`Jimp.writeFrames`](/jimp/methods/write-frames/).
 - **Errors.** A path with no extension throws `Cannot write "<path>": the path has no recognisable file extension to determine the image format`. An extension whose format isn't available throws `Unsupported MIME type`, for example `Unsupported MIME type: image/webp` for `.webp` or `Unsupported MIME type: text/plain` for `.txt`. A directory that doesn't exist throws Node's `ENOENT: no such file or directory` error.
 - **Added in 2.0:** `.ico` files.
 - **Changed in 2.0:** the options are typed by the path's extension, including `.jpg`, `.jpe` and `.tif`, paths with directories, and upper-case extensions. Before, `.jpg` paths weren't matched to JPEG's options, and `.gif`, `.tif` and `string` paths accepted any options.
@@ -102,4 +103,4 @@ Some formats have no extension `write` can map, such as JPEG 2000 codestreams (`
 
 ## Related
 
-<Related methods={["getBuffer", "getBase64", "Jimp.read", "clone"]} />
+<Related methods={["getBuffer", "getBase64", "Jimp.writeFrames", "Jimp.read", "clone"]} />

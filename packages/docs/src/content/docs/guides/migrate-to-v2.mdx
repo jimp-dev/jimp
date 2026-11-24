@@ -246,6 +246,7 @@ await image.write("out.bmp", { bitPP: 1, palette: ["black", "white"] });
 ### Reading and writing
 
 - ICO is a default format: read `.ico` and `.cur`, write `.ico`. See [Formats](/jimp/concepts/formats/).
+- Animated GIFs and multi-page TIFFs: [`Jimp.readFrames`](/jimp/methods/read-frames/) reads every frame or page, and [`Jimp.encodeFrames`](/jimp/methods/encode-frames/) and [`Jimp.writeFrames`](/jimp/methods/write-frames/) write them.
 - BMP output at 1, 4, 8, 16, 24 or 32 bits per pixel with the `bitPP` option, and palettes for 1, 4 and 8 bits.
 - New WASM format plugins: `@jimp/wasm-jpeg2000` (JPEG 2000), `@jimp/wasm-jxl` (JPEG XL) and `@jimp/wasm-svg` (reads SVG). See [WEBP / WASM](/jimp/guides/webp/).
 - WASM plugins accept precompiled modules, for Cloudflare Workers.

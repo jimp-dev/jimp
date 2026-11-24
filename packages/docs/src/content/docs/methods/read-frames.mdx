@@ -1,0 +1,142 @@
+---
+title: "Jimp.readFrames()"
+description: "Load every frame of an animated GIF or every page of a multi-page TIFF."
+category: io
+method: "Jimp.readFrames"
+plugin: "@jimp/core"
+---
+
+import { Aside } from "@astrojs/starlight/components";
+import Related from "../../../components/Related.astro";
+
+`Jimp.readFrames` loads an animated GIF or a multi-page TIFF and decodes each frame or page into its own Jimp image.
+[`Jimp.read`](/jimp/methods/read/) only gives you the first one.
+
+## Signature
+
+```ts title="readFrames.d.ts"
+Jimp.readFrames(
+  url: string | Buffer | ArrayBuffer | ArrayBufferView | Blob,
+  options?: ReadFramesOptions & DecodeOptions,
+): Promise<{
+  frames: { image: Jimp; delay?: number }[];
+  loop?: number | null;
+}>
+
+Jimp.fromBufferFrames(
+  buffer: Buffer | ArrayBuffer | ArrayBufferView | Blob,
+  options?: ReadFramesOptions & DecodeOptions,
+): Promise<{ frames: { image: Jimp; delay?: number }[]; loop?: number | null }>
+```
+
+Both are static methods. `readFrames` takes the same input as `Jimp.read`: a file path (Node only), a URL or the image's bytes.
+`fromBufferFrames` only takes bytes, like [`Jimp.fromBuffer`](/jimp/methods/from-buffer/).
+
+## Parameters
+
+| Parameter | Type                                                          | Default  | Description                                                                                         |
+| --------- | ------------------------------------------------------------- | -------- | --------------------------------------------------------------------------------------------------- |
+| `url`     | `string \| Buffer \| ArrayBuffer \| ArrayBufferView \| Blob` | required | A file path (Node only), an `http:`, `https:`, `data:` or `blob:` URL, or the encoded image bytes. |
+| `options` | `object`                                                      | none     | [`maxFrames`](#options), `exifRotate`, and decode options keyed by MIME type.                      |
+
+## Options
+
+| Option          | Type      | Default    | Description                                                                                                                       |
+| --------------- | --------- | ---------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| `maxFrames`     | `number`  | `Infinity` | Only decode this many frames, from the start. Use it to read the beginning of a long animation without decoding all of it.       |
+| `exifRotate`    | `boolean` | `true`     | As for [`Jimp.read`](/jimp/methods/read/#options).                                                                                |
+| `"<mime type>"` | `object`  | none       | Options for one format's decoder, such as `"image/gif": { maxResolutionInMP: 200 }`. See [Reading Large Images](/jimp/guides/reading-large-images/). |
+
+## Returns
+
+| Property          | Type                     | Description                                                                                                                                     |
+| ----------------- | ------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| `frames`          | `{ image, delay? }[]`    | The frames in order. Each `image` is an ordinary Jimp image, with every method.                                                                |
+| `frames[i].delay` | `number \| undefined`    | How long a GIF frame is shown, in milliseconds. Undefined for TIFF pages and single-frame formats.                                             |
+| `loop`            | `number \| null \| undefined` | GIF only: how many times the animation repeats after it first plays. `0` repeats forever, and `null` means the GIF has no loop count, so it plays once. Undefined for other formats. |
+
+The types are exported from `jimp` as `JimpFrames`, `JimpFrame` and `ReadFramesOptions`.
+
+## Example
+
+```ts title="example.ts"
+import { Jimp } from "jimp";
+
+const { frames, loop } = await Jimp.readFrames("animation.gif");
+
+console.log(frames.length, loop); // 12 0
+
+for (const { image } of frames) {
+  image.resize({ w: 200 });
+}
+
+await Jimp.writeFrames("small.gif", frames, { loop });
+```
+
+### Pages of a TIFF
+
+```ts title="example.ts"
+const { frames } = await Jimp.readFrames("scan.tiff");
+
+for (const [i, { image }] of frames.entries()) {
+  await image.write(`page-${i + 1}.png`);
+}
+```
+
+Each page keeps its own size, so the images can differ.
+
+### Read the start of a long animation
+
+```ts title="example.ts"
+const { frames } = await Jimp.readFrames("long.gif", { maxFrames: 1 });
+const poster = frames[0]!.image;
+```
+
+### Read bytes you already have
+
+```ts title="example.ts"
+import { readFile } from "node:fs/promises";
+
+const { frames } = await Jimp.fromBufferFrames(await readFile("animation.gif"));
+```
+
+## How GIF frames are put together
+
+Most GIFs don't store every frame in full. A frame can cover just the part of the image that changed, with transparent pixels to let the previous frame show through, and a _disposal method_ that says what to do with it before the next one is drawn.
+
+`readFrames` does that drawing for you, so every frame is the complete image that a viewer would show at that point:
+
+- **Keep** (disposal 0 or 1): the next frame is drawn over this one.
+- **Restore to background** (disposal 2): the frame's area is cleared to transparent before the next frame. That's what browsers do, rather than filling it with the GIF's background color.
+- **Restore to previous** (disposal 3): the frame's area goes back to what it was before this frame was drawn.
+
+Parts of a frame outside the image are clipped. All frames have the size of the GIF.
+
+## Supported formats
+
+| Format                 | What you get                                                                     |
+| ---------------------- | -------------------------------------------------------------------------------- |
+| GIF                    | Every frame, each a complete image, with its `delay`, and the GIF's `loop` count |
+| TIFF                   | Every page, each with its own size                                               |
+| Every other format     | One frame, the same image `Jimp.read` returns                                    |
+
+The WASM format plugins, including WebP, AVIF and JPEG XL, read a single frame.
+
+<Aside type="caution" title="Memory">
+  Every frame is a full image of 4 bytes per pixel, so a 500 × 500 GIF with 500
+  frames takes 500 MB. For GIF and TIFF, the format's `maxResolutionInMP` limit
+  (100 megapixels by default) applies to **all the frames together**. Pass
+  `maxFrames` to read fewer frames, or raise the limit if you trust the file.
+</Aside>
+
+## Notes
+
+- **Delays are in milliseconds.** GIFs store hundredths of a second, so a delay is always a multiple of 10. Browsers show frames with a delay of 0 or 10ms for 100ms, and `readFrames` returns the stored value.
+- **Frames don't share pixels.** Changing one image doesn't change the others.
+- **`image.mime`** is set on every frame, as with `Jimp.read`.
+- **Errors.** `maxFrames` below 1 throws `maxFrames must be at least 1`. Too many frames for the size limit throws, for example `GIF has 500 frames of 500x500, which together exceed the maximum resolution of 100 megapixels. Decode fewer frames with maxFrames, or raise maxResolutionInMP`, or for TIFF `TIFF pages together exceed the maximum resolution of 100 megapixels. Decode fewer pages with maxFrames, or raise maxResolutionInMP`. Other errors are the same as for [`Jimp.read`](/jimp/methods/read/#notes).
+- **Added in 2.0.**
+
+## Related
+
+<Related methods={["Jimp.encodeFrames", "Jimp.writeFrames", "Jimp.read", "Jimp.fromBuffer"]} />

@@ -264,6 +264,8 @@ createJimp({ formats: [png, jpeg] }); // not png(), jpeg()
 | `encode`   | `(bitmap: Bitmap, options?) => Buffer \| Promise<Buffer>`   | Turn RGBA pixels into file bytes. Receives the options passed to `getBuffer`, `getBase64` or `write`.                                |
 | `decode`   | `(data: Buffer, options?) => Bitmap \| Promise<Bitmap>`     | Turn file bytes into RGBA pixels. Receives this format's entry from the [decode options](/jimp/guides/reading-large-images/).         |
 | `hasAlpha` | `boolean`                                                   | Set to `true` if the format stores transparency. Otherwise Jimp flattens the image onto `image.background` before calling `encode`. |
+| `decodeFrames` | `(data: Buffer, options?, { maxFrames? }) => DecodedFrames \| Promise<DecodedFrames>` | Optional. Decode every frame or page, for [`Jimp.readFrames`](/jimp/methods/read-frames/); see [Animated formats](#animated-and-multi-page-formats). |
+| `encodeFrames` | `(frames: BitmapFrame[], options?) => Buffer \| Promise<Buffer>` | Optional. Encode several frames, for [`Jimp.encodeFrames`](/jimp/methods/encode-frames/) and [`Jimp.writeFrames`](/jimp/methods/write-frames/). |
 
 The `bitmap` returned by `decode` must have four bytes per pixel in RGBA order. Convert from the codec's layout if it differs.
 
@@ -379,6 +381,43 @@ Keep it cheap: look at the start of the data instead of parsing all of it.
 `@jimp/wasm-svg` uses `detect` to recognize SVG files.
 
 `detect` was added in 2.0.
+
+### Animated and multi-page formats
+
+A format whose files can hold several images adds `decodeFrames` and `encodeFrames`. Formats without them read and write a single frame through `decode` and `encode`.
+
+```ts title="animated.ts"
+import type { BitmapFrame, DecodedFrames, DecodeFramesOptions, Format } from "@jimp/types";
+// Your codec: decodeAll returns { frames: [{ bitmap, delay }], loop },
+// encodeAll returns a Buffer. MyDecodeOptions is as in the template above.
+import { decodeAll, encodeAll, type MyDecodeOptions } from "./codec.js";
+
+export interface MyFramesOptions {
+  loop?: number;
+}
+
+export default function myAnimatedFormat() {
+  return {
+    mime: "image/x-my-animation",
+    encode: (bitmap) => encodeAll([{ bitmap }]),
+    decode: (data, options: MyDecodeOptions = {}) =>
+      decodeAll(data, options, 1).frames[0]!.bitmap,
+    decodeFrames: (
+      data,
+      options: MyDecodeOptions = {},
+      { maxFrames = Infinity }: DecodeFramesOptions = {},
+    ): DecodedFrames => decodeAll(data, options, maxFrames),
+    encodeFrames: (frames: BitmapFrame[], { loop = 0 }: MyFramesOptions = {}) =>
+      encodeAll(frames, loop),
+  } satisfies Format<"image/x-my-animation", undefined, MyDecodeOptions, MyFramesOptions>;
+}
+```
+
+- **`decodeFrames`** returns `{ frames, loop? }`. Each frame is `{ bitmap, delay? }`, with `delay` in milliseconds. Return complete images: if the format stores frames that only update part of the picture, draw them over the previous ones first, as `@jimp/js-gif` does. Stop after `maxFrames` frames, and apply your size limits to all the frames together, as they're all in memory at once.
+- **`encodeFrames`** receives `{ bitmap, delay? }` for each frame, already flattened onto the background and converted to sRGB as for `encode`. Throw if your format can't store the frames, for example frames of different sizes.
+- The fourth type parameter of `Format` is the type of `encodeFrames`' options. Jimp uses it to type the options of `encodeFrames` and `writeFrames` for your MIME type.
+
+`decodeFrames` and `encodeFrames` were added in 2.0. `@jimp/js-gif` and `@jimp/js-tiff` implement them.
 
 Format plugins that wrap WebAssembly codecs, such as `@jimp/wasm-webp`, are good references; see [WEBP / WASM](/jimp/guides/webp/) and the source in the [Jimp repository](https://github.com/jimp-dev/jimp/tree/main/plugins).
 

@@ -39,6 +39,9 @@ export const methods: MethodEntry[] = [
   m("get-buffer", "getBuffer", "io", "@jimp/core"),
   m("get-base64", "getBase64", "io", "@jimp/core"),
   m("write", "write", "io", "@jimp/core"),
+  m("read-frames", "Jimp.readFrames", "io", "@jimp/core"),
+  m("encode-frames", "Jimp.encodeFrames", "io", "@jimp/core"),
+  m("write-frames", "Jimp.writeFrames", "io", "@jimp/core"),
   m("clone", "clone", "io", "@jimp/core"),
 
   // Size & shape

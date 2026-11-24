@@ -200,6 +200,7 @@ To protect against huge or malicious files, the JPEG, GIF, TIFF and BMP decoders
 | JPEG   | `maxResolutionInMP limit exceeded by 1MP`, `maxMemoryUsageInMB limit exceeded by at least 1MB` |
 | GIF    | `GIF dimensions 800x600 exceed the maximum resolution of 0.1 megapixels`       |
 | TIFF   | `TIFF dimensions 800x600 exceed the maximum resolution of 0.1 megapixels`      |
+| All GIF frames or TIFF pages, with [`readFrames`](/jimp/methods/read-frames/) | `GIF has 500 frames of 500x500, which together exceed the maximum resolution of 100 megapixels. Decode fewer frames with maxFrames, or raise maxResolutionInMP` |
 | BMP    | `BMP dimensions 800x600 exceed the maximum resolution of 0.1 megapixels`       |
 | SVG    | `SVG dimensions 100000x100000 exceed the maximum resolution of 100 megapixels. Use the width, height or scale option to render it smaller.` |
 
