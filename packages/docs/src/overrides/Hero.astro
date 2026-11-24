@@ -158,8 +158,10 @@ const tips = [
   .logo span:hover {
     transform: translateY(-8px) rotate(-4deg) !important;
   }
+  /* Narrow enough that the two-line wrap at 34px doesn't hinge on which
+     font has loaded. */
   .tagline {
-    max-width: 560px;
+    max-width: 540px;
     margin: 14px 0 12px;
     font-family: var(--jp-ui);
     font-weight: 600;

@@ -6,6 +6,7 @@
  * `data-dot` adds a colored dot, `data-code` uses the code font.
  */
 import type { StarlightRouteData } from "@astrojs/starlight/route-data";
+import SidebarPersister from "@astrojs/starlight/components/SidebarPersister.astro";
 import SidebarList from "../components/SidebarList.astro";
 
 type Entry = StarlightRouteData["sidebar"][number];
@@ -17,44 +18,50 @@ const stickerColors = ["var(--jp-red)", "var(--jp-sky)", "var(--jp-mint)", "#c9a
 const stickerTilt = [-1.5, 1.2, -1, 1.5];
 ---
 
-<div class="sidebar-groups">
-  {
-    sidebar.map((entry, index) =>
-      entry.type === "link" ? (
-        <SidebarList entries={[entry]} />
-      ) : entry.collapsed && !hasCurrent(entry) ? (
-        <details class="grp">
-          <summary
-            class="lbl"
-            style={`--c:${stickerColors[index % 4]}; --tilt:${stickerTilt[index % 4]}deg`}
-          >
-            {entry.label}
-          </summary>
-          <SidebarList entries={entry.entries} />
-        </details>
-      ) : (
-        <div class="grp">
-          <div
-            class="lbl"
-            style={`--c:${stickerColors[index % 4]}; --tilt:${stickerTilt[index % 4]}deg`}
-          >
-            {entry.label}
+{/* Starlight's persister restores the sidebar's scroll from the last page,
+    so it stays put when you move between pages. */}
+<SidebarPersister>
+  <div class="sidebar-groups">
+    {
+      sidebar.map((entry, index) =>
+        entry.type === "link" ? (
+          <SidebarList entries={[entry]} />
+        ) : entry.collapsed && !hasCurrent(entry) ? (
+          <details class="grp">
+            <summary
+              class="lbl"
+              style={`--c:${stickerColors[index % 4]}; --tilt:${stickerTilt[index % 4]}deg`}
+            >
+              {entry.label}
+            </summary>
+            <SidebarList entries={entry.entries} />
+          </details>
+        ) : (
+          <div class="grp">
+            <div
+              class="lbl"
+              style={`--c:${stickerColors[index % 4]}; --tilt:${stickerTilt[index % 4]}deg`}
+            >
+              {entry.label}
+            </div>
+            <SidebarList entries={entry.entries} />
           </div>
-          <SidebarList entries={entry.entries} />
-        </div>
-      ),
-    )
-  }
-</div>
+        ),
+      )
+    }
+  </div>
+</SidebarPersister>
 
 <script is:inline>
-  // Bring the current page's link into view when the sidebar scrolls.
+  // Bring the current page's link into view when the sidebar scrolls, unless
+  // the restored scroll position already shows it.
   (() => {
     const pane = document.getElementById("starlight__sidebar");
     const current = pane?.querySelector('[aria-current="page"]');
     if (!pane || !current) return;
-    const top = current.offsetTop - pane.clientHeight / 2;
-    pane.scrollTop = Math.max(0, top);
+    const top = current.offsetTop;
+    const shown = top >= pane.scrollTop && top + current.offsetHeight <= pane.scrollTop + pane.clientHeight;
+    if (!shown) pane.scrollTop = Math.max(0, top - pane.clientHeight / 2);
   })();
 </script>
 

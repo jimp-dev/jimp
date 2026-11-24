@@ -4,6 +4,14 @@ html {
   scroll-padding-top: calc(var(--sl-nav-height) + 1.5rem);
 }
 
+/* Cross-fade between pages where the browser supports it; elsewhere links
+   load as usual. PageFrame.astro keeps the header and sidebar still. */
+@media (prefers-reduced-motion: no-preference) {
+  @view-transition {
+    navigation: auto;
+  }
+}
+
 /* Let long words and inline code break anywhere (Starlight's default before 0.37). */
 :where(p, h1, h2, h3, h4, h5, h6, :not(pre) > code) {
   overflow-wrap: anywhere;
@@ -87,9 +95,11 @@ kbd {
   font-size: 16.5px;
 }
 
+/* 70ch in Nunito Sans. In em because ch follows whichever font has loaded,
+   so the measure would change when the web font swaps in. */
 .sl-markdown-content p,
 .sl-markdown-content li {
-  max-width: 70ch;
+  max-width: 42em;
 }
 
 .sl-markdown-content :is(h2, h3, h4):not(:where(.not-content *)) {
