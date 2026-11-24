@@ -1,4 +1,8 @@
-# `@jimp/wasm-svg`
+<div align="center">
+  <img width="140" alt=""
+    src="https://raw.githubusercontent.com/jimp-dev/jimp/main/.github/assets/jimpy.png">
+  <h1>@jimp/wasm-svg</h1>
+</div>
 
 A format plugin for Jimp that reads SVG images, rendering them to pixels with [resvg](https://github.com/linebender/resvg), as compiled to WebAssembly by [`@resvg/resvg-wasm`](https://www.npmjs.com/package/@resvg/resvg-wasm).
 

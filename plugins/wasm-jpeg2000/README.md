@@ -1,4 +1,8 @@
-# `@jimp/wasm-jpeg2000`
+<div align="center">
+  <img width="140" alt=""
+    src="https://raw.githubusercontent.com/jimp-dev/jimp/main/.github/assets/jimpy.png">
+  <h1>@jimp/wasm-jpeg2000</h1>
+</div>
 
 A format plugin for Jimp that adds support for JPEG 2000 images using [OpenJPEG](https://github.com/uclouvain/openjpeg), as compiled to WebAssembly by [`@cornerstonejs/codec-openjpeg`](https://www.npmjs.com/package/@cornerstonejs/codec-openjpeg).
 

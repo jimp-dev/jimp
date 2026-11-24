@@ -1,7 +1,6 @@
 <div align="center">
-  <img width="200" height="200"
-    src="https://s3.amazonaws.com/pix.iemoji.com/images/emoji/apple/ios-11/256/crayon.png">
-  <h1>Jimp</h1>
+  <img width="420" alt="Jimp"
+    src="https://raw.githubusercontent.com/jimp-dev/jimp/main/.github/assets/jimp-logo.png">
   <p>JavaScript Image Manipulation Program</p>
 </div>
 
@@ -14,6 +13,8 @@ An image processing library for Node and the browser written entirely in JavaScr
 ```bash
 npm install jimp
 ```
+
+Jimp 2.0 needs Node.js 22 or later.
 
 ## Usage
 
@@ -141,6 +142,11 @@ The optional WASM plugins add AVIF, JPEG 2000, JPEG XL, WebP and reading SVG, or
 - [`@jimp/wasm-png`](https://www.npmjs.com/package/@jimp/wasm-png)
 - [`@jimp/wasm-svg`](https://www.npmjs.com/package/@jimp/wasm-svg)
 - [`@jimp/wasm-webp`](https://www.npmjs.com/package/@jimp/wasm-webp)
+
+## Migrating from 1.x
+
+Jimp 2.0 keeps the v1 API. It needs Node.js 22 or later, and invalid input that 1.x accepted now throws.
+See the [v2 migration guide](https://jimp-dev.github.io/jimp/guides/migrate-to-v2/).
 
 ## Migrating from v0
 

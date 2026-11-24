@@ -1,4 +1,8 @@
-# `@jimp/wasm-png`
+<div align="center">
+  <img width="140" alt=""
+    src="https://raw.githubusercontent.com/jimp-dev/jimp/main/.github/assets/jimpy.png">
+  <h1>@jimp/wasm-png</h1>
+</div>
 
 A format plugin for Jimp that adds support for PNG images using the [rust crate](https://docs.rs/png/0.11.0/png/).
 It also support optimizing the image using [oxipng](https://github.com/shssoichiro/oxipng).

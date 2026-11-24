@@ -1,6 +1,6 @@
 <div align="center">
-  <img width="200" height="200"
-    src="https://s3.amazonaws.com/pix.iemoji.com/images/emoji/apple/ios-11/256/crayon.png">
+  <img width="140" alt=""
+    src="https://raw.githubusercontent.com/jimp-dev/jimp/main/.github/assets/jimpy.png">
   <h1>@jimp/plugin-threshold</h1>
   <p>Lightens an image.</p>
 </div>
