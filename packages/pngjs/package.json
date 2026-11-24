@@ -1,6 +1,6 @@
 {
   "name": "@jimp/pngjs",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "description": "PNG encoder and decoder in pure JavaScript, for Node.js and browsers. A maintained fork of pngjs.",
   "files": [
     "dist"

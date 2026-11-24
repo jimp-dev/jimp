@@ -1,6 +1,6 @@
 {
   "name": "@jimp/jpeg-js",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "description": "JPEG encoder and decoder in pure JavaScript, for Node.js and browsers. A maintained fork of jpeg-js.",
   "files": [
     "dist",
