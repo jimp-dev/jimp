@@ -10,6 +10,7 @@ import Related from "../../../components/Related.astro";
 
 `measureTextHeight` returns how many pixels tall text is when [`print`](/jimp/methods/print/) wraps it at a given width.
 Use it to make room for a caption, or to check that text fits in a box before printing it.
+It works with bitmap fonts from [`loadFont`](/jimp/methods/load-font/) and TrueType, OpenType and WOFF fonts from [`loadTTF`](/jimp/methods/load-ttf/).
 
 ## Signature
 
@@ -17,17 +18,27 @@ Use it to make room for a caption, or to check that text fits in a box before pr
 import { measureTextHeight } from "jimp";
 
 measureTextHeight(font: BmFont, text: string, maxWidth?: number): number
+measureTextHeight(
+  font: VectorFont,
+  text: string,
+  maxWidth: number | undefined,
+  options: { size: number; lineHeight?: number; letterSpacing?: number },
+): number
 ```
 
-`measureTextHeight` is a function, not an image method. It returns the number of lines times the font's line height.
+`measureTextHeight` is a function, not an image method. It returns the number of lines times the line height.
+A `loadTTF` font needs the fourth argument: the `size`, `lineHeight` and `letterSpacing` you print with. Pass `undefined` as `maxWidth` to only break at line breaks.
 
 ## Parameters
 
 | Parameter  | Type     | Default    | Description                                                              |
 | ---------- | -------- | ---------- | ------------------------------------------------------------------------ |
-| `font`     | `BmFont` | required   | A font from [`loadFont`](/jimp/methods/load-font/).                      |
+| `font`     | `BmFont \| VectorFont` | required   | A font from [`loadFont`](/jimp/methods/load-font/) or [`loadTTF`](/jimp/methods/load-ttf/). |
 | `text`     | `string` | required   | The text to measure. `\n`, `\r\n` and `\r` start a new line.             |
 | `maxWidth` | `number` | `Infinity` | The width to wrap at, as `print`'s `maxWidth`. Leave it out to only break at line breaks. |
+| `options.size` | `number` | required with a `loadTTF` font | The font size in pixels, as `print`'s `size`. |
+| `options.lineHeight` | `number` | the font's line height | The height of each line in pixels, as `print`'s `lineHeight`. |
+| `options.letterSpacing` | `number` | `0` | As `print`'s `letterSpacing`. It changes where lines wrap. |
 
 ## Example
 
@@ -65,15 +76,29 @@ await card.write("card.jpg");
 
 With `SANS_32_BLACK` (36px line height) that caption wrapped at 200px takes four lines, so `measureTextHeight(font, caption, 200)` returns `144`.
 
+### With a TrueType font
+
+```ts title="example.ts"
+import { measureTextHeight } from "jimp";
+import { loadTTF } from "jimp/load-ttf";
+
+const font = await loadTTF("fonts/Inter-Regular.otf");
+const text = "The quick brown fox jumps over the lazy dog";
+
+measureTextHeight(font, text, 200, { size: 32 }); // 154.875: four lines of 38.72px
+measureTextHeight(font, text, 200, { size: 32, lineHeight: 40 }); // 160
+```
+
 ## Notes
 
 - **Same wrapping as `print`.** The lines are split exactly as `print` splits them for the same `maxWidth`: at line breaks, at spaces, and between characters for words wider than `maxWidth`.
 - **Empty lines count.** Every line break starts a line, so `"a\n\nb"` is three lines tall, and leading or trailing line breaks add a line each. Text with no characters is one line.
-- **Line height.** Each line counts as `font.common.lineHeight` pixels, which includes the space between lines.
+- **Line height.** With a bitmap font, each line counts as `font.common.lineHeight` pixels, which includes the space between lines. With a `loadTTF` font it's `lineHeight`, or by default the font's own line height (its ascender to its descender plus its line gap) at `size`.
 - **For the width,** use [`measureText`](/jimp/methods/measure-text/), which returns the width of the widest line.
+- **Added in 2.0:** fonts from `loadTTF`, with the `options` argument.
 - **Changed in 2.0:** `maxWidth` is optional. Leaving it out in plain JavaScript used to count an empty line plus one line per word, so `measureTextHeight(font, "Hello")` returned `72` with a 36px font instead of `36`.
 - **Changed in 2.0:** blank lines used to be collapsed, so `"a\n\nb"` measured two lines. Empty lines now count, matching what `print` draws.
 
 ## Related
 
-<Related methods={["measureText", "print", "loadFont"]} />
+<Related methods={["measureText", "print", "loadFont", "loadTTF"]} />

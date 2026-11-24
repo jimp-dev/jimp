@@ -68,7 +68,7 @@ export const concepts: DocPage[] = [
   {
     slug: "concepts/text-and-fonts",
     title: "Text and fonts",
-    blurb: "Print text with bitmap fonts, measure it and align it.",
+    blurb: "Print text with bitmap or TrueType fonts, measure it and align it.",
     color: "#c9a8ff",
     icon: "text",
   },

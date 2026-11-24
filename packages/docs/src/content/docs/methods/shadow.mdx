@@ -95,7 +95,7 @@ With no options, `image.shadow()` uses the defaults: a shadow 10% larger than th
 - **Mixing Jimp classes.** Images from the `jimp` package's `Jimp` and from your custom class can be [composited](/jimp/methods/composite/) onto each other, but only images made by your class have the `shadow` method.
 - **Color profiles.** The canvas the shadow is drawn on gets the image's ICC profile, so images in Display P3 or another color space keep their colors.
 - **Validation.** `opacity` must be between `0` and `1`; other values throw a validation error.
-- **Changed in 2.0:** `size` used to grow the shadow from the top-left corner, so it reached further right and down than the image; it's now centered. A fractional `blur` used to make the shadow disappear and `blur: 0` threw `r must be greater than 0`; `blur` is now rounded and `0` means no blur. Compositing images from different Jimp classes used to throw `The source must be a Jimp image`.
+- **Changed in 2.0:** the shadow is a dark silhouette drawn under the image. It used to be a blurred copy of the image drawn over it. `size` used to grow the shadow from the top-left corner, so it reached further right and down than the image; it's now centered. A fractional `blur` used to make the shadow disappear and `blur: 0` threw `r must be greater than 0`; `blur` is now rounded and `0` means no blur. Compositing images from different Jimp classes used to throw `The source must be a Jimp image`.
 
 ## Related
 

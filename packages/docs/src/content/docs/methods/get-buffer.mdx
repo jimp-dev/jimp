@@ -88,7 +88,7 @@ The first argument is a MIME type string. The default `jimp` package can encode 
 | ICO    | `"image/x-icon"`, `"image/vnd.microsoft.icon"` | `JimpMime.ico` |
 
 An image read from a file remembers its format in `image.mime`, in case you want to encode it the same way.
-WebP, AVIF and JPEG 2000 need a [custom Jimp](/jimp/guides/webp/) with the WASM format plugins; see [Formats](/jimp/concepts/formats/).
+WebP, AVIF, JPEG XL and JPEG 2000 need a [custom Jimp](/jimp/guides/webp/) with the WASM format plugins; see [Formats](/jimp/concepts/formats/).
 
 ## Options
 
@@ -120,7 +120,7 @@ const small = await photo.getBuffer("image/jpeg", { quality: 75, exif: true });
 
 ### PNG
 
-Type: `PNGOptions`. The encoder is [pngjs](https://www.npmjs.com/package/pngjs); these are the options worth setting:
+Type: `PNGOptions`, exported from `@jimp/js-png`. The encoder is [pngjs](https://www.npmjs.com/package/pngjs); these are the options worth setting:
 
 | Option            | Type            | Default              | Description                                                                                                                                         |
 | ----------------- | --------------- | -------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -149,24 +149,44 @@ For the smallest PNGs, set `deflateStrategy: 1` with `deflateLevel: 9`. The file
 
 ### BMP
 
-Type: `EncodeOptions`. Jimp writes uncompressed BMPs without a palette.
+Type: [`EncodeOptions`](/jimp/api/jimp/interfaces/encodeoptions/), exported from `jimp`. Jimp writes uncompressed BMPs.
 
-| Option                   | Type               | Default | Description                                                                                                         |
-| ------------------------ | ------------------ | ------- | ------------------------------------------------------------------------------------------------------------------- |
-| `bitPP`                  | `16 \| 24 \| 32`   | `24`    | Bits per pixel. `24` stores 8 bits each of red, green and blue. `16` stores 5 bits each, for a smaller file with less color precision. `32` adds an alpha byte, which is always opaque because BMPs are drawn over the background. |
-| `hr`                     | `number`           | `0`     | Horizontal resolution, in pixels per meter (2835 is about 72 DPI).                                                  |
-| `vr`                     | `number`           | `0`     | Vertical resolution, in pixels per meter.                                                                           |
-| `reserved1`, `reserved2` | `number`           | `0`     | Values for the header's two reserved fields, which readers ignore.                                                  |
+| Option                   | Type                             | Default | Description                                                                                                         |
+| ------------------------ | -------------------------------- | ------- | ------------------------------------------------------------------------------------------------------------------- |
+| `bitPP`                  | `1 \| 4 \| 8 \| 16 \| 24 \| 32` | `24`    | Bits per pixel. `24` stores 8 bits each of red, green and blue. `16` stores 5 bits each, for a smaller file with less color precision. `32` adds an alpha byte, which is always opaque because BMPs are drawn over the background. `1`, `4` and `8` store an index into a palette of up to 2, 16 or 256 colors. |
+| `palette`                | `(number \| string)[]`           | picked from the image | The colors of a 1, 4 or 8-bit BMP, as `0xRRGGBBAA` numbers or CSS colors: up to 2, 16 or 256 of them. Each pixel is written as the palette color nearest to it in RGB. Alpha is ignored. Not used for 16, 24 and 32-bit BMPs. |
+| `hr`                     | `number`                         | `0`     | Horizontal resolution, in pixels per meter (2835 is about 72 DPI).                                                  |
+| `vr`                     | `number`                         | `0`     | Vertical resolution, in pixels per meter.                                                                           |
+| `reserved1`, `reserved2` | `number`                         | `0`     | Values for the header's two reserved fields, which readers ignore.                                                  |
 
 ```ts title="example.ts"
 const small = await image.getBuffer("image/bmp", { bitPP: 16 });
+
+// A 4-bit BMP with four colors
+const indexed = await image.getBuffer("image/bmp", {
+  bitPP: 4,
+  palette: ["black", "white", "#ff0000", 0x0000ffff],
+});
 ```
 
-Any other `bitPP` throws `Unsupported BMP bit depth 8, use 16, 24, 32`.
+Without `palette`, an image with few enough colors is written with exactly those colors. Otherwise:
+
+- 1-bit BMPs are black and white: pixels whose Rec. 709 luminance is above `127.5` are white.
+- 4 and 8-bit BMPs get a palette of the image's most important colors, picked with Wu's quantization algorithm.
+
+Pixels aren't dithered. For a dithered result, call [`dither`](/jimp/methods/dither/) or [`quantize`](/jimp/methods/quantize/) first:
+
+```ts title="example.ts"
+image.dither({ type: "floyd-steinberg" }); // black and white, dithered
+
+const bw = await image.getBuffer("image/bmp", { bitPP: 1 });
+```
+
+Any other `bitPP` throws, for example `Unsupported BMP bit depth 7, use 1, 4, 8, 16, 24, 32`. A palette with too many colors, or an empty one, throws, for example `A 4-bit BMP palette needs 1 to 16 colours, got 20`.
 
 ### ICO
 
-Type: `EncodeIcoOptions`. Jimp writes each image in the icon as a 32-bit PNG, so transparency is kept.
+Type: `EncodeIcoOptions`, exported from `@jimp/js-ico`. Jimp writes each image in the icon as a 32-bit PNG, so transparency is kept.
 
 | Option  | Type       | Default | Description                                                                                                                                                                       |
 | ------- | ---------- | ------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -202,8 +222,9 @@ Pick a format to see what encoding does to the image: JPEG's artifacts as you lo
 - **Errors.** A MIME type the image can't encode throws `Unsupported MIME type: image/webp`. That includes typos and MIME types of formats you haven't added.
 - **Only JPEG output can carry EXIF.** Other formats never include it, and the `exif` option is a type error for them.
 - **The image isn't modified.** Even when the image is drawn over its background or converted to sRGB, that happens on a copy.
-- **Added in 2.0:** the `icc` option for JPEG, PNG and WebP, BMP's `bitPP` option, and the ICO format.
-- **Changed in 2.0:** BMP's `palette`, `colors` and `importantColors` options are removed, as Jimp never wrote a palette and they had no effect. PNG's `width`, `height`, `fill`, `checkCRC`, `skipRescale`, `deflateFactory` and `deflateChunkSize` encode options are removed too. In TypeScript, GIF and TIFF take no options.
+- **Added in 2.0:** JPEG's `exif` and `icc` options, PNG and WebP's `icc` option, BMP's `bitPP` and `palette` options, and the ICO format.
+- **Changed in 2.0:** without `colorType`, PNGs are written with the smallest lossless color type instead of always RGBA. GIFs with more than 256 colors are quantized differently, in constant memory.
+- **Changed in 2.0:** BMP's `colors` and `importantColors` options, and the old `palette` of `{ red, green, blue, quad }` objects, are removed; they had no effect. PNG's `width`, `height`, `fill`, `checkCRC`, `skipRescale`, `deflateFactory` and `deflateChunkSize` encode options are removed too. In TypeScript, GIF and TIFF take no options.
 
 ## Related
 

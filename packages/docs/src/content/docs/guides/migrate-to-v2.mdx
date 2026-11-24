@@ -28,10 +28,10 @@ Then work through this page. Start with the quick checklist; the sections below 
 
 ## Quick checklist
 
-1. Run on **Node.js 22 or later**.
-2. Look for code that relied on bad input being accepted: invalid CSS colors, `NaN` coordinates, crop rectangles outside the image, conflicting `align` flags. These now throw. See [Errors that now throw](#errors-that-now-throw).
+1. Run on **Node.js 22 or later**. If you use TypeScript, use **TypeScript 5.7 or later**, or set `skipLibCheck: true`.
+2. Look for code that relied on bad input being accepted: invalid CSS colors, `NaN` coordinates, crop rectangles outside the image, conflicting `align` flags, ragged convolution kernels, hashes of different lengths, and vector font options with a bitmap font. These now throw. See [Errors that now throw](#errors-that-now-throw).
 3. If you store [`pHash`](/jimp/methods/phash/) or [`hash`](/jimp/methods/hash/) values, recompute them. Hashes from 1.x can't be compared with hashes from 2.0.
-4. If you compare output against saved images (snapshot tests, golden files), expect changes in `greyscale`, `posterize`, `contrast`, `rotate`, `resize` with transparency, `gaussian`, `sepia`, `mask`, `color()` and `print`. See [Behavior changes](#behavior-changes).
+4. If you compare output against saved images (snapshot tests, golden files), expect changes in `greyscale`, `posterize`, `contrast`, `normalize`, `threshold`, `sepia`, `mask`, `convolute` and `color()`; in `resize`, `blur`, `gaussian`, `blit`, `composite` and `shadow` with transparency; in `rotate`, `cover`, `contain`, `autocrop`, `displace` and `circle`; in `print`; and in PNG, GIF, BMP and AVIF files. See [Behavior changes](#behavior-changes).
 5. Remove encode and decode options that no longer exist. TypeScript reports them; see [Removed options](#removed-options).
 
 ## Requirements
@@ -42,27 +42,38 @@ Jimp 2.0 requires Node.js 22 or later. Node.js 18 and 20 are end-of-life and are
 
 The browser build is unchanged.
 
+### TypeScript 5.7 or later
+
+Jimp's type declarations use generic typed arrays, such as `Buffer<ArrayBufferLike>` and `Uint8Array<ArrayBufferLike>`, which need TypeScript 5.7 or later.
+With an older TypeScript and `skipLibCheck: false`, the declarations fail to compile with `TS2315: Type 'Buffer' is not generic`.
+Upgrade TypeScript, or set `skipLibCheck: true` (the `tsc --init` default) in your `tsconfig.json`.
+
 ## Errors that now throw
 
-In 1.x these inputs were accepted and gave a wrong or empty result. In 2.0 they throw, so mistakes show up where they happen.
+In 1.x these inputs were accepted and gave a wrong or empty result, or failed later with an unrelated error. In 2.0 they throw, so mistakes show up where they happen.
 
-- **Invalid CSS color strings** in `new Jimp({ color })`, [`border`](/jimp/methods/border/), [`boxShadow`](/jimp/methods/box-shadow/) and [`cssColorToHex`](/jimp/methods/css-color-to-hex/) throw `Invalid color "notacolor"`. They used to become opaque black. Fix the color.
+- **Invalid CSS color strings** in `new Jimp({ color })` and [`cssColorToHex`](/jimp/methods/css-color-to-hex/) throw `Invalid color "notacolor"`. They used to become opaque black. Fix the color. Options that are new in 2.0 and take CSS colors, such as [`border`](/jimp/methods/border/)'s and [`boxShadow`](/jimp/methods/box-shadow/)'s `color`, throw the same error.
 - **`NaN` coordinates** in [`setPixelColor`](/jimp/methods/set-pixel-color/), [`getPixelColor`](/jimp/methods/get-pixel-color/) and [`getPixelIndex`](/jimp/methods/get-pixel-index/) throw `hex, x and y must be numbers` or `x and y must be numbers`. They used to read or write pixel (0, 0). Check your coordinate math.
 - **An invalid `align`** in [`cover`](/jimp/methods/cover/) or [`contain`](/jimp/methods/contain/), with two flags on one axis, unknown bits or a non-integer, throws `align must combine at most one HorizontalAlign and one VerticalAlign flag`. Pass at most one `HorizontalAlign` and one `VerticalAlign` flag.
 - **A [`crop`](/jimp/methods/crop/) rectangle entirely outside the image**, or a `w` or `h` of 0, throws `The crop region (x: 10, y: 10, w: 2, h: 2) doesn't overlap the 4x3 image, so the result would be empty`. Check the rectangle before cropping.
 - **An unknown blend mode** in [`composite`](/jimp/methods/composite/) throws `Unknown blend mode "nope", expected one of: srcOver, dstOver, multiply, …` instead of a `TypeError`. Use a [`BlendMode`](/jimp/concepts/constants/) value.
 - **[`quantize`](/jimp/methods/quantize/) with `colors` below 1**, or below 2 with `paletteQuantization: "rgbquant"`, throws `colors must be at least 1` or `colors must be at least 2 for rgbquant`.
 - **[`compareHashes`](/jimp/methods/compare-hashes/) with hashes that aren't base 64** throws `"<hash>" isn't a base 64 hash. Pass the base the hashes were made with to compareHashes, …`. Pass the base: `compareHashes(a.hash(16), b.hash(16), 16)`.
+- **Hashes of different lengths** in [`compareHashes`](/jimp/methods/compare-hashes/) and [`distanceFromHash`](/jimp/methods/distance-from-hash/) throw `Can't compare hashes of different lengths (64 and 11). …`. They used to return a meaningless distance. Compare hashes made with the same `size`, `smallerSize` and base.
 - **Bitmap data of the wrong length** in [`Jimp.fromBitmap`](/jimp/methods/from-bitmap/) or `new Jimp({ data, width, height })` throws `bitmap data is 70 bytes, but a 50x50 RGBA image needs exactly 10000 (width * height * 4)`. It used to fail later, on the first pixel read.
-- **An empty kernel row** in [`convolute`](/jimp/methods/convolute/) throws `kernel rows must not be empty`.
+- **A ragged kernel**, with rows of different lengths, in [`convolute`](/jimp/methods/convolute/) or [`convolution`](/jimp/methods/convolution/) throws `kernel rows must all have the same length`. It used to be accepted and gave a wrong image. An empty kernel, `[]`, in `convolute` throws `kernel must be a matrix`; it used to make the image transparent black. Give every row the same number of values.
+- **Vector font options with a bitmap font.** [`print`](/jimp/methods/print/) with `size`, `color`, `stroke`, `strokeWidth`, `lineHeight` or `letterSpacing` and a font from [`loadFont`](/jimp/methods/load-font/) throws, naming the options you passed: `print: size, color can only be used with fonts loaded with loadTTF. Bitmap fonts from loadFont are drawn at the size and in the color they were made with.` 1.x dropped unknown keys without an error. Remove the options, or load a TrueType, OpenType or WOFF font with [`loadTTF`](/jimp/methods/load-ttf/).
 - **GIF, TIFF and BMP files over 100 megapixels** throw, for example `GIF dimensions 20000x20000 exceed the maximum resolution of 100 megapixels`. JPEG already had this limit. Raise `maxResolutionInMP` for the format; see [Reading Large Images](/jimp/guides/reading-large-images/).
 - **BMFont pages outside the font's directory** throw `Font page is outside of the font directory: ../secret.png`. Keep a font's page images next to its `.fnt` file.
 - **Unknown options in the WASM encoders** (`@jimp/wasm-avif`, `@jimp/wasm-jpeg`, `@jimp/wasm-png` and `@jimp/wasm-webp`) throw a `ZodError` naming the key. They used to be dropped silently. Remove the option.
 
-Two error messages also changed:
+Some error messages also changed:
 
 - In Node.js, [`Jimp.read`](/jimp/methods/read/) with a missing file throws Node's own error, `ENOENT: no such file or directory, open './typo.png'`, instead of `Could not load Buffer from URL: ./typo.png`. See [`Jimp.read` reads paths as files](#jimpread-reads-paths-as-files).
+- [`write`](/jimp/methods/write/) with a path that has no extension throws `Cannot write "<path>": the path has no recognisable file extension to determine the image format` instead of `Unsupported MIME type: null`.
+- In Node.js, [`loadFont`](/jimp/methods/load-font/) with a path that doesn't exist throws `loadFont: font file not found: "fonts/typo.fnt". …` instead of `Failed to parse URL from fonts/typo.fnt`. A page image missing from next to the `.fnt` file throws `loadFont: font page not found: "<path>". …`.
 - [`loadFont`](/jimp/methods/load-font/) with a URL that returns an error status throws `loadFont: couldn't load "<url>": HTTP 404 Not Found`. It used to try to parse the error page as a font.
+- An empty kernel row in [`convolute`](/jimp/methods/convolute/) or [`convolution`](/jimp/methods/convolution/) throws `kernel rows must not be empty` instead of zod's generic `Too small: expected array to have >=1 items`.
 
 ## Behavior changes
 
@@ -83,7 +94,6 @@ These don't throw, but the output is different. Most are fixes for results that 
 - **`scanIterator(x, y)` defaults to the rest of the image.** Without `w` and `h` it used to iterate a full image's worth of pixels starting at `(x, y)`.
 - **[`setPixelColor`](/jimp/methods/set-pixel-color/) outside the image does nothing**, like canvas. In 1.x it painted the nearest edge pixel. If you relied on that, clamp the coordinates yourself. Reads are unchanged: `getPixelColor` outside the image still returns the nearest edge pixel.
 - **`getPixelIndex(x, y, Edge.WRAP)` wraps any distance.** It used to return `-1` for coordinates more than one image width away on the negative side.
-- **Non-integer coordinates are rounded** with `Math.round` in `getPixelIndex`, `getPixelColor` and `setPixelColor`, so a read and a write at the same coordinates always hit the same pixel.
 
 ### Color math
 
@@ -100,7 +110,7 @@ These don't throw, but the output is different. Most are fixes for results that 
 
 ### Transparency and compositing
 
-- **[`resize`](/jimp/methods/resize/) uses premultiplied alpha** in the default resizer and in `BILINEAR`, `BICUBIC`, `HERMITE` and `BEZIER`, so transparent pixels no longer darken their neighbors. Opaque images are unchanged. If your alpha channel holds data rather than opacity, pass `premultiplyAlpha: false`.
+- **[`resize`](/jimp/methods/resize/) uses premultiplied alpha** in the default resizer and in `BILINEAR`, `BICUBIC`, `HERMITE` and `BEZIER`, so transparent pixels no longer darken their neighbors. This doesn't change opaque images. If your alpha channel holds data rather than opacity, pass `premultiplyAlpha: false`.
 
   ```ts title="resize.ts"
   // A white pixel next to a transparent one, enlarged
@@ -108,6 +118,7 @@ These don't throw, but the output is different. Most are fixes for results that 
   image.resize({ w: 4 });
   ```
 
+- **The default resizer rounds** when only the width changes. It used to truncate, so some channel values came out one level lower. This also changes opaque images.
 - **`BICUBIC`, `HERMITE` and `BEZIER` no longer shift the image** toward the top left or drop the last row and column.
 - **[`blur`](/jimp/methods/blur/) and [`gaussian`](/jimp/methods/gaussian/) weight colors by alpha**, so edges next to transparent pixels keep their color instead of fading to black. Opaque images are unchanged by this.
 - **[`gaussian`](/jimp/methods/gaussian/) is a true Gaussian blur.** It used to read pixels it had already blurred, so its output changes for every image. It now also accepts radii between 0 and 1.
@@ -118,8 +129,9 @@ These don't throw, but the output is different. Most are fixes for results that 
 
 ### Shape
 
-- **[`rotate`](/jimp/methods/rotate/) rotates about the center.** Angles that aren't multiples of 90° used to shift the image one pixel up and left. With `mode: true` the canvas is the rotated bounding box rounded up, so it's often 1–2 pixels smaller: an 8×8 image at 45° gives 12×12 instead of 14×14. Multiples of 90° are unchanged.
+- **[`rotate`](/jimp/methods/rotate/) rotates about the center.** Angles that aren't multiples of 90° used to shift the image one pixel up and left. With `mode: true` the canvas is the rotated bounding box rounded up, so it's often 1–2 pixels smaller: an 8×8 image at 45° gives 12×12 instead of 14×14. Multiples of 90° are unchanged, except 90° and 270° with `mode: false` on a non-square image: those are now centered, where they used to be one pixel off.
 - **`rotate({ deg, mode: ResizeStrategy.X })` interpolates** with that strategy. In 1.x any `ResizeStrategy` gave the same nearest-neighbor result as `true`. The canvas size is unchanged.
+- **[`cover`](/jimp/methods/cover/) and [`contain`](/jimp/methods/contain/) center an axis that `align` leaves out.** `align: VerticalAlign.TOP` used to align to the left as well; it now centers horizontally. Pass `HorizontalAlign.LEFT | VerticalAlign.TOP` for the 1.x result.
 - **[`autocrop`](/jimp/methods/autocrop/)** crops in more cases: `ignoreSides` works with the default `cropOnlyFrames: true`, a large `leaveBorder` no longer cancels the crop, and fully transparent pixels all count as the same color.
 - **[`displace`](/jimp/methods/displace/)** moves alpha with the pixel and stretches a map of a different size to the image.
 - **`circle({ radius: 0 })`** makes the image fully transparent. It used to mean the default radius. Leave `radius` out to get the default.
@@ -140,6 +152,7 @@ These don't throw, but the output is different. Most are fixes for results that 
 
 - **Blank lines are kept.** Every line break starts a new line, so `"a\n\nb"` prints three lines. Line breaks used to collapse into one. [`measureTextHeight`](/jimp/methods/measure-text-height/), vertical alignment and the `y` passed to the callback count the empty lines.
 - **[`measureText`](/jimp/methods/measure-text/) treats line breaks as line breaks** and returns the width of the widest line. It used to skip them and measure the text as one line. `measureTextHeight`'s `maxWidth` is now optional.
+- **Characters the font has no glyph for are measured as the `?` that `print` draws.** `measureText` used to count them as 0 wide, so text with missing characters could overflow `maxWidth` and right- or center-aligned lines were placed wrongly. Text with such characters now wraps and aligns differently.
 - **Wrapping keeps whole words.** A word is only split when it's wider than `maxWidth` on its own, and the end of a long word is no longer dropped. Spaces at a wrap point are removed instead of making a line of spaces.
 - **Characters outside the Basic Multilingual Plane**, such as emoji and rare CJK characters, print when the font has them. They used to print as `??`.
 - `maxHeight` still doesn't clip text. It's only used for vertical alignment.
@@ -173,9 +186,11 @@ try {
 
 - **PNG output uses the smallest lossless color type.** Without a `colorType` option, opaque images are written as RGB and gray images as grayscale, instead of always RGBA. The pixels are identical, and files are smaller. Pass `colorType: PNGColorType.COLOR_ALPHA` if something downstream needs RGBA. `inputHasAlpha` is deprecated; use `colorType`.
 - **`Jimp.read` passes decode options for files and buffers.** In 1.x, the per-format options passed to `Jimp.read`, such as `{ "image/jpeg": { maxMemoryUsageInMB: 1024 } }`, were only used when reading a URL. They're now used for file paths and buffers too, so options you passed before may now take effect. [`Jimp.fromBuffer`](/jimp/methods/from-buffer/) already used them.
-- **[`clone`](/jimp/methods/clone/) copies `mime` and `background`.** They used to be reset.
+- **[`clone`](/jimp/methods/clone/) copies `mime`, `background`, the EXIF data and the ICC profile.** The clone used to have no `mime`, a transparent background and no EXIF data.
 - **ICC color profiles are kept.** JPEG, PNG and WebP files keep their embedded profile when you write them, so Display P3 photos no longer look duller after a round trip. For images with a profile, CSS colors are converted to the image's color space, and GIF, BMP, TIFF and AVIF output is converted to sRGB. Images without a profile are unchanged. Set `image.iccProfile = undefined` for the 1.x behavior. See [Color Spaces](/jimp/guides/color-spaces/).
 - **GIF encoding** keeps images with up to 256 colors exact, and quantizes larger ones in constant memory, so large GIFs no longer run out of memory. The output for images with more than 256 colors differs from 1.x.
+- **BMPs with an alpha mask keep their transparency.** 16- and 32-bit BMPs that store alpha, as GIMP and ImageMagick write them, used to load fully opaque. 32-bit BMPs without an alpha mask still load opaque.
+- **AVIF files written with `@jimp/wasm-avif` differ from 1.x.** The plugin now uses libavif 1.0, so the encoded bytes and file sizes change. The options, including `cqLevel` and `cqAlphaLevel`, keep their names and meaning. See [AVIF](/jimp/guides/webp/#avif).
 - **`fromBitmap` and the constructor copy `Uint8ClampedArray` and `Uint8Array` data**, such as a canvas's `ImageData`. In 1.x `fromBitmap` shared memory with the array you passed, so editing the image could change it.
 - **`@jimp/*` packages publish only `dist/`.** Imports from a package's `src/` folder no longer resolve. Import from the package name.
 
@@ -185,7 +200,7 @@ These options were accepted but had no effect, or broke the output. They're remo
 
 | Package | Removed | What to do |
 | ------- | ------- | ---------- |
-| `@jimp/js-bmp` | `colors`, `importantColors` and the old `palette` of `{ red, green, blue, quad }` objects; the `BmpColor` type | 1.x always wrote a 24-bit BMP. To write a palette BMP, use the new `bitPP: 1 \| 4 \| 8` with an optional `palette` of CSS colors or numbers; see [Formats](/jimp/concepts/formats/). |
+| `@jimp/js-bmp` | `colors`, `importantColors` and the old `palette` of `{ red, green, blue, quad }` objects; the `BmpColor` type | 1.x always wrote a 24-bit BMP. To write a palette BMP, use the new `bitPP: 1 \| 4 \| 8` with an optional `palette` of CSS colors or numbers; see [BMP](/jimp/concepts/formats/#bmp). |
 | `@jimp/js-png` (encode) | `width`, `height`, `fill`, `checkCRC`, `skipRescale`, `deflateFactory`, `deflateChunkSize` | Remove them. Width, height and fill come from the image. |
 | `@jimp/js-png` (decode) | `skipRescale` | Remove it. It made 16-bit PNGs throw; PNGs are always decoded to 8 bits per channel. `checkCRC` is still accepted. |
 | `@jimp/js-jpeg` (decode) | `useTArray` | Remove it. Its only allowed value was the default. |
@@ -220,7 +235,7 @@ await image.write("out.bmp", { bitPP: 1, palette: ["black", "white"] });
 
 ### Color
 
-- [Color spaces](/jimp/guides/color-spaces/): Display P3 and ICC profiles are read, kept and converted, with [`toColorSpace`](/jimp/methods/to-color-space/) and `new Jimp({ colorSpace: "display-p3" })`.
+- [Color spaces](/jimp/guides/color-spaces/): Display P3 and ICC profiles are read, kept and converted, with [`toColorSpace`](/jimp/methods/to-color-space/) and `new Jimp({ colorSpace: "display-p3" })`. `icc: false` writes a JPEG, PNG or WebP converted to sRGB without a profile, and [`cssColorToHex`](/jimp/methods/css-color-to-hex/) takes a color space and parses `color(display-p3 …)` colors.
 - [`exposure`](/jimp/methods/exposure/) (in stops, in linear light) and [`vibrance`](/jimp/methods/vibrance/).
 - [`sepia(amount)`](/jimp/methods/sepia/) and a `multiply` [`color`](/jimp/methods/color/) action. `mix` and `xor` accept CSS colors.
 - [`dither`](/jimp/methods/dither/) types `"floyd-steinberg"`, `"atkinson"`, `"bayer4"` and `"bayer8"`, with a palette. `dither()` with no options is unchanged.
@@ -248,10 +263,15 @@ await image.write("out.bmp", { bitPP: 1, palette: ["black", "white"] });
 - Fractional `align: { x, y }` for [`cover`](/jimp/methods/cover/) and [`contain`](/jimp/methods/contain/), like CSS `object-position`.
 - [`autocropRect`](/jimp/methods/autocrop-rect/) returns the rectangle `autocrop` would crop to.
 
+### Text
+
+- TrueType, OpenType and WOFF fonts: [`loadTTF`](/jimp/methods/load-ttf/), from `jimp/load-ttf`, loads them. [`print`](/jimp/methods/print/) draws them at any `size`, with `color` (a color or a gradient), `stroke`, `strokeWidth`, `lineHeight` and `letterSpacing`. [`measureText`](/jimp/methods/measure-text/) and [`measureTextHeight`](/jimp/methods/measure-text-height/) measure them, with `{ size, lineHeight?, letterSpacing? }` as their last argument. See [Text and Fonts](/jimp/concepts/text-and-fonts/#truetype-opentype-and-woff-fonts).
+
 ### Reading and writing
 
-- ICO is a default format: read `.ico` and `.cur`, write `.ico`. See [Formats](/jimp/concepts/formats/).
-- Animated GIFs and multi-page TIFFs: [`Jimp.readFrames`](/jimp/methods/read-frames/) reads every frame or page, and [`Jimp.encodeFrames`](/jimp/methods/encode-frames/) and [`Jimp.writeFrames`](/jimp/methods/write-frames/) write them.
+- ICO is a default format: read `.ico` and `.cur`, write `.ico`. `readIcoEntries` from `@jimp/js-ico` lists the images in a file. See [ICO](/jimp/concepts/formats/#ico).
+- Animated GIFs and multi-page TIFFs: [`Jimp.readFrames`](/jimp/methods/read-frames/) and `Jimp.fromBufferFrames` read every frame or page, and [`Jimp.encodeFrames`](/jimp/methods/encode-frames/) and [`Jimp.writeFrames`](/jimp/methods/write-frames/) write them.
+- Format plugins can add a `detect` function, to recognize formats that `file-type` doesn't know, such as SVG, and `decodeFrames` and `encodeFrames` for multi-frame formats. See [Detecting the format](/jimp/guides/writing-plugins/#detecting-the-format) and [Animated and multi-page formats](/jimp/guides/writing-plugins/#animated-and-multi-page-formats).
 - BMP output at 1, 4, 8, 16, 24 or 32 bits per pixel with the `bitPP` option, and palettes for 1, 4 and 8 bits.
 - New WASM format plugins: `@jimp/wasm-jpeg2000` (JPEG 2000), `@jimp/wasm-jxl` (JPEG XL) and `@jimp/wasm-svg` (reads SVG). See [WEBP / WASM](/jimp/guides/webp/).
 - WASM plugins accept precompiled modules, for Cloudflare Workers.
@@ -259,6 +279,15 @@ await image.write("out.bmp", { bitPP: 1, palette: ["black", "white"] });
 - `Jimp.fromBitmap` and the constructor accept `ImageData`, `Uint8ClampedArray` and `Uint8Array`.
 - `maxResolutionInMP` decode option for GIF, TIFF and BMP.
 - `size` and `smallerSize` options for [`pHash`](/jimp/methods/phash/), [`hash`](/jimp/methods/hash/) and [`distance`](/jimp/methods/distance/).
+
+### Performance
+
+These changes make methods faster. On their own, they don't change the output.
+
+- [`resize`](/jimp/methods/resize/) is faster with the default resizer and with `BILINEAR`, `BICUBIC`, `HERMITE` and `BEZIER`, often several times faster on large images.
+- [`crop`](/jimp/methods/crop/) copies whole rows instead of one pixel at a time, so cropping part of a large image is many times faster. [`autocrop`](/jimp/methods/autocrop/) gets faster too.
+- [`color`](/jimp/methods/color/) no longer creates color objects for every pixel, so its actions run much faster on large images.
+- [`print`](/jimp/methods/print/) and [`measureTextHeight`](/jimp/methods/measure-text-height/) wrap text in linear time. Wrapping long text used to take time proportional to the square of its length.
 
 <Aside type="note" title="Found something missing?">
   If your code broke in a way this page doesn't cover, [open an

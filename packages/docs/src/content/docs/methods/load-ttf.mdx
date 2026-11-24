@@ -1,0 +1,101 @@
+---
+title: "loadTTF()"
+description: "Load a TrueType, OpenType or WOFF font to print at any size."
+category: text
+method: "loadTTF"
+plugin: "@jimp/plugin-print"
+---
+
+import { Aside } from "@astrojs/starlight/components";
+import Related from "../../../components/Related.astro";
+
+`loadTTF` loads a TrueType (`.ttf`), OpenType (`.otf`) or WOFF (`.woff`) font so you can draw text with [`print`](/jimp/methods/print/) at any size, in any color or gradient, and measure it with [`measureText`](/jimp/methods/measure-text/).
+Use it when the [bitmap fonts](/jimp/methods/load-font/) don't have the size, color or characters you need.
+
+## Signature
+
+```ts title="loadTTF.d.ts"
+import { loadTTF } from "jimp/load-ttf";
+
+loadTTF(source: string | URL | ArrayBuffer | ArrayBufferView): Promise<VectorFont>
+```
+
+`loadTTF` is a function, not an image method. It's exported from `jimp/load-ttf` (and `@jimp/plugin-print/load-ttf`), not from `jimp`, so the font parser is only bundled by apps that use it.
+It resolves to a `VectorFont` for `print`, `measureText` and `measureTextHeight`.
+
+## Parameters
+
+| Parameter | Type                                           | Default  | Description                                                                                                                  |
+| --------- | ---------------------------------------------- | -------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| `source`  | `string \| URL \| ArrayBuffer \| ArrayBufferView` | required | A path, a `file:` URL, an `http:`, `https:` or `data:` URL, or the font's bytes in a `Buffer`, `ArrayBuffer` or typed array. |
+
+## Example
+
+```ts title="example.ts"
+import { Jimp } from "jimp";
+import { loadTTF } from "jimp/load-ttf";
+
+const font = await loadTTF("fonts/Inter-Regular.otf");
+const image = new Jimp({ width: 400, height: 100, color: "white" });
+
+image.print({ font, size: 32, x: 10, y: 10, text: "Hello, world" });
+
+await image.write("hello.png");
+```
+
+`size` is required with a `loadTTF` font. See [`print`](/jimp/methods/print/#truetype-opentype-and-woff-fonts) for `color`, `stroke`, `lineHeight` and `letterSpacing`.
+
+### From bytes
+
+Pass a `Buffer` or `ArrayBuffer` when you already have the font in memory, for example from a database or an upload:
+
+```ts title="example.ts"
+import { readFile } from "node:fs/promises";
+import { loadTTF } from "jimp/load-ttf";
+
+const font = await loadTTF(await readFile("fonts/OpenSans-Regular.ttf"));
+```
+
+### In the browser
+
+In the browser and in web workers, a string or `URL` is loaded with `fetch`, so serve the font file with your site and pass its URL:
+
+```ts title="main.ts"
+import { loadTTF } from "jimp/load-ttf";
+
+const font = await loadTTF("/fonts/Inter-Regular.woff");
+```
+
+The usual [CORS rules](/jimp/concepts/errors-and-validation/#http-and-cors-errors) apply to fonts on another origin.
+WOFF files are smaller than TTF and OTF files and work the same.
+
+## Notes
+
+- **How the font is loaded.** In Node.js, a path or `file:` URL is read from disk. `http:`, `https:` and `data:` URLs are loaded with the global `fetch`. Fonts are parsed with [opentype.js](https://github.com/opentypejs/opentype.js), which is only loaded the first time you call `loadTTF`.
+- **Load once, print many times.** The font can be reused for any number of images and calls.
+- **Formats.** TrueType outlines (`.ttf`), CFF outlines (`.otf`) and WOFF 1 (`.woff`) work. WOFF2 and font collections (`.ttc`) don't. Convert a WOFF2 font with fonttools: `fonttools ttLib.woff2 decompress font.woff2`.
+- **Kerning and ligatures.** Kerning pairs from the font's `GPOS` table (or the older `kern` table) and the standard ligatures are applied when printing and measuring.
+- **The parsed font** is on `font.opentype`, typed with the parts Jimp uses. Cast it to opentype.js's `Font` type for the rest.
+- **Licenses.** Check that the font's license allows embedding it in images. Fonts under the SIL Open Font License, such as most of Google Fonts, do.
+- **Added in 2.0.**
+
+### Errors
+
+- `loadTTF expects a path, URL, Buffer or ArrayBuffer, but received number.`: `source` isn't one of the accepted types.
+- `loadTTF: font file not found: "fonts/missing.ttf". Pass a path to a .ttf, .otf or .woff file, a URL, or the font's bytes.`: the path doesn't exist. Relative paths are resolved from the current working directory.
+- `loadTTF: couldn't load "https://…/font.ttf": HTTP 404 Not Found`: the server answered with an error status.
+- `loadTTF: couldn't fetch "https://…/font.ttf": fetch failed`: the request itself failed (the end of the message is the `fetch` error, which varies by runtime). The `fetch` error is on `error.cause`.
+- `loadTTF: can't load "…" because this runtime has no global fetch. …`: a URL was passed in a runtime without `fetch`. Pass a path or the font's bytes instead.
+- `loadTTF: the data isn't a TrueType, OpenType or WOFF font (it starts with "Copy").`: the file is something else, here a text file. An empty file says `(it's empty)`.
+- ``loadTTF: WOFF2 fonts aren't supported. Convert the font to WOFF, TTF or OTF, for example with fonttools: `fonttools ttLib.woff2 decompress font.woff2` ``: the file is a WOFF2 font.
+- `loadTTF: couldn't read the TrueType font: …`: the file starts like a font but opentype.js couldn't parse it, for example because it's truncated. The message ends with opentype.js's error, which is also on `error.cause`.
+
+<Aside type="note">
+  Text from a `loadTTF` font is laid out left to right, character by
+  character, with no fallback to another font and no hinting. See
+  [the limitations](/jimp/concepts/text-and-fonts/#limitations).
+</Aside>
+
+## Related
+
+<Related methods={["print", "loadFont", "measureText", "measureTextHeight"]} />

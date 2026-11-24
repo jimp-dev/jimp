@@ -96,7 +96,7 @@ Drag on the image to pick the source region, and click to choose where it goes. 
 - **Any Jimp image works.** `blit` accepts any object with a `bitmap` of `data`, `width` and `height`, so it doesn't matter which Jimp class made the source.
 - **Validation.** The options are checked with zod. Calling `blit()` without an image, or with an object without `src`, throws a validation error.
 - **No blend modes or opacity.** For those, use [`composite`](/jimp/methods/composite/). To copy part of a source with `composite`, [`crop`](/jimp/methods/crop/) a clone of it first.
-- **Changed in 2.0:** a source area that ran past the source's right edge used to pick up pixels from the start of its next rows. Sources in a different color space were copied without conversion.
+- **Changed in 2.0:** semi-transparent source pixels were mixed as if the image were opaque, so blitting onto a transparent image darkened them. A source area that ran past the source's right edge used to pick up pixels from the start of its next rows. Sources in a different color space were copied without conversion.
 
 ## Related
 

@@ -66,6 +66,7 @@ image.crop({ x, y, w, h });
 
 - **Nothing to trim.** If `autocrop` wouldn't crop, the result is the whole image: `{ x: 0, y: 0, w: image.width, h: image.height }`. This includes the case where `cropOnlyFrames` is `true` and a side that isn't ignored has no border.
 - **Same rules as `autocrop`.** Everything on the [`autocrop`](/jimp/methods/autocrop/) page applies, including how `tolerance` is measured and the [changes in 2.0](/jimp/methods/autocrop/#notes) to `ignoreSides`, `leaveBorder` and transparent borders.
+- **Added in 2.0.**
 
 ## Related
 

@@ -8,8 +8,12 @@
  * paths built with Node's `path` and `url`), so the playground loads copies
  * of the bundled fonts from public/fonts/ by URL. The generated code uses
  * the `jimp/fonts` constants, which is what a Node.js reader would write.
+ *
+ * The TrueType and WOFF fonts are printable-ASCII subsets of Open Sans and
+ * Inter (OFL 1.1) in public/fonts/vector/, loaded with `loadTTF`.
  */
 import { diff, HorizontalAlign, loadFont, VerticalAlign } from "jimp";
+import { loadTTF } from "jimp/load-ttf";
 import { js, raw } from "../code";
 import { assetUrl } from "../images";
 import { defineOp, type ImageSize } from "../types";
@@ -32,13 +36,20 @@ function fontPath(name: string) {
   return `fonts/open-sans/${dir}/${dir}.fnt`;
 }
 
-type Font = Awaited<ReturnType<typeof loadFont>>;
+/** Fonts for `loadTTF`, by file name in public/fonts/vector/ */
+const vectorFonts = ["OpenSans-Regular.ttf", "Inter-Regular.woff"];
+
+function isVector(name: string) {
+  return vectorFonts.includes(name);
+}
+
+type Font = Awaited<ReturnType<typeof loadFont>> | Awaited<ReturnType<typeof loadTTF>>;
 const fontCache = new Map<string, Promise<Font>>();
 
 function getFont(name: string) {
   let pending = fontCache.get(name);
   if (!pending) {
-    pending = loadFont(assetUrl(fontPath(name)));
+    pending = isVector(name) ? loadTTF(assetUrl(`fonts/vector/${name}`)) : loadFont(assetUrl(fontPath(name)));
     pending.catch(() => fontCache.delete(name));
     fontCache.set(name, pending);
   }
@@ -57,6 +68,21 @@ const texts = [
 
 const alignX = ["LEFT", "CENTER", "RIGHT"] as const;
 const alignY = ["TOP", "MIDDLE", "BOTTOM"] as const;
+
+interface VectorOptions {
+  font: string;
+  size: number;
+  color: string;
+  outline: boolean;
+  stroke: string;
+  strokeWidth: number;
+}
+
+/** print's options for loadTTF fonts. Without them the font is a bitmap font. */
+function vectorOptions({ font, size, color, outline, stroke, strokeWidth }: VectorOptions) {
+  if (!isVector(font)) return {};
+  return { size, color, ...(outline && { stroke, strokeWidth }) };
+}
 
 /* ---------- diff ---------- */
 
@@ -103,10 +129,30 @@ export default [
     icon: "text",
     group: "text",
     description:
-      "Draw text with a bitmap font, aligned in a box from x, y to the image's edges. Turn on the text box to set its size and wrap lines.",
+      "Draw text with a bitmap font or a TrueType font, aligned in a box from x, y to the image's edges. Turn on the text box to set its size and wrap lines.",
     controls: [
       { type: "select", key: "text", options: texts.map((t) => ({ value: t, label: t.replace(/\n/g, " ⏎ ") })) },
-      { type: "select", key: "font", options: [...fontNames] },
+      {
+        type: "select",
+        key: "font",
+        options: [
+          ...fontNames,
+          ...vectorFonts.map((name) => ({ value: name, label: `loadTTF("${name}")` })),
+        ],
+      },
+      { type: "slider", key: "size", min: 8, max: 160, step: 1, unit: "px", when: (o) => isVector(o.font) },
+      { type: "color", key: "color", when: (o) => isVector(o.font) },
+      { type: "toggle", key: "outline", label: "stroke", when: (o) => isVector(o.font) },
+      { type: "color", key: "stroke", when: (o) => isVector(o.font) && o.outline },
+      {
+        type: "slider",
+        key: "strokeWidth",
+        min: 0.5,
+        max: 10,
+        step: 0.5,
+        unit: "px",
+        when: (o) => isVector(o.font) && o.outline,
+      },
       { type: "xy", key: "at", label: "x, y" },
       { type: "toggle", key: "box", label: "text box" },
       { type: "slider", key: "maxWidth", min: 20, max: 720, step: 2, unit: "px", when: (o) => o.box },
@@ -131,12 +177,18 @@ export default [
       maxHeight: Math.max(20, height - 40),
       alignmentX: "CENTER",
       alignmentY: "BOTTOM",
+      size: 48,
+      color: "#1d3557",
+      outline: false,
+      stroke: "#ffd166",
+      strokeWidth: 2,
     }),
-    apply: async (image, { text, font: fontName, at, box, maxWidth, maxHeight, alignmentX, alignmentY }) => {
+    apply: async (image, { text, font: fontName, at, box, maxWidth, maxHeight, alignmentX, alignmentY, ...vector }) => {
       const font = await getFont(fontName);
       const aligned = alignmentX !== "LEFT" || alignmentY !== "TOP";
       image.print({
-        font,
+        // The font is either kind, and vectorOptions only adds size and color for a loadTTF font
+        ...({ font, ...vectorOptions({ font: fontName, ...vector }) } as { font: Awaited<ReturnType<typeof loadTTF>>; size: number }),
         x: at.x,
         y: at.y,
         text: aligned
@@ -150,8 +202,10 @@ export default [
         ...(box && { maxWidth, maxHeight }),
       });
     },
-    code: ({ text, font, at, box, maxWidth, maxHeight, alignmentX, alignmentY }) => {
-      const load = `const font = await loadFont(${font});`;
+    code: ({ text, font, at, box, maxWidth, maxHeight, alignmentX, alignmentY, ...vector }) => {
+      const load = isVector(font)
+        ? `const font = await loadTTF(${js(`fonts/${font}`)});`
+        : `const font = await loadFont(${font});`;
       // js() has no shorthand properties, so turn `font: font` into `font`
       const call = (options: string) => `image.print(${options.replace(/^\{ font: font,/, "{ font,")});`;
       const aligned = alignmentX !== "LEFT" || alignmentY !== "TOP";
@@ -167,16 +221,16 @@ export default [
             }
           : text,
         ...(box && { maxWidth, maxHeight }),
+        ...vectorOptions({ font, ...vector }),
       });
       return `${load}\n${call(options)}`;
     },
-    imports: ({ font, alignmentX, alignmentY }) => ({
-      jimp:
-        alignmentX !== "LEFT" || alignmentY !== "TOP"
-          ? ["loadFont", "HorizontalAlign", "VerticalAlign"]
-          : ["loadFont"],
-      "jimp/fonts": [font],
-    }),
+    imports: ({ font, alignmentX, alignmentY }) => {
+      const align = alignmentX !== "LEFT" || alignmentY !== "TOP" ? ["HorizontalAlign", "VerticalAlign"] : [];
+      return isVector(font)
+        ? { jimp: align, "jimp/load-ttf": ["loadTTF"] }
+        : { jimp: ["loadFont", ...align], "jimp/fonts": [font] };
+    },
     thumbnail: { text: "Jimp", font: "SANS_64_BLACK", alignmentY: "MIDDLE" },
   }),
 

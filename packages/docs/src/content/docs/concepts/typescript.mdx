@@ -53,6 +53,8 @@ image.resize(small).color(warm);
 | `ColorAction`, and types for single actions such as `HueAction` or `MixAction` | [`color`](/jimp/methods/color/)                       |
 | `ThresholdOptions`, `OtsuThresholdOptions`                                   | [`threshold`](/jimp/methods/threshold/), [`otsuThreshold`](/jimp/methods/otsu-threshold/) |
 | `DitherOptions`, `DitherPalette`                                             | [`dither`](/jimp/methods/dither/)                       |
+| `MorphologyOptions`                                                          | [`erode`](/jimp/methods/erode/), [`dilate`](/jimp/methods/dilate/), [`open`](/jimp/methods/open/), [`close`](/jimp/methods/close/) |
+| `PrintFontOptions`, `VectorFont`, `VectorTextOptions`, `VectorTextLayoutOptions` | [`print`](/jimp/methods/print/) with a font from [`loadTTF`](/jimp/methods/load-ttf/), [`measureText`](/jimp/methods/measure-text/), [`measureTextHeight`](/jimp/methods/measure-text-height/). `FontSource`, what `loadTTF` accepts, is exported from `jimp/load-ttf`. |
 | `PHashOptions`                                                               | [`pHash`](/jimp/methods/phash/)                         |
 | `DiffOptions`, `DiffColor`                                                   | [`diff`](/jimp/methods/diff/)                           |
 | `ReadOptions`                                                                | [`Jimp.read`](/jimp/methods/read/), [`Jimp.fromBuffer`](/jimp/methods/from-buffer/) |

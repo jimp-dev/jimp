@@ -1,6 +1,6 @@
 ---
 title: Using WEBP (And other WASM plugins)
-description: Add WebP, AVIF, JPEG 2000, SVG and faster JPEG and PNG codecs to Jimp with WASM format plugins.
+description: Add WebP, AVIF, JPEG XL, JPEG 2000, SVG and faster JPEG and PNG codecs to Jimp with WASM format plugins.
 ---
 
 import { Aside, Steps } from "@astrojs/starlight/components";
@@ -8,7 +8,7 @@ import InstallCommand from "../../../components/InstallCommand.astro";
 import { WebpExample } from "../../../components/webp-example";
 
 The default build of Jimp only includes image formats written in JavaScript.
-WebP, AVIF, JPEG 2000, SVG and other formats that have no JavaScript implementation come as **WASM format plugins**: codecs compiled to WebAssembly from C, C++ and Rust libraries, wrapped as Jimp [format plugins](/jimp/guides/writing-plugins/#write-a-format-plugin).
+WebP, AVIF, JPEG XL, JPEG 2000, SVG and other formats that have no JavaScript implementation come as **WASM format plugins**: codecs compiled to WebAssembly from C, C++ and Rust libraries, wrapped as Jimp [format plugins](/jimp/guides/writing-plugins/#write-a-format-plugin).
 They aren't part of `jimp`, so you add them to a [custom Jimp](/jimp/guides/custom-jimp/).
 
 | Package           | MIME type    | What it does                                                                                           |
@@ -17,6 +17,7 @@ They aren't part of `jimp`, so you add them to a [custom Jimp](/jimp/guides/cust
 | `@jimp/wasm-avif` | `image/avif` | Reads and writes AVIF.                                                                                 |
 | `@jimp/wasm-jpeg` | `image/jpeg` | Reads and writes JPEG with [MozJPEG](https://github.com/mozilla/mozjpeg). Replaces `@jimp/js-jpeg`.   |
 | `@jimp/wasm-png`  | `image/png`  | Reads and writes PNG, and can shrink files with [oxipng](https://github.com/shssoichiro/oxipng). Replaces `@jimp/js-png`. |
+| `@jimp/wasm-jxl`  | `image/jxl`  | Reads and writes JPEG XL with [libjxl](https://github.com/libjxl/libjxl). See [JPEG XL](#jpeg-xl).                    |
 | `@jimp/wasm-jpeg2000` | `image/jp2`, `image/j2c`, `image/jpx` | Reads and writes JPEG 2000 with [OpenJPEG](https://www.openjpeg.org). See [JPEG 2000](#jpeg-2000). |
 | `@jimp/wasm-svg`  | `image/svg+xml` | Reads SVG by rendering it with [resvg](https://github.com/linebender/resvg). See [SVG](#svg).   |
 
@@ -138,15 +139,59 @@ export const Jimp = createJimp({
 });
 
 await image.write("photo.jpg", { quality: 80, progressive: true });
-await image.write("icon.png", {
-  optimize: { level: 3, interlace: false, optimiseAlpha: false },
-});
+await image.write("icon.png", { optimize: { level: 3 } });
 ```
 
 - `@jimp/wasm-jpeg` takes MozJPEG's options, such as `quality` (default `75`), `progressive` (default `true`) and `optimizeCoding` (default `true`). It also supports [`exif: true`](/jimp/guides/exif/#writing-exif-data) and `icc`, as the built-in JPEG format does.
-- `@jimp/wasm-png` takes an `optimize` object to run the output through oxipng: `level` (`0` to `6`, default `2`), `interlace` (default `false`) and `optimiseAlpha` (default `false`). Without `optimize`, the PNG isn't optimized. At runtime each field of `optimize` is optional, but the TypeScript types currently require all three, so pass them all in TypeScript code. It also takes `icc`, as the built-in PNG format does.
+- `@jimp/wasm-png` takes an `optimize` object to run the output through oxipng: `level` (`0` to `6`, default `2`), `interlace` (default `false`) and `optimiseAlpha` (default `false`). Each field is optional, so `optimize: { level: 3 }` works. Without `optimize`, the PNG isn't optimized. It also takes `icc`, as the built-in PNG format does.
 
 Each plugin's [source](https://github.com/jimp-dev/jimp/tree/main/plugins) lists every option with its range and default.
+
+### JPEG XL
+
+`@jimp/wasm-jxl` reads and writes JPEG XL with [libjxl](https://github.com/libjxl/libjxl), compiled to WebAssembly by [jSquash](https://github.com/jamsinclair/jSquash). JPEG XL has lossy and lossless modes, and keeps transparency.
+
+<InstallCommand pkg="@jimp/core @jimp/wasm-jxl" />
+
+```ts title="jimp.ts"
+import { createJimp } from "@jimp/core";
+import { defaultFormats, defaultPlugins } from "jimp";
+import jxl from "@jimp/wasm-jxl";
+
+export const Jimp = createJimp({
+  formats: [...defaultFormats, jxl],
+  plugins: defaultPlugins,
+});
+
+const image = await Jimp.read("photo.jxl");
+
+await image.write("visually-lossless.jxl");
+await image.write("lossless.jxl", { lossless: true });
+await image.write("smaller.jxl", { quality: 75, effort: 9 });
+```
+
+| Option              | Used when | Default | Description                                                                                                              |
+| ------------------- | --------- | ------- | ------------------------------------------------------------------------------------------------------------------------ |
+| `quality`           | writing   | `90`    | `0` to `100`. `90` is visually lossless for most images, and `100` is lossless.                                          |
+| `lossless`          | writing   | `false` | Store every pixel exactly, including alpha. `quality` is ignored.                                                        |
+| `effort`            | writing   | `7`     | `1` (fastest) to `9` (slowest, smallest files).                                                                          |
+| `progressive`       | writing   | `false` | Order the data so a partly downloaded file can be shown at a lower quality first. Makes files a little larger.          |
+| `lossyModular`      | writing   | `false` | Use the modular mode for lossy images too, instead of VarDCT. It can do better on graphics, and worse on photos.        |
+| `epf`               | writing   | `-1`    | Strength of the edge-preserving filter applied when decoding lossy images, `0` (off) to `3`. `-1` picks one from the quality. |
+| `decodingSpeedTier` | writing   | `0`     | `0` to `4`. Higher makes lossy images faster to decode, and larger.                                                      |
+| `photonNoiseIso`    | writing   | `0`     | Add synthetic film grain to lossy images, like a photo taken at this ISO. `0` adds none.                                 |
+| `maxResolutionInMP` | reading   | `100`   | Reject images larger than this many megapixels, before decoding them.                                                    |
+
+Decode options go under the MIME type, for example `Jimp.read("photo.jxl", { "image/jxl": { maxResolutionInMP: 24 } })`. Numbers outside their range are clamped. Options the plugin doesn't know throw a `ZodError`.
+
+- **Reading:** bare codestreams and files in the JPEG XL container, including recompressed JPEGs. Grayscale and RGB images, with or without alpha and at any bit depth, are decoded to 8 bits per channel. Images in another color space, or with an ICC profile, are converted to sRGB, so they read as `colorSpace: "srgb"` with no `iccProfile`. Animations load only their first frame.
+- **HDR:** images with the PQ or HLG transfer function throw, because the codec would convert them to 8-bit sRGB without tone mapping and they would come out too dark. A PQ image throws `Unsupported JPEG XL image: HDR images (with the PQ transfer function) can't be decoded, because the codec would convert them to 8-bit sRGB without tone mapping`.
+- **Writing:** 8-bit sRGB with alpha, as a bare codestream. Images in another color space are converted to sRGB first. Lossy encoding compresses alpha too, but at the default quality fully transparent and fully opaque pixels stay that way.
+- **Lossless round trips:** lossless files store every pixel exactly, but this decoder can read a few color samples 1 off, because it decodes in floating point. Alpha is always exact. Other decoders, such as `djxl` and browsers, read the exact pixels.
+- **Memory:** the codec has at most 2 GB of memory, which is enough for about 40 megapixels lossless or 60 megapixels lossy. Larger images throw an error such as `Failed to decode the 7000x7000 JPEG XL image: the codec ran out of memory`. Lower `maxResolutionInMP` to reject them before decoding.
+- **Size:** the decoder's wasm is about 850 KB (310 KB gzipped) and the encoder's about 1.4 MB (510 KB gzipped). Each is loaded the first time an image is read or written. On [cross-origin isolated](https://developer.mozilla.org/en-US/docs/Web/API/Window/crossOriginIsolated) pages, the browser encodes with a multi-threaded build.
+
+Vite 8 and webpack 5 need no config. For Vite 7 and earlier, see [Vite](#vite).
 
 ### JPEG 2000
 
@@ -283,12 +328,13 @@ export default defineConfig({
     exclude: [
       "@jsquash/avif",
       "@jsquash/jpeg",
+      "@jsquash/jxl",
       "@jsquash/png",
       "@jsquash/oxipng",
       "@jsquash/webp",
     ],
   },
-  // Needed for @jimp/wasm-avif's multi-threaded encoder
+  // Needed for the multi-threaded encoders of @jimp/wasm-avif and @jimp/wasm-jxl
   worker: { format: "es" },
 });
 ```
@@ -296,8 +342,8 @@ export default defineConfig({
 - `optimizeDeps.exclude`: Vite pre-bundles dependencies into `node_modules/.vite/deps`, which separates the codec code from the `.wasm` file it loads with `new URL("*.wasm", import.meta.url)`.
   Without it, the dev server and vitest browser mode fail to load the wasm with errors like `both async and sync fetching of the wasm failed` or `expected magic word 00 61 73 6d`.
   Only the packages used by the plugins you install need to be listed (`@jimp/wasm-png` uses both `@jsquash/png` and `@jsquash/oxipng`).
-- `worker.format`: only needed for `@jimp/wasm-avif`.
-  Its encoder runs in a worker and Vite's default `iife` worker format can't code-split, so `vite build` fails with `Invalid value "iife" for option "worker.format"` (`"output.format"` on Vite 5).
+- `worker.format`: only needed for `@jimp/wasm-avif` and `@jimp/wasm-jxl`.
+  Their encoders run in a worker and Vite's default `iife` worker format can't code-split, so `vite build` fails with `Invalid value "iife" for option "worker.format"` (`"output.format"` on Vite 5).
 
 `@jimp/wasm-jpeg2000` and `@jimp/wasm-svg` load their wasm the same way but have to be excluded themselves, with their CommonJS dependencies pre-bundled instead. Without this, the dev server fails with `Failed to load the JPEG 2000 codec's wasm` or `Failed to load resvg's wasm`:
 
@@ -361,6 +407,7 @@ For example, if a worker only decodes WebP, you can leave out the encoder.
 | --- | --- | --- |
 | `@jimp/wasm-avif` | `@jsquash/avif` | `decoder`: `@jsquash/avif/codec/dec/avif_dec.wasm`<br />`encoder`: `@jsquash/avif/codec/enc/avif_enc.wasm` |
 | `@jimp/wasm-jpeg` | `@jsquash/jpeg` | `decoder`: `@jsquash/jpeg/codec/dec/mozjpeg_dec.wasm`<br />`encoder`: `@jsquash/jpeg/codec/enc/mozjpeg_enc.wasm` |
+| `@jimp/wasm-jxl` | `@jsquash/jxl` | `decoder`: `@jsquash/jxl/codec/dec/jxl_dec.wasm`<br />`encoder`: `@jsquash/jxl/codec/enc/jxl_enc.wasm` |
 | `@jimp/wasm-png` | `@jsquash/png`, `@jsquash/oxipng` | `png`: `@jsquash/png/codec/pkg/squoosh_png_bg.wasm`<br />`optimise`: `@jsquash/oxipng/codec/pkg/squoosh_oxipng_bg.wasm`, only used with the `optimize` export option |
 | `@jimp/wasm-webp` | `@jsquash/webp` | `decoder`: `@jsquash/webp/codec/dec/webp_dec.wasm`<br />`encoder`: `@jsquash/webp/codec/enc/webp_enc_simd.wasm` |
 
@@ -401,6 +448,7 @@ AVIF is the largest, at about 1.2 MB gzipped for the decoder and encoder togethe
 
 - [@jimp/wasm-avif](https://github.com/jimp-dev/jimp/tree/main/plugins/wasm-avif)
 - [@jimp/wasm-jpeg](https://github.com/jimp-dev/jimp/tree/main/plugins/wasm-jpeg)
+- [@jimp/wasm-jxl](https://github.com/jimp-dev/jimp/tree/main/plugins/wasm-jxl)
 - [@jimp/wasm-png](https://github.com/jimp-dev/jimp/tree/main/plugins/wasm-png)
 - [@jimp/wasm-webp](https://github.com/jimp-dev/jimp/tree/main/plugins/wasm-webp)
 - [@jimp/wasm-jpeg2000](https://github.com/jimp-dev/jimp/tree/main/plugins/wasm-jpeg2000)

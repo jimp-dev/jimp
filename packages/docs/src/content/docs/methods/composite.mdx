@@ -137,7 +137,7 @@ Click the image to move the sticker, choose a `mode` and fade either layer with 
 - **Unknown modes.** A `mode` that isn't a `BlendMode` value throws `Unknown blend mode "nope", expected one of: srcOver, dstOver, multiply, add, screen, overlay, darken, lighten, hardLight, difference, exclusion` (with your value in the quotes).
 - **Non-number positions** throw `x and y must be numbers`.
 - **`composite` or `blit`?** [`blit`](/jimp/methods/blit/) can copy just part of the source image, and always blends like `SRC_OVER` at full opacity.
-- **Changed in 2.0:** `src` had to come from the same Jimp class as the image, or `composite` threw `The source must be a Jimp image`. An unknown `mode` threw `TypeError: blendmode is not a function`, and an opacity outside `0`–`1` was treated as `1`, so a negative opacity drew the source at full strength. Sources in a different color space were drawn without conversion.
+- **Changed in 2.0:** `src` had to come from the same Jimp class as the image, or `composite` threw `The source must be a Jimp image`. An unknown `mode` threw `TypeError: blendmode is not a function`, and an opacity outside `0`–`1` was treated as `1`, so a negative opacity drew the source at full strength. Sources in a different color space were drawn without conversion. Results were truncated instead of rounded, so an opaque source over a semi-transparent pixel could give alpha 254.
 
 ## Related
 

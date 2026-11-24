@@ -240,6 +240,18 @@ const font = await loadFont(
 
 Your own BMFont fonts work the same way. See [Text and fonts](/jimp/concepts/text-and-fonts/) for printing, wrapping and measuring text.
 
+TrueType, OpenType and WOFF fonts load by URL too, with [`loadTTF`](/jimp/methods/load-ttf/) from `jimp/load-ttf`. Serve the font file from your site, or pass its bytes from a file input as an `ArrayBuffer`:
+
+```ts title="main.ts"
+import { loadTTF } from "jimp/load-ttf";
+
+const font = await loadTTF("/fonts/Inter-Regular.woff");
+
+image.print({ font, size: 32, x: 10, y: 20, text: "Hello, browser" });
+```
+
+`loadTTF` is a separate import so that its font parser is only in your bundle when you use it.
+
 ## Web workers
 
 Decoding, editing and encoding all run on the thread that calls them.

@@ -64,7 +64,7 @@ Drag the slider to change `r`. The code panel shows the call that produced the i
 - **Whole-pixel radii.** `r` is rounded to the nearest whole number and clamped to `1`–`256`, so `blur(2.5)` is `blur(3)`, `blur(0.2)` is `blur(1)` and `blur(1000)` is `blur(256)`. For a fractional radius, use [`gaussian`](/jimp/methods/gaussian/).
 - **Invalid radii.** `r` values of `0` or less throw `r must be greater than 0`, and values that aren't numbers throw `r must be a number`.
 - **`blur` or `gaussian`?** [`gaussian`](/jimp/methods/gaussian/) computes a true Gaussian blur. It's a little smoother, but it gets much slower as the radius grows. For most images the difference isn't visible.
-- **Changed in 2.0:** a fractional radius or one above `256` used to make the whole image transparent black, and radii from about `145` to `256` could leave the result partly transparent. `r` is now rounded and clamped, and large radii blur correctly.
+- **Changed in 2.0:** a fractional radius or one above `256` used to make the whole image transparent black, and radii from about `145` to `256` could leave the result partly transparent. `r` is now rounded and clamped, and large radii blur correctly. Colors weren't weighted by alpha, so edges next to transparent pixels faded toward black.
 
 ## Related
 

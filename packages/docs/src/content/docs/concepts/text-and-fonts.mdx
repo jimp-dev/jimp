@@ -1,14 +1,19 @@
 ---
 title: "Text and fonts"
-description: "Draw text with bitmap fonts, measure it, wrap it and align it."
+description: "Draw text with bitmap or TrueType fonts, measure it, wrap it and align it."
 ---
 
 import { Aside } from "@astrojs/starlight/components";
 import Playground from "../../../components/playground/Playground";
 import StickerSheet from "../../../components/StickerSheet.astro";
 
-Jimp draws text with bitmap fonts: each character is a small picture, copied onto your image wherever the text needs it.
-There's no font rendering engine to install, and the result looks the same everywhere, but a font has a fixed size, a fixed color and only the characters it was made with.
+[`print`](/jimp/methods/print/) draws text with two kinds of font:
+
+- **Bitmap fonts** from [`loadFont`](/jimp/methods/load-font/). Each character is a small picture, copied onto your image wherever the text needs it. Jimp comes with Open Sans in several sizes. A bitmap font has a fixed size, a fixed color and only the characters it was made with.
+- **TrueType, OpenType and WOFF fonts** from [`loadTTF`](/jimp/methods/load-ttf/). The characters are drawn from their outlines, antialiased, at any size, in any color or gradient, with an optional outline. Bring your own `.ttf`, `.otf` or `.woff` file.
+
+Both are pure JavaScript, so there's nothing native to install and the result looks the same everywhere.
+Wrapping, alignment and measuring work the same way for both.
 
 <StickerSheet category="text" />
 
@@ -74,6 +79,44 @@ Print on top of other edits. Click **print** to add text, then click the image t
   steps={[{ op: "blur", options: { r: 3 } }, { op: "print" }]}
 />
 
+## TrueType, OpenType and WOFF fonts
+
+Load a font file with [`loadTTF`](/jimp/methods/load-ttf/) from `jimp/load-ttf`, then pass it to `print` with a `size` in pixels:
+
+```ts title="example.ts"
+import { Jimp } from "jimp";
+import { loadTTF } from "jimp/load-ttf";
+
+const font = await loadTTF("fonts/Inter-Regular.otf");
+const image = new Jimp({ width: 400, height: 120, color: "white" });
+
+image.print({
+  font,
+  size: 48,
+  x: 10,
+  y: 10,
+  text: "Hello, world",
+  color: "#e63946",
+  stroke: "#1d3557",
+  strokeWidth: 2,
+});
+```
+
+`color` and `stroke` take a hex number, a CSS color, `{ r, g, b, a }` or a [gradient](/jimp/concepts/drawing/#gradients); see [`print`](/jimp/methods/print/#truetype-opentype-and-woff-fonts) for every option.
+The font's kerning and standard ligatures are applied. Like [`loadFont`](/jimp/methods/load-font/), `loadTTF` takes a path or URL, and also the font's bytes in a `Buffer` or `ArrayBuffer`.
+In the browser, pass a URL: the `.ttf`, `.otf` or `.woff` file is loaded with `fetch`.
+
+`loadTTF` is in its own entry point, `jimp/load-ttf`, rather than in `jimp`.
+It parses fonts with [opentype.js](https://github.com/opentypejs/opentype.js), which adds about 68 KB (gzipped) to a browser bundle, so importing it separately keeps it out of apps that only use bitmap fonts.
+
+### Limitations
+
+- **No WOFF2.** Decoding it needs a Brotli decompressor. Convert a `.woff2` file first, for example with fonttools: `fonttools ttLib.woff2 decompress font.woff2`.
+- **No font collections.** `.ttc` files don't load; extract the font you need into a `.ttf`.
+- **No fallback fonts.** Characters the font doesn't have are drawn with its `.notdef` glyph, usually a box. Use a font that covers all of your text.
+- **Left to right only.** Characters are placed left to right in the order they're written, with no bidirectional reordering, so right-to-left scripts such as Arabic and Hebrew aren't supported. Scripts that need complex shaping, such as Devanagari, aren't either.
+- **No hinting.** Small text can look softer than in a browser. Each line's baseline is rounded to a whole pixel so horizontal edges stay sharp.
+
 ## Wrapping and alignment
 
 `print` lays the text out in a box whose top left corner is at `x`, `y`.
@@ -119,6 +162,8 @@ To center text on the whole image, start the box at `0, 0` and leave out `maxWid
 
 `maxHeight` positions the text but doesn't cut it off: lines that don't fit continue below the box.
 
+These rules are the same for both kinds of font. With a `loadTTF` font, set the distance between lines with `lineHeight`; with a bitmap font, it's the font's line height.
+
 <Aside type="note" title="Changed in 2.0">
   Alignment without a box size used to fail: `CENTER` and `RIGHT` without
   `maxWidth` threw, and `MIDDLE` and `BOTTOM` without `maxHeight` were ignored.
@@ -149,11 +194,15 @@ const badge = new Jimp({
 badge.print({ font, x: 10, y: 10, text });
 ```
 
+With a `loadTTF` font, pass the `size`, `lineHeight` and `letterSpacing` you print with as the last argument, for example `measureText(font, text, { size: 32 })` and `measureTextHeight(font, text, maxWidth, { size: 32 })`.
+
 `print`'s `cb` option also reports where the text ended, which helps when you stack paragraphs. See [`print`](/jimp/methods/print/#find-where-the-text-ended).
 
 ## Coloring text
 
-A glyph is copied from the font's image as it is, so the text color is part of the font.
+With a `loadTTF` font, pass `color` (and `stroke` for an outline) to `print`.
+
+With a bitmap font, a glyph is copied from the font's image as it is, so the text color is part of the font.
 To print in another color, print a white font onto a transparent layer, change the color of the layer's pixels while keeping their alpha, and [`composite`](/jimp/methods/composite/) the layer onto the image:
 
 ```ts title="example.ts"
@@ -186,16 +235,28 @@ If you always need the same color, it's simpler to generate a font in that color
 
 ## Characters a font doesn't have
 
-`print` draws `?` for any character the font has no glyph for, and leaves whitespace without a glyph blank.
-So if Chinese, Japanese, Korean, Cyrillic or emoji text prints as `???`, the font doesn't include those characters.
-The only fix is a font that does.
+With a bitmap font, `print` draws `?` for any character the font has no glyph for, and leaves whitespace without a glyph blank.
+With a `loadTTF` font, it draws the font's `.notdef` glyph, usually an empty box.
+So if Chinese, Japanese, Korean, Cyrillic or emoji text prints as `???` or boxes, the font doesn't include those characters, and Jimp doesn't fall back to another font.
+
+The fix is a font that does include them. The simplest is a TrueType or OpenType font that covers the text, such as [Noto Sans JP](https://fonts.google.com/noto/specimen/Noto+Sans+JP) for Japanese, loaded with `loadTTF`:
+
+```ts title="example.ts"
+import { loadTTF } from "jimp/load-ttf";
+
+const font = await loadTTF("fonts/NotoSansJP-Regular.ttf");
+
+image.print({ font, size: 32, x: 10, y: 10, text: "こんにちは世界" });
+```
+
+Or make a bitmap font with those characters, as below.
 
 ## Making your own fonts
 
 Fonts are in the [BMFont](https://www.angelcode.com/products/bmfont/) format: a `.fnt` file that describes each glyph, and one or more `.png` pages that hold the glyph images.
 Text, XML, JSON and binary `.fnt` files all work, but the pages must be PNG images.
 
-Any BMFont generator can make one from a TrueType or OpenType font. For example, with [fontbm](https://github.com/vladimirgamalyan/fontbm) and [Noto Sans JP](https://fonts.google.com/noto/specimen/Noto+Sans+JP):
+If you'd rather not ship a font file and parse it at runtime, or want the exact look of a pre-rendered font, any BMFont generator can make a bitmap font from a TrueType or OpenType font. For example, with [fontbm](https://github.com/vladimirgamalyan/fontbm) and [Noto Sans JP](https://fonts.google.com/noto/specimen/Noto+Sans+JP):
 
 ```sh
 # chars.txt holds the characters to include, e.g. こんにちは世界
@@ -220,7 +281,7 @@ image.print({ font, x: 10, y: 10, text: "こんにちは世界" });
 
 ## See also
 
-- [`print`](/jimp/methods/print/), [`loadFont`](/jimp/methods/load-font/), [`measureText`](/jimp/methods/measure-text/) and [`measureTextHeight`](/jimp/methods/measure-text-height/)
+- [`print`](/jimp/methods/print/), [`loadFont`](/jimp/methods/load-font/), [`loadTTF`](/jimp/methods/load-ttf/), [`measureText`](/jimp/methods/measure-text/) and [`measureTextHeight`](/jimp/methods/measure-text-height/)
 - [Compositing](/jimp/concepts/compositing/): layer text and images
 - [Constants and enums](/jimp/concepts/constants/): `HorizontalAlign` and `VerticalAlign`
 - [Using in Browser](/jimp/guides/browser/#fonts)

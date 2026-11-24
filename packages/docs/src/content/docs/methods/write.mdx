@@ -80,7 +80,7 @@ The extension is looked up with the [mime](https://www.npmjs.com/package/mime) p
 | `.tif`, `.tiff`          | TIFF   | none                                                          |
 | `.ico`                   | ICO    | [`sizes`](/jimp/methods/get-buffer/#ico)                      |
 
-`.webp`, `.avif` and `.jp2` work once you add their [WASM format plugins](/jimp/concepts/formats/#wasm-format-plugins).
+`.webp`, `.avif`, `.jxl` and `.jp2` work once you add their [WASM format plugins](/jimp/concepts/formats/#wasm-format-plugins).
 Some formats have no extension `write` can map, such as JPEG 2000 codestreams (`.j2c`, `.j2k`); encode those with [`getBuffer`](/jimp/methods/get-buffer/) and write the bytes yourself.
 
 ## Notes
@@ -89,8 +89,8 @@ Some formats have no extension `write` can map, such as JPEG 2000 codestreams (`
 - **Writing replaces existing files** without asking.
 - **One image per file.** To write an animated GIF or a multi-page TIFF, use [`Jimp.writeFrames`](/jimp/methods/write-frames/).
 - **Errors.** A path with no extension throws `Cannot write "<path>": the path has no recognisable file extension to determine the image format`. An extension whose format isn't available throws `Unsupported MIME type`, for example `Unsupported MIME type: image/webp` for `.webp` or `Unsupported MIME type: text/plain` for `.txt`. A directory that doesn't exist throws Node's `ENOENT: no such file or directory` error.
-- **Added in 2.0:** `.ico` files.
-- **Changed in 2.0:** the options are typed by the path's extension, including `.jpg`, `.jpe` and `.tif`, paths with directories, and upper-case extensions. Before, `.jpg` paths weren't matched to JPEG's options, and `.gif`, `.tif` and `string` paths accepted any options.
+- **Added in 2.0:** plain `string` paths, such as one from `path.join`, and `.ico` and `.jxl` files. A path with no extension throws the error above; before, it threw `Unsupported MIME type: null`.
+- **Changed in 2.0:** the options are typed by the path's extension, including `.jpg`, `.jpe` and `.tif`, paths with directories, and upper-case extensions. Before, `.jpg` paths weren't matched to JPEG's options, and `.gif` and `.tif` paths accepted any options.
 - **v0 difference.** Jimp v0 had `writeAsync`, and `write` took a callback. In v1, `write` returns a promise.
 
 <Aside type="caution" title="Node only">

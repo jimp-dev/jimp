@@ -115,6 +115,8 @@ Drag `deg` to rotate, and switch `mode` to compare growing the canvas with keepi
 - **Other transforms.** To skew, or to combine rotating with scaling or flipping in one step, use [`skew`](/jimp/methods/skew/) or [`affine`](/jimp/methods/affine/). `rotate(deg)` is the same as `affine` with the matrix `[cos θ, -sin θ, sin θ, cos θ, 0, 0]`.
 - **Changed in 2.0:** rotations that aren't a multiple of 90 are centered. Before, the rotated image came out one pixel up and to the left, so `mode: false` cut off an edge, and the canvas was the bounding box plus one pixel, rounded up to an even number.
 - **Changed in 2.0:** a `ResizeStrategy` as `mode` interpolates the pixels. Before, it behaved exactly like `true`.
+- **Changed in 2.0:** with `mode: false`, 90° and 270° rotations of a non-square image are centered too. Before, they were off by a pixel.
+- **Added in 2.0:** the `LANCZOS`, `LANCZOS2` and `MITCHELL` strategies for `mode`.
 
 ## Related
 

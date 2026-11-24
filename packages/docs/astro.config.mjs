@@ -139,6 +139,7 @@ export default defineConfig({
           entryPoints: [
             "../../packages/jimp/src/index.ts",
             "../../packages/jimp/src/fonts.ts",
+            "../../packages/jimp/src/load-ttf.ts",
           ],
           tsconfig: "../../packages/jimp/tsconfig.docs.json",
           sidebar: { label: "Type reference", collapsed: true },
