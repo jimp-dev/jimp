@@ -1,13 +1,18 @@
 /**
  * Generates the multi-frame test images:
  *
- * - images/animated-disposal.gif, an 8x8 GIF whose frames use every disposal
- *   method, written with omggif
  * - images/multipage.tiff, a big endian TIFF with three pages of different
  *   sizes and color types, written with utif2
  *
- * They're written with the libraries rather than jimp's encoders, so the
- * decoders are tested against files jimp didn't make.
+ * It's written with a library rather than jimp's encoder, so the decoder is
+ * tested against a file jimp didn't make.
+ *
+ * images/animated-disposal.gif, an 8x8 GIF whose frames use every disposal
+ * method, was written the same way with omggif's GifWriter. Jimp no longer
+ * depends on omggif, so it's kept as it is: red over the whole image (kept),
+ * a green square at 2,2 (disposed to the background), blue in the corner
+ * with a transparent pixel (restored to the previous image) and white in the
+ * other corner, shown for 100ms, 200ms, 300ms and 0ms, looping 3 times.
  *
  * Run from the repo root: node packages/test-utils/scripts/generate-multi-frame-images.mjs
  */
@@ -22,54 +27,9 @@ const root = path.join(
   "../../..",
 );
 const images = path.join(root, "packages/test-utils/images");
-const GIF = createRequire(path.join(root, "plugins/js-gif/package.json"))(
-  "omggif",
-);
 const UTIF = createRequire(path.join(root, "plugins/js-tiff/package.json"))(
   "utif2",
 );
-
-function writeAnimatedGif() {
-  const TRANSPARENT = 0;
-  const RED = 1;
-  const GREEN = 2;
-  const BLUE = 3;
-  const WHITE = 4;
-  const palette = [
-    0x000000, 0xff0000, 0x00ff00, 0x0000ff, 0xffffff, 0x000000, 0x000000,
-    0x000000,
-  ];
-  const buffer = new Uint8Array(4096);
-  const writer = new GIF.GifWriter(buffer, 8, 8, { palette, loop: 3 });
-
-  // 1. Red over the whole image, kept (disposal 1)
-  writer.addFrame(0, 0, 8, 8, new Array(64).fill(RED), {
-    delay: 10,
-    disposal: 1,
-  });
-  // 2. A green square, cleared to the background afterwards (disposal 2)
-  writer.addFrame(2, 2, 4, 4, new Array(16).fill(GREEN), {
-    delay: 20,
-    disposal: 2,
-  });
-  // 3. Blue in the corner with a transparent pixel, restored to the
-  //    previous state afterwards (disposal 3)
-  writer.addFrame(0, 0, 2, 2, [BLUE, BLUE, BLUE, TRANSPARENT], {
-    delay: 30,
-    disposal: 3,
-    transparent: TRANSPARENT,
-  });
-  // 4. White in the other corner, no disposal specified (disposal 0)
-  writer.addFrame(6, 6, 2, 2, new Array(4).fill(WHITE), {
-    delay: 0,
-    disposal: 0,
-  });
-
-  writeFileSync(
-    path.join(images, "animated-disposal.gif"),
-    buffer.subarray(0, writer.end()),
-  );
-}
 
 function writeMultipageTiff() {
   const pages = [
@@ -132,5 +92,4 @@ function writeMultipageTiff() {
   writeFileSync(path.join(images, "multipage.tiff"), tiff);
 }
 
-writeAnimatedGif();
 writeMultipageTiff();
