@@ -102,7 +102,7 @@ image.print({
 });
 ```
 
-`color` and `stroke` take a hex number, a CSS color, `{ r, g, b, a }` or a gradient; see [`print`](/jimp/methods/print/#truetype-opentype-and-woff-fonts) for every option.
+`color` and `stroke` take a hex number, a CSS color, `{ r, g, b, a }` or a [gradient](/jimp/concepts/drawing/#gradients); see [`print`](/jimp/methods/print/#truetype-opentype-and-woff-fonts) for every option.
 The font's kerning and standard ligatures are applied. Like [`loadFont`](/jimp/methods/load-font/), `loadTTF` takes a path or URL, and also the font's bytes in a `Buffer` or `ArrayBuffer`.
 In the browser, pass a URL: the `.ttf`, `.otf` or `.woff` file is loaded with `fetch`.
 
