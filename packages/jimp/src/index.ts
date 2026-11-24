@@ -21,6 +21,7 @@ import * as cover from "@jimp/plugin-cover";
 import * as crop from "@jimp/plugin-crop";
 import * as displace from "@jimp/plugin-displace";
 import * as dither from "@jimp/plugin-dither";
+import * as draw from "@jimp/plugin-draw";
 import * as fisheye from "@jimp/plugin-fisheye";
 import * as flip from "@jimp/plugin-flip";
 import * as hash from "@jimp/plugin-hash";
@@ -45,6 +46,7 @@ export const defaultPlugins = [
   crop.methods,
   displace.methods,
   dither.methods,
+  draw.methods,
   fisheye.methods,
   flip.methods,
   hash.methods,
@@ -177,6 +179,23 @@ export type {
 } from "@jimp/plugin-border";
 export type { AutocropOptions, CropOptions } from "@jimp/plugin-crop";
 export type { DitherOptions, DitherPalette } from "@jimp/plugin-dither";
+export type {
+  Color,
+  DrawEllipseOptions,
+  DrawLineOptions,
+  DrawPathOptions,
+  DrawPolygonOptions,
+  DrawRectOptions,
+  FillRule,
+  FloodFillOptions,
+  GradientStop,
+  LinearGradient,
+  LineCap,
+  LineJoin,
+  Paint,
+  PathCommand,
+  RadialGradient,
+} from "@jimp/plugin-draw";
 export { ResizeStrategy } from "@jimp/plugin-resize";
 export type {
   ScaleOptions,

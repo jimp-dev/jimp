@@ -52,6 +52,7 @@
     "@jimp/plugin-crop": "workspace:*",
     "@jimp/plugin-displace": "workspace:*",
     "@jimp/plugin-dither": "workspace:*",
+    "@jimp/plugin-draw": "workspace:*",
     "@jimp/plugin-fisheye": "workspace:*",
     "@jimp/plugin-flip": "workspace:*",
     "@jimp/plugin-hash": "workspace:*",
