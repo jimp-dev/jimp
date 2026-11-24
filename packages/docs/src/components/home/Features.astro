@@ -77,19 +77,17 @@ const features = [
     transform: rotate(var(--rot));
     transition: transform 0.18s cubic-bezier(0.3, 1.8, 0.5, 1);
   }
-  /* The perforated stamp: a 14px grid of holes centered on its edges. */
+  /* The perforated stamp: a 14px grid of see-through holes centered on its
+     edges, filled in away from them. It's a background, not a mask, because
+     Safari doesn't turn a mask with the card while the hover tilt animates. */
   .postage::before {
     content: "";
     position: absolute;
     inset: 0;
     z-index: -1;
-    background: var(--c);
-    -webkit-mask:
-      radial-gradient(circle 7px at 7px 7px, #0000 97%, #000) -7px -7px / 14px 14px round,
-      linear-gradient(#000 0 0) 14px 14px / calc(100% - 28px) calc(100% - 28px) no-repeat;
-    mask:
-      radial-gradient(circle 7px at 7px 7px, #0000 97%, #000) -7px -7px / 14px 14px round,
-      linear-gradient(#000 0 0) 14px 14px / calc(100% - 28px) calc(100% - 28px) no-repeat;
+    background:
+      linear-gradient(var(--c) 0 0) 14px 14px / calc(100% - 28px) calc(100% - 28px) no-repeat,
+      radial-gradient(circle 7px at 7px 7px, #0000 97%, var(--c)) -7px -7px / 14px 14px round;
   }
   /* Safari doesn't stretch `round` tiles to fit, so the last row and column
      of holes get cut off. Size the stamp to whole tiles instead, centered on
