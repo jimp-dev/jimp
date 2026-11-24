@@ -1,12 +1,11 @@
 ---
 /** Starlight's table of contents, presented as a taped-on sticky note. */
-import type { Props } from "@astrojs/starlight/props";
 import Default from "@astrojs/starlight/components/TableOfContents.astro";
 ---
 
 <div class="note">
   <div class="scroll">
-    <Default {...Astro.props} />
+    <Default />
     <a class="top-link" href="#_top">↑ Back to top</a>
   </div>
 </div>

@@ -90,7 +90,7 @@ an `<Aside type="caution">` and open an issue.
 
 All pages use Starlight's fields (`title`, `description`, `sidebar`,
 `prev`/`next`, `template`…) plus three custom ones defined in
-`src/content/config.ts`:
+`src/content.config.ts`:
 
 | Field         | Used on      | Meaning                                                                 |
 | ------------- | ------------ | ----------------------------------------------------------------------- |

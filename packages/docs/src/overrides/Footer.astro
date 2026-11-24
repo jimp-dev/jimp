@@ -1,20 +1,19 @@
 ---
 /** Bottom of the page card: chunky prev/next links and the edit link. */
-import type { Props } from "@astrojs/starlight/props";
 import EditLink from "@astrojs/starlight/components/EditLink.astro";
 import Pagination from "./Pagination.astro";
 import { version } from "../../package.json";
 
-const { entry, slug } = Astro.props;
-const isGenerated = slug.startsWith("api/");
+const { entry, id } = Astro.locals.starlightRoute;
+const isGenerated = id.startsWith("api/");
 ---
 
 {
   !entry.data.hero && (
     <footer class="doc-footer not-content">
-      <Pagination {...Astro.props} />
+      <Pagination />
       <div class="meta">
-        {!isGenerated && <EditLink {...Astro.props} />}
+        {!isGenerated && <EditLink />}
         <span>Jimp v{version}</span>
       </div>
     </footer>

@@ -4,12 +4,11 @@
  * chunky call-to-action buttons, the install command and Jimpy with a speech
  * bubble. Click Jimpy for another tip.
  */
-import type { Props } from "@astrojs/starlight/props";
 import InstallCommand from "../components/InstallCommand.astro";
 import Jimpy from "../components/Jimpy.astro";
 import { uiIcon } from "../components/icons";
 
-const { data } = Astro.props.entry;
+const { data } = Astro.locals.starlightRoute.entry;
 const { title = data.title, tagline, actions = [] } = data.hero ?? {};
 
 const letters = [

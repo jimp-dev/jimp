@@ -12,27 +12,26 @@
     "clean": "rimraf node_modules .tshy .tshy-build dist .turbo"
   },
   "dependencies": {
-    "@astrojs/check": "^0.9.3",
-    "@astrojs/react": "^3.6.2",
-    "@astrojs/starlight": "^0.26.1",
-    "@esbuild-plugins/node-globals-polyfill": "^0.2.3",
+    "@astrojs/check": "^0.9.12",
+    "@astrojs/react": "^7.1.9",
+    "@astrojs/starlight": "^0.43.1",
     "@jimp/core": "workspace:*",
     "@jimp/plugin-print": "workspace:*",
     "@jimp/wasm-webp": "workspace:*",
     "@types/react": "^18.3.5",
-    "astro": "^4.15.1",
+    "astro": "^7.4.13",
     "eslint": "^9.9.1",
     "jimp": "workspace:*",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "sharp": "^0.33.5",
-    "starlight-typedoc": "^0.15.0",
-    "typedoc": "^0.26.6",
-    "typedoc-plugin-markdown": "4.2.6",
-    "typedoc-plugin-zod": "^1.2.1",
+    "sharp": "^0.35.5",
+    "starlight-typedoc": "^0.23.3",
+    "typedoc": "^0.28.20",
+    "typedoc-plugin-markdown": "4.14.1",
+    "typedoc-plugin-zod": "^1.4.3",
     "typescript": "^5.5.4"
   },
   "devDependencies": {
-    "vite-plugin-node-polyfills": "^0.22.0"
+    "vite-plugin-node-polyfills": "^0.28.0"
   }
 }

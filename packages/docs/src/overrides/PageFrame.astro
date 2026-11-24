@@ -1,9 +1,8 @@
 ---
-import type { Props } from "@astrojs/starlight/props";
 import MobileMenuToggle from "./MobileMenuToggle.astro";
 import SiteFooter from "../components/SiteFooter.astro";
 
-const { hasSidebar, labels } = Astro.props;
+const { hasSidebar } = Astro.locals.starlightRoute;
 ---
 
 <div class="frame">
@@ -19,8 +18,8 @@ const { hasSidebar, labels } = Astro.props;
   <div class="shell">
     {
       hasSidebar && (
-        <nav class="sidebar" aria-label={labels["sidebarNav.accessibleLabel"]}>
-          <MobileMenuToggle {...Astro.props} />
+        <nav class="sidebar" aria-label={Astro.locals.t("sidebarNav.accessibleLabel")}>
+          <MobileMenuToggle />
           <div id="starlight__sidebar" class="sidebar-pane">
             <div class="sidebar-content">
               <slot name="sidebar" />

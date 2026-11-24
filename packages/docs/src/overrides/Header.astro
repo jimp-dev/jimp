@@ -1,5 +1,4 @@
 ---
-import type { Props } from "@astrojs/starlight/props";
 import Search from "@astrojs/starlight/components/Search.astro";
 import ThemeSelect from "./ThemeSelect.astro";
 import { uiIcon } from "../components/icons";
@@ -7,7 +6,7 @@ import { version } from "../../package.json";
 import { compactCount, weeklyDownloads } from "../data/downloads";
 
 const base = import.meta.env.BASE_URL.replace(/\/$/, "");
-const { slug } = Astro.props;
+const { id: slug } = Astro.locals.starlightRoute;
 
 const section =
   slug.startsWith("guides/") || slug.startsWith("concepts/")
@@ -57,8 +56,8 @@ const shortDate = (iso: string) =>
     }
   </nav>
   <div class="grow"></div>
-  <div class="search"><Search {...Astro.props} /></div>
-  <ThemeSelect {...Astro.props} />
+  <div class="search"><Search /></div>
+  <ThemeSelect />
   <a class="pill gh" href="https://github.com/jimp-dev/jimp">
     <Fragment set:html={uiIcon("star")} />
     <span>GitHub</span>

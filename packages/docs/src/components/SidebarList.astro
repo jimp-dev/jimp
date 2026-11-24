@@ -1,7 +1,7 @@
 ---
-import type { Props as StarlightProps } from "@astrojs/starlight/props";
+import type { StarlightRouteData } from "@astrojs/starlight/route-data";
 
-type Entry = StarlightProps["sidebar"][number];
+type Entry = StarlightRouteData["sidebar"][number];
 
 interface Props {
   entries: Entry[];
