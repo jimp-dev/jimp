@@ -1153,7 +1153,7 @@ export function createJimp<
         options
       );
 
-      // Some encoders (e.g. jpeg-js outside of CommonJS) return a plain Uint8Array
+      // Some encoders return a plain Uint8Array
       let buffer = Buffer.isBuffer(data)
         ? data
         : Buffer.from(data.buffer, data.byteOffset, data.byteLength);

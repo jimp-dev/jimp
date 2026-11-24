@@ -16,6 +16,7 @@
   "scripts": {
     "lint": "eslint .",
     "test": "vitest",
+    "test:browser": "vitest --config vitest.config.browser.mjs",
     "build": "tshy",
     "dev": "tshy --watch",
     "clean": "rimraf node_modules .tshy .tshy-build dist .turbo"
@@ -52,6 +53,7 @@
     "@vitest/browser": "^5.1.1",
     "@vitest/browser-playwright": "^5.1.1",
     "eslint": "^10.15.0",
+    "playwright": "^1.65.1",
     "tshy": "~4.0.0",
     "typescript": "^7.0.2",
     "vitest": "^5.1.1"

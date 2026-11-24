@@ -14,11 +14,13 @@ const sha256 = (data: Buffer) =>
   createHash("sha256").update(data).digest("hex");
 
 describe("Dither", () => {
-  // Hashes of dither() output before options were added
+  // Hashes of dither() output before options were added. cops.jpg's changed
+  // when JPEG decoding started matching libjpeg-turbo: with the pixels of
+  // jpeg-js, the old decoder, dither() still gives 52f4bd92...
   test.each([
     [
       "cops.jpg",
-      "52f4bd9246f91bd2f69aaf38a595eb9adbbc3e3794226522af26d240d45d931a",
+      "5bbc1e969b52ba77d6f8d8138149f0df1076350ceabab02c68ea3f9e422953fa",
     ],
     [
       "dice.png",

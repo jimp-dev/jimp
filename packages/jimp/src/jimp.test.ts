@@ -67,7 +67,7 @@ describe("getBuffer", () => {
       formats: [
         () => ({
           ...png(),
-          // Like jpeg-js when it isn't loaded as CommonJS
+          // Like encoders that build their output in a Uint8Array
           encode: async (bitmap) =>
             new Uint8Array(await png().encode(bitmap)) as Buffer,
         }),

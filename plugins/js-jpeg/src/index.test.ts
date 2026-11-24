@@ -7,20 +7,21 @@ import jpeg from "./index.js";
 const jimp = createJimp({ formats: [jpeg] });
 
 describe("JPEG", () => {
+  // The pixels libjpeg-turbo's djpeg decodes
   test("load JPG", async () => {
     const image = await jimp.read(getTestImagePath("cops.jpg"));
 
-    expect(image.getPixelColor(10, 10)).toBe(0x3f4a02ff);
-    expect(image.getPixelColor(220, 190)).toBe(0x5d94b6ff);
-    expect(image.getPixelColor(350, 130)).toBe(0xdf7944ff);
+    expect(image.getPixelColor(10, 10)).toBe(0x3f4b03ff);
+    expect(image.getPixelColor(220, 190)).toBe(0x5e94b6ff);
+    expect(image.getPixelColor(350, 130)).toBe(0xdf7a44ff);
   });
 
   test("load JPG with fill bytes", async () => {
     const image = await jimp.read(getTestImagePath("fillbytes.jpg"));
 
-    expect(image.getPixelColor(10, 10)).toBe(0xaeb8c3ff);
-    expect(image.getPixelColor(220, 190)).toBe(0x262b21ff);
-    expect(image.getPixelColor(350, 130)).toBe(0x4e5d30ff);
+    expect(image.getPixelColor(10, 10)).toBe(0xafb9c5ff);
+    expect(image.getPixelColor(220, 190)).toBe(0x262c20ff);
+    expect(image.getPixelColor(350, 130)).toBe(0x4d5d30ff);
   });
 
   test("export JPG", async () => {

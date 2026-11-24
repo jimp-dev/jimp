@@ -58,8 +58,8 @@
   "type": "module",
   "dependencies": {
     "@jimp/core": "workspace:*",
-    "@jimp/types": "workspace:*",
-    "jpeg-js": "^0.4.4"
+    "@jimp/jpeg-js": "workspace:*",
+    "@jimp/types": "workspace:*"
   },
   "publishConfig": {
     "access": "public"

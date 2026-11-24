@@ -13,6 +13,7 @@ export {
   type JpegImage,
 } from "./decode.js";
 export {
+  type ChromaSubsampling,
   encodeJpeg,
   type EncodeJpegOptions,
   type RawImageData,
