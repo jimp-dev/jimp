@@ -656,6 +656,42 @@ importers:
         specifier: ^5.1.1
         version: 5.1.1(@types/node@22.20.5)(@vitest/browser-playwright@5.1.1)(@vitest/ui@5.1.1)(vite@8.3.8(@types/node@22.20.5)(esbuild@0.28.2)(terser@5.51.4)(yaml@2.9.1))
 
+  packages/jpeg-js:
+    devDependencies:
+      '@jimp/config-eslint':
+        specifier: workspace:*
+        version: link:../config-eslint
+      '@jimp/config-typescript':
+        specifier: workspace:*
+        version: link:../config-typescript
+      '@types/node':
+        specifier: ^22.20.5
+        version: 22.20.5
+      '@vitest/browser':
+        specifier: ^5.1.1
+        version: 5.1.1(vite@8.3.8(@types/node@22.20.5)(esbuild@0.28.2)(terser@5.51.4)(yaml@2.9.1))(vitest@5.1.1)
+      '@vitest/browser-playwright':
+        specifier: ^5.1.1
+        version: 5.1.1(playwright@1.65.1)(vite@8.3.8(@types/node@22.20.5)(esbuild@0.28.2)(terser@5.51.4)(yaml@2.9.1))(vitest@5.1.1)
+      eslint:
+        specifier: ^10.15.0
+        version: 10.15.0(supports-color@7.2.0)
+      jpeg-js:
+        specifier: ^0.4.4
+        version: 0.4.4
+      playwright:
+        specifier: ^1.65.1
+        version: 1.65.1
+      tshy:
+        specifier: ~4.0.0
+        version: 4.0.0
+      typescript:
+        specifier: ^7.0.2
+        version: 7.0.2
+      vitest:
+        specifier: ^5.1.1
+        version: 5.1.1(@types/node@22.20.5)(@vitest/browser-playwright@5.1.1)(@vitest/ui@5.1.1)(vite@8.3.8(@types/node@22.20.5)(esbuild@0.28.2)(terser@5.51.4)(yaml@2.9.1))
+
   packages/pngjs:
     dependencies:
       pako:
@@ -962,12 +998,12 @@ importers:
       '@jimp/core':
         specifier: workspace:*
         version: link:../../packages/core
+      '@jimp/jpeg-js':
+        specifier: workspace:*
+        version: link:../../packages/jpeg-js
       '@jimp/types':
         specifier: workspace:*
         version: link:../../packages/types
-      jpeg-js:
-        specifier: ^0.4.4
-        version: 0.4.4
     devDependencies:
       '@jimp/config-eslint':
         specifier: workspace:*

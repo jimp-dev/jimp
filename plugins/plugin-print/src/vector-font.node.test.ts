@@ -279,11 +279,27 @@ describe("vector font snapshots", () => {
 });
 
 test("lays out a long paragraph quickly", () => {
-  const text = "The quick brown fox jumps over the lazy dog. ".repeat(500);
-  const image = new Jimp({ width: 1000, height: 1000, color: 0xffffffff });
-  const start = performance.now();
+  // Fastest of a few runs, in ms, to print the sentence `repeat` times
+  const time = (repeat: number) => {
+    const text = "The quick brown fox jumps over the lazy dog. ".repeat(repeat);
+    let fastest = Infinity;
 
-  image.print({ font: inter, size: 16, x: 0, y: 0, text, maxWidth: 1000 });
+    for (let run = 0; run < 3; run++) {
+      const image = new Jimp({ width: 1000, height: 1000, color: 0xffffffff });
+      const start = performance.now();
 
-  expect(performance.now() - start).toBeLessThan(2000);
-});
+      image.print({ font: inter, size: 16, x: 0, y: 0, text, maxWidth: 1000 });
+      fastest = Math.min(fastest, performance.now() - start);
+    }
+
+    return fastest;
+  };
+
+  time(10);
+
+  // 8 times the text takes about 4 times as long (there's fixed work), where
+  // quadratic layout would take 64 times. Comparing times instead of a fixed
+  // limit holds on CI machines, which are much slower and busy with other
+  // packages' tests.
+  expect(time(400)).toBeLessThan(time(50) * 20);
+}, 60_000);

@@ -52,20 +52,20 @@ A 100 megapixel limit allows a 10,000 × 10,000 image.
 | -------------------- | ------- | --------------------------------------------------------------------------------------------- |
 | `maxResolutionInMP`  | `100`   | Largest image, in megapixels, that will be decoded.                                           |
 | `maxMemoryUsageInMB` | `512`   | Largest amount of memory, in megabytes, the decoder may allocate.                             |
-| `tolerantDecoding`   | `true`  | Decode corrupt or truncated files as far as possible instead of throwing.                     |
+| `tolerantDecoding`   | `true`  | Decode corrupt files as far as possible instead of throwing.                                  |
+| `allowTruncated`     | `false` | Decode files that were cut off, leaving the missing part gray, instead of throwing.           |
 | `colorTransform`     | auto    | Whether to convert from YCbCr to RGB. By default this is chosen from the image's color model. |
 
-A large JPEG usually hits `maxMemoryUsageInMB` before `maxResolutionInMP`, so raise both.
-The decoder counts its working buffers as well as the pixels, which can come to about 21 MB per megapixel.
-The default of 512 MB is enough for about 24 megapixels, and a 100 megapixel JPEG needs more than 2,048 MB:
+A large JPEG can hit `maxMemoryUsageInMB` before `maxResolutionInMP`.
+The decoder counts its working buffers as well as the pixels: about 5.5 MB per megapixel for a typical photo (a baseline JPEG with 4:2:0 subsampling), and up to 13 MB for a progressive JPEG without subsampling (16 MB if it's a rare 12-bit one).
+So the default of 512 MB is enough for any JPEG of up to 32 megapixels, and for most photos of up to 90:
 
 | Largest JPEG to read | `maxResolutionInMP` | `maxMemoryUsageInMB` |
 | -------------------- | ------------------- | -------------------- |
-| 24 megapixels        | `100` (default)     | `512` (default)      |
-| 40 megapixels        | `100` (default)     | `1024`               |
-| 100 megapixels       | `100` (default)     | `4096`               |
-| 150 megapixels       | `150`               | `4096`               |
-| 250 megapixels       | `250`               | `8192`               |
+| 32 megapixels        | `100` (default)     | `512` (default)      |
+| 100 megapixels       | `100` (default)     | `2048`               |
+| 150 megapixels       | `150`               | `3072`               |
+| 250 megapixels       | `250`               | `4096`               |
 
 The limit isn't memory Jimp sets aside: a JPEG only uses what it needs, so a higher limit doesn't slow down smaller images. It does let larger files through, so keep it as low as your images allow if you read untrusted uploads.
 
