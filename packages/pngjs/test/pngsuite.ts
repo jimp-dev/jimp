@@ -2,7 +2,7 @@ import { readFileSync, readdirSync } from "node:fs";
 import { gunzipSync } from "node:zlib";
 import { expect, test } from "vitest";
 
-import { PNG, decode } from "../src/index.js";
+import { PNG, decode, encode } from "../src/index.js";
 
 const dir = new URL("./pngsuite/", import.meta.url);
 
@@ -62,6 +62,21 @@ export function testPngSuite() {
     ).toBe(0);
     expect(countDifferences(decode(data).data, reference8)).toBe(0);
     expect(countDifferences(PNG.sync.read(data).data, reference8)).toBe(0);
+  });
+
+  test.each(validImages)("round-trips %s", (name) => {
+    const image = decode(readImage(name));
+    const image16 = decode(readImage(name), { outputDepth: 16 });
+    const expected = [...image.data];
+
+    expect([...decode(encode(image)).data]).toEqual(expected);
+    expect([...decode(encode(image, { interlace: true })).data]).toEqual(
+      expected,
+    );
+    expect([...PNG.sync.read(PNG.sync.write(image)).data]).toEqual(expected);
+    expect([
+      ...decode(encode(image16), { outputDepth: 16 }).data,
+    ]).toEqual([...image16.data]);
   });
 
   test.each(corruptImages)("rejects %s with an Error", (name) => {

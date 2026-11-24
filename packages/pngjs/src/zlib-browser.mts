@@ -19,8 +19,19 @@ export const inflateRaw = inflateRawJs;
 
 /** Compresses data to a zlib stream */
 export function deflate(data: Uint8Array, options: DeflateOptions) {
-  return pakoDeflate(data, {
-    ...options,
-    strategy: options.strategy as Z_Strategy | undefined,
-  });
+  const { level, strategy, windowBits, memLevel, chunkSize } = options;
+
+  // pako's defaults are replaced by any key that's set, even to undefined
+  return pakoDeflate(
+    data,
+    Object.fromEntries(
+      Object.entries({
+        level,
+        strategy: strategy as Z_Strategy | undefined,
+        windowBits,
+        memLevel,
+        chunkSize,
+      }).filter(([, value]) => value !== undefined),
+    ),
+  );
 }

@@ -15,7 +15,7 @@
     "test:browser": "vitest --config vitest.config.browser.mjs",
     "build": "tshy",
     "dev": "tshy --watch",
-    "bench": "node --experimental-strip-types bench/bench.ts",
+    "bench": "node bench/bench.mjs",
     "clean": "rimraf node_modules .tshy .tshy-build dist .turbo"
   },
   "author": "Andrew Lisowski <lisowski54@gmail.com>",
