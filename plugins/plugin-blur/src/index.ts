@@ -282,7 +282,7 @@ export const methods = {
           rsum += image.bitmap.data[p1++]! - image.bitmap.data[p2++]!;
           gsum += image.bitmap.data[p1++]! - image.bitmap.data[p2++]!;
           bsum += image.bitmap.data[p1++]! - image.bitmap.data[p2++]!;
-          asum += image.bitmap.data[p1]! - image.bitmap.data[p2++]!;
+          asum += image.bitmap.data[p1]! - image.bitmap.data[p2]!;
 
           yi++;
         }

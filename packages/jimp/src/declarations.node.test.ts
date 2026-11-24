@@ -1,7 +1,8 @@
 import { afterAll, beforeAll, describe, expect, test } from "vitest";
 import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "fs";
 import path from "path";
-import ts from "typescript";
+// TypeScript 7 has no compiler API yet, so use the TypeScript 6 one
+import ts from "@typescript/typescript6";
 
 // types.test-d.ts checks the source. Users get the emitted .d.ts, where tsc
 // repeats the Jimp class type in several places, so this emits it and

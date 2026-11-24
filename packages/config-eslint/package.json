@@ -9,16 +9,15 @@
     "clean": "rimraf node_modules .tshy .tshy-build dist .turbo"
   },
   "devDependencies": {
-    "eslint-config-prettier": "^9.1.0",
-    "eslint-config-turbo": "^2.1.1",
-    "eslint-plugin-turbo": "^2.1.1",
-    "typescript": "^5.5.4"
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-config-turbo": "^2.11.13",
+    "eslint-plugin-turbo": "^2.11.13",
+    "typescript": "npm:@typescript/typescript6@^6.0.2"
   },
   "publishConfig": {},
   "sideEffects": false,
   "dependencies": {
-    "@eslint/js": "^9.9.1",
-    "@types/eslint__js": "^8.42.3",
-    "typescript-eslint": "^8.3.0"
+    "@eslint/js": "^10.0.1",
+    "typescript-eslint": "^8.73.0"
   }
 }

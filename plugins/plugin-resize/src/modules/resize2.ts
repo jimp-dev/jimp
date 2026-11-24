@@ -677,7 +677,7 @@ export const operations = {
         bufDst[posDst++] = bufSrc[posSrc++];
         bufDst[posDst++] = bufSrc[posSrc++];
         bufDst[posDst++] = bufSrc[posSrc++];
-        bufDst[posDst++] = bufSrc[posSrc++];
+        bufDst[posDst] = bufSrc[posSrc];
       }
     }
   },

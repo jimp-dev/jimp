@@ -14,12 +14,12 @@
   "devDependencies": {
     "@jimp/config-typescript": "workspace:*",
     "@jimp/test-utils": "workspace:*",
-    "eslint": "^9.9.1",
-    "typescript": "^5.5.4",
-    "vitest": "^4.1.12"
+    "eslint": "^10.15.0",
+    "typescript": "^7.0.2",
+    "vitest": "^5.1.1"
   },
   "dependencies": {
-    "@vitest/browser-playwright": "^4.1.12",
+    "@vitest/browser-playwright": "^5.1.1",
     "playwright": "^1.65.1",
     "vite-plugin-node-polyfills": "^0.28.0"
   },

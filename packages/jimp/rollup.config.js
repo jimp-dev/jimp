@@ -114,7 +114,9 @@ export default [
       bufferV6Plugin(),
       nodePolyfills(),
       nodeResolve({ browser: true, preferBuiltins: false }),
-      commonjs(),
+      // The default before v27. With `true`, the `Buffer` named export of
+      // buffer v6 (see bufferV6Plugin) can't be found.
+      commonjs({ strictRequires: "auto" }),
       inject({ Buffer: ["buffer", "Buffer"] }),
 
       // Use the browser version of some packages

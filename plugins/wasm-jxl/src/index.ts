@@ -204,7 +204,11 @@ async function encodeJxl(
       {
         width,
         height,
-        data: new Uint8ClampedArray(data.buffer, data.byteOffset, data.length),
+        data: new Uint8ClampedArray(
+          data.buffer as ArrayBuffer,
+          data.byteOffset,
+          data.length,
+        ),
         // ImageData needs one, but the codec only reads the pixels
         colorSpace: "srgb",
       },

@@ -2,7 +2,8 @@ import { afterAll, beforeAll, describe, expect, test } from "vitest";
 import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "fs";
 import { createRequire } from "module";
 import path from "path";
-import ts from "typescript";
+// TypeScript 7 has no compiler API yet, so use the TypeScript 6 one
+import ts from "@typescript/typescript6";
 
 import * as esm from "./index.js";
 import { Edge, Jimp } from "./index.js";
