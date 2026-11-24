@@ -3,7 +3,7 @@ import path from "node:path";
 import { createJimp } from "@jimp/core";
 import { Format } from "@jimp/types";
 
-import { defaultFormats, Jimp } from "./index.js";
+import { defaultFormats, Jimp, JimpInstance } from "./index.js";
 
 const image = new Jimp({ width: 1, height: 1 });
 
@@ -101,5 +101,62 @@ describe("write", () => {
     image.write("./output/image.v2.png", { quality: 50 });
     // @ts-expect-error PNG doesn't take a JPEG quality
     image.write(`${dir}/image.png`, { quality: 50 });
+  });
+});
+
+describe("frames", () => {
+  test("readFrames returns Jimp instances", async () => {
+    const { frames, loop } = await Jimp.readFrames("animation.gif");
+    const fromBuffer = await Jimp.fromBufferFrames(Buffer.alloc(0));
+
+    expectTypeOf(frames[0]!.image).toEqualTypeOf<JimpInstance>();
+    expectTypeOf(fromBuffer.frames[0]!.image).toEqualTypeOf<JimpInstance>();
+    expectTypeOf(frames[0]!.delay).toEqualTypeOf<number | undefined>();
+    expectTypeOf(loop).toEqualTypeOf<number | null | undefined>();
+    frames[0]!.image.resize({ w: 1 });
+
+    Jimp.readFrames("animation.gif", {
+      maxFrames: 10,
+      "image/gif": { maxResolutionInMP: 500 },
+    });
+    // @ts-expect-error maxFrames is a number
+    Jimp.readFrames("animation.gif", { maxFrames: "10" });
+  });
+
+  test("encodeFrames takes images, frames and each format's options", async () => {
+    const { frames, loop } = await Jimp.readFrames("animation.gif");
+
+    expectTypeOf(
+      Jimp.encodeFrames("image/gif", frames, { loop }),
+    ).toEqualTypeOf<Promise<Buffer>>();
+    Jimp.encodeFrames("image/gif", [image, { image, delay: 100 }]);
+    Jimp.encodeFrames("image/gif", [image], { loop: null });
+    Jimp.encodeFrames("image/tiff", [image, image]);
+    // Single-frame formats take their encode options
+    Jimp.encodeFrames("image/jpeg", [image], { quality: 50 });
+
+    // @ts-expect-error loop is a number or null
+    Jimp.encodeFrames("image/gif", [image], { loop: "forever" });
+    // @ts-expect-error TIFF frames have no options
+    Jimp.encodeFrames("image/tiff", [image], { loop: 0 });
+    // @ts-expect-error PNG doesn't take a loop count
+    Jimp.encodeFrames("image/png", [image], { loop: 0 });
+    // @ts-expect-error delay is a number
+    Jimp.encodeFrames("image/gif", [{ image, delay: "100" }]);
+    // @ts-expect-error unsupported MIME type
+    Jimp.encodeFrames("image/webp", [image]);
+  });
+
+  test("writeFrames narrows options for literal paths", () => {
+    const output: string = path.join("output", "animation.gif");
+
+    expectTypeOf(Jimp.writeFrames("out.gif", [image])).toEqualTypeOf<
+      Promise<void>
+    >();
+    Jimp.writeFrames("out.gif", [image], { loop: 2 });
+    Jimp.writeFrames("out.tif", [image]);
+    Jimp.writeFrames(output, [image], { loop: 2 });
+    // @ts-expect-error TIFF frames have no options
+    Jimp.writeFrames("out.tiff", [image], { loop: 2 });
   });
 });

@@ -19,12 +19,48 @@ export interface Bitmap {
   height: number;
 }
 
+/** One frame of an animated image, or one page of a multi-page image */
+export interface BitmapFrame {
+  bitmap: Bitmap;
+  /**
+   * How long the frame is shown before the next one, in milliseconds.
+   * Undefined for formats without timing, like TIFF pages.
+   */
+  delay?: number;
+}
+
+/** Every frame of an animated or multi-page image */
+export interface DecodedFrames {
+  /**
+   * The frames in order. Each is a complete image: frames that only update
+   * part of an animation have already been drawn over the previous ones.
+   */
+  frames: BitmapFrame[];
+  /**
+   * How many times an animation repeats after it first plays, 0 for forever.
+   * `null` when the image says nothing, so it plays once. Undefined for
+   * formats without animation.
+   */
+  loop?: number | null;
+}
+
+/** Options for `decodeFrames` that apply to every format */
+export interface DecodeFramesOptions {
+  /**
+   * Only decode this many frames, from the start.
+   * @default Infinity
+   */
+  maxFrames?: number;
+}
+
 export interface Format<
   Mime extends string = string,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   ExportOptions extends Record<string, any> | undefined = undefined,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   DecodeOptions extends Record<string, any> | undefined = undefined,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  EncodeFramesOptions extends Record<string, any> | undefined = undefined,
 > {
   mime: Mime;
   hasAlpha?: boolean;
@@ -37,6 +73,20 @@ export interface Format<
   detect?: (data: Buffer) => boolean;
   encode: (image: Bitmap, options?: ExportOptions) => Promise<Buffer> | Buffer;
   decode: (data: Buffer, options?: DecodeOptions) => Promise<Bitmap> | Bitmap;
+  /**
+   * Decodes every frame of an animated or multi-page image. Formats without
+   * it only have one frame, which `decode` returns.
+   */
+  decodeFrames?: (
+    data: Buffer,
+    options?: DecodeOptions,
+    framesOptions?: DecodeFramesOptions
+  ) => Promise<DecodedFrames> | DecodedFrames;
+  /** Encodes an animated or multi-page image */
+  encodeFrames?: (
+    frames: BitmapFrame[],
+    options?: EncodeFramesOptions
+  ) => Promise<Buffer> | Buffer;
 }
 
 /** The colour spaces jimp can create images in and convert to */

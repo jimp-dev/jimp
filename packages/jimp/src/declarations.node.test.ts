@@ -85,6 +85,16 @@ export async function check() {
   await read.getBuffer("image/webp");
 
   await read.write("out.jpeg", { quality: 50 });
+
+  const { frames, loop } = await Jimp.readFrames("animation.gif", { maxFrames: 2 });
+  const frame: JimpInstance = frames[0]!.image;
+  const frameNotAny: false = false as IsAny<typeof frame>;
+  void frameNotAny;
+  constructed = frame;
+  await Jimp.writeFrames("out.gif", [frame, { image: read, delay: 100 }], { loop });
+  // @ts-expect-error TIFF frames have no options
+  await Jimp.encodeFrames("image/tiff", frames, { loop: 0 });
+
   return notAny;
 }
 `;

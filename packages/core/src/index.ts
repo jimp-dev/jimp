@@ -96,6 +96,35 @@ const unregisteredMime = new Mime({
 /** Strings that are fetched rather than read from the file system */
 const URL_PATTERN = /^(https?|data|blob):/i;
 
+/** Read a file path or fetch a URL. Other input is returned as is. */
+async function loadInput(url: string | ImageInput): Promise<ImageInput> {
+  if (typeof url !== "string") {
+    return url;
+  }
+
+  if (hasFileSystem && !URL_PATTERN.test(url)) {
+    return readFile(url);
+  }
+
+  const [fetchErr, response] = await to(fetch(url));
+
+  if (fetchErr) {
+    throw new Error(`Could not load Buffer from URL: ${url}`);
+  }
+
+  if (!response.ok) {
+    throw new Error(`HTTP Status ${response.status} for url ${url}`);
+  }
+
+  const [arrayBufferErr, data] = await to(response.arrayBuffer());
+
+  if (arrayBufferErr) {
+    throw new Error(`Could not load Buffer from ${url}`);
+  }
+
+  return bufferFromArrayBuffer(data);
+}
+
 async function detectFileTypeFromBuffer(buffer: Buffer | ArrayBuffer) {
   const { fileTypeFromBuffer } = await import("file-type");
   return fileTypeFromBuffer(
@@ -316,6 +345,66 @@ export interface ReadOptions {
  */
 export type CreateReadOptions<MimeTypeToDecodeOptions> = ReadOptions &
   Partial<UnionToIntersection<MimeTypeToDecodeOptions>>;
+
+/** Options for `Jimp.readFrames` and `Jimp.fromBufferFrames` */
+export interface ReadFramesOptions extends ReadOptions {
+  /**
+   * Only decode this many frames (or pages), from the start. Use it to read
+   * the start of a long animation without decoding all of it.
+   * @default Infinity
+   */
+  maxFrames?: number;
+}
+/**
+ * The options `Jimp.readFrames` and `Jimp.fromBufferFrames` take:
+ * `ReadFramesOptions` and each format's decode options under its MIME type.
+ */
+export type CreateReadFramesOptions<MimeTypeToDecodeOptions> =
+  ReadFramesOptions & Partial<UnionToIntersection<MimeTypeToDecodeOptions>>;
+
+/** One frame of an animated image, or one page of a multi-page image */
+export interface JimpFrame<Image = JimpClass> {
+  image: Image;
+  /**
+   * How long the frame is shown before the next one, in milliseconds.
+   * Undefined for formats without timing, like TIFF pages and single-frame
+   * formats.
+   */
+  delay?: number;
+}
+
+/** What `Jimp.readFrames` and `Jimp.fromBufferFrames` return */
+export interface JimpFrames<Image = JimpClass> {
+  /**
+   * Every frame, in order. Each is a complete image: GIF frames that only
+   * update part of the animation are drawn over the previous ones,
+   * following their disposal methods.
+   */
+  frames: JimpFrame<Image>[];
+  /**
+   * How many times a GIF animation repeats after it first plays, 0 for
+   * forever, or `null` when the GIF has no loop count, so it plays once.
+   * Undefined for other formats.
+   */
+  loop?: number | null;
+}
+
+/** A frame for `Jimp.encodeFrames`: an image, or an image and its delay */
+export type FrameInput = JimpClass | JimpFrame;
+
+/**
+ * The options `Jimp.encodeFrames` takes for each format: its `encodeFrames`
+ * options, or for formats that only have one frame, its encode options.
+ */
+export type CreateMimeTypeToEncodeFramesOptions<T extends Format<string, any>> =
+  T extends Format<infer M, infer O, any, infer F>
+    ? Record<
+        M,
+        T extends { encodeFrames: any }
+          ? DeclaredOptions<F>
+          : DeclaredOptions<O>
+      >
+    : never;
 export type GetOptionsForMimeType<Mime extends string, MimeTypeMap> =
   MimeTypeMap extends Record<Mime, infer O> ? O : never;
 type ExportOptions<MimeTypeMap> =
@@ -393,10 +482,117 @@ export function createJimp<
     ReturnType<Formats[number]>
   >;
   type JimpReadOptions = CreateReadOptions<MimeTypeToDecodeOptions>;
+  type JimpReadFramesOptions = CreateReadFramesOptions<MimeTypeToDecodeOptions>;
+  type MimeTypeToEncodeFramesOptions = CreateMimeTypeToEncodeFramesOptions<
+    ReturnType<Formats[number]>
+  >;
   type ExtensionToMimeType = CreateExtensionToMimeType<SupportedMimeTypes>;
 
   const plugins = pluginsArg || [];
   const formats = (formatsArg || []).map((format) => format());
+
+  /** Find the format of encoded image data */
+  async function detectFormat(buffer: Buffer) {
+    const mime = (await detectFileTypeFromBuffer(buffer))?.mime;
+    const format =
+      formats.find((format) => format.mime === mime) ??
+      // Text-based formats like SVG, which file-type finds nothing (or
+      // application/xml) for
+      formats.find((format) => format.detect?.(buffer));
+
+    if (!format && !mime) {
+      throw new Error("Could not find MIME for Buffer");
+    }
+
+    if (!format || !format.decode) {
+      throw new Error(`Mime type ${mime} does not support decoding`);
+    }
+
+    return format;
+  }
+
+  /** Set the MIME type, EXIF data and ICC profile of a decoded image */
+  function readMetadata(
+    image: InstanceType<typeof CustomJimp>,
+    format: Format<any>,
+    buffer: Buffer,
+    options: ReadOptions | undefined
+  ) {
+    image.mime = format.mime;
+    readExif(image, buffer, { rotate: options?.exifRotate ?? true });
+    image.iccProfile = readIccProfile(buffer);
+  }
+
+  /**
+   * The pixels to encode an image with: composited over its background for
+   * formats without alpha, and converted to sRGB unless the image's ICC
+   * profile will be written. The image itself isn't changed.
+   */
+  function toOutputBitmap(
+    image: JimpClass,
+    format: Format<any>,
+    writeProfile: boolean
+  ): Bitmap {
+    let bitmap = image.bitmap;
+
+    if (!format.hasAlpha) {
+      const background = new CustomJimp({
+        width: bitmap.width,
+        height: bitmap.height,
+        color: image.background,
+      });
+      // The background is a pixel value in the image's colour space too
+      background.iccProfile = image.iccProfile;
+
+      composite(background, image);
+      bitmap = background.bitmap;
+    }
+
+    // Output without the profile would be shown as sRGB, so convert it
+    const toSrgb = writeProfile
+      ? undefined
+      : createColorConverter(getColorSpace(image), SRGB);
+
+    if (toSrgb) {
+      if (bitmap === image.bitmap) {
+        bitmap = { ...bitmap, data: Buffer.from(bitmap.data) };
+      }
+
+      toSrgb(bitmap.data);
+    }
+
+    return bitmap;
+  }
+
+  /** Check the frames passed to `encodeFrames` */
+  function toFrames(frames: FrameInput[]): JimpFrame[] {
+    if (!Array.isArray(frames) || frames.length === 0) {
+      throw new Error("encodeFrames needs an array of at least one frame");
+    }
+
+    return frames.map((frame, i) => {
+      const object = (
+        typeof frame === "object" && frame !== null ? frame : {}
+      ) as JimpClass | Partial<JimpFrame>;
+      const { image, delay }: Partial<JimpFrame> =
+        "bitmap" in object ? { image: object } : object;
+
+      if (!image || !image.bitmap) {
+        throw new Error(
+          `Frame ${i} must be a Jimp image or an object with an image and an optional delay`
+        );
+      }
+
+      if (
+        delay !== undefined &&
+        (typeof delay !== "number" || Number.isNaN(delay))
+      ) {
+        throw new Error(`Frame ${i}'s delay must be a number of milliseconds`);
+      }
+
+      return { image, delay };
+    });
+  }
 
   const CustomJimp = class Jimp implements JimpClass {
     /**
@@ -511,32 +707,102 @@ export function createJimp<
       url: string | ImageInput,
       options?: JimpReadOptions
     ): Promise<Instance> {
-      if (typeof url !== "string") {
-        return this.fromBuffer(url, options);
+      return this.fromBuffer(await loadInput(url), options);
+    }
+
+    /**
+     * Read every frame of an animated GIF or page of a multi-page TIFF from
+     * a URL, a file path or encoded image data, like `read`.
+     *
+     * Each GIF frame is a complete image: frames that only update part of
+     * the animation are drawn over the previous ones, following their
+     * disposal methods (frames disposed to the background are cleared to
+     * transparent, as browsers do). TIFF pages keep their own sizes.
+     * Other formats return a single frame.
+     *
+     * A format's `maxResolutionInMP` limits the size of all decoded frames
+     * together, so pass `maxFrames` to read the start of a long animation.
+     * @example
+     * ```ts
+     * import { Jimp } from "jimp";
+     *
+     * const { frames, loop } = await Jimp.readFrames("animation.gif");
+     *
+     * for (const { image } of frames) {
+     *   image.greyscale();
+     * }
+     *
+     * await Jimp.writeFrames("grey.gif", frames, { loop });
+     *
+     * // Only the first 10 frames
+     * const start = await Jimp.readFrames("animation.gif", { maxFrames: 10 });
+     * ```
+     * @param url the URL, path or data to read
+     * @param options `maxFrames`, `exifRotate` and each format's decode
+     * options, keyed by MIME type
+     */
+    static async readFrames(
+      url: string | ImageInput,
+      options?: JimpReadFramesOptions
+    ): Promise<JimpFrames<Instance>> {
+      return this.fromBufferFrames(await loadInput(url), options);
+    }
+
+    /**
+     * Decode every frame of an animated GIF or page of a multi-page TIFF.
+     * See `readFrames`.
+     * @param buffer Encoded image data: a Buffer, ArrayBuffer, Uint8Array (or
+     * other ArrayBuffer view) or Blob
+     * @param options `maxFrames`, `exifRotate` and each format's decode
+     * options, keyed by MIME type
+     * @example
+     * ```ts
+     * import { Jimp } from "jimp";
+     * import { readFile } from "node:fs/promises";
+     *
+     * const { frames } = await Jimp.fromBufferFrames(
+     *   await readFile("scan.tiff")
+     * );
+     * ```
+     */
+    static async fromBufferFrames(
+      buffer: ImageInput,
+      options?: JimpReadFramesOptions
+    ): Promise<JimpFrames<Instance>> {
+      const maxFrames = Math.floor(options?.maxFrames ?? Infinity);
+
+      if (!(maxFrames >= 1)) {
+        throw new Error("maxFrames must be at least 1");
       }
 
-      if (hasFileSystem && !URL_PATTERN.test(url)) {
-        return this.fromBuffer(await readFile(url), options);
+      const actualBuffer = await toBuffer(buffer);
+      const format = await detectFormat(actualBuffer);
+      const formatOptions = (options as Record<string, any> | undefined)?.[
+        format.mime
+      ];
+
+      if (!format.decodeFrames) {
+        return {
+          frames: [{ image: await this.fromBuffer(actualBuffer, options) }],
+        };
       }
 
-      const [fetchErr, response] = await to(fetch(url));
+      const { frames, loop } = await format.decodeFrames(
+        actualBuffer,
+        formatOptions,
+        { maxFrames }
+      );
 
-      if (fetchErr) {
-        throw new Error(`Could not load Buffer from URL: ${url}`);
-      }
+      return {
+        frames: frames.map(({ bitmap, delay }) => {
+          const image = new CustomJimp(bitmap) as Instance;
 
-      if (!response.ok) {
-        throw new Error(`HTTP Status ${response.status} for url ${url}`);
-      }
+          readMetadata(image, format, actualBuffer, options);
 
-      const [arrayBufferErr, data] = await to(response.arrayBuffer());
-
-      if (arrayBufferErr) {
-        throw new Error(`Could not load Buffer from ${url}`);
-      }
-
-      const buffer = bufferFromArrayBuffer(data);
-      return this.fromBuffer(buffer, options);
+          return delay === undefined ? { image } : { image, delay };
+        }),
+        ...(loop === undefined ? {} : { loop }),
+      };
     }
 
     /**
@@ -595,22 +861,7 @@ export function createJimp<
       options?: JimpReadOptions
     ): Promise<Instance> {
       const actualBuffer = await toBuffer(buffer);
-
-      const mime = (await detectFileTypeFromBuffer(actualBuffer))?.mime;
-      const format =
-        formats.find((format) => format.mime === mime) ??
-        // Text-based formats like SVG, which file-type finds nothing (or
-        // application/xml) for
-        formats.find((format) => format.detect?.(actualBuffer));
-
-      if (!format && !mime) {
-        throw new Error("Could not find MIME for Buffer");
-      }
-
-      if (!format || !format.decode) {
-        throw new Error(`Mime type ${mime} does not support decoding`);
-      }
-
+      const format = await detectFormat(actualBuffer);
       const image = new CustomJimp(
         await format.decode(
           actualBuffer,
@@ -618,12 +869,144 @@ export function createJimp<
         )
       ) as Instance;
 
-      image.mime = format.mime;
-
-      readExif(image, actualBuffer, { rotate: options?.exifRotate ?? true });
-      image.iccProfile = readIccProfile(actualBuffer);
+      readMetadata(image, format, actualBuffer, options);
 
       return image;
+    }
+
+    /**
+     * Encode frames as an animated GIF or a multi-page TIFF.
+     *
+     * Frames are Jimp images, or `{ image, delay }` objects like those
+     * `readFrames` returns, with the delay in milliseconds (GIF rounds it to
+     * hundredths of a second, default 100ms). Every GIF frame must be the
+     * same size; TIFF pages can differ. Formats without animation take a
+     * single frame and throw for more.
+     * @param mime The MIME type to encode to
+     * @param frames The frames, in order
+     * @param options The format's options, e.g. `loop` for GIF: how many
+     * times the animation repeats after it first plays, 0 (the default) for
+     * forever or `null` to play once
+     * @example
+     * ```ts
+     * import { Jimp } from "jimp";
+     *
+     * const red = new Jimp({ width: 10, height: 10, color: 0xff0000ff });
+     * const blue = new Jimp({ width: 10, height: 10, color: 0x0000ffff });
+     *
+     * const gif = await Jimp.encodeFrames(
+     *   "image/gif",
+     *   [
+     *     { image: red, delay: 500 },
+     *     { image: blue, delay: 250 },
+     *   ],
+     *   { loop: 0 }
+     * );
+     *
+     * const tiff = await Jimp.encodeFrames("image/tiff", [red, blue]);
+     * ```
+     */
+    static async encodeFrames<ProvidedMimeType extends SupportedMimeTypes>(
+      mime: ProvidedMimeType,
+      frames: FrameInput[],
+      options?: GetOptionsForMimeType<
+        ProvidedMimeType,
+        MimeTypeToEncodeFramesOptions
+      >
+    ): Promise<Buffer> {
+      const format = formats.find((format) => format.mime === mime);
+
+      if (!format || !format.encode) {
+        throw new Error(`Unsupported MIME type: ${mime}`);
+      }
+
+      const checkedFrames = toFrames(frames);
+
+      if (!format.encodeFrames) {
+        if (checkedFrames.length > 1) {
+          const supported = formats
+            .filter((format) => format.encodeFrames)
+            .map((format) => format.mime);
+
+          throw new Error(
+            `${mime} can't hold more than one frame, but got ${checkedFrames.length}. Formats that can: ${supported.join(", ") || "none"}`
+          );
+        }
+
+        const { image } = checkedFrames[0]!;
+        const jimp =
+          image instanceof CustomJimp
+            ? image
+            : Object.assign(new CustomJimp(image.bitmap), {
+                background: image.background,
+                iccProfile: image.iccProfile,
+              });
+
+        return jimp.getBuffer(mime, options as any);
+      }
+
+      const data: Buffer | Uint8Array = await format.encodeFrames(
+        checkedFrames.map(({ image, delay }) => ({
+          // Multi-frame formats don't store ICC profiles
+          bitmap: toOutputBitmap(image, format, false),
+          delay,
+        })),
+        options
+      );
+
+      return Buffer.isBuffer(data)
+        ? data
+        : Buffer.from(data.buffer, data.byteOffset, data.byteLength);
+    }
+
+    /**
+     * Write frames to a file as an animated GIF or a multi-page TIFF, picking
+     * the format from the path's extension. See `encodeFrames`.
+     * @param path the path to write to
+     * @param frames The frames, in order
+     * @param options The format's options, e.g. `loop` for GIF
+     * @example
+     * ```ts
+     * import { Jimp } from "jimp";
+     *
+     * const { frames, loop } = await Jimp.readFrames("animation.gif");
+     *
+     * for (const { image } of frames) {
+     *   image.resize({ w: 100 });
+     * }
+     *
+     * await Jimp.writeFrames("small.gif", frames, { loop });
+     * await Jimp.writeFrames("pages.tiff", frames);
+     * ```
+     */
+    static async writeFrames<Path extends string>(
+      path: Path,
+      frames: FrameInput[],
+      options?: GetOptionsForPath<
+        Path,
+        ExtensionToMimeType,
+        MimeTypeToEncodeFramesOptions
+      >
+    ) {
+      const mimeType = mime.getType(path) ?? unregisteredMime.getType(path);
+
+      if (!mimeType) {
+        throw new Error(
+          `Cannot write "${path}": the path has no recognisable file extension to determine the image format`
+        );
+      }
+
+      await writeFile(
+        path,
+        await this.encodeFrames(
+          mimeType as SupportedMimeTypes,
+          frames,
+          options as GetOptionsForMimeType<
+            SupportedMimeTypes,
+            MimeTypeToEncodeFramesOptions
+          >
+        )
+      );
     }
 
     /**
@@ -765,38 +1148,8 @@ export function createJimp<
         this.iccProfile !== undefined &&
         icc !== false &&
         ICC_MIME_TYPES.has(mime);
-      let outputImage: Jimp;
-
-      if (format.hasAlpha) {
-        // eslint-disable-next-line @typescript-eslint/no-this-alias
-        outputImage = this;
-      } else {
-        outputImage = new CustomJimp({
-          width: this.bitmap.width,
-          height: this.bitmap.height,
-          color: this.background,
-        });
-        // The background is a pixel value in the image's colour space too
-        outputImage.iccProfile = this.iccProfile;
-
-        composite(outputImage, this);
-      }
-
-      // Output without the profile would be shown as sRGB, so convert it
-      const toSrgb = writeProfile
-        ? undefined
-        : createColorConverter(getColorSpace(this), SRGB);
-
-      if (toSrgb) {
-        if (outputImage === this) {
-          outputImage = this.clone();
-        }
-
-        toSrgb(outputImage.bitmap.data);
-      }
-
       const data: Buffer | Uint8Array = await format.encode(
-        outputImage.bitmap,
+        toOutputBitmap(this, format, writeProfile),
         options
       );
 

@@ -227,7 +227,9 @@ export function getTestImagePath(
     | "hands_mx200_rp255.jpg"
     | "icon.ico"
     | "icon-24.png"
-    | "icon-16.png",
+    | "icon-16.png"
+    | "animated-disposal.gif"
+    | "multipage.tiff",
 ) {
   if (typeof window !== "undefined") {
     return `/${name}`;
