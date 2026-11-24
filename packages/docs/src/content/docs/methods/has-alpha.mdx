@@ -49,7 +49,7 @@ new Jimp({ width: 10, height: 10, color: 0xffffff80 }).hasAlpha(); // true
 
 - **It looks at the pixels, not the file.** A PNG saved with an alpha channel whose pixels are all opaque returns `false`. JPEGs have no alpha channel, so a decoded JPEG always returns `false`.
 - **It stops early.** The alpha bytes are checked in order and the loop ends at the first one that isn't `255`, so images with transparency near the top return quickly. A fully opaque image is checked to the last pixel.
-- **Not every format keeps transparency.** PNG, TIFF and ICO store the alpha channel and GIF keeps fully transparent pixels, but JPEG and BMP are written without transparency. Before encoding those, Jimp draws the image over `image.background`, which is transparent black for images you read, so transparent areas usually turn black. Set `image.background = 0xffffffff` before writing to get white instead. See [Formats](/jimp/concepts/formats/).
+- **Not every format keeps transparency.** PNG and ICO store the alpha channel, but JPEG and BMP are written without transparency, GIF keeps only fully transparent pixels, and TIFF doesn't keep partly transparent pixels exactly. Before encoding JPEG, BMP, GIF or TIFF, Jimp draws the image over `image.background`, which is transparent black for images you read, so transparent areas usually turn black. Set `image.background = 0xffffffff` before writing to get white instead. See [Formats](/jimp/concepts/formats/).
 
 ## Related
 

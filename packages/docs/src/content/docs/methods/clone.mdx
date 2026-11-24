@@ -64,7 +64,7 @@ See [Chaining and async](/jimp/concepts/chaining-and-async/) for more.
 - **What's copied.** The pixel data and size, the MIME type (`image.mime`), the [`background`](/jimp/concepts/reading-and-writing/#image-properties) color, the ICC color profile and the EXIF data. So `getBuffer("image/jpeg", { exif: true })` works on a clone of a JPEG too, and a clone of a Display P3 photo is still Display P3.
 - **Cost.** Cloning copies every pixel: 4 bytes per pixel, so about 48 MB for a 12-megapixel photo. Clone once and reuse the copy rather than cloning in a loop. If you only need a smaller version, resize a clone once and work from that.
 - **Same class.** A clone of an image from a [custom Jimp](/jimp/guides/custom-jimp/) has the same plugins and formats as the original.
-- **Changed in 2.0:** `clone` copies `mime` and `background`. Before, the clone's `mime` was `undefined` and its background was reset to transparent.
+- **Changed in 2.0:** `clone` copies `mime`, `background`, the EXIF data and the ICC profile. Before, the clone's `mime` was `undefined`, its background was reset to transparent and it had no EXIF data.
 
 <Aside type="tip" title="Clone before the destructive step">
   You only need a copy of the state you want to keep. Do work that every

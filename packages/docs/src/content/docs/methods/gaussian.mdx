@@ -64,6 +64,7 @@ Drag the slider to change `r`. Unlike `blur`, fractional radii such as `0.5` or 
 - **Edges are extended.** Pixels past the border count as copies of the nearest edge pixel.
 - **Invalid radii.** A non-number throws `r must be a number`, and `0` or less throws `r must be greater than 0`. Radii below `1`, such as `0.5`, give a very light blur.
 - **Changed in 2.0:** radii between `0` and `1` used to throw. Any `r` greater than `0` now works.
+- **Changed in 2.0:** `gaussian` is a true separable Gaussian blur. It used to read pixels it had already blurred, so its output changes for every image, and colors next to transparent pixels faded toward black.
 - **The whole image.** `gaussian` has no region option. To blur part of an image, blur a cropped copy and [`composite`](/jimp/methods/composite/) it back, as with [`blur`](/jimp/methods/blur/#blur-part-of-an-image).
 
 ## Related

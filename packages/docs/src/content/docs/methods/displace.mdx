@@ -103,7 +103,7 @@ Drag `x` to change the strength of the waves, and `y` to move pixels down as wel
 ## Notes
 
 - **Gaps keep the original pixel.** Where nothing lands on a pixel (because the move grows along a row or column), it keeps its old color, which can leave thin copies of edges.
-- **Edges.** Pixels moved past an edge of the image are lost.
+- **Edges.** A pixel moved past an edge of the image lands on the nearest edge pixel instead, overwriting it.
 - **Map size.** The map is stretched to the image with nearest-neighbor sampling. Resize it yourself first, for example with [`resize`](/jimp/methods/resize/) and a `ResizeStrategy`, if you want it smoothed.
 - **Added in 2.0:** `offset: { x, y }`.
 - **Changed in 2.0:** alpha moves with the pixel, and the map is stretched to the image's size. Before, only the color moved, so images with transparency got dark streaks, and the map was read by pixel index, so a map of a different size didn't line up.

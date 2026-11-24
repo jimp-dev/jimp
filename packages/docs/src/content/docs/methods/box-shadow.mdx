@@ -102,7 +102,7 @@ Move the sliders to change the shadow. Raise `radius` to round the image's corne
 - **Transparent background.** The new area outside the shadow is transparent. Save as PNG to keep it, or composite onto an opaque background before saving as JPEG.
 - **CSS colors and color profiles.** A CSS color string is sRGB, as in CSS. On an image with a Display P3 or other [color profile](/jimp/guides/color-spaces/), it's converted to the image's color space. A number is used as raw pixel values.
 - **Validation.** `blur` and `radius` must be `0` or more; negative values throw a validation error. A `color` string that isn't a CSS color throws `Invalid color "nope"` (with your string in the quotes).
-- **Changed in 2.0:** an invalid color string used to draw a black shadow without an error.
+- **Added in 2.0.**
 
 <Aside type="tip">
   Apply `boxShadow` last. Effects applied afterwards, such as a blur, also

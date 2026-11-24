@@ -129,6 +129,7 @@ Drag `w`, turn off `keep ratio` to set `h` too, and switch strategies to compare
 - **Validation.** Negative sizes fail validation with `Too small: expected number to be >=0`, and leaving out both `w` and `h` fails with `Invalid input`. Both arrive as a zod error; see [Errors and validation](/jimp/concepts/errors-and-validation/).
 - **Added in 2.0:** the `LANCZOS`, `LANCZOS2` and `MITCHELL` strategies, and the `premultiplyAlpha` option.
 - **Changed in 2.0:** the default resizer weights colors by alpha for images with any transparent pixel. Before, enlarging darkened colors next to transparent pixels, which showed as a dark fringe around cut-out shapes. Opaque images give the same result as before.
+- **Changed in 2.0:** `BILINEAR`, `BICUBIC`, `HERMITE` and `BEZIER` weight colors by alpha too, and `BICUBIC`, `HERMITE` and `BEZIER` no longer shift the image toward the top left.
 - **Changed in 2.0:** when an opaque image keeps its height and only its width changes, the default resizer rounds its result. Before, it truncated, so some values came out one level too dark.
 - **Enlarging adds no detail.** Upscaling only interpolates between existing pixels. Resize from the largest source you have.
 - **Use `image.width` and `image.height`** for sizes based on the current image, such as `resize({ w: image.width / 2 })`, or use [`scale`](/jimp/methods/scale/) for that.

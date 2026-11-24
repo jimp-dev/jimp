@@ -75,7 +75,8 @@ Drag the slider to change `amount`. Hold the compare button to see the original.
 - **Out-of-range amounts are clamped** to `0`–`1`, so `sepia(2)` is the same as `sepia(1)`. A value that isn't a number throws a `ZodError`.
 - **Alpha is unchanged.**
 - **Other tones.** For a monochrome image in another color, use [`greyscale`](/jimp/methods/greyscale/) followed by the `mix` action of [`color`](/jimp/methods/color/).
-- Added in 2.0: the `amount` parameter. `sepia()` with no argument gives the same result as before.
+- **Added in 2.0:** the `amount` parameter. `sepia()` is the same as `sepia(1)`.
+- **Changed in 2.0:** each channel is computed from the original pixel. Before, green and blue were computed from the already-changed red, so pure red became `(100, 34, 45)` instead of `(100, 88, 69)`.
 
 ## Related
 

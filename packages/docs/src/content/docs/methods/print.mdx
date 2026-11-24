@@ -265,6 +265,7 @@ The TrueType and WOFF fonts here only have printable ASCII characters, so others
 - **Changed in 2.0:** `alignmentX` without `maxWidth` used to throw (`Invalid input: expected number, received Infinity`). It now aligns the text within the image, to the right of `x`.
 - **Changed in 2.0:** `alignmentY` without `maxHeight` used to be ignored. It now aligns the text within the image, below `y`, so `BOTTOM` moves the text to the bottom edge of the image.
 - **Changed in 2.0:** blank lines used to be collapsed, so `"a\n\nb"` printed two lines. Every line break now starts a line, and vertical alignment and `cb` count the empty lines.
+- **Changed in 2.0:** characters outside the Basic Multilingual Plane, such as emoji, print when the font has them. They used to print as `??`.
 - **Changed in 2.0:** a word that fit on a line of its own but not after the text already on the line could be split mid-word. It now moves to the next line whole. `cb`'s `x` also used to miss the widest line when that line started after a wrap or a line break.
 
 ## Related
