@@ -25,7 +25,7 @@
     "jimp": "workspace:*",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "sharp": "^0.33.5",
+    "sharp": "^0.35.5",
     "starlight-typedoc": "^0.15.0",
     "typedoc": "^0.26.6",
     "typedoc-plugin-markdown": "4.2.6",
