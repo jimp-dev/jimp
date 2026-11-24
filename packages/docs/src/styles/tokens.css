@@ -74,10 +74,10 @@
   --jp-stars: none;
 
   /* Type */
-  --jp-display: "Luckiest Guy", "Fredoka", system-ui, sans-serif;
-  --jp-ui: "Fredoka", system-ui, sans-serif;
-  --jp-body: "Nunito Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
-  --jp-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  --jp-display: var(--font-luckiest-guy);
+  --jp-ui: var(--font-fredoka);
+  --jp-body: var(--font-nunito-sans);
+  --jp-mono: var(--font-jetbrains-mono);
 
   /* Starlight */
   --sl-color-white: var(--jp-text);

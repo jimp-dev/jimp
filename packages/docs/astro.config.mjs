@@ -1,4 +1,4 @@
-import { defineConfig } from "astro/config";
+import { defineConfig, fontProviders } from "astro/config";
 import starlight from "@astrojs/starlight";
 import { createStarlightTypeDocPlugin } from "starlight-typedoc";
 import react from "@astrojs/react";
@@ -40,6 +40,43 @@ export default defineConfig({
   // The overrides' scoped styles were written against Starlight's old
   // zero-specificity `:where()` scoping.
   scopedStyleStrategy: "where",
+  // Self-hosted at build time, with fallbacks sized to match each font so the
+  // page doesn't shift when the web fonts finish loading. See Head.astro.
+  fonts: [
+    {
+      provider: fontProviders.google(),
+      name: "Luckiest Guy",
+      cssVariable: "--font-luckiest-guy",
+      weights: [400],
+      subsets: ["latin", "latin-ext"],
+      fallbacks: ["sans-serif"],
+    },
+    {
+      provider: fontProviders.google(),
+      name: "Fredoka",
+      cssVariable: "--font-fredoka",
+      weights: [500, 600, 700],
+      subsets: ["latin", "latin-ext"],
+      fallbacks: ["sans-serif"],
+    },
+    {
+      provider: fontProviders.google(),
+      name: "Nunito Sans",
+      cssVariable: "--font-nunito-sans",
+      weights: [400, 600, 700, 800],
+      styles: ["normal", "italic"],
+      subsets: ["latin", "latin-ext"],
+      fallbacks: ["sans-serif"],
+    },
+    {
+      provider: fontProviders.google(),
+      name: "JetBrains Mono",
+      cssVariable: "--font-jetbrains-mono",
+      weights: [400, 600],
+      subsets: ["latin", "latin-ext"],
+      fallbacks: ["monospace"],
+    },
+  ],
   integrations: [
     react(),
     starlight({
@@ -59,25 +96,6 @@ export default defineConfig({
       favicon: "/favicon.png",
       markdown: { headingLinks: false },
       head: [
-        {
-          tag: "link",
-          attrs: { rel: "preconnect", href: "https://fonts.googleapis.com" },
-        },
-        {
-          tag: "link",
-          attrs: {
-            rel: "preconnect",
-            href: "https://fonts.gstatic.com",
-            crossorigin: true,
-          },
-        },
-        {
-          tag: "link",
-          attrs: {
-            rel: "stylesheet",
-            href: "https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Fredoka:wght@500;600;700&family=Nunito+Sans:ital,opsz,wght@0,6..12,400;0,6..12,600;0,6..12,700;0,6..12,800;1,6..12,400&family=JetBrains+Mono:wght@400;600&display=swap",
-          },
-        },
         {
           tag: "meta",
           attrs: {
@@ -101,6 +119,7 @@ export default defineConfig({
       components: {
         ContentPanel: "./src/overrides/ContentPanel.astro",
         Footer: "./src/overrides/Footer.astro",
+        Head: "./src/overrides/Head.astro",
         Header: "./src/overrides/Header.astro",
         Hero: "./src/overrides/Hero.astro",
         PageFrame: "./src/overrides/PageFrame.astro",
