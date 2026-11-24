@@ -26,6 +26,8 @@ These formats are in the `jimp` package and in its `defaultFormats` export:
 
 When reading, Jimp recognizes the format from the file's contents. When writing, you choose it: with a MIME type for [`getBuffer`](/jimp/methods/get-buffer/) and [`getBase64`](/jimp/methods/get-base64/), or with the file extension for [`write`](/jimp/methods/write/).
 
+GIF and TIFF can also hold several images: the frames of an animation, or the pages of a scan. See [Animated GIFs and multi-page TIFFs](#animated-gifs-and-multi-page-tiffs).
+
 Try each format on an image with a transparent background:
 
 <Playground
@@ -57,13 +59,13 @@ Lossy and small, for photos. No transparency.
 
 ### GIF
 
-Up to 256 colors, one frame.
+Up to 256 colors, and animation.
 
-- **Decoder:** [omggif](https://www.npmjs.com/package/omggif). Only the first frame of an animated GIF is read.
-- **Encoder:** Jimp's own. It writes a single frame. Images with 256 colors or fewer get an exact palette; others are reduced to 256 colors with Wu's quantization algorithm, without dithering. For control over the palette, call [`quantize`](/jimp/methods/quantize/) or [`dither`](/jimp/methods/dither/) first.
+- **Decoder:** [omggif](https://www.npmjs.com/package/omggif). `Jimp.read` reads the first frame of an animated GIF; [`Jimp.readFrames`](/jimp/methods/read-frames/) reads them all.
+- **Encoder:** Jimp's own. `getBuffer` and `write` write a single frame; [`Jimp.encodeFrames`](/jimp/methods/encode-frames/) and [`Jimp.writeFrames`](/jimp/methods/write-frames/) write an animation. Images with 256 colors or fewer get an exact palette; others are reduced to 256 colors with Wu's quantization algorithm, without dithering. For control over the palette, call [`quantize`](/jimp/methods/quantize/) or [`dither`](/jimp/methods/dither/) first.
 - **Transparency:** pixels with an alpha of `0` become transparent. Every other pixel is written as opaque.
-- **Encode options:** none. Width and height can be at most 65,535.
-- **Decode options:** `maxResolutionInMP` (default `100`).
+- **Encode options:** none. Width and height can be at most 65,535. For animations, `loop`.
+- **Decode options:** `maxResolutionInMP` (default `100`). With `readFrames` it limits all frames together.
 
 ### BMP
 
@@ -80,11 +82,11 @@ Uncompressed bitmaps, mostly for compatibility with older software.
 
 Lossless and uncompressed, used in print and scanning workflows.
 
-- **Encoder and decoder:** [utif2](https://www.npmjs.com/package/utif2). Only the first page of a multi-page TIFF is read.
-- **Writing:** uncompressed 8-bit RGBA, so files are large: 4 bytes per pixel.
+- **Encoder and decoder:** [utif2](https://www.npmjs.com/package/utif2). `Jimp.read` reads the first page of a multi-page TIFF; [`Jimp.readFrames`](/jimp/methods/read-frames/) reads them all.
+- **Writing:** uncompressed 8-bit RGBA, so files are large: 4 bytes per pixel. [`Jimp.writeFrames`](/jimp/methods/write-frames/) writes several pages, which can have different sizes.
 - **Reading:** the common compression schemes and color models, including CMYK.
 - **Encode options:** none.
-- **Decode options:** `maxResolutionInMP` (default `100`).
+- **Decode options:** `maxResolutionInMP` (default `100`). With `readFrames` it limits all pages together.
 
 ### ICO
 
@@ -116,6 +118,31 @@ import { readIcoEntries } from "@jimp/js-ico";
 readIcoEntries(await readFile("favicon.ico"));
 // [{ index: 0, width: 16, height: 16, bitDepth: 32, format: "png" }, ...]
 ```
+
+### Animated GIFs and multi-page TIFFs
+
+A Jimp image is always a single picture. To work with every frame of an animated GIF or every page of a TIFF, read them as a list of images, change them, and write the list back:
+
+```ts title="example.ts"
+import { Jimp } from "jimp";
+
+const { frames, loop } = await Jimp.readFrames("animation.gif");
+
+for (const { image } of frames) {
+  image.resize({ w: 200 });
+}
+
+await Jimp.writeFrames("small.gif", frames, { loop });
+```
+
+| Format             | `readFrames`                                                                | `encodeFrames` / `writeFrames`                                              |
+| ------------------ | --------------------------------------------------------------------------- | --------------------------------------------------------------------------- |
+| GIF                | Every frame as a complete image, with its delay in ms and the loop count    | An animation: same-size frames, a palette and delay each, and a loop count |
+| TIFF               | Every page, with its own size                                               | One page per image, sizes can differ                                        |
+| Every other format | One frame                                                                   | One frame; more throws                                                      |
+
+GIF frames that only update part of the image are drawn over the previous ones, following their disposal methods, so each frame you get is what a viewer would show. See [`Jimp.readFrames`](/jimp/methods/read-frames/#how-gif-frames-are-put-together).
+The WASM formats, including WebP, AVIF and JPEG XL, read and write a single frame.
 
 ### Transparency and `image.background`
 
@@ -339,6 +366,7 @@ await image.write("photo.jpg");
 ## See also
 
 - [Reading and writing](/jimp/concepts/reading-and-writing/): the read, encode and write APIs
+- [`Jimp.readFrames`](/jimp/methods/read-frames/) and [`Jimp.writeFrames`](/jimp/methods/write-frames/): animated GIFs and multi-page TIFFs
 - [`getBuffer` options](/jimp/methods/get-buffer/#options): every option of the built-in encoders
 - [Reading Large Images](/jimp/guides/reading-large-images/): decode options and size limits
 - [Using WebP and other WASM plugins](/jimp/guides/webp/)

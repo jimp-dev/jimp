@@ -1,0 +1,88 @@
+---
+title: "Jimp.writeFrames()"
+description: "Save several images to a file as an animated GIF or a multi-page TIFF."
+category: io
+method: "Jimp.writeFrames"
+plugin: "@jimp/core"
+---
+
+import { Aside } from "@astrojs/starlight/components";
+import Related from "../../../components/Related.astro";
+
+`Jimp.writeFrames` encodes a list of images and saves them to one file in Node.
+The extension picks the format, as for [`write`](/jimp/methods/write/): `.gif` writes an animated GIF, `.tif` and `.tiff` a multi-page TIFF.
+
+## Signature
+
+```ts title="writeFrames.d.ts"
+Jimp.writeFrames(
+  path: string,
+  frames: (Jimp | { image: Jimp; delay?: number })[],
+  options?: EncodeFramesOptions,
+): Promise<void>
+```
+
+`Jimp.writeFrames` is a static method. It returns a promise that resolves once the file is written.
+
+## Parameters
+
+| Parameter | Type                            | Default  | Description                                                                                                         |
+| --------- | ------------------------------- | -------- | ------------------------------------------------------------------------------------------------------------------- |
+| `path`    | `string`                        | required | Where to save the file, relative to the current working directory. Its extension picks the format.                  |
+| `frames`  | `(Jimp \| { image, delay? })[]` | required | The frames in order, as for [`Jimp.encodeFrames`](/jimp/methods/encode-frames/#parameters).                       |
+| `options` | `object`                        | none     | The format's options: [`loop`](/jimp/methods/encode-frames/#gif-options) for GIF, none for TIFF.                   |
+
+## Example
+
+```ts title="example.ts"
+import { Jimp } from "jimp";
+
+const { frames, loop } = await Jimp.readFrames("animation.gif");
+
+for (const { image } of frames) {
+  image.resize({ w: 100 });
+}
+
+await Jimp.writeFrames("thumbnail.gif", frames, { loop });
+```
+
+### Make a slideshow
+
+```ts title="example.ts"
+const slides = await Promise.all(
+  ["one.png", "two.png", "three.png"].map((path) => Jimp.read(path)),
+);
+
+for (const slide of slides) {
+  slide.cover({ w: 400, h: 300 });
+}
+
+await Jimp.writeFrames(
+  "slideshow.gif",
+  slides.map((image) => ({ image, delay: 2000 })),
+);
+```
+
+### Combine pages into a TIFF
+
+```ts title="example.ts"
+await Jimp.writeFrames("scans.tiff", [page1, page2, page3]);
+```
+
+## Notes
+
+- **Everything else works as for `encodeFrames`**: the [GIF](/jimp/methods/encode-frames/#gif-output) and [TIFF](/jimp/methods/encode-frames/#tiff-output) output, a single frame for other formats, and the errors.
+- **Options are typed by extension.** With a literal path, `{ loop }` type-checks for `.gif` but not for `.tiff`.
+- **Errors.** A path with no extension throws `Cannot write "<path>": the path has no recognisable file extension to determine the image format`, and a directory that doesn't exist throws Node's `ENOENT` error, as for [`write`](/jimp/methods/write/#notes).
+- **Added in 2.0.**
+
+<Aside type="caution" title="Node only">
+  `writeFrames` uses the file system, so it only works in Node (and runtimes
+  with `node:fs`). In the browser, use
+  [`Jimp.encodeFrames`](/jimp/methods/encode-frames/) and save the bytes
+  yourself.
+</Aside>
+
+## Related
+
+<Related methods={["Jimp.encodeFrames", "Jimp.readFrames", "write"]} />

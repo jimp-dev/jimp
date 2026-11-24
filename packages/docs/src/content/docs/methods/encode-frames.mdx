@@ -1,0 +1,116 @@
+---
+title: "Jimp.encodeFrames()"
+description: "Encode several images as an animated GIF or a multi-page TIFF."
+category: io
+method: "Jimp.encodeFrames"
+plugin: "@jimp/core"
+---
+
+import Related from "../../../components/Related.astro";
+
+`Jimp.encodeFrames` encodes a list of images as one animated GIF or multi-page TIFF and returns the bytes.
+It's the multi-frame version of [`getBuffer`](/jimp/methods/get-buffer/). To save to a file, use [`Jimp.writeFrames`](/jimp/methods/write-frames/).
+
+## Signature
+
+```ts title="encodeFrames.d.ts"
+Jimp.encodeFrames(
+  mime: string,
+  frames: (Jimp | { image: Jimp; delay?: number })[],
+  options?: EncodeFramesOptions,
+): Promise<Buffer>
+```
+
+`Jimp.encodeFrames` is a static method. It doesn't change the images.
+
+## Parameters
+
+| Parameter | Type                                       | Default  | Description                                                                                                                                      |
+| --------- | ------------------------------------------ | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `mime`    | `string`                                   | required | `"image/gif"` or `"image/tiff"`, or any other format your Jimp class has, for a single frame.                                                    |
+| `frames`  | `(Jimp \| { image, delay? })[]`            | required | The frames in order: images, or images with a `delay` in milliseconds. The `frames` from [`Jimp.readFrames`](/jimp/methods/read-frames/) can be passed as they are. |
+| `options` | `object`                                   | none     | The format's options. GIF takes [`loop`](#gif-options), TIFF takes none.                                                                          |
+
+### GIF options
+
+| Option | Type             | Default | Description                                                                                                                                           |
+| ------ | ---------------- | ------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `loop` | `number \| null` | `0`     | How many times the animation repeats after it first plays, `0` to `65535`. `0` repeats forever. `null` writes no loop count, so the animation plays once. |
+
+The type is exported from `jimp` as `EncodeGifFramesOptions`.
+
+## Example
+
+```ts title="example.ts"
+import { Jimp } from "jimp";
+
+const red = new Jimp({ width: 64, height: 64, color: 0xff0000ff });
+const blue = new Jimp({ width: 64, height: 64, color: 0x0000ffff });
+
+const gif = await Jimp.encodeFrames(
+  "image/gif",
+  [
+    { image: red, delay: 500 },
+    { image: blue, delay: 250 },
+  ],
+  { loop: 0 },
+);
+```
+
+### Edit an animation
+
+Pass the frames and `loop` from `readFrames` straight back:
+
+```ts title="example.ts"
+const { frames, loop } = await Jimp.readFrames("animation.gif");
+
+for (const { image } of frames) {
+  image.greyscale();
+}
+
+const bytes = await Jimp.encodeFrames("image/gif", frames, { loop });
+```
+
+### A multi-page TIFF
+
+```ts title="example.ts"
+const pages = await Promise.all(
+  ["page-1.png", "page-2.png", "page-3.png"].map((path) => Jimp.read(path)),
+);
+
+const tiff = await Jimp.encodeFrames("image/tiff", pages);
+```
+
+## GIF output
+
+- **Every frame must be the same size.** Resize or [`contain`](/jimp/methods/contain/) them first if they aren't.
+- **Each frame gets its own palette** of up to 256 colors. Frames with 256 colors or fewer are exact; others are reduced with the same quantizer as single GIFs. For control over the colors, call [`quantize`](/jimp/methods/quantize/) or [`dither`](/jimp/methods/dither/) on the frames first.
+- **Delays** are rounded to hundredths of a second, which is what GIFs store. Frames without a `delay` are shown for 100ms.
+- **Transparency:** pixels with an alpha of `0` are transparent and every other pixel is opaque, as for single GIFs. Transparent pixels show what's behind the animation, not the previous frame.
+- Each frame is written in full, so the file is larger than one that only stores the parts that change.
+
+## TIFF output
+
+Each frame becomes a page, written as uncompressed 8-bit RGBA. Pages can have different sizes, and there's no `delay`: it's ignored.
+
+## Other formats
+
+For formats without animation, `encodeFrames` takes one frame and encodes it like [`getBuffer`](/jimp/methods/get-buffer/), with that format's options. More than one frame throws.
+
+## Notes
+
+- **The background is applied first.** As with `getBuffer`, GIF and TIFF frames are drawn over their [`image.background`](/jimp/concepts/formats/#transparency-and-imagebackground) before encoding, and images in another color space are converted to sRGB.
+- **Options are typed by MIME type.** `{ loop }` type-checks for `"image/gif"` but not for `"image/tiff"`.
+- **Errors.**
+  - An empty list throws `encodeFrames needs an array of at least one frame`.
+  - Something that isn't an image throws `Frame 1 must be a Jimp image or an object with an image and an optional delay`.
+  - A delay that isn't a number throws `Frame 0's delay must be a number of milliseconds`. Negative and very large delays are clamped.
+  - Frames of different sizes throw `Every frame of a GIF must be the same size, but frame 1 is 3x2 and frame 0 is 2x2`.
+  - A `loop` that isn't a number or `null` throws `loop must be a number, or null to play once`. Values outside `0` to `65535` are clamped.
+  - Several frames for a format without animation throw `image/png can't hold more than one frame, but got 2. Formats that can: image/gif, image/tiff`.
+  - A format your Jimp class doesn't have throws `Unsupported MIME type: image/webp`.
+- **Added in 2.0.**
+
+## Related
+
+<Related methods={["Jimp.writeFrames", "Jimp.readFrames", "getBuffer", "quantize"]} />

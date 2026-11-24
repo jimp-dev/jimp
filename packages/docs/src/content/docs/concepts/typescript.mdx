@@ -56,6 +56,7 @@ image.resize(small).color(warm);
 | `PHashOptions`                                                               | [`pHash`](/jimp/methods/phash/)                         |
 | `DiffOptions`, `DiffColor`                                                   | [`diff`](/jimp/methods/diff/)                           |
 | `ReadOptions`                                                                | [`Jimp.read`](/jimp/methods/read/), [`Jimp.fromBuffer`](/jimp/methods/from-buffer/) |
+| `ReadFramesOptions`, `JimpFrames`, `JimpFrame`, `FrameInput`, `EncodeGifFramesOptions` | [`Jimp.readFrames`](/jimp/methods/read-frames/), [`Jimp.encodeFrames`](/jimp/methods/encode-frames/), [`Jimp.writeFrames`](/jimp/methods/write-frames/) |
 | `JPEGOptions`, `EncodeOptions` (BMP)                                         | Writing JPEG and BMP                                    |
 | `JimpConstructorOptions`, `JimpSimpleConstructorOptions`, `RawImageData`     | [`new Jimp()`](/jimp/methods/new-jimp/), [`Jimp.fromBitmap`](/jimp/methods/from-bitmap/) |
 | `ColorSpaceName`                                                             | `image.colorSpace`, [`toColorSpace`](/jimp/methods/to-color-space/), the `colorSpace` option of `new Jimp()` |
@@ -127,6 +128,7 @@ await image.getBuffer("image/jpeg", { deflateLevel: 9 });
 [`write`](/jimp/methods/write/) works the format out from the path's last extension, so `image.write("photo.png", { quality: 80 })` is an error too: `quality` is a JPEG option.
 The extension can be in any case and can follow directories and other dots, so `"./out/photo.v2.JPG"` takes JPEG options.
 GIF and TIFF have no encode options, so `write` and `getBuffer` accept none for them.
+[`Jimp.encodeFrames`](/jimp/methods/encode-frames/) and [`Jimp.writeFrames`](/jimp/methods/write-frames/) are typed the same way, with each format's options for several frames: `loop` for GIF and nothing for TIFF.
 
 For a path held in a `string` variable, or an unknown extension, `write` can't tell the format. It accepts the options of any supported format and rejects keys that no format has.
 

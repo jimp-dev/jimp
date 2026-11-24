@@ -75,11 +75,15 @@ The limit isn't memory Jimp sets aside: a JPEG only uses what it needs, so a hig
 | ------------------- | ------- | ------------------------------------------------------------------------------- |
 | `maxResolutionInMP` | `100`   | Largest image, in megapixels, that will be decoded. Each frame is also checked. |
 
+With [`Jimp.readFrames`](/jimp/methods/read-frames/), every frame is a full-size image, so the limit applies to all the frames together: a 1000 × 1000 GIF can have up to 100 frames. Pass `maxFrames` to decode fewer.
+
 ### TIFF (`image/tiff`)
 
 | Option              | Default | Description                                                                    |
 | ------------------- | ------- | ------------------------------------------------------------------------------ |
 | `maxResolutionInMP` | `100`   | Largest image, in megapixels, that will be decoded. Each tile is also checked. |
+
+With [`Jimp.readFrames`](/jimp/methods/read-frames/), the limit applies to all the pages together. Pass `maxFrames` to decode fewer.
 
 ### BMP (`image/bmp`)
 
@@ -144,7 +148,9 @@ When an image is over a limit, decoding throws before any pixel memory is alloca
 | JPEG   | `maxResolutionInMP limit exceeded by <n>MP`                                       |
 | JPEG   | `maxMemoryUsageInMB limit exceeded by at least <n>MB`                             |
 | GIF    | `GIF dimensions <w>x<h> exceed the maximum resolution of <n> megapixels`          |
+| GIF frames | `GIF has <count> frames of <w>x<h>, which together exceed the maximum resolution of <n> megapixels. Decode fewer frames with maxFrames, or raise maxResolutionInMP` |
 | TIFF   | `TIFF dimensions <w>x<h> exceed the maximum resolution of <n> megapixels`         |
+| TIFF pages | `TIFF pages together exceed the maximum resolution of <n> megapixels. Decode fewer pages with maxFrames, or raise maxResolutionInMP` |
 | BMP    | `BMP dimensions <w>x<h> exceed the maximum resolution of <n> megapixels`          |
 | JPEG 2000 | `JPEG 2000 dimensions <w>x<h> exceed the maximum resolution of <n> megapixels. Use the reduce option to decode it at a lower resolution.` |
 | SVG    | `SVG dimensions <w>x<h> exceed the maximum resolution of <n> megapixels. Use the width, height or scale option to render it smaller.` |
