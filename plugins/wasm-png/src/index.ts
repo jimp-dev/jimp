@@ -102,7 +102,7 @@ export default function png({ wasm }: PngFormatOptions = {}) {
           optimize.level,
           optimize.interlace,
           optimize.optimiseAlpha,
-        ).buffer;
+        ).buffer as ArrayBuffer;
       }
 
       return Buffer.from(arrayBuffer);

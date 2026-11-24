@@ -1,5 +1,7 @@
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck
+// Ported code that resets its loop state up front
+/* eslint-disable no-useless-assignment */
 
 // JavaScript Image Resizer (c) 2012 - Grant Galitz
 // Released to public domain 29 July 2013: https://github.com/grantgalitz/JS-Image-Resizer/issues/4

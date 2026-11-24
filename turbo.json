@@ -9,10 +9,10 @@
       "dependsOn": ["^lint"]
     },
     "test": {
-      "dependsOn": ["^build", "^test"]
+      "dependsOn": ["build", "^build", "^test"]
     },
     "test:browser": {
-      "dependsOn": ["^build", "^test:browser"]
+      "dependsOn": ["build", "^build", "^test:browser"]
     },
     "dev": {
       "cache": false,

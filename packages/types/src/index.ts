@@ -105,14 +105,21 @@ export interface RGBAColor {
   a: number;
 }
 
+// Typed so the schema accepts any Uint8Array (`Uint8Array<ArrayBufferLike>`).
+// `z.instanceof(Uint8Array)` infers `Uint8Array<ArrayBuffer>`, which a Buffer
+// isn't assignable to.
+const Uint8ArraySchema = z.instanceof(
+  Uint8Array as new (...args: unknown[]) => Uint8Array,
+);
+
 export const JimpClassSchema = z.object({
   bitmap: z.object({
     // Buffer is a Uint8Array subclass, and the Buffer global isn't available everywhere
-    data: z.instanceof(Uint8Array),
+    data: Uint8ArraySchema,
     width: z.number(),
     height: z.number(),
   }),
-  iccProfile: z.instanceof(Uint8Array).optional(),
+  iccProfile: Uint8ArraySchema.optional(),
 });
 
 export interface JimpClass {

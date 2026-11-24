@@ -1,7 +1,7 @@
 {
   "name": "jimp-monorepo",
   "private": true,
-  "packageManager": "pnpm@12.21.0",
+  "packageManager": "pnpm@12.23.0",
   "description": "The jimp monorepo.",
   "repository": "jimp-dev/jimp",
   "engines": {
@@ -22,18 +22,18 @@
     "check-updates": "ncu --packageFile \"{,*/**/}package.json\""
   },
   "devDependencies": {
-    "@auto-it/all-contributors": "^11.2.1",
-    "@auto-it/first-time-contributor": "^11.2.1",
-    "@auto-it/released": "^11.2.1",
+    "@auto-it/all-contributors": "^11.3.6",
+    "@auto-it/first-time-contributor": "^11.3.6",
+    "@auto-it/released": "^11.3.6",
     "@babel/core": "^7.29.13",
     "@babel/preset-env": "^7.29.14",
     "@jimp/config-eslint": "workspace:*",
     "@jimp/config-typescript": "workspace:*",
     "@turbo/gen": "^2.11.13",
-    "auto": "^11.2.1",
-    "npm-check-updates": "^17.1.1",
-    "prettier": "^3.3.3",
-    "rimraf": "^6.0.1",
+    "auto": "^11.3.6",
+    "npm-check-updates": "^23.1.1",
+    "prettier": "^3.10.1",
+    "rimraf": "^6.1.4",
     "turbo": "^2.11.13"
   }
 }

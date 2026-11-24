@@ -28,12 +28,12 @@
     "@jimp/test-utils": "workspace:*",
     "@jimp/types": "workspace:*",
     "@types/node": "^22.20.5",
-    "@vitest/browser": "^4.1.12",
-    "eslint": "^9.9.1",
-    "tshy": "^3.0.2",
-    "typescript": "^5.5.4",
+    "@vitest/browser": "^5.1.1",
+    "eslint": "^10.15.0",
+    "tshy": "~4.0.0",
+    "typescript": "^7.0.2",
     "vite-plugin-node-polyfills": "^0.28.0",
-    "vitest": "^4.1.12"
+    "vitest": "^5.1.1"
   },
   "tshy": {
     "exclude": [

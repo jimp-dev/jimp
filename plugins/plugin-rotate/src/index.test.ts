@@ -154,9 +154,7 @@ describe("Rotate without resizing does not sample the wrong pixel", () => {
 describe("Rotate with a resize mode", () => {
   const strategies = Object.values(ResizeStrategy);
   const twoColours = () =>
-    jimp.fromBitmap(
-      makeTestImage("▴▴▴▪▪", "▴▴▴▪▪", "▪▪▪▴▴", "▪▪▪▴▴"),
-    );
+    jimp.fromBitmap(makeTestImage("▴▴▴▪▪", "▴▴▴▪▪", "▪▪▪▴▴", "▪▪▪▴▴"));
 
   function solid(color: number, background: number) {
     const image = new jimp({ width: 6, height: 4, color });

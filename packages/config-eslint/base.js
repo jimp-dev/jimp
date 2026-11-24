@@ -17,6 +17,13 @@ export default [
     ],
   },
   {
+    // Type tests assign values to each other to check they're compatible
+    files: ["**/*.test-d.ts"],
+    rules: {
+      "no-useless-assignment": "off",
+    },
+  },
+  {
     name: "eslint-config-turbo (recreated flat)",
     plugins: {
       turbo: { rules: turboPlugin.rules },
