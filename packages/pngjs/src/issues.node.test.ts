@@ -141,7 +141,8 @@ describe("streams", () => {
 });
 
 describe("#286: large images", () => {
-  test("a 6000x4000 image round-trips", () => {
+  // ~1s alone, but 12-25s on CI when it shares the CPU with the other packages
+  test("a 6000x4000 image round-trips", { timeout: 60_000 }, () => {
     const width = 6000;
     const height = 4000;
     const data = new Uint8Array(width * height * 4);
