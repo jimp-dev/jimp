@@ -1,8 +1,15 @@
 import { beforeAll, describe, expect, test } from "vitest";
 import { createJimp, HorizontalAlign, VerticalAlign } from "@jimp/core";
 
-import { measureVectorText, methods } from "./index.js";
+import {
+  measureText,
+  measureTextHeight,
+  methods,
+  type PrintOptions,
+  type VectorTextOptions,
+} from "./index.js";
 import { loadTTF, type VectorFont } from "./load-ttf.js";
+import { splitLines } from "./vector-layout.js";
 
 const Jimp = createJimp({ plugins: [methods] });
 
@@ -20,6 +27,40 @@ beforeAll(async () => {
   inter = await loadTTF(fixture("Inter-Regular.otf"));
   openSans = await loadTTF(fixture("OpenSans-Regular.ttf"));
 });
+
+type PrintWithOptions = Omit<PrintOptions, "text"> &
+  VectorTextOptions & {
+    font: VectorFont;
+    text: string;
+    alignmentX?: HorizontalAlign;
+    alignmentY?: VerticalAlign;
+  };
+
+/** `print` with a vector font, with the alignment next to the other options */
+function printWith(
+  image: Image,
+  { text, alignmentX, alignmentY, ...options }: PrintWithOptions,
+) {
+  return image.print({ ...options, text: { text, alignmentX, alignmentY } });
+}
+
+/** How `print` lays out text: the widest line, the height and the lines */
+function measure(
+  font: VectorFont,
+  size: number,
+  text: string | number,
+  maxWidth = Infinity,
+  options: Omit<VectorTextOptions, "size"> = {},
+) {
+  const layout = { size, ...options };
+  const lines = splitLines(font, String(text), maxWidth, layout);
+
+  return {
+    width: measureText(font, lines.join("\n"), layout),
+    height: measureTextHeight(font, String(text), maxWidth, layout),
+    lines,
+  };
+}
 
 function makeImage(width: number, height: number, color = 0x00000000) {
   return new Jimp({ width, height, color });
@@ -80,8 +121,8 @@ describe("loadTTF", () => {
     expect(inter.opentype.unitsPerEm).toBe(2048);
     expect(openSans.opentype.unitsPerEm).toBe(2048);
     // The WOFF is the same font as the .otf
-    expect(measureVectorText(woff, 32, "AVATAR")).toStrictEqual(
-      measureVectorText(inter, 32, "AVATAR"),
+    expect(measure(woff, 32, "AVATAR")).toStrictEqual(
+      measure(inter, 32, "AVATAR"),
     );
   });
 
@@ -126,9 +167,9 @@ describe("loadTTF", () => {
   });
 });
 
-describe("measureVectorText", () => {
+describe("measuring", () => {
   test("measures a line", () => {
-    const { width, height, lines } = measureVectorText(openSans, 32, "Hi");
+    const { width, height, lines } = measure(openSans, 32, "Hi");
 
     expect(width).toBe(advance(openSans, "H", 32) + advance(openSans, "i", 32));
     // Open Sans's ascender, descender and line gap (2189, -600 and 0)
@@ -137,7 +178,7 @@ describe("measureVectorText", () => {
   });
 
   test("applies kerning", () => {
-    const kerned = measureVectorText(inter, 100, "AV").width;
+    const kerned = measure(inter, 100, "AV").width;
     const unkerned = advance(inter, "A", 100) + advance(inter, "V", 100);
 
     expect(kerned).toBeCloseTo(unkerned - (140 * 100) / 2048, 10);
@@ -147,41 +188,37 @@ describe("measureVectorText", () => {
     const [ligature] = openSans.opentype.stringToGlyphs("fi");
 
     expect(openSans.opentype.stringToGlyphs("fi")).toHaveLength(1);
-    expect(measureVectorText(openSans, 2048, "fi").width).toBe(
-      ligature!.advanceWidth,
-    );
+    expect(measure(openSans, 2048, "fi").width).toBe(ligature!.advanceWidth);
   });
 
   test("adds letter spacing between characters, without ligatures", () => {
     expect(
-      measureVectorText(openSans, 32, "fi", undefined, { letterSpacing: 3 })
-        .width,
+      measure(openSans, 32, "fi", undefined, { letterSpacing: 3 }).width,
     ).toBe(advance(openSans, "f", 32) + advance(openSans, "i", 32) + 3);
     expect(
-      measureVectorText(inter, 32, "Hello", undefined, { letterSpacing: -1 })
-        .width,
-    ).toBe(measureVectorText(inter, 32, "Hello").width - 4);
+      measure(inter, 32, "Hello", undefined, { letterSpacing: -1 }).width,
+    ).toBe(measure(inter, 32, "Hello").width - 4);
   });
 
   test("measures missing characters with .notdef, one per code point", () => {
     const notdef =
       (inter.opentype.stringToGlyphs("\0")[0]!.advanceWidth! * 32) / 2048;
 
-    expect(measureVectorText(inter, 32, "é").width).toBe(notdef);
+    expect(measure(inter, 32, "é").width).toBe(notdef);
     // An emoji is two UTF-16 code units but one code point
-    expect(measureVectorText(inter, 32, "😀").width).toBe(notdef);
+    expect(measure(inter, 32, "😀").width).toBe(notdef);
   });
 
   test("breaks lines at \\n, \\r\\n and \\r, keeping empty lines", () => {
-    const lineHeight = measureVectorText(inter, 20, "").height;
-    const { lines, height } = measureVectorText(inter, 20, "a\r\nb\rc\n\nd\n");
+    const lineHeight = measure(inter, 20, "").height;
+    const { lines, height } = measure(inter, 20, "a\r\nb\rc\n\nd\n");
 
     expect(lines).toStrictEqual(["a", "b", "c", "", "d", ""]);
     expect(height).toBe(6 * lineHeight);
   });
 
   test("measures empty text as one empty line", () => {
-    const { width, height, lines } = measureVectorText(inter, 20, "");
+    const { width, height, lines } = measure(inter, 20, "");
 
     expect(width).toBe(0);
     expect(height).toBeGreaterThan(0);
@@ -189,15 +226,13 @@ describe("measureVectorText", () => {
   });
 
   test("measures numbers", () => {
-    expect(measureVectorText(inter, 20, 42)).toStrictEqual(
-      measureVectorText(inter, 20, "42"),
-    );
+    expect(measure(inter, 20, 42)).toStrictEqual(measure(inter, 20, "42"));
   });
 
   test("wraps whole words at maxWidth", () => {
     const text = "the quick brown fox jumps over the lazy dog";
-    const width = measureVectorText(inter, 20, "the quick brown").width;
-    const { lines } = measureVectorText(inter, 20, text, width);
+    const width = measure(inter, 20, "the quick brown").width;
+    const { lines } = measure(inter, 20, text, width);
 
     expect(lines).toStrictEqual([
       "the quick brown",
@@ -206,48 +241,44 @@ describe("measureVectorText", () => {
     ]);
 
     for (const line of lines) {
-      expect(measureVectorText(inter, 20, line).width).toBeLessThanOrEqual(
-        width,
-      );
+      expect(measure(inter, 20, line).width).toBeLessThanOrEqual(width);
     }
   });
 
   test("only wraps at maxWidth", () => {
     const text = "the quick brown fox jumps over the lazy dog";
 
-    expect(measureVectorText(inter, 20, text).lines).toStrictEqual([text]);
+    expect(measure(inter, 20, text).lines).toStrictEqual([text]);
   });
 
   test("breaks words wider than maxWidth between characters", () => {
-    const width = measureVectorText(inter, 20, "abcd").width;
+    const width = measure(inter, 20, "abcd").width;
 
-    expect(
-      measureVectorText(inter, 20, "abcdefghij", width).lines,
-    ).toStrictEqual(["abcd", "efgh", "ij"]);
-    // Filling the line the word starts on
-    expect(
-      measureVectorText(inter, 20, "a bcdefghij", width).lines,
-    ).toStrictEqual(["a bc", "defg", "hij"]);
-    // A line holds at least one character, however narrow
-    expect(measureVectorText(inter, 20, "ab", 1).lines).toStrictEqual([
-      "a",
-      "b",
+    expect(measure(inter, 20, "abcdefghij", width).lines).toStrictEqual([
+      "abcd",
+      "efgh",
+      "ij",
     ]);
+    // Filling the line the word starts on
+    expect(measure(inter, 20, "a bcdefghij", width).lines).toStrictEqual([
+      "a bc",
+      "defg",
+      "hij",
+    ]);
+    // A line holds at least one character, however narrow
+    expect(measure(inter, 20, "ab", 1).lines).toStrictEqual(["a", "b"]);
   });
 
   test("keeps runs of spaces, but drops spaces where text wraps", () => {
-    const width = measureVectorText(inter, 20, "aaa bbb").width;
+    const width = measure(inter, 20, "aaa bbb").width;
 
-    expect(measureVectorText(inter, 20, "a  b", width).lines).toStrictEqual([
-      "a  b",
+    expect(measure(inter, 20, "a  b", width).lines).toStrictEqual(["a  b"]);
+    expect(measure(inter, 20, "  a", width).lines).toStrictEqual(["  a"]);
+    expect(measure(inter, 20, "aaa bbb    ccc", width).lines).toStrictEqual([
+      "aaa bbb",
+      "ccc",
     ]);
-    expect(measureVectorText(inter, 20, "  a", width).lines).toStrictEqual([
-      "  a",
-    ]);
-    expect(
-      measureVectorText(inter, 20, "aaa bbb    ccc", width).lines,
-    ).toStrictEqual(["aaa bbb", "ccc"]);
-    expect(measureVectorText(inter, 20, "aaa   ", 1).lines).toStrictEqual([
+    expect(measure(inter, 20, "aaa   ", 1).lines).toStrictEqual([
       "a",
       "a",
       "a",
@@ -256,30 +287,47 @@ describe("measureVectorText", () => {
 
   test("uses lineHeight", () => {
     expect(
-      measureVectorText(inter, 20, "a\nb", undefined, { lineHeight: 30 })
-        .height,
+      measure(inter, 20, "a\nb", undefined, { lineHeight: 30 }).height,
     ).toBe(60);
   });
 
-  test("throws for invalid options", () => {
-    expect(() => measureVectorText(inter, NaN, "a")).toThrow();
-    expect(() => measureVectorText(inter, -1, "a")).toThrow();
-    expect(() => measureVectorText({} as VectorFont, 20, "a")).toThrow(
-      "measureVectorText expects a font loaded with loadTTF, but received object.",
+  test("measureText and measureTextHeight take vector fonts", () => {
+    expect(measureText(inter, "Hello\nHi", { size: 20 })).toBe(
+      measure(inter, 20, "Hello").width,
     );
+    expect(measureTextHeight(inter, "Hello Hi", undefined, { size: 20 })).toBe(
+      measure(inter, 20, "").height,
+    );
+    expect(
+      measureTextHeight(inter, "Hello Hi", measure(inter, 20, "Hello").width, {
+        size: 20,
+      }),
+    ).toBe(2 * measure(inter, 20, "").height);
+  });
+
+  test("throws for invalid options", () => {
+    expect(() => measureText(inter, "a", { size: NaN })).toThrow();
+    expect(() => measureText(inter, "a", { size: -1 })).toThrow();
+    // A vector font needs a size
+    expect(() =>
+      measureText(inter, "a", undefined as unknown as { size: number }),
+    ).toThrow();
+    expect(() =>
+      measureTextHeight(inter, "a", undefined, {} as { size: number }),
+    ).toThrow();
   });
 });
 
-describe("printText", () => {
+describe("print with a vector font", () => {
   test("draws text in the box at x, y", () => {
-    const image = makeImage(100, 60).printText({
+    const image = printWith(makeImage(100, 60), {
       font: inter,
       size: 32,
       x: 10,
       y: 10,
       text: "Hi",
     });
-    const { width, height } = measureVectorText(inter, 32, "Hi");
+    const { width, height } = measure(inter, 32, "Hi");
     const bounds = inkBounds(image);
 
     expect(bounds.left).toBeGreaterThanOrEqual(10);
@@ -290,16 +338,34 @@ describe("printText", () => {
     expect(solidPixel(image)).toStrictEqual([0, 0, 0, 255]);
   });
 
+  test("calls cb with the end of the text", () => {
+    const { width, height } = measure(inter, 20, "Hello\nHi");
+    let end: { x: number; y: number } | undefined;
+
+    makeImage(100, 100).print({
+      font: inter,
+      size: 20,
+      x: 5,
+      y: 10,
+      text: "Hello\nHi",
+      cb: (position) => {
+        end = position;
+      },
+    });
+
+    expect(end).toStrictEqual({ x: 5 + width, y: 10 + height });
+  });
+
   test("draws nothing for empty text and spaces", () => {
     const empty = makeImage(20, 20);
 
-    empty.printText({ font: inter, size: 16, x: 0, y: 0, text: "  \n " });
+    printWith(empty, { font: inter, size: 16, x: 0, y: 0, text: "  \n " });
 
     expect(empty.bitmap.data.every((value) => value === 0)).toBe(true);
   });
 
   test("draws missing characters with .notdef", () => {
-    const image = makeImage(40, 40).printText({
+    const image = printWith(makeImage(40, 40), {
       font: inter,
       size: 32,
       x: 0,
@@ -312,9 +378,9 @@ describe("printText", () => {
 
   test("aligns lines within maxWidth", () => {
     const text = "Hi";
-    const { width } = measureVectorText(inter, 20, text);
-    const draw = (options: Partial<Parameters<Image["printText"]>[0]>) =>
-      makeImage(100, 40).printText({
+    const { width } = measure(inter, 20, text);
+    const draw = (options: Partial<PrintWithOptions>) =>
+      printWith(makeImage(100, 40), {
         font: inter,
         size: 20,
         x: 5,
@@ -337,7 +403,7 @@ describe("printText", () => {
 
   test("aligns each line on its own", () => {
     const draw = (text: string, x = 0, y = 0) =>
-      makeImage(100, 80).printText({
+      printWith(makeImage(100, 80), {
         font: inter,
         size: 20,
         x,
@@ -346,10 +412,10 @@ describe("printText", () => {
         maxWidth: 100,
         alignmentX: HorizontalAlign.CENTER,
       });
-    const lineHeight = measureVectorText(inter, 20, "").height;
+    const lineHeight = measure(inter, 20, "").height;
     const expected = draw("Hello");
 
-    expected.printText({
+    printWith(expected, {
       font: inter,
       size: 20,
       x: 0,
@@ -364,9 +430,9 @@ describe("printText", () => {
 
   test("aligns text within maxHeight", () => {
     const text = "Hi\nthere";
-    const { height } = measureVectorText(inter, 20, text);
-    const draw = (options: Partial<Parameters<Image["printText"]>[0]>) =>
-      makeImage(60, 100).printText({
+    const { height } = measure(inter, 20, text);
+    const draw = (options: Partial<PrintWithOptions>) =>
+      printWith(makeImage(60, 100), {
         font: inter,
         size: 20,
         x: 0,
@@ -388,7 +454,7 @@ describe("printText", () => {
   });
 
   test("doesn't clip text taller than maxHeight", () => {
-    const image = makeImage(60, 100).printText({
+    const image = printWith(makeImage(60, 100), {
       font: inter,
       size: 20,
       x: 0,
@@ -401,9 +467,9 @@ describe("printText", () => {
   });
 
   test("wraps at maxWidth like line breaks", () => {
-    const maxWidth = measureVectorText(inter, 20, "Hello\nworld").width;
+    const maxWidth = measure(inter, 20, "Hello\nworld").width;
     const draw = (text: string, options = {}) =>
-      makeImage(80, 80).printText({
+      printWith(makeImage(80, 80), {
         font: inter,
         size: 20,
         x: 0,
@@ -418,13 +484,20 @@ describe("printText", () => {
   });
 
   test("keeps blank lines", () => {
-    const lineHeight = measureVectorText(inter, 20, "").height;
-    const expected = makeImage(40, 100)
-      .printText({ font: inter, size: 20, x: 0, y: 0, text: "a" })
-      .printText({ font: inter, size: 20, x: 0, y: 2 * lineHeight, text: "b" });
+    const lineHeight = measure(inter, 20, "").height;
+    const expected = printWith(
+      printWith(makeImage(40, 100), {
+        font: inter,
+        size: 20,
+        x: 0,
+        y: 0,
+        text: "a",
+      }),
+      { font: inter, size: 20, x: 0, y: 2 * lineHeight, text: "b" },
+    );
 
     expect(
-      makeImage(40, 100).printText({
+      printWith(makeImage(40, 100), {
         font: inter,
         size: 20,
         x: 0,
@@ -435,9 +508,9 @@ describe("printText", () => {
   });
 
   test("centers the glyphs in lineHeight", () => {
-    const lineHeight = measureVectorText(inter, 20, "").height;
+    const lineHeight = measure(inter, 20, "").height;
     const draw = (y: number, options = {}) =>
-      makeImage(40, 80).printText({
+      printWith(makeImage(40, 80), {
         font: inter,
         size: 20,
         x: 0,
@@ -452,7 +525,7 @@ describe("printText", () => {
   test("kerns text", () => {
     const draw = (text: string) =>
       inkBounds(
-        makeImage(200, 100).printText({
+        printWith(makeImage(200, 100), {
           font: inter,
           size: 64,
           x: 0,
@@ -469,11 +542,11 @@ describe("printText", () => {
 
   test("fills with colors", () => {
     const draw = (
-      color: Parameters<Image["printText"]>[0]["color"],
+      color: PrintWithOptions["color"],
       image = makeImage(80, 80),
     ) =>
       solidPixel(
-        image.printText({
+        printWith(image, {
           font: inter,
           size: 64,
           x: 0,
@@ -496,7 +569,7 @@ describe("printText", () => {
       colorSpace: "display-p3",
     });
 
-    image.printText({
+    printWith(image, {
       font: inter,
       size: 64,
       x: 0,
@@ -510,7 +583,7 @@ describe("printText", () => {
   });
 
   test("fills with gradients in image coordinates", () => {
-    const image = makeImage(200, 80).printText({
+    const image = printWith(makeImage(200, 80), {
       font: inter,
       size: 64,
       x: 0,
@@ -543,7 +616,7 @@ describe("printText", () => {
 
   test("strokes glyph outlines", () => {
     const draw = (options = {}) =>
-      makeImage(80, 80).printText({
+      printWith(makeImage(80, 80), {
         font: inter,
         size: 64,
         x: 0,
@@ -582,7 +655,7 @@ describe("printText", () => {
   test("throws for invalid colors without drawing anything", () => {
     const image = makeImage(40, 40);
     const draw = (options = {}) =>
-      image.printText({
+      printWith(image, {
         font: inter,
         size: 20,
         x: 0,
@@ -604,7 +677,7 @@ describe("printText", () => {
   test("throws for invalid options", () => {
     const image = makeImage(10, 10);
     const draw = (options: object) =>
-      image.printText({
+      printWith(image, {
         font: inter,
         size: 20,
         x: 0,
@@ -616,16 +689,17 @@ describe("printText", () => {
     expect(() => draw({ size: NaN })).toThrow();
     expect(() => draw({ x: Infinity })).toThrow();
     expect(() => draw({ strokeWidth: -1 })).toThrow();
-    expect(() => draw({ font: undefined })).toThrow(
-      "printText expects a font loaded with loadTTF, but received undefined.",
-    );
+    // The options only vector fonts have can't be used with bitmap fonts
     expect(() => draw({ font: { chars: {}, pages: [] } })).toThrow(
-      "printText expects a font loaded with loadTTF, but received a bitmap font from loadFont. Draw bitmap fonts with print instead.",
+      "print: size can only be used with fonts loaded with loadTTF. Bitmap fonts from loadFont are drawn at the size and in the color they were made with.",
     );
+    expect(() =>
+      draw({ font: { chars: {}, pages: [] }, color: "red", stroke: "blue" }),
+    ).toThrow("print: size, color, stroke can only be used");
   });
 
   test("clips text outside the image", () => {
-    const image = makeImage(20, 20).printText({
+    const image = printWith(makeImage(20, 20), {
       font: inter,
       size: 64,
       x: -30,

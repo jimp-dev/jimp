@@ -5,10 +5,10 @@
   <p>Print text onto an image.</p>
 </div>
 
-There are two ways to draw text:
+`print` draws text with two kinds of font:
 
-- `print` copies glyphs from a bitmap font (BMFont), like the bundled ones in `jimp/fonts`. Load one with `loadFont`.
-- `printText` draws glyphs from the outlines of a TrueType, OpenType or WOFF font, at any size and in any color or gradient. Load one with `loadTTF`. See [TrueType, OpenType and WOFF fonts](#truetype-opentype-and-woff-fonts).
+- Bitmap fonts (BMFont), like the bundled ones in `jimp/fonts`. Their glyphs are copied onto the image at the size and in the color they were made with. Load one with `loadFont`.
+- TrueType, OpenType and WOFF fonts. Their glyphs are drawn from their outlines, at any size and in any color or gradient. Load one with `loadTTF`. See [TrueType, OpenType and WOFF fonts](#truetype-opentype-and-woff-fonts).
 
 Load a bitmap font with `loadFont`. The bundled fonts are named exports of `jimp/fonts`:
 
@@ -63,7 +63,7 @@ Fonts are bitmap fonts in the [BMFont](https://www.angelcode.com/products/bmfont
 
 Any character the font has no glyph for is printed as `?`, and whitespace without a glyph is left blank. So if Japanese, Chinese or Korean text prints as `???`, the font doesn't include those characters.
 
-To print them, draw the text with `printText` and a TrueType font that covers it, or generate a bitmap font that includes them. For example, with [fontbm](https://github.com/vladimirgamalyan/fontbm) and [Noto Sans JP](https://fonts.google.com/noto/specimen/Noto+Sans+JP):
+To print them, use a TrueType font that covers them with `loadTTF`, or generate a bitmap font that includes them. For example, with [fontbm](https://github.com/vladimirgamalyan/fontbm) and [Noto Sans JP](https://fonts.google.com/noto/specimen/Noto+Sans+JP):
 
 ```sh
 # chars.txt holds the characters to include, e.g. こんにちは世界
@@ -88,9 +88,9 @@ Pass `loadFont` the path to the `.fnt` file, not its contents. The pages are fou
 
 ## TrueType, OpenType and WOFF fonts
 
-`printText` draws text from a font's outlines, antialiased, at any size, in any color or gradient, and optionally outlined. Kerning and ligatures come from the font. It's pure JavaScript: fonts are parsed with [opentype.js](https://github.com/opentypejs/opentype.js) and drawn with [`@jimp/plugin-draw`](../plugin-draw).
+With a font from `loadTTF`, `print` draws text from the font's outlines, antialiased, at any `size`, in any `color` or gradient, and optionally outlined with `stroke`. Kerning and ligatures come from the font. It's pure JavaScript: fonts are parsed with [opentype.js](https://github.com/opentypejs/opentype.js) and drawn with [`@jimp/plugin-draw`](../plugin-draw).
 
-`printText` and `measureVectorText` are included in `jimp`. `loadTTF` is in `jimp/load-ttf` (and `@jimp/plugin-print/load-ttf`), so the font parser (about 245 KB minified) is only bundled when you load fonts. In Node.js, opentype.js is only loaded the first time `loadTTF` is called.
+`loadTTF` is in `jimp/load-ttf` (and `@jimp/plugin-print/load-ttf`), so the font parser (about 245 KB minified) is only bundled when you load fonts. In Node.js, opentype.js is only loaded the first time `loadTTF` is called.
 
 ```ts
 import { HorizontalAlign, Jimp } from "jimp";
@@ -99,16 +99,18 @@ import { loadTTF } from "jimp/load-ttf";
 const font = await loadTTF("fonts/Inter-Regular.ttf");
 const image = new Jimp({ width: 400, height: 200, color: "white" });
 
-image.printText({ font, size: 32, x: 10, y: 10, text: "Hello world!" });
+image.print({ font, size: 32, x: 10, y: 10, text: "Hello world!" });
 
-image.printText({
+image.print({
   font,
   size: 20,
   x: 10,
   y: 60,
   maxWidth: 380,
-  alignmentX: HorizontalAlign.CENTER,
-  text: "Long text wraps between words at maxWidth and is centered in it.",
+  text: {
+    text: "Long text wraps between words at maxWidth and is centered in it.",
+    alignmentX: HorizontalAlign.CENTER,
+  },
   color: "#1d3557",
 });
 ```
@@ -128,38 +130,25 @@ The font is the opentype.js `Font` in `font.opentype`, for anything else you wan
 
 ### Layout
 
-Text is laid out the same way as `print`, in a box whose top left corner is at `x`, `y`. `maxWidth` and `maxHeight` set the size of the box, and without them it reaches to the right and bottom edges of the image.
+Text is laid out the same way as with bitmap fonts (see [Layout](#layout)), including `alignmentX` and `alignmentY` in the `text` object and the `cb` callback. A word wider than `maxWidth` is broken between characters.
 
-- Text wraps between words at `maxWidth`. Without it, text only breaks at newlines. A word wider than `maxWidth` is broken between characters.
-- Every newline (`\n`, `\r\n` or `\r`) starts a new line, so `"a\n\nb"` is three lines with an empty one in the middle.
-- Spaces are drawn as they are, including runs of spaces. The spaces where text wraps at `maxWidth` are dropped.
-- `alignmentX` (`HorizontalAlign.LEFT`, `CENTER` or `RIGHT`) and `alignmentY` (`VerticalAlign.TOP`, `MIDDLE` or `BOTTOM`) align the text within the box. Each line is aligned on its own.
-- `maxHeight` is only used for `alignmentY`. Text taller than it isn't clipped.
-
-`size` is the font size in pixels, like CSS's `font-size`. Each line is `lineHeight` pixels high, which defaults to the font's own line height: its ascender to its descender plus its line gap. Like CSS, the glyphs are centered vertically in the line. `letterSpacing` adds space between characters (or removes it, if it's negative), and like CSS it turns off ligatures like `fi`.
+`size` is required for these fonts. It's the font size in pixels, like CSS's `font-size`. Each line is `lineHeight` pixels high, which defaults to the font's own line height: its ascender to its descender plus its line gap. Like CSS, the glyphs are centered vertically in the line. `letterSpacing` adds space between characters (or removes it, if it's negative), and like CSS it turns off ligatures like `fi`.
 
 Glyphs are placed at fractional x positions, and each line's baseline is rounded to a whole pixel so horizontal edges stay sharp. Fonts aren't hinted.
 
 Text is walked by code point, so an emoji is one character, not two. Characters the font has no glyph for are drawn with its `.notdef` glyph, usually a box. There's no font fallback, so pick a font that covers your text. Text is laid out left to right, and scripts that need complex shaping (like Arabic or Devanagari) may not come out right.
 
+`size`, `color`, `stroke`, `strokeWidth`, `lineHeight` and `letterSpacing` only work with these fonts. With a bitmap font they throw, for example `print: size can only be used with fonts loaded with loadTTF.`, and TypeScript rejects them.
+
 ### Measuring
 
-`measureVectorText(font, size, text, maxWidth?, { lineHeight?, letterSpacing? })` lays out text the same way as `printText` and returns:
-
-- `width`: the width of the widest line
-- `height`: the number of lines, including empty ones, times the line height
-- `lines`: the text of each line, after wrapping
+`measureText` and `measureTextHeight` measure text in these fonts too. Pass the `size`, and the `lineHeight` and `letterSpacing` you print with, as the last argument:
 
 ```ts
-import { measureVectorText } from "jimp";
+import { measureText, measureTextHeight } from "jimp";
 
-const { width, height, lines } = measureVectorText(
-  font,
-  32,
-  "Hello world!",
-  100,
-);
-// lines: ["Hello", "world!"]
+measureText(font, "Hello world!", { size: 32 }); // the width of the widest line
+measureTextHeight(font, "Hello world!", 100, { size: 32 }); // wrapped at 100px
 ```
 
 ### Color, gradients and outlines
@@ -169,14 +158,16 @@ const { width, height, lines } = measureVectorText(
 `stroke` outlines the glyphs `strokeWidth` pixels wide (1 by default), centered on their edges, with round corners. It's drawn over the fill. With a `stroke` and no `color` the text is only outlined.
 
 ```ts
-image.printText({
+image.print({
   font,
   size: 80,
   x: 0,
   y: 0,
-  text: "Jimp",
-  alignmentX: HorizontalAlign.CENTER,
-  alignmentY: VerticalAlign.MIDDLE,
+  text: {
+    text: "Jimp",
+    alignmentX: HorizontalAlign.CENTER,
+    alignmentY: VerticalAlign.MIDDLE,
+  },
   color: {
     type: "linear",
     x1: 0,
@@ -193,7 +184,7 @@ image.printText({
 });
 ```
 
-The glyphs of a call are filled together with the nonzero rule, so where they overlap their edges aren't drawn twice.
+The glyphs of a `print` call are filled together with the nonzero rule, so where they overlap their edges aren't drawn twice.
 
 ### Kerning
 
@@ -207,6 +198,6 @@ The fonts in `fixtures/` are small subsets of [Open Sans](https://github.com/goo
 
 - [print](https://jimp-dev.github.io/jimp/api/jimp/classes/jimp/#print)
 - [loadFont](https://jimp-dev.github.io/jimp/api/jimp/functions/loadfont/)
-- [printText](https://jimp-dev.github.io/jimp/api/jimp/classes/jimp/#printtext)
-- [measureVectorText](https://jimp-dev.github.io/jimp/api/jimp/functions/measurevectortext/)
+- [measureText](https://jimp-dev.github.io/jimp/api/jimp/functions/measuretext/)
+- [measureTextHeight](https://jimp-dev.github.io/jimp/api/jimp/functions/measuretextheight/)
 - [loadTTF](#loading-fonts)

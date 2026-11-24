@@ -1,4 +1,10 @@
+import type { VectorFont } from "./load-ttf.js";
 import { BmFont } from "./types.js";
+import {
+  isVectorFont,
+  layOutVectorText,
+  type VectorTextLayoutOptions,
+} from "./vector-text.js";
 
 /** Line breaks: `\n`, `\r\n` or `\r` */
 const LINE_BREAK = /\r\n?|\n/;
@@ -70,11 +76,37 @@ function measureLine(font: BmFont, text: string) {
  * Measures the width of `text` when printed with `font`. Line breaks
  * (`\n`, `\r\n` or `\r`) start a new line like they do in `print`, so this
  * is the width of the widest line. Empty lines are 0 wide.
- * @param font a bitmap font loaded with `loadFont`
+ * @param font a bitmap font loaded with `loadFont`, or a font loaded with
+ * `loadTTF`
  * @param text the text to measure
+ * @param options for `loadTTF` fonts, the `size`, and the `lineHeight` and
+ * `letterSpacing` you print with
  * @returns the width in pixels
+ * @example
+ * ```ts
+ * import { measureText } from "jimp";
+ * import { loadTTF } from "jimp/load-ttf";
+ *
+ * const font = await loadTTF("fonts/Inter-Regular.ttf");
+ *
+ * measureText(font, "Hello world!", { size: 32 }); // 180.015625
+ * ```
  */
-export function measureText(font: BmFont, text: string) {
+export function measureText(font: BmFont, text: string): number;
+export function measureText(
+  font: VectorFont,
+  text: string,
+  options: VectorTextLayoutOptions,
+): number;
+export function measureText(
+  font: BmFont | VectorFont,
+  text: string,
+  options?: VectorTextLayoutOptions,
+): number {
+  if (isVectorFont(font)) {
+    return layOutVectorText(font, text, Infinity, options!).width;
+  }
+
   return text
     .split(LINE_BREAK)
     .reduce((width, line) => Math.max(width, measureLine(font, line)), 0);
@@ -223,18 +255,46 @@ function wrapLine(font: BmFont, text: string, maxWidth: number) {
  * `maxWidth` like `print` does. Every line break starts a new line, so
  * `"a\n\nb"` is three lines high, and leading or trailing line breaks add
  * empty lines too.
- * @param font a bitmap font loaded with `loadFont`
+ * @param font a bitmap font loaded with `loadFont`, or a font loaded with
+ * `loadTTF`
  * @param text the text to measure
  * @param maxWidth the width to wrap the text at. Without it the text only
  * breaks at newlines.
+ * @param options for `loadTTF` fonts, the `size`, and the `lineHeight` and
+ * `letterSpacing` you print with
  * @returns the height in pixels: the number of lines, including empty ones,
  * times the font's line height
+ * @example
+ * ```ts
+ * import { measureTextHeight } from "jimp";
+ * import { loadTTF } from "jimp/load-ttf";
+ *
+ * const font = await loadTTF("fonts/Inter-Regular.ttf");
+ *
+ * measureTextHeight(font, "Hello world!", 100, { size: 32 }); // 77.4375
+ * ```
  */
 export function measureTextHeight(
   font: BmFont,
   text: string,
+  maxWidth?: number,
+): number;
+export function measureTextHeight(
+  font: VectorFont,
+  text: string,
+  maxWidth: number | undefined,
+  options: VectorTextLayoutOptions,
+): number;
+export function measureTextHeight(
+  font: BmFont | VectorFont,
+  text: string,
   maxWidth = Infinity,
-) {
+  options?: VectorTextLayoutOptions,
+): number {
+  if (isVectorFont(font)) {
+    return layOutVectorText(font, text, maxWidth, options!).height;
+  }
+
   const { lines } = splitLines(font, text, maxWidth);
 
   return lines.length * font.common.lineHeight;

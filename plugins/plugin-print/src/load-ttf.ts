@@ -3,7 +3,7 @@ import type { OpenTypeFont } from "./opentype.js";
 
 /**
  * A TrueType, OpenType or WOFF font loaded with {@link loadTTF}, for
- * `printText` and `measureVectorText`.
+ * `print`, `measureText` and `measureTextHeight`.
  */
 export interface VectorFont {
   /**
@@ -123,7 +123,7 @@ function signature(data: Uint8Array) {
 
 /**
  * Loads a TrueType (`.ttf`), OpenType (`.otf`) or WOFF (`.woff`) font, to draw
- * text with `printText`. Fonts are parsed with
+ * text with `print`. Fonts are parsed with
  * [opentype.js](https://github.com/opentypejs/opentype.js), which is only
  * loaded the first time this is called.
  *
@@ -135,7 +135,7 @@ function signature(data: Uint8Array) {
  * WOFF2 fonts aren't supported: decoding them needs a Brotli decompressor.
  * Convert them to WOFF or TTF first.
  * @param source a path or URL to a font file, or its bytes
- * @returns the font, for `printText` and `measureVectorText`
+ * @returns the font, for `print`, `measureText` and `measureTextHeight`
  * @example
  * ```ts
  * import { Jimp } from "jimp";
@@ -144,7 +144,7 @@ function signature(data: Uint8Array) {
  * const font = await loadTTF("fonts/Inter-Regular.ttf");
  * const image = new Jimp({ width: 400, height: 100, color: "white" });
  *
- * image.printText({ font, size: 32, x: 10, y: 10, text: "Hello world!" });
+ * image.print({ font, size: 32, x: 10, y: 10, text: "Hello world!" });
  * ```
  */
 export async function loadTTF(source: FontSource): Promise<VectorFont> {

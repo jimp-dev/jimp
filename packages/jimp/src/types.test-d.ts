@@ -182,7 +182,7 @@ describe("chainable methods return the instance type", () => {
       open: image.open({ radius: 1 }),
       close: image.close({ radius: 1, shape: "square" }),
       print: image.print({ font, x: 0, y: 0, text: "hi" }),
-      printText: image.printText({
+      printVector: image.print({
         font: vectorFont,
         size: 12,
         x: 0,
@@ -465,5 +465,17 @@ describe("classes made with createJimp", () => {
     // @ts-expect-error a class without resize doesn't make JimpInstances
     const asJimp: JimpInstance = small;
     void asJimp;
+  });
+});
+
+describe("print fonts", () => {
+  test("vector options only go with vector fonts", () => {
+    image.print({ font: vectorFont, size: 12, x: 0, y: 0, text: "hi" });
+    // @ts-expect-error vector fonts need a size
+    image.print({ font: vectorFont, x: 0, y: 0, text: "hi" });
+    // @ts-expect-error bitmap fonts have a fixed size and color
+    image.print({ font, size: 12, x: 0, y: 0, text: "hi" });
+    // @ts-expect-error bitmap fonts have a fixed size and color
+    image.print({ font, color: "red", x: 0, y: 0, text: "hi" });
   });
 });

@@ -9,7 +9,7 @@ import type { AddressInfo } from "net";
 import path from "path";
 import { fileURLToPath, pathToFileURL } from "url";
 
-import { measureVectorText, methods } from "./index.js";
+import { measureText, methods } from "./index.js";
 import { loadTTF, type VectorFont } from "./load-ttf.js";
 
 const Jimp = createJimp({ formats: [png], plugins: [methods, drawMethods] });
@@ -59,7 +59,7 @@ describe("loadTTF in Node", () => {
   });
 
   test("loads paths, file: URLs and buffers", async () => {
-    const expected = measureVectorText(inter, 20, "AVATAR");
+    const expected = measureText(inter, "AVATAR", { size: 20 });
     const bytes = await fs.readFile(fixture("Inter-Regular.otf"));
     // A view into a bigger buffer
     const padded = new Uint8Array(bytes.length + 8);
@@ -74,7 +74,7 @@ describe("loadTTF in Node", () => {
       padded.subarray(4, 4 + bytes.length),
     ]) {
       expect(
-        measureVectorText(await loadTTF(source), 20, "AVATAR"),
+        measureText(await loadTTF(source), "AVATAR", { size: 20 }),
       ).toStrictEqual(expected);
     }
   });
@@ -82,8 +82,8 @@ describe("loadTTF in Node", () => {
   test("loads URLs with fetch", async () => {
     const font = await loadTTF(`${origin}/Inter-Regular.otf`);
 
-    expect(measureVectorText(font, 20, "AVATAR")).toStrictEqual(
-      measureVectorText(inter, 20, "AVATAR"),
+    expect(measureText(font, "AVATAR", { size: 20 })).toStrictEqual(
+      measureText(inter, "AVATAR", { size: 20 }),
     );
   });
 
@@ -119,11 +119,11 @@ describe("loadTTF in Node", () => {
   });
 });
 
-describe("printText snapshots", () => {
+describe("vector font snapshots", () => {
   test("a word", async () => {
     const image = new Jimp({ width: 200, height: 60, color: 0xffffffff });
 
-    image.printText({ font: inter, size: 40, x: 10, y: 5, text: "Jimp!" });
+    image.print({ font: inter, size: 40, x: 10, y: 5, text: "Jimp!" });
 
     await snapshot(image);
   });
@@ -131,7 +131,7 @@ describe("printText snapshots", () => {
   test("a wrapped paragraph", async () => {
     const image = new Jimp({ width: 300, height: 170, color: 0xffffffff });
 
-    image.printText({
+    image.print({
       font: inter,
       size: 16,
       x: 10,
@@ -170,16 +170,18 @@ describe("printText snapshots", () => {
           fill: "#f1faee",
           stroke: "#a8dadc",
         });
-        image.printText({
+        image.print({
           font: inter,
           size: 14,
           x,
           y,
           maxWidth: 90,
           maxHeight: 90,
-          alignmentX,
-          alignmentY,
-          text: `${horizontal}\n${vertical}`,
+          text: {
+            text: `${horizontal}\n${vertical}`,
+            alignmentX,
+            alignmentY,
+          },
         });
       }
     }
@@ -190,7 +192,7 @@ describe("printText snapshots", () => {
   test("blank lines and runs of spaces", async () => {
     const image = new Jimp({ width: 160, height: 130, color: 0xffffffff });
 
-    image.printText({
+    image.print({
       font: inter,
       size: 20,
       x: 10,
@@ -205,9 +207,9 @@ describe("printText snapshots", () => {
     const image = new Jimp({ width: 260, height: 150, color: 0xffffffff });
 
     // Kerned with GPOS, and with and without the fi ligature
-    image.printText({ font: inter, size: 56, x: 10, y: 0, text: "AVATAR" });
-    image.printText({ font: openSans, size: 40, x: 10, y: 80, text: "fine" });
-    image.printText({
+    image.print({ font: inter, size: 56, x: 10, y: 0, text: "AVATAR" });
+    image.print({ font: openSans, size: 40, x: 10, y: 80, text: "fine" });
+    image.print({
       font: openSans,
       size: 40,
       x: 130,
@@ -222,14 +224,16 @@ describe("printText snapshots", () => {
   test("gradient fill and stroke", async () => {
     const image = new Jimp({ width: 320, height: 110, color: 0xffffffff });
 
-    image.printText({
+    image.print({
       font: inter,
       size: 80,
       x: 0,
       y: 0,
-      alignmentX: HorizontalAlign.CENTER,
-      alignmentY: VerticalAlign.MIDDLE,
-      text: "Jimp",
+      text: {
+        text: "Jimp",
+        alignmentX: HorizontalAlign.CENTER,
+        alignmentY: VerticalAlign.MIDDLE,
+      },
       color: {
         type: "linear",
         x1: 0,
@@ -251,7 +255,7 @@ describe("printText snapshots", () => {
   test("stroke only", async () => {
     const image = new Jimp({ width: 220, height: 80, color: 0xffffffff });
 
-    image.printText({
+    image.print({
       font: openSans,
       size: 60,
       x: 10,
@@ -268,7 +272,7 @@ describe("printText snapshots", () => {
     const image = new Jimp({ width: 220, height: 50, color: 0xffffffff });
 
     // é and the emoji aren't in the font subset
-    image.printText({ font: inter, size: 32, x: 10, y: 5, text: "café 😀!" });
+    image.print({ font: inter, size: 32, x: 10, y: 5, text: "café 😀!" });
 
     await snapshot(image);
   });
@@ -279,7 +283,7 @@ test("lays out a long paragraph quickly", () => {
   const image = new Jimp({ width: 1000, height: 1000, color: 0xffffffff });
   const start = performance.now();
 
-  image.printText({ font: inter, size: 16, x: 0, y: 0, text, maxWidth: 1000 });
+  image.print({ font: inter, size: 16, x: 0, y: 0, text, maxWidth: 1000 });
 
   expect(performance.now() - start).toBeLessThan(2000);
 });
