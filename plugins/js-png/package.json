@@ -20,15 +20,15 @@
   "license": "MIT",
   "dependencies": {
     "@jimp/core": "workspace:*",
-    "@jimp/types": "workspace:*",
-    "pngjs": "^7.0.0"
+    "@jimp/pngjs": "workspace:*",
+    "@jimp/types": "workspace:*"
   },
   "devDependencies": {
     "@jimp/config-eslint": "workspace:*",
     "@jimp/config-typescript": "workspace:*",
     "@jimp/config-vitest": "workspace:*",
     "@jimp/test-utils": "workspace:*",
-    "@types/pngjs": "^6.0.5",
+    "@types/node": "^22.20.5",
     "@vitest/browser": "^5.1.1",
     "eslint": "^10.15.0",
     "tshy": "~4.0.0",

@@ -229,6 +229,8 @@ export function getTestImagePath(
     | "icon-24.png"
     | "icon-16.png"
     | "animated-disposal.gif"
+    // An APNG made by ffmpeg, see packages/pngjs/scripts/generate-apng-fixtures.mjs
+    | "animated.png"
     | "multipage.tiff",
 ) {
   if (typeof window !== "undefined") {

@@ -24,6 +24,8 @@ export enum PNGFilterType {
 export enum PNGColorType {
   GRAYSCALE = 0,
   COLOR = 2,
+  /** A palette of up to 256 colours, which needs an image with that few */
+  PALETTE = 3,
   GRAYSCALE_ALPHA = 4,
   COLOR_ALPHA = 6,
 }

@@ -601,9 +601,6 @@ importers:
       '@jimp/wasm-webp':
         specifier: workspace:*
         version: link:../../plugins/wasm-webp
-      '@rollup/plugin-alias':
-        specifier: ^6.0.1
-        version: 6.0.1(rollup@4.68.8)
       '@rollup/plugin-commonjs':
         specifier: ^29.0.3
         version: 29.0.3(rollup@4.68.8)
@@ -671,18 +668,15 @@ importers:
       '@jimp/config-typescript':
         specifier: workspace:*
         version: link:../config-typescript
-      '@jimp/config-vitest':
-        specifier: workspace:*
-        version: link:../config-vitest
       '@types/node':
         specifier: ^22.20.5
         version: 22.20.5
       '@types/pngjs':
         specifier: ^6.0.5
         version: 6.0.5
-      '@vitest/browser':
+      '@vitest/browser-playwright':
         specifier: ^5.1.1
-        version: 5.1.1(vite@8.3.8(@types/node@22.20.5)(esbuild@0.28.2)(terser@5.51.4)(yaml@2.9.1))(vitest@5.1.1)
+        version: 5.1.1(playwright@1.65.1)(vite@8.3.8(@types/node@22.20.5)(esbuild@0.28.2)(terser@5.51.4)(yaml@2.9.1))(vitest@5.1.1)
       eslint:
         specifier: ^10.15.0
         version: 10.15.0(supports-color@7.2.0)
@@ -1020,12 +1014,12 @@ importers:
       '@jimp/core':
         specifier: workspace:*
         version: link:../../packages/core
+      '@jimp/pngjs':
+        specifier: workspace:*
+        version: link:../../packages/pngjs
       '@jimp/types':
         specifier: workspace:*
         version: link:../../packages/types
-      pngjs:
-        specifier: ^7.0.0
-        version: 7.0.0
     devDependencies:
       '@jimp/config-eslint':
         specifier: workspace:*
@@ -1039,9 +1033,9 @@ importers:
       '@jimp/test-utils':
         specifier: workspace:*
         version: link:../../packages/test-utils
-      '@types/pngjs':
-        specifier: ^6.0.5
-        version: 6.0.5
+      '@types/node':
+        specifier: ^22.20.5
+        version: 22.20.5
       '@vitest/browser':
         specifier: ^5.1.1
         version: 5.1.1(vite@8.3.8(@types/node@22.20.5)(esbuild@0.28.2)(terser@5.51.4)(yaml@2.9.1))(vitest@5.1.1)
@@ -4545,15 +4539,6 @@ packages:
 
   '@rolldown/pluginutils@1.1.1':
     resolution: {integrity: sha512-glFIJDvLNDtJhT9qrMFWLPbvS+skxgt4L0K8Ei2YtnhPysAJnsI7nyxSJxKj4ADeKX0OLjC4ntRkwpLOoS3rwA==}
-
-  '@rollup/plugin-alias@6.0.1':
-    resolution: {integrity: sha512-08wjv2HEuyxIuriLELnksoX+so83XnJ5E4hbVeCHkWlwOcaRQaHYxpUTAplnZjrlh/l5mZgvH1itNC9kcTfTTA==}
-    engines: {node: '>=20.19.0'}
-    peerDependencies:
-      rollup: '>=4.0.0'
-    peerDependenciesMeta:
-      rollup:
-        optional: true
 
   '@rollup/plugin-commonjs@29.0.3':
     resolution: {integrity: sha512-ZaOxZceP7SOUW7Lqw5IRVweSQYWaeIPnXIGLiB690EBA3FGJTO40EEr2L5yZplJWsgTCogILRSpcAe7+U0Otdg==}
@@ -10774,10 +10759,6 @@ snapshots:
     optional: true
 
   '@rolldown/pluginutils@1.1.1': {}
-
-  '@rollup/plugin-alias@6.0.1(rollup@4.68.8)':
-    optionalDependencies:
-      rollup: 4.68.8
 
   '@rollup/plugin-commonjs@29.0.3(rollup@4.68.8)':
     dependencies:

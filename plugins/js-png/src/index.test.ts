@@ -1,8 +1,8 @@
 import { expect, test, describe } from "vitest";
 import { createJimp } from "@jimp/core";
 
+import { PNG } from "@jimp/pngjs";
 import png, { PNGColorType } from "./index.js";
-import { PNG } from "./pngjs.js";
 import { getTestImagePath } from "@jimp/test-utils";
 
 const jimp = createJimp({ formats: [png] });
@@ -78,11 +78,16 @@ describe("PNG", () => {
 
       await expect(
         jimp.read(buffer.subarray(0, buffer.length / 2)),
-      ).rejects.toThrow();
-      // Cut inside the IEND chunk
-      await expect(
-        jimp.read(buffer.subarray(0, buffer.length - 2)),
-      ).rejects.toThrow();
+      ).rejects.toThrow("Unexpected end of file in IDAT chunk");
+    });
+
+    test("decodes PNGs cut inside IEND, as the image data is complete", async () => {
+      const dice = await getDice();
+      const image = await jimp.read(
+        dice.buffer.subarray(0, dice.buffer.length - 2),
+      );
+
+      expect(Buffer.compare(image.bitmap.data, dice.bitmap.data)).toBe(0);
     });
 
     test("still rejects a chunk length past the end of the data", async () => {
@@ -138,8 +143,9 @@ describe("PNG", () => {
   });
 
   describe("automatic colour type", () => {
-    const width = 16;
-    const height = 16;
+    // Big enough for more than 256 colours
+    const width = 32;
+    const height = 32;
 
     function createImage(
       getPixel: (i: number) => [number, number, number, number],
@@ -153,38 +159,45 @@ describe("PNG", () => {
       return jimp.fromBitmap({ width, height, data });
     }
 
+    const color = (i: number): [number, number, number] => [
+      (i * 7) % 256,
+      ((i >> 4) * 13) % 256,
+      (i * 29) % 256,
+    ];
     const images = {
-      "opaque grey": createImage((i) => [i, i, i, 0xff]),
-      "opaque colour": createImage((i) => [
-        (i * 7) % 256,
-        (i * 13) % 256,
-        (i * 29) % 256,
-        0xff,
+      "opaque grey": createImage((i) => [i % 256, i % 256, i % 256, 0xff]),
+      "opaque colour": createImage((i) => [...color(i), 0xff]),
+      "grey with alpha": createImage((i) => [
+        i % 256,
+        i % 256,
+        i % 256,
+        255 - (i >> 2),
       ]),
-      "grey with alpha": createImage((i) => [i, i, i, 255 - i]),
-      "colour with alpha": createImage((i) => [
-        (i * 7) % 256,
-        (i * 13) % 256,
-        (i * 29) % 256,
-        255 - i,
-      ]),
+      "colour with alpha": createImage((i) => [...color(i), 255 - (i >> 2)]),
       // The pixel's RGB has to survive even though it is invisible
       "grey but for one transparent pixel": createImage((i) =>
-        i === 100 ? [1, 2, 3, 0] : [i, i, i, 0xff],
+        i === 100 ? [1, 2, 3, 0] : [i % 256, i % 256, i % 256, 0xff],
+      ),
+      "256 colours or fewer": createImage((i) => [...color(i % 200), 0xff]),
+      "black and white": createImage((i) =>
+        i % 3 ? [0, 0, 0, 0xff] : [0xff, 0xff, 0xff, 0xff],
       ),
     };
 
     test.each([
-      ["opaque grey", PNGColorType.GRAYSCALE],
-      ["opaque colour", PNGColorType.COLOR],
-      ["grey with alpha", PNGColorType.GRAYSCALE_ALPHA],
-      ["colour with alpha", PNGColorType.COLOR_ALPHA],
-      ["grey but for one transparent pixel", PNGColorType.COLOR_ALPHA],
-    ] as const)("%s", async (name, colorType) => {
+      ["opaque grey", PNGColorType.GRAYSCALE, 8],
+      ["opaque colour", PNGColorType.COLOR, 8],
+      ["grey with alpha", PNGColorType.GRAYSCALE_ALPHA, 8],
+      ["colour with alpha", PNGColorType.COLOR_ALPHA, 8],
+      ["grey but for one transparent pixel", PNGColorType.COLOR_ALPHA, 8],
+      ["256 colours or fewer", PNGColorType.PALETTE, 8],
+      ["black and white", PNGColorType.GRAYSCALE, 1],
+    ] as const)("%s", async (name, colorType, bitDepth) => {
       const source = images[name];
       const buffer = await source.getBuffer("image/png");
 
-      // The colour type is the byte after the IHDR width, height and bit depth
+      // The IHDR width and height, then the bit depth and colour type
+      expect(buffer[24]).toBe(bitDepth);
       expect(buffer[25]).toBe(colorType);
 
       const decoded = await jimp.read(buffer);
@@ -197,6 +210,7 @@ describe("PNG", () => {
     test.each([
       PNGColorType.GRAYSCALE,
       PNGColorType.COLOR,
+      PNGColorType.PALETTE,
       PNGColorType.GRAYSCALE_ALPHA,
       PNGColorType.COLOR_ALPHA,
     ])("colorType %s overrides it", async (colorType) => {
@@ -213,6 +227,41 @@ describe("PNG", () => {
       });
 
       expect(buffer[25]).toBe(PNGColorType.COLOR);
+    });
+  });
+
+  describe("APNG", () => {
+    const path = getTestImagePath("animated.png");
+
+    test("readFrames decodes every frame", async () => {
+      const { frames, loop } = await jimp.readFrames(path);
+      const defaultImage = await jimp.read(path);
+
+      expect(frames).toHaveLength(8);
+      expect(frames.map((frame) => frame.delay)).toEqual(Array(8).fill(200));
+      // It plays 3 times: once, then 2 repeats
+      expect(loop).toBe(2);
+      // The first frame is the image that read() returns
+      expect([...frames[0]!.image.bitmap.data]).toEqual([
+        ...defaultImage.bitmap.data,
+      ]);
+      expect([...frames[7]!.image.bitmap.data]).not.toEqual([
+        ...defaultImage.bitmap.data,
+      ]);
+    });
+
+    test("readFrames stops after maxFrames", async () => {
+      const { frames } = await jimp.readFrames(path, { maxFrames: 3 });
+
+      expect(frames).toHaveLength(3);
+    });
+
+    test("a PNG that isn't animated has one frame", async () => {
+      const result = await jimp.readFrames(getTestImagePath("dice.png"));
+
+      expect(result.frames).toHaveLength(1);
+      expect(result.frames[0]!.delay).toBeUndefined();
+      expect("loop" in result).toBe(false);
     });
   });
 });
