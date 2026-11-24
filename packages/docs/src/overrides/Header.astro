@@ -73,7 +73,10 @@ const shortDate = (iso: string) =>
         <svg class="dl-arrow" viewBox="0 0 24 24" aria-hidden="true">
           <path d="M12 3v13M6 11l6 6 6-6M4 21h16" />
         </svg>
-        <span class="dl-num">{compactCount(stats.downloads)}</span>
+        <span class="dl-num">
+          <span class="dl-size" aria-hidden="true">{compactCount(stats.downloads)}</span>
+          <span class="dl-live">{compactCount(stats.downloads)}</span>
+        </span>
         <span class="dl-unit">/week</span>
       </a>
     )
@@ -81,27 +84,29 @@ const shortDate = (iso: string) =>
   <a class="pill ver" href="https://www.npmjs.com/package/jimp" title="Latest release on npm">
     v{version}
   </a>
+  <span id="header-end" hidden></span>
 </div>
 
 <script>
-  // Count the downloads badge up from zero, once per visit.
+  // Count the downloads badge up from zero, once per visit. The count stays in
+  // the final unit ("0.0M" to "4.5M") so the badge never changes width.
   const badge = document.querySelector<HTMLElement>(".dl[data-downloads]");
-  const num = badge?.querySelector(".dl-num");
+  const live = badge?.querySelector(".dl-live");
   const target = Number(badge?.dataset.downloads);
   const calm = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const final = live?.textContent?.trim() ?? "";
+  const [, digits = "", suffix = ""] = /^([\d.]+)(\D*)$/.exec(final) ?? [];
+  const decimals = digits.split(".")[1]?.length ?? 0;
 
-  if (num && target && !calm && !sessionStorage.getItem("jimp-dl-counted")) {
+  if (live && target && digits && !calm && !sessionStorage.getItem("jimp-dl-counted")) {
     sessionStorage.setItem("jimp-dl-counted", "1");
-    const format = new Intl.NumberFormat("en-US", {
-      notation: "compact",
-      maximumFractionDigits: 1,
-    });
-    const final = num.textContent;
+    const finalValue = Number(digits);
     const start = performance.now();
     const tick = (now: number) => {
       const t = Math.min(1, (now - start) / 1400);
       const eased = 1 - (1 - t) ** 3;
-      num.textContent = t < 1 ? format.format(Math.round(target * eased)) : final;
+      live.textContent =
+        t < 1 ? (finalValue * eased).toFixed(decimals) + suffix : final;
       if (t < 1) requestAnimationFrame(tick);
     };
     requestAnimationFrame(tick);
@@ -269,6 +274,23 @@ const shortDate = (iso: string) =>
   }
   .dl:hover .dl-arrow {
     animation: dl-bob 0.6s ease-in-out infinite;
+  }
+  /* The hidden final value reserves the width, so counting up can't move
+     the header. */
+  /* The hidden final count sets the width; the live count sits on top of it,
+     so wider in-between digits ("0.0M") can't stretch the badge. */
+  .dl-num {
+    position: relative;
+    font-variant-numeric: tabular-nums;
+  }
+  .dl-size {
+    visibility: hidden;
+  }
+  .dl-live {
+    position: absolute;
+    inset-inline-end: 0;
+    top: 0;
+    white-space: nowrap;
   }
   .dl-unit {
     font-weight: 500;

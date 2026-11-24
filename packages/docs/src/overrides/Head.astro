@@ -1,0 +1,15 @@
+---
+import Default from "@astrojs/starlight/components/Head.astro";
+import { Font } from "astro:assets";
+---
+
+<Default><slot /></Default>
+{/* Starlight's search runs an inline script mid-header, and Chrome can paint
+    there, with the pills not yet parsed. Hold the first paint until the
+    whole header is in. */}
+<link rel="expect" href="#header-end" blocking="render" />
+{/* Preload what the header and hero paint first; the rest load on demand. */}
+<Font cssVariable="--font-luckiest-guy" preload />
+<Font cssVariable="--font-fredoka" preload={[{ weight: "600" }]} />
+<Font cssVariable="--font-nunito-sans" preload={[{ weight: "400", style: "normal" }]} />
+<Font cssVariable="--font-jetbrains-mono" />
