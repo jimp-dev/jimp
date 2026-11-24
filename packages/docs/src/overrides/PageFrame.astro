@@ -75,6 +75,12 @@ const { hasSidebar } = Astro.locals.starlightRoute;
     min-width: 0;
   }
 
+  /* Stretch the sidebar column to the page's height so the pane inside has
+     room to stick while the content scrolls. */
+  .sidebar {
+    align-self: stretch;
+  }
+
   .sidebar-pane {
     position: sticky;
     top: calc(var(--sl-nav-height) + 22px);
