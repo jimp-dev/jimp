@@ -69,10 +69,20 @@ const features = [
   }
   .postage {
     position: relative;
+    isolation: isolate;
     display: block;
     padding: 18px;
     color: var(--jp-text);
     text-decoration: none;
+    transform: rotate(var(--rot));
+    transition: transform 0.18s cubic-bezier(0.3, 1.8, 0.5, 1);
+  }
+  /* The perforated stamp: a 14px grid of holes centered on its edges. */
+  .postage::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
     background: var(--c);
     -webkit-mask:
       radial-gradient(circle 7px at 7px 7px, #0000 97%, #000) -7px -7px / 14px 14px round,
@@ -80,8 +90,18 @@ const features = [
     mask:
       radial-gradient(circle 7px at 7px 7px, #0000 97%, #000) -7px -7px / 14px 14px round,
       linear-gradient(#000 0 0) 14px 14px / calc(100% - 28px) calc(100% - 28px) no-repeat;
-    transform: rotate(var(--rot));
-    transition: transform 0.18s cubic-bezier(0.3, 1.8, 0.5, 1);
+  }
+  /* Safari doesn't stretch `round` tiles to fit, so the last row and column
+     of holes get cut off. Size the stamp to whole tiles instead, centered on
+     the card. */
+  @supports (width: round(1px, 14px)) {
+    .postage::before {
+      inset: auto;
+      width: round(100%, 14px);
+      height: round(100%, 14px);
+      left: calc(50% - round(100%, 14px) / 2);
+      top: calc(50% - round(100%, 14px) / 2);
+    }
   }
   .postage:hover {
     color: var(--jp-text);
