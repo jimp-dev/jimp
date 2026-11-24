@@ -1,6 +1,7 @@
 import { Buffer } from "buffer";
 import utif, { IFD, TiffTag } from "utif2";
-import { Bitmap, Format } from "@jimp/types";
+import { Bitmap, DecodeFramesOptions, Format } from "@jimp/types";
+import { writeTiff } from "./writer.js";
 
 export interface DecodeTiffOptions {
   /**
@@ -318,6 +319,75 @@ function cmykToRGBA8(page: IFD) {
   return rgba;
 }
 
+/** The width and height of a page, as decoded by utif2 */
+function getPageSize(page: IFD) {
+  if (!page.t256) {
+    throw new Error("No image width found in TIFF");
+  }
+
+  if (!page.t257) {
+    throw new Error("No image height found in TIFF");
+  }
+
+  return {
+    width: getDimensionValue(page.t256),
+    height: getDimensionValue(page.t257),
+  };
+}
+
+/** Decode the pixels of a page that has passed validatePage */
+function decodePage(data: Buffer, page: IFD): Bitmap {
+  const { width, height } = getPageSize(page);
+
+  utif.decodeImage(data, page);
+
+  const rgba =
+    getTagValue(page, 262) === PHOTOMETRIC_CMYK
+      ? cmykToRGBA8(page)
+      : utif.toRGBA8(page);
+
+  return {
+    data: Buffer.from(rgba),
+    width,
+    height,
+  } as Bitmap;
+}
+
+/** Read the IFDs of the first `maxPages` pages and check their sizes */
+function readPages(data: Buffer, maxResolutionInMP: number, maxPages: number) {
+  validateIfds(data);
+
+  // Maker notes aren't needed, and utif2 parses them without the checks above
+  const ifds = (
+    utif.decode as (
+      buffer: Buffer,
+      options: { parseMN: boolean; debug: boolean }
+    ) => IFD[]
+  )(data, { parseMN: false, debug: false });
+  const pages = ifds.slice(0, maxPages);
+
+  if (!pages[0]) {
+    throw new Error("No page found in TIFF");
+  }
+
+  let pixels = 0;
+
+  for (const page of pages) {
+    const { width, height } = getPageSize(page);
+
+    validatePage(data, page, width, height, maxResolutionInMP);
+    pixels += width! * height!;
+
+    if (pixels > maxResolutionInMP * 1_000_000) {
+      throw new Error(
+        `TIFF pages together exceed the maximum resolution of ${maxResolutionInMP} megapixels. Decode fewer pages with maxFrames, or raise maxResolutionInMP`
+      );
+    }
+  }
+
+  return pages;
+}
+
 export default function tiff() {
   return {
     mime: "image/tiff",
@@ -325,48 +395,42 @@ export default function tiff() {
       const tiff = utif.encodeImage(bitmap.data, bitmap.width, bitmap.height);
       return Buffer.from(tiff);
     },
-    decode: (data, { maxResolutionInMP = 100 }: DecodeTiffOptions = {}) => {
-      validateIfds(data);
-
-      // Maker notes aren't needed, and utif2 parses them without the checks above
-      const ifds = (
-        utif.decode as (
-          buffer: Buffer,
-          options: { parseMN: boolean; debug: boolean }
-        ) => IFD[]
-      )(data, { parseMN: false, debug: false });
-      const page = ifds[0];
-
-      if (!page) {
-        throw new Error("No page found in TIFF");
-      }
-
-      if (!page.t256) {
-        throw new Error("No image width found in TIFF");
-      }
-
-      if (!page.t257) {
-        throw new Error("No image height found in TIFF");
-      }
-
-      const width = getDimensionValue(page.t256);
-      const height = getDimensionValue(page.t257);
-
-      validatePage(data, page, width, height, maxResolutionInMP);
-
+    decode: (data, { maxResolutionInMP = 100 }: DecodeTiffOptions = {}) =>
       // Only the first page is returned, so only decode that one
-      utif.decodeImage(data, page);
+      decodePage(data, readPages(data, maxResolutionInMP, 1)[0]!),
+    /**
+     * Decode every page of a multi-page TIFF. Pages can have different sizes.
+     * `maxResolutionInMP` limits the size of all pages together.
+     */
+    decodeFrames: (
+      data,
+      { maxResolutionInMP = 100 }: DecodeTiffOptions = {},
+      { maxFrames = Infinity }: DecodeFramesOptions = {}
+    ) => ({
+      frames: readPages(data, maxResolutionInMP, maxFrames).map((page) => ({
+        bitmap: decodePage(data, page),
+      })),
+    }),
+    /**
+     * Encode a multi-page TIFF with a page for each frame. Pages can have
+     * different sizes, and are stored as uncompressed RGBA.
+     */
+    encodeFrames: (frames) => {
+      if (frames.length === 0) {
+        throw new Error("Can't encode a TIFF without pages");
+      }
 
-      const rgba =
-        getTagValue(page, 262) === PHOTOMETRIC_CMYK
-          ? cmykToRGBA8(page)
-          : utif.toRGBA8(page);
+      for (const { bitmap } of frames) {
+        if (bitmap.width <= 0 || bitmap.height <= 0) {
+          throw new Error(
+            `Invalid TIFF dimensions ${bitmap.width}x${bitmap.height}`
+          );
+        }
+      }
 
-      return {
-        data: Buffer.from(rgba),
-        width,
-        height,
-      } as Bitmap;
+      const tiff = writeTiff(frames.map(({ bitmap }) => bitmap));
+
+      return Buffer.from(tiff.buffer, tiff.byteOffset, tiff.byteLength);
     },
-  } satisfies Format<"image/tiff">;
+  } satisfies Format<"image/tiff", undefined, DecodeTiffOptions>;
 }

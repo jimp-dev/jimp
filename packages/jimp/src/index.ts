@@ -201,7 +201,12 @@ export type {
   JimpSimpleConstructorOptions,
   ColorSpaceName,
   ReadOptions,
+  ReadFramesOptions,
+  JimpFrame,
+  JimpFrames,
+  FrameInput,
 } from "@jimp/core";
+export type { EncodeGifFramesOptions } from "@jimp/js-gif";
 export { Edge } from "@jimp/types";
 export type { Bitmap, RGBAColor, RGBColor } from "@jimp/types";
 export { loadFont } from "@jimp/plugin-print/load-font";

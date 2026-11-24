@@ -83,6 +83,29 @@ const buffer = await image.getBuffer(JimpMime.jpeg, { quality: 80 });
 await image.write("test.jpg", { quality: 80 });
 ```
 
+### Animated GIFs and multi-page TIFFs
+
+`Jimp.read` reads the first frame. `Jimp.readFrames` reads every frame of an animated GIF or page of a multi-page TIFF as a separate Jimp image. GIF frames are complete images, already drawn over the previous frames, with their delay in milliseconds. `Jimp.writeFrames` and `Jimp.encodeFrames` write them back:
+
+```js
+const { frames, loop } = await Jimp.readFrames("animation.gif");
+
+for (const { image } of frames) {
+  image.resize({ w: 100 });
+}
+
+await Jimp.writeFrames("small.gif", frames, { loop });
+
+// Frames can be images, or images with a delay
+await Jimp.writeFrames("blink.gif", [
+  { image: red, delay: 500 },
+  { image: blue, delay: 500 },
+]);
+await Jimp.writeFrames("scans.tiff", [page1, page2]);
+```
+
+Other formats read as a single frame. Pass `maxFrames` to only read the start of a long animation; a format's `maxResolutionInMP` limits all of its frames together.
+
 ### Printing text
 
 Load a font with `loadFont`. The bundled fonts are named exports of `jimp/fonts`:
