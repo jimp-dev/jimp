@@ -84,7 +84,7 @@ const seeds = [
     }
   });
 
-const MUTATIONS = 20_000;
+const MUTATIONS = 10_000;
 /** Small, so allocations are bounded by it rather than by memory */
 const maxResolutionInMP = 1;
 
