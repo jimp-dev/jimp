@@ -1,3 +1,19 @@
+# v2.1.0 (Tue Nov 24 2026)
+
+#### 🚀 Enhancement
+
+- feat: @jimp/jpeg-js, a maintained fork of jpeg-js, used by @jimp/js-jpeg [#1554](https://github.com/jimp-dev/jimp/pull/1554) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+
+#### 📝 Documentation
+
+- docs: brand the READMEs with Jimpy and the JIMP wordmark [#1547](https://github.com/jimp-dev/jimp/pull/1547) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+
+#### Authors: 1
+
+- Andrew Lisowski ([@hipstersmoothie](https://github.com/hipstersmoothie))
+
+---
+
 # v2.0.0 (Mon Nov 23 2026)
 
 :tada: This release contains work from a new contributor! :tada:

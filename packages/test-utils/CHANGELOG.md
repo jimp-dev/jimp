@@ -1,3 +1,16 @@
+# v2.1.0 (Tue Nov 24 2026)
+
+#### 🚀 Enhancement
+
+- Decode GIFs with Jimp's own reader and drop omggif [#1553](https://github.com/jimp-dev/jimp/pull/1553) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- Add @jimp/pngjs, a maintained fork of pngjs, and use it in @jimp/js-png [#1552](https://github.com/jimp-dev/jimp/pull/1552) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+
+#### Authors: 1
+
+- Andrew Lisowski ([@hipstersmoothie](https://github.com/hipstersmoothie))
+
+---
+
 # v2.0.0 (Mon Nov 23 2026)
 
 #### 💥 Breaking Change

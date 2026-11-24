@@ -1,3 +1,42 @@
+# v2.1.0 (Tue Nov 24 2026)
+
+#### 🚀 Enhancement
+
+- `@jimp/core`, `@jimp/docs`, `jimp`, `@jimp/jpeg-js`, `@jimp/js-jpeg`, `@jimp/plugin-blur`, `@jimp/plugin-color`, `@jimp/plugin-dither`, `@jimp/plugin-print`, `@jimp/plugin-threshold`
+  - feat: @jimp/jpeg-js, a maintained fork of jpeg-js, used by @jimp/js-jpeg [#1554](https://github.com/jimp-dev/jimp/pull/1554) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- `@jimp/docs`, `@jimp/test-utils`, `@jimp/js-gif`
+  - Decode GIFs with Jimp's own reader and drop omggif [#1553](https://github.com/jimp-dev/jimp/pull/1553) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- `@jimp/config-vitest`, `@jimp/docs`, `jimp`, `@jimp/pngjs`, `@jimp/test-utils`, `@jimp/js-ico`, `@jimp/js-png`
+  - Add @jimp/pngjs, a maintained fork of pngjs, and use it in @jimp/js-png [#1552](https://github.com/jimp-dev/jimp/pull/1552) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+
+#### 🏠 Internal
+
+- ci: allow deploying the docs by hand after a release [#1546](https://github.com/jimp-dev/jimp/pull/1546) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- `@jimp/jpeg-js`
+  - chore: move the jpeg-js test corpus into Git LFS [#1556](https://github.com/jimp-dev/jimp/pull/1556) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- `@jimp/pngjs`
+  - test(pngjs): give the 6000x4000 round-trip test a 60s timeout [#1557](https://github.com/jimp-dev/jimp/pull/1557) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- `@jimp/pngjs`, `@jimp/js-gif`
+  - chore: store the codec conformance test images in Git LFS [#1555](https://github.com/jimp-dev/jimp/pull/1555) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+
+#### 📝 Documentation
+
+- docs: close the letter outlines in the README logo [#1549](https://github.com/jimp-dev/jimp/pull/1549) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- `@jimp/docs`
+  - docs: stop Safari cutting off the feature stamps [#1551](https://github.com/jimp-dev/jimp/pull/1551) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+  - docs: stop layout shift on load and cross-fade between pages [#1550](https://github.com/jimp-dev/jimp/pull/1550) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+  - docs: replace the pencil mascot with Jimpy in the favicon and share banner [#1548](https://github.com/jimp-dev/jimp/pull/1548) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+  - docs: keep the left sidebar in view while scrolling [#1545](https://github.com/jimp-dev/jimp/pull/1545) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+  - docs: stop the header shifting on page load [#1544](https://github.com/jimp-dev/jimp/pull/1544) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- `jimp`, `@jimp/js-bmp`, `@jimp/js-gif`, `@jimp/js-ico`, `@jimp/js-jpeg`, `@jimp/js-png`, `@jimp/js-tiff`, `@jimp/plugin-blit`, `@jimp/plugin-blur`, `@jimp/plugin-border`, `@jimp/plugin-circle`, `@jimp/plugin-color`, `@jimp/plugin-contain`, `@jimp/plugin-cover`, `@jimp/plugin-crop`, `@jimp/plugin-displace`, `@jimp/plugin-dither`, `@jimp/plugin-draw`, `@jimp/plugin-fisheye`, `@jimp/plugin-flip`, `@jimp/plugin-mask`, `@jimp/plugin-morphology`, `@jimp/plugin-print`, `@jimp/plugin-quantize`, `@jimp/plugin-resize`, `@jimp/plugin-rotate`, `@jimp/plugin-shadow`, `@jimp/plugin-threshold`, `@jimp/wasm-avif`, `@jimp/wasm-jpeg`, `@jimp/wasm-jpeg2000`, `@jimp/wasm-jxl`, `@jimp/wasm-png`, `@jimp/wasm-svg`, `@jimp/wasm-webp`
+  - docs: brand the READMEs with Jimpy and the JIMP wordmark [#1547](https://github.com/jimp-dev/jimp/pull/1547) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+
+#### Authors: 1
+
+- Andrew Lisowski ([@hipstersmoothie](https://github.com/hipstersmoothie))
+
+---
+
 # v2.0.0 (Mon Nov 23 2026)
 
 :tada: This release contains work from new contributors! :tada:

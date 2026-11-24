@@ -1,3 +1,23 @@
+# v2.1.0 (Tue Nov 24 2026)
+
+#### 🚀 Enhancement
+
+- Decode GIFs with Jimp's own reader and drop omggif [#1553](https://github.com/jimp-dev/jimp/pull/1553) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+
+#### 🏠 Internal
+
+- chore: store the codec conformance test images in Git LFS [#1555](https://github.com/jimp-dev/jimp/pull/1555) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+
+#### 📝 Documentation
+
+- docs: brand the READMEs with Jimpy and the JIMP wordmark [#1547](https://github.com/jimp-dev/jimp/pull/1547) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+
+#### Authors: 1
+
+- Andrew Lisowski ([@hipstersmoothie](https://github.com/hipstersmoothie))
+
+---
+
 # v2.0.0 (Mon Nov 23 2026)
 
 #### 💥 Breaking Change
