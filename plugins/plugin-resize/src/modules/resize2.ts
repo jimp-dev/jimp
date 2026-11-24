@@ -39,6 +39,35 @@ function straight(buf: any, i: number) {
 }
 
 /**
+ * Read the `length` channels of `buf` from `start` into `row`, with RGB
+ * premultiplied by alpha like `premultiplied`, or as they are
+ */
+function readRow(
+  buf: any,
+  start: number,
+  length: number,
+  premultiply: boolean,
+  row: Float64Array,
+) {
+  if (!premultiply) {
+    for (let i = 0; i < length; i++) {
+      row[i] = buf[start + i];
+    }
+
+    return;
+  }
+
+  for (let i = 0; i < length; i += 4) {
+    const a = buf[start + i + 3];
+
+    row[i] = (buf[start + i] * a) / 255;
+    row[i + 1] = (buf[start + i + 1] * a) / 255;
+    row[i + 2] = (buf[start + i + 2] * a) / 255;
+    row[i + 3] = a;
+  }
+}
+
+/**
  * Turn a buffer of premultiplied RGBA back into straight RGBA, in place.
  * Pixels with no alpha get black, since they have no colour left.
  */
@@ -296,6 +325,336 @@ function convolve(src: any, dst: any, filter: Filter, premultiply: boolean) {
 const lanczos3 = lanczos(3);
 const lanczos2 = lanczos(2);
 
+/**
+ * Where each destination pixel lands between two source pixels along one axis,
+ * as in `bilinearInterpolation`: the source pixels on either side, and the
+ * distance to each. `min` and `max` are the same when it lands on a pixel.
+ */
+function bilinearAxis(srcSize: number, dstSize: number) {
+  const min = new Int32Array(dstSize);
+  const max = new Int32Array(dstSize);
+  const toMin = new Float64Array(dstSize);
+  const toMax = new Float64Array(dstSize);
+
+  for (let i = 0; i < dstSize; i++) {
+    const k = (i * srcSize) / dstSize;
+    const kMin = Math.floor(k);
+    const kMax = Math.min(Math.ceil(k), srcSize - 1);
+
+    min[i] = kMin;
+    max[i] = kMax;
+    toMin[i] = k - kMin;
+    toMax[i] = kMax - k;
+  }
+
+  return { min, max, toMin, toMax };
+}
+
+function cubic(x0: number, x1: number, x2: number, x3: number, t: number) {
+  const a0 = x3 - x2 - x0 + x1;
+  const a1 = x0 - x1 - a0;
+  const a2 = x2 - x0;
+  const a3 = x1;
+  return Math.max(
+    0,
+    Math.min(255, a0 * (t * t * t) + a1 * (t * t) + a2 * t + a3),
+  );
+}
+
+function hermite(x0: number, x1: number, x2: number, x3: number, t: number) {
+  const c0 = x1;
+  const c1 = 0.5 * (x2 - x0);
+  const c2 = x0 - 2.5 * x1 + 2 * x2 - 0.5 * x3;
+  const c3 = 0.5 * (x3 - x0) + 1.5 * (x1 - x2);
+  return Math.max(
+    0,
+    Math.min(255, Math.round(((c3 * t + c2) * t + c1) * t + c0)),
+  );
+}
+
+// between 2 points y(n), y(n+1), use next points out, y(n-1), y(n+2)
+// to predict control points (a & b) to be placed at n+0.5
+//  ya(n) = y(n) + (y(n+1)-y(n-1))/4
+//  yb(n) = y(n+1) - (y(n+2)-y(n))/4
+// then use std bezier to interpolate [n,n+1)
+//  y(n+t) = y(n)*(1-t)^3 + 3 * ya(n)*(1-t)^2*t + 3 * yb(n)*(1-t)*t^2 + y(n+1)*t^3
+//  note the 3* factor for the two control points
+// for edge cases, can choose:
+//  y(-1) = y(0) - 2*(y(1)-y(0))
+//  y(w) = y(w-1) + 2*(y(w-1)-y(w-2))
+// but can go with y(-1) = y(0) and y(w) = y(w-1)
+function bezier(x0: number, x1: number, x2: number, x3: number, t: number) {
+  // x1, x2 are the knots, use x0 and x3 to calculate control points
+  const cp1 = x1 + (x2 - x0) / 4;
+  const cp2 = x2 - (x3 - x1) / 4;
+  const nt = 1 - t;
+  const c0 = x1 * nt * nt * nt;
+  const c1 = 3 * cp1 * nt * nt * t;
+  const c2 = 3 * cp2 * nt * t * t;
+  const c3 = x2 * t * t * t;
+  return Math.max(0, Math.min(255, Math.round(c0 + c1 + c2 + c3)));
+}
+
+type Kernel = "cubic" | "hermite" | "bezier";
+
+/**
+ * Interpolate between x1 and x2 at t with a kernel. Each kernel is called from
+ * its own call site, so it can be inlined
+ */
+function interpolate(
+  kernel: Kernel,
+  x0: number,
+  x1: number,
+  x2: number,
+  x3: number,
+  t: number,
+) {
+  if (kernel === "cubic") {
+    return cubic(x0, x1, x2, x3, t);
+  }
+
+  if (kernel === "hermite") {
+    return hermite(x0, x1, x2, x3, t);
+  }
+
+  return bezier(x0, x1, x2, x3, t);
+}
+
+/**
+ * Interpolate a row of RGBA, read by `readRow`, at each of `xPos` + `xT` into
+ * `out` from `outPos`
+ */
+function interpolateRow(
+  kernel: Kernel,
+  row: Float64Array,
+  wSrc: number,
+  xPos: Int32Array,
+  xT: Float64Array,
+  out: Uint8Array,
+  outPos: number,
+) {
+  // the cubic kernel doesn't round, and is truncated when stored
+  const round = kernel !== "cubic";
+
+  for (let j = 0; j < xPos.length; j++, outPos += 4) {
+    const t = xT[j]!;
+    const p = xPos[j]! * 4;
+
+    // at t = 0 every kernel gives x1, so the pixel is copied
+    if (t === 0) {
+      for (let k = 0; k < 4; k++) {
+        out[outPos + k] = round ? Math.round(row[p + k]!) : row[p + k]!;
+      }
+
+      continue;
+    }
+
+    // this interpolation requires 4 sample points and the two inner ones
+    // must be real, the outer points can be fudged for the edges. t isn't 0,
+    // so there is a next pixel
+    for (let k = 0; k < 4; k++) {
+      const x1 = row[p + k]!;
+      const x2 = row[p + k + 4]!;
+      const x0 = p > 0 ? row[p + k - 4]! : 2 * x1 - x2;
+      const x3 = p < (wSrc - 2) * 4 ? row[p + k + 8]! : 2 * x2 - x1;
+      out[outPos + k] = interpolate(kernel, x0, x1, x2, x3, t);
+    }
+  }
+}
+
+/**
+ * Interpolate between the rows of `buf` at `pos1` and the next one at t, into
+ * `out` from `outPos`. The rows before and after are fudged when their
+ * position is -1, at the edges
+ */
+function interpolateColumns(
+  kernel: Kernel,
+  buf: Uint8Array,
+  pos0: number,
+  pos1: number,
+  pos3: number,
+  stride: number,
+  t: number,
+  out: Uint8Array,
+  outPos: number,
+) {
+  const pos2 = pos1 + stride;
+
+  for (let n = 0; n < stride; n++) {
+    const y1 = buf[pos1 + n]!;
+    const y2 = buf[pos2 + n]!;
+    const y0 = pos0 >= 0 ? buf[pos0 + n]! : 2 * y1 - y2;
+    const y3 = pos3 >= 0 ? buf[pos3 + n]! : 2 * y2 - y1;
+
+    out[outPos + n] = interpolate(kernel, y0, y1, y2, y3, t);
+  }
+}
+
+/**
+ * Average a row of blocks of wM x hM pixels of `buf`, starting at `pos`, into
+ * `out` from `outPos`. `sums` has room for the sums of a row of blocks
+ */
+function averageBlocks(
+  buf: Uint8Array,
+  pos: number,
+  stride: number,
+  wM: number,
+  hM: number,
+  premultiply: boolean,
+  sums: Float64Array,
+  out: any,
+  outPos: number,
+) {
+  const m = wM * hM;
+
+  sums.fill(0);
+
+  for (let y = 0; y < hM; y++, pos += stride) {
+    let xyPos = pos;
+
+    for (let n = 0; n < sums.length; n += 4) {
+      for (let x = 0; x < wM; x++, xyPos += 4) {
+        sums[n]! += buf[xyPos]!;
+        sums[n + 1]! += buf[xyPos + 1]!;
+        sums[n + 2]! += buf[xyPos + 2]!;
+        sums[n + 3]! += buf[xyPos + 3]!;
+      }
+    }
+  }
+
+  for (let n = 0; n < sums.length; n += 4, outPos += 4) {
+    const r = sums[n]!;
+    const g = sums[n + 1]!;
+    const b = sums[n + 2]!;
+    const a = sums[n + 3]!;
+
+    if (premultiply) {
+      // un-premultiply: the colour is the alpha weighted average
+      out[outPos] = a ? Math.min(255, Math.round((r * 255) / a)) : 0;
+      out[outPos + 1] = a ? Math.min(255, Math.round((g * 255) / a)) : 0;
+      out[outPos + 2] = a ? Math.min(255, Math.round((b * 255) / a)) : 0;
+    } else {
+      out[outPos] = Math.round(r / m);
+      out[outPos + 1] = Math.round(g / m);
+      out[outPos + 2] = Math.round(b / m);
+    }
+
+    out[outPos + 3] = Math.round(a / m);
+  }
+}
+
+/**
+ * Resample with a 4 point kernel, rows first, then columns. When dst is
+ * smaller than half of src, interpolate first to a multiple of dst between 0.5
+ * and 1.0 src, then average blocks of that.
+ */
+function interpolate2D(
+  src: any,
+  dst: any,
+  premultiply: boolean,
+  kernel: Kernel,
+) {
+  const bufSrc = src.data;
+  const bufDst = dst.data;
+
+  const wSrc = src.width;
+  const hSrc = src.height;
+
+  const wDst = dst.width;
+  const hDst = dst.height;
+
+  const wM = Math.max(1, Math.floor(wSrc / wDst));
+  const wDst2 = wDst * wM;
+  const hM = Math.max(1, Math.floor(hSrc / hDst));
+  const hDst2 = hDst * hM;
+
+  // buf1 and buf2 hold RGB premultiplied by alpha, unless premultiply is
+  // false, so transparent pixels don't darken the edges of what they surround
+
+  // ===========================================================
+  // Pass 1 - interpolate rows
+  // buf1 has width of dst2 and height of src
+  const buf1 = new Uint8Array(wDst2 * hSrc * 4);
+  const row = new Float64Array(wSrc * 4);
+
+  // x in src coords for each column, aligned like bilinearInterpolation, and
+  // clamped to the last pixel, where t = 0 and the result is that pixel
+  const xPos = new Int32Array(wDst2);
+  const xT = new Float64Array(wDst2);
+
+  for (let j = 0; j < wDst2; j++) {
+    const x = Math.min((j * wSrc) / wDst2, wSrc - 1);
+    xPos[j] = Math.floor(x);
+    xT[j] = x - xPos[j]!;
+  }
+
+  for (let i = 0; i < hSrc; i++) {
+    readRow(bufSrc, i * wSrc * 4, wSrc * 4, premultiply, row);
+    interpolateRow(kernel, row, wSrc, xPos, xT, buf1, i * wDst2 * 4);
+  }
+
+  // ===========================================================
+  // Pass 2 - interpolate columns
+  // buf2 has width and height of dst2
+  const stride = wDst2 * 4;
+  const buf2 = Buffer.alloc(stride * hDst2);
+
+  for (let i = 0; i < hDst2; i++) {
+    // y in buf1 coords, aligned and clamped like x
+    const y = Math.min((i * hSrc) / hDst2, hSrc - 1);
+    const yPos = Math.floor(y);
+    const t = y - yPos;
+    const pos1 = yPos * stride;
+    const buf2Pos = i * stride;
+
+    // the rows of buf1 are whole numbers, so they come out as they are
+    if (t === 0) {
+      buf2.set(buf1.subarray(pos1, pos1 + stride), buf2Pos);
+      continue;
+    }
+
+    interpolateColumns(
+      kernel,
+      buf1,
+      yPos > 0 ? pos1 - stride : -1,
+      pos1,
+      yPos < hSrc - 2 ? pos1 + 2 * stride : -1,
+      stride,
+      t,
+      buf2,
+      buf2Pos,
+    );
+  }
+
+  // ===========================================================
+  // Pass 3 - scale to dst
+  if (wM * hM === 1) {
+    // replace dst buffer with buf2
+    if (premultiply) {
+      unpremultiply(buf2);
+    }
+
+    dst.data = buf2;
+    return;
+  }
+
+  const sums = new Float64Array(wDst * 4);
+
+  for (let i = 0; i < hDst; i++) {
+    averageBlocks(
+      buf2,
+      i * hM * stride,
+      stride,
+      wM,
+      hM,
+      premultiply,
+      sums,
+      bufDst,
+      i * wDst * 4,
+    );
+  }
+}
+
 export const operations = {
   nearestNeighbor(src: any, dst: any) {
     const wSrc = src.width;
@@ -325,84 +684,77 @@ export const operations = {
 
   bilinearInterpolation(src: any, dst: any, premultiply = true) {
     const wSrc = src.width;
-    const hSrc = src.height;
 
     const wDst = dst.width;
     const hDst = dst.height;
 
     const bufSrc = src.data;
     const bufDst = dst.data;
-    const read = premultiply ? premultiplied : straight;
 
-    const interpolate = function (
-      k: number,
-      kMin: number,
-      vMin: number,
-      kMax: number,
-      vMax: number,
-    ) {
-      // special case - k is integer
-      if (kMin === kMax) {
-        return Math.round(vMin);
-      }
+    const xs = bilinearAxis(wSrc, wDst);
+    const ys = bilinearAxis(src.height, hDst);
 
-      return Math.round((k - kMin) * vMax + (kMax - k) * vMin);
-    };
+    // interpolate row y of src to the width of dst, rounded, into out
+    const row = new Float64Array(wSrc * 4);
+    const interpolateRow = (y: number, out: Float64Array) => {
+      readRow(bufSrc, y * wSrc * 4, wSrc * 4, premultiply, row);
 
-    const assign = function (
-      pos: number,
-      offset: number,
-      x: number,
-      xMin: number,
-      xMax: number,
-      y: number,
-      yMin: number,
-      yMax: number,
-    ) {
-      let posMin = (yMin * wSrc + xMin) * 4 + offset;
-      let posMax = (yMin * wSrc + xMax) * 4 + offset;
-      const vMin = interpolate(
-        x,
-        xMin,
-        read(bufSrc, posMin),
-        xMax,
-        read(bufSrc, posMax),
-      );
+      for (let j = 0; j < wDst; j++) {
+        const posMin = xs.min[j]! * 4;
+        const posMax = xs.max[j]! * 4;
+        const toMin = xs.toMin[j]!;
+        const toMax = xs.toMax[j]!;
 
-      // special case, y is integer
-      if (yMax === yMin) {
-        bufDst[pos + offset] = vMin;
-      } else {
-        posMin = (yMax * wSrc + xMin) * 4 + offset;
-        posMax = (yMax * wSrc + xMax) * 4 + offset;
-        const vMax = interpolate(
-          x,
-          xMin,
-          read(bufSrc, posMin),
-          xMax,
-          read(bufSrc, posMax),
-        );
-
-        bufDst[pos + offset] = interpolate(y, yMin, vMin, yMax, vMax);
+        for (let k = 0; k < 4; k++) {
+          out[j * 4 + k] =
+            posMin === posMax
+              ? Math.round(row[posMin + k]!)
+              : Math.round(toMin * row[posMax + k]! + toMax * row[posMin + k]!);
+        }
       }
     };
+
+    // the interpolated rows above and below the current row of dst. Rows of
+    // dst only move down, so each row of src is interpolated once
+    let rowMin = new Float64Array(wDst * 4);
+    let rowMax = new Float64Array(wDst * 4);
+    let yRowMin = -1;
+    let yRowMax = -1;
 
     for (let i = 0; i < hDst; i++) {
-      for (let j = 0; j < wDst; j++) {
-        const posDst = (i * wDst + j) * 4;
-        // x & y in src coordinates
-        const x = (j * wSrc) / wDst;
-        const xMin = Math.floor(x);
-        const xMax = Math.min(Math.ceil(x), wSrc - 1);
+      const yMin = ys.min[i]!;
+      const yMax = ys.max[i]!;
 
-        const y = (i * hSrc) / hDst;
-        const yMin = Math.floor(y);
-        const yMax = Math.min(Math.ceil(y), hSrc - 1);
+      if (yMin !== yRowMin) {
+        if (yMin === yRowMax) {
+          [rowMin, rowMax] = [rowMax, rowMin];
+          [yRowMin, yRowMax] = [yRowMax, yRowMin];
+        } else {
+          interpolateRow(yMin, rowMin);
+          yRowMin = yMin;
+        }
+      }
 
-        assign(posDst, 0, x, xMin, xMax, y, yMin, yMax);
-        assign(posDst, 1, x, xMin, xMax, y, yMin, yMax);
-        assign(posDst, 2, x, xMin, xMax, y, yMin, yMax);
-        assign(posDst, 3, x, xMin, xMax, y, yMin, yMax);
+      const posDst = i * wDst * 4;
+
+      // special case, y is integer
+      if (yMin === yMax) {
+        bufDst.set(rowMin, posDst);
+        continue;
+      }
+
+      if (yMax !== yRowMax) {
+        interpolateRow(yMax, rowMax);
+        yRowMax = yMax;
+      }
+
+      const toMin = ys.toMin[i]!;
+      const toMax = ys.toMax[i]!;
+
+      for (let n = 0; n < wDst * 4; n++) {
+        bufDst[posDst + n] = Math.round(
+          toMin * rowMax[n]! + toMax * rowMin[n]!,
+        );
       }
     }
 
@@ -411,215 +763,16 @@ export const operations = {
     }
   },
 
-  _interpolate2D(src: any, dst: any, premultiply: boolean, interpolate: any) {
-    const bufSrc = src.data;
-    const bufDst = dst.data;
-
-    const wSrc = src.width;
-    const hSrc = src.height;
-
-    const wDst = dst.width;
-    const hDst = dst.height;
-
-    // when dst smaller than src/2, interpolate first to a multiple between 0.5 and 1.0 src, then sum squares
-    const wM = Math.max(1, Math.floor(wSrc / wDst));
-    const wDst2 = wDst * wM;
-    const hM = Math.max(1, Math.floor(hSrc / hDst));
-    const hDst2 = hDst * hM;
-
-    // buf1 and buf2 hold RGB premultiplied by alpha, unless premultiply is
-    // false, so transparent pixels don't darken the edges of what they surround
-    const read = premultiply ? premultiplied : straight;
-
-    // ===========================================================
-    // Pass 1 - interpolate rows
-    // buf1 has width of dst2 and height of src
-    const buf1 = Buffer.alloc(wDst2 * hSrc * 4);
-    for (let i = 0; i < hSrc; i++) {
-      for (let j = 0; j < wDst2; j++) {
-        // i in src coords, j in dst coords
-
-        // calculate x in src coords, aligned like bilinearInterpolation
-        // this interpolation requires 4 sample points and the two inner ones must be real
-        // the outer points can be fudged for the edges.
-        // x is clamped to the last pixel, where t = 0 and the result is that pixel
-        const x = Math.min((j * wSrc) / wDst2, wSrc - 1);
-        const xPos = Math.floor(x);
-        const t = x - xPos;
-        const srcPos = (i * wSrc + xPos) * 4;
-        // offset to the next pixel, 0 on the last column
-        const next = xPos < wSrc - 1 ? 4 : 0;
-        const buf1Pos = (i * wDst2 + j) * 4;
-
-        for (let k = 0; k < 4; k++) {
-          const kPos = srcPos + k;
-          const x1 = read(bufSrc, kPos);
-          const x2 = read(bufSrc, kPos + next);
-          const x0 = xPos > 0 ? read(bufSrc, kPos - 4) : 2 * x1 - x2;
-          const x3 = xPos < wSrc - 2 ? read(bufSrc, kPos + 8) : 2 * x2 - x1;
-          buf1[buf1Pos + k] = interpolate(x0, x1, x2, x3, t);
-        }
-      }
-    }
-    // this._writeFile(wDst2, hSrc, buf1, "out/buf1.jpg");
-
-    // ===========================================================
-    // Pass 2 - interpolate columns
-    // buf2 has width and height of dst2
-    const buf2 = Buffer.alloc(wDst2 * hDst2 * 4);
-    for (let i = 0; i < hDst2; i++) {
-      for (let j = 0; j < wDst2; j++) {
-        // i&j in dst2 coords
-
-        // calculate y in buf1 coords, aligned like bilinearInterpolation
-        // this interpolation requires 4 sample points and the two inner ones must be real
-        // the outer points can be fudged for the edges.
-        // y is clamped to the last row, where t = 0 and the result is that row
-        const y = Math.min((i * hSrc) / hDst2, hSrc - 1);
-        const yPos = Math.floor(y);
-        const t = y - yPos;
-        const buf1Pos = (yPos * wDst2 + j) * 4;
-        // offset to the next row, 0 on the last row
-        const next = yPos < hSrc - 1 ? wDst2 * 4 : 0;
-        const buf2Pos = (i * wDst2 + j) * 4;
-        for (let k = 0; k < 4; k++) {
-          const kPos = buf1Pos + k;
-          const y1 = buf1[kPos]!;
-          const y2 = buf1[kPos + next]!;
-          const y0 = yPos > 0 ? buf1[kPos - wDst2 * 4] : 2 * y1 - y2;
-          const y3 = yPos < hSrc - 2 ? buf1[kPos + wDst2 * 8] : 2 * y2 - y1;
-
-          buf2[buf2Pos + k] = interpolate(y0, y1, y2, y3, t);
-        }
-      }
-    }
-    // this._writeFile(wDst2, hDst2, buf2, "out/buf2.jpg");
-
-    // ===========================================================
-    // Pass 3 - scale to dst
-    const m = wM * hM;
-    if (m > 1) {
-      for (let i = 0; i < hDst; i++) {
-        for (let j = 0; j < wDst; j++) {
-          // i&j in dst bounded coords
-          let r = 0;
-          let g = 0;
-          let b = 0;
-          let a = 0;
-
-          for (let y = 0; y < hM; y++) {
-            const yPos = i * hM + y;
-
-            for (let x = 0; x < wM; x++) {
-              const xPos = j * wM + x;
-              const xyPos = (yPos * wDst2 + xPos) * 4;
-
-              r += buf2[xyPos]!;
-              g += buf2[xyPos + 1]!;
-              b += buf2[xyPos + 2]!;
-              a += buf2[xyPos + 3]!;
-            }
-          }
-
-          const pos = (i * wDst + j) * 4;
-
-          if (premultiply) {
-            // un-premultiply: the colour is the alpha weighted average
-            bufDst[pos] = a ? Math.min(255, Math.round((r * 255) / a)) : 0;
-            bufDst[pos + 1] = a ? Math.min(255, Math.round((g * 255) / a)) : 0;
-            bufDst[pos + 2] = a ? Math.min(255, Math.round((b * 255) / a)) : 0;
-          } else {
-            bufDst[pos] = Math.round(r / m);
-            bufDst[pos + 1] = Math.round(g / m);
-            bufDst[pos + 2] = Math.round(b / m);
-          }
-
-          bufDst[pos + 3] = Math.round(a / m);
-        }
-      }
-    } else {
-      // replace dst buffer with buf2
-      if (premultiply) {
-        unpremultiply(buf2);
-      }
-
-      dst.data = buf2;
-    }
-  },
-
   bicubicInterpolation(src: any, dst: any, premultiply = true) {
-    const interpolateCubic = function (
-      x0: number,
-      x1: number,
-      x2: number,
-      x3: number,
-      t: number,
-    ) {
-      const a0 = x3 - x2 - x0 + x1;
-      const a1 = x0 - x1 - a0;
-      const a2 = x2 - x0;
-      const a3 = x1;
-      return Math.max(
-        0,
-        Math.min(255, a0 * (t * t * t) + a1 * (t * t) + a2 * t + a3),
-      );
-    };
-
-    return this._interpolate2D(src, dst, premultiply, interpolateCubic);
+    interpolate2D(src, dst, premultiply, "cubic");
   },
 
   hermiteInterpolation(src: any, dst: any, premultiply = true) {
-    const interpolateHermite = function (
-      x0: number,
-      x1: number,
-      x2: number,
-      x3: number,
-      t: number,
-    ) {
-      const c0 = x1;
-      const c1 = 0.5 * (x2 - x0);
-      const c2 = x0 - 2.5 * x1 + 2 * x2 - 0.5 * x3;
-      const c3 = 0.5 * (x3 - x0) + 1.5 * (x1 - x2);
-      return Math.max(
-        0,
-        Math.min(255, Math.round(((c3 * t + c2) * t + c1) * t + c0)),
-      );
-    };
-
-    return this._interpolate2D(src, dst, premultiply, interpolateHermite);
+    interpolate2D(src, dst, premultiply, "hermite");
   },
 
   bezierInterpolation(src: any, dst: any, premultiply = true) {
-    // between 2 points y(n), y(n+1), use next points out, y(n-1), y(n+2)
-    // to predict control points (a & b) to be placed at n+0.5
-    //  ya(n) = y(n) + (y(n+1)-y(n-1))/4
-    //  yb(n) = y(n+1) - (y(n+2)-y(n))/4
-    // then use std bezier to interpolate [n,n+1)
-    //  y(n+t) = y(n)*(1-t)^3 + 3 * ya(n)*(1-t)^2*t + 3 * yb(n)*(1-t)*t^2 + y(n+1)*t^3
-    //  note the 3* factor for the two control points
-    // for edge cases, can choose:
-    //  y(-1) = y(0) - 2*(y(1)-y(0))
-    //  y(w) = y(w-1) + 2*(y(w-1)-y(w-2))
-    // but can go with y(-1) = y(0) and y(w) = y(w-1)
-    const interpolateBezier = function (
-      x0: number,
-      x1: number,
-      x2: number,
-      x3: number,
-      t: number,
-    ) {
-      // x1, x2 are the knots, use x0 and x3 to calculate control points
-      const cp1 = x1 + (x2 - x0) / 4;
-      const cp2 = x2 - (x3 - x1) / 4;
-      const nt = 1 - t;
-      const c0 = x1 * nt * nt * nt;
-      const c1 = 3 * cp1 * nt * nt * t;
-      const c2 = 3 * cp2 * nt * t * t;
-      const c3 = x2 * t * t * t;
-      return Math.max(0, Math.min(255, Math.round(c0 + c1 + c2 + c3)));
-    };
-
-    return this._interpolate2D(src, dst, premultiply, interpolateBezier);
+    interpolate2D(src, dst, premultiply, "bezier");
   },
 
   lanczosInterpolation(src: any, dst: any, premultiply = true) {

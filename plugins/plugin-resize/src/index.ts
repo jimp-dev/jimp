@@ -90,6 +90,17 @@ const ScaleComplexOptionsSchema = z.object({
 export type ScaleComplexOptions = z.infer<typeof ScaleComplexOptionsSchema>;
 export type ScaleOptions = number | ScaleComplexOptions;
 
+/** Whether any pixel of RGBA data isn't opaque */
+function hasTransparency(data: ArrayLike<number>) {
+  for (let i = 3; i < data.length; i += 4) {
+    if (data[i] !== 255) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
 /** Copy RGBA data with each color multiplied by its pixel's alpha */
 function toPremultiplied(data: ArrayLike<number>) {
   const result = new Float32Array(data.length);
@@ -207,9 +218,7 @@ export const methods = {
       const { data } = image.bitmap;
       // Images with transparency are resized with their colors premultiplied
       // by alpha, so transparent pixels don't darken their neighbors
-      const premultiply =
-        premultiplyAlpha &&
-        data.some((value, i) => (i & 3) === 3 && value !== 255);
+      const premultiply = premultiplyAlpha && hasTransparency(data);
       const resize = new (Resize as unknown as Constructable<ResizeClass>)(
         image.bitmap.width,
         image.bitmap.height,
