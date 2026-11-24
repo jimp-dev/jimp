@@ -414,6 +414,12 @@ export function readPng(
       }
     }
 
+    // The header is done once image data starts, which needn't be complete
+    if (options.headersOnly && file && name === "IDAT") {
+      seenIdat = true;
+      break;
+    }
+
     if (length > MAX_CHUNK_LENGTH || typeOffset + 8 + length > data.length) {
       if (structureError(`Unexpected end of file in ${name} chunk`)) {
         break;
@@ -456,11 +462,6 @@ export function readPng(
     }
 
     if (name === "IDAT") {
-      if (options.headersOnly) {
-        seenIdat = true;
-        break;
-      }
-
       // IDAT chunks must be consecutive. libpng errors when they aren't, but
       // there's no doubt about what the file means, so use the data.
       seenIdat = true;

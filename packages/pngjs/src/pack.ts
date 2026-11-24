@@ -300,7 +300,8 @@ export function packPass(
     colorType === ColorType.COLOR_ALPHA &&
     depth === 8 &&
     source.depth === 8 &&
-    step === 4
+    pass.xStep === 1 &&
+    pass.yStep === 1
   ) {
     return (data as Uint8Array).subarray(0, lineBytes * pass.height);
   }
