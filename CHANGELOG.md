@@ -1,3 +1,286 @@
+# v2.0.0 (Mon Nov 23 2026)
+
+:tada: This release contains work from new contributors! :tada:
+
+Thanks for all your work!
+
+:heart: Hanbin Tan ([@hskl18](https://github.com/hskl18))
+
+:heart: Matt Van Horn ([@mvanhorn](https://github.com/mvanhorn))
+
+:heart: Sandhan Aniket Ramdas ([@Aniketiitk21](https://github.com/Aniketiitk21))
+
+:heart: droid ([@joras-droid](https://github.com/joras-droid))
+
+:heart: null[@Shrusti-pk](https://github.com/Shrusti-pk)
+
+:heart: Vilim Lendvaj ([@viliml](https://github.com/viliml))
+
+:heart: Defiant Catgirl ([@DefiantCatgirl](https://github.com/DefiantCatgirl))
+
+:heart: Goran ([@goranai](https://github.com/goranai))
+
+:heart: Spoko Dev ([@spokodev](https://github.com/spokodev))
+
+:heart: null[@MentalGear](https://github.com/MentalGear)
+
+:heart: rxliuli ([@rxliuli](https://github.com/rxliuli))
+
+:heart: Panagiotis Papadopoulos ([@pano9000](https://github.com/pano9000))
+
+:heart: Roger Bambinetti ([@RogerBambinetti](https://github.com/RogerBambinetti))
+
+:heart: 周耕毅（Ryan Chou） ([@ryanchou1994](https://github.com/ryanchou1994))
+
+:heart: Bishwajeet Parhi ([@2002Bishwajeet](https://github.com/2002Bishwajeet))
+
+#### 💥 Breaking Change
+
+- `jimp`, `@jimp/js-bmp`, `@jimp/js-gif`, `@jimp/js-jpeg`, `@jimp/js-png`, `@jimp/plugin-rotate`, `@jimp/wasm-avif`, `@jimp/wasm-jpeg`, `@jimp/wasm-png`, `@jimp/wasm-webp`
+  - refactor!: remove options that have no effect, interpolate rotate's resize modes, add BMP bitPP [#1508](https://github.com/jimp-dev/jimp/pull/1508) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- `jimp`, `@jimp/plugin-color`, `@jimp/plugin-hash`, `@jimp/plugin-threshold`
+  - fix(plugin-color)!: round greyscale and use the same luminance in color() [#1507](https://github.com/jimp-dev/jimp/pull/1507) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- `@jimp/core`, `jimp`, `@jimp/types`, `@jimp/plugin-fisheye`
+  - fix(core)!: don't paint edge pixels when setPixelColor is outside the image [#1506](https://github.com/jimp-dev/jimp/pull/1506) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- `@jimp/plugin-print`
+  - fix(plugin-print)!: keep blank lines in printed text [#1505](https://github.com/jimp-dev/jimp/pull/1505) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- `@jimp/core`, `@jimp/file-ops`, `jimp`
+  - fix(core)!: composite across Jimp classes, clone mime/background, read Uint8Array/Blob, type write() options per extension [#1503](https://github.com/jimp-dev/jimp/pull/1503) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- `@jimp/config-vitest`, `@jimp/core`, `@jimp/diff`, `@jimp/file-ops`, `jimp`, `@jimp/test-utils`, `@jimp/types`, `@jimp/utils`, `@jimp/js-bmp`, `@jimp/js-gif`, `@jimp/js-jpeg`, `@jimp/js-png`, `@jimp/js-tiff`, `@jimp/plugin-blit`, `@jimp/plugin-blur`, `@jimp/plugin-border`, `@jimp/plugin-circle`, `@jimp/plugin-color`, `@jimp/plugin-contain`, `@jimp/plugin-cover`, `@jimp/plugin-crop`, `@jimp/plugin-displace`, `@jimp/plugin-dither`, `@jimp/plugin-fisheye`, `@jimp/plugin-flip`, `@jimp/plugin-hash`, `@jimp/plugin-mask`, `@jimp/plugin-print`, `@jimp/plugin-quantize`, `@jimp/plugin-resize`, `@jimp/plugin-rotate`, `@jimp/plugin-shadow`, `@jimp/plugin-threshold`, `@jimp/wasm-avif`, `@jimp/wasm-jpeg`, `@jimp/wasm-png`, `@jimp/wasm-webp`
+  - chore!: require Node.js 22 or later [#1504](https://github.com/jimp-dev/jimp/pull/1504) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- `@jimp/core`, `@jimp/utils`, `@jimp/plugin-color`, `@jimp/plugin-quantize`, `@jimp/plugin-threshold`, `@jimp/wasm-jpeg`
+  - fix!: correct pixel maths in the color, threshold and quantize plugins [#1500](https://github.com/jimp-dev/jimp/pull/1500) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- `@jimp/core`, `jimp`, `@jimp/utils`, `@jimp/plugin-blit`, `@jimp/plugin-color`, `@jimp/plugin-crop`
+  - fix(utils)!: clamp out-of-bounds regions to the image [#1501](https://github.com/jimp-dev/jimp/pull/1501) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- `jimp`, `@jimp/plugin-blur`, `@jimp/plugin-circle`, `@jimp/plugin-contain`, `@jimp/plugin-cover`, `@jimp/plugin-crop`, `@jimp/plugin-displace`, `@jimp/plugin-hash`, `@jimp/plugin-resize`, `@jimp/plugin-shadow`
+  - fix!: blur radius, cover/contain align, resize alpha, autocrop, displace, circle, shadow and compareHashes [#1499](https://github.com/jimp-dev/jimp/pull/1499) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- `jimp`, `@jimp/plugin-print`
+  - fix(plugin-print)!: align text without maxWidth, measure newlines, clear loadFont HTTP errors [#1498](https://github.com/jimp-dev/jimp/pull/1498) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- `jimp`, `@jimp/utils`, `@jimp/plugin-border`, `@jimp/plugin-color`
+  - fix(utils)!: throw for invalid CSS colors [#1497](https://github.com/jimp-dev/jimp/pull/1497) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- `@jimp/plugin-hash`
+  - fix(plugin-hash): exclude DC term from pHash average and composite alpha onto grey [#1466](https://github.com/jimp-dev/jimp/pull/1466) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+
+#### 🚀 Enhancement
+
+- `jimp`, `@jimp/plugin-draw`, `@jimp/plugin-print`
+  - feat: print TrueType, OpenType and WOFF fonts [#1539](https://github.com/jimp-dev/jimp/pull/1539) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- `jimp`, `@jimp/plugin-draw`
+  - feat: add @jimp/plugin-draw for lines, shapes, paths, gradients and flood fill [#1530](https://github.com/jimp-dev/jimp/pull/1530) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- `@jimp/core`, `jimp`, `@jimp/test-utils`, `@jimp/types`, `@jimp/js-gif`, `@jimp/js-tiff`
+  - feat: read and write animated GIFs and multi-page TIFFs [#1529](https://github.com/jimp-dev/jimp/pull/1529) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- `jimp`, `@jimp/plugin-morphology`
+  - feat: add erode(), dilate(), open() and close() [#1523](https://github.com/jimp-dev/jimp/pull/1523) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- `@jimp/core`, `jimp`, `@jimp/wasm-jxl`
+  - feat(wasm-jxl): add JPEG XL format plugin [#1521](https://github.com/jimp-dev/jimp/pull/1521) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- `jimp`, `@jimp/js-bmp`, `@jimp/js-ico`
+  - feat(js-bmp): write 1-, 4- and 8-bit BMPs [#1518](https://github.com/jimp-dev/jimp/pull/1518) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- `@jimp/core`, `jimp`, `@jimp/types`, `@jimp/wasm-svg`
+  - feat(wasm-svg): read SVG images [#1522](https://github.com/jimp-dev/jimp/pull/1522) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- `@jimp/core`, `jimp`, `@jimp/wasm-jpeg2000`
+  - feat(wasm-jpeg2000): add JPEG 2000 format plugin [#1520](https://github.com/jimp-dev/jimp/pull/1520) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- `jimp`, `@jimp/plugin-rotate`
+  - feat: add skew() and affine() transforms [#1515](https://github.com/jimp-dev/jimp/pull/1515) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- `@jimp/plugin-color`
+  - feat(plugin-color): add a multiply color action and sepia(amount) [#1517](https://github.com/jimp-dev/jimp/pull/1517) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+  - feat(plugin-color): add exposure() and vibrance() [#1516](https://github.com/jimp-dev/jimp/pull/1516) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- `@jimp/core`, `@jimp/docs`, `jimp`, `@jimp/test-utils`, `@jimp/js-ico`
+  - feat(js-ico): read and write ICO files [#1519](https://github.com/jimp-dev/jimp/pull/1519) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- `@jimp/plugin-displace`
+  - feat(plugin-displace): displace along y with offset { x, y } [#1514](https://github.com/jimp-dev/jimp/pull/1514) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- `@jimp/plugin-contain`, `@jimp/plugin-cover`
+  - feat(plugin-cover, plugin-contain): accept fractional { x, y } align [#1513](https://github.com/jimp-dev/jimp/pull/1513) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- `@jimp/core`, `jimp`, `@jimp/js-jpeg`
+  - feat(core): add exifRotate option to skip EXIF auto-rotation [#1512](https://github.com/jimp-dev/jimp/pull/1512) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- `@jimp/diff`, `jimp`
+  - feat(diff): accept pixelmatch options and transparent diff output [#1510](https://github.com/jimp-dev/jimp/pull/1510) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- `@jimp/plugin-contain`, `@jimp/plugin-cover`, `@jimp/plugin-resize`
+  - feat(plugin-resize): add premultiplyAlpha option to keep the colour of transparent pixels [#1502](https://github.com/jimp-dev/jimp/pull/1502) ([@hskl18](https://github.com/hskl18) [@hipstersmoothie](https://github.com/hipstersmoothie))
+- `jimp`, `@jimp/plugin-crop`, `@jimp/plugin-print`
+  - feat(plugin-crop): add autocropRect helper [#1404](https://github.com/jimp-dev/jimp/pull/1404) ([@Aniketiitk21](https://github.com/Aniketiitk21))
+
+#### 🐛 Bug Fix
+
+- docs: add security policy [#1461](https://github.com/jimp-dev/jimp/pull/1461) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- ci: stop pnpm 12 from reinstalling node_modules mid-build [#1452](https://github.com/jimp-dev/jimp/pull/1452) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- fix: order jimp's browser build after tshy and cache its output [#1441](https://github.com/jimp-dev/jimp/pull/1441) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- ci: cache turbo tasks with actions/cache and run jobs in parallel [#1427](https://github.com/jimp-dev/jimp/pull/1427) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- ci: run on Node 22 [#1425](https://github.com/jimp-dev/jimp/pull/1425) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- `@jimp/config-eslint`, `@jimp/config-vitest`, `@jimp/core`, `@jimp/diff`, `@jimp/file-ops`, `jimp`, `@jimp/test-utils`, `@jimp/types`, `@jimp/utils`, `@jimp/js-bmp`, `@jimp/js-gif`, `@jimp/js-ico`, `@jimp/js-jpeg`, `@jimp/js-png`, `@jimp/js-tiff`, `@jimp/plugin-blit`, `@jimp/plugin-blur`, `@jimp/plugin-border`, `@jimp/plugin-circle`, `@jimp/plugin-color`, `@jimp/plugin-contain`, `@jimp/plugin-cover`, `@jimp/plugin-crop`, `@jimp/plugin-displace`, `@jimp/plugin-dither`, `@jimp/plugin-draw`, `@jimp/plugin-fisheye`, `@jimp/plugin-flip`, `@jimp/plugin-hash`, `@jimp/plugin-mask`, `@jimp/plugin-morphology`, `@jimp/plugin-print`, `@jimp/plugin-quantize`, `@jimp/plugin-resize`, `@jimp/plugin-rotate`, `@jimp/plugin-shadow`, `@jimp/plugin-threshold`, `@jimp/wasm-avif`, `@jimp/wasm-jpeg`, `@jimp/wasm-jpeg2000`, `@jimp/wasm-jxl`, `@jimp/wasm-png`, `@jimp/wasm-svg`, `@jimp/wasm-webp`
+  - chore(deps): upgrade all dependencies [#1541](https://github.com/jimp-dev/jimp/pull/1541) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- `@jimp/config-eslint`, `@jimp/core`, `jimp`, `@jimp/plugin-quantize`, `@jimp/wasm-avif`, `@jimp/wasm-jpeg`, `@jimp/wasm-jpeg2000`, `@jimp/wasm-jxl`, `@jimp/wasm-png`, `@jimp/wasm-svg`, `@jimp/wasm-webp`
+  - fix: correct the TypeScript types of WASM format options [#1526](https://github.com/jimp-dev/jimp/pull/1526) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- `@jimp/plugin-resize`
+  - perf(plugin-resize): faster BILINEAR, BICUBIC, HERMITE and BEZIER [#1528](https://github.com/jimp-dev/jimp/pull/1528) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+  - fix(plugin-resize): premultiply alpha in BILINEAR, BICUBIC, HERMITE and BEZIER [#1459](https://github.com/jimp-dev/jimp/pull/1459) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+  - Fix BICUBIC, HERMITE and BEZIER resize shifting the image and losing the last row/column [#1433](https://github.com/jimp-dev/jimp/pull/1433) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- `@jimp/config-eslint`, `@jimp/config-typescript`, `@jimp/config-vitest`, `@jimp/core`, `@jimp/diff`, `@jimp/docs`, `@jimp/file-ops`, `jimp`, `@jimp/test-utils`, `@jimp/types`, `@jimp/utils`, `@jimp/js-bmp`, `@jimp/js-gif`, `@jimp/js-ico`, `@jimp/js-jpeg`, `@jimp/js-png`, `@jimp/js-tiff`, `@jimp/plugin-blit`, `@jimp/plugin-blur`, `@jimp/plugin-border`, `@jimp/plugin-circle`, `@jimp/plugin-color`, `@jimp/plugin-contain`, `@jimp/plugin-cover`, `@jimp/plugin-crop`, `@jimp/plugin-displace`, `@jimp/plugin-dither`, `@jimp/plugin-fisheye`, `@jimp/plugin-flip`, `@jimp/plugin-hash`, `@jimp/plugin-mask`, `@jimp/plugin-morphology`, `@jimp/plugin-print`, `@jimp/plugin-quantize`, `@jimp/plugin-resize`, `@jimp/plugin-rotate`, `@jimp/plugin-shadow`, `@jimp/plugin-threshold`, `@jimp/wasm-avif`, `@jimp/wasm-jpeg`, `@jimp/wasm-jpeg2000`, `@jimp/wasm-jxl`, `@jimp/wasm-png`, `@jimp/wasm-svg`, `@jimp/wasm-webp`
+  - chore: make the repo build and test on Windows [#1524](https://github.com/jimp-dev/jimp/pull/1524) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- `@jimp/plugin-crop`
+  - perf(plugin-crop): copy whole rows when cropping [#1511](https://github.com/jimp-dev/jimp/pull/1511) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- `@jimp/plugin-print`
+  - fix(plugin-print): clear error for BMFont pages that aren't PNG [#1509](https://github.com/jimp-dev/jimp/pull/1509) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+  - fix(plugin-print): clear loadFont errors instead of fetch failures [#1475](https://github.com/jimp-dev/jimp/pull/1475) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+  - fix(plugin-print): measure missing glyphs as the ? that print draws [#1469](https://github.com/jimp-dev/jimp/pull/1469) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+  - Avoid quadratic line wrapping in splitLines [#1424](https://github.com/jimp-dev/jimp/pull/1424) ([@Shrusti-pk](https://github.com/Shrusti-pk) [@hipstersmoothie](https://github.com/hipstersmoothie))
+  - Reject font pages outside the font directory in processBitmapFont [#1418](https://github.com/jimp-dev/jimp/pull/1418) ([@Shrusti-pk](https://github.com/Shrusti-pk) [@hipstersmoothie](https://github.com/hipstersmoothie))
+  - Keep the end of words wider than maxWidth when wrapping text [#1432](https://github.com/jimp-dev/jimp/pull/1432) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+  - Allow loading non-XML fonts in web-worker [#1360](https://github.com/jimp-dev/jimp/pull/1360) ([@viliml](https://github.com/viliml))
+- `@jimp/core`, `@jimp/docs`, `jimp`, `@jimp/types`, `@jimp/utils`, `@jimp/js-jpeg`, `@jimp/js-png`, `@jimp/plugin-blit`, `@jimp/plugin-border`, `@jimp/plugin-shadow`, `@jimp/wasm-jpeg`, `@jimp/wasm-png`, `@jimp/wasm-webp`
+  - feat: Display P3 and ICC colour profile support [#1492](https://github.com/jimp-dev/jimp/pull/1492) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- `@jimp/js-bmp`
+  - fix(js-bmp): read BMP pixel data from the offset in the header [#1495](https://github.com/jimp-dev/jimp/pull/1495) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+  - Update bmp-ts to 1.1.0 to bound BMP decode dimensions [#1435](https://github.com/jimp-dev/jimp/pull/1435) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- `jimp`, `@jimp/plugin-dither`
+  - feat(plugin-dither): add Floyd–Steinberg, Atkinson and Bayer dithering [#1493](https://github.com/jimp-dev/jimp/pull/1493) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- `@jimp/plugin-mask`
+  - fix(plugin-mask): use GIMP's luminance for colour masks, honour mask alpha, round results [#1491](https://github.com/jimp-dev/jimp/pull/1491) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- `@jimp/plugin-rotate`
+  - fix(plugin-rotate): centre nearest-neighbour rotation (off by one pixel) [#1490](https://github.com/jimp-dev/jimp/pull/1490) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+  - fix(plugin-rotate): snap float error before picking the source pixel [#1423](https://github.com/jimp-dev/jimp/pull/1423) ([@goranai](https://github.com/goranai))
+- `jimp`, `@jimp/plugin-threshold`
+  - feat(plugin-threshold): pick max automatically with Otsu's method [#1485](https://github.com/jimp-dev/jimp/pull/1485) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- `@jimp/plugin-color`
+  - fix(plugin-color): stop convolute transposing its kernel; support even-sized and non-square kernels [#1487](https://github.com/jimp-dev/jimp/pull/1487) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+  - perf(plugin-color): run color() without tinycolor2 per pixel [#1488](https://github.com/jimp-dev/jimp/pull/1488) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+  - fix(plugin-color): scale saturation and blend lightness in color() instead of fixed offsets [#1455](https://github.com/jimp-dev/jimp/pull/1455) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- `jimp`, `@jimp/plugin-blur`, `@jimp/plugin-color`
+  - feat: add sharpen() and a divisor/bias for convolution and convolute [#1482](https://github.com/jimp-dev/jimp/pull/1482) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- `@jimp/core`, `@jimp/docs`, `jimp`, `@jimp/js-png`
+  - feat(core): accept ImageData, Uint8ClampedArray and Uint8Array as bitmap data [#1480](https://github.com/jimp-dev/jimp/pull/1480) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- `@jimp/core`, `@jimp/docs`, `jimp`, `@jimp/plugin-blit`, `@jimp/plugin-blur`, `@jimp/plugin-border`, `@jimp/plugin-circle`, `@jimp/plugin-color`, `@jimp/plugin-contain`, `@jimp/plugin-cover`, `@jimp/plugin-crop`, `@jimp/plugin-displace`, `@jimp/plugin-dither`, `@jimp/plugin-fisheye`, `@jimp/plugin-flip`, `@jimp/plugin-mask`, `@jimp/plugin-print`, `@jimp/plugin-quantize`, `@jimp/plugin-resize`, `@jimp/plugin-rotate`, `@jimp/plugin-shadow`, `@jimp/plugin-threshold`
+  - docs: show how to create, read and save images in v1 [#1484](https://github.com/jimp-dev/jimp/pull/1484) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- `@jimp/docs`, `jimp`
+  - fix(jimp): export Edge and ColorActionName as runtime values [#1486](https://github.com/jimp-dev/jimp/pull/1486) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- `@jimp/plugin-resize`, `@jimp/plugin-rotate`
+  - feat(plugin-resize): add LANCZOS, LANCZOS2 and MITCHELL resize modes [#1481](https://github.com/jimp-dev/jimp/pull/1481) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- `@jimp/test-utils`, `@jimp/js-bmp`
+  - fix(js-bmp): update bmp-ts to 1.1.2 for RLE and odd width BMPs [#1479](https://github.com/jimp-dev/jimp/pull/1479) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+  - fix(js-bmp): keep alpha from BMPs with an alpha mask [#1467](https://github.com/jimp-dev/jimp/pull/1467) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- `@jimp/core`, `@jimp/docs`, `jimp`, `@jimp/js-jpeg`, `@jimp/wasm-jpeg`
+  - feat(core): preserve EXIF when writing JPEGs (opt-in) and document EXIF handling [#1478](https://github.com/jimp-dev/jimp/pull/1478) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- `@jimp/docs`, `@jimp/plugin-contain`, `@jimp/plugin-resize`
+  - docs: cover remaining v0 leftovers and webpack v0/v1 resolution errors in the migration guide [#1477](https://github.com/jimp-dev/jimp/pull/1477) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- `@jimp/js-png`
+  - feat(js-png): pick the smallest lossless PNG colour type by default [#1476](https://github.com/jimp-dev/jimp/pull/1476) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+  - fix(js-png): ignore data after the IEND chunk [#1456](https://github.com/jimp-dev/jimp/pull/1456) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- `jimp`, `@jimp/plugin-hash`
+  - feat(plugin-hash): add size and smallerSize options to pHash [#1472](https://github.com/jimp-dev/jimp/pull/1472) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- `jimp`
+  - fix: keep jimp's browser bundle after pnpm test [#1474](https://github.com/jimp-dev/jimp/pull/1474) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- `@jimp/docs`, `@jimp/js-gif`
+  - fix(js-gif): encode GIFs without running out of memory [#1473](https://github.com/jimp-dev/jimp/pull/1473) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- `jimp`, `@jimp/plugin-blur`
+  - fix(plugin-blur): make gaussian a true separable Gaussian blur [#1471](https://github.com/jimp-dev/jimp/pull/1471) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+  - fix(plugin-blur): weight colors by alpha when blurring [#1458](https://github.com/jimp-dev/jimp/pull/1458) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- `jimp`, `@jimp/plugin-border`, `@jimp/plugin-shadow`
+  - feat: add @jimp/plugin-border with roundCorners, border and boxShadow [#1470](https://github.com/jimp-dev/jimp/pull/1470) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- `jimp`, `@jimp/plugin-print`
+  - fix(plugin-print): print by code point, not UTF-16 code unit [#1465](https://github.com/jimp-dev/jimp/pull/1465) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- `@jimp/core`, `@jimp/diff`, `@jimp/file-ops`, `@jimp/test-utils`, `@jimp/types`, `@jimp/utils`, `@jimp/js-bmp`, `@jimp/js-gif`, `@jimp/js-jpeg`, `@jimp/js-png`, `@jimp/js-tiff`, `@jimp/plugin-blit`, `@jimp/plugin-blur`, `@jimp/plugin-circle`, `@jimp/plugin-color`, `@jimp/plugin-contain`, `@jimp/plugin-cover`, `@jimp/plugin-crop`, `@jimp/plugin-displace`, `@jimp/plugin-dither`, `@jimp/plugin-fisheye`, `@jimp/plugin-flip`, `@jimp/plugin-hash`, `@jimp/plugin-mask`, `@jimp/plugin-print`, `@jimp/plugin-quantize`, `@jimp/plugin-resize`, `@jimp/plugin-rotate`, `@jimp/plugin-shadow`, `@jimp/plugin-threshold`, `@jimp/wasm-avif`, `@jimp/wasm-jpeg`, `@jimp/wasm-png`, `@jimp/wasm-webp`
+  - Only publish dist from each package [#1468](https://github.com/jimp-dev/jimp/pull/1468) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- `@jimp/docs`, `@jimp/plugin-color`
+  - docs: document brightness semantics, CDN usage, and decode options [#1463](https://github.com/jimp-dev/jimp/pull/1463) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- `@jimp/js-tiff`
+  - fix(js-tiff): decode CMYK TIFFs in Node [#1464](https://github.com/jimp-dev/jimp/pull/1464) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- `@jimp/js-jpeg`
+  - fix(js-jpeg): skip stray bytes between JPEG header segments [#1462](https://github.com/jimp-dev/jimp/pull/1462) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+  - fix(js-jpeg): decode JPEGs missing the trailing EOI marker [#1439](https://github.com/jimp-dev/jimp/pull/1439) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- `@jimp/docs`, `@jimp/js-png`
+  - fix(js-png): stop inputHasAlpha: false from garbling PNGs [#1457](https://github.com/jimp-dev/jimp/pull/1457) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- `@jimp/core`, `jimp`, `@jimp/plugin-shadow`
+  - Make Jimp instance types interchangeable and type fromBitmap [#1446](https://github.com/jimp-dev/jimp/pull/1446) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+  - fix(core): round composite results instead of truncating them [#1454](https://github.com/jimp-dev/jimp/pull/1454) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- `jimp`, `@jimp/plugin-blit`, `@jimp/plugin-print`
+  - fix(blit): use source-over alpha compositing [#1460](https://github.com/jimp-dev/jimp/pull/1460) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- `@jimp/file-ops`, `jimp`
+  - fix: explain browser filesystem write failures [#1453](https://github.com/jimp-dev/jimp/pull/1453) ([@mvanhorn](https://github.com/mvanhorn))
+- `@jimp/js-gif`, `@jimp/js-tiff`
+  - Validate GIF and TIFF headers before decoding [#1451](https://github.com/jimp-dev/jimp/pull/1451) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- `@jimp/docs`, `@jimp/wasm-avif`, `@jimp/wasm-jpeg`, `@jimp/wasm-png`, `@jimp/wasm-webp`
+  - feat(wasm-*): accept precompiled wasm modules for Cloudflare Workers [#1450](https://github.com/jimp-dev/jimp/pull/1450) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+  - docs: document the Vite config the wasm plugins need [#1436](https://github.com/jimp-dev/jimp/pull/1436) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- `@jimp/core`, `@jimp/docs`, `jimp`, `@jimp/types`, `@jimp/utils`, `@jimp/js-gif`, `@jimp/js-tiff`, `@jimp/plugin-color`, `@jimp/plugin-crop`, `@jimp/plugin-flip`, `@jimp/plugin-print`, `@jimp/plugin-quantize`, `@jimp/plugin-resize`, `@jimp/plugin-rotate`, `@jimp/wasm-avif`, `@jimp/wasm-jpeg`, `@jimp/wasm-png`, `@jimp/wasm-webp`
+  - Fix Buffer in Deno, Workers, and browsers without a polyfill [#1444](https://github.com/jimp-dev/jimp/pull/1444) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- `@jimp/plugin-shadow`
+  - fix(plugin-shadow): draw the shadow under the image, not over it [#1449](https://github.com/jimp-dev/jimp/pull/1449) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- `jimp`, `@jimp/js-bmp`, `@jimp/js-gif`, `@jimp/js-jpeg`, `@jimp/js-png`, `@jimp/js-tiff`, `@jimp/plugin-blit`, `@jimp/plugin-blur`, `@jimp/plugin-circle`, `@jimp/plugin-color`, `@jimp/plugin-contain`, `@jimp/plugin-cover`, `@jimp/plugin-crop`, `@jimp/plugin-displace`, `@jimp/plugin-dither`, `@jimp/plugin-fisheye`, `@jimp/plugin-flip`, `@jimp/plugin-mask`, `@jimp/plugin-print`, `@jimp/plugin-quantize`, `@jimp/plugin-resize`, `@jimp/plugin-rotate`, `@jimp/plugin-shadow`, `@jimp/plugin-threshold`, `@jimp/wasm-avif`, `@jimp/wasm-jpeg`, `@jimp/wasm-png`
+  - docs: remove v0 leftovers from the jimp and plugin READMEs [#1447](https://github.com/jimp-dev/jimp/pull/1447) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- `@jimp/plugin-hash`
+  - Keep the browser bundle valid after Babel preset-env [#1442](https://github.com/jimp-dev/jimp/pull/1442) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- `@jimp/config-vitest`, `@jimp/docs`, `jimp`, `@jimp/js-png`
+  - fix(js-png): use pngjs's browser build in browser bundles [#1445](https://github.com/jimp-dev/jimp/pull/1445) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- `@jimp/wasm-avif`, `@jimp/wasm-jpeg`, `@jimp/wasm-png`, `@jimp/wasm-webp`
+  - test(wasm-*): cover getBuffer with no options and empty options [#1443](https://github.com/jimp-dev/jimp/pull/1443) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+  - fix(wasm-*): load codec wasm from disk in Node for all wasm plugins [#1431](https://github.com/jimp-dev/jimp/pull/1431) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- `@jimp/wasm-png`
+  - fix(wasm-png): use the single-threaded oxipng codec so webpack 5 can bundle it [#1440](https://github.com/jimp-dev/jimp/pull/1440) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- `@jimp/config-typescript`, `jimp`
+  - fix: inline sources in published source maps [#1437](https://github.com/jimp-dev/jimp/pull/1437) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- `@jimp/docs`, `jimp`, `@jimp/plugin-color`, `@jimp/plugin-contain`, `@jimp/plugin-cover`, `@jimp/plugin-crop`, `@jimp/plugin-displace`, `@jimp/plugin-flip`, `@jimp/plugin-mask`, `@jimp/plugin-print`, `@jimp/plugin-resize`
+  - docs: fix stale v0 examples and params in the API docs [#1438](https://github.com/jimp-dev/jimp/pull/1438) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- `@jimp/core`, `jimp`
+  - Accept plain string paths in Jimp#write [#1434](https://github.com/jimp-dev/jimp/pull/1434) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+  - Pass decoder options to the underlying decoder when reading from files and buffers, not just URLs [#1357](https://github.com/jimp-dev/jimp/pull/1357) ([@DefiantCatgirl](https://github.com/DefiantCatgirl) [@hipstersmoothie](https://github.com/hipstersmoothie))
+- `@jimp/config-vitest`
+  - fix: resolve dev build failures and docs import issues [#1384](https://github.com/jimp-dev/jimp/pull/1384) ([@joras-droid](https://github.com/joras-droid) [@hipstersmoothie](https://github.com/hipstersmoothie))
+- `@jimp/core`, `jimp`, `@jimp/plugin-quantize`
+  - Respect Buffer view bounds in fromBitmap and quantize [#1419](https://github.com/jimp-dev/jimp/pull/1419) ([@Shrusti-pk](https://github.com/Shrusti-pk) [@hipstersmoothie](https://github.com/hipstersmoothie))
+- `@jimp/wasm-webp`
+  - fix(@jimp/wasm-webp): initialize WebP WASM from disk in Node [#1403](https://github.com/jimp-dev/jimp/pull/1403) ([@Aniketiitk21](https://github.com/Aniketiitk21) [@hipstersmoothie](https://github.com/hipstersmoothie))
+- `jimp`, `@jimp/plugin-color`
+  - fix(plugin-color): compute sepia output channels from the original pixel [#1412](https://github.com/jimp-dev/jimp/pull/1412) ([@spokodev](https://github.com/spokodev) [@hipstersmoothie](https://github.com/hipstersmoothie))
+
+#### 🏠 Internal
+
+- `@jimp/config-eslint`, `@jimp/docs`
+  - Upgrade pnpm to 12 and fix the docs deploy [#1428](https://github.com/jimp-dev/jimp/pull/1428) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+
+#### 📝 Documentation
+
+- docs: fix dead links [#1377](https://github.com/jimp-dev/jimp/pull/1377) ([@rxliuli](https://github.com/rxliuli))
+- `@jimp/docs`
+  - docs: bring the docs up to date with main [#1543](https://github.com/jimp-dev/jimp/pull/1543) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+  - docs: document drawing with @jimp/plugin-draw [#1542](https://github.com/jimp-dev/jimp/pull/1542) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+  - chore(docs): upgrade the docs site to Astro 7 and Starlight 0.43 [#1540](https://github.com/jimp-dev/jimp/pull/1540) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+  - docs: document animated GIFs and multi-page TIFFs [#1531](https://github.com/jimp-dev/jimp/pull/1531) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+  - docs: redesign the docs site and document Jimp 2.0 [#1527](https://github.com/jimp-dev/jimp/pull/1527) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+  - docs: add share image and favicon for the docs site [#1426](https://github.com/jimp-dev/jimp/pull/1426) ([@crutchcorn](https://github.com/crutchcorn) [@hipstersmoothie](https://github.com/hipstersmoothie))
+  - docs: correct example code [#1390](https://github.com/jimp-dev/jimp/pull/1390) ([@MentalGear](https://github.com/MentalGear))
+  - docs: fix dead link in writing-plugins.mdx [#1368](https://github.com/jimp-dev/jimp/pull/1368) ([@pano9000](https://github.com/pano9000))
+  - docs: fix dead link in getting-started.mdx [#1369](https://github.com/jimp-dev/jimp/pull/1369) ([@pano9000](https://github.com/pano9000))
+  - docs: add blit example to v1 migration guide [#1416](https://github.com/jimp-dev/jimp/pull/1416) ([@ryanchou1994](https://github.com/ryanchou1994))
+  - fix: small typo in doc [#1380](https://github.com/jimp-dev/jimp/pull/1380) ([@2002Bishwajeet](https://github.com/2002Bishwajeet))
+- `@jimp/docs`, `jimp`
+  - docs: fix resize examples to follow ResizeOptionsSchema [#1370](https://github.com/jimp-dev/jimp/pull/1370) ([@RogerBambinetti](https://github.com/RogerBambinetti))
+
+#### 🔩 Dependency Updates
+
+- `@jimp/config-vitest`, `@jimp/core`, `@jimp/diff`, `@jimp/file-ops`, `jimp`, `@jimp/test-utils`, `@jimp/types`, `@jimp/utils`, `@jimp/js-bmp`, `@jimp/js-gif`, `@jimp/js-ico`, `@jimp/js-jpeg`, `@jimp/js-png`, `@jimp/js-tiff`, `@jimp/plugin-blit`, `@jimp/plugin-blur`, `@jimp/plugin-border`, `@jimp/plugin-circle`, `@jimp/plugin-color`, `@jimp/plugin-contain`, `@jimp/plugin-cover`, `@jimp/plugin-crop`, `@jimp/plugin-displace`, `@jimp/plugin-dither`, `@jimp/plugin-fisheye`, `@jimp/plugin-flip`, `@jimp/plugin-hash`, `@jimp/plugin-mask`, `@jimp/plugin-morphology`, `@jimp/plugin-print`, `@jimp/plugin-quantize`, `@jimp/plugin-resize`, `@jimp/plugin-rotate`, `@jimp/plugin-shadow`, `@jimp/plugin-threshold`, `@jimp/wasm-avif`, `@jimp/wasm-jpeg`, `@jimp/wasm-jpeg2000`, `@jimp/wasm-jxl`, `@jimp/wasm-png`, `@jimp/wasm-svg`, `@jimp/wasm-webp`
+  - chore(deps): upgrade dev tooling to fix Dependabot alerts [#1525](https://github.com/jimp-dev/jimp/pull/1525) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+
+#### Authors: 17
+
+- [@MentalGear](https://github.com/MentalGear)
+- [@Shrusti-pk](https://github.com/Shrusti-pk)
+- Andrew Lisowski ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- Bishwajeet Parhi ([@2002Bishwajeet](https://github.com/2002Bishwajeet))
+- Corbin Crutchley ([@crutchcorn](https://github.com/crutchcorn))
+- Defiant Catgirl ([@DefiantCatgirl](https://github.com/DefiantCatgirl))
+- droid ([@joras-droid](https://github.com/joras-droid))
+- Goran ([@goranai](https://github.com/goranai))
+- Hanbin Tan ([@hskl18](https://github.com/hskl18))
+- Matt Van Horn ([@mvanhorn](https://github.com/mvanhorn))
+- Panagiotis Papadopoulos ([@pano9000](https://github.com/pano9000))
+- Roger Bambinetti ([@RogerBambinetti](https://github.com/RogerBambinetti))
+- rxliuli ([@rxliuli](https://github.com/rxliuli))
+- Sandhan Aniket Ramdas ([@Aniketiitk21](https://github.com/Aniketiitk21))
+- Spoko Dev ([@spokodev](https://github.com/spokodev))
+- Vilim Lendvaj ([@viliml](https://github.com/viliml))
+- 周耕毅（Ryan Chou） ([@ryanchou1994](https://github.com/ryanchou1994))
+
+---
+
 # v1.7.0 (Sat Nov 21 2026)
 
 :tada: This release contains work from a new contributor! :tada:

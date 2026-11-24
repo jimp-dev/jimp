@@ -1,3 +1,38 @@
+# v2.0.0 (Mon Nov 23 2026)
+
+#### 💥 Breaking Change
+
+- refactor!: remove options that have no effect, interpolate rotate's resize modes, add BMP bitPP [#1508](https://github.com/jimp-dev/jimp/pull/1508) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- chore!: require Node.js 22 or later [#1504](https://github.com/jimp-dev/jimp/pull/1504) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+
+#### 🐛 Bug Fix
+
+- chore(deps): upgrade all dependencies [#1541](https://github.com/jimp-dev/jimp/pull/1541) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- chore: make the repo build and test on Windows [#1524](https://github.com/jimp-dev/jimp/pull/1524) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- feat: Display P3 and ICC colour profile support [#1492](https://github.com/jimp-dev/jimp/pull/1492) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- feat(core): accept ImageData, Uint8ClampedArray and Uint8Array as bitmap data [#1480](https://github.com/jimp-dev/jimp/pull/1480) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- feat(js-png): pick the smallest lossless PNG colour type by default [#1476](https://github.com/jimp-dev/jimp/pull/1476) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- Only publish dist from each package [#1468](https://github.com/jimp-dev/jimp/pull/1468) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- fix(js-png): stop inputHasAlpha: false from garbling PNGs [#1457](https://github.com/jimp-dev/jimp/pull/1457) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- fix(js-png): ignore data after the IEND chunk [#1456](https://github.com/jimp-dev/jimp/pull/1456) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- docs: remove v0 leftovers from the jimp and plugin READMEs [#1447](https://github.com/jimp-dev/jimp/pull/1447) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- fix(js-png): use pngjs's browser build in browser bundles [#1445](https://github.com/jimp-dev/jimp/pull/1445) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+
+#### 📝 Documentation
+
+- docs: add share image and favicon for the docs site [#1426](https://github.com/jimp-dev/jimp/pull/1426) ([@crutchcorn](https://github.com/crutchcorn) [@hipstersmoothie](https://github.com/hipstersmoothie))
+
+#### 🔩 Dependency Updates
+
+- chore(deps): upgrade dev tooling to fix Dependabot alerts [#1525](https://github.com/jimp-dev/jimp/pull/1525) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+
+#### Authors: 2
+
+- Andrew Lisowski ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- Corbin Crutchley ([@crutchcorn](https://github.com/crutchcorn))
+
+---
+
 # v1.5.0 (Sat Sep 07 2024)
 
 ### Release Notes

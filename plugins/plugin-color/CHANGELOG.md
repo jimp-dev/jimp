@@ -1,3 +1,54 @@
+# v2.0.0 (Mon Nov 23 2026)
+
+:tada: This release contains work from a new contributor! :tada:
+
+Thank you, Spoko Dev ([@spokodev](https://github.com/spokodev)), for all your work!
+
+#### 💥 Breaking Change
+
+- fix(plugin-color)!: round greyscale and use the same luminance in color() [#1507](https://github.com/jimp-dev/jimp/pull/1507) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- chore!: require Node.js 22 or later [#1504](https://github.com/jimp-dev/jimp/pull/1504) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- fix!: correct pixel maths in the color, threshold and quantize plugins [#1500](https://github.com/jimp-dev/jimp/pull/1500) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- fix(utils)!: clamp out-of-bounds regions to the image [#1501](https://github.com/jimp-dev/jimp/pull/1501) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- fix(utils)!: throw for invalid CSS colors [#1497](https://github.com/jimp-dev/jimp/pull/1497) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+
+#### 🚀 Enhancement
+
+- feat(plugin-color): add a multiply color action and sepia(amount) [#1517](https://github.com/jimp-dev/jimp/pull/1517) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- feat(plugin-color): add exposure() and vibrance() [#1516](https://github.com/jimp-dev/jimp/pull/1516) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+
+#### 🐛 Bug Fix
+
+- chore(deps): upgrade all dependencies [#1541](https://github.com/jimp-dev/jimp/pull/1541) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- chore: make the repo build and test on Windows [#1524](https://github.com/jimp-dev/jimp/pull/1524) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- fix(plugin-color): stop convolute transposing its kernel; support even-sized and non-square kernels [#1487](https://github.com/jimp-dev/jimp/pull/1487) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- perf(plugin-color): run color() without tinycolor2 per pixel [#1488](https://github.com/jimp-dev/jimp/pull/1488) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- feat: add sharpen() and a divisor/bias for convolution and convolute [#1482](https://github.com/jimp-dev/jimp/pull/1482) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- docs: show how to create, read and save images in v1 [#1484](https://github.com/jimp-dev/jimp/pull/1484) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- Only publish dist from each package [#1468](https://github.com/jimp-dev/jimp/pull/1468) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- docs: document brightness semantics, CDN usage, and decode options [#1463](https://github.com/jimp-dev/jimp/pull/1463) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- fix(plugin-color): scale saturation and blend lightness in color() instead of fixed offsets [#1455](https://github.com/jimp-dev/jimp/pull/1455) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- Fix Buffer in Deno, Workers, and browsers without a polyfill [#1444](https://github.com/jimp-dev/jimp/pull/1444) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- docs: remove v0 leftovers from the jimp and plugin READMEs [#1447](https://github.com/jimp-dev/jimp/pull/1447) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- docs: fix stale v0 examples and params in the API docs [#1438](https://github.com/jimp-dev/jimp/pull/1438) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- fix(plugin-color): compute sepia output channels from the original pixel [#1412](https://github.com/jimp-dev/jimp/pull/1412) ([@spokodev](https://github.com/spokodev) [@hipstersmoothie](https://github.com/hipstersmoothie))
+
+#### 📝 Documentation
+
+- docs: add share image and favicon for the docs site [#1426](https://github.com/jimp-dev/jimp/pull/1426) ([@crutchcorn](https://github.com/crutchcorn) [@hipstersmoothie](https://github.com/hipstersmoothie))
+
+#### 🔩 Dependency Updates
+
+- chore(deps): upgrade dev tooling to fix Dependabot alerts [#1525](https://github.com/jimp-dev/jimp/pull/1525) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+
+#### Authors: 3
+
+- Andrew Lisowski ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- Corbin Crutchley ([@crutchcorn](https://github.com/crutchcorn))
+- Spoko Dev ([@spokodev](https://github.com/spokodev))
+
+---
+
 # v1.7.0 (Sat Nov 21 2026)
 
 :tada: This release contains work from a new contributor! :tada:

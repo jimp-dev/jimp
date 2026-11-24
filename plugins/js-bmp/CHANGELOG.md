@@ -1,3 +1,40 @@
+# v2.0.0 (Mon Nov 23 2026)
+
+#### 💥 Breaking Change
+
+- refactor!: remove options that have no effect, interpolate rotate's resize modes, add BMP bitPP [#1508](https://github.com/jimp-dev/jimp/pull/1508) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- chore!: require Node.js 22 or later [#1504](https://github.com/jimp-dev/jimp/pull/1504) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+
+#### 🚀 Enhancement
+
+- feat(js-bmp): write 1-, 4- and 8-bit BMPs [#1518](https://github.com/jimp-dev/jimp/pull/1518) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+
+#### 🐛 Bug Fix
+
+- chore(deps): upgrade all dependencies [#1541](https://github.com/jimp-dev/jimp/pull/1541) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- chore: make the repo build and test on Windows [#1524](https://github.com/jimp-dev/jimp/pull/1524) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- fix(js-bmp): read BMP pixel data from the offset in the header [#1495](https://github.com/jimp-dev/jimp/pull/1495) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- fix(js-bmp): update bmp-ts to 1.1.2 for RLE and odd width BMPs [#1479](https://github.com/jimp-dev/jimp/pull/1479) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- fix(js-bmp): keep alpha from BMPs with an alpha mask [#1467](https://github.com/jimp-dev/jimp/pull/1467) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- Only publish dist from each package [#1468](https://github.com/jimp-dev/jimp/pull/1468) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- docs: remove v0 leftovers from the jimp and plugin READMEs [#1447](https://github.com/jimp-dev/jimp/pull/1447) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- Update bmp-ts to 1.1.0 to bound BMP decode dimensions [#1435](https://github.com/jimp-dev/jimp/pull/1435) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+
+#### 📝 Documentation
+
+- docs: add share image and favicon for the docs site [#1426](https://github.com/jimp-dev/jimp/pull/1426) ([@crutchcorn](https://github.com/crutchcorn) [@hipstersmoothie](https://github.com/hipstersmoothie))
+
+#### 🔩 Dependency Updates
+
+- chore(deps): upgrade dev tooling to fix Dependabot alerts [#1525](https://github.com/jimp-dev/jimp/pull/1525) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+
+#### Authors: 2
+
+- Andrew Lisowski ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- Corbin Crutchley ([@crutchcorn](https://github.com/crutchcorn))
+
+---
+
 # v1.5.0 (Sat Sep 07 2024)
 
 ### Release Notes
