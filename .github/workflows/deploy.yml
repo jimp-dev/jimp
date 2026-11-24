@@ -4,6 +4,11 @@ on:
   push:
     branches:
       - main
+  # A release's version bump commit is [skip ci], so it doesn't deploy on push.
+  # After releasing, run `gh workflow run deploy.yml --ref main` so the site
+  # shows the new version. (The github-pages environment only accepts main, so
+  # a release-triggered run from the tag can't deploy.)
+  workflow_dispatch:
 
 # Enabled permissions on GITHUB_TOKEN
 permissions:
