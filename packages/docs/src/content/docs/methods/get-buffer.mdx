@@ -120,18 +120,18 @@ const small = await photo.getBuffer("image/jpeg", { quality: 75, exif: true });
 
 ### PNG
 
-Type: `PNGOptions`, exported from `@jimp/js-png`. The encoder is [pngjs](https://www.npmjs.com/package/pngjs); these are the options worth setting:
+Type: `PNGOptions`, exported from `@jimp/js-png`. The encoder is [@jimp/pngjs](https://github.com/jimp-dev/jimp/tree/main/packages/pngjs), Jimp's fork of pngjs; these are the options worth setting:
 
-| Option            | Type            | Default              | Description                                                                                                                                         |
-| ----------------- | --------------- | -------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `colorType`       | `PNGColorType`  | smallest lossless    | The pixel layout. By default Jimp picks the smallest one that loses nothing: no alpha channel if every pixel is opaque, gray if every pixel is gray. |
-| `filterType`      | `PNGFilterType` | `PNGFilterType.AUTO` | The row filter applied before compression. `AUTO` tries each filter on every row and keeps the best.                                                |
-| `deflateLevel`    | `number`        | `9`                  | zlib compression level, `0` (none) to `9` (smallest).                                                                                               |
-| `deflateStrategy` | `number`        | `3`                  | zlib strategy: `0` default, `1` filtered, `2` Huffman only, `3` run-length, `4` fixed.                                                              |
-| `bitDepth`        | `8 \| 16`       | `8`                  | Bits per channel. Leave it at `8`: Jimp's pixels have 8 bits per channel, and `16` writes the wrong colors.                                        |
-| `bgColor`         | `object`        | white                | `{ red, green, blue }`, 0 to 255. When `colorType` has no alpha channel, transparent pixels are blended onto this color.                             |
-| `icc`             | `boolean`       | `true`               | Write the image's ICC profile, as for JPEG.                                                                                                         |
-| `inputHasAlpha`   | `boolean`       |                      | Deprecated. `false` is the same as `colorType: PNGColorType.COLOR`; `true` does nothing.                                                           |
+| Option            | Type                      | Default              | Description                                                                                                                                         |
+| ----------------- | ------------------------- | -------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `colorType`       | `PNGColorType`            | smallest lossless    | The pixel layout. By default Jimp picks the smallest one that loses nothing: a palette if the image has 256 colors or fewer, gray if every pixel is gray, no alpha channel if every pixel is opaque. `PNGColorType.PALETTE` needs 256 colors or fewer. |
+| `filterType`      | `PNGFilterType`           | `PNGFilterType.AUTO` | The row filter applied before compression. `AUTO` tries each filter on every row and keeps the best. Palette and 1, 2 and 4-bit images use `NONE` unless you set it, as filters rarely help them. |
+| `deflateLevel`    | `number`                  | `9`                  | zlib compression level, `0` (none) to `9` (smallest).                                                                                               |
+| `deflateStrategy` | `number`                  | `3`                  | zlib strategy: `0` default, `1` filtered, `2` Huffman only, `3` run-length, `4` fixed.                                                              |
+| `bitDepth`        | `1 \| 2 \| 4 \| 8 \| 16` | smallest lossless    | Bits per channel, or per palette index. Gray images whose levels allow it are written at 1, 2 or 4 bits. `16` makes the file bigger without adding precision, as Jimp's pixels have 8 bits per channel. |
+| `bgColor`         | `object`                  | white                | `{ red, green, blue }`, 0 to 255. When `colorType` has no alpha channel, transparent pixels are blended onto this color.                             |
+| `icc`             | `boolean`                 | `true`               | Write the image's ICC profile, as for JPEG.                                                                                                         |
+| `inputHasAlpha`   | `boolean`                 |                      | Deprecated. `false` is the same as `colorType: PNGColorType.COLOR`; `true` does nothing.                                                           |
 
 The values of `colorType` and `filterType` are the [`PNGColorType`](/jimp/api/jimp/enumerations/pngcolortype/) and [`PNGFilterType`](/jimp/api/jimp/enumerations/pngfiltertype/) enums, exported from `jimp`.
 

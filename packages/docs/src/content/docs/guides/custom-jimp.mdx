@@ -149,7 +149,7 @@ So a custom Jimp works in browsers and in Cloudflare Workers without a `Buffer` 
 The `jimp` package ships a pre-bundled browser build with everything it needs (see [Using in Browser](/jimp/guides/browser/)).
 A custom Jimp is bundled by your own bundler instead, so there are a few things to know.
 
-`@jimp/js-png` has a `browser` export condition that uses the browser build of `pngjs`.
+`@jimp/js-png` uses [`@jimp/pngjs`](https://github.com/jimp-dev/jimp/tree/main/packages/pngjs), which has a `browser` export condition that compresses with [pako](https://github.com/nodeca/pako) instead of Node's `zlib`.
 Bundlers that target the browser (Vite, webpack, esbuild, Rollup with `@rollup/plugin-node-resolve`'s `browser: true`) pick it up automatically, so you don't need to polyfill `stream`, `zlib` or `util`.
 
 The WASM format plugins need extra config in Vite 7 and earlier; see [WEBP / WASM](/jimp/guides/webp/#vite).

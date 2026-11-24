@@ -123,7 +123,7 @@ const url = await image.getBase64("image/jpeg", { quality: 80 });
 
 ### Animations and pages
 
-A Jimp image is one picture. [`Jimp.readFrames`](/jimp/methods/read-frames/) reads every frame of an animated GIF or page of a multi-page TIFF as a list of images, and [`Jimp.writeFrames`](/jimp/methods/write-frames/) or [`Jimp.encodeFrames`](/jimp/methods/encode-frames/) write a list back:
+A Jimp image is one picture. [`Jimp.readFrames`](/jimp/methods/read-frames/) reads every frame of an animated GIF or PNG, or page of a multi-page TIFF, as a list of images, and [`Jimp.writeFrames`](/jimp/methods/write-frames/) or [`Jimp.encodeFrames`](/jimp/methods/encode-frames/) write a list back:
 
 ```ts title="example.ts"
 const { frames, loop } = await Jimp.readFrames("animation.gif");

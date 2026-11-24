@@ -26,7 +26,7 @@ These formats are in the `jimp` package and in its `defaultFormats` export:
 
 When reading, Jimp recognizes the format from the file's contents. When writing, you choose it: with a MIME type for [`getBuffer`](/jimp/methods/get-buffer/) and [`getBase64`](/jimp/methods/get-base64/), or with the file extension for [`write`](/jimp/methods/write/).
 
-GIF and TIFF can also hold several images: the frames of an animation, or the pages of a scan. See [Animated GIFs and multi-page TIFFs](#animated-gifs-and-multi-page-tiffs).
+GIF, TIFF and PNG can also hold several images: the frames of an animation (animated PNGs are called APNGs), or the pages of a scan. See [Animated GIFs and multi-page TIFFs](#animated-gifs-and-multi-page-tiffs).
 
 Try each format on an image with a transparent background:
 
@@ -41,9 +41,10 @@ Try each format on an image with a transparent background:
 
 Lossless, with full transparency. The best default for anything that isn't a photo, and for intermediate files you'll edit again.
 
-- **Encoder and decoder:** [pngjs](https://www.npmjs.com/package/pngjs).
-- **Encode options:** `colorType`, `filterType`, `deflateLevel`, `deflateStrategy`, `bgColor` and `icc`. By default Jimp picks the smallest color type that loses nothing, so an opaque image is written without an alpha channel and a gray one as grayscale. See [PNG options](/jimp/methods/get-buffer/#png).
-- **Decode options:** `checkCRC` (default `true`) throws when a chunk's checksum is wrong. Bytes after the end of the image, which some tools write, are ignored. 16-bit PNGs are decoded to 8 bits per channel.
+- **Encoder and decoder:** [@jimp/pngjs](https://github.com/jimp-dev/jimp/tree/main/packages/pngjs), Jimp's fork of [pngjs](https://www.npmjs.com/package/pngjs).
+- **Encode options:** `colorType`, `filterType`, `deflateLevel`, `deflateStrategy`, `bitDepth`, `bgColor` and `icc`. By default Jimp picks the smallest format that loses nothing: a palette for images with 256 colors or fewer, grayscale (down to 1 bit per pixel) for gray ones, and no alpha channel for opaque ones. See [PNG options](/jimp/methods/get-buffer/#png).
+- **Decode options:** `checkCRC` (default `true`) throws when a chunk the image needs has the wrong checksum. Like browsers, Jimp ignores bytes after the end of the image, which some tools write, and reads files whose end marker is missing. 16-bit PNGs are decoded to 8 bits per channel.
+- **Animation:** `Jimp.read` reads the image that viewers without APNG support show, usually the first frame. [`Jimp.readFrames`](/jimp/methods/read-frames/) reads every frame of an APNG. Jimp doesn't write APNGs.
 - **Color profiles:** an `iCCP` profile is read on decode and written back on encode. See [Color Spaces](/jimp/guides/color-spaces/).
 
 ### JPEG
@@ -139,10 +140,11 @@ await Jimp.writeFrames("small.gif", frames, { loop });
 | Format             | `readFrames`                                                                | `encodeFrames` / `writeFrames`                                              |
 | ------------------ | --------------------------------------------------------------------------- | --------------------------------------------------------------------------- |
 | GIF                | Every frame as a complete image, with its delay in ms and the loop count    | An animation: same-size frames, a palette and delay each, and a loop count |
+| PNG (APNG)         | Every frame as a complete image, with its delay in ms and the loop count    | One frame; more throws                                                      |
 | TIFF               | Every page, with its own size                                               | One page per image, sizes can differ                                        |
 | Every other format | One frame                                                                   | One frame; more throws                                                      |
 
-GIF frames that only update part of the image are drawn over the previous ones, following their disposal methods, so each frame you get is what a viewer would show. See [`Jimp.readFrames`](/jimp/methods/read-frames/#how-gif-frames-are-put-together).
+GIF and APNG frames that only update part of the image are drawn over the previous ones, following their disposal methods, so each frame you get is what a viewer would show. See [`Jimp.readFrames`](/jimp/methods/read-frames/#how-gif-frames-are-put-together).
 The WASM formats, including WebP, AVIF and JPEG XL, read and write a single frame.
 
 ### Transparency and `image.background`
