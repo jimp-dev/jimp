@@ -167,6 +167,7 @@ export function decodeJpeg(
     // A bug, but keep the promise that only JpegErrors are thrown
     throw new JpegFormatError(
       `Failed to decode JPEG: ${error instanceof Error ? error.message : String(error)}`,
+      { cause: error },
     );
   }
 }

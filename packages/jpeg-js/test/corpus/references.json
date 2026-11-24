@@ -760,6 +760,14 @@
     "sha256": "459ff32d098b21080e5707f246127545e82016a2e7259e9730f7746af4014b72",
     "width": 1184
   },
+  "issues/issue-117-extra-trailing-rst.jpg": {
+    "channels": 3,
+    "height": 117,
+    "png": "references/issues/issue-117-extra-trailing-rst.png",
+    "precision": 8,
+    "sha256": "d38ee8092c1924ea9d9fdbf26b44c15dfc2d58c1461ae329cedea377beb9ae2c",
+    "width": 203
+  },
   "issues/issue-17-blocky.jpg": {
     "channels": 3,
     "height": 1000,
@@ -773,6 +781,30 @@
     "precision": 8,
     "sha256": "d21b3c5f67bd3139573fd9ac5c98c0e5a886c9c94761459fb477f789f613bb39",
     "width": 1024
+  },
+  "issues/issue-21-baseline-dri7-ok.jpg": {
+    "channels": 3,
+    "height": 117,
+    "png": "references/issues/issue-117-extra-trailing-rst.png",
+    "precision": 8,
+    "sha256": "d38ee8092c1924ea9d9fdbf26b44c15dfc2d58c1461ae329cedea377beb9ae2c",
+    "width": 203
+  },
+  "issues/issue-21-noise-prog420-dri7.jpg": {
+    "channels": 3,
+    "height": 117,
+    "png": "references/issues/issue-21-noise-prog420-dri7.png",
+    "precision": 8,
+    "sha256": "b445a8313001926ce598e81d163b3ab0e4f113561c111ac90031dea374235ee3",
+    "width": 203
+  },
+  "issues/issue-21-prog420-dri7-short-last-interval.jpg": {
+    "channels": 3,
+    "height": 117,
+    "png": "references/issues/issue-117-extra-trailing-rst.png",
+    "precision": 8,
+    "sha256": "d38ee8092c1924ea9d9fdbf26b44c15dfc2d58c1461ae329cedea377beb9ae2c",
+    "width": 203
   },
   "issues/issue-77-alyson.jpg": {
     "channels": 3,

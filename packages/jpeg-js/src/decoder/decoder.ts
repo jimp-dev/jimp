@@ -626,7 +626,7 @@ export class JpegDecoder {
 
       if (h < 1 || h > 4 || v < 1 || v > 4) {
         throw new JpegFormatError(
-          "Invalid sampling factor, expected values from 1 to 4",
+          "Invalid sampling factor, expected values above 0 and up to 4",
         );
       }
 
