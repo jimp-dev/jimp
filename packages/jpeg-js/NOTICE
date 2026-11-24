@@ -1,0 +1,14 @@
+@jimp/jpeg-js
+Copyright (c) 2026 Jimp contributors
+
+This product includes software from jpeg-js
+(https://github.com/jpeg-js/jpeg-js), Copyright (c) 2014 Eugene Ware,
+licensed under the BSD 3-Clause License.
+
+The JPEG decoder in lib/decoder.js is jpgjs
+(https://github.com/notmasteryet/jpgjs), Copyright 2011 notmasteryet,
+licensed under the Apache License, Version 2.0, as copied into jpeg-js.
+
+The JPEG encoder in lib/encoder.js is the JPGEncoder of as3corelib,
+Copyright (c) 2008 Adobe Systems Incorporated, licensed under the BSD 3-Clause
+License, and ported to JavaScript by Andreas Ritter (www.bytestrom.eu).

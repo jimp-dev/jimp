@@ -656,6 +656,8 @@ importers:
         specifier: ^5.1.1
         version: 5.1.1(@types/node@22.20.5)(@vitest/browser-playwright@5.1.1)(@vitest/ui@5.1.1)(vite@8.3.8(@types/node@22.20.5)(esbuild@0.28.2)(terser@5.51.4)(yaml@2.9.1))
 
+  packages/jpeg-js: {}
+
   packages/pngjs:
     dependencies:
       pako:

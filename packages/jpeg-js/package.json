@@ -1,0 +1,47 @@
+{
+  "name": "@jimp/jpeg-js",
+  "version": "2.0.0",
+  "description": "JPEG encoder and decoder in pure JavaScript, for Node.js and browsers. A maintained fork of jpeg-js.",
+  "files": [
+    "dist",
+    "LICENSE",
+    "LICENSE-APACHE-2.0",
+    "NOTICE"
+  ],
+  "repository": "jimp-dev/jimp",
+  "engines": {
+    "node": ">=22"
+  },
+  "author": "Andrew Lisowski <lisowski54@gmail.com>",
+  "contributors": [
+    "Eugene Ware <eugene@noblesamurai.com>",
+    "Yury Delendik (notmasteryet)",
+    "Mozilla Foundation (pdf.js)",
+    "Adobe Systems Incorporated (as3corelib)",
+    "Andreas Ritter (www.bytestrom.eu)",
+    "Michael Kelly",
+    "Peter Liljenberg",
+    "XadillaX",
+    "strandedcity",
+    "wmossman",
+    "Patrick Hulce",
+    "Ben Wiley"
+  ],
+  "license": "BSD-3-Clause AND Apache-2.0",
+  "keywords": [
+    "jpeg",
+    "jpg",
+    "jpeg-js",
+    "decoder",
+    "encoder",
+    "codec",
+    "image"
+  ],
+  "main": "index.js",
+  "types": "index.d.ts",
+  "publishConfig": {
+    "access": "public"
+  },
+  "sideEffects": false,
+  "private": true
+}
