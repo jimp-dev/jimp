@@ -211,11 +211,10 @@ const singleActions: Record<string, ColorAction[]> = {
   spin: degrees.map((d) => ({ apply: "spin", params: [d] })),
   hue: degrees.map((d) => ({ apply: "hue", params: [d] })),
   mix: mixColors.flatMap((c) =>
-    [undefined, 0, 1, 33.3, 50, 99.999, 100].map(
-      (p): ColorAction =>
-        p === undefined
-          ? { apply: "mix", params: [c] }
-          : { apply: "mix", params: [c, p] },
+    [undefined, 0, 1, 33.3, 50, 99.999, 100].map((p): ColorAction =>
+      p === undefined
+        ? { apply: "mix", params: [c] }
+        : { apply: "mix", params: [c, p] },
     ),
   ),
   xor: mixColors.map((c) => ({ apply: "xor", params: [c] })),
