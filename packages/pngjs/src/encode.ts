@@ -79,9 +79,9 @@ function encodeKeyword(keyword: string) {
 }
 
 export interface DeflateSettings {
-  deflateLevel?: number;
-  deflateStrategy?: number;
-  deflateChunkSize?: number;
+  deflateLevel?: number | undefined;
+  deflateStrategy?: number | undefined;
+  deflateChunkSize?: number | undefined;
 }
 
 export function compress(data: Uint8Array, settings: DeflateSettings) {
@@ -227,8 +227,8 @@ export function getFilterTypes(
 }
 
 export interface WriteSettings extends DeflateSettings {
-  filterType?: number | number[];
-  idatChunkSize?: number;
+  filterType?: number | number[] | undefined;
+  idatChunkSize?: number | undefined;
 }
 
 /**

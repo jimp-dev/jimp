@@ -1,7 +1,9 @@
-import { mergeConfig } from "vitest/config";
-import config from "@jimp/config-vitest/browser";
+import { defineConfig } from "vitest/config";
+import { playwright } from "@vitest/browser-playwright";
 
-export default mergeConfig(config, {
+// Unlike the other packages, no Node.js polyfills: the browser build must work
+// without them
+export default defineConfig({
   resolve: {
     // Mirror the tshy browser dialect when testing from source
     alias: [
@@ -12,5 +14,15 @@ export default mergeConfig(config, {
         replacement: "$1/stream-base-browser.mjs",
       },
     ],
+  },
+  test: {
+    include: ["src/**/*.test.ts"],
+    exclude: ["**/*.node.test.ts", "**/node_modules/**", "**/dist/**"],
+    browser: {
+      enabled: true,
+      provider: playwright(),
+      instances: [{ browser: "chromium" }],
+      headless: true,
+    },
   },
 });

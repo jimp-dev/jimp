@@ -5,7 +5,6 @@ import { ALLOWED_BIT_DEPTHS, CHANNELS, ColorType } from "./constants.js";
 import type { BitDepth } from "./constants.js";
 import { getDecodedInfo } from "./decode.js";
 import { validateImage, writePng } from "./encode.js";
-import type { WriteSettings } from "./encode.js";
 import { buildPalette, chooseFormat, getPixelStats } from "./pack.js";
 import type { Palette, PixelSource } from "./pack.js";
 import { decodePixels } from "./pixels.js";
@@ -39,7 +38,13 @@ export interface ParserOptions {
   keepIndexed?: boolean | undefined;
 }
 
-export interface PackerOptions extends WriteSettings {
+export interface PackerOptions {
+  /** zlib's compression level, 0-9 @default 9 */
+  deflateLevel?: number | undefined;
+  /** zlib's strategy, e.g. 3 (Z_RLE) or 0 (Z_DEFAULT_STRATEGY) @default 3 */
+  deflateStrategy?: number | undefined;
+  /** Split the image data into IDAT chunks of at most this many bytes */
+  idatChunkSize?: number | undefined;
   /**
    * The background that transparent pixels are blended with when the output
    * has no alpha channel, at the output bit depth
