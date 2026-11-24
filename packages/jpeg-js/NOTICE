@@ -16,10 +16,11 @@ the entropy decoding, IDCT, upsampling and colour conversion replaced by ports
 of libjpeg-turbo. The header of the file lists the changes.
 
 This software is based in part on the work of the Independent JPEG Group.
-src/decoder/huffman.ts, scan.ts, idct.ts, smoothing.ts and output.ts, and
-src/encoder/huffman.ts and progressive.ts, are translations of parts of
-libjpeg-turbo (https://github.com/libjpeg-turbo/libjpeg-turbo), under the
-terms in README.ijg.
+src/decoder/huffman.ts, scan.ts, scan-tables.ts, arithmetic.ts, idct.ts,
+smoothing.ts and output.ts, and src/encoder/huffman.ts and progressive.ts,
+are translations of parts of libjpeg-turbo
+(https://github.com/libjpeg-turbo/libjpeg-turbo), under the terms in
+README.ijg.
 
 src/encoder/encoder.ts is the JPGEncoder of as3corelib, Copyright (c) 2008
 Adobe Systems Incorporated, licensed under the BSD 3-Clause License, and

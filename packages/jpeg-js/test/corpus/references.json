@@ -1,4 +1,76 @@
 {
+  "generated/a-12bit.jpg": {
+    "channels": 3,
+    "height": 149,
+    "png": "references/generated/a-12bit.png",
+    "precision": 12,
+    "sha256": "9a83639165185cdd15da2f59c613f7c03f8afeb21f9249159ce8a79c15e1093e",
+    "width": 227
+  },
+  "generated/a-420-17x17.jpg": {
+    "channels": 3,
+    "height": 17,
+    "png": "references/generated/a-420-17x17.png",
+    "precision": 8,
+    "sha256": "ae5ee2882f159e8be56f5b9702f88e765ec8d91ecb1ca01ce024ace18a2652ad",
+    "width": 17
+  },
+  "generated/a-420.jpg": {
+    "channels": 3,
+    "height": 149,
+    "png": "references/generated/a-420.png",
+    "precision": 8,
+    "sha256": "0a42217ec0ee16e2473fed4d73c5d6331e811d21c14b3732f188a01e42659021",
+    "width": 227
+  },
+  "generated/a-444.jpg": {
+    "channels": 3,
+    "height": 149,
+    "png": "references/generated/a-444.png",
+    "precision": 8,
+    "sha256": "1a80e48a0c6d27646259738ff8f4294670d9ee6920f0943c9b0284808c4c5d03",
+    "width": 227
+  },
+  "generated/a-grey.jpg": {
+    "channels": 1,
+    "height": 149,
+    "png": "references/generated/a-grey.png",
+    "precision": 8,
+    "sha256": "5c50271eaaa986830673732d1ce9ea28c29acf21cc45f6fdcce70f91ab94de67",
+    "width": 227
+  },
+  "generated/a-progressive-grey.jpg": {
+    "channels": 1,
+    "height": 149,
+    "png": "references/generated/a-grey.png",
+    "precision": 8,
+    "sha256": "5c50271eaaa986830673732d1ce9ea28c29acf21cc45f6fdcce70f91ab94de67",
+    "width": 227
+  },
+  "generated/a-progressive-restart5b.jpg": {
+    "channels": 3,
+    "height": 149,
+    "png": "references/generated/a-420.png",
+    "precision": 8,
+    "sha256": "0a42217ec0ee16e2473fed4d73c5d6331e811d21c14b3732f188a01e42659021",
+    "width": 227
+  },
+  "generated/a-progressive.jpg": {
+    "channels": 3,
+    "height": 149,
+    "png": "references/generated/a-420.png",
+    "precision": 8,
+    "sha256": "0a42217ec0ee16e2473fed4d73c5d6331e811d21c14b3732f188a01e42659021",
+    "width": 227
+  },
+  "generated/a-restart3b.jpg": {
+    "channels": 3,
+    "height": 149,
+    "png": "references/generated/a-420.png",
+    "precision": 8,
+    "sha256": "0a42217ec0ee16e2473fed4d73c5d6331e811d21c14b3732f188a01e42659021",
+    "width": 227
+  },
   "generated/b-12bit-444.jpg": {
     "channels": 3,
     "height": 149,
@@ -18,7 +90,7 @@
   "generated/b-12bit.jpg": {
     "channels": 3,
     "height": 149,
-    "png": "references/generated/b-12bit.png",
+    "png": "references/generated/a-12bit.png",
     "precision": 12,
     "sha256": "9a83639165185cdd15da2f59c613f7c03f8afeb21f9249159ce8a79c15e1093e",
     "width": 227
@@ -74,7 +146,7 @@
   "generated/b-420-17x17.jpg": {
     "channels": 3,
     "height": 17,
-    "png": "references/generated/b-420-17x17.png",
+    "png": "references/generated/a-420-17x17.png",
     "precision": 8,
     "sha256": "ae5ee2882f159e8be56f5b9702f88e765ec8d91ecb1ca01ce024ace18a2652ad",
     "width": 17
@@ -162,7 +234,7 @@
   "generated/b-420.jpg": {
     "channels": 3,
     "height": 149,
-    "png": "references/generated/b-420.png",
+    "png": "references/generated/a-420.png",
     "precision": 8,
     "sha256": "0a42217ec0ee16e2473fed4d73c5d6331e811d21c14b3732f188a01e42659021",
     "width": 227
@@ -394,7 +466,7 @@
   "generated/b-444.jpg": {
     "channels": 3,
     "height": 149,
-    "png": "references/generated/b-444.png",
+    "png": "references/generated/a-444.png",
     "precision": 8,
     "sha256": "1a80e48a0c6d27646259738ff8f4294670d9ee6920f0943c9b0284808c4c5d03",
     "width": 227
@@ -402,7 +474,7 @@
   "generated/b-grey.jpg": {
     "channels": 1,
     "height": 149,
-    "png": "references/generated/b-grey.png",
+    "png": "references/generated/a-grey.png",
     "precision": 8,
     "sha256": "5c50271eaaa986830673732d1ce9ea28c29acf21cc45f6fdcce70f91ab94de67",
     "width": 227
@@ -418,7 +490,7 @@
   "generated/b-non-interleaved-restart.jpg": {
     "channels": 3,
     "height": 149,
-    "png": "references/generated/b-420.png",
+    "png": "references/generated/a-420.png",
     "precision": 8,
     "sha256": "0a42217ec0ee16e2473fed4d73c5d6331e811d21c14b3732f188a01e42659021",
     "width": 227
@@ -426,7 +498,7 @@
   "generated/b-non-interleaved.jpg": {
     "channels": 3,
     "height": 149,
-    "png": "references/generated/b-420.png",
+    "png": "references/generated/a-420.png",
     "precision": 8,
     "sha256": "0a42217ec0ee16e2473fed4d73c5d6331e811d21c14b3732f188a01e42659021",
     "width": 227
@@ -434,7 +506,7 @@
   "generated/b-optimize.jpg": {
     "channels": 3,
     "height": 149,
-    "png": "references/generated/b-420.png",
+    "png": "references/generated/a-420.png",
     "precision": 8,
     "sha256": "0a42217ec0ee16e2473fed4d73c5d6331e811d21c14b3732f188a01e42659021",
     "width": 227
@@ -458,7 +530,7 @@
   "generated/b-restart1.jpg": {
     "channels": 3,
     "height": 149,
-    "png": "references/generated/b-420.png",
+    "png": "references/generated/a-420.png",
     "precision": 8,
     "sha256": "0a42217ec0ee16e2473fed4d73c5d6331e811d21c14b3732f188a01e42659021",
     "width": 227
@@ -466,7 +538,7 @@
   "generated/b-restart7b.jpg": {
     "channels": 3,
     "height": 149,
-    "png": "references/generated/b-420.png",
+    "png": "references/generated/a-420.png",
     "precision": 8,
     "sha256": "0a42217ec0ee16e2473fed4d73c5d6331e811d21c14b3732f188a01e42659021",
     "width": 227
@@ -498,7 +570,7 @@
   "generated/p-12bit.jpg": {
     "channels": 3,
     "height": 149,
-    "png": "references/generated/b-12bit.png",
+    "png": "references/generated/a-12bit.png",
     "precision": 12,
     "sha256": "9a83639165185cdd15da2f59c613f7c03f8afeb21f9249159ce8a79c15e1093e",
     "width": 227
@@ -546,7 +618,7 @@
   "generated/p-420-17x17.jpg": {
     "channels": 3,
     "height": 17,
-    "png": "references/generated/b-420-17x17.png",
+    "png": "references/generated/a-420-17x17.png",
     "precision": 8,
     "sha256": "ae5ee2882f159e8be56f5b9702f88e765ec8d91ecb1ca01ce024ace18a2652ad",
     "width": 17
@@ -660,7 +732,7 @@
   "generated/p-420.jpg": {
     "channels": 3,
     "height": 149,
-    "png": "references/generated/b-420.png",
+    "png": "references/generated/a-420.png",
     "precision": 8,
     "sha256": "0a42217ec0ee16e2473fed4d73c5d6331e811d21c14b3732f188a01e42659021",
     "width": 227
@@ -684,7 +756,7 @@
   "generated/p-444.jpg": {
     "channels": 3,
     "height": 149,
-    "png": "references/generated/b-444.png",
+    "png": "references/generated/a-444.png",
     "precision": 8,
     "sha256": "1a80e48a0c6d27646259738ff8f4294670d9ee6920f0943c9b0284808c4c5d03",
     "width": 227
@@ -692,7 +764,7 @@
   "generated/p-grey.jpg": {
     "channels": 1,
     "height": 149,
-    "png": "references/generated/b-grey.png",
+    "png": "references/generated/a-grey.png",
     "precision": 8,
     "sha256": "5c50271eaaa986830673732d1ce9ea28c29acf21cc45f6fdcce70f91ab94de67",
     "width": 227
@@ -708,7 +780,7 @@
   "generated/p-restart1.jpg": {
     "channels": 3,
     "height": 149,
-    "png": "references/generated/b-420.png",
+    "png": "references/generated/a-420.png",
     "precision": 8,
     "sha256": "0a42217ec0ee16e2473fed4d73c5d6331e811d21c14b3732f188a01e42659021",
     "width": 227
@@ -716,7 +788,7 @@
   "generated/p-restart7b.jpg": {
     "channels": 3,
     "height": 149,
-    "png": "references/generated/b-420.png",
+    "png": "references/generated/a-420.png",
     "precision": 8,
     "sha256": "0a42217ec0ee16e2473fed4d73c5d6331e811d21c14b3732f188a01e42659021",
     "width": 227
@@ -1010,7 +1082,7 @@
   "libjpeg-turbo/testimgari.jpg": {
     "channels": 3,
     "height": 149,
-    "png": "references/generated/b-420.png",
+    "png": "references/generated/a-420.png",
     "precision": 8,
     "sha256": "0a42217ec0ee16e2473fed4d73c5d6331e811d21c14b3732f188a01e42659021",
     "width": 227
@@ -1018,7 +1090,7 @@
   "libjpeg-turbo/testimgint.jpg": {
     "channels": 3,
     "height": 149,
-    "png": "references/generated/b-420.png",
+    "png": "references/generated/a-420.png",
     "precision": 8,
     "sha256": "0a42217ec0ee16e2473fed4d73c5d6331e811d21c14b3732f188a01e42659021",
     "width": 227

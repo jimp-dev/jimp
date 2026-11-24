@@ -39,7 +39,8 @@
  * - DNL support only for frames whose SOF height is 0, found by scanning ahead
  *   instead of re-parsing;
  * - entropy decoding, IDCT, upsampling and colour conversion are replaced by
- *   ports of libjpeg-turbo's (scan.ts, idct.ts, output.ts);
+ *   ports of libjpeg-turbo's (scan.ts, idct.ts, output.ts), and arithmetic
+ *   coding is supported (arithmetic.ts);
  * - sequential images are decoded one MCU row at a time, straight into sample
  *   planes, and colour conversion picks the colour space like libjpeg;
  * - resolution and memory limits from jpeg-js, plus external tables (JPEG
@@ -51,6 +52,10 @@ import {
   JpegLimitError,
   JpegUnsupportedError,
 } from "../errors.js";
+import {
+  type ArithmeticConditioning,
+  defaultConditioning,
+} from "./arithmetic.js";
 import { buildHuffmanTable, type HuffmanTable } from "./huffman.js";
 import {
   createIdctContext,
@@ -96,6 +101,7 @@ interface Component extends ScanComponent {
 
 interface Frame {
   progressive: boolean;
+  arithmetic: boolean;
   precision: number;
   width: number;
   height: number;
@@ -116,8 +122,6 @@ const SOF_NAMES: Record<number, string> = {
   0xc5: "differential sequential (hierarchical)",
   0xc6: "differential progressive (hierarchical)",
   0xc7: "differential lossless (hierarchical)",
-  0xc9: "arithmetic-coded sequential",
-  0xca: "arithmetic-coded progressive",
   0xcb: "arithmetic-coded lossless",
   0xcd: "arithmetic-coded differential sequential (hierarchical)",
   0xce: "arithmetic-coded differential progressive (hierarchical)",
@@ -150,6 +154,7 @@ export class JpegDecoder {
   private dcTables: (HuffmanTable | undefined)[] = [];
   private acTables: (HuffmanTable | undefined)[] = [];
   private restartInterval = 0;
+  private conditioning: ArithmeticConditioning = defaultConditioning();
   /** Sequential image whose single scan is decoded one MCU row at a time. */
   private streaming = false;
   private scans = 0;
@@ -278,6 +283,7 @@ export class JpegDecoder {
         code !== 0xdb &&
         code !== 0xc4 &&
         code !== 0xdd &&
+        code !== 0xcc &&
         !(code >= 0xe0 && code <= 0xef) &&
         code !== 0xfe
       ) {
@@ -335,6 +341,8 @@ export class JpegDecoder {
         case 0xc0:
         case 0xc1:
         case 0xc2:
+        case 0xc9:
+        case 0xca:
           this.readFrame(code, data, start, segmentEnd);
           offset = segmentEnd;
           break;
@@ -343,8 +351,6 @@ export class JpegDecoder {
         case 0xc5:
         case 0xc6:
         case 0xc7:
-        case 0xc9:
-        case 0xca:
         case 0xcb:
         case 0xcd:
         case 0xce:
@@ -369,8 +375,12 @@ export class JpegDecoder {
           offset += 2;
           break;
 
+        case 0xcc:
+          this.readConditioning(data, start, segmentEnd);
+          offset = segmentEnd;
+          break;
+
         case 0xdc: // DNL: read ahead in readFrame() when it's needed
-        case 0xcc: // DAC: only used by arithmetic coding
           offset = segmentEnd;
           break;
 
@@ -558,6 +568,34 @@ export class JpegDecoder {
     }
   }
 
+  /** DAC: arithmetic coding conditioning, like libjpeg's get_dac(). */
+  private readConditioning(data: Uint8Array, offset: number, end: number) {
+    if ((end - offset) % 2 !== 0) {
+      throw new JpegFormatError("Bad length of DAC marker");
+    }
+
+    for (; offset < end; offset += 2) {
+      const index = data[offset]!;
+      const value = data[offset + 1]!;
+      const table = index & 15;
+
+      if (index >= 32 || table > 3) {
+        throw new JpegFormatError(`Bogus DAC index ${index}`);
+      }
+
+      if (index >= 16) {
+        this.conditioning.acK[table] = value;
+      } else {
+        this.conditioning.dcLower[table] = value & 15;
+        this.conditioning.dcUpper[table] = value >> 4;
+
+        if ((value & 15) > value >> 4) {
+          throw new JpegFormatError(`Bogus DAC value 0x${hex(value)}`);
+        }
+      }
+    }
+  }
+
   private readFrame(
     code: number,
     data: Uint8Array,
@@ -649,6 +687,9 @@ export class JpegDecoder {
         dcTable: null,
         acTable: null,
         pred: 0,
+        dcArithmetic: 0,
+        acArithmetic: 0,
+        dcContext: 0,
         scanned: false,
         coefBits: new Int8Array(64).fill(-1),
         previousCoefBits: new Int8Array(64),
@@ -676,8 +717,11 @@ export class JpegDecoder {
 
     this.width = width;
     this.height = height;
+    const progressive = code === 0xc2 || code === 0xca;
+
     this.frame = {
-      progressive: code === 0xc2,
+      progressive,
+      arithmetic: code === 0xc9 || code === 0xca,
       precision,
       width,
       height,
@@ -691,7 +735,7 @@ export class JpegDecoder {
     // The planes and the output, plus the coefficients of a progressive JPEG
     this.requestMemory(planeBytes + width * height * 4);
 
-    if (code === 0xc2) {
+    if (progressive) {
       this.requestMemory(coefficientBytes);
     }
   }
@@ -743,18 +787,28 @@ export class JpegDecoder {
         throw new JpegFormatError(`Invalid component ID ${id} in SOS marker`);
       }
 
-      component.dcTable = this.huffmanTable(
-        this.dcTables,
-        tables >> 4,
-        true,
-        frame.progressive,
-      );
-      component.acTable = this.huffmanTable(
-        this.acTables,
-        tables & 15,
-        false,
-        frame.progressive,
-      );
+      if (frame.arithmetic) {
+        if (tables >> 4 > 3 || (tables & 15) > 3) {
+          throw new JpegFormatError("Invalid arithmetic table in SOS marker");
+        }
+
+        component.dcArithmetic = tables >> 4;
+        component.acArithmetic = tables & 15;
+      } else {
+        component.dcTable = this.huffmanTable(
+          this.dcTables,
+          tables >> 4,
+          true,
+          frame.progressive,
+        );
+        component.acTable = this.huffmanTable(
+          this.acTables,
+          tables & 15,
+          false,
+          frame.progressive,
+        );
+      }
+
       components.push(component);
     }
 
@@ -785,6 +839,10 @@ export class JpegDecoder {
     const needsAC = !frame.progressive || spectralStart > 0;
 
     for (const component of components) {
+      if (frame.arithmetic) {
+        break;
+      }
+
       if ((needsDC && !component.dcTable) || (needsAC && !component.acTable)) {
         throw new JpegFormatError("Huffman table missing for SOS component");
       }
@@ -894,6 +952,7 @@ export class JpegDecoder {
         mcusPerLine: frame.mcusPerLine,
         mcusPerColumn: frame.mcusPerColumn,
         restartInterval: this.restartInterval,
+        arithmetic: frame.arithmetic ? this.conditioning : undefined,
       },
       this.scanOptions(),
     );
@@ -943,7 +1002,8 @@ export class JpegDecoder {
     components: Component[],
     bitsPerBlock: number,
   ) {
-    if (this.options.allowTruncated || bitsPerBlock === 0) {
+    // Arithmetic coding can take less than a bit per block
+    if (this.options.allowTruncated || bitsPerBlock === 0 || frame.arithmetic) {
       return;
     }
 
@@ -1058,6 +1118,7 @@ export class JpegDecoder {
         mcusPerLine: frame.mcusPerLine,
         mcusPerColumn: frame.mcusPerColumn,
         restartInterval: this.restartInterval,
+        arithmetic: frame.arithmetic ? this.conditioning : undefined,
         onRow,
       },
       this.scanOptions(),

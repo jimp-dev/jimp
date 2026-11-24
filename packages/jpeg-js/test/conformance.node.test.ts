@@ -115,13 +115,8 @@ function to8(value: number) {
   return Math.floor((value * 510 + 4095) / 8190);
 }
 
-/** JPEGs this decoder rejects: arithmetic coding and lossless JPEG. */
-const unsupported = [
-  "generated/unsupported-arithmetic.jpg",
-  "generated/unsupported-arithmetic-progressive.jpg",
-  "generated/unsupported-lossless.jpg",
-  "libjpeg-turbo/testimgari.jpg",
-];
+/** JPEGs this decoder rejects: lossless JPEG. */
+const unsupported = ["generated/unsupported-lossless.jpg"];
 const names = Object.keys(references).filter((n) => !unsupported.includes(n));
 
 describe("conformance with libjpeg-turbo", () => {

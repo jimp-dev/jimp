@@ -12,6 +12,7 @@ generate.sh, with JSIMD_FORCENONE=1 set.
 import hashlib
 import json
 import os
+import shutil
 import struct
 import subprocess
 import zlib
@@ -92,6 +93,7 @@ def write_png(path, image):
 
 manifest = {}
 pngs = {}
+shutil.rmtree("references", ignore_errors=True)
 jpegs = sorted(
     os.path.join(root, name)[2:]
     for root, _, names in os.walk(".")

@@ -95,9 +95,18 @@ for scans, name in ((1, "dc-only"), (4, "incomplete")):
     open(f"generated/p-420-{name}.jpg", "wb").write(data[:end])
 PY
 
-# Unsupported processes, which must be rejected with a clear error
-jpeg unsupported-arithmetic "$source" -arithmetic
-jpeg unsupported-arithmetic-progressive "$source" -arithmetic -progressive
+# Arithmetic coding
+jpeg a-420 "$source" -arithmetic
+jpeg a-444 "$source" -arithmetic -sample 1x1
+jpeg a-grey "$source" -arithmetic -grayscale
+jpeg a-restart3b "$source" -arithmetic -restart 3B
+jpeg a-12bit "$source" -arithmetic -precision 12
+jpeg a-progressive "$source" -arithmetic -progressive
+jpeg a-progressive-restart5b "$source" -arithmetic -progressive -restart 5B
+jpeg a-progressive-grey "$source" -arithmetic -progressive -grayscale
+jpeg a-420-17x17 "$(crop 17x17)" -arithmetic
+
+# An unsupported process, which must be rejected with a clear error
 jpeg unsupported-lossless "$source" -lossless 1
 
 # References for every decodable JPEG of the corpus

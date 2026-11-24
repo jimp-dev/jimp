@@ -18,17 +18,15 @@
  */
 
 import { JpegFormatError } from "../errors.js";
+import {
+  ArithmeticBlockDecoder,
+  type ArithmeticConditioning,
+  ArithmeticReader,
+} from "./arithmetic.js";
 import { BitReader, END_OF_DATA, type HuffmanTable } from "./huffman.js";
+import { NATURAL_ORDER } from "./scan-tables.js";
 
-/** Natural (row-major) order of the zig-zag coefficients, with 16 extra
- * entries so corrupt run lengths can't index out of bounds. */
-export const NATURAL_ORDER = new Uint8Array([
-  0, 1, 8, 16, 9, 2, 3, 10, 17, 24, 32, 25, 18, 11, 4, 5, 12, 19, 26, 33, 40,
-  48, 41, 34, 27, 20, 13, 6, 7, 14, 21, 28, 35, 42, 49, 56, 57, 50, 43, 36, 29,
-  22, 15, 23, 30, 37, 44, 51, 58, 59, 52, 45, 38, 31, 39, 46, 53, 60, 61, 54,
-  47, 55, 62, 63, 63, 63, 63, 63, 63, 63, 63, 63, 63, 63, 63, 63, 63, 63, 63,
-  63,
-]);
+export { NATURAL_ORDER };
 
 export interface ScanComponent {
   h: number;
@@ -41,6 +39,10 @@ export interface ScanComponent {
   dcTable: HuffmanTable | null;
   acTable: HuffmanTable | null;
   pred: number;
+  /** Arithmetic coding conditioning table numbers, and DC context. */
+  dcArithmetic: number;
+  acArithmetic: number;
+  dcContext: number;
 }
 
 export interface Scan {
@@ -54,6 +56,8 @@ export interface Scan {
   mcusPerLine: number;
   mcusPerColumn: number;
   restartInterval: number;
+  /** The scan is arithmetic-coded, with this conditioning. */
+  arithmetic?: ArithmeticConditioning;
   /**
    * Coefficients only hold one row of MCUs, passed to `onRow` once decoded
    * and then cleared. Otherwise they hold the whole component.
@@ -71,19 +75,15 @@ function extend(value: number, size: number) {
 }
 
 class ScanDecoder {
-  reader: BitReader;
   eobrun = 0;
   /** Out of data until the next restart marker: blocks are left as is. */
   insufficient = false;
 
   constructor(
-    data: Uint8Array,
-    offset: number,
+    readonly reader: BitReader,
     readonly scan: Scan,
     readonly options: ScanOptions,
-  ) {
-    this.reader = new BitReader(data, offset);
-  }
+  ) {}
 
   badCode() {
     if (!this.options.tolerant) {
@@ -370,27 +370,47 @@ export function decodeScan(
   scan: Scan,
   options: ScanOptions,
 ): ScanResult {
-  const decoder = new ScanDecoder(data, offset, scan, options);
-  const reader = decoder.reader;
   const { components, progressive, restartInterval, onRow } = scan;
+  const arithmetic = scan.arithmetic
+    ? new ArithmeticBlockDecoder(
+        new ArithmeticReader(data, offset),
+        scan.arithmetic,
+        scan.spectralStart,
+        scan.spectralEnd,
+        scan.approxLow,
+        options.tolerant,
+      )
+    : null;
+  const decoder = new ScanDecoder(
+    arithmetic ? arithmetic.reader : new BitReader(data, offset),
+    scan,
+    options,
+  );
+  const reader = decoder.reader;
   const single = components.length === 1;
   const first = components[0]!;
   const mcusPerLine = single ? first.blocksPerLine : scan.mcusPerLine;
   const mcuRows = single ? first.blocksPerColumn : scan.mcusPerColumn;
   const total = mcusPerLine * mcuRows;
+  const blockDecoder = arithmetic ?? decoder;
   let decodeBlock: (component: ScanComponent, offset: number) => void;
 
   if (!progressive) {
-    decodeBlock = decoder.decodeBaseline;
+    decodeBlock = blockDecoder.decodeBaseline;
   } else if (scan.spectralStart === 0) {
     decodeBlock =
-      scan.approxHigh === 0 ? decoder.decodeDCFirst : decoder.decodeDCRefine;
+      scan.approxHigh === 0
+        ? blockDecoder.decodeDCFirst
+        : blockDecoder.decodeDCRefine;
   } else {
     decodeBlock =
-      scan.approxHigh === 0 ? decoder.decodeACFirst : decoder.decodeACRefine;
+      scan.approxHigh === 0
+        ? blockDecoder.decodeACFirst
+        : blockDecoder.decodeACRefine;
   }
 
-  decodeBlock = decodeBlock.bind(decoder);
+  decodeBlock = decodeBlock.bind(blockDecoder);
+  arithmetic?.resetStatistics(components, progressive, scan.approxHigh);
 
   for (const component of components) {
     component.pred = 0;
@@ -416,6 +436,7 @@ export function decodeScan(
         }
 
         decoder.eobrun = 0;
+        arithmetic?.resetStatistics(components, progressive, scan.approxHigh);
 
         if (decoder.insufficient) {
           checkTruncated(reader, options, total - mcu, mcusPerLine);
@@ -425,7 +446,8 @@ export function decodeScan(
       restartsToGo--;
     }
 
-    if (!decoder.insufficient) {
+    // Arithmetic decoding goes on past a marker, with zeros
+    if (!decoder.insufficient || arithmetic) {
       lastGoodRow = Math.floor(mcuRow / rowsPerFrameRow);
 
       // Rows of the coefficient buffer: relative to the current MCU row when
@@ -455,7 +477,12 @@ export function decodeScan(
         }
       }
 
-      if (reader.overrun) {
+      if (arithmetic) {
+        // Running into the end of the data with rows left is truncation
+        if (reader.atMarker) {
+          checkTruncated(reader, options, total - mcu - 1, mcusPerLine);
+        }
+      } else if (reader.overrun) {
         decoder.insufficient = true;
 
         if (!options.tolerant) {

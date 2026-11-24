@@ -416,6 +416,8 @@ describe("fuzzing", () => {
     "generated/b-non-interleaved-restart.jpg",
     "generated/b-16bit-dqt.jpg",
     "generated/ycck-progressive.jpg",
+    "generated/a-420.jpg",
+    "generated/a-progressive-restart5b.jpg",
     "generated/p-420-17x17.jpg",
     "jpeg-js/cmyktest.jpg",
     "pdfjs/cmykjpeg-1.jpg",

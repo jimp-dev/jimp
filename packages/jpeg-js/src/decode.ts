@@ -105,7 +105,7 @@ const defaults = {
  *
  * Throws a `JpegFormatError` for data that isn't a JPEG or is corrupt, a
  * `JpegUnsupportedError` for JPEG features this decoder doesn't support (like
- * lossless and arithmetic coding), and a `JpegLimitError` when a limit is
+ * lossless and hierarchical JPEGs), and a `JpegLimitError` when a limit is
  * exceeded. All of them extend `JpegError`.
  */
 export function decodeJpeg(
