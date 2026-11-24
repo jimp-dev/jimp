@@ -1,10 +1,17 @@
 <div align="center">
-  <img width="200" height="200"
-    src="https://s3.amazonaws.com/pix.iemoji.com/images/emoji/apple/ios-11/256/crayon.png">
-  <h1>Jimp</h1>
+  <img width="420" alt="Jimp" src=".github/assets/jimp-logo.svg">
   <p>JavaScript Image Manipulation Program</p>
   <p>An image processing library for Node and the browser written entirely in JavaScript, with zero native dependencies</p>
+  <p><a href="https://jimp-dev.github.io/jimp/">Documentation</a> · <a href="https://jimp-dev.github.io/jimp/guides/getting-started/">Getting Started</a> · <a href="https://jimp-dev.github.io/jimp/playground/">Playground</a></p>
 </div>
+
+## Installation
+
+```bash
+npm install jimp
+```
+
+Jimp 2.0 needs Node.js 22 or later.
 
 ## Usage
 
@@ -20,7 +27,7 @@ await image.write("test-small.png");
 
 Methods like `resize` only change the image in memory, so call `write` (or `getBuffer`) to save the result. To start from a blank image, use `new Jimp({ width, height, color })`. To load an image you already have in memory, use `await Jimp.fromBuffer(buffer)`. See [Getting Started](https://jimp-dev.github.io/jimp/guides/getting-started/).
 
-[Read the full docs](https://jimp-dev.github.io/jimp/), or the [v1 migration guide](https://jimp-dev.github.io/jimp/guides/migrate-to-v1/) if you're upgrading from v0.
+[Read the full docs](https://jimp-dev.github.io/jimp/). Upgrading? See the [v2 migration guide](https://jimp-dev.github.io/jimp/guides/migrate-to-v2/) if you're on 1.x, or the [v1 migration guide](https://jimp-dev.github.io/jimp/guides/migrate-to-v1/) if you're on v0.
 
 ## Custom Jimp
 

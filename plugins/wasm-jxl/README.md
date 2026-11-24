@@ -1,4 +1,8 @@
-# `@jimp/wasm-jxl`
+<div align="center">
+  <img width="140" alt=""
+    src="https://raw.githubusercontent.com/jimp-dev/jimp/main/.github/assets/jimpy.png">
+  <h1>@jimp/wasm-jxl</h1>
+</div>
 
 A format plugin for Jimp that adds support for JPEG XL images using [libjxl](https://github.com/libjxl/libjxl), as compiled to WebAssembly by [`@jsquash/jxl`](https://www.npmjs.com/package/@jsquash/jxl).
 
