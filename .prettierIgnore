@@ -1,1 +1,3 @@
 browser/lib/*
+# Keeps the original license header of as3corelib verbatim (trailing spaces)
+packages/jpeg-js/src/encoder/encoder.ts

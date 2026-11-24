@@ -5,10 +5,21 @@ This product includes software from jpeg-js
 (https://github.com/jpeg-js/jpeg-js), Copyright (c) 2014 Eugene Ware,
 licensed under the BSD 3-Clause License.
 
-The JPEG decoder in lib/decoder.js is jpgjs
-(https://github.com/notmasteryet/jpgjs), Copyright 2011 notmasteryet,
-licensed under the Apache License, Version 2.0, as copied into jpeg-js.
+src/decoder/decoder.ts is based on the JPEG decoder of jpgjs
+(https://github.com/notmasteryet/jpgjs), Copyright 2011 notmasteryet, as
+maintained in pdf.js (https://github.com/mozilla/pdf.js, src/core/jpg.js and
+src/core/jpeg_utils.js), Copyright 2014 Mozilla Foundation, and copied into
+jpeg-js. It is licensed under the Apache License, Version 2.0. It was modified
+by Jimp contributors in 2026: translated to TypeScript, with stricter
+validation of every segment, error recovery merged from jpeg-js and Jimp, and
+the entropy decoding, IDCT, upsampling and colour conversion replaced by ports
+of libjpeg-turbo. The header of the file lists the changes.
 
-The JPEG encoder in lib/encoder.js is the JPGEncoder of as3corelib,
-Copyright (c) 2008 Adobe Systems Incorporated, licensed under the BSD 3-Clause
-License, and ported to JavaScript by Andreas Ritter (www.bytestrom.eu).
+This software is based in part on the work of the Independent JPEG Group.
+src/decoder/huffman.ts, scan.ts, idct.ts and output.ts are translations of
+parts of libjpeg-turbo (https://github.com/libjpeg-turbo/libjpeg-turbo), under
+the terms in README.ijg.
+
+src/encoder/encoder.ts is the JPGEncoder of as3corelib, Copyright (c) 2008
+Adobe Systems Incorporated, licensed under the BSD 3-Clause License, and
+ported to JavaScript by Andreas Ritter (www.bytestrom.eu).
