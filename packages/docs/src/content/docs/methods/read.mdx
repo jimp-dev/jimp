@@ -118,17 +118,18 @@ input.addEventListener("change", async () => {
 ## Supported formats
 
 The `jimp` package decodes PNG, JPEG, GIF, BMP, TIFF and ICO.
-Add WebP, AVIF, JPEG 2000, SVG and others with a [custom Jimp](/jimp/guides/custom-jimp/) and the WASM format plugins. See [Formats](/jimp/concepts/formats/) for the details of each one.
+Add WebP, AVIF, JPEG XL, JPEG 2000, SVG and others with a [custom Jimp](/jimp/guides/custom-jimp/) and the WASM format plugins. See [Formats](/jimp/concepts/formats/) for the details of each one.
 
 ## Notes
 
 - **The format comes from the data.** Jimp sniffs the first bytes of the image, so a file's extension doesn't matter. The detected MIME type is stored on [`image.mime`](/jimp/concepts/reading-and-writing/#image-properties).
 - **JPEGs are rotated upright.** If a JPEG's EXIF orientation is anything other than 1, the pixels are rotated and flipped to match it, unless you pass `exifRotate: false`. See [EXIF](/jimp/guides/exif/).
-- **The color profile is kept.** An ICC profile in a JPEG, PNG or WebP is stored on `image.iccProfile`, and `image.colorSpace` tells you which space the pixels are in. See [Color Spaces](/jimp/guides/color-spaces/).
+- **The color profile is kept.** An ICC profile in a JPEG, PNG, WebP or JPEG 2000 (JP2 or JPX) file is stored on `image.iccProfile`, and `image.colorSpace` tells you which space the pixels are in. See [Color Spaces](/jimp/guides/color-spaces/).
 - **GIF, TIFF and ICO read one image.** Animated GIFs and multi-page TIFFs load only their first frame or page; use [`Jimp.readFrames`](/jimp/methods/read-frames/) for all of them. An ICO loads its largest image unless you pass the `size` or `index` option.
 - **Decode options are per format.** Only the options for the detected MIME type reach the decoder, so you can pass options for several formats at once.
 - **Errors.** In Node, a path that doesn't exist throws Node's own error, such as `ENOENT: no such file or directory, open 'photos/typo.jpg'`. Paths are relative to the current working directory, not to the script. A URL that can't be fetched throws `Could not load Buffer from URL: <url>`, and a server error throws `HTTP Status 404 for url <url>`. Bytes in an unknown format throw `Could not find MIME for Buffer`, and a known format that your Jimp can't decode (such as WebP with the default `jimp` package) throws `Mime type image/webp does not support decoding`.
 - **Added in 2.0:** the `exifRotate` option, and `Uint8Array`, other `ArrayBufferView`s and `Blob`s as input. Before, they were mistaken for URLs.
+- **Changed in 2.0:** per-format decode options are used for file paths and buffers too. Before, they only reached the decoder when reading a URL.
 - **Changed in 2.0:** in Node, only `http:`, `https:`, `data:` and `blob:` URLs are fetched, and any other string is read as a file. Before, a path that didn't exist was fetched as a URL and threw `Could not load Buffer from URL`.
 
 ## Related

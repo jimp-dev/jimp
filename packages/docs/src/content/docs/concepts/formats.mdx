@@ -9,7 +9,7 @@ import Playground from "../../../components/playground/Playground";
 
 Jimp reads and writes images through format plugins: small objects that know how to decode one MIME type into pixels and encode pixels back.
 The `jimp` package includes six formats written in plain JavaScript, so it runs anywhere without native code.
-For WebP, AVIF, JPEG 2000 and SVG, or for smaller JPEGs and PNGs, you add WASM format plugins.
+For WebP, AVIF, JPEG XL, JPEG 2000 and SVG, or for smaller JPEGs and PNGs, you add WASM format plugins.
 
 ## Built-in formats
 
@@ -72,9 +72,10 @@ Up to 256 colors, and animation.
 Uncompressed bitmaps, mostly for compatibility with older software.
 
 - **Encoder and decoder:** [bmp-ts](https://www.npmjs.com/package/bmp-ts).
-- **Writing:** uncompressed, without a palette or transparency. `bitPP` picks 24 bits per pixel (the default), 16 (5 bits per channel) or 32 (with an alpha byte that's always opaque).
+- **Writing:** uncompressed, without transparency. `bitPP` picks 24 bits per pixel (the default), 16 (5 bits per channel), 32 (with an alpha byte that's always opaque), or 1, 4 or 8 with a palette of up to 2, 16 or 256 colors.
+- **Palettes:** pass the colors in `palette`, and each pixel is written as the nearest one. Without `palette`, an image with few enough colors keeps them exactly. Otherwise 1-bit files are black and white, and 4 and 8-bit files get a palette from Wu's quantization algorithm. Pixels aren't dithered; for that, call [`dither`](/jimp/methods/dither/) or [`quantize`](/jimp/methods/quantize/) first.
 - **Reading:** 1, 4, 8, 16, 24 and 32-bit files, including run-length encoded ones. Alpha is read from 16 and 32-bit files only.
-- **Encode options:** `bitPP`, `hr` and `vr` (resolution in pixels per meter), `reserved1` and `reserved2`. See [BMP options](/jimp/methods/get-buffer/#bmp).
+- **Encode options:** `bitPP`, `palette`, `hr` and `vr` (resolution in pixels per meter), `reserved1` and `reserved2`. See [BMP options](/jimp/methods/get-buffer/#bmp).
 - **Decode options:** `maxResolutionInMP` (default `100`).
 - **Two MIME types:** `@jimp/js-bmp` registers the same encoder and decoder as `image/bmp` and as `image/x-ms-bmp` (its `msBmp` export), for code that uses the older name. Files are always read as `image/bmp`.
 
@@ -159,7 +160,7 @@ PNG, ICO and all the WASM formats except JPEG 2000 skip this step.
 
 ## WASM format plugins
 
-These plugins wrap codecs compiled to WebAssembly: from [Squoosh](https://squoosh.app) via [jSquash](https://github.com/jamsinclair/jSquash) for WebP, AVIF, JPEG and PNG, [OpenJPEG](https://www.openjpeg.org) for JPEG 2000, and [resvg](https://github.com/linebender/resvg) for SVG. They aren't part of the `jimp` package. Install the ones you need along with `@jimp/core`:
+These plugins wrap codecs compiled to WebAssembly: from [Squoosh](https://squoosh.app) via [jSquash](https://github.com/jamsinclair/jSquash) for WebP, AVIF, JPEG, PNG and JPEG XL, [OpenJPEG](https://www.openjpeg.org) for JPEG 2000, and [resvg](https://github.com/linebender/resvg) for SVG. They aren't part of the `jimp` package. Install the ones you need along with `@jimp/core`:
 
 <InstallCommand pkg="@jimp/core @jimp/wasm-webp" />
 
@@ -169,10 +170,11 @@ These plugins wrap codecs compiled to WebAssembly: from [Squoosh](https://squoos
 | `@jimp/wasm-avif`     | `image/avif`                            | libavif                | yes  | yes                   | Full alpha   |
 | `@jimp/wasm-jpeg`     | `image/jpeg`                            | MozJPEG                | yes  | yes                   | None         |
 | `@jimp/wasm-png`      | `image/png`                             | Squoosh PNG and OxiPNG | yes  | yes                   | Full alpha   |
+| `@jimp/wasm-jxl`      | `image/jxl`                             | libjxl                 | yes  | yes                   | Full alpha   |
 | `@jimp/wasm-jpeg2000` | `image/jp2`, `image/j2c`, `image/jpx`   | OpenJPEG               | yes  | JP2 and J2C, not JPX  | None         |
 | `@jimp/wasm-svg`      | `image/svg+xml`                         | resvg                  | yes  | no                    | Full alpha   |
 
-JPEG 2000 and SVG have their own sections in the [WASM plugins guide](/jimp/guides/webp/#jpeg-2000), with their decode options and limits.
+JPEG XL, JPEG 2000 and SVG have their own sections in the WASM plugins guide, with their decode options and limits: [JPEG XL](/jimp/guides/webp/#jpeg-xl), [JPEG 2000](/jimp/guides/webp/#jpeg-2000) and [SVG](/jimp/guides/webp/#svg).
 
 ### Adding a format
 
@@ -221,8 +223,8 @@ With `[...defaultFormats, jpeg]`, the built-in JPEG format would still be used f
 
 ### Encode options
 
-The options are specific to each codec. They're validated, so a value out of range throws a validation error listing the problem, for example `Too big: expected number to be <=100`, and so does an option the encoder doesn't know.
-The WebP, JPEG and PNG plugins also take `icc`, which works as for the built-in formats: the image's ICC profile is written unless you pass `false`. AVIF output is always converted to sRGB without a profile.
+The options are specific to each codec. They're validated, so a value out of range throws a validation error listing the problem, for example `Too big: expected number to be <=100`, and so does an option the encoder doesn't know. JPEG XL and JPEG 2000 clamp out-of-range numbers instead.
+The WebP, JPEG and PNG plugins also take `icc`, which works as for the built-in formats: the image's ICC profile is written unless you pass `false`. AVIF and JPEG XL output is always converted to sRGB without a profile.
 
 <Tabs>
   <TabItem label="WebP">
@@ -312,6 +314,22 @@ Unlike the built-in JPEG format, `image.background` isn't applied first. To cont
 ```ts title="example.ts"
 const bytes = await image.getBuffer("image/png", { optimize: { level: 3 } });
 ```
+
+  </TabItem>
+  <TabItem label="JPEG XL">
+
+| Option              | Type      | Default | Description                                                                                                         |
+| ------------------- | --------- | ------- | ------------------------------------------------------------------------------------------------------------------- |
+| `quality`           | `number`  | `90`    | `0` to `100`. `90` is visually lossless for most images, and `100` is lossless.                                     |
+| `lossless`          | `boolean` | `false` | Store every pixel exactly, including alpha. `quality` is ignored.                                                   |
+| `effort`            | `number`  | `7`     | `1` (fastest) to `9` (slowest, smallest files).                                                                     |
+| `progressive`       | `boolean` | `false` | Order the data so a partly downloaded file can be shown at a lower quality first. Makes files a little larger.     |
+| `lossyModular`      | `boolean` | `false` | Use the modular mode for lossy images too, instead of VarDCT. It can do better on graphics, and worse on photos.   |
+| `epf`               | `number`  | `-1`    | Edge-preserving filter strength for lossy images, `0` (off) to `3`. `-1` picks one from the quality.                |
+| `decodingSpeedTier` | `number`  | `0`     | `0` to `4`. Higher makes lossy images faster to decode, and larger.                                                 |
+| `photonNoiseIso`    | `number`  | `0`     | Add synthetic film grain to lossy images, like a photo taken at this ISO. `0` adds none.                            |
+
+Numbers outside their range are clamped. Output is 8-bit sRGB with alpha. The decode option is `maxResolutionInMP` (default `100`); see [JPEG XL](/jimp/guides/webp/#jpeg-xl) for the decoder's limits.
 
   </TabItem>
   <TabItem label="JPEG 2000">
