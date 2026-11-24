@@ -13,6 +13,10 @@
   border-radius: 16px;
   box-shadow: 4px 4px 0 var(--jp-shadow);
 }
+/* Starlight's tighter spacing after a preceding block. */
+.sl-markdown-content :not(a, strong, em, del, span, input, code) + .starlight-aside {
+  margin-top: 1rem;
+}
 .starlight-aside::before {
   content: "";
   position: absolute;
@@ -60,6 +64,10 @@
 .starlight-aside__content a {
   color: var(--jp-link);
 }
+/* Inline code in asides takes a tint of the aside's accent color. */
+.sl-markdown-content .starlight-aside :not(pre) > code:not(:where(.not-content *)) {
+  background: color-mix(in srgb, var(--sl-color-asides-text-accent) 12%, transparent);
+}
 
 /* ---------- Code blocks (Expressive Code) ---------- */
 
@@ -79,6 +87,9 @@
 }
 .sl-markdown-content .expressive-code:nth-of-type(5n + 5) {
   --code-shadow: var(--jp-orange);
+}
+.sl-markdown-content li > .expressive-code:last-child {
+  margin-bottom: 1.25rem;
 }
 
 .expressive-code .frame {
@@ -104,8 +115,6 @@
   top: -15px;
   left: 16px;
   z-index: 1;
-  display: block;
-  background: none;
   border: 0;
 }
 .expressive-code .frame.has-title:not(.is-terminal) .header::before,
@@ -129,12 +138,9 @@
   display: none;
 }
 
-/* Terminal frames keep their title bar, recolored. */
+/* Terminal frames keep their title bar (colored by the code theme). */
 .expressive-code .frame.is-terminal .header {
-  border: 3.5px solid var(--jp-code-line);
-  border-bottom: 0;
   border-radius: 16px 16px 0 0;
-  background: var(--jp-code-head);
 }
 .expressive-code .frame.is-terminal .header ~ pre {
   border-top-left-radius: 0 !important;
@@ -171,6 +177,16 @@
   color: var(--jp-ink) !important;
   background: var(--jp-mint) !important;
   border: 2.5px solid var(--jp-ink);
+}
+
+/* ---------- Tabs ---------- */
+
+/* Keep Starlight's tab colors rather than the global link color. */
+starlight-tabs [role="tab"] {
+  color: var(--sl-color-gray-3);
+}
+starlight-tabs [role="tab"][aria-selected="true"] {
+  color: var(--sl-color-white);
 }
 
 /* ---------- Search dialog (Pagefind) ---------- */

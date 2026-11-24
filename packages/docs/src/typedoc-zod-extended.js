@@ -1,7 +1,12 @@
 import { Converter, TypeScript, Comment } from "typedoc";
 
-function sourceKey(source) {
-  return source.fileName + ":" + source.line + ":" + source.character;
+/**
+ * Where a type literal is declared. TypeDoc 0.28 no longer records `sources`
+ * for type literals, so read the location from the TypeScript symbol.
+ */
+function sourceKey(context, refl) {
+  const node = context.getSymbolFromReflection(refl)?.declarations?.[0];
+  return node && node.getSourceFile().fileName + ":" + node.getStart();
 }
 
 export function load(app) {
@@ -21,20 +26,20 @@ export function load(app) {
     }
   });
   app.converter.on(Converter.EVENT_CREATE_DECLARATION, onCreateDeclaration);
-  app.converter.on(Converter.EVENT_CREATE_SIGNATURE, (_, refl) => {
+  app.converter.on(Converter.EVENT_CREATE_SIGNATURE, (context, refl) => {
     const options = refl.parameters?.find((p) => p.name === "options");
 
     if (!options || !options.type.declaration) {
       return;
     }
 
-    const key = sourceKey(options.type.declaration.sources[0]);
-    toUpdate.set(key, options);
+    const key = sourceKey(context, options.type.declaration);
+    if (key) toUpdate.set(key, options);
   });
 
-  function onCreateDeclaration(_, refl) {
+  function onCreateDeclaration(context, refl) {
     if (refl.name.endsWith("Options")) {
-      const declaration = refl.project
+      const declaration = context
         .getSymbolFromReflection(refl)
         ?.getDeclarations()
         ?.find(TypeScript.isTypeAliasDeclaration);
@@ -42,11 +47,12 @@ export function load(app) {
         `${refl.name}Schema`,
       );
 
-      if (!matchingSchema || !refl.type.declaration) {
+      if (!matchingSchema || !refl.type?.declaration) {
         return;
       }
 
-      schemaTypes.set(sourceKey(refl.type.declaration.sources[0]), refl);
+      const key = sourceKey(context, refl.type.declaration);
+      if (key) schemaTypes.set(key, refl);
 
       refl.type.declaration.children.forEach((child) => {
         child.comment = new Comment([

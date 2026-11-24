@@ -5,12 +5,12 @@
  * reference) a disclosure. Link attrs from src/sidebar.ts:
  * `data-dot` adds a colored dot, `data-code` uses the code font.
  */
-import type { Props } from "@astrojs/starlight/props";
+import type { StarlightRouteData } from "@astrojs/starlight/route-data";
 import SidebarList from "../components/SidebarList.astro";
 
-type Entry = Props["sidebar"][number];
+type Entry = StarlightRouteData["sidebar"][number];
 
-const { sidebar } = Astro.props;
+const { sidebar } = Astro.locals.starlightRoute;
 const hasCurrent = (entry: Entry): boolean =>
   entry.type === "link" ? entry.isCurrent : entry.entries.some(hasCurrent);
 const stickerColors = ["var(--jp-red)", "var(--jp-sky)", "var(--jp-mint)", "#c9a8ff"];

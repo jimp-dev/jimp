@@ -24,9 +24,9 @@ interface Props {
 const { category, methods, showCategory } = Astro.props;
 const base = import.meta.env.BASE_URL.replace(/\/$/, "");
 
-const pages = await getCollection("docs", (entry) => entry.slug.startsWith("methods/"));
+const pages = await getCollection("docs", (entry) => entry.id.startsWith("methods/"));
 const descriptions = new Map<string, string>(
-  pages.map((page) => [page.slug, page.data.description ?? ""]),
+  pages.map((page) => [page.id, page.data.description ?? ""]),
 );
 
 const entries = methods

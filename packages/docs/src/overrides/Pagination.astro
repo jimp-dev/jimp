@@ -1,8 +1,6 @@
 ---
-import type { Props } from "@astrojs/starlight/props";
 
-const { labels, pagination } = Astro.props;
-const { prev, next } = pagination;
+const { prev, next } = Astro.locals.starlightRoute.pagination;
 ---
 
 {
@@ -10,13 +8,13 @@ const { prev, next } = pagination;
     <nav class="pager" aria-label="Pagination">
       {prev && (
         <a href={prev.href} rel="prev">
-          <small>← {labels["page.previousLink"]}</small>
+          <small>← {Astro.locals.t("page.previousLink")}</small>
           {prev.label}
         </a>
       )}
       {next && (
         <a href={next.href} rel="next">
-          <small>{labels["page.nextLink"]} →</small>
+          <small>{Astro.locals.t("page.nextLink")} →</small>
           {next.label}
         </a>
       )}

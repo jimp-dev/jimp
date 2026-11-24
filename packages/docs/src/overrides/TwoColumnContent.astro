@@ -3,13 +3,12 @@
  * Page card + sticky-note table of contents. The `<main>` element Starlight
  * renders into the default slot becomes the notebook-paper card.
  */
-import type { Props } from "@astrojs/starlight/props";
 ---
 
-<div class:list={["columns", { "has-toc": Boolean(Astro.props.toc) }]}>
+<div class:list={["columns", { "has-toc": Boolean(Astro.locals.starlightRoute.toc) }]}>
   <div class="main-pane"><slot /></div>
   {
-    Astro.props.toc && (
+    Astro.locals.starlightRoute.toc && (
       <aside class="toc-column">
         <slot name="right-sidebar" />
       </aside>

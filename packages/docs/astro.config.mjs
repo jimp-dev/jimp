@@ -12,22 +12,52 @@ import { createSidebar } from "./src/sidebar.ts";
 const [starlightTypeDoc, typeDocSidebarGroup] = createStarlightTypeDocPlugin();
 const here = path.dirname(fileURLToPath(import.meta.url));
 
+/**
+ * The browser bundles need a Buffer polyfill, but vite-plugin-node-polyfills
+ * configures every Vite environment. In the server build its `process` shim
+ * breaks native modules such as Astro's Markdown processor, so only apply it
+ * to the client.
+ */
+function clientOnly(plugins) {
+  const isClient = (name) => name === "client";
+  return plugins.map(({ config, ...plugin }) => ({
+    ...plugin,
+    applyToEnvironment: (environment) => isClient(environment.name),
+    ...(config && {
+      configEnvironment(name, options, env) {
+        if (isClient(name)) return config.call(this, options, env);
+      },
+    }),
+  }));
+}
+
 export default defineConfig({
   site: "https://jimp-dev.github.io",
   base: "jimp",
+  // Keep Astro 4's whitespace handling. The default "jsx" mode drops the
+  // space between text and an element on the next line.
+  compressHTML: true,
+  // The overrides' scoped styles were written against Starlight's old
+  // zero-specificity `:where()` scoping.
+  scopedStyleStrategy: "where",
   integrations: [
     react(),
     starlight({
       title: "Jimp",
       description:
         "Jimp reads, edits and writes images in Node.js and the browser, in plain JavaScript.",
-      social: {
-        github: "https://github.com/jimp-dev/jimp",
-      },
+      social: [
+        {
+          icon: "github",
+          label: "GitHub",
+          href: "https://github.com/jimp-dev/jimp",
+        },
+      ],
       editLink: {
         baseUrl: "https://github.com/jimp-dev/jimp/edit/main/packages/docs/",
       },
       favicon: "/favicon.png",
+      markdown: { headingLinks: false },
       head: [
         {
           tag: "link",
@@ -126,7 +156,7 @@ export default defineConfig({
     }),
   ],
   vite: {
-    plugins: [nodePolyfills({ include: ["buffer"] })],
+    plugins: clientOnly(nodePolyfills({ include: ["buffer"] })),
     // Pre-bundling breaks the codec's relative .wasm fetch under `astro dev`.
     optimizeDeps: { exclude: ["@jsquash/webp"] },
   },

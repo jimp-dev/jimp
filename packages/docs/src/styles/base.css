@@ -4,6 +4,11 @@ html {
   scroll-padding-top: calc(var(--sl-nav-height) + 1.5rem);
 }
 
+/* Let long words and inline code break anywhere (Starlight's default before 0.37). */
+:where(p, h1, h2, h3, h4, h5, h6, :not(pre) > code) {
+  overflow-wrap: anywhere;
+}
+
 body {
   color: var(--jp-text);
   font-family: var(--jp-body);
@@ -98,7 +103,7 @@ kbd {
   --hl: #ffe36b;
   width: fit-content;
   max-width: 100%;
-  margin-top: 2.5rem;
+  margin-top: 1.5em;
   margin-bottom: 0.25rem;
   padding: 0 4px;
   margin-inline-start: -4px;
@@ -221,11 +226,15 @@ kbd {
   box-shadow: 4px 4px 0 var(--jp-shadow);
   padding: 0 16px;
 }
-.sl-markdown-content details summary {
+.sl-markdown-content details:not(:where(.not-content *)) summary {
   cursor: pointer;
   font-family: var(--jp-ui);
   font-weight: 600;
   padding: 8px 0;
+}
+/* File trees: directory names in the UI font. */
+.sl-markdown-content starlight-file-tree summary {
+  font-family: var(--jp-ui);
 }
 
 .sl-markdown-content hr:not(:where(.not-content *)) {
