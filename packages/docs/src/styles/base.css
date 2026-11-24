@@ -1,0 +1,304 @@
+/* Page background, base typography and Markdown content. */
+
+html {
+  scroll-padding-top: calc(var(--sl-nav-height) + 1.5rem);
+}
+
+body {
+  color: var(--jp-text);
+  font-family: var(--jp-body);
+  font-size: 16.5px;
+  line-height: 1.7;
+  background-color: var(--jp-wall);
+  background-image:
+    var(--jp-wall-doodles),
+    radial-gradient(circle at 10px 10px, var(--jp-wall-dot) 0 6px, transparent 7px);
+  background-size:
+    260px 260px,
+    40px 40px;
+  background-attachment: fixed;
+  overflow-x: hidden;
+}
+
+/* Night Studio: the doodles' stars twinkle softly at the edges of the page. */
+:root[data-theme="dark"] body::before,
+:root[data-theme="dark"] body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-image: var(--jp-stars);
+  background-size: 260px 260px;
+  animation: jp-twinkle 5s ease-in-out infinite alternate;
+}
+:root[data-theme="dark"] body::after {
+  background-position: 130px 90px;
+  animation-delay: -2.5s;
+  animation-duration: 6.5s;
+}
+@keyframes jp-twinkle {
+  from {
+    opacity: 0.15;
+  }
+  to {
+    opacity: 0.85;
+  }
+}
+
+::selection {
+  background: var(--jp-yellow);
+  color: var(--jp-ink);
+}
+
+:focus-visible {
+  outline: 3px solid var(--jp-blue);
+  outline-offset: 2px;
+}
+
+a {
+  color: var(--jp-link);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 3px;
+}
+a:hover {
+  color: var(--jp-link-hover);
+}
+
+kbd {
+  font-family: var(--jp-mono);
+  font-size: 0.8em;
+  border: 2px solid var(--jp-dash);
+  border-bottom-width: 3px;
+  border-radius: 6px;
+  padding: 0 6px;
+  background: var(--jp-surface-2);
+  color: var(--jp-text-2);
+}
+
+/* ---------- Markdown content ---------- */
+
+.sl-markdown-content {
+  font-size: 16.5px;
+}
+
+.sl-markdown-content p,
+.sl-markdown-content li {
+  max-width: 70ch;
+}
+
+.sl-markdown-content :is(h2, h3, h4):not(:where(.not-content *)) {
+  color: var(--jp-text);
+  font-family: var(--jp-ui);
+  scroll-margin-top: calc(var(--sl-nav-height) + 1.5rem);
+}
+
+/* h2s get a highlighter stroke that cycles through the primaries. */
+.sl-markdown-content h2:not(:where(.not-content *)) {
+  --hl: #ffe36b;
+  width: fit-content;
+  max-width: 100%;
+  margin-top: 2.5rem;
+  margin-bottom: 0.25rem;
+  padding: 0 4px;
+  margin-inline-start: -4px;
+  font-size: 1.75rem;
+  font-weight: 700;
+  line-height: 1.25;
+  background: linear-gradient(transparent 58%, var(--hl) 58% 92%, transparent 92%);
+}
+.sl-markdown-content h2:nth-of-type(5n + 2) {
+  --hl: #a9e4ff;
+}
+.sl-markdown-content h2:nth-of-type(5n + 3) {
+  --hl: #c8f7d9;
+}
+.sl-markdown-content h2:nth-of-type(5n + 4) {
+  --hl: #ffc2e2;
+}
+.sl-markdown-content h2:nth-of-type(5n + 5) {
+  --hl: #e2d4ff;
+}
+:root[data-theme="dark"] .sl-markdown-content h2:not(:where(.not-content *)) {
+  background: linear-gradient(
+    transparent 62%,
+    color-mix(in srgb, var(--hl) 38%, transparent) 62% 94%,
+    transparent 94%
+  );
+}
+
+.sl-markdown-content h3:not(:where(.not-content *)) {
+  font-size: 1.3rem;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.sl-markdown-content h4:not(:where(.not-content *)) {
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.sl-markdown-content :is(ul, ol):not(:where(.not-content *)) {
+  padding-inline-start: 1.5rem;
+}
+.sl-markdown-content li::marker {
+  color: var(--jp-purple);
+  font-weight: 700;
+}
+
+.sl-markdown-content a:not(:where(.not-content *)) {
+  color: var(--jp-link);
+}
+.sl-markdown-content a:hover:not(:where(.not-content *)) {
+  color: var(--jp-link-hover);
+}
+
+/* Inline code */
+.sl-markdown-content :not(pre) > code:not(:where(.not-content *)) {
+  font-size: 0.86em;
+  color: var(--jp-text);
+  background: var(--jp-inline-code-bg);
+  border: 1.5px solid var(--jp-inline-code-line);
+  border-radius: 6px;
+  padding: 1px 5px;
+  margin-block: 0;
+  overflow-wrap: anywhere;
+}
+.sl-markdown-content a code {
+  color: inherit;
+}
+
+/* Tables */
+.sl-markdown-content table:not(:where(.not-content *)) {
+  display: block;
+  width: fit-content;
+  max-width: 100%;
+  overflow: auto;
+  border-collapse: separate;
+  border-spacing: 0;
+  border: 3.5px solid var(--jp-line);
+  border-radius: 16px;
+  box-shadow: 4px 4px 0 var(--jp-shadow);
+  background: var(--jp-table-row);
+  font-size: 15px;
+  line-height: 1.5;
+}
+.sl-markdown-content :is(th, td):not(:where(.not-content *)),
+.sl-markdown-content :is(th, td):first-child:not(:where(.not-content *)),
+.sl-markdown-content :is(th, td):last-child:not(:where(.not-content *)) {
+  border: 0;
+  padding: 9px 12px;
+  vertical-align: top;
+}
+.sl-markdown-content th:not(:where(.not-content *)) {
+  font-family: var(--jp-ui);
+  font-weight: 600;
+  font-size: 14.5px;
+  text-align: start;
+  color: var(--jp-ink);
+  background: var(--jp-table-head);
+  border-bottom: 3px solid var(--jp-line);
+  white-space: nowrap;
+}
+.sl-markdown-content tr + tr td:not(:where(.not-content *)) {
+  border-top: 2px solid var(--jp-table-line);
+}
+.sl-markdown-content tbody tr:nth-child(even) td {
+  background: var(--jp-table-stripe);
+}
+.sl-markdown-content td:first-child code {
+  font-weight: 600;
+}
+.sl-markdown-content td code {
+  white-space: nowrap;
+}
+
+/* Details */
+.sl-markdown-content details:not(:where(.not-content *)) {
+  border: 3px solid var(--jp-line);
+  border-radius: 14px;
+  background: var(--jp-surface);
+  box-shadow: 4px 4px 0 var(--jp-shadow);
+  padding: 0 16px;
+}
+.sl-markdown-content details summary {
+  cursor: pointer;
+  font-family: var(--jp-ui);
+  font-weight: 600;
+  padding: 8px 0;
+}
+
+.sl-markdown-content hr:not(:where(.not-content *)) {
+  border: 0;
+  border-top: 3px dashed var(--jp-dash);
+}
+
+.sl-markdown-content blockquote:not(:where(.not-content *)) {
+  border-inline-start: 5px solid var(--jp-purple);
+  padding-inline-start: 1rem;
+  color: var(--jp-text-2);
+}
+
+/* Starlight's <Steps>: big numbered badges joined by a dashed line. */
+.sl-markdown-content .sl-steps {
+  --bullet-size: 44px;
+  --bullet-margin: 0.5rem;
+}
+/* Center the first line on the badge. Starlight shifts the first child, which
+   does nothing when a short step starts with inline text (e.g. **Load**). */
+.sl-markdown-content .sl-steps > li {
+  padding-top: calc((var(--bullet-size) - 1lh) / 2);
+}
+.sl-markdown-content .sl-steps > li > :first-child {
+  transform: none;
+  margin-bottom: 0;
+}
+.sl-markdown-content .sl-steps > li::before {
+  font-family: var(--jp-display);
+  font-size: 22px;
+  padding-top: 4px;
+  color: #fff;
+  background: var(--step, var(--jp-red));
+  border: 3.5px solid var(--jp-ink);
+  box-shadow: 0 4px 0 var(--jp-ink);
+  -webkit-text-stroke: 1px var(--jp-ink);
+}
+.sl-markdown-content .sl-steps > li:nth-child(3n + 2) {
+  --step: var(--jp-blue);
+}
+.sl-markdown-content .sl-steps > li:nth-child(3n + 3) {
+  --step: var(--jp-green);
+}
+.sl-markdown-content .sl-steps > li::after {
+  background: none;
+  border-inline-start: 3.5px dashed var(--jp-dash);
+  width: 0;
+  inset-inline-start: calc(var(--bullet-size) / 2 - 2px);
+}
+
+/* Starlight cards */
+.sl-markdown-content .card {
+  border: 3.5px solid var(--jp-line);
+  border-radius: 18px;
+  background: var(--jp-surface);
+  box-shadow: 5px 5px 0 var(--jp-shadow);
+}
+.sl-markdown-content .sl-link-card {
+  border: 3.5px solid var(--jp-line);
+  border-radius: 18px;
+  background: var(--jp-surface);
+  box-shadow: 5px 5px 0 var(--jp-shadow);
+}
+.sl-markdown-content .sl-link-card:hover {
+  background: var(--jp-hover);
+  border-color: var(--jp-line);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}

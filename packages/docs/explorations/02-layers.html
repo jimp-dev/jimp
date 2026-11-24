@@ -1,0 +1,1896 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Jimp Studio Pro 7.0 — Jimp docs</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Silkscreen:wght@400;700&display=swap" rel="stylesheet" />
+<style>
+:root{
+  --ui: Verdana, Tahoma, Geneva, "Segoe UI", sans-serif;
+  --prose: "IBM Plex Sans", system-ui, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+  --pixel: "Silkscreen", "Courier New", monospace;
+  --bg0:#1c1c1c; --bg1:#252525; --bg2:#2f2f2f; --bg3:#3a3a3a; --bg4:#474747;
+  --line:#141414; --hi:#545454; --txt:#d9d9d9; --dim:#9a9a9a;
+  --sel:#2d63c8; --sel2:#3c78e6; --accent:#ff4fa3; --cyan:#3fd8e8; --yellow:#ffd34d; --lime:#9be15d;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:var(--bg0);color:var(--txt);font:11px/1.35 var(--ui);overflow:hidden}
+button{font:inherit;color:inherit}
+::selection{background:var(--sel2);color:#fff}
+svg.px{shape-rendering:crispEdges;display:block}
+
+/* ---------- app frame ---------- */
+#app{display:grid;grid-template-rows:24px 36px minmax(0,1fr) 22px;height:100vh}
+#work{display:grid;grid-template-columns:46px 232px minmax(0,1fr) 344px;min-height:0;border-top:1px solid var(--line)}
+
+/* menubar */
+#menubar{display:flex;align-items:stretch;background:linear-gradient(#3b3b3b,#2c2c2c);border-bottom:1px solid var(--line);user-select:none;position:relative;z-index:50}
+#menubar .logo{display:flex;align-items:center;gap:6px;padding:0 10px 0 8px;cursor:pointer}
+.jmark{width:16px;height:16px;border-radius:3px;background:conic-gradient(from 200deg,#ff4fa3,#ffd34d,#9be15d,#3fd8e8,#7b6cff,#ff4fa3);display:grid;place-items:center;font:700 11px/1 var(--pixel);color:#111;box-shadow:inset 0 0 0 1px rgba(0,0,0,.35)}
+#menubar .mi{padding:0 9px;display:flex;align-items:center;cursor:default;color:#e8e8e8}
+#menubar .mi.open,#menubar .mi:hover{background:var(--sel);color:#fff}
+#menubar .right{margin-left:auto;display:flex;align-items:center;gap:12px;padding-right:12px;color:var(--dim)}
+#menubar .right a{color:var(--dim);text-decoration:none}
+#menubar .right a:hover{color:#fff}
+.menu{position:fixed;min-width:230px;background:#353535;border:1px solid #111;box-shadow:3px 4px 0 rgba(0,0,0,.45),inset 1px 1px 0 #4d4d4d;padding:3px 0;z-index:200;color:#e6e6e6}
+.menu .it{display:flex;align-items:center;gap:8px;padding:4px 14px 4px 22px;position:relative;white-space:nowrap}
+.menu .it:hover{background:var(--sel);color:#fff}
+.menu .it .k{margin-left:auto;color:#999;padding-left:22px}
+.menu .it:hover .k{color:#dfe8ff}
+.menu .it .sig{margin-left:auto;font:10.5px var(--mono);color:#8fc1ff;padding-left:18px}
+.menu .it:hover .sig{color:#fff}
+.menu .it.chk::before{content:"";position:absolute;left:8px;top:7px;width:6px;height:3px;border:solid currentColor;border-width:0 0 2px 2px;transform:rotate(-45deg)}
+.menu .sep{height:1px;background:#202020;border-bottom:1px solid #474747;margin:3px 0}
+.menu .hd{padding:5px 12px 3px;color:#8a8a8a;font-size:10px;text-transform:uppercase;letter-spacing:.08em}
+
+/* options bar */
+#optbar{display:flex;align-items:center;gap:10px;padding:0 10px;background:var(--bg3);border-bottom:1px solid var(--line);box-shadow:inset 0 1px 0 var(--hi);white-space:nowrap;overflow:hidden}
+#optbar .grip{width:6px;height:22px;background:radial-gradient(#777 1px,transparent 1.5px) 0 0/3px 3px;opacity:.8}
+#optbar .tooltag{display:flex;align-items:center;gap:6px;padding:3px 8px;border:1px solid #222;background:#2e2e2e;border-radius:2px}
+#optbar .sep{width:1px;height:22px;background:#222;border-right:1px solid #4a4a4a}
+#optbar .hint{color:#bdbdbd}
+#optbar code,.inline-code{font:11px var(--mono);color:#ffe08a;background:#262626;border:1px solid #1d1d1d;padding:1px 5px;border-radius:2px}
+.btn{display:inline-flex;align-items:center;gap:5px;height:21px;padding:0 9px;background:linear-gradient(#585858,#424242);border:1px solid #1a1a1a;border-radius:2px;box-shadow:inset 0 1px 0 #6a6a6a;cursor:default;color:#eee}
+.btn:hover{background:linear-gradient(#636363,#4a4a4a)}
+.btn:active{background:#333;box-shadow:inset 0 1px 2px #000}
+.btn.primary{background:linear-gradient(#4a86f0,#2d63c8);box-shadow:inset 0 1px 0 #7aa6ff;color:#fff}
+.btn[disabled]{opacity:.4;pointer-events:none}
+.field{display:inline-flex;align-items:center;gap:4px;color:#bbb}
+.field b{font-weight:normal;color:#fff;font-family:var(--mono);background:#232323;border:1px solid #171717;padding:1px 5px;min-width:34px;text-align:right}
+
+/* tool column */
+#tools{background:var(--bg3);border-right:1px solid var(--line);box-shadow:inset 1px 0 0 var(--hi);display:flex;flex-direction:column;align-items:center;padding:6px 0;gap:2px}
+#tools .grip{width:30px;height:5px;margin-bottom:5px;background:radial-gradient(#777 1px,transparent 1.5px) 0 0/3px 3px}
+.tool{width:32px;height:30px;display:grid;place-items:center;border:1px solid transparent;border-radius:2px;position:relative}
+.tool:hover{border-color:#222;background:#444}
+.tool.on{background:#222;border-color:#111;box-shadow:inset 1px 1px 2px #000}
+.tool::after{content:"";position:absolute;right:2px;bottom:2px;border:2px solid transparent;border-right-color:#888;border-bottom-color:#888;opacity:.0}
+.tool.more::after{opacity:1}
+.tools-sep{width:28px;height:1px;background:#222;border-bottom:1px solid #4c4c4c;margin:4px 0}
+.swatches{position:relative;width:34px;height:34px;margin-top:8px}
+.swatches .fg,.swatches .bg{position:absolute;width:20px;height:20px;border:1px solid #000;box-shadow:inset 0 0 0 1px #fff}
+.swatches .fg{left:2px;top:2px;z-index:2;background:#ff4fa3}
+.swatches .bg{right:2px;bottom:2px;background:#fff}
+.tip{position:fixed;z-index:300;background:#ffffe1;color:#111;border:1px solid #111;padding:3px 7px;font:11px var(--ui);pointer-events:none;box-shadow:2px 2px 0 rgba(0,0,0,.35);white-space:nowrap}
+.tip code{font:11px var(--mono);color:#7a1b55}
+
+/* docks & palettes */
+.dock{background:#2a2a2a;display:flex;flex-direction:column;gap:3px;padding:3px;min-height:0;overflow:hidden}
+#leftdock{border-right:1px solid var(--line)}
+#rightdock{border-left:1px solid var(--line)}
+.pal{background:var(--bg3);border:1px solid var(--line);box-shadow:inset 1px 1px 0 var(--hi);display:flex;flex-direction:column;min-height:0}
+.pal.collapsed>.pal-body,.pal.collapsed>.pal-foot{display:none}
+.pal.grow{flex:1 1 0}
+.pal.collapsed{flex:0 0 auto!important}
+.pal-head{display:flex;align-items:stretch;height:21px;background:linear-gradient(#2b2b2b,#232323);border-bottom:1px solid var(--line);user-select:none;flex:0 0 auto}
+.pal-head .gr{width:8px;margin:5px 2px 5px 4px;background:radial-gradient(#6c6c6c 1px,transparent 1.4px) 0 0/3px 3px}
+.pal-tab{padding:0 10px;display:flex;align-items:center;color:#9d9d9d;border-right:1px solid var(--line);cursor:default;font-weight:bold;font-size:10.5px}
+.pal-tab.on{background:var(--bg3);color:#fff;box-shadow:inset 1px 1px 0 var(--hi);margin-bottom:-1px}
+.pal-tab:not(.on):hover{color:#ddd}
+.pal-head .sp{flex:1}
+.pal-head .hb{width:20px;display:grid;place-items:center;color:#aaa;cursor:default}
+.pal-head .hb:hover{color:#fff;background:#383838}
+.pal-body{flex:1 1 auto;min-height:0;overflow:auto;position:relative}
+.pal-foot{display:flex;align-items:center;gap:2px;padding:3px 4px;border-top:1px solid var(--line);box-shadow:inset 0 1px 0 var(--hi);flex:0 0 auto;background:var(--bg3)}
+.pal-foot .ib{width:24px;height:20px;display:grid;place-items:center;border:1px solid transparent;border-radius:2px}
+.pal-foot .ib:hover{border-color:#1b1b1b;background:#4a4a4a}
+.pal-foot .sp{flex:1}
+::-webkit-scrollbar{width:13px;height:13px}
+::-webkit-scrollbar-track{background:#2a2a2a;box-shadow:inset 1px 0 0 #1a1a1a}
+::-webkit-scrollbar-thumb{background:linear-gradient(90deg,#5a5a5a,#4a4a4a);border:1px solid #1a1a1a;box-shadow:inset 1px 1px 0 #6a6a6a}
+::-webkit-scrollbar-corner{background:#2a2a2a}
+
+/* file browser */
+.tree{padding:4px 0 8px;font-size:12px}
+.tree .row{display:flex;align-items:center;gap:6px;padding:3px 8px;cursor:default;white-space:nowrap;color:#ddd}
+.tree .row:hover{background:#444}
+.tree .row.on{background:var(--sel);color:#fff}
+.tree .row .ext{color:#8a8a8a;font-size:10.5px;margin-left:auto}
+.tree .row.on .ext{color:#cfdcff}
+.tree .tw{width:9px;color:#999;font-size:9px}
+.tree .indent1{padding-left:20px}.tree .indent2{padding-left:34px}
+.tree .folder.closed+.kids{display:none}
+.navthumb{position:relative;margin:8px auto 6px;background:#1d1d1d;display:grid;place-items:center;height:132px;border:1px solid #151515;box-shadow:inset 0 0 0 1px #2f2f2f}
+.navthumb canvas{max-width:200px;max-height:120px;display:block}
+.navthumb .vb{position:absolute;border:2px solid #ff3b3b;pointer-events:none;box-shadow:0 0 0 1px rgba(0,0,0,.5)}
+.navzoom{display:flex;align-items:center;gap:6px;padding:0 10px 8px;color:#bbb}
+.navzoom input{flex:1}
+input[type=range]{-webkit-appearance:none;appearance:none;height:16px;background:transparent}
+input[type=range]::-webkit-slider-runnable-track{height:4px;background:linear-gradient(#1a1a1a,#2a2a2a);border:1px solid #111;border-radius:2px}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:9px;height:12px;margin-top:-5px;background:linear-gradient(#f0f0f0,#b6b6b6);border:1px solid #111;clip-path:polygon(0 0,100% 0,100% 60%,50% 100%,0 60%)}
+
+/* document area */
+#docarea{display:flex;flex-direction:column;min-width:0;min-height:0;background:#232323}
+#tabs{display:flex;align-items:flex-end;height:27px;background:#202020;border-bottom:1px solid var(--line);padding:0 4px;gap:1px;overflow:hidden;flex:0 0 auto}
+.dtab{display:flex;align-items:center;gap:6px;height:23px;padding:0 6px 0 9px;background:#2c2c2c;border:1px solid var(--line);border-bottom:none;color:#a6a6a6;white-space:nowrap;cursor:default;max-width:290px;font-size:11px}
+.dtab .nm{overflow:hidden;text-overflow:ellipsis}
+.dtab.on{background:var(--bg3);color:#fff;height:25px;box-shadow:inset 1px 1px 0 var(--hi);margin-bottom:-1px}
+.dtab .x{width:14px;height:14px;display:grid;place-items:center;border-radius:2px;color:#888;font-size:12px}
+.dtab .x:hover{background:#c0392b;color:#fff}
+#views{flex:1;min-height:0;position:relative}
+.view{position:absolute;inset:0;display:none;overflow:auto}
+.view.on{display:block}
+.view.empty.on{display:grid;place-items:center;color:#777;font-size:12px}
+
+/* paste board */
+.pasteboard{background:#262626 radial-gradient(#2e2e2e 1px,transparent 1.2px) 0 0/14px 14px}
+
+/* ---------- welcome / hero ---------- */
+#v-welcome{color:#e8e8e8}
+.hero{display:grid;grid-template-columns:minmax(0,.92fr) minmax(0,1.08fr);gap:24px;padding:46px 40px 30px 56px;align-items:center;min-height:520px}
+.eyebrow{display:inline-flex;align-items:center;gap:8px;font:600 12px var(--prose);letter-spacing:.14em;text-transform:uppercase;color:#a7a7a7}
+.eyebrow .pill{font:10px var(--pixel);letter-spacing:0;color:#111;background:var(--yellow);padding:2px 6px;border:1px solid #000;box-shadow:2px 2px 0 #000;text-transform:none}
+.hero h1{font:400 60px/1.02 var(--pixel);margin:18px 0 16px;letter-spacing:-1px;color:#fff;text-shadow:3px 3px 0 #000}
+.hero h1 .l{display:block}
+.hero h1 .l:nth-child(1){color:var(--cyan)}
+.hero h1 .l:nth-child(2){color:var(--yellow)}
+.hero h1 .l:nth-child(3){color:var(--accent)}
+.hero p.lead{font:400 17.5px/1.6 var(--prose);color:#d6d6d6;max-width:540px;margin:0 0 24px}
+.hero p.lead code{font:15px var(--mono);color:#ffe08a}
+.cta{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.bigbtn{font:600 15px var(--prose);padding:11px 18px;border:2px solid #000;background:#e9e9e9;color:#111;box-shadow:4px 4px 0 #000;cursor:default;display:inline-flex;align-items:center;gap:8px;text-decoration:none;transition:transform .08s}
+.bigbtn:hover{transform:translate(-1px,-1px);box-shadow:5px 5px 0 #000}
+.bigbtn:active{transform:translate(3px,3px);box-shadow:1px 1px 0 #000}
+.bigbtn.go{background:var(--accent);color:#111}
+.install{display:flex;align-items:center;gap:10px;margin-top:22px;font:15px var(--mono);color:#ddd;background:#171717;border:1px solid #000;padding:9px 12px;width:max-content;box-shadow:inset 0 0 0 1px #333}
+.install .dollar{color:var(--lime)}
+.install button{background:none;border:1px solid #444;color:#aaa;font:11px var(--ui);padding:2px 7px}
+.install button:hover{color:#fff;border-color:#888}
+
+.stackwrap{position:relative;height:470px;perspective:1600px;display:grid;place-items:center}
+.stack{position:relative;width:224px;height:168px;margin-left:-70px;transform-style:preserve-3d;transform:rotateX(58deg) rotateZ(-38deg);transition:transform .6s cubic-bezier(.2,.9,.3,1.2)}
+.plane{position:absolute;inset:0;transform-style:preserve-3d;transition:transform .6s cubic-bezier(.2,.9,.3,1.2);background:repeating-conic-gradient(#bdbdbd 0 25%,#e9e9e9 0 50%) 0 0/16px 16px;outline:1px solid rgba(255,255,255,.35);box-shadow:0 0 0 1px #000}
+.plane img{width:100%;height:100%;display:block}
+.plane.top img{background:transparent}
+.plane .ants{inset:-6px}
+.stackwrap:hover .plane{transform:translateZ(calc(var(--i) * 84px))!important}
+.slabel{position:absolute;left:calc(50% + 62px);font:12px var(--mono);color:#fff;background:#111;border:1px solid #444;padding:4px 8px;white-space:nowrap;transition:transform .6s cubic-bezier(.2,.9,.3,1.2);box-shadow:3px 3px 0 #000}
+.slabel::before{content:"";position:absolute;right:100%;top:50%;width:26px;border-top:1px dashed #777}
+.slabel .ix{color:#888;margin-right:6px}
+.slabel .m{color:#8fc1ff}
+.stackcap{position:absolute;bottom:6px;left:0;right:0;text-align:center;color:#8d8d8d;font:13px var(--prose)}
+.stackcap kbd{font:11px var(--ui);border:1px solid #555;border-bottom-width:2px;padding:0 4px;border-radius:2px;color:#ccc}
+
+.w-sect{padding:12px 56px 34px;max-width:1180px}
+.w-sect h2{font:400 22px var(--pixel);color:#fff;margin:14px 0 16px;display:flex;align-items:center;gap:10px}
+.w-sect h2::before{content:"";width:12px;height:12px;background:var(--accent);box-shadow:3px 3px 0 #000}
+.w-sect p{font:16px/1.65 var(--prose);color:#d7d7d7;max-width:760px}
+.cards{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.card{background:var(--bg3);border:1px solid var(--line);box-shadow:inset 1px 1px 0 var(--hi),4px 4px 0 rgba(0,0,0,.35)}
+.card .ch{height:20px;display:flex;align-items:center;gap:6px;padding:0 6px;background:linear-gradient(#2b2b2b,#232323);border-bottom:1px solid var(--line);font-weight:bold;color:#ddd;font-size:10.5px}
+.card .cb{padding:12px 14px 14px;font:15px/1.55 var(--prose);color:#dcdcdc}
+.card .cb .ic{margin-bottom:8px}
+.card .cb strong{display:block;font:600 16px var(--prose);color:#fff;margin-bottom:4px}
+.steps3{display:grid;grid-template-columns:1fr;gap:4px;margin-top:6px;max-width:820px}
+.steps3 .st{display:grid;grid-template-columns:190px minmax(0,1fr);gap:16px;align-items:start}
+.steps3 .st .code{margin:0 0 10px}
+.steps3 .st{position:relative}
+.steps3 .num{font:400 13px var(--pixel);color:#111;background:var(--yellow);display:inline-block;padding:2px 7px;border:1px solid #000;box-shadow:2px 2px 0 #000;margin-bottom:8px}
+.steps3 .st p{margin:0 0 8px;font-size:15.5px}
+.linkcards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:20px}
+.linkcard{display:flex;align-items:center;justify-content:space-between;padding:16px 18px;background:#2d2d2d;border:1px solid #111;box-shadow:inset 1px 1px 0 #444;color:#fff;font:600 17px var(--prose);cursor:default}
+.linkcard:hover{background:#333;outline:1px dashed var(--cyan);outline-offset:-5px}
+.linkcard small{display:block;font:400 14px var(--prose);color:#aaa;margin-top:2px}
+.w-foot{padding:22px 56px 40px;color:#777;font:13px var(--prose)}
+
+/* ---------- code blocks ---------- */
+.code{margin:14px 0 18px;background:#1b1d22;border:1px solid #0b0c0e;box-shadow:inset 0 0 0 1px #2b2e36;color:#dfe3ea;font:14px/1.6 var(--mono);border-radius:2px;overflow:hidden}
+.code .bar{display:flex;align-items:center;gap:8px;height:26px;padding:0 6px 0 10px;background:linear-gradient(#30333b,#272a31);border-bottom:1px solid #0b0c0e;font:11px var(--ui);color:#9aa3b2}
+.code .bar .lang{font:10px var(--pixel);color:#111;background:#8fc1ff;padding:1px 5px;border:1px solid #000}
+.code .bar .sp{flex:1}
+.code .bar button{white-space:nowrap;background:linear-gradient(#4a4e58,#3a3d45);border:1px solid #0b0c0e;color:#e2e6ee;font:11px var(--ui);padding:2px 8px;border-radius:2px;box-shadow:inset 0 1px 0 #5c606b}
+.code .bar button.run{background:linear-gradient(#ff6db5,#e23d8e);color:#fff;box-shadow:inset 0 1px 0 #ff9bcc}
+.code pre{margin:0;padding:12px 14px;overflow:auto}
+.tk-c{color:#7f8899;font-style:italic}.tk-s{color:#a5e07a}.tk-k{color:#ff79c6}.tk-n{color:#ffb86c}.tk-f{color:#7dc8ff}.tk-p{color:#9aa3b2}.tk-t{color:#ffe08a}
+
+/* ---------- guide paper ---------- */
+.paperwrap{padding:34px 40px 80px;display:flex;justify-content:center}
+.paper{position:relative;background:#f6f4ee;color:#1d1d1f;width:100%;max-width:880px;box-shadow:0 0 0 1px #000,8px 10px 0 rgba(0,0,0,.45);padding:0 0 40px}
+.paper .pruler{height:18px;background:#e2dfd6 repeating-linear-gradient(90deg,#9b978c 0 1px,transparent 1px 10px) bottom/100% 5px no-repeat;border-bottom:1px solid #b8b4a8;position:relative}
+.paper .pruler::after{content:"";position:absolute;inset:auto 0 0;height:9px;background:repeating-linear-gradient(90deg,#8a867b 0 1px,transparent 1px 50px)}
+.paper .crumbs{padding:22px 64px 0;font:12px var(--mono);color:#6d6a62}
+.paper .crumbs b{color:#c02a77;font-weight:500}
+.prose{padding:6px 64px 0;font:16.5px/1.72 var(--prose)}
+.prose h1{font:400 38px/1.15 var(--pixel);margin:10px 0 6px;letter-spacing:-.5px;color:#111}
+.prose .desc{font-size:19px;color:#4b4a46;margin:0 0 26px}
+.prose h2{font:700 24px/1.3 var(--prose);margin:38px 0 10px;display:flex;align-items:center;gap:10px}
+.prose h2::before{content:"";width:10px;height:10px;background:#e23d8e;box-shadow:2px 2px 0 #111;flex:0 0 auto}
+.prose h3{font:600 19px var(--prose);margin:28px 0 6px}
+.prose p{margin:0 0 14px}
+.prose a{color:#1f56c4;text-decoration-thickness:1px;text-underline-offset:2px}
+.prose ul,.prose ol{padding-left:24px;margin:0 0 16px}
+.prose li{margin:3px 0}
+.prose :not(pre)>code{font:14.5px var(--mono);background:#e6e2d7;border:1px solid #d3cec1;padding:1px 5px;border-radius:2px;color:#7a1b55}
+.prose table{border-collapse:collapse;width:100%;margin:8px 0 20px;font-size:15px}
+.prose th,.prose td{border:1px solid #c9c4b7;padding:7px 10px;text-align:left;vertical-align:top}
+.prose th{background:#e3dfd4;font-weight:600}
+.alert{display:flex;gap:14px;margin:18px 0 22px;background:#ece9e1;border:1px solid #111;box-shadow:4px 4px 0 rgba(0,0,0,.25)}
+.alert .ah{width:8px;background:#ffb300}
+.alert .ab{padding:12px 16px 12px 0;display:flex;gap:12px}
+.alert .ab b{display:block;font-weight:700;margin-bottom:2px}
+.psteps{list-style:none;padding:0!important;counter-reset:s}
+.psteps>li{counter-increment:s;position:relative;padding-left:46px;margin:0 0 6px!important}
+.psteps>li::before{content:counter(s);position:absolute;left:0;top:2px;width:28px;height:26px;display:grid;place-items:center;font:400 13px var(--pixel);background:#111;color:var(--yellow);box-shadow:2px 2px 0 #e23d8e}
+.prose details{border:1px solid #c9c4b7;background:#efece4;padding:8px 14px;margin:12px 0}
+.prose summary{font-weight:600;cursor:default}
+.pagenav{display:flex;justify-content:space-between;gap:16px;margin:40px 64px 0;padding-top:18px;border-top:1px dashed #b8b4a8}
+.pagenav a{display:block;font:600 16px var(--prose);color:#111;text-decoration:none;border:1px solid #111;padding:10px 14px;background:#fff;box-shadow:3px 3px 0 #111;min-width:200px}
+.pagenav a small{display:block;font:400 12px var(--ui);color:#777}
+.pagenav a:hover{background:#fff3c4}
+
+/* ---------- playground ---------- */
+#v-playground{overflow:hidden}
+.pg{position:absolute;inset:0;display:grid;grid-template-columns:18px 1fr;grid-template-rows:18px 1fr}
+.rcorner{background:#2f2f2f;border-right:1px solid #111;border-bottom:1px solid #111}
+.ruler{width:100%;height:100%;display:block;background:#2f2f2f}
+#rulerH{border-bottom:1px solid #111}
+#rulerV{border-right:1px solid #111}
+#pgScroll{overflow:auto;position:relative}
+#pgStage{min-width:100%;min-height:100%;display:grid;place-items:center;padding:56px;width:max-content;height:max-content}
+#art{position:relative;background:repeating-conic-gradient(#9c9c9c 0 25%,#c9c9c9 0 50%) 0 0/16px 16px;box-shadow:0 0 0 1px #000,6px 6px 0 rgba(0,0,0,.4)}
+#art img{display:block;width:100%;height:100%}
+#art.pix img{image-rendering:pixelated}
+#art.busy::after{content:"";position:absolute;right:-1px;top:-22px;width:16px;height:16px;background:conic-gradient(var(--accent),var(--yellow),var(--cyan),var(--accent));border-radius:50%;animation:spin .6s linear infinite;mask:radial-gradient(transparent 4px,#000 4.5px)}
+@keyframes spin{to{transform:rotate(1turn)}}
+.ants{position:absolute;pointer-events:none;background:
+  linear-gradient(90deg,#000 50%,#fff 50%) repeat-x 0 0/8px 1px,
+  linear-gradient(90deg,#000 50%,#fff 50%) repeat-x 0 100%/8px 1px,
+  linear-gradient(0deg,#000 50%,#fff 50%) repeat-y 0 0/1px 8px,
+  linear-gradient(0deg,#000 50%,#fff 50%) repeat-y 100% 0/1px 8px;animation:ants .45s linear infinite}
+@keyframes ants{to{background-position:8px 0,-8px 100%,0 -8px,100% 8px}}
+#selbox{display:none}
+#selbox .dim{position:absolute;left:100%;top:100%;margin:4px;font:10px var(--mono);background:#111;color:#fff;padding:1px 4px;white-space:nowrap}
+.floathint{position:absolute;right:16px;top:14px;max-width:290px;background:#ffffe1;color:#111;border:1px solid #000;box-shadow:3px 3px 0 rgba(0,0,0,.5);padding:9px 28px 9px 11px;font:13px/1.45 var(--prose);z-index:5}
+.floathint b{font-weight:600}
+.floathint code{font:12px var(--mono);color:#7a1b55}
+.floathint .x{position:absolute;right:5px;top:3px;font:12px var(--ui);color:#555;cursor:default}
+.dropzone{position:absolute;inset:10px;border:3px dashed var(--cyan);background:rgba(63,216,232,.08);display:none;place-items:center;font:20px var(--pixel);color:var(--cyan);z-index:20;pointer-events:none}
+.dropzone.on{display:grid}
+
+/* layers */
+.lyr-top{display:flex;align-items:center;gap:6px;padding:4px 6px;border-bottom:1px solid var(--line);color:#aaa;font-size:10.5px;background:var(--bg3)}
+.lyr-top .chainarrow{font:10px var(--mono);color:#8fc1ff}
+.layer{display:flex;align-items:center;gap:5px;height:40px;padding:0 6px 0 0;border-bottom:1px solid #2a2a2a;background:var(--bg3);position:relative;cursor:default}
+.layer:hover{background:#424242}
+.layer.on{background:var(--sel);color:#fff}
+.layer.off .lname,.layer.off canvas{opacity:.45}
+.layer .eye{width:26px;height:40px;display:grid;place-items:center;border-right:1px solid #2a2a2a}
+.layer .eye .box{width:18px;height:18px;display:grid;place-items:center;border:1px solid #262626;background:#333}
+.layer.on .eye .box{background:#1f4ea8;border-color:#173a7d}
+.layer .glyph{width:16px;display:grid;place-items:center;opacity:.9}
+.layer canvas{width:42px;height:32px;border:1px solid #111;background:repeating-conic-gradient(#999 0 25%,#ccc 0 50%) 0 0/8px 8px;image-rendering:auto}
+.layer .lname{flex:1;min-width:0;line-height:1.25}
+.layer .lname b{display:block;font-size:11.5px;color:#f0f0f0;font-weight:normal;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.layer .lname span{display:block;font:10.5px var(--mono);color:#9fc7ff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.layer.on .lname span{color:#dbe8ff}
+.layer.bg .lname b{font-style:italic}
+.layer .warn{color:#ffcf3f}
+.layer.dragging{opacity:.4}
+.layer.drop-above::before,.layer.drop-below::after{content:"";position:absolute;left:0;right:0;height:3px;background:var(--yellow);box-shadow:0 0 0 1px #000;z-index:3}
+.layer.drop-above::before{top:-2px}.layer.drop-below::after{bottom:-2px}
+.layer.newborn{animation:born .5s ease-out}
+@keyframes born{from{background:#ffd34d;color:#000}}
+
+/* properties */
+.props{padding:8px 10px 10px}
+.props .ph{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.props .ph b{font-size:12px;color:#fff}
+.props .ph .plug{margin-left:auto;font:10px var(--mono);color:#8a8a8a}
+.props .pdesc{font:12.5px/1.45 var(--prose);color:#c4c4c4;margin:0 0 10px}
+.prow{display:grid;grid-template-columns:74px 1fr 56px;align-items:center;gap:8px;margin:5px 0}
+.prow label{color:#cfcfcf;text-align:right}
+.prow input[type=number],.prow select{width:100%;height:20px;background:#232323;color:#fff;border:1px solid #161616;font:11px var(--mono);padding:0 4px;box-shadow:inset 1px 1px 0 #000}
+.prow select{font-family:var(--ui);grid-column:2 / 4}
+.prow .chk{grid-column:2 / 4;display:flex;align-items:center;gap:6px}
+.props .err{margin-top:8px;padding:6px 8px;background:#4a1b1b;border:1px solid #000;color:#ffc9c9;font:11.5px var(--mono)}
+.props .none{padding:14px 4px;color:#999;font:13px/1.5 var(--prose)}
+.props .none code{font:12px var(--mono);color:#ffe08a}
+
+/* code palette */
+.codepal{font:12.5px/1.65 var(--mono);color:#dfe3ea;background:#1b1d22;min-height:100%;padding:6px 0 10px;counter-reset:ln}
+.codepal .ln{display:flex;padding:0 8px 0 0;white-space:pre;position:relative;border-left:3px solid transparent}
+.codepal .ln::before{counter-increment:ln;content:counter(ln);width:28px;text-align:right;padding-right:10px;color:#4c5361;flex:0 0 auto;user-select:none}
+.codepal .ln.lyr{cursor:default}
+.codepal .ln.lyr:hover{background:#252932}
+.codepal .ln.cur{background:#26365a;border-left-color:#7dc8ff}
+.codepal .ln.hid{opacity:.55}
+.codepal .ln.err .t{text-decoration:wavy underline #ff5c5c;text-underline-offset:3px}
+.codepal .ln.flash{animation:flash .7s ease-out}
+@keyframes flash{from{background:#5b4a12}}
+.codepal .t{flex:1;min-width:0;white-space:pre-wrap;word-break:break-word}
+.seg{display:inline-flex;border:1px solid #151515;border-radius:2px;overflow:hidden;margin:auto 4px auto 0}
+.seg button{background:#2c2c2c;border:0;padding:1px 7px;color:#aaa;font-size:10px}
+.seg button.on{background:#575757;color:#fff;box-shadow:inset 0 1px 0 #6a6a6a}
+.hist .h{display:flex;align-items:center;gap:7px;padding:4px 8px;border-bottom:1px solid #2e2e2e;font-size:11.5px}
+.hist .h:hover{background:#444}
+.hist .h.cur{background:var(--sel);color:#fff}
+.hist .h.future{opacity:.4;font-style:italic}
+.hist .h .hc{margin-left:auto;font:10px var(--mono);color:#9fc7ff;max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* api / filter gallery */
+.api{padding:28px 40px 60px;color:#e5e5e5}
+.dlg{background:var(--bg3);border:1px solid #000;box-shadow:inset 1px 1px 0 var(--hi),6px 6px 0 rgba(0,0,0,.45);max-width:1200px;margin:0 auto 26px}
+.dlg-t{height:24px;display:flex;align-items:center;gap:8px;padding:0 8px;background:linear-gradient(90deg,#2d63c8,#5a3fb8 60%,#a02e7c);color:#fff;font-weight:bold;border-bottom:1px solid #000}
+.dlg-t .sp{flex:1}
+.dlg-t .wb{width:14px;height:12px;border:1px solid #000;background:#ddd;box-shadow:inset 1px 1px 0 #fff}
+.dlg-b{padding:18px 20px 20px}
+.api h1{font:400 30px var(--pixel);margin:0 0 6px;color:#fff}
+.api .lead{font:16px/1.6 var(--prose);color:#cfcfcf;margin:0 0 18px;max-width:820px}
+.api .lead code,.apitable code{font:13.5px var(--mono);color:#ffe08a}
+.apitable{width:100%;border-collapse:collapse;font:15px/1.5 var(--prose)}
+.apitable td,.apitable th{padding:8px 10px;border-bottom:1px solid #2a2a2a;text-align:left;vertical-align:top}
+.apitable th{font:bold 10.5px var(--ui);color:#9a9a9a;text-transform:uppercase;letter-spacing:.06em;background:#333}
+.apitable td:first-child{white-space:nowrap}
+.fxfilter{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 14px}
+.fxfilter button{background:#2a2a2a;border:1px solid #111;color:#ccc;padding:3px 10px;font-size:11px}
+.fxfilter button.on{background:var(--sel);color:#fff}
+.fxgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(232px,1fr));gap:14px}
+.fx{background:#2e2e2e;border:1px solid #111;box-shadow:inset 1px 1px 0 #444;display:flex;flex-direction:column}
+.fx .thumb{position:relative;aspect-ratio:4/3;background:repeating-conic-gradient(#9c9c9c 0 25%,#c9c9c9 0 50%) 0 0/12px 12px;overflow:hidden;border-bottom:1px solid #111;cursor:ew-resize}
+.fx .thumb img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain}
+.fx .thumb img.before{clip-path:inset(0 50% 0 0)}
+.fx .thumb .div{position:absolute;top:0;bottom:0;left:50%;width:2px;background:#fff;box-shadow:0 0 0 1px #000;pointer-events:none}
+.fx .thumb .tg{position:absolute;bottom:4px;font:9px var(--pixel);background:#000;color:#fff;padding:1px 4px}
+.fx .thumb .tg.b{left:4px}.fx .thumb .tg.a{right:4px;background:var(--accent);color:#000}
+.fx .thumb .err{position:absolute;inset:0;display:grid;place-items:center;color:#ffb3b3;font:11px var(--mono);padding:10px;text-align:center;background:rgba(40,0,0,.7)}
+.fx .fb{padding:10px 12px 12px;display:flex;flex-direction:column;gap:6px;flex:1}
+.fx .fb .sig{font:13px var(--mono);color:#8fc1ff;word-break:break-word}
+.fx .fb .sig b{color:#fff;font-weight:600}
+.fx .fb p{margin:0;font:14px/1.5 var(--prose);color:#cdcdcd;flex:1}
+.fx .fb .row{display:flex;align-items:center;gap:6px}
+.fx .fb .pkg{font:10.5px var(--mono);color:#8a8a8a;margin-right:auto}
+
+/* status bar */
+#status{display:flex;align-items:center;gap:0;background:var(--bg3);border-top:1px solid var(--line);box-shadow:inset 0 1px 0 var(--hi);color:#c9c9c9;white-space:nowrap;overflow:hidden}
+#status .cell{padding:0 10px;border-right:1px solid #222;height:100%;display:flex;align-items:center;gap:6px;box-shadow:1px 0 0 #4a4a4a}
+#status .grow{flex:1;color:#a9a9a9;overflow:hidden;text-overflow:ellipsis}
+#status .zoombox{background:#232323;border:1px solid #151515;padding:0 5px;font-family:var(--mono);color:#fff}
+
+/* splash */
+#splash{position:fixed;inset:0;z-index:1000;display:grid;place-items:center;background:rgba(10,10,10,.55);backdrop-filter:blur(2px);transition:opacity .35s}
+#splash.bye{opacity:0;pointer-events:none}
+.splash{width:640px;height:380px;display:grid;grid-template-columns:250px 1fr;background:#151515;border:1px solid #000;box-shadow:0 0 0 1px #444,12px 14px 0 rgba(0,0,0,.6);overflow:hidden;position:relative}
+.splash .art{position:relative;background:linear-gradient(160deg,#311b6b,#7b1f5c 55%,#e2512e);overflow:hidden}
+.splash .art .sq{position:absolute;width:120px;height:90px;border:2px solid #000;box-shadow:4px 4px 0 rgba(0,0,0,.45);transform:skewY(-12deg)}
+.splash .art .sq:nth-child(1){left:28px;top:150px;background:#3fd8e8;animation:bob 2.4s ease-in-out infinite}
+.splash .art .sq:nth-child(2){left:58px;top:118px;background:#ffd34d;animation:bob 2.4s .2s ease-in-out infinite}
+.splash .art .sq:nth-child(3){left:88px;top:86px;background:#ff4fa3;animation:bob 2.4s .4s ease-in-out infinite;display:grid;place-items:center;font:700 54px/1 var(--pixel);color:#111}
+@keyframes bob{50%{translate:0 -8px}}
+.splash .art .px{position:absolute;inset:0;background:radial-gradient(rgba(255,255,255,.15) 1px,transparent 1.5px) 0 0/6px 6px}
+.splash .art .ver{position:absolute;left:14px;bottom:12px;font:10px var(--pixel);color:rgba(255,255,255,.8)}
+.splash .info{padding:30px 28px 22px;display:flex;flex-direction:column}
+.splash .name{font:400 34px/1 var(--pixel);color:#fff}
+.splash .name em{font-style:normal;font-size:14px;vertical-align:top;background:var(--accent);color:#000;padding:2px 5px;margin-left:6px;position:relative;top:4px}
+.splash .sub{color:#9a9a9a;margin:8px 0 18px;font-size:11px}
+.splash .credits{color:#7a7a7a;font-size:10.5px;line-height:1.6;flex:1}
+.splash .credits b{color:#bdbdbd;font-weight:normal}
+.splash .load{font:11px var(--mono);color:#d0d0d0;height:16px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.splash .load .q{color:#888}
+.splash .bar{height:8px;border:1px solid #000;background:#2a2a2a;margin-top:8px;box-shadow:inset 0 0 0 1px #3a3a3a}
+.splash .bar i{display:block;height:100%;width:0;background:repeating-linear-gradient(90deg,var(--accent) 0 6px,#c73a82 6px 8px);transition:width .1s}
+.splash .legal{color:#555;font-size:9.5px;margin-top:10px}
+.splash .err{color:#ff8a8a}
+
+/* modal + toast */
+#modalwrap{position:fixed;inset:0;z-index:900;display:none;place-items:center;background:rgba(0,0,0,.35)}
+#modalwrap.on{display:grid}
+.modal{min-width:380px;max-width:560px}
+.modal .dlg-b{font:14.5px/1.55 var(--prose);color:#e3e3e3}
+.modal .dlg-b code{font:13px var(--mono);color:#ffe08a}
+.modal .acts{display:flex;justify-content:flex-end;gap:8px;margin-top:16px}
+.modal .warnrow{display:flex;gap:14px;align-items:flex-start}
+.kbd{display:grid;grid-template-columns:auto 1fr;gap:4px 16px;font-size:14px}
+.kbd kbd{font:12px var(--mono);background:#222;border:1px solid #111;border-bottom-width:2px;padding:0 6px;color:#fff;justify-self:start}
+#toasts{position:fixed;right:356px;bottom:32px;z-index:800;display:flex;flex-direction:column;gap:8px;align-items:flex-end}
+.toast{background:#ffffe1;color:#111;border:1px solid #000;box-shadow:3px 3px 0 rgba(0,0,0,.5);padding:8px 12px;font:13px/1.45 var(--prose);max-width:400px;animation:tin .25s ease-out}
+.toast code{display:block;font:12px var(--mono);color:#7a1b55;margin-top:3px;white-space:pre-wrap}
+.toast .sw{display:inline-block;width:12px;height:12px;border:1px solid #000;vertical-align:-2px;margin-right:4px}
+@keyframes tin{from{transform:translateY(10px);opacity:0}}
+
+/* deep fried easter egg */
+body.fried #app{animation:fry .25s steps(2) 6}
+@keyframes fry{50%{filter:saturate(3) contrast(1.4) hue-rotate(30deg)}}
+
+/* responsive */
+@media (max-width:1180px){
+  #work{grid-template-columns:46px minmax(0,1fr) 320px}
+  #leftdock{display:none}
+  .hero{grid-template-columns:1fr;padding:30px 32px}
+  .stackwrap{height:400px}
+  .cards{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .w-sect{padding:12px 32px 30px}
+}
+@media (max-width:880px){
+  html,body{overflow:auto}
+  #app{height:auto;grid-template-rows:24px 36px auto 22px}
+  #work{grid-template-columns:40px minmax(0,1fr)}
+  #docarea{height:86vh}
+  #rightdock{grid-column:1 / -1;display:grid;grid-template-columns:1fr 1fr;border-left:0;border-top:1px solid #000}
+  #rightdock .pal{min-height:240px}
+  #menubar .right{display:none}
+  #menubar .mi{padding:0 6px}
+  #toasts{right:16px}
+  .hero h1{font-size:44px}
+  .steps3{grid-template-columns:1fr}
+  .paperwrap{padding:16px}
+  .prose,.paper .crumbs{padding-left:26px;padding-right:26px}
+  .pagenav{margin:30px 26px 0}
+  .slabel{display:none}
+}
+</style>
+</head>
+<body>
+<div id="app">
+  <!-- ================= MENU BAR ================= -->
+  <nav id="menubar">
+    <div class="logo" id="logoBtn" title="About Jimp Studio"><span class="jmark">J</span><b>Jimp Studio</b></div>
+    <div id="menus" style="display:flex"></div>
+    <div class="right">
+      <span id="clock"></span>
+      <a href="https://github.com/jimp-dev/jimp" target="_blank" rel="noopener">GitHub ↗</a>
+      <a href="https://www.npmjs.com/package/jimp" target="_blank" rel="noopener">npm</a>
+    </div>
+  </nav>
+
+  <!-- ================= OPTIONS BAR ================= -->
+  <div id="optbar"></div>
+
+  <div id="work">
+    <!-- ================= TOOLS ================= -->
+    <aside id="tools"><div class="grip"></div></aside>
+
+    <!-- ================= LEFT DOCK ================= -->
+    <aside class="dock" id="leftdock">
+      <section class="pal grow" id="palBrowser">
+        <div class="pal-head"><span class="gr"></span><span class="pal-tab on">File Browser</span><span class="pal-tab" data-fake="Brushes">Brushes</span><span class="sp"></span><span class="hb" data-collapse>▾</span></div>
+        <div class="pal-body"><div class="tree" id="tree"></div></div>
+      </section>
+      <section class="pal" id="palNav">
+        <div class="pal-head"><span class="gr"></span><span class="pal-tab on">Navigator</span><span class="pal-tab" data-fake="Info">Info</span><span class="sp"></span><span class="hb" data-collapse>▾</span></div>
+        <div class="pal-body" style="overflow:hidden">
+          <div class="navthumb" id="navthumb"><canvas id="navCanvas" width="10" height="10"></canvas><div class="vb" id="navVb"></div></div>
+          <div class="navzoom"><span>▫</span><input type="range" id="navZoom" min="0" max="10" step="1" value="4" /><span style="font-size:14px">▣</span><span id="navZoomLbl" class="inline-code" style="min-width:44px;text-align:right">100%</span></div>
+        </div>
+      </section>
+    </aside>
+
+    <!-- ================= DOCUMENTS ================= -->
+    <main id="docarea">
+      <div id="tabs"></div>
+      <div id="views">
+
+<!-- ---------- WELCOME ---------- -->
+<section class="view pasteboard" id="v-welcome" data-doc="welcome">
+  <div class="hero">
+    <div>
+      <div class="eyebrow"><span class="pill">jimp@1</span> The JavaScript Image Manipulation Program</div>
+      <h1><span class="l">Load.</span><span class="l">Stack.</span><span class="l">Save.</span></h1>
+      <p class="lead">Jimp reads, edits and writes images in plain JavaScript: Node, the browser, workers, anywhere JavaScript runs, with no native dependencies. Every edit is a method call like <code>.blur(4)</code>. In Jimp Studio, every method call is a layer.</p>
+      <div class="cta">
+        <a class="bigbtn go" data-open="playground">▶ Open the Playground</a>
+        <a class="bigbtn" data-open="getting-started">Read the docs</a>
+        <a class="bigbtn" href="https://github.com/jimp-dev/jimp" target="_blank" rel="noopener">GitHub ↗</a>
+      </div>
+      <div class="install"><span class="dollar">$</span><span>pnpm add jimp</span><button data-copy="pnpm add jimp">Copy</button></div>
+    </div>
+    <div class="stackwrap" id="stackwrap">
+      <div class="stack" id="stack"></div>
+      <div class="stackcap">Hover to explode the stack · each plane is rendered live by Jimp</div>
+    </div>
+  </div>
+
+  <div class="w-sect">
+    <h2>What's in the box</h2>
+    <div class="cards">
+      <div class="card"><div class="ch">▸ Formats</div><div class="cb"><div class="ic" data-icon="formats"></div><strong>Image Formats</strong>Supported image formats include PNG, JPEG, BMP, GIF, and TIFF.</div></div>
+      <div class="card"><div class="ch">▸ Adjustments</div><div class="cb"><div class="ic" data-icon="wand"></div><strong>Image Manipulation</strong>You can resize, crop, apply filters and more.</div></div>
+      <div class="card"><div class="ch">▸ Plug-ins</div><div class="cb"><div class="ic" data-icon="plug"></div><strong>Pluggable</strong>Create your own plugins to add new image manipulation methods or formats.</div></div>
+      <div class="card"><div class="ch">▸ Runtime</div><div class="cb"><div class="ic" data-icon="js"></div><strong>Just JavaScript</strong>Jimp is just JavaScript, so you can use it anywhere that JavaScript can be used.</div></div>
+    </div>
+  </div>
+
+  <div class="w-sect">
+    <h2>Usage</h2>
+    <p>Using Jimp is simple. Load an image, manipulate it, and save it.</p>
+    <div class="steps3">
+      <div class="st"><div><span class="num">1</span><p>Load an image.</p></div>
+<div class="code" data-lang="ts"><pre>import { Jimp } from "jimp";
+
+const image = await Jimp.read("test/image.png");</pre></div></div>
+      <div class="st"><div><span class="num">2</span><p>Manipulate the image.</p></div>
+<div class="code" data-lang="ts" data-run='[["resize",{"w":100}]]'><pre>image.resize({ w: 100 });</pre></div></div>
+      <div class="st"><div><span class="num">3</span><p>Save the image.</p></div>
+<div class="code" data-lang="ts"><pre>await image.write("test/output.png");</pre></div></div>
+    </div>
+    <div class="linkcards">
+      <div class="linkcard" data-open="getting-started"><div>Getting Started<small>Install Jimp and learn the load → edit → save loop.</small></div><span>→</span></div>
+      <div class="linkcard" data-open="api"><div>API Reference<small>The Jimp class and every filter, with live before/after previews.</small></div><span>→</span></div>
+    </div>
+  </div>
+  <div class="w-foot">Jimp is MIT licensed and built by its contributors. Jimp Studio is a docs prototype, not a real product, and it ships no third-party UI assets.</div>
+</section>
+
+<!-- ---------- PLAYGROUND ---------- -->
+<section class="view" id="v-playground" data-doc="playground">
+  <div class="pg">
+    <div class="rcorner"></div>
+    <canvas class="ruler" id="rulerH"></canvas>
+    <canvas class="ruler" id="rulerV"></canvas>
+    <div id="pgScroll" class="pasteboard">
+      <div id="pgStage"><div id="art"><img id="outImg" alt="Jimp output" /><div id="selbox" class="ants"><span class="dim"></span></div></div></div>
+      <div class="floathint" id="floathint"><span class="x" id="hintX">✕</span><b>The Layers palette is the method chain.</b> Toggle an eye to comment a call out, drag layers to reorder them, or add one with <b>◐ Adjustment</b>. The code in the <b>Actions</b> palette updates as you go.</div>
+    </div>
+  </div>
+  <div class="dropzone" id="dropzone">Drop image → Jimp.fromBuffer()</div>
+</section>
+
+<!-- ---------- API / FILTER GALLERY ---------- -->
+<section class="view pasteboard" id="v-api" data-doc="api">
+  <div class="api">
+    <div class="dlg">
+      <div class="dlg-t"><span class="jmark" style="width:13px;height:13px;font-size:9px">J</span>class Jimp<span class="sp"></span><span class="wb"></span><span class="wb"></span></div>
+      <div class="dlg-b">
+        <h1>API Reference</h1>
+        <p class="lead">Everything hangs off one class. Read an image into a <code>Jimp</code> instance, call methods on it (each plugin adds some), then export it. Methods that change pixels return the image, so they chain.</p>
+        <table class="apitable">
+          <tr><th>Member</th><th>What it does</th></tr>
+          <tr><td><code>Jimp.read(url | path, options?)</code></td><td>Load an image from a URL, a file path, or a Buffer. Resolves to a Jimp instance. Decode options are keyed by MIME type; see <a href="#reading-large-images" data-open="reading-large-images" style="color:#8fc1ff">Reading Large Images</a>.</td></tr>
+          <tr><td><code>Jimp.fromBuffer(buffer)</code></td><td>Decode an <code>ArrayBuffer</code> or <code>Buffer</code>. This is how File › Open works in this app.</td></tr>
+          <tr><td><code>Jimp.fromBitmap(imageData)</code></td><td>Wrap raw RGBA pixels, such as a canvas <code>ImageData</code>.</td></tr>
+          <tr><td><code>new Jimp({ width, height, color })</code></td><td>Create a blank image.</td></tr>
+          <tr><td><code>image.clone()</code></td><td>Copy the image. The playground clones the source before replaying the layers.</td></tr>
+          <tr><td><code>image.getPixelColor(x, y)</code></td><td>Read one pixel as an RGBA integer. Try the Eyedropper tool (I).</td></tr>
+          <tr><td><code>image.getBase64(mime)</code></td><td>Encode to a data URL. Async in v1.</td></tr>
+          <tr><td><code>image.getBuffer(mime, options?)</code></td><td>Encode to a Buffer. Async in v1.</td></tr>
+          <tr><td><code>image.write(path, options?)</code></td><td>Encode and save (Node). Async in v1.</td></tr>
+        </table>
+      </div>
+    </div>
+    <div class="dlg">
+      <div class="dlg-t"><span>◐</span>Filter Gallery: every thumbnail below was rendered by Jimp in this tab<span class="sp"></span><span class="wb"></span><span class="wb"></span></div>
+      <div class="dlg-b">
+        <p class="lead" style="margin-bottom:12px">Drag across a thumbnail to compare before and after. <b>Add layer</b> puts the method on top of the stack in the Playground.</p>
+        <div class="fxfilter" id="fxfilter"></div>
+        <div class="fxgrid" id="fxgrid"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ---------- GUIDES ---------- -->
+<section class="view pasteboard" data-doc="getting-started"><div class="paperwrap"><article class="paper"><div class="pruler"></div>
+<div class="crumbs">docs / guides / <b>getting-started.mdx</b></div>
+<div class="prose">
+<h1>Getting Started</h1>
+<p class="desc">How to use Jimp</p>
+<p>Jimp (JavaScript Image Manipulation Program) is a package that makes it easy to load and manipulate images in the browser and Node.js. It aims to run anywhere that JavaScript is supported.</p>
+<p><a href="#api" data-open="api">Read the full documentation</a> to learn more about the API.</p>
+<div class="code" data-lang="sh"><pre>pnpm add jimp</pre></div>
+<p>Jimp supports the following image formats:</p>
+<ul>
+  <li><a href="https://en.wikipedia.org/wiki/BMP_file_format" target="_blank" rel="noopener">bmp</a></li>
+  <li><a href="https://en.wikipedia.org/wiki/GIF" target="_blank" rel="noopener">gif</a></li>
+  <li><a href="https://en.wikipedia.org/wiki/JPEG" target="_blank" rel="noopener">jpeg</a></li>
+  <li><a href="https://en.wikipedia.org/wiki/Portable_Network_Graphics" target="_blank" rel="noopener">png</a></li>
+  <li><a href="https://en.wikipedia.org/wiki/TIFF" target="_blank" rel="noopener">tiff</a></li>
+</ul>
+<div class="alert"><div class="ah"></div><div class="ab"><span data-icon="warn"></span><div><b>Watch out!</b>Jimp is built on JavaScript implementations of image formats. These implementations are not optimized for performance and may allocate a lot of memory before using.</div></div></div>
+<p>By default JPEG, GIF, TIFF and BMP images larger than 100 megapixels are rejected. See <a href="#reading-large-images" data-open="reading-large-images">Reading Large Images</a> to raise the limits.</p>
+<h2>Usage</h2>
+<p>The workflow for using jimp:</p>
+<ol class="psteps">
+<li><p>Load an image.</p>
+<div class="code" data-lang="ts"><pre>import { Jimp } from "jimp";
+
+const image = await Jimp.read("test/image.png");</pre></div></li>
+<li><p>Manipulate the image. Click <b>▶ Open as layers</b> to load the snippet into the Playground and keep editing.</p>
+<div class="code" data-lang="ts" data-run='[["resize",{"w":100}]]'><pre>image.resize({ w: 100 });</pre></div></li>
+<li><p>Save the image.</p>
+<div class="code" data-lang="ts"><pre>await image.write("test/output.png");</pre></div></li>
+</ol>
+<h2>Chaining</h2>
+<p>Manipulation methods return the image, so you can chain them. Each call runs in order on the result of the one before. That's how the Playground works: the Layers palette is a chain read from the bottom up.</p>
+<div class="code" data-lang="ts" data-run='[["resize",{"w":400}],["greyscale",{}],["contrast",{"val":0.4}],["posterize",{"n":4}]]'><pre>image
+  .resize({ w: 400 })
+  .greyscale()
+  .contrast(0.4)
+  .posterize(4);</pre></div>
+</div>
+<div class="pagenav"><span></span><a data-open="browser"><small>Next →</small>Using in Browser</a></div>
+</article></div></section>
+
+<section class="view pasteboard" data-doc="browser"><div class="paperwrap"><article class="paper"><div class="pruler"></div>
+<div class="crumbs">docs / guides / <b>browser.mdx</b></div>
+<div class="prose">
+<h1>Using in Browser</h1>
+<p class="desc">How to use Jimp in the browser.</p>
+<p>Jimp can be used anywhere that JavaScript is supported. It can be used in the browser, in Node.js, or in a web worker. Jimp comes with a pre-bundled browser version. To use it simply import <code>jimp</code> instead.</p>
+<h2>Usage</h2>
+<h3>From a CDN</h3>
+<p>The browser build at <code>dist/browser/index.js</code> is a self-contained ES module, so you can import it straight from a CDN without a bundler. This page does exactly that.</p>
+<div class="code" data-lang="html" data-run='[["resize",{"w":400}],["greyscale",{}]]'><pre>&lt;script type="module"&gt;
+  import { Jimp } from "https://cdn.jsdelivr.net/npm/jimp@1/dist/browser/index.js";
+
+  const image = await Jimp.read("/some/url");
+
+  image.greyscale();
+
+  document.querySelector("img").src = await image.getBase64("image/png");
+&lt;/script&gt;</pre></div>
+<p>The same file is on unpkg at <code>https://unpkg.com/jimp@1/dist/browser/index.js</code>. <code>jimp@1</code> always loads the latest v1 release. Pin an exact version such as <code>jimp@1.7.0</code> to make sure an update never changes your page.</p>
+<p>The <code>jimp/fonts</code> export isn't self-contained, so it can't be imported from a CDN. Load your fonts by URL with <code>loadFont</code> instead.</p>
+<h3>With hosted file</h3>
+<p>You can initialize a Jimp instance from a URL or a file path.</p>
+<div class="code" data-lang="ts"><pre>import { Jimp } from "jimp";
+
+// Read a file hosted on the same domain
+const image1 = await Jimp.read("/some/url");
+
+// Read a file hosted on a different domain
+const image2 = await Jimp.read("https://some.other.domain/some/url");</pre></div>
+<h3>With uploaded files</h3>
+<p>Or you can use Jimp with an <code>ArrayBuffer</code>. Here we take a user's uploaded image and modify it to greyscale. In this app, <b>File › Open Image…</b> (or dropping a file on the canvas) does the same thing.</p>
+<div class="code" data-lang="ts"><pre>function handleFile(e) {
+  const reader = new FileReader();
+
+  reader.onload = async (e) =&gt; {
+    const image = await Jimp.fromBuffer(e.target?.result);
+
+    image.greyscale();
+
+    const base64 = await image.getBase64("image/jpeg");
+  };
+
+  reader.readAsArrayBuffer(e.target.files[0]);
+}
+
+input.addEventListener("change", handleFile);</pre></div>
+<h3>Using Canvas</h3>
+<p>You can also use Jimp with a canvas.</p>
+<div class="code" data-lang="ts"><pre>const canvas = document.getElementById("my-canvas");
+const ctx = canvas.getContext("2d");
+
+// Load the canvas into a Jimp instance
+const image = await Jimp.fromBitmap(
+  ctx.getImageData(0, 0, canvas.width, canvas.height)
+);
+
+// Manipulate the image
+image.greyscale();
+
+const imageData = new ImageData(
+  new Uint8ClampedArray(image.bitmap.data),
+  image.bitmap.width,
+  image.bitmap.height
+);
+
+// Write back to the canvas
+ctx.putImageData(imageData, 0, 0);</pre></div>
+<h2>Web Workers</h2>
+<p>Jimp can be slow and you don't want that running on the main thread. Workers can make this experience a lot better. First define a worker. This is where you should import jimp and do your image transformations.</p>
+<div class="code" data-lang="ts"><pre>import { Jimp } from "jimp";
+
+self.addEventListener("message", async (e) =&gt; {
+  const image = await Jimp.fromBuffer(e.data.image);
+
+  if (e.data.options.blur) {
+    image.blur(e.data.options.blur);
+  }
+
+  self.postMessage({ base64: await image.getBase64("image/png") });
+});</pre></div>
+</div>
+<div class="pagenav"><a data-open="getting-started"><small>← Previous</small>Getting Started</a><a data-open="reading-large-images"><small>Next →</small>Reading Large Images</a></div>
+</article></div></section>
+
+<section class="view pasteboard" data-doc="reading-large-images"><div class="paperwrap"><article class="paper"><div class="pruler"></div>
+<div class="crumbs">docs / guides / <b>reading-large-images.mdx</b></div>
+<div class="prose">
+<h1>Reading Large Images</h1>
+<p class="desc">How to pass decode options to Jimp, including the size limits for each format.</p>
+<p>Jimp decodes images with JavaScript implementations of each format. To avoid running out of memory on huge or malicious files, most decoders refuse images above a size limit. If you need to read an image larger than the defaults, pass decode options to <code>Jimp.read</code> or <code>Jimp.fromBuffer</code>.</p>
+<h2>Passing decode options</h2>
+<p>The second argument to <code>Jimp.read</code> and <code>Jimp.fromBuffer</code> is an object keyed by MIME type. Jimp detects the image's type and passes only the matching options to its decoder, so you can set options for several formats at once.</p>
+<div class="code" data-lang="ts"><pre>import { Jimp } from "jimp";
+
+const image = await Jimp.read("huge-photo.jpg", {
+  "image/jpeg": { maxResolutionInMP: 200, maxMemoryUsageInMB: 1024 },
+  "image/gif": { maxResolutionInMP: 200 },
+  "image/tiff": { maxResolutionInMP: 200 },
+  "image/bmp": { maxResolutionInMP: 200 },
+});</pre></div>
+<p>When an image is over a limit, decoding throws an error instead of allocating memory for it.</p>
+<h2>Options by format</h2>
+<p>Resolution limits are in megapixels (width × height ÷ 1,000,000). A 100 megapixel limit allows a 10,000 × 10,000 image.</p>
+<h3>JPEG (<code>image/jpeg</code>)</h3>
+<table><tr><th>Option</th><th>Default</th><th>Description</th></tr>
+<tr><td><code>maxResolutionInMP</code></td><td><code>100</code></td><td>Largest image, in megapixels, that will be decoded.</td></tr>
+<tr><td><code>maxMemoryUsageInMB</code></td><td><code>512</code></td><td>Largest amount of memory, in megabytes, the decoder may allocate.</td></tr>
+<tr><td><code>tolerantDecoding</code></td><td><code>true</code></td><td>Decode corrupt or truncated files as far as possible instead of throwing.</td></tr>
+<tr><td><code>colorTransform</code></td><td>auto</td><td>Whether to convert from YCbCr to RGB. By default this is chosen from the image's color model.</td></tr></table>
+<p>A large JPEG can hit <code>maxMemoryUsageInMB</code> before <code>maxResolutionInMP</code>, so raise both when needed.</p>
+<h3>GIF, TIFF and BMP</h3>
+<p>Each takes <code>maxResolutionInMP</code> (default <code>100</code>). GIF checks every frame and TIFF checks every tile.</p>
+<h3>PNG (<code>image/png</code>)</h3>
+<p>PNG has no size limit. It takes <code>checkCRC</code> (default <code>true</code>), which throws if a chunk's checksum doesn't match.</p>
+</div>
+<div class="pagenav"><a data-open="browser"><small>← Previous</small>Using in Browser</a><a data-open="exif"><small>Next →</small>EXIF</a></div>
+</article></div></section>
+
+<section class="view pasteboard" data-doc="exif"><div class="paperwrap"><article class="paper"><div class="pruler"></div>
+<div class="crumbs">docs / guides / <b>exif.mdx</b></div>
+<div class="prose">
+<h1>EXIF</h1>
+<p class="desc">How Jimp reads, rotates and writes EXIF metadata.</p>
+<p>Cameras and phones store metadata in JPEG files as EXIF: the camera make and model, the resolution (DPI), the date, the orientation and often the GPS location. Jimp reads EXIF from JPEG images. Other formats are read without it.</p>
+<h2>Auto-rotation on read</h2>
+<p>Cameras often store the pixels sideways and record how to turn them in the EXIF <code>Orientation</code> tag. When <code>Jimp.read</code> or <code>Jimp.fromBuffer</code> loads a JPEG with an orientation other than 1, Jimp rotates and flips the pixels so the image is upright, then sets the orientation to 1.</p>
+<div class="code" data-lang="ts"><pre>import { Jimp } from "jimp";
+
+// Stored as 3000x4000 with orientation 6 (rotate 90° clockwise)
+const image = await Jimp.read("photo.jpg");
+
+image.width; // 4000
+image.height; // 3000</pre></div>
+<h2>Reading EXIF data</h2>
+<p>The parsed EXIF is on <code>image._exif</code>, in the format <a href="https://www.npmjs.com/package/exif-parser" target="_blank" rel="noopener">exif-parser</a> returns. It isn't part of Jimp's typed API, so TypeScript needs a cast.</p>
+<div class="code" data-lang="ts"><pre>const image = await Jimp.read("photo.jpg");
+const { tags } = (image as any)._exif;
+
+tags.Make; // "Canon"
+tags.Orientation; // 1, as the pixels were rotated</pre></div>
+<h2>Writing EXIF data</h2>
+<p>By default Jimp writes no EXIF. To keep the metadata of a JPEG you read, pass <code>exif: true</code> when writing a JPEG:</p>
+<div class="code" data-lang="ts"><pre>const image = await Jimp.read("photo.jpg");
+
+image.resize({ w: 800 });
+
+await image.write("small.jpg", { quality: 90, exif: true });</pre></div>
+<div class="alert"><div class="ah"></div><div class="ab"><span data-icon="warn"></span><div><b>GPS goes along for the ride</b>Everything else, including maker notes and GPS location, is copied unchanged. Leave the option off when publishing images whose location shouldn't be shared.</div></div></div>
+</div>
+<div class="pagenav"><a data-open="reading-large-images"><small>← Previous</small>Reading Large Images</a><a data-open="writing-plugins"><small>Next →</small>Writing Plugins</a></div>
+</article></div></section>
+
+<section class="view pasteboard" data-doc="writing-plugins"><div class="paperwrap"><article class="paper"><div class="pruler"></div>
+<div class="crumbs">docs / guides / <b>writing-plugins.mdx</b></div>
+<div class="prose">
+<h1>Writing Plugins</h1>
+<p class="desc">How to write plugins for Jimp</p>
+<p>There are two types of plugins you can write for Jimp:</p>
+<ol><li>Image format plugins</li><li>Image manipulation plugins</li></ol>
+<p>You can combine plugins to create a <a href="#custom-jimp" data-open="custom-jimp">Custom Jimp</a>.</p>
+<h2>Image format plugins</h2>
+<p>Image format plugins are responsible for loading and saving images in a specific format. An image format plugin is composed of two functions: <code>encode</code> and <code>decode</code>.</p>
+<div class="code" data-lang="ts"><pre>import { Format } from "@jimp/types";
+import WEBP, { WEBPOptions } from "webp-js";
+
+export default function webp() {
+  return {
+    mime: "image/webp",
+    // Encode the bitmap as a WEBP image
+    encode: (bitmap, options: WEBPOptions = {}) =&gt;
+      WEBP.encode(bitmap, quality).data,
+    // Decode a WEBP image into a bitmap
+    decode: (data) =&gt; WEBP.decode(data),
+  } satisfies Format&lt;"image/webp"&gt;;
+}</pre></div>
+<h2>Image manipulation plugins</h2>
+<p>An image manipulation method takes an image as its first argument, does something to it, and returns the image. Every layer in the Playground is one of these.</p>
+<div class="code" data-lang="ts"><pre>import { JimpClass } from "@jimp/types";
+
+export const methods = {
+  blur&lt;I extends JimpClass&gt;(image: I, r: number) {
+    // Implementation
+    return image;
+  },
+};</pre></div>
+<p>Generally our method APIs follow this pattern:</p>
+<ul><li>They can take 1 primitive as an option (other than <code>image</code>)</li><li>Otherwise they take an options object defined and validated by <code>zod</code>.</li></ul>
+</div>
+<div class="pagenav"><a data-open="exif"><small>← Previous</small>EXIF</a><a data-open="custom-jimp"><small>Next →</small>Custom Jimp</a></div>
+</article></div></section>
+
+<section class="view pasteboard" data-doc="custom-jimp"><div class="paperwrap"><article class="paper"><div class="pruler"></div>
+<div class="crumbs">docs / guides / <b>custom-jimp.mdx</b></div>
+<div class="prose">
+<h1>Custom Jimp</h1>
+<p class="desc">How to create a custom Jimp</p>
+<p>If you don't want to use all the default plugins included in the <code>jimp</code> package, you can create a custom Jimp with <code>createJimp</code> from <code>@jimp/core</code>.</p>
+<div class="code" data-lang="ts"><pre>import { createJimp } from "@jimp/core";
+import png from "@jimp/js-png";
+import * as resize from "@jimp/plugin-resize";
+
+const MyJimp = createJimp({
+  plugins: [resize.methods],
+  formats: [png],
+});
+
+const image = await MyJimp.read("test/image.png");
+
+image.resize({ w: 100 });
+
+await image.write("test/output.png");</pre></div>
+<h2>Using a custom Jimp outside of Node.js</h2>
+<p>Jimp's packages import <code>Buffer</code> from the <code>buffer</code> package instead of relying on the Node.js global, so a custom Jimp works in browsers and in Cloudflare Workers without a <code>Buffer</code> polyfill.</p>
+<p>The <code>jimp</code> package ships a pre-bundled browser build with everything it needs. A custom Jimp is bundled by your own bundler instead. If you see <code>ReferenceError: Buffer is not defined</code>, update your Jimp packages.</p>
+</div>
+<div class="pagenav"><a data-open="writing-plugins"><small>← Previous</small>Writing Plugins</a><a data-open="migrate-to-v1"><small>Next →</small>Migrate to v1</a></div>
+</article></div></section>
+
+<section class="view pasteboard" data-doc="migrate-to-v1"><div class="paperwrap"><article class="paper"><div class="pruler"></div>
+<div class="crumbs">docs / guides / <b>migrate-to-v1.mdx</b></div>
+<div class="prose">
+<h1>Migrating to v1</h1>
+<p class="desc">How to migrate from v0 to v1</p>
+<p>The goals of v1 were to:</p>
+<ol><li>Make jimp easier to use in any environment</li><li>Make jimp's API more consistent and easier to use</li><li>Replace many constants with string values powered by TS</li></ol>
+<h2>Async/Sync</h2>
+<p>In v1 all "export" methods are async. They have also been renamed: <code>getBufferAsync</code> → <code>getBuffer</code>, <code>getBase64Async</code> → <code>getBase64</code>, <code>writeAsync</code> → <code>write</code>. Callbacks are no longer supported.</p>
+<div class="code" data-lang="js"><pre>// v0
+Jimp.read("image.png", (err, image) =&gt; {
+  if (err) throw err;
+  image.write("output.png");
+});
+
+// v1
+const image = await Jimp.read("image.png");
+await image.write("output.png");</pre></div>
+<h2>Importing</h2>
+<p><code>Jimp</code> no longer uses a default export. Instead it uses named exports.</p>
+<div class="code" data-lang="js"><pre>import { Jimp } from "jimp";</pre></div>
+<h2>Positional Arguments to Options Objects</h2>
+<p>In v0 most methods used positional arguments, which leads to code that's harder to read and extend. Now they take options objects:</p>
+<div class="code" data-lang="js"><pre>// v0
+image.resize(100, 100);
+// v1
+image.resize({ w: 100, h: 100 });</pre></div>
+</div>
+<div class="pagenav"><a data-open="custom-jimp"><small>← Previous</small>Custom Jimp</a><a data-open="webp"><small>Next →</small>WEBP / WASM</a></div>
+</article></div></section>
+
+<section class="view pasteboard" data-doc="webp"><div class="paperwrap"><article class="paper"><div class="pruler"></div>
+<div class="crumbs">docs / guides / <b>webp.mdx</b></div>
+<div class="prose">
+<h1>Using WEBP (and other WASM plugins)</h1>
+<p class="desc">How to use Jimp WebP and other WASM plugins.</p>
+<p>The default build of Jimp only includes image formats written in JavaScript. To use WEBP (and anything else we don't have a JS implementation for) you need format plugins and a custom Jimp. The WASM plugins aren't dependencies of <code>jimp</code>, so install the ones you need alongside <code>@jimp/core</code>:</p>
+<div class="code" data-lang="sh"><pre>npm install jimp @jimp/core @jimp/wasm-webp</pre></div>
+<div class="code" data-lang="ts"><pre>import { createJimp } from "@jimp/core";
+import { defaultFormats, defaultPlugins } from "jimp";
+import webp from "@jimp/wasm-webp";
+
+// A custom jimp that supports webp
+const Jimp = createJimp({
+  formats: [...defaultFormats, webp],
+  plugins: defaultPlugins,
+});</pre></div>
+<h2>Browser Usage</h2>
+<p>Since you're no longer using a pre-bundled version of jimp, your bundler has to handle the code written for Node. Vite 7 and earlier need some config for the WASM plugins, because the <code>@jsquash</code> codecs load their WASM relative to their own files.</p>
+</div>
+<div class="pagenav"><a data-open="migrate-to-v1"><small>← Previous</small>Migrate to v1</a><a data-open="api"><small>Next →</small>API Reference</a></div>
+</article></div></section>
+
+        <div class="view empty" id="v-empty"><div>No documents open. Pick one in the File Browser, or press <span class="inline-code">⌘O</span> to open an image.</div></div>
+      </div>
+    </main>
+
+    <!-- ================= RIGHT DOCK ================= -->
+    <aside class="dock" id="rightdock">
+      <section class="pal grow" id="palLayers" style="flex-grow:1.15">
+        <div class="pal-head"><span class="gr"></span><span class="pal-tab on">Layers</span><span class="pal-tab" data-fake="Channels">Channels</span><span class="pal-tab" data-fake="Paths">Paths</span><span class="sp"></span><span class="hb" data-collapse>▾</span></div>
+        <div class="lyr-top"><span>Chain order:</span><span class="chainarrow">Background → … → top</span><span style="margin-left:auto" id="lyrCount">0 calls</span></div>
+        <div class="pal-body" id="layers"></div>
+        <div class="pal-foot">
+          <span class="ib" id="addAdj" title="New adjustment layer (pick a Jimp method)"></span>
+          <span class="btn" id="addAdjBtn" style="height:20px;padding:0 7px">◐ Adjustment ▾</span>
+          <span class="sp"></span>
+          <span class="ib" id="dupLayer" title="Duplicate layer"></span>
+          <span class="ib" id="delLayer" title="Delete layer (Del)"></span>
+        </div>
+      </section>
+      <section class="pal" id="palProps" style="flex:0 0 auto;max-height:240px">
+        <div class="pal-head"><span class="gr"></span><span class="pal-tab on">Properties</span><span class="sp"></span><span class="hb" data-collapse>▾</span></div>
+        <div class="pal-body" id="props"></div>
+      </section>
+      <section class="pal grow" id="palCode">
+        <div class="pal-head"><span class="gr"></span><span class="pal-tab on" data-ctab="code">Actions</span><span class="pal-tab" data-ctab="hist">History</span><span class="sp"></span>
+          <span class="seg" id="codeMode"><button data-m="node" class="on">Node</button><button data-m="browser">Browser</button></span>
+          <span class="hb" id="copyCode" title="Copy code" style="width:auto;padding:0 6px">⧉ Copy</span><span class="hb" data-collapse>▾</span></div>
+        <div class="pal-body" id="codeBody"><div class="codepal" id="codepal"></div></div>
+        <div class="pal-body hist" id="histBody" style="display:none"></div>
+      </section>
+    </aside>
+  </div>
+
+  <!-- ================= STATUS BAR ================= -->
+  <footer id="status">
+    <div class="cell"><span class="zoombox" id="stZoom">100%</span></div>
+    <div class="cell" id="stDoc">Doc: –</div>
+    <div class="cell" id="stDims">– × – px</div>
+    <div class="cell" id="stTime">Ready</div>
+    <div class="cell" id="stXY" style="min-width:110px">X: – Y: –</div>
+    <div class="cell grow" id="stTip"></div>
+  </footer>
+</div>
+
+<!-- splash -->
+<div id="splash">
+  <div class="splash">
+    <div class="art"><div class="sq"></div><div class="sq"></div><div class="sq">J</div><div class="px"></div><div class="ver">v7.0 · Layers Edition</div></div>
+    <div class="info">
+      <div class="name">Jimp Studio<em>PRO</em></div>
+      <div class="sub">Professional JavaScript Image Manipulation · powered by jimp@1</div>
+      <div class="credits"><b>Built on</b> the Jimp contributors' open-source plugins.<br><b>Chain engineering:</b> Background → … → top<br><b>Pixel pushing:</b> 100% JavaScript, 0% native<br><b>Licensed to:</b> You, reading the docs</div>
+      <div class="load" id="splashLoad"><span class="q">Initializing…</span></div>
+      <div class="bar"><i id="splashBar"></i></div>
+      <div class="legal">MIT License. This is a documentation prototype, not affiliated with any real image editor.</div>
+    </div>
+  </div>
+</div>
+
+<div id="modalwrap"></div>
+<div id="toasts"></div>
+<input type="file" id="fileIn" accept="image/png,image/jpeg,image/gif,image/bmp,image/tiff" hidden />
+
+<script type="module">
+/* =====================================================================
+   Jimp Studio Pro 7.0 : the Layers panel IS the method chain
+   ===================================================================== */
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const esc = (s) => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+const fmt = (n) => (typeof n === "number" ? String(+n.toFixed(2)) : String(n));
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
+/* ---------- pixel-art icon engine ---------- */
+const PAL = { w: "#e8e8e8", g: "#9a9a9a", k: "#111", b: "#5aa8ff", r: "#ff5a5a", y: "#ffd34d", p: "#ff4fa3", c: "#3fd8e8", l: "#9be15d", d: "#5a5a5a" };
+function px(rows, size = 16, shadow = false) {
+  const h = rows.length, w = Math.max(...rows.map((r) => r.length));
+  let rects = "";
+  const pass = (forceColor, dx, dy) => {
+    rows.forEach((row, y) => {
+      let x = 0;
+      while (x < row.length) {
+        const ch = row[x];
+        if (ch === "." || ch === " ") { x++; continue; }
+        let run = 1;
+        while (row[x + run] === ch) run++;
+        rects += `<rect x="${x + dx}" y="${y + dy}" width="${run}" height="1" fill="${forceColor || PAL[ch] || ch}"/>`;
+        x += run;
+      }
+    });
+  };
+  if (shadow) pass("#000", 1, 1);
+  pass(null, 0, 0);
+  return `<svg class="px" xmlns="http://www.w3.org/2000/svg" width="${size}" height="${Math.round((size * h) / w)}" viewBox="0 0 ${w + (shadow ? 1 : 0)} ${h + (shadow ? 1 : 0)}">${rects}</svg>`;
+}
+const ART = {
+  move: ["................",".......w........","......www.......",".....wwwww......",".......w........","...w...w...w....","..ww...w...ww...",".wwwwwwwwwwwww..","..ww...w...ww...","...w...w...w....",".......w........",".....wwwww......","......www.......",".......w........","................","................"],
+  marquee: ["................","................",".ww.ww.ww.ww.ww.",".w............w.","................",".w............w.",".w............w.","................",".w............w.",".w............w.","................",".w............w.",".ww.ww.ww.ww.ww.","................","................","................"],
+  ellipse: ["................",".....ww.ww......","...w.......w....","..w.........w...","................",".w...........w..",".w...........w..","................",".w...........w..","..w.........w...","................","...w.......w....",".....ww.ww......","................","................","................"],
+  crop: ["................","...w............","...w............","...w............","wwwwwwwwwwww....","...w.......w....","...w.......w....","...w.......w....","...w.......w....","...w.......w....","...w.......w....","...wwwwwwwwwwwww","...........w....","...........w....","...........w....","................"],
+  drop: ["................","...........ww...","..........wwww..",".........wwwwww.","........wwwwww..",".......wgwwww...","......wwwgww....",".....wwwg.......","....wbbw........","...wbbw.........","..wbbw..........","..wbw...........",".ww.............",".w..............","................","................"],
+  wand: ["..........y.....","........y.y.y...",".........yyy....","......yyyywyyyy.",".........yyy....","........y.y.y...","......pp..y.....",".....www........","....www.........","...www..........","..www...........",".www............",".ww.............","................","................","................"],
+  blur: [".......w........",".......w........","......wbw.......","......wbw.......",".....wbbbw......","....wbbbbbw.....","...wbbbbbbbw....","...wwbbbbbbw....","..wbwbbbbbbbw...","..wbwbbbbbbbw...","..wbbwbbbbbbw...","...wbbbbbbbw....","....wbbbbbw.....",".....wwwww......","................","................"],
+  rotate: ["................",".....wwwww......","...ww.....ww.w..","..w.........ww..","..w........www..",".w.......wwww...",".w..............",".w..............",".w...........w..","..w..........w..","..w.........w...","...ww.....ww....",".....wwwww......","................","................","................"],
+  hand: ["................","......ww........","....ww.w.ww.....","...w.w.w.w.w....","...w.w.w.w.w....","...w.w.w.w.w.ww.","...w.......ww.w.",".ww..........w..","w.w..........w..","w............w..",".w..........w...","..w.........w...","...w.......w....","....w......w....","....wwwwwwww....","................"],
+  zoom: ["................","....wwwww.......","...w.....w......","..w..www..w.....","..w.w.....w.....","..w.w.....w.....","..w.......w.....","...w.....w......","....wwwwwww.....","..........www...","...........www..","............www.",".............ww.","................","................","................"],
+  eyeOn: ["..........", "..........","...wwww...", ".ww....ww.", "w...kk...w", "w..kkkk..w", ".ww.kk.ww.", "...wwww...", "..........", ".........."],
+  lock: ["..www...", ".w...w..", ".w...w..", "wwwwwww.", "wwwkwww.", "wwwkwww.", "wwwwwww.", "........"],
+  trash: [".wwwwww.", "ww....ww", "wwwwwwww", ".w.w.w..", ".w.w.w..", ".w.w.w..", ".w.w.w..", ".wwwww.."],
+  dup: ["wwwww...", "w...w...", "w.wwwww.", "w.w...w.", "www...w.", "..w...w.", "..wwwww.", "........"],
+  adj: ["..wwww..", ".wwwk.w.", "wwwwk..w", "wwwwk..w", "wwwwk..w", "wwwwk..w", ".wwwk.w.", "..wwww.."],
+  fx: ["..pp.......", ".p.........", "ppp.p...p..", ".p...p.p...", ".p....p....", ".p...p.p...", ".p..p...p..", "..........."],
+  tf: ["www.....", "w.w.....", "www.....", "...w....", "....w...", ".....www", ".....w.w", ".....www"],
+  folder: ["..........", "yyyy......", "yyyyyyyyy.", "yddddddddy", "yyyyyyyyyy", "yyyyyyyyyy", "yyyyyyyyyy", "yyyyyyyyyy", ".........."],
+  file: [".wwwww...", ".w...ww..", ".w....ww.", ".w.gg..w.", ".w......w", ".w.ggg..w", ".w......w", ".wwwwwwww"],
+  mdx: [".wwwww...", ".w...ww..", ".w....ww.", ".w.bb..w.", ".w......w", ".w.bbb..w", ".w......w", ".wwwwwwww"],
+  png: [".wwwww...", ".w...ww..", ".w....ww.", ".wpp.c.w.", ".wppccc.w", ".wllllll.w", ".w......w", ".wwwwwwww"],
+  star: ["....y....", "...yyy...", "yyyyyyyyy", ".yyyyyyy.", "..yyyyy..", ".yy...yy.", "y.......y"],
+  api: [".wwwww...", ".w...ww..", ".w....ww.", ".w.yy..w.", ".w.y...w.", ".w.yy..w.", ".w......w", ".wwwwwwww"],
+  warn: ["......k......", ".....kyk.....", ".....kyk.....", "....kyyyk....", "....kykyk....", "...kyykyyk...", "...kyykyyk...", "..kyyykyyyk..", "..kyyyyyyyk..", ".kyyyykyyyyk.", ".kyyyyyyyyyk.", "kkkkkkkkkkkkk"],
+  formats: ["................", ".wwwwww.........", ".w....ww........", ".w.pp..wwwwww...", ".w.pp..w....ww..", ".w.....w.cc..ww.", ".w.lll.w.cc...w.", ".wwwwwww.......w.", ".......w.yyyy..w.", ".......w.......w.", ".......wwwwwwwww."],
+  plug: ["....w..w....", "....w..w....", "...wwwwww...", "...wwwwww...", "...wwwwww...", "....wwww....", ".....ww.....", ".....pp.....", ".....pp.....", "....pp......", "..ppp......."],
+  js: ["yyyyyyyyyyyy", "yyyyyyyyyyyy", "yyyyyyyyyyyy", "yyyyykyykkky", "yyyyykykyyyy", "yyyyykyykkyy", "yykyykyyyyky", "yyykkyykkkyy", "yyyyyyyyyyyy"],
+};
+const ICON = (name, size) => px(ART[name], size);
+$$("[data-icon]").forEach((el) => { const n = el.dataset.icon; el.innerHTML = px(ART[n], n === "warn" ? 30 : 34, n !== "warn"); });
+
+/* ---------- syntax highlighter ---------- */
+function hl(code, lang = "ts") {
+  if (lang === "sh") {
+    return esc(code).replace(/^(\s*)(\S+)/gm, '$1<span class="tk-f">$2</span>').replace(/(@[\w/-]+)/g, '<span class="tk-s">$1</span>');
+  }
+  const re = /(\/\/[^\n]*)|("(?:[^"\\\n]|\\.)*"|'(?:[^'\\\n]|\\.)*'|`(?:[^`\\]|\\.)*`)|(<\/?[a-zA-Z][\w-]*|\/?>)|\b(import|from|const|let|await|async|function|new|return|export|default|if|throw|type|satisfies|extends|as|self)\b|\b(\d+(?:\.\d+)?|true|false|null|undefined)\b|([A-Za-z_$][\w$]*)(?=\s*[(<])|([{}()[\];,.=:?])/g;
+  let out = "", last = 0, m;
+  while ((m = re.exec(code))) {
+    out += esc(code.slice(last, m.index));
+    const [t] = m;
+    const cls = m[1] ? "c" : m[2] ? "s" : m[3] ? (lang === "html" ? "k" : "p") : m[4] ? "k" : m[5] ? "n" : m[6] ? "f" : "p";
+    out += `<span class="tk-${cls}">${esc(t)}</span>`;
+    last = m.index + t.length;
+  }
+  return out + esc(code.slice(last));
+}
+
+/* ---------- Jimp method catalogue (option shapes checked against each plugin src/index.ts) ---------- */
+const COLOR_R = { hue: [-360, 360, 90], spin: [-360, 360, 120], saturate: [0, 100, 50], desaturate: [0, 100, 50], lighten: [0, 100, 20], darken: [0, 100, 20], brighten: [0, 100, 25], tint: [0, 100, 30], shade: [0, 100, 30], red: [-255, 255, 70], green: [-255, 255, 70], blue: [-255, 255, 70] };
+const M = {
+  resize: { g: "Transform", plugin: "plugin-resize", label: "Resize", desc: "Scale to a width. Leave out h and the aspect ratio is kept.",
+    params: [{ k: "w", l: "Width", min: 16, max: 800, step: 1, def: 400, u: "px" }], demo: { w: 90 },
+    run: (i, p) => i.resize({ w: p.w }), code: (p) => `resize({ w: ${p.w} })`, sig: "resize({ w, h?, mode? })" },
+  crop: { g: "Transform", plugin: "plugin-crop", label: "Crop", desc: "Cut out a rectangle. Drag one on the canvas with the Crop (C) or Marquee (M) tool.",
+    params: [{ k: "x", l: "X", min: 0, max: 800, def: 50 }, { k: "y", l: "Y", min: 0, max: 800, def: 40 }, { k: "w", l: "Width", min: 1, max: 800, def: 200 }, { k: "h", l: "Height", min: 1, max: 800, def: 150 }],
+    demo: { x: 40, y: 30, w: 80, h: 60 }, run: (i, p) => i.crop({ x: p.x, y: p.y, w: p.w, h: p.h }), code: (p) => `crop({ x: ${p.x}, y: ${p.y}, w: ${p.w}, h: ${p.h} })`, sig: "crop({ x, y, w, h })" },
+  rotate: { g: "Transform", plugin: "plugin-rotate", label: "Rotate", desc: "Rotate by degrees. Angles that aren't multiples of 90 grow the canvas to fit.",
+    params: [{ k: "deg", l: "Angle", min: -180, max: 180, step: 1, def: 90, u: "°" }], demo: { deg: 25 }, run: (i, p) => i.rotate(p.deg), code: (p) => `rotate(${p.deg})`, sig: "rotate(deg)" },
+  flip: { g: "Transform", plugin: "plugin-flip", label: "Flip", desc: "Mirror the image horizontally, vertically, or both.",
+    params: [{ k: "horizontal", l: "Horizontal", type: "bool", def: true }, { k: "vertical", l: "Vertical", type: "bool", def: false }],
+    run: (i, p) => i.flip({ horizontal: p.horizontal, vertical: p.vertical }), code: (p) => `flip({ horizontal: ${p.horizontal}, vertical: ${p.vertical} })`, sig: "flip({ horizontal?, vertical? })" },
+  circle: { g: "Transform", plugin: "plugin-circle", label: "Circle", desc: "Mask the image to a circle. Everything outside turns transparent.",
+    params: [], run: (i) => i.circle(), code: () => `circle()`, sig: "circle({ radius?, x?, y? })" },
+  brightness: { g: "Adjust", plugin: "plugin-color", label: "Brightness", desc: "Multiply every channel by val. 1 leaves the image unchanged.",
+    params: [{ k: "val", l: "Factor", min: 0, max: 2, step: 0.05, def: 1.3 }], run: (i, p) => i.brightness(p.val), code: (p) => `brightness(${fmt(p.val)})`, sig: "brightness(val)" },
+  contrast: { g: "Adjust", plugin: "plugin-color", label: "Contrast", desc: "Adjust contrast by a number between -1 and +1.",
+    params: [{ k: "val", l: "Amount", min: -1, max: 1, step: 0.05, def: 0.4 }], run: (i, p) => i.contrast(p.val), code: (p) => `contrast(${fmt(p.val)})`, sig: "contrast(val)" },
+  posterize: { g: "Adjust", plugin: "plugin-color", label: "Posterize", desc: "Reduce each channel to n levels. Low numbers look like screen prints.",
+    params: [{ k: "n", l: "Levels", min: 2, max: 20, step: 1, def: 5 }], demo: { n: 3 }, run: (i, p) => i.posterize(p.n), code: (p) => `posterize(${p.n})`, sig: "posterize(n)" },
+  threshold: { g: "Adjust", plugin: "plugin-threshold", label: "Threshold", desc: "Pixels brighter than max turn white, the rest black.",
+    params: [{ k: "max", l: "Max", min: 0, max: 255, step: 1, def: 140 }, { k: "autoGreyscale", l: "Auto grey", type: "bool", def: true }],
+    run: (i, p) => i.threshold({ max: p.max, autoGreyscale: p.autoGreyscale }), code: (p) => `threshold({ max: ${p.max}${p.autoGreyscale ? "" : ", autoGreyscale: false"} })`, sig: "threshold({ max, replace?, autoGreyscale? })" },
+  color: { g: "Adjust", plugin: "plugin-color", label: "Color", desc: "Apply TinyColor-style actions: hue, spin, saturate, tint, shade, per-channel shifts…",
+    params: [{ k: "apply", l: "Apply", type: "select", opts: Object.keys(COLOR_R), def: "hue" }, { k: "amount", l: "Amount", min: -360, max: 360, step: 1, def: 90, dyn: true }], demo: { apply: "hue", amount: 140 },
+    run: (i, p) => i.color([{ apply: p.apply, params: [p.amount] }]), code: (p) => `color([{ apply: "${p.apply}", params: [${p.amount}] }])`, sig: "color([{ apply, params }])" },
+  greyscale: { g: "Adjust", plugin: "plugin-color", label: "Greyscale", desc: "Remove colour using luminance weights.", params: [], run: (i) => i.greyscale(), code: () => `greyscale()`, sig: "greyscale()" },
+  invert: { g: "Adjust", plugin: "plugin-color", label: "Invert", desc: "Flip every colour channel.", params: [], run: (i) => i.invert(), code: () => `invert()`, sig: "invert()" },
+  sepia: { g: "Adjust", plugin: "plugin-color", label: "Sepia", desc: "An old-photo brown tone.", params: [], run: (i) => i.sepia(), code: () => `sepia()`, sig: "sepia()" },
+  normalize: { g: "Adjust", plugin: "plugin-color", label: "Normalize", desc: "Stretch each channel to the full 0–255 range (auto levels).", params: [], run: (i) => i.normalize(), code: () => `normalize()`, sig: "normalize()" },
+  opacity: { g: "Adjust", plugin: "plugin-color", label: "Opacity", desc: "Multiply the alpha channel by f (0–1).",
+    params: [{ k: "f", l: "Factor", min: 0, max: 1, step: 0.05, def: 0.5 }], run: (i, p) => i.opacity(p.f), code: (p) => `opacity(${fmt(p.f)})`, sig: "opacity(f)" },
+  blur: { g: "Filter", plugin: "plugin-blur", label: "Blur", desc: "A fast box blur with radius r.",
+    params: [{ k: "r", l: "Radius", min: 1, max: 30, step: 1, def: 4, u: "px" }], run: (i, p) => i.blur(p.r), code: (p) => `blur(${p.r})`, sig: "blur(r)" },
+  gaussian: { g: "Filter", plugin: "plugin-blur", label: "Gaussian Blur", desc: "A true Gaussian blur. Prettier than blur(), much slower, so the slider stops at 6.",
+    params: [{ k: "r", l: "Radius", min: 1, max: 6, step: 1, def: 2, u: "px" }], run: (i, p) => i.gaussian(p.r), code: (p) => `gaussian(${p.r})`, sig: "gaussian(r)" },
+  pixelate: { g: "Filter", plugin: "plugin-color", label: "Pixelate", desc: "Mosaic blocks of size px. Make a marquee selection first to pixelate just that region.",
+    params: [{ k: "size", l: "Size", min: 2, max: 40, step: 1, def: 8, u: "px" }], run: (i, p) => (p.region ? i.pixelate({ size: p.size, ...p.region }) : i.pixelate(p.size)),
+    code: (p) => (p.region ? `pixelate({ size: ${p.size}, x: ${p.region.x}, y: ${p.region.y}, w: ${p.region.w}, h: ${p.region.h} })` : `pixelate(${p.size})`), sig: "pixelate(size | { size, x, y, w, h })" },
+  dither: { g: "Filter", plugin: "plugin-dither", label: "Dither", desc: "Ordered dither down to a 16-bit palette. Very 2002.", params: [], run: (i) => i.dither(), code: () => `dither()`, sig: "dither()" },
+  fisheye: { g: "Filter", plugin: "plugin-fisheye", label: "Fisheye", desc: "Bulge the middle of the image. radius defaults to 2.5.",
+    params: [{ k: "radius", l: "Radius", min: 1, max: 5, step: 0.1, def: 2.5 }], demo: { radius: 1.6 }, run: (i, p) => i.fisheye({ radius: p.radius }), code: (p) => `fisheye({ radius: ${fmt(p.radius)} })`, sig: "fisheye({ radius? })" },
+};
+const GLYPH = { Adjust: "adj", Filter: "fx", Transform: "tf" };
+const defaults = (m) => Object.fromEntries(M[m].params.map((p) => [p.k, p.def]));
+
+/* ---------- state ---------- */
+let J = null, source = null, galleryBase = null, lastOut = null;
+let uid = 1;
+const S = { layers: [], sel: null, zoom: 1, zoomSet: false, tool: "move", selection: null, srcName: "dice.png", hist: [], hi: -1, codeMode: "node", errors: {}, active: "welcome", tabs: ["welcome", "playground", "getting-started", "api"], outW: 0, outH: 0, flash: null };
+const mk = (m, p = {}, on = true) => ({ id: uid++, m, p: { ...defaults(m), ...p }, on });
+
+/* ---------- documents / tabs ---------- */
+const DOCS = {
+  welcome: { title: () => "Welcome.jimp", icon: "star", nav: "Welcome" },
+  playground: { title: () => `playground.png @ ${Math.round(S.zoom * 100)}% (RGB/8)`, icon: "png", nav: "Playground" },
+  "getting-started": { title: () => "getting-started.mdx @ 100%", icon: "mdx", nav: "Getting Started", guide: true },
+  browser: { title: () => "browser.mdx @ 100%", icon: "mdx", nav: "Using in Browser", guide: true },
+  "reading-large-images": { title: () => "reading-large-images.mdx @ 100%", icon: "mdx", nav: "Reading Large Images", guide: true },
+  exif: { title: () => "exif.mdx @ 100%", icon: "mdx", nav: "EXIF", guide: true },
+  "writing-plugins": { title: () => "writing-plugins.mdx @ 100%", icon: "mdx", nav: "Writing Plugins", guide: true },
+  "custom-jimp": { title: () => "custom-jimp.mdx @ 100%", icon: "mdx", nav: "Custom Jimp", guide: true },
+  "migrate-to-v1": { title: () => "migrate-to-v1.mdx @ 100%", icon: "mdx", nav: "Migrate to v1", guide: true },
+  webp: { title: () => "webp.mdx @ 100%", icon: "mdx", nav: "WEBP / WASM", guide: true },
+  api: { title: () => "api-reference.jimp @ 100%", icon: "api", nav: "API Reference" },
+};
+function renderTabs() {
+  $("#tabs").innerHTML = S.tabs.map((id) => `<div class="dtab ${id === S.active ? "on" : ""}" data-tab="${id}">${ICON(DOCS[id].icon, 11)}<span class="nm">${esc(DOCS[id].title())}</span><span class="x" data-close="${id}">×</span></div>`).join("");
+}
+function openDoc(id, { push = true } = {}) {
+  if (!DOCS[id]) return;
+  if (!S.tabs.includes(id)) S.tabs.push(id);
+  S.active = id;
+  $$(".view").forEach((v) => v.classList.toggle("on", v.dataset.doc === id));
+  renderTabs(); renderTree(); renderOptbar();
+  if (push && location.hash.slice(1) !== id) history.replaceState(null, "", "#" + id);
+  if (id === "playground") requestAnimationFrame(() => { fitIfNeeded(); drawRulers(); drawNav(); });
+  if (id === "api") buildGallery();
+  const v = $(`.view[data-doc="${id}"]`); if (v && DOCS[id].guide) v.scrollTop = 0;
+  updateStatus();
+}
+function closeDoc(id) {
+  const i = S.tabs.indexOf(id);
+  S.tabs.splice(i, 1);
+  if (S.active === id) {
+    const next = S.tabs[Math.max(0, i - 1)];
+    if (next) return openDoc(next);
+    S.active = null; $$(".view").forEach((v) => v.classList.remove("on")); $("#v-empty").classList.add("on"); renderTabs(); renderTree();
+    return;
+  }
+  renderTabs();
+}
+$("#tabs").addEventListener("click", (e) => {
+  const x = e.target.closest("[data-close]"); if (x) { e.stopPropagation(); return closeDoc(x.dataset.close); }
+  const t = e.target.closest("[data-tab]"); if (t) openDoc(t.dataset.tab);
+});
+document.addEventListener("click", (e) => {
+  const o = e.target.closest("[data-open]"); if (o) { e.preventDefault(); openDoc(o.dataset.open); }
+  const c = e.target.closest("[data-copy]"); if (c) { copy(c.dataset.copy); toast("Copied to clipboard."); }
+});
+
+/* ---------- file browser tree ---------- */
+const folderOpen = { root: true, guides: true, reference: true };
+function renderTree() {
+  const row = (id, cls = "indent1") => `<div class="row ${cls} ${S.active === id ? "on" : ""}" data-open="${id}">${ICON(DOCS[id].icon, 12)}<span>${DOCS[id].nav}</span><span class="ext">${id === "welcome" ? ".jimp" : id === "playground" ? ".png" : id === "api" ? "" : ".mdx"}</span></div>`;
+  const folder = (k, name, kids, cls) => `<div class="row folder ${cls} ${folderOpen[k] ? "" : "closed"}" data-folder="${k}"><span class="tw">${folderOpen[k] ? "▼" : "▶"}</span>${ICON("folder", 13)}<span>${name}</span></div><div class="kids">${kids}</div>`;
+  const guides = ["getting-started", "browser", "reading-large-images", "exif", "writing-plugins", "custom-jimp", "migrate-to-v1", "webp"];
+  $("#tree").innerHTML = folder("root", "jimp-docs", row("welcome") + row("playground") +
+    folder("guides", "guides", guides.map((g) => row(g, "indent2")).join(""), "indent1") +
+    folder("reference", "reference", row("api", "indent2"), "indent1"), "");
+}
+$("#tree").addEventListener("click", (e) => { const f = e.target.closest("[data-folder]"); if (f) { folderOpen[f.dataset.folder] = !folderOpen[f.dataset.folder]; renderTree(); } });
+
+/* ---------- code blocks in prose ---------- */
+$$(".code").forEach((block) => {
+  const pre = $("pre", block), lang = block.dataset.lang || "ts", raw = pre.textContent;
+  pre.innerHTML = hl(raw, lang);
+  const bar = document.createElement("div");
+  bar.className = "bar";
+  bar.innerHTML = `<span class="lang">${lang}</span><span class="sp"></span>${block.dataset.run ? `<button class="run">▶ Open as layers</button>` : ""}<button class="cp">Copy</button>`;
+  block.prepend(bar);
+  $(".cp", bar).onclick = () => { copy(raw); $(".cp", bar).textContent = "Copied!"; setTimeout(() => ($(".cp", bar).textContent = "Copy"), 1200); };
+  const run = $(".run", bar);
+  if (run) run.onclick = () => {
+    const spec = JSON.parse(block.dataset.run);
+    S.layers = spec.map(([m, p]) => mk(m, p));
+    S.sel = S.layers.at(-1)?.id ?? null;
+    commit("Open snippet as layers");
+    openDoc("playground");
+    toast(`Loaded ${spec.length} call${spec.length > 1 ? "s" : ""} as layers. Tweak them in Properties.`);
+  };
+});
+
+/* ---------- tools ---------- */
+const TOOLS = [
+  { id: "move", icon: "move", key: "V", name: "Move Tool", hint: "Select a layer in the Layers palette, then edit its options in Properties." },
+  { id: "marquee", icon: "marquee", key: "M", name: "Rectangular Marquee", hint: "Drag on the canvas to select a region." },
+  { id: "ellipse", icon: "ellipse", key: "E", name: "Elliptical Marquee", hint: "Click the canvas to add", call: "circle()" },
+  { id: "crop", icon: "crop", key: "C", name: "Crop Tool", hint: "Drag a box on the canvas to add", call: "crop({ x, y, w, h })" },
+  "-",
+  { id: "drop", icon: "drop", key: "I", name: "Eyedropper", hint: "Click the canvas to sample a pixel with", call: "image.getPixelColor(x, y)" },
+  { id: "wand", icon: "wand", key: "W", name: "Auto Levels Wand", hint: "Click the canvas to add", call: "normalize()" },
+  { id: "blur", icon: "blur", key: "B", name: "Blur Tool", hint: "Click the canvas to add", call: "blur(4)" },
+  { id: "rotate", icon: "rotate", key: "R", name: "Rotate View", hint: "Click the canvas to add (or bump)", call: "rotate(90)" },
+  "-",
+  { id: "hand", icon: "hand", key: "H", name: "Hand Tool", hint: "Drag to pan the canvas." },
+  { id: "zoom", icon: "zoom", key: "Z", name: "Zoom Tool", hint: "Click to zoom in, Alt-click to zoom out." },
+];
+const toolCursor = {};
+TOOLS.forEach((t) => {
+  if (t === "-") return $("#tools").insertAdjacentHTML("beforeend", `<div class="tools-sep"></div>`);
+  $("#tools").insertAdjacentHTML("beforeend", `<div class="tool ${["marquee", "drop", "blur"].includes(t.id) ? "more" : ""}" data-tool="${t.id}" data-tip="${t.name} (${t.key})">${px(ART[t.icon], 18)}</div>`);
+  const svg = px(ART[t.icon], 20, true).replace('class="px" ', "");
+  const hot = { drop: "1 14", hand: "8 8", zoom: "6 6", move: "8 8", rotate: "8 8", wand: "1 13", blur: "8 14" }[t.id] || "8 8";
+  toolCursor[t.id] = ["marquee", "crop", "ellipse"].includes(t.id) ? "crosshair" : `url("data:image/svg+xml,${encodeURIComponent(svg)}") ${hot}, crosshair`;
+});
+$("#tools").insertAdjacentHTML("beforeend", `<div class="tools-sep"></div><div class="swatches" data-tip="Foreground / background colour. Sample with the Eyedropper (I)"><div class="fg" id="fgSw"></div><div class="bg"></div></div>`);
+function setTool(id) {
+  S.tool = id;
+  $$(".tool").forEach((t) => t.classList.toggle("on", t.dataset.tool === id));
+  $("#art").style.cursor = toolCursor[id];
+  renderOptbar();
+}
+$("#tools").addEventListener("click", (e) => { const t = e.target.closest("[data-tool]"); if (t) { setTool(t.dataset.tool); if (S.active !== "playground") openDoc("playground"); } });
+
+/* tooltips */
+let tipEl = null;
+document.addEventListener("mouseover", (e) => {
+  const t = e.target.closest("[data-tip]");
+  if (!t) { tipEl?.remove(); tipEl = null; return; }
+  if (tipEl?.__for === t) return;
+  tipEl?.remove();
+  tipEl = document.createElement("div"); tipEl.className = "tip"; tipEl.__for = t; tipEl.innerHTML = esc(t.dataset.tip);
+  document.body.append(tipEl);
+  const r = t.getBoundingClientRect();
+  tipEl.style.left = r.right + 6 + "px"; tipEl.style.top = r.top + 6 + "px";
+});
+
+/* ---------- options bar ---------- */
+function renderOptbar() {
+  const t = TOOLS.find((x) => x.id === S.tool);
+  let h = `<span class="grip"></span><span class="tooltag">${px(ART[t.icon], 14)}<b>${t.name}</b></span><span class="sep"></span>`;
+  if (S.active !== "playground") {
+    const d = DOCS[S.active];
+    h += `<span class="hint">Reading <b>${d ? d.nav : "–"}</b>. Your layer stack stays live in the palettes on the right.</span><span class="sep"></span><span class="btn" data-open="playground">▶ Switch to Playground</span>`;
+  } else if (S.tool === "marquee") {
+    const s = S.selection;
+    h += s ? `<span class="field">X <b>${s.x}</b></span><span class="field">Y <b>${s.y}</b></span><span class="field">W <b>${s.w}</b></span><span class="field">H <b>${s.h}</b></span><span class="sep"></span>
+      <span class="btn primary" id="obCrop">Crop to selection → <code style="background:none;border:0;color:#fff">.crop()</code></span><span class="btn" id="obPix">Pixelate selection → <code style="background:none;border:0">.pixelate({…})</code></span><span class="btn" id="obDesel">Deselect ⌘D</span>`
+      : `<span class="hint">${t.hint} Then crop it with <code>crop()</code> or censor it with <code>pixelate({ size, x, y, w, h })</code>.</span>`;
+  } else if (t.call) {
+    h += `<span class="hint">${t.hint}</span> <code>${esc(t.call)}</code>`;
+    if (S.tool === "drop" && S.picked) h += `<span class="sep"></span><span class="field">Sampled <b style="background:${S.picked.css};color:${S.picked.lum > 140 ? "#000" : "#fff"}">${S.picked.hex}</b></span>`;
+  } else if (S.tool === "move") {
+    h += `<span class="hint">${t.hint}</span><span class="sep"></span><span class="btn" id="obFlipH">⇋ Flip H</span><span class="btn" id="obFlipV">⇵ Flip V</span><span class="btn" id="obRot">↻ 90°</span><span class="sep"></span><span class="btn" id="obOpen">Open Image… → <code style="background:none;border:0">Jimp.fromBuffer()</code></span>`;
+  } else {
+    h += `<span class="hint">${t.hint}</span>`;
+    if (S.tool === "zoom") h += `<span class="sep"></span><span class="btn" id="obFit">Fit on Screen</span><span class="btn" id="obActual">Actual Pixels</span>`;
+  }
+  $("#optbar").innerHTML = h;
+  const on = (id, f) => { const el = $("#" + id); if (el) el.onclick = f; };
+  on("obCrop", () => { addLayer("crop", { ...S.selection }); clearSel(); });
+  on("obPix", () => { addLayer("pixelate", { region: { ...S.selection } }); clearSel(); });
+  on("obDesel", clearSel);
+  on("obFlipH", () => addLayer("flip", { horizontal: true, vertical: false }));
+  on("obFlipV", () => addLayer("flip", { horizontal: false, vertical: true }));
+  on("obRot", () => addLayer("rotate", { deg: 90 }));
+  on("obOpen", () => $("#fileIn").click());
+  on("obFit", () => { S.zoomSet = false; fitIfNeeded(); });
+  on("obActual", () => setZoom(1));
+}
+
+/* ---------- layers ---------- */
+function addLayer(m, p = {}, label) {
+  if (m === "crop" && !p.w) {
+    const w = Math.max(1, Math.round(S.outW / 2)), h = Math.max(1, Math.round(S.outH / 2));
+    p = { x: Math.round(S.outW / 4), y: Math.round(S.outH / 4), w, h };
+  }
+  const L = mk(m, p);
+  S.layers.push(L);
+  S.sel = L.id;
+  S.newborn = L.id;
+  commit(label || `${M[m].label}`);
+  if (S.active !== "playground" && S.active !== "api") openDoc("playground");
+  dismissHint();
+  return L;
+}
+function selLayer() { return S.layers.find((l) => l.id === S.sel); }
+function renderLayers() {
+  const rows = [...S.layers].reverse().map((l) => {
+    const err = S.errors[l.id];
+    return `<div class="layer ${l.id === S.sel ? "on" : ""} ${l.on ? "" : "off"} ${S.newborn === l.id ? "newborn" : ""}" draggable="true" data-id="${l.id}">
+      <div class="eye" data-eye="${l.id}" title="Toggle visibility (comments the call out)"><div class="box">${l.on ? px(ART.eyeOn, 14) : ""}</div></div>
+      <span class="glyph">${px(ART[GLYPH[M[l.m].g]], 11)}</span>
+      <canvas data-thumb="${l.id}" width="84" height="64"></canvas>
+      <div class="lname"><b>${M[l.m].label}${err ? ` <span class="warn" title="${esc(err)}">⚠</span>` : ""}</b><span>.${esc(M[l.m].code(l.p))}</span></div>
+    </div>`;
+  }).join("");
+  $("#layers").innerHTML = rows + `<div class="layer bg ${S.sel === 0 ? "on" : ""}" data-id="0">
+      <div class="eye"><div class="box">${px(ART.eyeOn, 14)}</div></div><span class="glyph"></span>
+      <canvas data-thumb="0" width="84" height="64"></canvas>
+      <div class="lname"><b>Background</b><span>Jimp.read("${esc(S.srcName)}")</span></div>
+      <span title="Locked: the source image">${px(ART.lock, 10)}</span></div>`;
+  S.newborn = null;
+  const vis = S.layers.filter((l) => l.on).length;
+  $("#lyrCount").textContent = `${vis} call${vis === 1 ? "" : "s"}${vis !== S.layers.length ? ` · ${S.layers.length - vis} hidden` : ""}`;
+  if (lastThumbs) for (const [id, c] of Object.entries(lastThumbs)) { const tc = $(`[data-thumb="${id}"]`); if (tc) tc.getContext("2d").drawImage(c, 0, 0); }
+}
+let lastThumbs = null;
+$("#layers").addEventListener("click", (e) => {
+  const eye = e.target.closest("[data-eye]");
+  if (eye) { const l = S.layers.find((x) => x.id === +eye.dataset.eye); l.on = !l.on; commit(`${l.on ? "Show" : "Hide"} ${M[l.m].label}`); return; }
+  const row = e.target.closest(".layer"); if (!row) return;
+  S.sel = +row.dataset.id; renderLayers(); renderProps(); renderCode();
+});
+/* drag to reorder */
+let dragId = null;
+$("#layers").addEventListener("dragstart", (e) => { const r = e.target.closest(".layer"); if (!r || r.classList.contains("bg")) return e.preventDefault(); dragId = +r.dataset.id; r.classList.add("dragging"); e.dataTransfer.effectAllowed = "move"; e.dataTransfer.setData("text/plain", dragId); });
+$("#layers").addEventListener("dragend", () => { dragId = null; $$(".layer").forEach((r) => r.classList.remove("dragging", "drop-above", "drop-below")); });
+$("#layers").addEventListener("dragover", (e) => {
+  if (dragId == null) return;
+  e.preventDefault();
+  const r = e.target.closest(".layer"); $$(".layer").forEach((x) => x.classList.remove("drop-above", "drop-below"));
+  if (!r) return;
+  const b = r.getBoundingClientRect();
+  r.classList.add(r.classList.contains("bg") || e.clientY > b.top + b.height / 2 ? "drop-below" : "drop-above");
+  if (r.classList.contains("bg")) { r.classList.remove("drop-below"); r.classList.add("drop-above"); }
+});
+$("#layers").addEventListener("drop", (e) => {
+  e.preventDefault();
+  const r = e.target.closest(".layer"); if (!r || dragId == null) return;
+  const above = r.classList.contains("drop-above");
+  const moving = S.layers.find((l) => l.id === dragId);
+  S.layers = S.layers.filter((l) => l.id !== dragId);
+  let idx;
+  if (r.classList.contains("bg")) idx = 0;
+  else { const ti = S.layers.findIndex((l) => l.id === +r.dataset.id); idx = above ? ti + 1 : ti; }
+  S.layers.splice(idx, 0, moving);
+  commit(`Move ${M[moving.m].label}`);
+});
+$("#addAdj").innerHTML = px(ART.adj, 14);
+$("#dupLayer").innerHTML = px(ART.dup, 14);
+$("#delLayer").innerHTML = px(ART.trash, 14);
+function deleteLayer() { const l = selLayer(); if (!l) return; const i = S.layers.indexOf(l); S.layers.splice(i, 1); S.sel = S.layers[Math.min(i, S.layers.length - 1)]?.id ?? 0; commit(`Delete ${M[l.m].label}`); }
+function dupLayer() { const l = selLayer(); if (!l) return; const c = { ...JSON.parse(JSON.stringify(l)), id: uid++ }; S.layers.splice(S.layers.indexOf(l) + 1, 0, c); S.sel = c.id; S.newborn = c.id; commit(`Duplicate ${M[l.m].label}`); }
+$("#delLayer").onclick = deleteLayer; $("#dupLayer").onclick = dupLayer;
+function adjMenuItems() {
+  const items = [];
+  for (const g of ["Adjust", "Filter", "Transform"]) {
+    items.push({ hd: g === "Adjust" ? "Adjustments" : g === "Filter" ? "Filters" : "Transform" });
+    for (const [k, m] of Object.entries(M)) if (m.g === g) items.push({ label: m.label, sig: "." + m.code(defaults(k)).replace(/\{ x: \d+.*\}/, "{ x, y, w, h }"), act: () => addLayer(k) });
+  }
+  return items;
+}
+$("#addAdjBtn").onclick = (e) => popMenu(e.currentTarget, adjMenuItems(), "up");
+$("#addAdj").onclick = (e) => popMenu(e.currentTarget, adjMenuItems(), "up");
+
+/* ---------- properties ---------- */
+function renderProps() {
+  const el = $("#props");
+  if (S.sel === 0) {
+    el.innerHTML = `<div class="props"><div class="ph">${px(ART.lock, 12)}<b>Background</b><span class="plug">@jimp/core</span></div><p class="pdesc">The source image: <code class="inline-code">Jimp.read("${esc(S.srcName)}")</code>, ${source ? `${source.bitmap.width} × ${source.bitmap.height}px` : ""}. The playground clones it, then replays every visible layer above it in order.</p><span class="btn" id="pOpen">Replace image… (File › Open)</span></div>`;
+    $("#pOpen").onclick = () => $("#fileIn").click();
+    return;
+  }
+  const l = selLayer();
+  if (!l) { el.innerHTML = `<div class="props"><div class="none">No layer selected. Add one with <b>◐ Adjustment</b> or any tool, e.g. the Blur Tool adds <code>.blur(4)</code>.</div></div>`; return; }
+  const m = M[l.m];
+  let h = `<div class="props"><div class="ph">${px(ART[GLYPH[m.g]], 12)}<b>${m.label}</b><span class="plug">@jimp/${m.plugin}</span></div><p class="pdesc">${esc(m.desc)}</p>`;
+  for (const p of m.params) {
+    let min = p.min, max = p.max, step = p.step || 1;
+    if (p.dyn) [min, max] = COLOR_R[l.p.apply];
+    if (l.m === "crop" && S.srcW) { max = p.k === "x" || p.k === "w" ? Math.max(S.srcW, 800) : Math.max(S.srcH, 800); }
+    if (p.type === "bool") h += `<div class="prow"><label>${p.l}</label><label class="chk"><input type="checkbox" data-k="${p.k}" ${l.p[p.k] ? "checked" : ""}/> ${p.k}</label></div>`;
+    else if (p.type === "select") h += `<div class="prow"><label>${p.l}</label><select data-k="${p.k}">${p.opts.map((o) => `<option ${o === l.p[p.k] ? "selected" : ""}>${o}</option>`).join("")}</select></div>`;
+    else h += `<div class="prow"><label>${p.l}</label><input type="range" data-k="${p.k}" min="${min}" max="${max}" step="${step}" value="${l.p[p.k]}"/><input type="number" data-k="${p.k}" min="${min}" max="${max}" step="${step}" value="${l.p[p.k]}"/></div>`;
+  }
+  if (l.m === "pixelate") h += l.p.region ? `<div class="prow"><label>Region</label><span class="chk" style="font-family:var(--mono)">${l.p.region.x},${l.p.region.y} ${l.p.region.w}×${l.p.region.h} <span class="btn" id="pClearReg">Whole image</span></span></div>` : `<div class="prow"><label>Region</label><span class="chk" style="color:#999">whole image. Use the Marquee (M) to pick one.</span></div>`;
+  if (!m.params.length) h += `<div class="none" style="padding:4px 0">This method takes no options. Toggle the eye to compare.</div>`;
+  if (S.errors[l.id]) h += `<div class="err">⚠ Jimp threw: ${esc(S.errors[l.id])}</div>`;
+  el.innerHTML = h + `</div>`;
+  const cr = $("#pClearReg"); if (cr) cr.onclick = () => { delete l.p.region; commit("Pixelate whole image"); };
+  $$("[data-k]", el).forEach((inp) => {
+    const k = inp.dataset.k;
+    const read = () => (inp.type === "checkbox" ? inp.checked : inp.tagName === "SELECT" ? inp.value : +inp.value);
+    inp.addEventListener("input", () => {
+      let v = read();
+      l.p[k] = v;
+      if (k === "apply") { l.p.amount = COLOR_R[v][2]; renderProps(); }
+      $$(`[data-k="${k}"]`, el).forEach((o) => { if (o !== inp && o.type !== "checkbox") o.value = v; });
+      S.flash = l.id;
+      const row = $(`.layer[data-id="${l.id}"] .lname span`); if (row) row.textContent = "." + m.code(l.p);
+      renderCode(); scheduleRender(70);
+    });
+    inp.addEventListener("change", () => commit(`${m.label}: ${k}`, { quiet: true }));
+  });
+}
+
+/* ---------- code palette ---------- */
+function codeLines() {
+  const L = [];
+  const push = (t, extra = {}) => L.push({ t, ...extra });
+  push(`import { Jimp } from "jimp";`);
+  push("");
+  push(S.srcName === "dice.png" ? `const image = await Jimp.read("dice.png");` : `const image = await Jimp.fromBuffer(await file.arrayBuffer()); // ${S.srcName}`);
+  push("");
+  const vis = S.layers.filter((l) => l.on);
+  if (!S.layers.length) push("// No layers yet: add one with ◐ Adjustment");
+  else {
+    push(vis.length ? "image" : "image; // every layer is hidden");
+    const lastVis = vis.at(-1);
+    for (const l of S.layers) {
+      const c = "." + M[l.m].code(l.p);
+      if (l.on) push(`  ${c}${l === lastVis ? ";" : ""}`, { id: l.id, err: !!S.errors[l.id] });
+      else push(`  // ${c}  (hidden)`, { id: l.id, hid: true });
+    }
+  }
+  push("");
+  if (S.codeMode === "node") push(`await image.write("output.png");`);
+  else push(`img.src = await image.getBase64("image/png");`);
+  return L;
+}
+function renderCode() {
+  $("#codepal").innerHTML = codeLines().map((ln) => `<div class="ln ${ln.id ? "lyr" : ""} ${ln.id && ln.id === S.sel ? "cur" : ""} ${ln.hid ? "hid" : ""} ${ln.err ? "err" : ""} ${ln.id && ln.id === S.flash ? "flash" : ""}" ${ln.id ? `data-lid="${ln.id}"` : ""}><span class="t">${hl(ln.t) || " "}</span></div>`).join("");
+  S.flash = null;
+}
+function codeText() { return codeLines().map((l) => l.t).join("\n"); }
+$("#codepal").addEventListener("click", (e) => { const ln = e.target.closest("[data-lid]"); if (ln) { S.sel = +ln.dataset.lid; renderLayers(); renderProps(); renderCode(); } });
+$("#copyCode").onclick = () => { copy(codeText()); toast("Copied the chain. Paste it into your project."); };
+$("#codeMode").addEventListener("click", (e) => { const b = e.target.closest("button"); if (!b) return; S.codeMode = b.dataset.m; $$("#codeMode button").forEach((x) => x.classList.toggle("on", x === b)); renderCode(); });
+$$("[data-ctab]").forEach((t) => (t.onclick = () => { $$("[data-ctab]").forEach((x) => x.classList.toggle("on", x === t)); const h = t.dataset.ctab === "hist"; $("#codeBody").style.display = h ? "none" : ""; $("#histBody").style.display = h ? "" : "none"; }));
+
+/* ---------- history (undo/redo = snapshots of the chain) ---------- */
+function snapshot() { return { layers: JSON.parse(JSON.stringify(S.layers)), sel: S.sel, src: S.srcName }; }
+function commit(label, { quiet = false } = {}) {
+  S.hist = S.hist.slice(0, S.hi + 1);
+  const snap = snapshot();
+  const prev = S.hist[S.hi];
+  if (quiet && prev && prev.label === label) S.hist[S.hi] = { label, ...snap };
+  else { S.hist.push({ label, ...snap }); S.hi = S.hist.length - 1; }
+  if (!quiet) { renderLayers(); renderProps(); }
+  renderCode(); renderHistory(); scheduleRender(0);
+}
+function restore(i) {
+  if (i < 0 || i >= S.hist.length) return;
+  S.hi = i;
+  const h = S.hist[i];
+  S.layers = JSON.parse(JSON.stringify(h.layers)); S.sel = h.sel;
+  renderLayers(); renderProps(); renderCode(); renderHistory(); scheduleRender(0);
+}
+function renderHistory() {
+  $("#histBody").innerHTML = S.hist.map((h, i) => `<div class="h ${i === S.hi ? "cur" : ""} ${i > S.hi ? "future" : ""}" data-h="${i}">${px(i === 0 ? ART.png : ART[h.label.startsWith("Hide") || h.label.startsWith("Show") ? "eyeOn" : "adj"], 12)}<span>${esc(h.label)}</span><span class="hc">${h.layers.filter((l) => l.on).map((l) => "." + l.m).join("")}</span></div>`).join("");
+  const cur = $("#histBody .cur"); cur?.scrollIntoView({ block: "nearest" });
+}
+$("#histBody").addEventListener("click", (e) => { const h = e.target.closest("[data-h]"); if (h) restore(+h.dataset.h); });
+
+/* ---------- render pipeline: clone source, replay visible layers ---------- */
+let renderSeq = 0, renderTimer = null;
+function scheduleRender(d = 0) { clearTimeout(renderTimer); renderTimer = setTimeout(render, d); }
+const scratch = document.createElement("canvas");
+function bitmapToCanvas(img) {
+  const { width: w, height: h, data } = img.bitmap;
+  scratch.width = w; scratch.height = h;
+  scratch.getContext("2d").putImageData(new ImageData(new Uint8ClampedArray(data), w, h), 0, 0);
+  return scratch;
+}
+function drawThumb(img, canvas, store) {
+  if (!canvas) return;
+  const src = bitmapToCanvas(img), ctx = canvas.getContext("2d");
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  const s = Math.min(canvas.width / src.width, canvas.height / src.height);
+  const w = src.width * s, h = src.height * s;
+  ctx.imageSmoothingQuality = "high";
+  ctx.drawImage(src, (canvas.width - w) / 2, (canvas.height - h) / 2, w, h);
+  if (store) { const c = document.createElement("canvas"); c.width = canvas.width; c.height = canvas.height; c.getContext("2d").drawImage(canvas, 0, 0); store[canvas.dataset.thumb] = c; }
+}
+async function render() {
+  if (!source) return;
+  const seq = ++renderSeq;
+  $("#art").classList.add("busy");
+  await sleep(0);
+  if (seq !== renderSeq) return;
+  const t0 = performance.now();
+  const errors = {}, thumbs = {};
+  let img;
+  try {
+    img = source.clone();
+    drawThumb(img, $('[data-thumb="0"]'), thumbs);
+    for (const l of S.layers) {
+      if (!l.on) {
+        // a hidden layer previews what it *would* do, greyed out
+        try { const ghost = img.clone(); M[l.m].run(ghost, l.p); drawThumb(ghost, $(`[data-thumb="${l.id}"]`), thumbs); } catch {}
+        continue;
+      }
+      try { M[l.m].run(img, l.p); }
+      catch (e) { errors[l.id] = (e && (e.issues?.[0]?.message || e.message)) || String(e); }
+      drawThumb(img, $(`[data-thumb="${l.id}"]`), thumbs);
+    }
+
+  } catch (e) { $("#art").classList.remove("busy"); return showError(e); }
+  const ms = Math.round(performance.now() - t0);
+  const b64 = await img.getBase64("image/png");
+  if (seq !== renderSeq) return;
+  lastThumbs = thumbs; lastOut = img;
+  const errChanged = JSON.stringify(errors) !== JSON.stringify(S.errors);
+  S.errors = errors;
+  if (errChanged) { renderLayers(); renderProps(); renderCode(); }
+  const out = $("#outImg");
+  out.src = b64;
+  S.outW = img.bitmap.width; S.outH = img.bitmap.height;
+  sizeArt();
+  $("#art").classList.remove("busy");
+  const n = S.layers.filter((l) => l.on).length;
+  $("#stTime").textContent = `Replayed ${n} layer${n === 1 ? "" : "s"} in ${ms} ms`;
+  updateStatus(); drawNav(); drawRulers();
+  if (Object.keys(errors).length) setTip(`⚠ ${Object.values(errors)[0]}`);
+}
+function sizeArt() {
+  const a = $("#art");
+  a.style.width = S.outW * S.zoom + "px"; a.style.height = S.outH * S.zoom + "px";
+  a.classList.toggle("pix", S.zoom >= 3);
+  if (S.selection) drawSel();
+}
+
+/* ---------- zoom / rulers / navigator ---------- */
+const ZOOMS = [0.25, 0.33, 0.5, 0.66, 1, 1.5, 2, 3, 4, 6, 8];
+function setZoom(z, keepCenter = true) {
+  const sc = $("#pgScroll");
+  const cx = sc.scrollLeft + sc.clientWidth / 2, cy = sc.scrollTop + sc.clientHeight / 2, old = S.zoom;
+  S.zoom = z; S.zoomSet = true;
+  sizeArt();
+  if (keepCenter) { sc.scrollLeft = (cx * z) / old - sc.clientWidth / 2; sc.scrollTop = (cy * z) / old - sc.clientHeight / 2; }
+  $("#navZoom").value = ZOOMS.indexOf(z) >= 0 ? ZOOMS.indexOf(z) : 4;
+  renderTabs(); updateStatus(); drawRulers(); drawNav();
+}
+function fitIfNeeded() {
+  if (S.zoomSet || !S.outW || S.active !== "playground") return;
+  const sc = $("#pgScroll"); if (!sc.clientWidth) return;
+  const fit = Math.min((sc.clientWidth - 120) / S.outW, (sc.clientHeight - 120) / S.outH);
+  const z = [...ZOOMS].reverse().find((v) => v <= fit) || 0.25;
+  setZoom(Math.min(z, 2), false);
+}
+function zoomStep(dir) { const i = ZOOMS.findIndex((v) => v >= S.zoom - 0.001); setZoom(ZOOMS[Math.max(0, Math.min(ZOOMS.length - 1, i + dir))]); }
+$("#navZoom").oninput = (e) => setZoom(ZOOMS[+e.target.value]);
+let mouse = null;
+function drawRulers() {
+  if (S.active !== "playground") return;
+  const art = $("#art").getBoundingClientRect();
+  for (const [id, horiz] of [["rulerH", true], ["rulerV", false]]) {
+    const c = $("#" + id), r = c.getBoundingClientRect(), dpr = devicePixelRatio || 1;
+    if (!r.width || !r.height) continue;
+    c.width = r.width * dpr; c.height = r.height * dpr;
+    const x = c.getContext("2d"); x.scale(dpr, dpr);
+    x.fillStyle = "#2f2f2f"; x.fillRect(0, 0, r.width, r.height);
+    const len = horiz ? r.width : r.height, thick = horiz ? r.height : r.width;
+    const origin = horiz ? art.left - r.left : art.top - r.top, z = S.zoom;
+    const step = [1, 2, 5, 10, 20, 25, 50, 100, 200, 500, 1000].find((s) => s * z >= 56) || 1000;
+    const sub = step * z / 10 >= 4 ? 10 : step * z / 5 >= 4 ? 5 : 2;
+    x.strokeStyle = "#8a8a8a"; x.fillStyle = "#bdbdbd"; x.font = "9px Verdana"; x.lineWidth = 1;
+    x.beginPath();
+    const start = Math.floor(-origin / z / step) * step;
+    for (let v = start; origin + v * z < len; v += step) {
+      for (let s = 0; s < sub; s++) {
+        const p = Math.round(origin + (v + (s * step) / sub) * z) + 0.5;
+        if (p < 0 || p > len) continue;
+        const t = s === 0 ? thick : s === sub / 2 ? thick * 0.45 : thick * 0.25;
+        if (horiz) { x.moveTo(p, thick); x.lineTo(p, thick - t); } else { x.moveTo(thick, p); x.lineTo(thick - t, p); }
+      }
+      const p = Math.round(origin + v * z) + 0.5;
+      if (horiz) x.fillText(String(v), p + 2, 9);
+      else { x.save(); x.translate(9, p + 2); x.rotate(-Math.PI / 2); x.textAlign = "right"; x.fillText(String(v), 0, 0); x.restore(); }
+    }
+    x.stroke();
+    if (mouse) { x.strokeStyle = "#ff4fa3"; x.beginPath(); const p = Math.round(horiz ? mouse.x - r.left : mouse.y - r.top) + 0.5; if (horiz) { x.moveTo(p, 0); x.lineTo(p, thick); } else { x.moveTo(0, p); x.lineTo(thick, p); } x.stroke(); }
+  }
+}
+function drawNav() {
+  if (!lastOut) return;
+  const c = $("#navCanvas"), w = lastOut.bitmap.width, h = lastOut.bitmap.height, s = Math.min(200 / w, 120 / h);
+  c.width = Math.max(1, Math.round(w * s)); c.height = Math.max(1, Math.round(h * s));
+  c.getContext("2d").drawImage(bitmapToCanvas(lastOut), 0, 0, c.width, c.height);
+  const vb = $("#navVb"), sc = $("#pgScroll"), ar = $("#art").getBoundingClientRect(), sr = sc.getBoundingClientRect(), cr = c.getBoundingClientRect(), nr = $("#navthumb").getBoundingClientRect();
+  if (!ar.width || S.active !== "playground") { vb.style.display = "none"; }
+  else {
+    const l = Math.max(0, (sr.left - ar.left) / ar.width), t = Math.max(0, (sr.top - ar.top) / ar.height), rr = Math.min(1, (sr.right - ar.left) / ar.width), b = Math.min(1, (sr.bottom - ar.top) / ar.height);
+    Object.assign(vb.style, { display: "block", left: cr.left - nr.left + l * cr.width - 2 + "px", top: cr.top - nr.top + t * cr.height - 2 + "px", width: (rr - l) * cr.width + 4 + "px", height: (b - t) * cr.height + 4 + "px" });
+  }
+  $("#navZoomLbl").textContent = Math.round(S.zoom * 100) + "%";
+}
+$("#pgScroll").addEventListener("scroll", () => { drawRulers(); drawNav(); });
+addEventListener("resize", () => { drawRulers(); drawNav(); });
+
+/* ---------- canvas interaction (tools) ---------- */
+function imgXY(e) {
+  const r = $("#art").getBoundingClientRect();
+  return { x: Math.max(0, Math.min(S.outW, Math.floor((e.clientX - r.left) / S.zoom))), y: Math.max(0, Math.min(S.outH, Math.floor((e.clientY - r.top) / S.zoom))), inside: e.clientX >= r.left && e.clientX < r.right && e.clientY >= r.top && e.clientY < r.bottom };
+}
+function drawSel() {
+  const b = $("#selbox"), s = S.selection;
+  if (!s) { b.style.display = "none"; return; }
+  Object.assign(b.style, { display: "block", left: s.x * S.zoom + "px", top: s.y * S.zoom + "px", width: s.w * S.zoom + "px", height: s.h * S.zoom + "px" });
+  $(".dim", b).textContent = `${s.w} × ${s.h}`;
+}
+function clearSel() { S.selection = null; drawSel(); renderOptbar(); }
+let drag = null;
+$("#pgScroll").addEventListener("mousedown", (e) => {
+  if (e.button !== 0 || S.active !== "playground" || !lastOut) return;
+  const p = imgXY(e), t = S.tool;
+  if (t === "hand") { const sc = $("#pgScroll"); drag = { t, sx: e.clientX, sy: e.clientY, l: sc.scrollLeft, tp: sc.scrollTop }; return; }
+  if (!p.inside && !["marquee", "crop"].includes(t)) return;
+  if (t === "marquee" || t === "crop") { drag = { t, x0: p.x, y0: p.y }; S.selection = { x: p.x, y: p.y, w: 0, h: 0 }; drawSel(); e.preventDefault(); return; }
+  if (t === "zoom") { zoomStep(e.altKey ? -1 : 1); return; }
+  if (t === "drop") return pick(p);
+  if (t === "ellipse") return addLayer("circle");
+  if (t === "wand") return addLayer("normalize");
+  if (t === "blur") return addLayer("blur", { r: 4 });
+  if (t === "rotate") { const top = S.layers.at(-1); if (top && top.m === "rotate" && top.on) { top.p.deg = ((top.p.deg + 90 + 180) % 360) - 180; S.flash = top.id; commit("Rotate +90°"); } else addLayer("rotate", { deg: 90 }); return; }
+});
+addEventListener("mousemove", (e) => {
+  if (S.active === "playground") {
+    const sc = $("#pgScroll").getBoundingClientRect();
+    mouse = e.clientX >= sc.left && e.clientY >= sc.top && e.clientX <= sc.right && e.clientY <= sc.bottom ? { x: e.clientX, y: e.clientY } : null;
+    if (mouse && lastOut) { const p = imgXY(e); $("#stXY").textContent = `X: ${p.x}  Y: ${p.y}`; }
+    drawRulers();
+  }
+  if (!drag) return;
+  if (drag.t === "hand") { const sc = $("#pgScroll"); sc.scrollLeft = drag.l - (e.clientX - drag.sx); sc.scrollTop = drag.tp - (e.clientY - drag.sy); return; }
+  const p = imgXY(e);
+  S.selection = { x: Math.min(p.x, drag.x0), y: Math.min(p.y, drag.y0), w: Math.abs(p.x - drag.x0), h: Math.abs(p.y - drag.y0) };
+  drawSel(); if (drag.t === "marquee") renderOptbar();
+});
+addEventListener("mouseup", () => {
+  if (!drag) return;
+  const d = drag; drag = null;
+  if (d.t === "hand") return;
+  if (!S.selection || S.selection.w < 3 || S.selection.h < 3) return clearSel();
+  if (d.t === "crop") { addLayer("crop", { ...S.selection }); clearSel(); }
+  else renderOptbar();
+});
+function pick(p) {
+  try {
+    const x = Math.min(p.x, S.outW - 1), y = Math.min(p.y, S.outH - 1);
+    const c = lastOut.getPixelColor(x, y) >>> 0;
+    const r = (c >>> 24) & 255, g = (c >>> 16) & 255, b = (c >>> 8) & 255, a = c & 255;
+    const hex = "0x" + c.toString(16).padStart(8, "0");
+    S.picked = { hex, css: `rgba(${r},${g},${b},${a / 255})`, lum: 0.3 * r + 0.59 * g + 0.11 * b };
+    $("#fgSw").style.background = S.picked.css;
+    renderOptbar();
+    toast(`<span class="sw" style="background:${S.picked.css}"></span><b>Sampled ${hex}</b><code>image.getPixelColor(${x}, ${y}); // ${hex}\nintToRGBA(${hex}); // { r: ${r}, g: ${g}, b: ${b}, a: ${a} }</code>`, true);
+  } catch (e) { showError(e); }
+}
+
+/* ---------- file open / drop / export ---------- */
+async function loadBuffer(buf, name) {
+  try {
+    let img = await J.fromBuffer(buf);
+    if (img.bitmap.width > 1200) img.resize({ w: 1200 });
+    source = img; S.srcName = name; S.zoomSet = false;
+    commit(`Open ${name}`);
+    openDoc("playground");
+    toast(`Opened <b>${esc(name)}</b> with <code>Jimp.fromBuffer(arrayBuffer)</code>`, true);
+  } catch (e) { showError(e, `Could not open “${name}”. Jimp's JS decoders handle PNG, JPEG, GIF, BMP and TIFF.`); }
+}
+$("#fileIn").onchange = async (e) => { const f = e.target.files[0]; if (f) await loadBuffer(await f.arrayBuffer(), f.name); e.target.value = ""; };
+const pgv = $("#v-playground");
+["dragenter", "dragover"].forEach((t) => pgv.addEventListener(t, (e) => { if (e.dataTransfer?.types.includes("Files")) { e.preventDefault(); $("#dropzone").classList.add("on"); } }));
+pgv.addEventListener("dragleave", (e) => { if (!pgv.contains(e.relatedTarget)) $("#dropzone").classList.remove("on"); });
+pgv.addEventListener("drop", async (e) => { $("#dropzone").classList.remove("on"); const f = e.dataTransfer?.files?.[0]; if (!f) return; e.preventDefault(); await loadBuffer(await f.arrayBuffer(), f.name); });
+async function exportPng() {
+  if (!lastOut) return;
+  const a = document.createElement("a"); a.href = await lastOut.getBase64("image/png"); a.download = "jimp-studio.png"; a.click();
+  toast(`Exported with <code>await image.getBase64("image/png")</code>`, true);
+}
+async function revert() { source = await J.read("./dice.png"); S.srcName = "dice.png"; S.layers = [mk("resize")]; S.sel = S.layers[0].id; S.zoomSet = false; commit("Revert to dice.png"); }
+
+/* ---------- menus ---------- */
+let openMenuEl = null;
+function closeMenus() { $$(".menu").forEach((m) => m.remove()); $$("#menus .mi").forEach((m) => m.classList.remove("open")); openMenuEl = null; }
+function popMenu(anchor, items, dir = "down") {
+  closeMenus();
+  const m = document.createElement("div"); m.className = "menu";
+  m.innerHTML = items.map((it, i) => it === "-" ? `<div class="sep"></div>` : it.hd ? `<div class="hd">${it.hd}</div>` : `<div class="it ${it.chk ? "chk" : ""}" data-i="${i}">${esc(it.label)}${it.k ? `<span class="k">${it.k}</span>` : ""}${it.sig ? `<span class="sig">${esc(it.sig)}</span>` : ""}</div>`).join("");
+  document.body.append(m);
+  const r = anchor.getBoundingClientRect();
+  m.style.left = Math.min(r.left, innerWidth - m.offsetWidth - 6) + "px";
+  m.style.top = (dir === "up" ? Math.max(4, r.top - m.offsetHeight) : r.bottom) + "px";
+  m.onclick = (e) => { const it = e.target.closest("[data-i]"); if (!it) return; closeMenus(); items[+it.dataset.i].act?.(); };
+  openMenuEl = anchor;
+  setTimeout(() => document.addEventListener("mousedown", function h(e) { if (!m.contains(e.target) && !e.target.closest("#menus") && e.target !== anchor) { closeMenus(); } document.removeEventListener("mousedown", h); }), 0);
+}
+const fx = (k) => ({ label: M[k].label + "…", sig: "." + M[k].sig, act: () => addLayer(k) });
+const MENUS = [
+  ["File", () => [{ label: "Open Image…", k: "⌘O", act: () => $("#fileIn").click() }, { label: "Revert to dice.png", act: revert }, "-", { label: "Export PNG…", k: "⌘S", act: exportPng }, { label: "Copy Chain as Code", k: "⌘⇧C", act: () => { copy(codeText()); toast("Copied the chain."); } }]],
+  ["Edit", () => [{ label: `Undo ${S.hist[S.hi]?.label || ""}`, k: "⌘Z", act: () => restore(S.hi - 1) }, { label: "Redo", k: "⌘⇧Z", act: () => restore(S.hi + 1) }, "-", { label: "Deselect", k: "⌘D", act: clearSel }, { label: "Duplicate Layer", act: dupLayer }, { label: "Delete Layer", k: "⌫", act: deleteLayer }]],
+  ["Image", () => [{ hd: "Adjustments" }, ...["brightness", "contrast", "posterize", "threshold", "color", "greyscale", "invert", "sepia", "normalize", "opacity"].map(fx), "-", { hd: "Transform" }, ...["resize", "crop", "rotate", "flip", "circle"].map(fx)]],
+  ["Layer", () => [{ label: "New Adjustment Layer…", act: () => popMenu($("#addAdjBtn"), adjMenuItems(), "up") }, { label: "Duplicate Layer", act: dupLayer }, { label: "Delete Layer", act: deleteLayer }, "-", { label: "Show/Hide Layer", k: ",", act: () => { const l = selLayer(); if (l) { l.on = !l.on; commit(`${l.on ? "Show" : "Hide"} ${M[l.m].label}`); } } }, { label: "Flatten Image (clear all layers)", act: () => { S.layers = []; S.sel = 0; commit("Flatten"); } }]],
+  ["Filter", () => [{ label: "Filter Gallery…", act: () => openDoc("api") }, "-", { hd: "Blur" }, fx("blur"), fx("gaussian"), { hd: "Pixelate" }, fx("pixelate"), { hd: "Distort" }, fx("fisheye"), { hd: "Stylize" }, fx("dither"), fx("threshold"), fx("posterize")]],
+  ["Guides", () => ["getting-started", "browser", "reading-large-images", "exif", "writing-plugins", "custom-jimp", "migrate-to-v1", "webp"].map((g) => ({ label: DOCS[g].nav, chk: S.active === g, act: () => openDoc(g) })).concat(["-", { label: "API Reference", act: () => openDoc("api") }])],
+  ["Window", () => [["palBrowser", "File Browser"], ["palNav", "Navigator"], ["palLayers", "Layers"], ["palProps", "Properties"], ["palCode", "Actions"]].map(([id, n]) => ({ label: n, chk: !$("#" + id).classList.contains("collapsed"), act: () => $("#" + id).classList.toggle("collapsed") })).concat(["-", { label: "Welcome Screen", act: () => openDoc("welcome") }, { label: "Playground", act: () => openDoc("playground") }])],
+  ["Help", () => [{ label: "About Jimp Studio…", act: () => runSplash(true) }, { label: "Keyboard Shortcuts", k: "?", act: shortcuts }, "-", { label: "Jimp on GitHub", act: () => open("https://github.com/jimp-dev/jimp") }, { label: "Jimp Studio Online…", act: () => modal("Connecting…", `<div class="warnrow">${px(ART.plug, 34, true)}<div>Dialing <code>cdn.jsdelivr.net</code> at 56 kbps…<br><br>Just kidding. Jimp already loaded from the CDN as an ES module, with no plug-in installer, no serial number, and nothing to register.</div></div>`) }]],
+];
+MENUS.forEach(([name, items]) => {
+  const mi = document.createElement("div"); mi.className = "mi"; mi.textContent = name;
+  mi.onmousedown = (e) => { e.preventDefault(); if (openMenuEl === mi) return closeMenus(); popMenu(mi, items()); mi.classList.add("open"); };
+  mi.onmouseenter = () => { if (openMenuEl && openMenuEl !== mi && openMenuEl.classList.contains("mi")) { popMenu(mi, items()); mi.classList.add("open"); } };
+  $("#menus").append(mi);
+});
+$("#logoBtn").onclick = () => runSplash(true);
+
+/* palettes collapse + fake tabs */
+$$("[data-collapse]").forEach((b) => (b.onclick = () => { const p = b.closest(".pal"); p.classList.toggle("collapsed"); b.textContent = p.classList.contains("collapsed") ? "▸" : "▾"; drawRulers(); }));
+$$(".pal-head").forEach((h) => h.addEventListener("dblclick", (e) => { if (e.target.closest(".seg,[data-ctab],#copyCode")) return; h.closest(".pal").classList.toggle("collapsed"); }));
+$$("[data-fake]").forEach((t) => (t.onclick = () => {
+  const msg = { Channels: `Channels palette is coming in v8. Meanwhile, shift a channel with <code>color([{ apply: "red", params: [60] }])</code>.`, Paths: `No paths here, only method chains.`, Brushes: `Jimp doesn't paint with brushes, but <code>image.scan()</code> lets you touch every pixel yourself.`, Info: `Hover the canvas: X/Y live in the status bar, and the Eyedropper (I) calls <code>getPixelColor</code>.` }[t.dataset.fake];
+  toast(msg, true);
+}));
+
+/* ---------- modal / toast / misc ---------- */
+function modal(title, body, acts = [{ label: "OK", primary: true }]) {
+  const w = $("#modalwrap");
+  w.innerHTML = `<div class="dlg modal"><div class="dlg-t">${esc(title)}<span class="sp"></span><span class="wb"></span></div><div class="dlg-b">${body}<div class="acts">${acts.map((a, i) => `<span class="btn ${a.primary ? "primary" : ""}" data-a="${i}">${a.label}</span>`).join("")}</div></div></div>`;
+  w.classList.add("on");
+  w.onclick = (e) => { const b = e.target.closest("[data-a]"); if (b) { w.classList.remove("on"); acts[+b.dataset.a].act?.(); } };
+}
+function showError(e, msg) {
+  console.warn(e);
+  modal("Jimp Studio", `<div class="warnrow">${px(ART.warn, 34)}<div>${msg ? esc(msg) + "<br><br>" : ""}Could not complete your request because Jimp threw:<br><code>${esc(e?.message || String(e))}</code></div></div>`);
+}
+function toast(html, raw = false) {
+  const t = document.createElement("div"); t.className = "toast"; t.innerHTML = raw ? html : esc(html);
+  $("#toasts").append(t); setTimeout(() => t.remove(), 4200);
+  while ($("#toasts").children.length > 3) $("#toasts").firstChild.remove();
+}
+function copy(text) { navigator.clipboard?.writeText(text).catch(() => {}); }
+function shortcuts() {
+  modal("Keyboard Shortcuts", `<div class="kbd">${[["V M E C", "Move, Marquee, Ellipse (circle), Crop"], ["I W B R", "Eyedropper, Wand (normalize), Blur, Rotate"], ["H Z", "Hand, Zoom"], ["⌘Z / ⌘⇧Z", "Undo / redo (History palette)"], ["⌫", "Delete selected layer"], [",", "Toggle selected layer's eye"], ["⌘+ / ⌘−", "Zoom in / out"], ["⌘D", "Deselect"], ["⌘O / ⌘S", "Open image / export PNG"]].map(([k, d]) => `<kbd>${k}</kbd><span>${d}</span>`).join("")}</div>`);
+}
+const TIPS = [
+  "Tip: hidden layers become commented-out lines in the Actions palette.",
+  "Tip: drag layers to reorder the chain. blur → posterize ≠ posterize → blur.",
+  "Tip: make a marquee selection, then Pixelate selection to censor just that bit.",
+  "Tip: the Eyedropper (I) is a real image.getPixelColor(x, y) call.",
+  "Tip: drop any PNG, JPEG, GIF, BMP or TIFF onto the canvas.",
+  "Did you know? posterize(2) is basically a comic book.",
+  "Tip: switch the Actions palette to Browser to see the getBase64 version.",
+];
+let tipI = 0;
+function setTip(t) { $("#stTip").textContent = t; }
+setInterval(() => { if (!$("#stTip").textContent.startsWith("⚠")) setTip(TIPS[tipI++ % TIPS.length]); else tipI++; }, 7000);
+setTip(TIPS[0]);
+function updateStatus() {
+  $("#stZoom").textContent = Math.round(S.zoom * 100) + "%";
+  if (S.outW) { $("#stDims").textContent = `${S.outW} × ${S.outH} px`; $("#stDoc").textContent = `Doc: ${Math.round((S.outW * S.outH * 4) / 1024)}K RGBA`; }
+}
+function dismissHint() { $("#floathint")?.remove(); }
+$("#hintX").onclick = dismissHint;
+setInterval(() => { $("#clock").textContent = new Date().toLocaleTimeString([], { hour: "numeric", minute: "2-digit" }); }, 10000);
+$("#clock").textContent = new Date().toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
+
+/* keyboard */
+const KONAMI = ["ArrowUp", "ArrowUp", "ArrowDown", "ArrowDown", "ArrowLeft", "ArrowRight", "ArrowLeft", "ArrowRight", "b", "a"];
+let kbuf = [], typed = "";
+addEventListener("keydown", (e) => {
+  kbuf = [...kbuf, e.key].slice(-10);
+  if (kbuf.join() === KONAMI.join()) deepFry();
+  const inField = e.target.closest?.("input,select,textarea");
+  const cmd = e.metaKey || e.ctrlKey;
+  if (cmd && e.key.toLowerCase() === "z") { e.preventDefault(); return e.shiftKey ? restore(S.hi + 1) : restore(S.hi - 1); }
+  if (cmd && e.key.toLowerCase() === "o") { e.preventDefault(); return $("#fileIn").click(); }
+  if (cmd && e.key.toLowerCase() === "s") { e.preventDefault(); return exportPng(); }
+  if (cmd && e.key.toLowerCase() === "d") { e.preventDefault(); return clearSel(); }
+  if (cmd && (e.key === "=" || e.key === "+")) { e.preventDefault(); return zoomStep(1); }
+  if (cmd && e.key === "-") { e.preventDefault(); return zoomStep(-1); }
+  if (inField || cmd || e.altKey) return;
+  if (e.key === "Escape") { closeMenus(); $("#modalwrap").classList.remove("on"); return; }
+  if ((e.key === "Backspace" || e.key === "Delete") && S.sel) { e.preventDefault(); return deleteLayer(); }
+  if (e.key === ",") { const l = selLayer(); if (l) { l.on = !l.on; commit(`${l.on ? "Show" : "Hide"} ${M[l.m].label}`); } return; }
+  if (e.key === "?") return shortcuts();
+  typed = (typed + e.key.toLowerCase()).slice(-4);
+  if (typed === "dice") return rollDice();
+  const t = TOOLS.find((x) => x !== "-" && x.key.toLowerCase() === e.key.toLowerCase());
+  if (t) { setTool(t.id); if (S.active !== "playground") openDoc("playground"); }
+});
+function rollDice() {
+  const n = 1 + Math.floor(Math.random() * 6), deg = [90, 180, -90][n % 3];
+  addLayer("rotate", { deg }, `Roll the dice (${n})`);
+  toast(`<b>You rolled a ${n}!</b><code>image.rotate(${deg});</code>`, true);
+}
+function deepFry() {
+  document.body.classList.add("fried"); setTimeout(() => document.body.classList.remove("fried"), 1600);
+  S.layers.push(mk("contrast", { val: 0.8 }), mk("color", { apply: "saturate", amount: 100 }), mk("posterize", { n: 3 }), mk("pixelate", { size: 3 }), mk("brightness", { val: 1.3 }));
+  S.sel = S.layers.at(-1).id;
+  commit("Deep Fry (↑↑↓↓←→←→BA)"); dismissHint();
+  openDoc("playground");
+  toast(`<b>Achievement unlocked: Deep Fried</b><code>.contrast(0.8).color([{ apply: "saturate", params: [100] }]).posterize(3)…</code>`, true);
+}
+
+/* ---------- hero: an exploded layer stack, rendered by real Jimp ---------- */
+async function buildHero() {
+  const base = source.clone().resize({ w: 300 });
+  const steps = [["Background", null], [".posterize(4)", (i) => i.posterize(4)], [".pixelate(5)", (i) => i.pixelate(5)], [".circle()", (i) => i.circle()]];
+  const img = base.clone();
+  const stack = $("#stack"), wrap = $("#stackwrap");
+  stack.innerHTML = ""; $$(".slabel", wrap).forEach((x) => x.remove());
+  for (let i = 0; i < steps.length; i++) {
+    const [label, fn] = steps[i];
+    if (fn) fn(img);
+    const src = await img.getBase64("image/png");
+    const pl = document.createElement("div");
+    pl.className = "plane" + (i === steps.length - 1 ? " top" : ""); pl.style.setProperty("--i", i);
+    pl.style.transform = `translateZ(${i * 48}px)`;
+    pl.innerHTML = `<img src="${src}" alt="${esc(label)}">${i === steps.length - 1 ? '<div class="ants"></div>' : ""}`;
+    stack.append(pl);
+    const lb = document.createElement("div");
+    lb.className = "slabel";
+    lb.innerHTML = `<span class="ix">${i === 0 ? "▤" : "◐"}</span>${i === 0 ? `Background <span class="tk-s">dice.png</span>` : `<span class="m">${esc(label)}</span>`}`;
+    lb.style.top = `${286 - i * 50}px`;
+    wrap.append(lb);
+  }
+  wrap.onmouseenter = () => $$(".slabel", wrap).forEach((l, i) => (l.style.transform = `translateY(${-i * 34}px)`));
+  wrap.onmouseleave = () => $$(".slabel", wrap).forEach((l) => (l.style.transform = ""));
+}
+
+/* ---------- filter gallery (API reference) ---------- */
+let galleryBuilt = false, galFilter = "All";
+function renderGalleryShell() {
+  $("#fxfilter").innerHTML = ["All", "Adjust", "Filter", "Transform"].map((g) => `<button class="${g === galFilter ? "on" : ""}" data-g="${g}">${g}</button>`).join("");
+  $("#fxgrid").innerHTML = Object.entries(M).filter(([, m]) => galFilter === "All" || m.g === galFilter).map(([k, m]) => `<div class="fx" data-m="${k}">
+    <div class="thumb"><img class="after" data-after="${k}" alt=""><img class="before" data-before alt=""><div class="div"></div><span class="tg b">Before</span><span class="tg a">After</span></div>
+    <div class="fb"><div class="sig">image.<b>${esc(m.sig.split("(")[0])}</b>(${esc(m.sig.slice(m.sig.indexOf("(") + 1))}</div><p>${esc(m.desc)}</p>
+    <div class="row"><span class="pkg">@jimp/${m.plugin}</span><span class="btn" data-add="${k}">+ Add layer</span></div></div></div>`).join("");
+  if (galleryCache.before) fillGallery();
+}
+const galleryCache = {};
+function fillGallery() {
+  $$("[data-before]").forEach((i) => (i.src = galleryCache.before));
+  $$("[data-after]").forEach((i) => {
+    const k = i.dataset.after, v = galleryCache[k];
+    if (!v) return;
+    if (v.err) i.closest(".thumb").insertAdjacentHTML("beforeend", `<div class="err">${esc(v.err)}</div>`);
+    else i.src = v.src;
+  });
+}
+async function buildGallery() {
+  if (!galleryBase) return;
+  if (!galleryBuilt) { galleryBuilt = true; renderGalleryShell(); }
+  if (galleryCache.done || galleryCache.running) return;
+  galleryCache.running = true;
+  galleryCache.before = await galleryBase.getBase64("image/png");
+  fillGallery();
+  for (const k of Object.keys(M)) {
+    const img = galleryBase.clone();
+    try { M[k].run(img, { ...defaults(k), ...(M[k].demo || {}) }); galleryCache[k] = { src: await img.getBase64("image/png") }; }
+    catch (e) { galleryCache[k] = { err: e.message || String(e) }; }
+    const el = $(`[data-after="${k}"]`); if (el) { if (galleryCache[k].src) el.src = galleryCache[k].src; else fillGallery(); }
+    await sleep(0);
+  }
+  galleryCache.done = true;
+}
+$("#fxfilter").addEventListener("click", (e) => { const b = e.target.closest("[data-g]"); if (b) { galFilter = b.dataset.g; renderGalleryShell(); } });
+$("#fxgrid").addEventListener("mousemove", (e) => {
+  const t = e.target.closest(".thumb"); if (!t) return;
+  const r = t.getBoundingClientRect(), f = Math.max(0, Math.min(1, (e.clientX - r.left) / r.width));
+  $(".before", t).style.clipPath = `inset(0 ${100 - f * 100}% 0 0)`; $(".div", t).style.left = f * 100 + "%";
+});
+$("#fxgrid").addEventListener("click", (e) => { const b = e.target.closest("[data-add]"); if (b) { addLayer(b.dataset.add); openDoc("playground"); toast(`Added <code>.${esc(M[b.dataset.add].code(selLayer().p))}</code> on top of the stack.`, true); } });
+
+/* ---------- splash + boot ---------- */
+const PLUGINS = ["js-bmp", "js-gif", "js-jpeg", "js-png", "js-tiff", "plugin-blit", "plugin-blur", "plugin-border", "plugin-circle", "plugin-color", "plugin-contain", "plugin-cover", "plugin-crop", "plugin-displace", "plugin-dither", "plugin-fisheye", "plugin-flip", "plugin-hash", "plugin-mask", "plugin-print", "plugin-quantize", "plugin-resize", "plugin-rotate", "plugin-shadow", "plugin-threshold"];
+async function runSplash(about = false) {
+  const sp = $("#splash"), load = $("#splashLoad"), bar = $("#splashBar");
+  sp.classList.remove("bye"); sp.style.display = "grid";
+  const lines = [["Initializing", "preferences"], ...PLUGINS.map((p) => [p.startsWith("js-") ? "Loading formats…" : "Loading plugins…", "@jimp/" + p]), ["Skipping optional", "wasm-avif, wasm-jpeg, wasm-png, wasm-webp"], ["Building", "layer palette"]];
+  for (let i = 0; i < lines.length; i++) {
+    load.innerHTML = `<span class="q">${lines[i][0]}</span> ${lines[i][1]}`;
+    bar.style.width = ((i + 1) / lines.length) * (about ? 100 : 80) + "%";
+    await sleep(about ? 45 : 55);
+  }
+  if (about) { load.innerHTML = `<span class="q">Ready.</span> Click anywhere to close.`; sp.onclick = () => { sp.classList.add("bye"); sp.onclick = null; }; }
+}
+async function boot() {
+  const hold = location.hash === "#splash";
+  const splashDone = runSplash();
+  try {
+    const mod = await import("https://cdn.jsdelivr.net/npm/jimp@1/dist/browser/index.js");
+    J = mod.Jimp;
+    $("#splashLoad").innerHTML = `<span class="q">Reading</span> Jimp.read("dice.png")`;
+    source = await J.read("./dice.png");
+    galleryBase = source.clone().resize({ w: 160 });
+  } catch (e) {
+    $("#splashLoad").innerHTML = `<span class="err">Error: ${esc(e.message || e)}</span>`;
+    console.error(e);
+    await splashDone;
+    $("#splash").onclick = () => $("#splash").classList.add("bye");
+    return;
+  }
+  await splashDone;
+  $("#splashBar").style.width = "100%";
+  S.layers = [mk("resize", { w: 400 }), mk("contrast", { val: 0.25 }), mk("sepia", {}, false), mk("posterize", { n: 6 })];
+  S.sel = S.layers.at(-1).id;
+  renderLayers(); renderProps(); renderCode();
+  S.hist = [{ label: "Open dice.png", ...snapshot() }]; S.hi = 0; renderHistory();
+  await render();
+  await buildHero();
+  if (!hold) { await sleep(200); $("#splash").classList.add("bye"); }
+  const want = location.hash.slice(1);
+  if (DOCS[want]) openDoc(want); else openDoc("welcome", { push: false });
+  setTimeout(buildGallery, 400);
+}
+renderTree(); renderTabs(); setTool("move"); renderOptbar();
+$$(".view").forEach((v) => v.classList.toggle("on", v.dataset.doc === S.active));
+boot();
+</script>
+</body>
+</html>

@@ -1,0 +1,121 @@
+---
+/** Cards linking to every guide plus the main reference sections. */
+import { concepts, guides, startHere, type DocPage } from "../../data/pages";
+import { methods } from "../../data/methods";
+import { guideIcons, svg } from "../icons";
+
+const base = import.meta.env.BASE_URL.replace(/\/$/, "");
+const card = (page: DocPage) => ({ ...page, href: `${base}/${page.slug}/` });
+
+const cards = [
+  ...startHere.map(card),
+  {
+    title: "Methods",
+    blurb: `All ${methods.length} methods and helpers, with live previews.`,
+    color: "var(--jp-yellow)",
+    icon: "api",
+    href: `${base}/methods/`,
+  },
+  {
+    title: "Concepts",
+    blurb: "Pixels, formats, compositing, text, errors and TypeScript.",
+    color: "var(--jp-mint)",
+    icon: "pixels",
+    href: `${base}/${concepts[0]!.slug}/`,
+  },
+  ...guides.map(card),
+  {
+    title: "Type reference",
+    blurb: "Generated from the source: every export and its types.",
+    color: "#c9a8ff",
+    icon: "ts",
+    href: `${base}/api/readme/`,
+  },
+  {
+    title: "Releases",
+    blurb: "What changed in each version, on GitHub.",
+    color: "var(--jp-orange)",
+    icon: "migrate",
+    href: "https://github.com/jimp-dev/jimp/releases",
+  },
+];
+---
+
+<div class="cards not-content">
+  {
+    cards.map((c) => (
+      <a class="gcard" href={c.href}>
+        <span class="ic" style={`--c:${c.color}`} set:html={svg(guideIcons[c.icon] ?? "")} />
+        <span>
+          <b>{c.title}</b>
+          <span class="blurb">{c.blurb}</span>
+        </span>
+      </a>
+    ))
+  }
+</div>
+
+<style>
+  .cards {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 20px;
+  }
+  .gcard {
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+    padding: 14px 16px;
+    color: var(--jp-text);
+    text-decoration: none;
+    background: var(--jp-surface);
+    border: 3.5px solid var(--jp-line);
+    border-radius: 18px;
+    box-shadow: 5px 5px 0 var(--jp-shadow);
+    transition: transform 0.12s;
+  }
+  .gcard:hover {
+    color: var(--jp-text);
+    transform: translateY(-3px);
+    box-shadow: 5px 8px 0 var(--jp-shadow);
+  }
+  .ic {
+    display: grid;
+    place-items: center;
+    flex: none;
+    width: 46px;
+    height: 46px;
+    background: var(--c);
+    border: 3px solid var(--jp-ink);
+    border-radius: 14px;
+    transform: rotate(-4deg);
+  }
+  .ic :global(svg) {
+    width: 30px;
+    height: 30px;
+  }
+  b {
+    display: block;
+    font-family: var(--jp-ui);
+    font-weight: 600;
+    font-size: 18px;
+    line-height: 1.3;
+  }
+  .blurb {
+    display: block;
+    margin-top: 2px;
+    font-size: 15px;
+    line-height: 1.45;
+    color: var(--jp-text-2);
+  }
+  @media (max-width: 999px) {
+    .cards {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  @media (max-width: 49.99rem) {
+    .cards {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

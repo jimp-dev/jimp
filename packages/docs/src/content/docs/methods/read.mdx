@@ -1,0 +1,136 @@
+---
+title: "Jimp.read()"
+description: "Load an image from a file path, a URL, a Buffer, a typed array or a Blob."
+category: io
+method: "Jimp.read"
+plugin: "@jimp/core"
+---
+
+import { Tabs, TabItem } from "@astrojs/starlight/components";
+import Related from "../../../components/Related.astro";
+
+`Jimp.read` loads an image and decodes it into a new Jimp image.
+It's the usual starting point: give it a file path, a URL or the bytes of an image, and Jimp works out the format from the data itself.
+
+## Signature
+
+```ts title="read.d.ts"
+Jimp.read(
+  url: string | Buffer | ArrayBuffer | ArrayBufferView | Blob,
+  options?: ReadOptions & DecodeOptions,
+): Promise<Jimp>
+```
+
+`Jimp.read` is a static method. It returns a promise for a new image, so `await` it before calling image methods.
+
+## Parameters
+
+| Parameter | Type                                                          | Default  | Description                                                                                                                                                         |
+| --------- | ------------------------------------------------------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `url`     | `string \| Buffer \| ArrayBuffer \| ArrayBufferView \| Blob` | required | A file path (Node only), an `http:`, `https:`, `data:` or `blob:` URL, or the encoded image bytes. `ArrayBufferView` covers `Uint8Array`, its subarrays and `DataView`. |
+| `options` | `object`                                                      | none     | [`exifRotate`](#options), plus decode options keyed by MIME type.                                                                                                  |
+
+## Options
+
+| Option         | Type      | Default | Description                                                                                                                                                                |
+| -------------- | --------- | ------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `exifRotate`   | `boolean` | `true`  | Rotate and flip a JPEG's pixels to match its EXIF orientation. Pass `false` to keep the pixels as stored. See [EXIF](/jimp/guides/exif/#turning-auto-rotation-off).       |
+| `"<mime type>"` | `object`  | none    | Options for one format's decoder, such as `"image/jpeg": { maxResolutionInMP: 200 }`. See [Reading Large Images](/jimp/guides/reading-large-images/) for each format's. |
+
+The type of the options object is `ReadOptions` (the `exifRotate` part, exported from `jimp`) combined with the decode options of each format your Jimp class has.
+
+## Example
+
+```ts title="example.ts"
+import { Jimp } from "jimp";
+
+const image = await Jimp.read("photo.png");
+
+console.log(image.width, image.height, image.mime); // 800 600 "image/png"
+
+image.resize({ w: 400 });
+
+await image.write("photo-small.png");
+```
+
+### Read from a URL
+
+`http:`, `https:`, `data:` and `blob:` URLs are fetched with the global `fetch`, in Node as well as in browsers:
+
+```ts title="example.ts"
+const image = await Jimp.read("https://example.com/cat.jpg");
+```
+
+### Read bytes you already have
+
+Pass a `Buffer`, an `ArrayBuffer`, a `Uint8Array` or a `Blob` to decode it directly. This is the same as calling [`Jimp.fromBuffer`](/jimp/methods/from-buffer/).
+
+```ts title="example.ts"
+import { readFile } from "node:fs/promises";
+import { Jimp } from "jimp";
+
+const buffer = await readFile("photo.jpg");
+const image = await Jimp.read(buffer);
+```
+
+### Pass decode options
+
+Options for the decoders are keyed by MIME type, next to `exifRotate`:
+
+```ts title="example.ts"
+const image = await Jimp.read("photo.jpg", {
+  exifRotate: false,
+  "image/jpeg": { maxMemoryUsageInMB: 1024 },
+});
+```
+
+### In the browser
+
+There's no file system in the browser, so a string is always fetched as a URL.
+Relative URLs resolve against the page, and images on other domains need [CORS](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS) headers.
+
+<Tabs>
+  <TabItem label="URL">
+
+```ts title="main.ts"
+import { Jimp } from "jimp";
+
+const image = await Jimp.read("/images/cat.jpg");
+```
+
+  </TabItem>
+  <TabItem label="File input">
+
+```ts title="main.ts"
+import { Jimp } from "jimp";
+
+const input = document.querySelector<HTMLInputElement>("input[type=file]")!;
+
+input.addEventListener("change", async () => {
+  // A File is a Blob, so it can be passed directly
+  const image = await Jimp.read(input.files![0]!);
+});
+```
+
+  </TabItem>
+</Tabs>
+
+## Supported formats
+
+The `jimp` package decodes PNG, JPEG, GIF, BMP, TIFF and ICO.
+Add WebP, AVIF, JPEG 2000, SVG and others with a [custom Jimp](/jimp/guides/custom-jimp/) and the WASM format plugins. See [Formats](/jimp/concepts/formats/) for the details of each one.
+
+## Notes
+
+- **The format comes from the data.** Jimp sniffs the first bytes of the image, so a file's extension doesn't matter. The detected MIME type is stored on [`image.mime`](/jimp/concepts/reading-and-writing/#image-properties).
+- **JPEGs are rotated upright.** If a JPEG's EXIF orientation is anything other than 1, the pixels are rotated and flipped to match it, unless you pass `exifRotate: false`. See [EXIF](/jimp/guides/exif/).
+- **The color profile is kept.** An ICC profile in a JPEG, PNG or WebP is stored on `image.iccProfile`, and `image.colorSpace` tells you which space the pixels are in. See [Color Spaces](/jimp/guides/color-spaces/).
+- **GIF, TIFF and ICO read one image.** Animated GIFs and multi-page TIFFs load only their first frame or page. An ICO loads its largest image unless you pass the `size` or `index` option.
+- **Decode options are per format.** Only the options for the detected MIME type reach the decoder, so you can pass options for several formats at once.
+- **Errors.** In Node, a path that doesn't exist throws Node's own error, such as `ENOENT: no such file or directory, open 'photos/typo.jpg'`. Paths are relative to the current working directory, not to the script. A URL that can't be fetched throws `Could not load Buffer from URL: <url>`, and a server error throws `HTTP Status 404 for url <url>`. Bytes in an unknown format throw `Could not find MIME for Buffer`, and a known format that your Jimp can't decode (such as WebP with the default `jimp` package) throws `Mime type image/webp does not support decoding`.
+- **Added in 2.0:** the `exifRotate` option, and `Uint8Array`, other `ArrayBufferView`s and `Blob`s as input. Before, they were mistaken for URLs.
+- **Changed in 2.0:** in Node, only `http:`, `https:`, `data:` and `blob:` URLs are fetched, and any other string is read as a file. Before, a path that didn't exist was fetched as a URL and threw `Could not load Buffer from URL`.
+
+## Related
+
+<Related methods={["Jimp.fromBuffer", "Jimp.fromBitmap", "new Jimp", "write", "getBuffer"]} />

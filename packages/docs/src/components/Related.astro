@@ -1,0 +1,61 @@
+---
+/**
+ * Chunky links to related method pages.
+ *
+ *   <Related methods={["gaussian", "pixelate"]} />
+ *
+ * Names are API names from src/data/methods.ts ("blur", "Jimp.read", ...).
+ */
+import { methodsByName } from "../data/methods";
+
+interface Props {
+  methods: string[];
+}
+
+const base = import.meta.env.BASE_URL.replace(/\/$/, "");
+const links = Astro.props.methods.map((name) => {
+  const entry = methodsByName.get(name);
+  if (!entry) throw new Error(`<Related>: unknown method "${name}"`);
+  return { label: entry.label, href: `${base}/methods/${entry.slug}/` };
+});
+---
+
+<ul class="related not-content">
+  {
+    links.map((link) => (
+      <li>
+        <a href={link.href}>{link.label}</a>
+      </li>
+    ))
+  }
+</ul>
+
+<style>
+  .related {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 12px 0;
+    padding: 0;
+    list-style: none;
+  }
+  .related a {
+    display: inline-block;
+    font-family: var(--jp-mono);
+    font-weight: 600;
+    font-size: 13.5px;
+    color: var(--jp-text);
+    text-decoration: none;
+    background: var(--jp-surface);
+    border: 2.5px solid var(--jp-line);
+    border-radius: 999px;
+    padding: 2px 12px;
+    box-shadow: 0 3px 0 var(--jp-shadow);
+    transition: transform 0.12s;
+  }
+  .related a:hover {
+    color: var(--jp-ink);
+    background: var(--jp-yellow);
+    transform: translateY(-2px);
+  }
+</style>

@@ -1,0 +1,60 @@
+---
+title: "invert()"
+description: "Invert the red, green and blue channels."
+category: color
+method: "invert"
+plugin: "@jimp/plugin-color"
+---
+
+import Playground from "../../../components/playground/Playground";
+import Related from "../../../components/Related.astro";
+
+`invert` turns the image into its negative: black becomes white, red becomes cyan and so on.
+Use it for negative effects, or to flip a light mask into a dark one.
+
+## Signature
+
+```ts title="invert.d.ts"
+image.invert(): this
+```
+
+`invert` takes no arguments. It changes the image in place and returns it, so you can chain more calls after it.
+
+## Example
+
+```ts title="example.ts"
+import { Jimp } from "jimp";
+
+const image = await Jimp.read("photo.jpg");
+
+image.invert();
+
+await image.write("photo-negative.jpg");
+```
+
+### Flip a mask
+
+[`mask`](/jimp/methods/mask/) treats bright pixels as visible and dark ones as hidden.
+Invert a copy of the mask to reveal the opposite area:
+
+```ts title="example.ts"
+const shape = await Jimp.read("shape.png");
+
+image.mask(shape.clone().invert());
+```
+
+## Try it
+
+Run the playground to see the result. Hold the compare button to see the original.
+
+<Playground method="invert" client:visible />
+
+## Notes
+
+- **How it's computed.** Each channel `c` becomes `255 − c`. Calling `invert` twice gives back the original image.
+- **Alpha is unchanged.** Transparent pixels stay transparent, but their stored color is inverted too, so a transparent black background becomes transparent white. That only shows if you later call [`opaque`](/jimp/methods/opaque/).
+- **Same as XOR with white.** `image.color([{ apply: "xor", params: [{ r: 255, g: 255, b: 255 }] }])` gives the same result. XOR with other colors inverts only some bits of each channel.
+
+## Related
+
+<Related methods={["color", "greyscale", "threshold", "mask", "brightness"]} />

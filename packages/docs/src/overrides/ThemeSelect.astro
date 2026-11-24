@@ -1,0 +1,255 @@
+---
+/**
+ * A chunky light / dark / auto switch. Uses the same `starlight-theme`
+ * localStorage key as Starlight's ThemeProvider, which applies the theme
+ * before first paint.
+ *
+ * Switching plays a circular "invert()" wipe from the button (skipped when
+ * the browser has no View Transitions or the user prefers reduced motion).
+ */
+import type { Props } from "@astrojs/starlight/props";
+
+const options = [
+  {
+    value: "light",
+    label: "Light",
+    icon: `<circle cx="12" cy="12" r="4.5" fill="#ffd83a"/><path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M19.1 4.9l-1.8 1.8M6.7 17.3l-1.8 1.8"/>`,
+  },
+  {
+    value: "dark",
+    label: "Dark",
+    icon: `<path d="M20 14.5A8 8 0 019.5 4a8 8 0 1010.5 10.5z" fill="#c9a8ff"/><path d="M17 3.5l.7 1.6 1.6.7-1.6.7-.7 1.6-.7-1.6-1.6-.7 1.6-.7z" fill="#ffd83a" stroke-width="1.4"/>`,
+  },
+  {
+    value: "auto",
+    label: "Auto",
+    icon: `<circle cx="12" cy="12" r="8.5" fill="#fff"/><path d="M12 3.5a8.5 8.5 0 010 17z" fill="#1b1840"/>`,
+  },
+];
+---
+
+<jimp-theme-switch>
+  <div
+    class="switch"
+    role="radiogroup"
+    aria-label="Theme"
+    title="Theme. Dark mode is basically image.invert()."
+  >
+    {
+      options.map(({ value, label, icon }) => (
+        <button type="button" role="radio" aria-checked="false" data-theme-value={value}>
+          <svg
+            viewBox="0 0 24 24"
+            aria-hidden="true"
+            fill="none"
+            stroke="#1b1840"
+            stroke-width="2.2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            set:html={icon}
+          />
+          <span class="sr-only">{label}</span>
+        </button>
+      ))
+    }
+  </div>
+</jimp-theme-switch>
+
+<script>
+  type Theme = "auto" | "dark" | "light";
+
+  /** View Transitions aren't in TypeScript's DOM types yet. */
+  type TransitionDocument = Document & {
+    startViewTransition?: (update: () => void) => { ready: Promise<void> };
+  };
+
+  const storageKey = "starlight-theme";
+
+  const parseTheme = (theme: unknown): Theme =>
+    theme === "dark" || theme === "light" ? theme : "auto";
+
+  const loadTheme = (): Theme =>
+    parseTheme(typeof localStorage !== "undefined" && localStorage.getItem(storageKey));
+
+  const systemTheme = () =>
+    matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark";
+
+  const resolve = (theme: Theme) => (theme === "auto" ? systemTheme() : theme);
+
+  function storeTheme(theme: Theme) {
+    try {
+      localStorage.setItem(storageKey, theme === "auto" ? "" : theme);
+    } catch {
+      // Storage can be unavailable (private mode); the theme still applies.
+    }
+  }
+
+  function updateSwitches(theme: Theme) {
+    document.querySelectorAll("jimp-theme-switch [data-theme-value]").forEach((button) => {
+      const on = button.getAttribute("data-theme-value") === theme;
+      button.setAttribute("aria-checked", String(on));
+      button.setAttribute("tabindex", on ? "0" : "-1");
+    });
+  }
+
+  /** A short "image.invert()" stamp that floats up from the switch. */
+  function stamp(from: HTMLElement) {
+    const rect = from.getBoundingClientRect();
+    const el = document.createElement("span");
+    el.className = "invert-stamp";
+    el.textContent = "image.invert()";
+    el.style.left = `${rect.left + rect.width / 2}px`;
+    el.style.top = `${rect.bottom + 8}px`;
+    document.body.append(el);
+    el.addEventListener("animationend", () => el.remove());
+  }
+
+  function applyTheme(theme: Theme, origin?: HTMLElement) {
+    const next = resolve(theme);
+    const changes = document.documentElement.dataset.theme !== next;
+    const set = () => {
+      document.documentElement.dataset.theme = next;
+      updateSwitches(theme);
+    };
+
+    storeTheme(theme);
+
+    const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const doc = document as TransitionDocument;
+    if (!origin || !changes || reduced || !doc.startViewTransition) {
+      set();
+      return;
+    }
+
+    const rect = origin.getBoundingClientRect();
+    const x = rect.left + rect.width / 2;
+    const y = rect.top + rect.height / 2;
+    const radius = Math.hypot(Math.max(x, innerWidth - x), Math.max(y, innerHeight - y));
+
+    stamp(origin);
+    doc.startViewTransition(set).ready.then(() => {
+      document.documentElement.animate(
+        {
+          clipPath: [`circle(0px at ${x}px ${y}px)`, `circle(${radius}px at ${x}px ${y}px)`],
+        },
+        {
+          duration: 650,
+          easing: "cubic-bezier(.3, .8, .4, 1)",
+          pseudoElement: "::view-transition-new(root)",
+        },
+      );
+    });
+  }
+
+  matchMedia("(prefers-color-scheme: light)").addEventListener("change", () => {
+    if (loadTheme() === "auto") applyTheme("auto");
+  });
+
+  class JimpThemeSwitch extends HTMLElement {
+    constructor() {
+      super();
+      updateSwitches(loadTheme());
+
+      const buttons = [...this.querySelectorAll<HTMLButtonElement>("[data-theme-value]")];
+      buttons.forEach((button, index) => {
+        button.addEventListener("click", () =>
+          applyTheme(parseTheme(button.dataset.themeValue), button),
+        );
+        button.addEventListener("keydown", (e) => {
+          if (e.key !== "ArrowRight" && e.key !== "ArrowLeft") return;
+          e.preventDefault();
+          const step = e.key === "ArrowRight" ? 1 : -1;
+          const next = buttons[(index + step + buttons.length) % buttons.length]!;
+          next.focus();
+          next.click();
+        });
+      });
+    }
+  }
+
+  customElements.define("jimp-theme-switch", JimpThemeSwitch);
+</script>
+
+<style>
+  .switch {
+    display: flex;
+    gap: 2px;
+    padding: 2px;
+    background: var(--jp-ink);
+    border: 3px solid var(--jp-ink);
+    border-radius: 999px;
+    box-shadow: 0 3px 0 rgba(0, 0, 0, 0.25);
+  }
+  button {
+    display: grid;
+    place-items: center;
+    width: 30px;
+    height: 28px;
+    padding: 0;
+    border: 0;
+    border-radius: 999px;
+    background: transparent;
+    cursor: pointer;
+    opacity: 0.6;
+    transition:
+      transform 0.15s cubic-bezier(0.3, 1.8, 0.5, 1),
+      opacity 0.15s;
+  }
+  button svg {
+    width: 19px;
+    height: 19px;
+    stroke: #fff;
+  }
+  button:hover {
+    opacity: 1;
+    transform: rotate(-12deg);
+  }
+  button[aria-checked="true"] {
+    opacity: 1;
+    background: var(--jp-yellow);
+  }
+  button[aria-checked="true"] svg {
+    stroke: var(--jp-ink);
+  }
+</style>
+
+<style is:global>
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation: none;
+    mix-blend-mode: normal;
+  }
+
+  .invert-stamp {
+    position: fixed;
+    z-index: 100;
+    pointer-events: none;
+    translate: -50% 0;
+    font: 600 13px/1.6 var(--jp-mono);
+    color: var(--jp-ink);
+    background: var(--jp-mint);
+    border: 2.5px solid var(--jp-ink);
+    border-radius: 8px;
+    padding: 0 8px;
+    box-shadow: 2px 3px 0 var(--jp-ink);
+    animation: jp-stamp 1.2s cubic-bezier(0.3, 1.6, 0.5, 1) forwards;
+  }
+  @keyframes jp-stamp {
+    0% {
+      opacity: 0;
+      transform: scale(0.6) rotate(-8deg);
+    }
+    25% {
+      opacity: 1;
+      transform: scale(1) rotate(-3deg);
+    }
+    75% {
+      opacity: 1;
+      transform: translateY(4px) rotate(-3deg);
+    }
+    100% {
+      opacity: 0;
+      transform: translateY(12px) rotate(-3deg);
+    }
+  }
+</style>

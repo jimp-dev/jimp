@@ -1,0 +1,71 @@
+---
+title: "fade()"
+description: "Make the image more transparent by a factor from 0 to 1."
+category: color
+method: "fade"
+plugin: "@jimp/plugin-color"
+---
+
+import Playground from "../../../components/playground/Playground";
+import Related from "../../../components/Related.astro";
+
+`fade` makes the whole image more transparent by removing a fraction `f` of every pixel's opacity.
+`0` leaves the image unchanged, `0.3` removes 30% of the opacity and `1` makes the image fully transparent.
+
+## Signature
+
+```ts title="fade.d.ts"
+image.fade(f: number): this
+```
+
+`fade` changes the image in place and returns it, so you can chain more calls after it.
+
+## Parameters
+
+| Parameter | Type     | Default  | Description                                                       |
+| --------- | -------- | -------- | ----------------------------------------------------------------- |
+| `f`       | `number` | required | How much opacity to remove, from `0` (none) to `1` (all of it).    |
+
+## Example
+
+```ts title="example.ts"
+import { Jimp } from "jimp";
+
+const image = await Jimp.read("logo.png");
+
+image.fade(0.7);
+
+await image.write("logo-faded.png");
+```
+
+### Fade between two images
+
+Draw a faded copy of one image on top of another to blend them:
+
+```ts title="example.ts"
+import { Jimp } from "jimp";
+
+const before = await Jimp.read("before.png");
+const after = await Jimp.read("after.png");
+
+before.composite(after.clone().fade(0.6), 0, 0);
+
+await before.write("blend.png");
+```
+
+## Try it
+
+Drag the slider to change `f`. Transparent areas show the background through them.
+
+<Playground method="fade" client:visible />
+
+## Notes
+
+- **Same as `opacity(1 - f)`.** `fade` calls [`opacity`](/jimp/methods/opacity/) with `1 - f`, so `fade(0.3)` and `opacity(0.7)` give identical results. Pick whichever reads better.
+- **Relative to the current alpha.** A pixel with alpha `200` faded by `0.3` ends up at `140`. Already transparent pixels stay transparent.
+- **Colors are unchanged.** Only alpha changes, so the effect is lost if you save to a format without transparency, such as JPEG.
+- **Errors.** An `f` that isn't a number throws `f must be a number`. A value outside `0` to `1` throws `f must be a number from 0 to 1`.
+
+## Related
+
+<Related methods={["opacity", "opaque", "composite", "mask"]} />

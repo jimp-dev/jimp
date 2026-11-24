@@ -1,0 +1,10 @@
+---
+/**
+ * Only the desktop table of contents. On narrow screens the TOC is hidden
+ * (Starlight's mobile TOC bar is not rendered).
+ */
+import type { Props } from "@astrojs/starlight/props";
+import TableOfContents from "./TableOfContents.astro";
+---
+
+{Astro.props.toc && <TableOfContents {...Astro.props} />}

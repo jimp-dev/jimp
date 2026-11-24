@@ -1,0 +1,135 @@
+---
+title: "threshold()"
+description: "Turn pixels at or above a cut-off into one gray value."
+category: color
+method: "threshold"
+plugin: "@jimp/plugin-threshold"
+---
+
+import Playground from "../../../components/playground/Playground";
+import Related from "../../../components/Related.astro";
+
+`threshold` converts the image to grayscale and then replaces every pixel at or above a cut-off with a single value, white by default.
+Darker pixels keep their gray level. Use it to clean up scans, wash out light backgrounds or prepare an image for a mask.
+
+## Signature
+
+```ts title="threshold.d.ts"
+image.threshold(options: {
+  max: number | "otsu";
+  replace?: number;
+  autoGreyscale?: boolean;
+}): this
+```
+
+`threshold` changes the image in place and returns it, so you can chain more calls after it.
+The options type is exported from `jimp` as `ThresholdOptions`.
+
+## Options
+
+| Option          | Type                 | Default  | Description                                                                                                       |
+| --------------- | -------------------- | -------- | ----------------------------------------------------------------------------------------------------------------- |
+| `max`           | `number \| "otsu"`   | required | The cut-off, from `0` to `255`. Values of `max` or more are replaced. `"otsu"` picks the cut-off from the image. |
+| `replace`       | `number`             | `255`    | The value, from `0` to `255`, that replaced values get.                                                          |
+| `autoGreyscale` | `boolean`            | `true`   | Call [`greyscale`](/jimp/methods/greyscale/) first. With `false`, each color channel is thresholded on its own. |
+
+## Example
+
+```ts title="example.ts"
+import { Jimp } from "jimp";
+
+const image = await Jimp.read("scan.jpg");
+
+// Everything at least as light as 200 becomes pure white
+image.threshold({ max: 200 });
+
+await image.write("scan-clean.png");
+```
+
+### Pick the cut-off automatically
+
+`max: "otsu"` chooses the cut-off with [Otsu's method](/jimp/methods/otsu-threshold/), which looks for the value that best splits the image into a dark and a light group.
+It works well for scans and photos of documents, where the right cut-off changes from image to image.
+
+```ts title="example.ts"
+image.threshold({ max: "otsu" });
+```
+
+To see which cut-off was used, compute it with [`otsuThreshold`](/jimp/methods/otsu-threshold/) and pass it as `max`. The result is the same:
+
+```ts title="example.ts"
+import { Jimp, otsuThreshold } from "jimp";
+
+const image = await Jimp.read("scan.jpg");
+const level = otsuThreshold(image);
+
+console.log(level); // e.g. 104
+image.threshold({ max: level });
+```
+
+### Replace light pixels with black
+
+Set `replace` to choose another value:
+
+```ts title="example.ts"
+image.threshold({ max: 180, replace: 0 });
+```
+
+### Keep the colors
+
+With `autoGreyscale: false` the image isn't converted to gray.
+Each of red, green and blue is compared with `max` and replaced on its own, so channels below the cut-off keep their color:
+
+```ts title="example.ts"
+image.threshold({ max: 200, autoGreyscale: false });
+// (230, 120, 40) becomes (255, 120, 40)
+```
+
+### Pure black and white
+
+`threshold` only changes the values at or above `max`; darker pixels keep their gray.
+For a two-color result, set the remaining pixels yourself with [`scan`](/jimp/methods/scan/):
+
+```ts title="example.ts"
+image.threshold({ max: "otsu" });
+
+image.scan((x, y, idx) => {
+  const value = image.bitmap.data[idx] === 255 ? 255 : 0;
+
+  image.bitmap.data[idx] = value;
+  image.bitmap.data[idx + 1] = value;
+  image.bitmap.data[idx + 2] = value;
+});
+```
+
+For a black and white image that keeps shading with patterns of dots, use [`dither`](/jimp/methods/dither/) instead.
+
+### Clean up the result
+
+A thresholded scan or mask often has specks and small holes. [`close`](/jimp/methods/close/) removes dark specks and fills dark holes, and [`open`](/jimp/methods/open/) removes light specks:
+
+```ts title="example.ts"
+image.threshold({ max: "otsu" }).close({ radius: 1 });
+```
+
+See [Clean up a scanned document](/jimp/methods/close/#clean-up-a-scanned-document) and [Fill holes in a mask](/jimp/methods/close/#fill-holes-in-a-mask).
+
+## Try it
+
+Drag `max` to move the cut-off and `replace` to change the value that light pixels get, or turn on `otsu` to let Jimp pick the cut-off.
+
+<Playground method="threshold" client:visible />
+
+## Notes
+
+- **At or above.** A value is replaced when it's greater than or equal to `max`. `max: 0` replaces every pixel; `max: 255` replaces only pure white.
+- **Otsu with `autoGreyscale: false`.** `"otsu"` reads the image's values after the optional `greyscale`. With `autoGreyscale: false` it builds its histogram from the red channel alone, so use it that way only on images that are already gray.
+- **Alpha is unchanged.** Transparent pixels are processed like any other, but stay transparent. With `"otsu"`, transparent pixels don't affect the chosen cut-off.
+- **Errors.** `options` is required: calling `threshold()` with no argument throws a `ZodError`. So do a missing `max`, a string other than `"otsu"`, and values of `max` or `replace` outside `0`–`255`.
+- Added in 2.0: `max: "otsu"`.
+- Changed in 2.0: with `autoGreyscale: false`, each channel is compared and replaced on its own; before, every pixel came out gray, with its level taken from the red channel alone.
+- Changed in 2.0: the gray values from `greyscale` are rounded rather than rounded down, so some pixels come out one level lighter.
+
+## Related
+
+<Related methods={["otsuThreshold", "greyscale", "dither", "posterize", "contrast", "close", "open", "mask", "scan"]} />

@@ -1,0 +1,71 @@
+---
+title: Methods
+description: Every image method and helper in the jimp package, grouped by what it does.
+---
+
+import StickerSheet from "../../../components/StickerSheet.astro";
+
+Image methods change the image in place and return it, so calls can be chained:
+
+```ts title="example.ts"
+image.resize({ w: 300 }).blur(2).greyscale();
+```
+
+Every thumbnail below was made by Jimp in your browser from the same photo.
+Select a method for its options, an example and a live playground.
+For the full generated types of every export, see the [type reference](/jimp/api/readme/).
+
+## Loading and saving
+
+Create images from files, URLs, buffers or raw pixels, then encode them again.
+These are part of `@jimp/core`, so every Jimp has them.
+
+<StickerSheet category="io" />
+
+## Size and shape
+
+Change the size of the canvas, cut it down, rotate, skew or bend it.
+
+<StickerSheet category="shape" />
+
+## Blur and effects
+
+Soften, sharpen, pixelate or filter the image, grow and shrink shapes with erode and dilate, or add a shadow.
+
+<StickerSheet category="effects" />
+
+## Color
+
+Adjust exposure, brightness, contrast and color, convert between color spaces, or reduce the palette.
+
+<StickerSheet category="color" />
+
+## Compositing
+
+Draw one image on top of another.
+
+<StickerSheet category="compose" />
+
+## Text
+
+Draw and measure text with bitmap fonts.
+
+<StickerSheet category="text" />
+
+## Pixels
+
+Read and write individual pixels, or loop over all of them.
+
+<StickerSheet category="pixels" />
+
+## Comparing images
+
+Tell whether two images look alike, with perceptual hashes or a pixel diff.
+
+<StickerSheet category="compare" />
+
+## Utilities
+
+Functions for converting and comparing colors.
+
+<StickerSheet category="utils" />

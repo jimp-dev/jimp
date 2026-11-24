@@ -1,0 +1,84 @@
+---
+title: "toColorSpace()"
+description: "Convert the pixels to sRGB or Display P3 and update the color profile."
+category: color
+method: "toColorSpace"
+plugin: "@jimp/core"
+---
+
+import Related from "../../../components/Related.astro";
+
+`toColorSpace` converts an image's pixels from its current color space to sRGB or Display P3, and sets its ICC profile to match.
+Use it when the next step expects a particular space: sRGB for most image recognition, hashing or tools that ignore profiles, or Display P3 to match a photo you're drawing onto.
+
+## Signature
+
+```ts title="toColorSpace.d.ts"
+image.toColorSpace(colorSpace: "srgb" | "display-p3"): this
+```
+
+`toColorSpace` changes the image in place and returns it, so you can chain more calls after it.
+
+## Parameters
+
+| Parameter    | Type                     | Default  | Description                                                                                                    |
+| ------------ | ------------------------ | -------- | -------------------------------------------------------------------------------------------------------------- |
+| `colorSpace` | `"srgb" \| "display-p3"` | required | The space to convert to. The type is `ColorSpaceName`, exported from `jimp`. |
+
+## Example
+
+```ts title="example.ts"
+import { Jimp } from "jimp";
+
+const image = await Jimp.read("iphone-photo.jpg");
+
+image.colorSpace; // "display-p3"
+
+image.toColorSpace("srgb");
+
+image.colorSpace; // "srgb"
+image.iccProfile; // undefined
+
+await image.write("photo-srgb.jpg"); // written without a profile
+```
+
+### Convert to Display P3
+
+Converting an sRGB image to Display P3 keeps its colors as they look, but changes the pixel values.
+The image is then written with a Display P3 profile:
+
+```ts title="example.ts"
+const image = new Jimp({ width: 1, height: 1, color: 0xff0000ff }); // sRGB red
+
+image.toColorSpace("display-p3");
+
+image.getPixelColor(0, 0).toString(16); // "ea3323ff": the same red, in Display P3
+```
+
+### Check the color space first
+
+`image.colorSpace` tells you which space the pixels are in: `"srgb"` (also for images without a profile), `"display-p3"`, or `"custom"` for any other profile, such as Adobe RGB.
+
+```ts title="example.ts"
+if (image.colorSpace !== "srgb") {
+  image.toColorSpace("srgb");
+}
+```
+
+Calling `toColorSpace` with the space the image is already in does nothing, so the check is optional.
+
+## Notes
+
+- **Out-of-gamut colors are clipped.** Display P3 can show more saturated colors than sRGB. Converting them to sRGB clips them to the nearest color sRGB can show, so converting back doesn't restore them.
+- **Which profiles can be converted.** Jimp converts from sRGB, Display P3 and any other RGB profile made of primaries and tone curves, which covers Adobe RGB, ProPhoto RGB and Rec. 2020. Profiles built on lookup tables, and CMYK profiles, throw `Can't convert from the image's ICC profile: only RGB profiles with primaries and tone curves are supported`.
+- **Errors.** A color space other than `"srgb"` or `"display-p3"` throws `Unknown color space "rec2020", expected "srgb" or "display-p3"`.
+- **You rarely need it to write files.** JPEG, PNG and WebP output keeps the profile, and other formats get a copy converted to sRGB automatically. Use `toColorSpace` when you need the pixel values themselves in a given space, or `icc: false` to write sRGB without a profile.
+- **Re-tagging without converting.** Setting `image.iccProfile = undefined` makes Jimp treat the pixel values as sRGB without converting them. That's what Jimp did with every image before 2.0.
+- **Speed.** Conversion uses lookup tables, at about 80 ms for a 12 megapixel photo.
+- **Added in 2.0.**
+
+See [Color Spaces](/jimp/guides/color-spaces/) for how Jimp reads, keeps and writes color profiles.
+
+## Related
+
+<Related methods={["Jimp.read", "new Jimp", "getBuffer", "cssColorToHex", "composite"]} />

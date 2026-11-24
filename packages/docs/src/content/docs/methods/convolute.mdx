@@ -1,0 +1,155 @@
+---
+title: "convolute()"
+description: "Apply a convolution kernel to the image or a region."
+category: effects
+method: "convolute"
+plugin: "@jimp/plugin-color"
+---
+
+import { Aside } from "@astrojs/starlight/components";
+import Playground from "../../../components/playground/Playground";
+import Related from "../../../components/Related.astro";
+
+`convolute` runs a convolution kernel over the image: every pixel becomes a weighted sum of itself and its neighbors, with the weights taken from a small matrix.
+Kernels give you sharpening, embossing, blurring and many other filters. `convolute` can work on a region and filters the alpha channel too unless you pass `preserveAlpha`; [`convolution`](/jimp/methods/convolution/) always leaves alpha alone and lets you choose how edges are handled.
+
+## Signature
+
+```ts title="convolute.d.ts"
+image.convolute(kernel: number[][]): this
+image.convolute(options: {
+  kernel: number[][];
+  divisor?: number;
+  bias?: number;
+  preserveAlpha?: boolean;
+  x?: number;
+  y?: number;
+  w?: number;
+  h?: number;
+}): this
+```
+
+`convolute` changes the image in place and returns it, so you can chain more calls after it.
+
+## Options
+
+Pass the kernel on its own to filter the whole image, or an object to set the other options.
+
+| Option          | Type         | Default            | Description                                                                                                  |
+| --------------- | ------------ | ------------------ | ------------------------------------------------------------------------------------------------------------ |
+| `kernel`        | `number[][]` | required           | The weights, row by row. Any size, including even and non-square; every row must have the same length.      |
+| `divisor`       | `number`     | `1`                | Divide each weighted sum by this. Pass the sum of the weights to keep the brightness. Can't be `0`.          |
+| `bias`          | `number`     | `0`                | Add this to red, green and blue after dividing. Use `128` to center kernels that give negative results.      |
+| `preserveAlpha` | `boolean`    | `false`            | Leave alpha as it is instead of filtering it, like `preserveAlpha` in CSS `feConvolveMatrix`.                |
+| `x`             | `number`     | `0`                | The left edge of the region to filter.                                                                       |
+| `y`             | `number`     | `0`                | The top edge of the region.                                                                                  |
+| `w`             | `number`     | `image.width - x`  | The width of the region.                                                                                     |
+| `h`             | `number`     | `image.height - y` | The height of the region.                                                                                    |
+
+## Example
+
+Sharpen a photo with the classic 3×3 sharpening kernel:
+
+```ts title="example.ts"
+import { Jimp } from "jimp";
+
+const image = await Jimp.read("photo.jpg");
+
+image.convolute([
+  [0, -1, 0],
+  [-1, 5, -1],
+  [0, -1, 0],
+]);
+
+await image.write("photo-sharp.jpg");
+```
+
+### Filter a region
+
+Add the region's position and size next to `kernel`. Here an emboss kernel is applied to a 200 × 100 area:
+
+```ts title="example.ts"
+image.convolute({
+  kernel: [
+    [-2, -1, 0],
+    [-1, 1, 1],
+    [0, 1, 2],
+  ],
+  x: 20,
+  y: 20,
+  w: 200,
+  h: 100,
+});
+```
+
+### Integer kernels with a divisor
+
+Kernels are often written with whole-number weights and a divisor. This is a 3×3 Gaussian blur:
+
+```ts title="example.ts"
+image.convolute({
+  kernel: [
+    [1, 2, 1],
+    [2, 4, 2],
+    [1, 2, 1],
+  ],
+  divisor: 16,
+});
+```
+
+### Edge detection
+
+A kernel whose weights add up to `0` finds edges, but it would also set alpha to `0`. Pass `preserveAlpha: true` to keep the image opaque, and `bias: 128` to show the result on mid-gray:
+
+```ts title="example.ts"
+image.greyscale().convolute({
+  kernel: [
+    [-1, -1, -1],
+    [-1, 8, -1],
+    [-1, -1, -1],
+  ],
+  bias: 128,
+  preserveAlpha: true,
+});
+```
+
+### Common kernels
+
+| Effect        | Kernel                                    | `divisor` |
+| ------------- | ----------------------------------------- | --------- |
+| Sharpen       | `[[0, -1, 0], [-1, 5, -1], [0, -1, 0]]`   | `1`       |
+| Emboss        | `[[-2, -1, 0], [-1, 1, 1], [0, 1, 2]]`    | `1`       |
+| Box blur      | `[[1, 1, 1], [1, 1, 1], [1, 1, 1]]`       | `9`       |
+| Gaussian blur | `[[1, 2, 1], [2, 4, 2], [1, 2, 1]]`       | `16`      |
+| Edge detect   | `[[-1, -1, -1], [-1, 8, -1], [-1, -1, -1]]` | `1`, with `preserveAlpha: true` |
+
+When the weights divided by `divisor` add up to `1`, the overall brightness stays the same. A larger sum brightens and a smaller one darkens.
+
+## Try it
+
+Pick a kernel and change `bias` or `preserveAlpha`. Turn on **region only** and drag on the image to filter part of it.
+
+<Playground method="convolute" client:visible />
+
+## Notes
+
+<Aside type="caution" title="Alpha is filtered by default">
+  Without `preserveAlpha`, the kernel runs over alpha as well, divided by
+  `divisor` but without `bias`. A kernel whose weights add up to `0`, such as an
+  edge detector, turns opaque areas transparent. Pass `preserveAlpha: true`, or
+  use [`convolution`](/jimp/methods/convolution/), which never changes alpha.
+</Aside>
+
+- **Kernel layout.** `kernel[row][col]` weights the pixel `col - originX` to the right and `row - originY` below, where the origin is `Math.floor((size - 1) / 2)` along each axis. A 3×3 kernel covers offsets `-1` to `1`; an even-sized axis has one more entry after the origin than before it, so a 4×4 kernel covers `-1` to `2` and a 2×2 kernel `0` to `1`.
+- **Not flipped.** Strictly this is correlation: the kernel is applied as written, like ImageMagick's `-convolve`, GIMP's convolution matrix and Matlab's `imfilter`. For a true convolution, reverse the order of the rows and of each row.
+- **Sources are read from a copy.** Every pixel is computed from the original image, so pixels already filtered don't feed into their neighbors.
+- **Edges are extended.** Pixels past the border count as copies of the nearest edge pixel. For other edge handling, use [`convolution`](/jimp/methods/convolution/).
+- **Results are clamped and truncated.** Each channel becomes `sum / divisor + bias`, clamped to `0`–`255`, and fractional results are cut down to a whole number (so `1.9` becomes `1`).
+- **Regions are clamped to the image.** The part of a region outside the image is ignored.
+- **Validation.** The options are checked with zod and throw a validation error with one of these messages: `kernel must be a matrix` for `[]`, `kernel rows must not be empty` for `[[]]`, `kernel rows must all have the same length` for ragged rows, and `divisor must not be 0`.
+- Added in 2.0: `divisor`, `bias` and `preserveAlpha`, and support for even-sized and non-square kernels.
+- **Changed in 2.0:** `convolute` used to read its kernel transposed (`kernel[col][row]`), so directional kernels such as Sobel found edges in the other direction from `convolution`. Both now read `kernel[row][col]`; symmetric kernels give the same result as before. An empty kernel used to erase the image to transparent black and now throws, and a region past the right edge used to spill onto the next rows.
+
+## Related
+
+<Related methods={["convolution", "sharpen", "blur", "gaussian", "pixelate", "opaque"]} />

@@ -1,0 +1,79 @@
+---
+title: "scaleToFit()"
+description: "Scale the image to fit inside a box, keeping the aspect ratio."
+category: shape
+method: "scaleToFit"
+plugin: "@jimp/plugin-resize"
+---
+
+import { Aside } from "@astrojs/starlight/components";
+import Playground from "../../../components/playground/Playground";
+import Related from "../../../components/Related.astro";
+
+`scaleToFit` scales the image to the largest size that fits inside a `w` × `h` box without changing its aspect ratio.
+One side ends up matching the box and the other is the same size or smaller, so the result is usually not exactly `w` × `h`.
+
+## Signature
+
+```ts title="scaleToFit.d.ts"
+image.scaleToFit(options: {
+  w: number;
+  h: number;
+  mode?: ResizeStrategy;
+  premultiplyAlpha?: boolean;
+}): this
+```
+
+`scaleToFit` changes the image in place and returns it, so you can chain more calls after it.
+
+## Options
+
+| Option | Type                                         | Default          | Description                                                                               |
+| ------ | -------------------------------------------- | ---------------- | ----------------------------------------------------------------------------------------- |
+| `w`    | `number`                                     | required         | The width of the box in pixels. Must be `0` or more.                                      |
+| `h`    | `number`                                     | required         | The height of the box in pixels. Must be `0` or more.                                     |
+| `mode` | [`ResizeStrategy`](/jimp/concepts/constants/) | built-in resizer | The resampling algorithm. See [resize strategies](/jimp/methods/resize/#resize-strategies). |
+| `premultiplyAlpha` | `boolean` | `true` | Treat alpha as opacity. Pass `false` when alpha holds other data, to keep the color of transparent pixels. See [Alpha that isn't opacity](/jimp/methods/resize/#alpha-that-isnt-opacity). |
+
+## Example
+
+```ts title="example.ts"
+import { Jimp } from "jimp";
+
+const image = await Jimp.read("photo.jpg");
+
+// 800 x 600 fits a 200 x 200 box as 200 x 150
+image.scaleToFit({ w: 200, h: 200 });
+
+await image.write("photo-fit.jpg");
+```
+
+## Try it
+
+Change the box with `w` and `h`. The output keeps the dice image's 4:3 ratio, so only one side matches the box.
+
+<Playground method="scaleToFit" client:visible />
+
+## Notes
+
+- **It enlarges too.** Small images are scaled up to fill the box, so a 100 × 75 image in a 1000 × 1000 box becomes 1000 × 750. To only ever shrink, check the size first:
+
+  ```ts title="example.ts"
+  if (image.width > 200 || image.height > 200) {
+    image.scaleToFit({ w: 200, h: 200 });
+  }
+  ```
+
+- **Both sides are required.** Leaving one out fails validation with `Invalid input: expected number, received undefined`. To fix only one side, use [`resize`](/jimp/methods/resize/) with just `w` or `h`.
+- **Rounding.** The factor is applied with [`scale`](/jimp/methods/scale/), and the new size is rounded to whole pixels.
+- **Added in 2.0:** the `premultiplyAlpha` option, and the `LANCZOS`, `LANCZOS2` and `MITCHELL` strategies.
+
+<Aside type="tip" title="Need an exact size?">
+  [`contain`](/jimp/methods/contain/) does the same fit and then pads the image to
+  exactly `w` × `h`. [`cover`](/jimp/methods/cover/) fills the box instead and crops
+  what doesn't fit.
+</Aside>
+
+## Related
+
+<Related methods={["contain", "cover", "resize", "scale"]} />

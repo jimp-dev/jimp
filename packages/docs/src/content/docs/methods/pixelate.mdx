@@ -1,0 +1,79 @@
+---
+title: "pixelate()"
+description: "Pixelate the whole image or a region of it."
+category: effects
+method: "pixelate"
+plugin: "@jimp/plugin-color"
+---
+
+import Playground from "../../../components/playground/Playground";
+import Related from "../../../components/Related.astro";
+
+`pixelate` replaces the image with square blocks of flat color, like a low-resolution mosaic.
+Pixelate a region to hide a face, a license plate or other details, or the whole image for a retro look.
+
+## Signature
+
+```ts title="pixelate.d.ts"
+image.pixelate(size: number): this
+image.pixelate(options: {
+  size: number;
+  x?: number;
+  y?: number;
+  w?: number;
+  h?: number;
+}): this
+```
+
+`pixelate` changes the image in place and returns it, so you can chain more calls after it.
+
+## Options
+
+Pass a number to pixelate the whole image, or an object to pixelate a region.
+
+| Option | Type     | Default            | Description                                         |
+| ------ | -------- | ------------------ | --------------------------------------------------- |
+| `size` | `number` | required           | The width and height of each block in pixels. Must be `1` or more. |
+| `x`    | `number` | `0`                | The left edge of the region to pixelate.            |
+| `y`    | `number` | `0`                | The top edge of the region.                         |
+| `w`    | `number` | `image.width - x`  | The width of the region.                            |
+| `h`    | `number` | `image.height - y` | The height of the region.                           |
+
+## Example
+
+```ts title="example.ts"
+import { Jimp } from "jimp";
+
+const image = await Jimp.read("photo.jpg");
+
+image.pixelate(12);
+
+await image.write("photo-mosaic.jpg");
+```
+
+### Pixelate a region
+
+Give the region's position and size along with `size`. Pixels outside the region are left alone:
+
+```ts title="example.ts"
+image.pixelate({ size: 10, x: 40, y: 30, w: 120, h: 80 });
+```
+
+## Try it
+
+Drag the slider to change `size`. Turn on **region only** and drag on the image to pixelate part of it.
+
+<Playground method="pixelate" client:visible />
+
+## Notes
+
+- **How each block gets its color.** A block isn't the average of all its pixels. Jimp samples a small 3×3 weighted average around the block's top-left pixel and fills the block with it. Small details elsewhere in a block don't affect its color, which is what makes pixelating useful for hiding them.
+- **Blocks line up with the image, not the region.** Blocks start at multiples of `size` from the image's top-left corner. A region that doesn't start on a multiple of `size` gets partial blocks at its top and left edges.
+- **Alpha is pixelated too**, so transparent areas form blocks like everything else.
+- **Regions are clamped to the image.** The part of a region outside the image is ignored, so `x`, `y`, `w` and `h` can run past the edges or be negative.
+- **Changed in 2.0:** a region that ran past the right edge used to spill over onto the start of the next rows. It's now clamped to the image.
+- **Validation.** `size` is checked with zod: a value below `1` throws a validation error ("Too small: expected number to be >=1"), and calling `pixelate()` with no argument throws too. Fractional sizes are accepted, but whole numbers give even blocks.
+
+## Related
+
+<Related methods={["blur", "gaussian", "posterize", "resize", "convolute"]} />

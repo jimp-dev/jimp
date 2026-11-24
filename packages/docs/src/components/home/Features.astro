@@ -1,0 +1,136 @@
+---
+/** Feature cards on the home page, cut like postage stamps. */
+import { guideIcons, svg } from "../icons";
+
+const base = import.meta.env.BASE_URL.replace(/\/$/, "");
+
+const features = [
+  {
+    color: "var(--jp-red)",
+    tilt: -1.5,
+    icon: "formats",
+    title: "Common formats",
+    text: "PNG, JPEG, GIF, BMP, TIFF and ICO are built in. Add WEBP, AVIF, JPEG XL, JPEG 2000 and SVG with WASM plugins.",
+    href: `${base}/concepts/formats/`,
+    more: "Formats",
+  },
+  {
+    color: "var(--jp-blue)",
+    tilt: 1.2,
+    icon: "wand",
+    title: "Image methods",
+    text: "Resize, crop, rotate, blur, adjust color, composite and more. Every method is chainable.",
+    href: `${base}/methods/`,
+    more: "All methods",
+  },
+  {
+    color: "var(--jp-green)",
+    tilt: -1,
+    icon: "browser",
+    title: "Runs anywhere",
+    text: "Node.js, browsers, web workers and Cloudflare Workers. No native dependencies.",
+    href: `${base}/guides/browser/`,
+    more: "Browser guide",
+  },
+  {
+    color: "var(--jp-purple)",
+    tilt: 1.6,
+    icon: "plugin",
+    title: "Extensible",
+    text: "Write plugins for new methods or formats, or build a smaller Jimp with only what you use.",
+    href: `${base}/guides/writing-plugins/`,
+    more: "Writing plugins",
+  },
+];
+---
+
+<div class="features not-content">
+  {
+    features.map((f) => (
+      <a class="postage" href={f.href} style={`--c:${f.color}; --rot:${f.tilt}deg`}>
+        <div class="in">
+          <h3>
+            <Fragment set:html={svg(guideIcons[f.icon] ?? "")} />
+            {f.title}
+          </h3>
+          <p>{f.text}</p>
+          <span class="more">{f.more} →</span>
+        </div>
+      </a>
+    ))
+  }
+</div>
+
+<style>
+  .features {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 24px;
+  }
+  .postage {
+    position: relative;
+    display: block;
+    padding: 18px;
+    color: var(--jp-text);
+    text-decoration: none;
+    background: var(--c);
+    -webkit-mask:
+      radial-gradient(circle 7px at 7px 7px, #0000 97%, #000) -7px -7px / 14px 14px round,
+      linear-gradient(#000 0 0) 14px 14px / calc(100% - 28px) calc(100% - 28px) no-repeat;
+    mask:
+      radial-gradient(circle 7px at 7px 7px, #0000 97%, #000) -7px -7px / 14px 14px round,
+      linear-gradient(#000 0 0) 14px 14px / calc(100% - 28px) calc(100% - 28px) no-repeat;
+    transform: rotate(var(--rot));
+    transition: transform 0.18s cubic-bezier(0.3, 1.8, 0.5, 1);
+  }
+  .postage:hover {
+    color: var(--jp-text);
+    transform: rotate(0) translateY(-4px);
+  }
+  .in {
+    height: 100%;
+    padding: 16px 16px 14px;
+    background: var(--jp-surface);
+    border: 3px solid var(--jp-ink);
+    border-radius: 6px;
+  }
+  h3 {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0 0 6px;
+    font-family: var(--jp-ui);
+    font-weight: 700;
+    font-size: 19px;
+    line-height: 1.25;
+    color: var(--jp-text);
+  }
+  h3 :global(svg) {
+    width: 34px;
+    height: 34px;
+    flex: none;
+  }
+  p {
+    margin: 0;
+    font-size: 15.5px;
+    line-height: 1.5;
+  }
+  .more {
+    display: inline-block;
+    margin-top: 8px;
+    font-family: var(--jp-ui);
+    font-weight: 600;
+    font-size: 14px;
+    color: var(--jp-link);
+  }
+  @media (max-width: 1180px) {
+    .features {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  @media (max-width: 49.99rem) {
+    .features {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

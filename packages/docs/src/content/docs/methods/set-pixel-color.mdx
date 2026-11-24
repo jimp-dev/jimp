@@ -1,0 +1,110 @@
+---
+title: "setPixelColor()"
+description: "Set the color of one pixel from an RGBA integer."
+category: pixels
+method: "setPixelColor"
+plugin: "@jimp/core"
+---
+
+import Playground from "../../../components/playground/Playground";
+import Related from "../../../components/Related.astro";
+
+`setPixelColor` writes a color to the pixel at `x`, `y`.
+Use it to draw individual pixels, such as dots, lines or markers; for whole-image changes, [`scan`](/jimp/methods/scan/) is faster.
+
+## Signature
+
+```ts title="setPixelColor.d.ts"
+image.setPixelColor(hex: number, x: number, y: number): this
+```
+
+The color comes first, then the coordinates.
+`setPixelColor` changes the image in place and returns it, so you can chain more calls after it.
+
+## Parameters
+
+| Parameter | Type     | Default  | Description                                                                                       |
+| --------- | -------- | -------- | ------------------------------------------------------------------------------------------------- |
+| `hex`     | `number` | required | The color as an RGBA integer from `0x00000000` to `0xffffffff`, for example `0xff0000ff` for red. |
+| `x`       | `number` | required | Column, counted from `0` at the left edge.                                                        |
+| `y`       | `number` | required | Row, counted from `0` at the top edge.                                                            |
+
+## Example
+
+```ts title="example.ts"
+import { Jimp } from "jimp";
+
+const image = new Jimp({ width: 64, height: 64, color: 0xffffffff });
+
+image.setPixelColor(0xff0000ff, 10, 10); // one red pixel
+
+await image.write("dot.png");
+```
+
+### Use CSS colors or separate channels
+
+`setPixelColor` only takes a number.
+Convert other color formats first with [`cssColorToHex`](/jimp/methods/css-color-to-hex/) or [`rgbaToInt`](/jimp/methods/rgba-to-int/):
+
+```ts title="example.ts"
+import { Jimp, cssColorToHex, rgbaToInt } from "jimp";
+
+const image = new Jimp({ width: 64, height: 64, color: "white" });
+
+image.setPixelColor(cssColorToHex("#ff8800"), 0, 0);
+image.setPixelColor(rgbaToInt(0, 128, 255, 255), 1, 0);
+```
+
+### Draw a line
+
+Call it in a loop to draw shapes. This draws a diagonal line from the top-left corner:
+
+```ts title="example.ts"
+const blue = 0x3a7bffff;
+
+for (let i = 0; i < Math.min(image.width, image.height); i++) {
+  image.setPixelColor(blue, i, i);
+}
+```
+
+### Draw shapes that cross the edge
+
+Points outside the image are skipped, so you don't need to check the bounds yourself.
+This filled circle can sit partly off the image:
+
+```ts title="example.ts"
+const cx = 0;
+const cy = 20;
+const radius = 12;
+
+for (let dy = -radius; dy <= radius; dy++) {
+  for (let dx = -radius; dx <= radius; dx++) {
+    if (dx * dx + dy * dy <= radius * radius) {
+      image.setPixelColor(0xff5fb0ff, cx + dx, cy + dy); // only the right half is drawn
+    }
+  }
+}
+```
+
+## Try it
+
+Click the image to place the dot, and change its radius, color and alpha. With `radius` at `0` it sets a single pixel.
+Lower the alpha to see that the color replaces the pixel instead of blending with it, and click near an edge to see the part outside the image skipped.
+
+<Playground method="setPixelColor" client:visible />
+
+## Notes
+
+- **The color replaces the pixel.** All four channels are written as given, including alpha, so a half-transparent color makes the pixel half-transparent rather than tinting it. To blend a color on top, draw it on a separate image and use [`composite`](/jimp/methods/composite/).
+- **Coordinates outside the image do nothing**, like drawing outside a canvas. The image isn't changed and nothing is thrown.
+- **Coordinates are rounded** to the nearest whole pixel, the same way as in [`getPixelColor`](/jimp/methods/get-pixel-color/): `setPixelColor(color, 1.4, 0.6)` sets `(1, 1)`. A coordinate that rounds to outside the image, such as `2.5` on an image 3 pixels wide, counts as outside.
+- **Arguments must be numbers.** A string such as `"#ff0000"`, or a `NaN` coordinate, throws `hex, x and y must be numbers`.
+- **The color must fit in 32 bits.** A negative number or one above `0xffffffff` throws a `RangeError` from the underlying buffer (in Node.js: `The value of "value" is out of range. It must be >= 0 and <= 4294967295. Received -1`). JavaScript's bitwise operators return signed numbers, so if you build colors with `<<` and `|`, finish with `>>> 0`: `((r << 24) | (g << 16) | (b << 8) | a) >>> 0`. [`rgbaToInt`](/jimp/methods/rgba-to-int/) does this for you.
+- **Raw values.** The number is written as is, in the image's [color space](/jimp/concepts/colors-and-pixels/#color-spaces). CSS colors converted with `cssColorToHex(color)` are sRGB; for a Display P3 image, pass the space as well: `cssColorToHex(color, getColorSpace(image))` from `@jimp/utils`.
+- **Changes from v0.** The optional callback argument and the `setPixelColour` alias are gone.
+- Changed in 2.0: coordinates outside the image are ignored; before, they were clamped to the nearest edge, so drawing past the border painted the edge pixels.
+- Changed in 2.0: `NaN` coordinates throw; before, they painted pixel `(0, 0)`.
+
+## Related
+
+<Related methods={["getPixelColor", "rgbaToInt", "cssColorToHex", "scan", "composite"]} />

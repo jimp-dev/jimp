@@ -1,0 +1,227 @@
+---
+title: "Text and fonts"
+description: "Draw text with bitmap fonts, measure it, wrap it and align it."
+---
+
+import { Aside } from "@astrojs/starlight/components";
+import Playground from "../../../components/playground/Playground";
+import StickerSheet from "../../../components/StickerSheet.astro";
+
+Jimp draws text with bitmap fonts: each character is a small picture, copied onto your image wherever the text needs it.
+There's no font rendering engine to install, and the result looks the same everywhere, but a font has a fixed size, a fixed color and only the characters it was made with.
+
+<StickerSheet category="text" />
+
+## Load a font and print
+
+Load a font with [`loadFont`](/jimp/methods/load-font/), then draw with [`print`](/jimp/methods/print/).
+The fonts that come with Jimp are named exports of `jimp/fonts`:
+
+```ts title="example.ts"
+import { Jimp, loadFont } from "jimp";
+import { SANS_32_BLACK } from "jimp/fonts";
+
+const image = new Jimp({ width: 400, height: 120, color: 0xffffffff });
+const font = await loadFont(SANS_32_BLACK);
+
+image.print({ font, x: 10, y: 10, text: "Hello, world" });
+
+await image.write("hello.png");
+```
+
+`loadFont` is asynchronous because it reads the font file and its image pages. Load each font once and reuse it for every image and every `print` call.
+
+## The bundled fonts
+
+Jimp includes Open Sans in these sizes. The number is the font size in pixels; the line height is a little larger.
+
+| Size  | Black            | White            | Characters                       |
+| ----- | ---------------- | ---------------- | -------------------------------- |
+| 8px   | `SANS_8_BLACK`   | `SANS_8_WHITE`   | ASCII, Latin-1 and `€`           |
+| 10px  | `SANS_10_BLACK`  |                  | ASCII only                       |
+| 12px  | `SANS_12_BLACK`  |                  | ASCII only                       |
+| 14px  | `SANS_14_BLACK`  |                  | ASCII only                       |
+| 16px  | `SANS_16_BLACK`  | `SANS_16_WHITE`  | ASCII, Latin-1 and `€`           |
+| 32px  | `SANS_32_BLACK`  | `SANS_32_WHITE`  | ASCII, Latin-1 and `€`           |
+| 64px  | `SANS_64_BLACK`  | `SANS_64_WHITE`  | ASCII, Latin-1 and `€`           |
+| 128px | `SANS_128_BLACK` | `SANS_128_WHITE` | ASCII, Latin-1 and `€`           |
+
+"ASCII" means the printable ASCII characters. "Latin-1" covers accented letters such as `é`, `ñ` and `ü`, and symbols such as `£`, `©` and `°`. The fonts with Latin-1 don't have a glyph for the backtick (`` ` ``).
+
+### Fonts in the browser
+
+The `jimp/fonts` constants are absolute paths into the installed package on disk, built with Node's `path` and `url` modules.
+They can't be used in the browser, from a CDN or in a browser bundle.
+
+Instead, serve the `.fnt` file and its `.png` pages from your site, and pass the URL to `loadFont`:
+
+```ts title="main.ts"
+import { Jimp, loadFont } from "jimp";
+
+const font = await loadFont("/fonts/open-sans-32-black/open-sans-32-black.fnt");
+```
+
+The bundled fonts are in the `dist/fonts/open-sans/` folder of the `@jimp/plugin-print` package, under the Apache License 2.0.
+This site does exactly that for the playground below. See also [Using in Browser](/jimp/guides/browser/#fonts).
+
+## Try it
+
+Print on top of other edits. Click **print** to add text, then click the image to move it.
+
+<Playground
+  client:visible
+  tools={["print", "blur", "brightness", "greyscale", "resize"]}
+  steps={[{ op: "blur", options: { r: 3 } }, { op: "print" }]}
+/>
+
+## Wrapping and alignment
+
+`print` lays the text out in a box whose top left corner is at `x`, `y`.
+`maxWidth` and `maxHeight` set the size of the box. Without them, the box reaches the right and bottom edges of the image.
+
+Give `print` a `maxWidth` and it wraps the text at spaces so that no line is wider. Words move to the next line whole; only a word wider than `maxWidth` is split.
+Without `maxWidth`, text only breaks at line breaks. Every `\n`, `\r\n` or `\r` starts a new line, and blank lines are kept, so `"Title\n\nBody"` leaves an empty line between the two.
+
+To align the text, pass an object as `text` with `alignmentX` from `HorizontalAlign` and `alignmentY` from `VerticalAlign`:
+
+```ts title="example.ts"
+import { Jimp, loadFont, HorizontalAlign, VerticalAlign } from "jimp";
+import { SANS_32_WHITE } from "jimp/fonts";
+
+const image = await Jimp.read("photo.jpg");
+const font = await loadFont(SANS_32_WHITE);
+
+// A caption centered at the bottom, with a 20px margin
+image.print({
+  font,
+  x: 20,
+  y: 20,
+  text: {
+    text: "Summer 2026",
+    alignmentX: HorizontalAlign.CENTER,
+    alignmentY: VerticalAlign.BOTTOM,
+  },
+  maxWidth: image.width - 40,
+  maxHeight: image.height - 40,
+});
+```
+
+To center text on the whole image, start the box at `0, 0` and leave out `maxWidth` and `maxHeight`.
+
+| Constant                 | Aligns text                           |
+| ------------------------ | ------------------------------------- |
+| `HorizontalAlign.LEFT`   | to the left edge of the box (default) |
+| `HorizontalAlign.CENTER` | centered in the box                   |
+| `HorizontalAlign.RIGHT`  | to the right edge of the box          |
+| `VerticalAlign.TOP`      | to the top of the box (default)       |
+| `VerticalAlign.MIDDLE`   | centered vertically                   |
+| `VerticalAlign.BOTTOM`   | to the bottom of the box              |
+
+`maxHeight` positions the text but doesn't cut it off: lines that don't fit continue below the box.
+
+<Aside type="note" title="Changed in 2.0">
+  Alignment without a box size used to fail: `CENTER` and `RIGHT` without
+  `maxWidth` threw, and `MIDDLE` and `BOTTOM` without `maxHeight` were ignored.
+  They now align within the image, so `VerticalAlign.BOTTOM` with no
+  `maxHeight` moves the text to the bottom edge of the image. Blank lines used
+  to be collapsed into one line break; they're now printed and measured.
+</Aside>
+
+## Measuring text
+
+[`measureText`](/jimp/methods/measure-text/) returns the width of the widest line, and [`measureTextHeight`](/jimp/methods/measure-text-height/) returns the height of the text, wrapped at `maxWidth` if you pass one.
+Both use the same spacing and line breaking as `print`, so you can size things before drawing:
+
+```ts title="example.ts"
+import { Jimp, loadFont, measureText, measureTextHeight } from "jimp";
+import { SANS_32_BLACK } from "jimp/fonts";
+
+const font = await loadFont(SANS_32_BLACK);
+const text = "Sale";
+
+// A badge that fits the text with 10px of padding on each side
+const badge = new Jimp({
+  width: measureText(font, text) + 20,
+  height: measureTextHeight(font, text) + 20,
+  color: 0xffd83aff,
+});
+
+badge.print({ font, x: 10, y: 10, text });
+```
+
+`print`'s `cb` option also reports where the text ended, which helps when you stack paragraphs. See [`print`](/jimp/methods/print/#find-where-the-text-ended).
+
+## Coloring text
+
+A glyph is copied from the font's image as it is, so the text color is part of the font.
+To print in another color, print a white font onto a transparent layer, change the color of the layer's pixels while keeping their alpha, and [`composite`](/jimp/methods/composite/) the layer onto the image:
+
+```ts title="example.ts"
+import { Jimp, loadFont, measureText, measureTextHeight } from "jimp";
+import { SANS_64_WHITE } from "jimp/fonts";
+
+const image = new Jimp({ width: 400, height: 120, color: 0xffffffff });
+const font = await loadFont(SANS_64_WHITE);
+const text = "Jimp";
+
+const layer = new Jimp({
+  width: measureText(font, text),
+  height: measureTextHeight(font, text),
+  color: 0x00000000,
+});
+layer.print({ font, x: 0, y: 0, text });
+
+// Keep each pixel's alpha, replace its color with #ff4b4b
+layer.scan((x, y, idx) => {
+  layer.bitmap.data[idx] = 0xff;
+  layer.bitmap.data[idx + 1] = 0x4b;
+  layer.bitmap.data[idx + 2] = 0x4b;
+});
+
+image.composite(layer, 20, 20);
+```
+
+The layer is also a good place for effects: blur a dark copy of it for a drop shadow, or rotate it before compositing.
+If you always need the same color, it's simpler to generate a font in that color (see below).
+
+## Characters a font doesn't have
+
+`print` draws `?` for any character the font has no glyph for, and leaves whitespace without a glyph blank.
+So if Chinese, Japanese, Korean, Cyrillic or emoji text prints as `???`, the font doesn't include those characters.
+The only fix is a font that does.
+
+## Making your own fonts
+
+Fonts are in the [BMFont](https://www.angelcode.com/products/bmfont/) format: a `.fnt` file that describes each glyph, and one or more `.png` pages that hold the glyph images.
+Text, XML, JSON and binary `.fnt` files all work, but the pages must be PNG images.
+
+Any BMFont generator can make one from a TrueType or OpenType font. For example, with [fontbm](https://github.com/vladimirgamalyan/fontbm) and [Noto Sans JP](https://fonts.google.com/noto/specimen/Noto+Sans+JP):
+
+```sh
+# chars.txt holds the characters to include, e.g. こんにちは世界
+fontbm --font-file NotoSansJP-Regular.ttf --output noto-sans-jp \
+  --font-size 32 --chars 32-126 --chars-file chars.txt --color 0,0,0
+```
+
+Then load the `.fnt` file, with its `.png` pages in the same directory:
+
+```ts title="example.ts"
+const font = await loadFont("fonts/noto-sans-jp.fnt");
+
+image.print({ font, x: 10, y: 10, text: "こんにちは世界" });
+```
+
+- **Export PNG pages.** AngelCode's BMFont writes TGA pages by default; set its texture format to `png`. A TGA page makes `loadFont` throw `loadFont: font page "…/font_0.tga" is a TGA image; Jimp fonts need PNG pages. …`.
+- **Set the color and size when generating.** Jimp doesn't scale or tint glyphs.
+- **Use plain bitmaps.** Signed distance field (SDF or MSDF) fonts are meant to be rendered by a shader and won't look right.
+- **Include only what you need.** CJK fonts have thousands of glyphs; limiting the characters keeps the pages small.
+- **Characters outside the Basic Multilingual Plane** such as emoji work too, as long as the font has glyphs for them.
+- **Check the license** of the font you convert. Many fonts allow embedding; some don't.
+
+## See also
+
+- [`print`](/jimp/methods/print/), [`loadFont`](/jimp/methods/load-font/), [`measureText`](/jimp/methods/measure-text/) and [`measureTextHeight`](/jimp/methods/measure-text-height/)
+- [Compositing](/jimp/concepts/compositing/): layer text and images
+- [Constants and enums](/jimp/concepts/constants/): `HorizontalAlign` and `VerticalAlign`
+- [Using in Browser](/jimp/guides/browser/#fonts)
+- [Migrate to v1](/jimp/guides/migrate-to-v1/#fonts): `Jimp.loadFont` and `Jimp.FONT_*` in v1

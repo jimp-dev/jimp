@@ -1,0 +1,71 @@
+---
+title: "distance()"
+description: "Compare two images by their perceptual hashes."
+category: compare
+method: "distance"
+plugin: "@jimp/plugin-hash"
+---
+
+import Related from "../../../components/Related.astro";
+
+`distance` tells you how different two images look, from `0` (the same) to about `0.5` (unrelated).
+It compares their perceptual hashes, so it isn't thrown off by size, compression or small color changes the way a pixel-by-pixel [`diff`](/jimp/methods/diff/) is.
+
+## Signature
+
+```ts title="distance.d.ts"
+import { distance } from "jimp";
+
+distance(
+  img1: JimpInstance,
+  img2: JimpInstance,
+  options?: { size?: number; smallerSize?: number },
+): number
+```
+
+`distance` is a function exported from `jimp`, not an image method. It doesn't change either image.
+
+## Parameters
+
+| Parameter | Type     | Default  | Description                                                                 |
+| --------- | -------- | -------- | --------------------------------------------------------------------------- |
+| `img1`    | `Jimp`   | required | The first image.                                                            |
+| `img2`    | `Jimp`   | required | The second image. It can be a different size from the first.                |
+| `options` | `object` | `{}`     | `size` and `smallerSize` for both hashes. See [`pHash`](/jimp/methods/phash/#options). |
+
+## Example
+
+```ts title="example.ts"
+import { Jimp, distance } from "jimp";
+
+const photo = await Jimp.read("photo.jpg");
+
+const smaller = photo.clone().resize({ w: 200 }).brightness(1.2);
+const flipped = photo.clone().flip({ horizontal: true });
+
+distance(photo, photo.clone()); // 0
+distance(photo, smaller); // small, e.g. 0.03125: 2 of 64 bits differ
+distance(photo, flipped); // large, e.g. 0.453125: looks like a different image
+```
+
+### Compare more finely
+
+A longer hash notices smaller differences:
+
+```ts title="example.ts"
+distance(photo, smaller, { smallerSize: 16 }); // e.g. 0.04296875: 11 of 256 bits
+```
+
+## Notes
+
+- **What it computes.** `distance(a, b)` is `compareHashes(a.pHash(), b.pHash())`: the share of hash bits that differ (the normalized Hamming distance).
+- **Picking a threshold.** Values below about `0.15` usually mean the same picture. Test with your own images to choose a cutoff.
+- **What it ignores, and what it doesn't.** Resizing, JPEG compression and brightness or contrast changes move the distance very little. Flips, rotations, crops and large edits change the structure the hash is built from, so they look like different images.
+- **Compare many images?** Hash each image once with [`pHash`](/jimp/methods/phash/) or [`hash`](/jimp/methods/hash/) and compare the strings with [`compareHashes`](/jimp/methods/compare-hashes/), instead of calling `distance` for every pair.
+- **Added in 2.0:** the `options` argument.
+- **Changed in 2.0:** the hash is computed differently (see [`pHash`](/jimp/methods/phash/#notes)), so distances can differ from 1.x.
+- **Pixel-exact comparisons.** To find out which pixels changed, for example in visual tests, use [`diff`](/jimp/methods/diff/).
+
+## Related
+
+<Related methods={["compareHashes", "pHash", "distanceFromHash", "diff", "hash"]} />

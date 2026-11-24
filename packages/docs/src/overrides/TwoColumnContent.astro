@@ -1,0 +1,80 @@
+---
+/**
+ * Page card + sticky-note table of contents. The `<main>` element Starlight
+ * renders into the default slot becomes the notebook-paper card.
+ */
+import type { Props } from "@astrojs/starlight/props";
+---
+
+<div class:list={["columns", { "has-toc": Boolean(Astro.props.toc) }]}>
+  <div class="main-pane"><slot /></div>
+  {
+    Astro.props.toc && (
+      <aside class="toc-column">
+        <slot name="right-sidebar" />
+      </aside>
+    )
+  }
+</div>
+
+<style>
+  .columns {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 26px;
+    align-items: start;
+  }
+  .columns.has-toc {
+    grid-template-columns: minmax(0, 1fr) 216px;
+  }
+  .main-pane {
+    min-width: 0;
+    isolation: isolate;
+  }
+  .toc-column {
+    position: sticky;
+    top: calc(var(--sl-nav-height) + 36px);
+    margin-top: 14px;
+  }
+
+  /* The page card */
+  :global(html:not([data-has-hero])) .main-pane > :global(main) {
+    position: relative;
+    margin-top: 14px;
+    padding-bottom: 0;
+    background: var(--jp-paper);
+    border: 4px solid var(--jp-line);
+    border-radius: 24px;
+    box-shadow: 10px 10px 0 var(--jp-shadow);
+  }
+  /* Red margin line of the notebook paper */
+  :global(html:not([data-has-hero])) .main-pane > :global(main)::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 30px;
+    width: 6px;
+    border-left: 2px solid var(--jp-margin-line);
+    border-right: 1.5px solid var(--jp-margin-line);
+    opacity: 0.8;
+    pointer-events: none;
+  }
+
+  @media (max-width: 999px) {
+    .columns.has-toc {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .toc-column {
+      display: none;
+    }
+  }
+  @media (max-width: 49.99rem) {
+    :global(html:not([data-has-hero])) .main-pane > :global(main)::before {
+      left: 16px;
+    }
+    :global(html:not([data-has-hero])) .main-pane > :global(main) {
+      box-shadow: 6px 6px 0 var(--jp-shadow);
+    }
+  }
+</style>

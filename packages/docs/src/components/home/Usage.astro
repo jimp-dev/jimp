@@ -1,0 +1,112 @@
+---
+/** The three steps of every Jimp program, side by side. */
+import { Code } from "@astrojs/starlight/components";
+
+const steps = [
+  {
+    color: "var(--jp-red)",
+    title: "Load",
+    text: "Read a file, URL or buffer.",
+    code: `import { Jimp } from "jimp";\n\nconst image = await Jimp.read("photo.jpg");`,
+  },
+  {
+    color: "var(--jp-blue)",
+    title: "Manipulate",
+    text: "Call methods. Each one edits the image in place.",
+    code: `image\n  .resize({ w: 800 })\n  .greyscale();`,
+  },
+  {
+    color: "var(--jp-green)",
+    title: "Save",
+    text: "Write a file, or get a buffer or data URL.",
+    code: `await image.write("photo-small.png");`,
+  },
+];
+---
+
+<section class="usage not-content">
+  {
+    steps.map((step, i) => (
+      <div class="step">
+        <div class="num">
+          <i style={`--c:${step.color}`}>{i + 1}</i>
+          {step.title}
+        </div>
+        <p>{step.text}</p>
+        <Code code={step.code} lang="js" title="index.js" />
+      </div>
+    ))
+  }
+</section>
+
+<style>
+  .usage {
+    position: relative;
+    isolation: isolate;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 24px;
+    padding: 30px 32px 10px;
+  }
+  .usage::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: var(--jp-paper);
+    border: 4px solid var(--jp-line);
+    border-radius: 26px;
+    box-shadow: 10px 10px 0 var(--jp-shadow);
+    filter: url(#wob);
+  }
+  .step {
+    min-width: 0;
+  }
+  .num {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-family: var(--jp-ui);
+    font-weight: 700;
+    font-size: 21px;
+  }
+  .num i {
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    padding-top: 4px;
+    font-style: normal;
+    font-family: var(--jp-display);
+    font-size: 24px;
+    color: #fff;
+    background: var(--c);
+    border: 3.5px solid var(--jp-ink);
+    border-radius: 50%;
+    box-shadow: 0 4px 0 var(--jp-ink);
+    -webkit-text-stroke: 1px var(--jp-ink);
+  }
+  p {
+    margin: 8px 0 0;
+    font-size: 16px;
+    color: var(--jp-text-2);
+  }
+  .step :global(.expressive-code) {
+    margin: 26px 0 22px;
+  }
+  .step :global(.expressive-code pre) {
+    font-size: 13.5px;
+  }
+  .step:nth-child(2) :global(.expressive-code) {
+    --code-shadow: var(--jp-pink);
+  }
+  .step:nth-child(3) :global(.expressive-code) {
+    --code-shadow: var(--jp-mint);
+  }
+  @media (max-width: 1180px) {
+    .usage {
+      grid-template-columns: 1fr;
+      gap: 0;
+    }
+  }
+</style>

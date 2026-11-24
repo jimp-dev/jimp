@@ -1,0 +1,47 @@
+---
+/**
+ * A sheet of method stickers, each linking to its method page.
+ *
+ *   <StickerSheet category="color" />            every method in a category
+ *   <StickerSheet methods={["blur", "gaussian"]} />  specific methods, in order
+ *   <StickerSheet />                             every method
+ *
+ * Sticker text is the method page's frontmatter `description`.
+ */
+import { getCollection } from "astro:content";
+import type { CategoryId } from "../data/categories";
+import { methods as allMethods } from "../data/methods";
+import Sheet from "./playground/StickerSheet";
+
+interface Props {
+  category?: CategoryId;
+  /** API names, e.g. ["blur", "Jimp.read"] */
+  methods?: string[];
+  /** Show the category chip on each sticker. Defaults to true when categories are mixed. */
+  showCategory?: boolean;
+}
+
+const { category, methods, showCategory } = Astro.props;
+const base = import.meta.env.BASE_URL.replace(/\/$/, "");
+
+const pages = await getCollection("docs", (entry) => entry.slug.startsWith("methods/"));
+const descriptions = new Map<string, string>(
+  pages.map((page) => [page.slug, page.data.description ?? ""]),
+);
+
+const entries = methods
+  ? methods.flatMap((name) => allMethods.filter((entry) => entry.method === name))
+  : allMethods.filter((entry) => !category || entry.category === category);
+
+const items = entries.map((entry) => ({
+  method: entry.method,
+  label: entry.label,
+  href: `${base}/methods/${entry.slug}/`,
+  summary: descriptions.get(`methods/${entry.slug}`) ?? "",
+  category: entry.category,
+}));
+
+const mixed = new Set(items.map((item) => item.category)).size > 1;
+---
+
+<Sheet client:visible items={items} showCategory={showCategory ?? mixed} />

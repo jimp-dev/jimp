@@ -1,0 +1,60 @@
+---
+title: "normalize()"
+description: "Stretch each channel to use the full 0 to 255 range."
+category: color
+method: "normalize"
+plugin: "@jimp/plugin-color"
+---
+
+import Playground from "../../../components/playground/Playground";
+import Related from "../../../components/Related.astro";
+
+`normalize` stretches the levels of a dull or hazy image so that its darkest value becomes `0` and its brightest becomes `255`.
+It works on each channel separately, so it can also correct a slight color cast.
+
+## Signature
+
+```ts title="normalize.d.ts"
+image.normalize(): this
+```
+
+`normalize` takes no arguments. It changes the image in place and returns it, so you can chain more calls after it.
+
+## Example
+
+```ts title="example.ts"
+import { Jimp } from "jimp";
+
+const image = await Jimp.read("scan.jpg");
+
+image.normalize();
+
+await image.write("scan-normalized.jpg");
+```
+
+### Clean up a grayscale scan
+
+For documents, remove the color first so the three channels stretch together:
+
+```ts title="example.ts"
+image.greyscale().normalize();
+```
+
+## Try it
+
+Run the playground to see the result. Hold the compare button to see the original. Upload a low-contrast photo to see the biggest difference.
+
+<Playground method="normalize" client:visible />
+
+## Notes
+
+- **How it's computed.** For each channel, `normalize` finds the lowest value `min` and the highest value `max` used anywhere in the image, then maps each value `c` to `(c − min) × 255 / (max − min)`. Fractions are dropped when the value is stored.
+- **Per channel.** Red, green and blue are stretched independently, which can shift the colors. If you want only the brightness stretched, call [`greyscale`](/jimp/methods/greyscale/) first or use [`contrast`](/jimp/methods/contrast/).
+- **Flat channels are left alone.** If a channel has the same value in every pixel, there's no range to stretch and that channel isn't changed. A solid-color image stays the same.
+- **Outliers limit the effect.** A single pure black and a single pure white pixel are enough to make `normalize` do nothing. There's no option to ignore a percentage of extreme pixels.
+- **Transparent pixels count.** The color stored in fully transparent pixels is included when finding `min` and `max`. Alpha itself is unchanged.
+- Changed in 2.0: a channel with a single value is left unchanged; before, it was set to `0`, so a solid-color image turned black.
+
+## Related
+
+<Related methods={["contrast", "brightness", "greyscale", "threshold"]} />

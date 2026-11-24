@@ -1,0 +1,94 @@
+---
+title: "cssColorToHex()"
+description: "Convert a CSS color string to an RGBA integer."
+category: utils
+method: "cssColorToHex"
+plugin: "@jimp/utils"
+---
+
+import Related from "../../../components/Related.astro";
+
+`cssColorToHex` turns a CSS color, such as `"#ff8800"`, `"rgba(255, 0, 0, 0.5)"` or `"tomato"`, into the `0xRRGGBBAA` integer that Jimp uses for colors.
+Use it to pass user-supplied or CSS colors to methods that only take numbers, such as [`setPixelColor`](/jimp/methods/set-pixel-color/).
+
+## Signature
+
+```ts title="cssColorToHex.d.ts"
+import { cssColorToHex } from "jimp";
+
+cssColorToHex(cssColor: string | number, colorSpace?: ColorSpace): number
+```
+
+Despite the name, it returns a number, not a hex string.
+
+## Parameters
+
+| Parameter    | Type               | Default  | Description                                                                                                                                                                 |
+| ------------ | ------------------ | -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `cssColor`   | `string \| number` | required | A CSS color string. A number is returned unchanged, so you can pass either kind.                                                                                           |
+| `colorSpace` | `ColorSpace`       | `SRGB`   | The color space of the image the color is for. Pass `DISPLAY_P3`, exported from `@jimp/utils`, to get the value for a Display P3 image. See [Color spaces](#color-spaces). |
+
+## Example
+
+```ts title="example.ts"
+import { Jimp, cssColorToHex } from "jimp";
+
+cssColorToHex("#ff8800"); // 0xff8800ff
+cssColorToHex("#f80"); // 0xff8800ff
+cssColorToHex("#ff880080"); // 0xff880080
+cssColorToHex("rgba(255, 0, 0, 0.5)"); // 0xff000080
+cssColorToHex("hsl(120, 100%, 50%)"); // 0x00ff00ff
+cssColorToHex("red"); // 0xff0000ff
+cssColorToHex("transparent"); // 0x00000000
+cssColorToHex("color(srgb 1 0.5 0 / 0.5)"); // 0xff800080
+cssColorToHex(0x123456ff); // 0x123456ff, numbers pass through
+
+const image = new Jimp({ width: 10, height: 10 });
+image.setPixelColor(cssColorToHex("tomato"), 0, 0);
+```
+
+## Supported formats
+
+Parsing is done by [TinyColor](https://github.com/bgrins/TinyColor), so it accepts what TinyColor accepts:
+
+- Hex: `#rgb`, `#rgba`, `#rrggbb` and `#rrggbbaa`, with or without the `#`.
+- `rgb()` and `rgba()`, with numbers or percentages.
+- `hsl()`, `hsla()`, `hsv()` and `hsva()`.
+- The CSS color names, such as `"rebeccapurple"`, and `"transparent"`.
+- `color(srgb r g b)` and `color(display-p3 r g b)`, with channels from `0` to `1` or percentages, and an optional `/ alpha`.
+
+Alpha values from `0` to `1` become `0` to `255`. Colors without alpha are fully opaque.
+
+## Color spaces
+
+As in CSS, every color except `color(display-p3 …)` is sRGB.
+By default `cssColorToHex` returns sRGB values, so a Display P3 color more saturated than sRGB can show is clipped:
+
+```ts title="example.ts"
+cssColorToHex("color(display-p3 1 0 0)"); // 0xff0000ff, clipped to sRGB red
+```
+
+Pass a color space to get the value for an image in that space. On a Display P3 image, sRGB red is a less saturated value:
+
+```ts title="example.ts"
+import { DISPLAY_P3 } from "@jimp/utils";
+
+cssColorToHex("#ff0000", DISPLAY_P3); // 0xea3323ff
+cssColorToHex("color(display-p3 1 0 0)", DISPLAY_P3); // 0xff0000ff
+```
+
+Jimp's own methods that take CSS colors, such as `new Jimp({ color })`, [`border`](/jimp/methods/border/) and [`boxShadow`](/jimp/methods/box-shadow/), already convert them to the image's space. See [Color Spaces](/jimp/guides/color-spaces/#colors).
+
+## Notes
+
+- **Invalid colors throw.** A string that isn't a color throws `Invalid color "notacolor"`, and a bad channel in `color()` throws, for example, `Invalid color "color(display-p3 foo 0 0)": bad channel "foo"`. Wrap the call in `try`/`catch` if the color comes from user input.
+- **Out-of-range channels are clamped.** `"rgb(300, 0, 0)"` becomes `0xff0000ff`.
+- **Space-separated alpha is lost.** `"rgb(0 0 255 / 50%)"` returns an opaque color, `0x0000ffff`. Use `"rgba(0, 0, 255, 0.5)"` for a semi-transparent color.
+- **Where you don't need it.** `new Jimp({ color })`, `border`, `boxShadow` and the `mix` and `xor` actions of [`color`](/jimp/methods/color/) accept CSS strings and convert them the same way, so `new Jimp({ width: 10, height: 10, color: "tomato" })` works without calling `cssColorToHex`.
+- **Added in 2.0:** the `colorSpace` parameter, and `color(srgb …)` and `color(display-p3 …)` colors.
+- **Changed in 2.0:** invalid colors throw. Before, they became opaque black, `0x000000ff`.
+- **Changes from v0.** `cssColorToHex` used to be a static method, `Jimp.cssColorToHex`. It's now a named export of `jimp` (and of `@jimp/utils`).
+
+## Related
+
+<Related methods={["rgbaToInt", "intToRGBA", "setPixelColor", "new Jimp"]} />

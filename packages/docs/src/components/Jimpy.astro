@@ -1,0 +1,89 @@
+---
+/**
+ * Jimpy, the paint-blob mascot. Used on the home page hero and the 404 page
+ * only. In the dark theme Jimpy wears a nightcap and gets sleepy.
+ */
+interface Props {
+  class?: string;
+  label?: string;
+}
+
+const { class: className, label = "Jimpy, the Jimp paint blob" } = Astro.props;
+const ink = "#1b1840";
+---
+
+<svg class:list={["jimpy", className]} viewBox="0 0 250 270" role="img" aria-label={label}>
+  <ellipse cx="125" cy="252" rx="78" ry="12" fill="rgba(27,24,64,.22)"></ellipse>
+  <ellipse cx="92" cy="240" rx="22" ry="12" fill="#ff8f1f" stroke={ink} stroke-width="5"></ellipse>
+  <ellipse cx="158" cy="240" rx="22" ry="12" fill="#ff8f1f" stroke={ink} stroke-width="5"></ellipse>
+  <path d="M38 150C38 80 78 48 125 48s87 32 87 102c0 62-32 88-87 88S38 212 38 150z" fill="#3a7bff" stroke={ink} stroke-width="6"></path>
+  <path d="M52 108C60 70 92 50 125 50s65 20 73 58c-8 6-14-4-20 4-4 22-16 22-17 2-4-10-14 4-20 2-8-4-10 24-21 20-8-4-3-22-12-24-8-2-10 14-18 12-8-2-6-18-18-16-8 2-10 16-20-2z" fill="#ffd83a" stroke={ink} stroke-width="5" stroke-linejoin="round"></path>
+  <g>
+    <ellipse cx="96" cy="142" rx="23" ry="26" fill="#fff" stroke={ink} stroke-width="5"></ellipse>
+    <circle class="pupil" data-cx="96" cx="96" cy="146" r="9" fill={ink}></circle>
+  </g>
+  <g>
+    <ellipse cx="154" cy="142" rx="23" ry="26" fill="#fff" stroke={ink} stroke-width="5"></ellipse>
+    <circle class="pupil" data-cx="154" cx="154" cy="146" r="9" fill={ink}></circle>
+  </g>
+  <circle cx="70" cy="180" r="10" fill="#ff5fb0" opacity=".8"></circle>
+  <circle cx="180" cy="180" r="10" fill="#ff5fb0" opacity=".8"></circle>
+  <path d="M96 182q29 34 58 0z" fill="#7a1430" stroke={ink} stroke-width="5" stroke-linejoin="round"></path>
+  <path d="M112 196q13-10 26 0" fill="#ff7b8e"></path>
+  <path d="M208 160l26-40" stroke={ink} stroke-width="13" stroke-linecap="round"></path>
+  <path d="M208 160l26-40" stroke="#3a7bff" stroke-width="6" stroke-linecap="round"></path>
+  <g transform="rotate(35 238 92)">
+    <rect x="232" y="40" width="12" height="62" rx="5" fill="#c47a2c" stroke={ink} stroke-width="4"></rect>
+    <rect x="230" y="30" width="16" height="14" fill="#cfd3e6" stroke={ink} stroke-width="4"></rect>
+    <path d="M230 30c0-14 4-22 8-28 4 6 8 14 8 28z" fill="#ff4b4b" stroke={ink} stroke-width="4" stroke-linejoin="round"></path>
+  </g>
+
+  <!-- Night Studio: nightcap, sleepy eyelids and a couple of z's -->
+  <g class="night" aria-hidden="true">
+    <path d="M66 100Q60 48 26 34q46-34 108-8 40 18 50 70-54-22-118 4z" fill="#a674ff" stroke={ink} stroke-width="5" stroke-linejoin="round"></path>
+    <path d="M58 44l6 2M92 30l6 4M124 34l4 6M150 50l4 6M84 60l6 2M118 58l4 5" stroke="#ffe14a" stroke-width="5" stroke-linecap="round"></path>
+    <path d="M62 102q60-28 126-4" fill="none" stroke={ink} stroke-width="20" stroke-linecap="round"></path>
+    <path d="M62 102q60-28 126-4" fill="none" stroke="#fff" stroke-width="11" stroke-linecap="round"></path>
+    <circle cx="24" cy="36" r="13" fill="#fff" stroke={ink} stroke-width="5"></circle>
+    <path d="M73 143a23 26 0 0146 0z" fill="#3a7bff" stroke={ink} stroke-width="5" stroke-linejoin="round"></path>
+    <path d="M131 143a23 26 0 0146 0z" fill="#3a7bff" stroke={ink} stroke-width="5" stroke-linejoin="round"></path>
+    <text class="z" x="4" y="168">z</text>
+    <text class="z small" x="0" y="134">z</text>
+  </g>
+</svg>
+
+<style>
+  .jimpy {
+    overflow: visible;
+  }
+  .night {
+    display: none;
+  }
+  :global([data-theme="dark"]) .night {
+    display: inline;
+  }
+  .z {
+    font-family: var(--jp-display);
+    font-size: 30px;
+    fill: #fff6c2;
+    stroke: #1b1840;
+    stroke-width: 4px;
+    paint-order: stroke fill;
+    animation: jp-snooze 3s ease-in-out infinite;
+  }
+  .z.small {
+    font-size: 20px;
+    animation-delay: -1.5s;
+  }
+  @keyframes jp-snooze {
+    0%,
+    100% {
+      opacity: 0.35;
+      transform: translateY(0);
+    }
+    50% {
+      opacity: 1;
+      transform: translateY(-6px);
+    }
+  }
+</style>

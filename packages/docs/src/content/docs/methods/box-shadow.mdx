@@ -1,0 +1,114 @@
+---
+title: "boxShadow()"
+description: "Add a CSS-style drop shadow, growing the image to fit it."
+category: effects
+method: "boxShadow"
+plugin: "@jimp/plugin-border"
+---
+
+import { Aside } from "@astrojs/starlight/components";
+import Playground from "../../../components/playground/Playground";
+import Related from "../../../components/Related.astro";
+
+`boxShadow` draws a soft shadow under the image, the way CSS `box-shadow` does for an element.
+The image grows to make room for the shadow, and the original pixels are drawn on top unchanged. It's the quickest way to make a screenshot or a card look lifted off the page.
+
+## Signature
+
+```ts title="box-shadow.d.ts"
+image.boxShadow(options?: {
+  x?: number;
+  y?: number;
+  blur?: number;
+  spread?: number;
+  color?: number | string;
+  radius?: number | CornerRadius;
+}): this
+```
+
+`boxShadow` changes the image in place, including its size, and returns it, so you can chain more calls after it.
+The options type is exported from `jimp` as `BoxShadowOptions`.
+
+## Options
+
+Every option is optional; `image.boxShadow()` draws a soft shadow just below the image.
+
+| Option   | Type                     | Default      | Description                                                                                                  |
+| -------- | ------------------------ | ------------ | ------------------------------------------------------------------------------------------------------------ |
+| `x`      | `number`                 | `0`          | How far to move the shadow right, in pixels. Negative moves it left.                                         |
+| `y`      | `number`                 | `4`          | How far to move the shadow down, in pixels. Negative moves it up.                                            |
+| `blur`   | `number`                 | `12`         | The blur radius in pixels, as in CSS. `0` gives a hard-edged shadow. Must be `0` or more.                   |
+| `spread` | `number`                 | `0`          | How much to grow the shadow on every side, in pixels. Negative shrinks it.                                   |
+| `color`  | `number \| string`       | `0x00000080` | The shadow color: an RGBA number such as `0x00000080`, or any CSS color such as `"rgba(0, 0, 0, 0.3)"`. The default is 50% black. |
+| `radius` | `number \| CornerRadius` | `0`          | The radius of the shadow's corners: one number, or `{ topLeft, topRight, bottomRight, bottomLeft }`. Use the radius you rounded the image with. |
+
+## Example
+
+```ts title="example.ts"
+import { Jimp } from "jimp";
+
+const image = await Jimp.read("screenshot.png");
+
+image.boxShadow({ y: 8, blur: 16 });
+
+await image.write("screenshot-shadow.png");
+```
+
+A 360 × 270 image becomes 392 × 302: 16 pixels are added on the left and right for the blur, 8 on top and 24 on the bottom, because the shadow is moved 8 pixels down.
+
+### A rounded card
+
+Round the image's corners with [`roundCorners`](/jimp/methods/round-corners/) first, then give the shadow the same `radius` so it follows the curve:
+
+```ts title="example.ts"
+image
+  .roundCorners({ radius: 24 })
+  .boxShadow({ y: 10, blur: 20, radius: 24, color: "rgba(27, 24, 64, 0.45)" });
+```
+
+### A glow
+
+With no offset and a bright color, the shadow becomes a glow around every edge. `spread` pushes it further out:
+
+```ts title="example.ts"
+image.boxShadow({ x: 0, y: 0, blur: 24, spread: 4, color: "#ffd83a" });
+```
+
+### Place the result on a page
+
+Because the image grows, it's ready to [`composite`](/jimp/methods/composite/) onto a background:
+
+```ts title="example.ts"
+const page = new Jimp({ width: 600, height: 400, color: 0xf4f1eaff });
+const photo = await Jimp.read("photo.png");
+
+photo.boxShadow({ y: 8, blur: 16 });
+
+page.composite(photo, 100, 60);
+```
+
+## Try it
+
+Move the sliders to change the shadow. Raise `radius` to round the image's corners and the shadow's together.
+
+<Playground method="boxShadow" src="dice-on-paper.png" height={340} client:visible />
+
+## Notes
+
+- **How much the image grows.** Each side grows by `blur + spread`, minus the offset toward that side, and never by less than `0`. The left side grows by `blur + spread - x`, the right by `blur + spread + x`, the top by `blur + spread - y` and the bottom by `blur + spread + y`, each rounded up. The original image ends up that far from the new top-left corner.
+- **Blur like CSS.** The shadow is blurred with a Gaussian whose standard deviation is half of `blur`, which is how browsers draw `box-shadow`.
+- **The shadow is a box.** It's the shape of the whole image (with rounded corners if you give `radius`), not of its opaque pixels, so it shows through transparent areas. For a shadow shaped like the image's content, use [`shadow`](/jimp/methods/shadow/) from `@jimp/plugin-shadow`.
+- **Corner radii.** Radii too large for the image are scaled down, as with CSS `border-radius`. `spread` grows rounded corners along with the box, but square corners stay square.
+- **Transparent background.** The new area outside the shadow is transparent. Save as PNG to keep it, or composite onto an opaque background before saving as JPEG.
+- **CSS colors and color profiles.** A CSS color string is sRGB, as in CSS. On an image with a Display P3 or other [color profile](/jimp/guides/color-spaces/), it's converted to the image's color space. A number is used as raw pixel values.
+- **Validation.** `blur` and `radius` must be `0` or more; negative values throw a validation error. A `color` string that isn't a CSS color throws `Invalid color "nope"` (with your string in the quotes).
+- **Changed in 2.0:** an invalid color string used to draw a black shadow without an error.
+
+<Aside type="tip">
+  Apply `boxShadow` last. Effects applied afterwards, such as a blur, also
+  affect the shadow, and resizing afterwards scales it.
+</Aside>
+
+## Related
+
+<Related methods={["roundCorners", "border", "shadow", "composite", "blur"]} />

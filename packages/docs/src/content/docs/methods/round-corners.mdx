@@ -1,0 +1,87 @@
+---
+title: "roundCorners()"
+description: "Round the corners of the image, like CSS border-radius."
+category: shape
+method: "roundCorners"
+plugin: "@jimp/plugin-border"
+---
+
+import { Aside } from "@astrojs/starlight/components";
+import Playground from "../../../components/playground/Playground";
+import Related from "../../../components/Related.astro";
+
+`roundCorners` makes the corners of the image transparent along a smooth curve, like CSS `border-radius`.
+Give one radius for every corner, or a different radius for each.
+
+## Signature
+
+```ts title="roundCorners.d.ts"
+image.roundCorners(options: { radius: CornerRadius }): this
+
+type CornerRadius =
+  | number
+  | { topLeft?: number; topRight?: number; bottomRight?: number; bottomLeft?: number };
+```
+
+`roundCorners` changes the image in place and returns it, so you can chain more calls after it.
+
+## Options
+
+| Option   | Type                 | Default  | Description                                                                                         |
+| -------- | -------------------- | -------- | --------------------------------------------------------------------------------------------------- |
+| `radius` | `number` or `object` | required | The corner radius in pixels, `0` or more. An object sets each corner; corners you leave out stay square. |
+
+## Example
+
+```ts title="example.ts"
+import { Jimp } from "jimp";
+
+const image = await Jimp.read("card.png");
+
+image.roundCorners({ radius: 24 });
+
+// Save as PNG to keep the transparent corners
+await image.write("card-rounded.png");
+```
+
+### Round some corners
+
+```ts title="example.ts"
+// A tab shape: round the top corners only
+image.roundCorners({ radius: { topLeft: 16, topRight: 16 } });
+```
+
+### Make a pill
+
+A radius larger than the image is scaled down, so a very large value gives fully round ends:
+
+```ts title="example.ts"
+const button = await Jimp.read("button.png"); // 240 x 64
+
+button.roundCorners({ radius: 9999 }); // ends are 32 px half-circles
+```
+
+## Try it
+
+Drag `radius`, or turn on `per corner` to set each corner on its own.
+
+<Playground method="roundCorners" client:visible />
+
+## Notes
+
+- **The size doesn't change.** Only the alpha of pixels in the corners changes. Pixels on the curve are partly transparent, so the edge is antialiased.
+- **Oversized radii are scaled like CSS.** If two corners on the same side add up to more than that side's length, every radius is scaled down by the same factor until they fit, exactly as browsers do for `border-radius`.
+- **Existing transparency is kept.** Alpha is multiplied, so pixels that were already transparent stay transparent.
+- **Validation.** The options object is required: `roundCorners(20)` fails with `Invalid input: expected object, received number`. Negative radii fail with `Too small: expected number to be >=0`.
+- **Added in 2.0.**
+- **Adding a border too?** Use [`border`](/jimp/methods/border/) with a `radius` instead of calling `roundCorners` first. It rounds the image's corners to fit inside the border, so there's no gap between them.
+
+<Aside type="caution" title="Save as PNG">
+  JPEG has no transparency, so the rounded-off corners are filled with the
+  image's `background` color, which is black unless you set it. Write PNG to keep
+  them transparent.
+</Aside>
+
+## Related
+
+<Related methods={["border", "boxShadow", "circle", "opacity"]} />

@@ -1,0 +1,66 @@
+---
+title: "posterize()"
+description: "Reduce each color channel to a number of levels."
+category: color
+method: "posterize"
+plugin: "@jimp/plugin-color"
+---
+
+import Playground from "../../../components/playground/Playground";
+import Related from "../../../components/Related.astro";
+
+`posterize` limits each color channel to `n` evenly spaced levels from `0` to `255`, replacing smooth gradients with flat bands of color like a screen-printed poster.
+
+## Signature
+
+```ts title="posterize.d.ts"
+image.posterize(n: number): this
+```
+
+`posterize` changes the image in place and returns it, so you can chain more calls after it.
+
+## Parameters
+
+| Parameter | Type     | Default  | Description                                                                      |
+| --------- | -------- | -------- | -------------------------------------------------------------------------------- |
+| `n`       | `number` | required | The number of levels per channel, from `2` to `256`. Other values are rounded and clamped to that range. |
+
+## Example
+
+```ts title="example.ts"
+import { Jimp } from "jimp";
+
+const image = await Jimp.read("photo.jpg");
+
+image.posterize(5);
+
+await image.write("photo-poster.jpg");
+```
+
+### A bold graphic look
+
+Very few levels give strong, flat shapes. Raising the saturation first makes the colors pop:
+
+```ts title="example.ts"
+image.color([{ apply: "saturate", params: [40] }]).posterize(3);
+```
+
+## Try it
+
+Drag the slider to change `n`.
+
+<Playground method="posterize" client:visible />
+
+## Notes
+
+- **Levels per channel, not colors.** Each of red, green and blue gets `n` levels, so the image can have up to `n³` colors: `n = 4` allows 64. To choose the exact number of colors, use [`quantize`](/jimp/methods/quantize/).
+- **The levels.** With `n` levels the values are `0`, `255 / (n − 1)`, `2 × 255 / (n − 1)` … `255`, rounded. For `n = 4` that's `0`, `85`, `170` and `255`; for `n = 2` it's `0` and `255`.
+- **Nearest level.** Each channel moves to the closest level, so the image keeps its overall brightness: at `n = 2`, channels up to `127` become `0` and channels from `128` become `255`.
+- **Range.** `n` is rounded to a whole number and clamped to `2`–`256`. `posterize(256)` leaves the image unchanged.
+- **Alpha is unchanged.**
+- **Errors.** An `n` that isn't a number throws `n must be numbers`.
+- Changed in 2.0: each channel goes to the nearest level; before, it was rounded down to the level below, which darkened the image, most of all with few levels.
+
+## Related
+
+<Related methods={["quantize", "threshold", "dither", "pixelate", "contrast"]} />

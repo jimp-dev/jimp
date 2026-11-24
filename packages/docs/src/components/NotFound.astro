@@ -1,0 +1,43 @@
+---
+import Jimpy from "./Jimpy.astro";
+
+const base = import.meta.env.BASE_URL.replace(/\/$/, "");
+---
+
+<div class="nf not-content">
+  <Jimpy label="Jimpy, looking for the page" />
+  <div>
+    <p>
+      Try the <a href={`${base}/`}>home page</a>, start with
+      <a href={`${base}/guides/getting-started/`}>Getting Started</a>, browse
+      <a href={`${base}/methods/`}>all methods</a>, or search with the box at the top of the page.
+    </p>
+  </div>
+</div>
+
+<style>
+  .nf {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 30px;
+    align-items: center;
+    padding: 10px 0;
+  }
+  .nf :global(svg) {
+    width: 180px;
+    height: auto;
+  }
+  p {
+    margin: 0;
+    max-width: 52ch;
+    font-size: 17px;
+  }
+  .nf a {
+    color: var(--jp-link);
+  }
+  @media (max-width: 49.99rem) {
+    .nf {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

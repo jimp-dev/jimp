@@ -1,10 +1,16 @@
 import { defineConfig } from "astro/config";
 import starlight from "@astrojs/starlight";
-import starlightTypeDoc, { typeDocSidebarGroup } from "starlight-typedoc";
+import { createStarlightTypeDocPlugin } from "starlight-typedoc";
 import react from "@astrojs/react";
 import path from "path";
 import { fileURLToPath } from "url";
 import { nodePolyfills } from "vite-plugin-node-polyfills";
+
+import { jimpInkTheme } from "./src/code-theme.mjs";
+import { createSidebar } from "./src/sidebar.ts";
+
+const [starlightTypeDoc, typeDocSidebarGroup] = createStarlightTypeDocPlugin();
+const here = path.dirname(fileURLToPath(import.meta.url));
 
 export default defineConfig({
   site: "https://jimp-dev.github.io",
@@ -13,11 +19,35 @@ export default defineConfig({
     react(),
     starlight({
       title: "Jimp",
+      description:
+        "Jimp reads, edits and writes images in Node.js and the browser, in plain JavaScript.",
       social: {
         github: "https://github.com/jimp-dev/jimp",
       },
+      editLink: {
+        baseUrl: "https://github.com/jimp-dev/jimp/edit/main/packages/docs/",
+      },
       favicon: "/favicon.png",
       head: [
+        {
+          tag: "link",
+          attrs: { rel: "preconnect", href: "https://fonts.googleapis.com" },
+        },
+        {
+          tag: "link",
+          attrs: {
+            rel: "preconnect",
+            href: "https://fonts.gstatic.com",
+            crossorigin: true,
+          },
+        },
+        {
+          tag: "link",
+          attrs: {
+            rel: "stylesheet",
+            href: "https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Fredoka:wght@500;600;700&family=Nunito+Sans:ital,opsz,wght@0,6..12,400;0,6..12,600;0,6..12,700;0,6..12,800;1,6..12,400&family=JetBrains+Mono:wght@400;600&display=swap",
+          },
+        },
         {
           tag: "meta",
           attrs: {
@@ -33,27 +63,47 @@ export default defineConfig({
           },
         },
       ],
-      sidebar: [
-        {
-          label: "Docs",
-          items: [
-            // Each item here is one entry in the navigation menu.
-            { label: "Getting Started", link: "/guides/getting-started/" },
-            { label: "Using in Browser", link: "/guides/browser/" },
-            {
-              label: "Reading Large Images",
-              link: "/guides/reading-large-images/",
-            },
-            { label: "EXIF", link: "/guides/exif/" },
-            { label: "Colour Spaces", link: "/guides/color-spaces/" },
-            { label: "Writing Plugins", link: "/guides/writing-plugins/" },
-            { label: "Custom Jimp", link: "/guides/custom-jimp/" },
-            { label: "Migrate to v1", link: "/guides/migrate-to-v1/" },
-            { label: "WEBP/WASM", link: "/guides/webp/" },
-          ],
-        },
-        typeDocSidebarGroup,
+      customCss: [
+        "./src/styles/tokens.css",
+        "./src/styles/base.css",
+        "./src/styles/starlight.css",
       ],
+      components: {
+        ContentPanel: "./src/overrides/ContentPanel.astro",
+        Footer: "./src/overrides/Footer.astro",
+        Header: "./src/overrides/Header.astro",
+        Hero: "./src/overrides/Hero.astro",
+        PageFrame: "./src/overrides/PageFrame.astro",
+        PageSidebar: "./src/overrides/PageSidebar.astro",
+        PageTitle: "./src/overrides/PageTitle.astro",
+        Pagination: "./src/overrides/Pagination.astro",
+        Sidebar: "./src/overrides/Sidebar.astro",
+        TableOfContents: "./src/overrides/TableOfContents.astro",
+        ThemeSelect: "./src/overrides/ThemeSelect.astro",
+        TwoColumnContent: "./src/overrides/TwoColumnContent.astro",
+      },
+      expressiveCode: {
+        themes: [jimpInkTheme],
+        useStarlightDarkModeSwitch: false,
+        useStarlightUiThemeColors: false,
+        styleOverrides: {
+          borderRadius: "16px",
+          borderWidth: "0px",
+          codeFontFamily: "var(--jp-mono)",
+          uiFontFamily: "var(--jp-ui)",
+          codeFontSize: "14.5px",
+          codeLineHeight: "1.65",
+          codePaddingBlock: "20px",
+          codePaddingInline: "20px",
+          frames: {
+            shadowColor: "transparent",
+            frameBoxShadowCssValue: "none",
+            editorActiveTabIndicatorTopColor: "transparent",
+            editorActiveTabIndicatorBottomColor: "transparent",
+          },
+        },
+      },
+      sidebar: createSidebar(typeDocSidebarGroup),
       plugins: [
         starlightTypeDoc({
           entryPoints: [
@@ -61,19 +111,14 @@ export default defineConfig({
             "../../packages/jimp/src/fonts.ts",
           ],
           tsconfig: "../../packages/jimp/tsconfig.docs.json",
+          sidebar: { label: "Type reference", collapsed: true },
           typeDoc: {
             groupOrder: ["Classes", "Functions", "Enumerations", "Variables"],
             sort: ["static-first", "alphabetical"],
             plugin: [
-              path.join(
-                path.dirname(fileURLToPath(import.meta.url)),
-                "./src/typedoc-plugin.js"
-              ),
+              path.join(here, "./src/typedoc-plugin.js"),
               "typedoc-plugin-zod",
-              path.join(
-                path.dirname(fileURLToPath(import.meta.url)),
-                "./src/typedoc-zod-extended.js"
-              ),
+              path.join(here, "./src/typedoc-zod-extended.js"),
             ],
           },
         }),
@@ -82,5 +127,7 @@ export default defineConfig({
   ],
   vite: {
     plugins: [nodePolyfills({ include: ["buffer"] })],
+    // Pre-bundling breaks the codec's relative .wasm fetch under `astro dev`.
+    optimizeDeps: { exclude: ["@jsquash/webp"] },
   },
 });

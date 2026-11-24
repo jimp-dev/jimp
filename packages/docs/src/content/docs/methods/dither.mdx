@@ -1,0 +1,107 @@
+---
+title: "dither()"
+description: "Dither to black and white or a few levels, or add a subtle RGB565 pattern."
+category: effects
+method: "dither"
+plugin: "@jimp/plugin-dither"
+---
+
+import Playground from "../../../components/playground/Playground";
+import Related from "../../../components/Related.astro";
+
+`dither` reduces the image to a small set of colors and hides the jump between them with a pattern of dots, so a smooth gradient still reads as smooth.
+Pick Floyd–Steinberg or Atkinson for error-diffusion noise, or Bayer for a regular ordered grid. Called with no options, it keeps its original behavior: a barely visible pattern meant to come before converting to 16-bit RGB565.
+
+## Signature
+
+```ts title="dither.d.ts"
+image.dither(options?: DitherOptions): this
+
+type DitherOptions =
+  | { type?: "rgb565" }
+  | {
+      type: "floyd-steinberg" | "atkinson" | "bayer4" | "bayer8";
+      palette?: DitherPalette;
+    };
+
+type DitherPalette = "bw" | "rgb565" | number;
+```
+
+`dither` changes the image in place and returns it, so you can chain more calls after it.
+`DitherOptions` and `DitherPalette` are exported from `jimp` as types.
+
+## Options
+
+| Option    | Type            | Default    | Description                                                                                           |
+| --------- | --------------- | ---------- | ----------------------------------------------------------------------------------------------------- |
+| `type`    | `string`        | `"rgb565"` | The pattern. See [Types](#types).                                                                     |
+| `palette` | `DitherPalette` | `"bw"`     | The colors to reduce to. Not allowed with `type: "rgb565"`. See [Palettes](#palettes).                |
+
+### Types
+
+| `type`              | What it does                                                                                                         |
+| ------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| `"floyd-steinberg"` | Error diffusion: each pixel's rounding error is passed on to its neighbors, giving fine, even noise.                  |
+| `"atkinson"`        | Error diffusion that passes on only 6/8 of the error, so it keeps more contrast. The look of early Macintosh images. |
+| `"bayer4"`          | Ordered dithering with a 4×4 threshold pattern: a regular crosshatch.                                                |
+| `"bayer8"`          | Ordered dithering with an 8×8 pattern: finer steps between levels.                                                   |
+| `"rgb565"`          | The default. Adds a 4×4 pattern of small offsets without reducing colors. Takes no `palette`.                        |
+
+### Palettes
+
+| `palette`        | Colors                                                                                                   |
+| ---------------- | -------------------------------------------------------------------------------------------------------- |
+| `"bw"`           | Black and white, from each pixel's luminance. The default.                                               |
+| `"rgb565"`       | 16-bit color: 32 levels of red and blue and 64 of green, the values RGB565 decodes to.                   |
+| `2` to `256`     | That many evenly spaced levels in each of red, green and blue. `2` gives the 8 colors of a 1-bit-per-channel display. |
+
+## Example
+
+Turn a photo into black-and-white dots:
+
+```ts title="example.ts"
+import { Jimp } from "jimp";
+
+const image = await Jimp.read("photo.jpg");
+
+image.dither({ type: "floyd-steinberg" });
+
+await image.write("photo-dithered.png");
+```
+
+Save dithered images as PNG or GIF. JPEG compression blurs the dots and adds back colors that aren't in the palette.
+
+### Limited color
+
+Pass `palette` to keep color with fewer levels. Here an 8×8 Bayer pattern reduces every channel to four levels:
+
+```ts title="example.ts"
+image.dither({ type: "bayer8", palette: 4 });
+```
+
+### Before saving as 16-bit color
+
+For RGB565 output, such as a small embedded display, dither to the RGB565 palette so the values survive the conversion unchanged:
+
+```ts title="example.ts"
+image.dither({ type: "floyd-steinberg", palette: "rgb565" });
+```
+
+## Try it
+
+Pick a `type` and a `palette`. `rgb565` is the original subtle pattern; hold the compare button to see the small change it makes.
+
+<Playground method="dither" src="dice-on-paper.png" client:visible />
+
+## Notes
+
+- **Black and white uses luminance.** `"bw"` compares each pixel's Rec. 709 luminance, the same weights as [`greyscale`](/jimp/methods/greyscale/), and writes the same value to red, green and blue.
+- **Alpha is unchanged.** Only red, green and blue change. Fully transparent pixels are skipped, and error diffusion doesn't pass error on to them.
+- **The default doesn't reduce colors.** With no options, or `{ type: "rgb565" }`, each channel is raised by `1` to `16` from a 4×4 Bayer matrix and capped at `255`. The image looks the same but bands less after it's stored as RGB565. Its output is the same as before 2.0.
+- **Palettes picked from the image.** `dither` reduces to fixed levels. To dither to the colors that best fit the image, use [`quantize`](/jimp/methods/quantize/) with `imageQuantization: "floyd-steinberg"`.
+- **Validation.** The options are checked with zod. An unknown `type`, a `palette` number outside `2`–`256`, or a `palette` with `type: "rgb565"` or without a `type` throws a validation error.
+- Added in 2.0: the `type` and `palette` options. Before, `dither()` took no arguments and always applied the RGB565 pattern.
+
+## Related
+
+<Related methods={["quantize", "posterize", "threshold", "greyscale", "pixelate", "erode", "dilate"]} />

@@ -1,0 +1,67 @@
+---
+title: "exposure()"
+description: "Brighten or darken by stops, like a camera's exposure setting."
+category: color
+method: "exposure"
+plugin: "@jimp/plugin-color"
+---
+
+import Playground from "../../../components/playground/Playground";
+import Related from "../../../components/Related.astro";
+
+`exposure` makes an image lighter or darker by a number of stops, like the exposure slider in a photo editor.
+Each stop doubles or halves the light, so `1` is one stop brighter, `-1` one stop darker and `0` leaves the image unchanged.
+
+## Signature
+
+```ts title="exposure.d.ts"
+image.exposure(stops: number): this
+```
+
+`exposure` changes the image in place and returns it, so you can chain more calls after it.
+
+## Parameters
+
+| Parameter | Type     | Default  | Description                                                                                         |
+| --------- | -------- | -------- | --------------------------------------------------------------------------------------------------- |
+| `stops`   | `number` | required | How many stops to change the exposure by. Positive values brighten, negative values darken. Fractions such as `0.5` work. |
+
+## Example
+
+```ts title="example.ts"
+import { Jimp } from "jimp";
+
+const image = await Jimp.read("photo.jpg");
+
+image.exposure(1); // one stop brighter
+
+await image.write("photo-brighter.jpg");
+```
+
+### Darken an image
+
+Use a negative number of stops:
+
+```ts title="example.ts"
+image.exposure(-0.5); // half a stop darker
+```
+
+## Try it
+
+Drag the slider to change `stops`. Compare it with [`brightness`](/jimp/methods/brightness/): the highlights keep their detail for longer.
+
+<Playground method="exposure" client:visible />
+
+## Notes
+
+- **It works in linear light.** Image files store values on a curve, not in proportion to the light they stand for. `exposure` decodes each channel to linear light with the image's tone curve, multiplies it by `2 ** stops`, and encodes it back to the nearest 8-bit value. Shadows and highlights change the way they would with a longer or shorter exposure.
+- **`exposure` or `brightness`?** [`brightness`](/jimp/methods/brightness/) multiplies the stored values directly. For a mid-gray `128`, `exposure(1)` gives `176`, while `brightness(2)` gives `255`. Use `exposure` for photos and `brightness` when you want a plain multiplier.
+- **Color spaces.** The tone curves come from the image's ICC profile, such as Display P3 or Adobe RGB, and are sRGB's for images without one. See [Color spaces](/jimp/guides/color-spaces/).
+- **Results are clamped.** Channels that go over `255` become `255`, so large positive values turn the image white and large negative values turn it black. Black stays black at any setting.
+- **Alpha is unchanged.**
+- **Errors.** A `stops` that isn't a number throws a `ZodError`.
+- Added in 2.0.
+
+## Related
+
+<Related methods={["brightness", "contrast", "vibrance", "normalize", "toColorSpace"]} />

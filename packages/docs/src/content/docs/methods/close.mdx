@@ -1,0 +1,107 @@
+---
+title: "close()"
+description: "Fill small dark holes and gaps while keeping larger shapes the same size."
+category: effects
+method: "close"
+plugin: "@jimp/plugin-morphology"
+---
+
+import Playground from "../../../components/playground/Playground";
+import Related from "../../../components/Related.astro";
+
+`close` dilates the image and then erodes it with the same options.
+Dark holes, gaps and specks smaller than the neighborhood are filled in, while larger shapes keep their size. Use it to remove dark specks from a scanned page or to fill holes in a mask.
+
+## Signature
+
+```ts title="close.d.ts"
+image.close(options: { radius: number; shape?: "square" | "disk" }): this
+```
+
+`close` changes the image in place and returns it, so you can chain more calls after it.
+It's the same as `image.dilate(options).erode(options)`.
+The options type is exported from `jimp` as `MorphologyOptions`.
+
+## Options
+
+| Option   | Type                   | Default    | Description                                                                                                                  |
+| -------- | ---------------------- | ---------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| `radius` | `number`               | required   | How far the neighborhood reaches from each pixel, in pixels. It's rounded to a whole number, and `0` or less does nothing. |
+| `shape`  | `"square" \| "disk"`   | `"square"` | `"square"` is the (2 × `radius` + 1) pixel square around each pixel. `"disk"` is the pixels within `radius` of it, which gives rounder results. |
+
+## Example
+
+```ts title="example.ts"
+import { Jimp } from "jimp";
+
+const image = await Jimp.read("photo.png");
+
+image.close({ radius: 2 });
+
+await image.write("photo-closed.png");
+```
+
+### Clean up a scanned document
+
+Scans and photos of paper pick up dust, grain and an uneven background.
+[`threshold`](/jimp/methods/threshold/) with `max: "otsu"` turns the paper pure white, and `close` then removes the dark specks that are left:
+
+```ts title="example.ts"
+import { Jimp } from "jimp";
+
+const scan = await Jimp.read("scan.png");
+
+scan.threshold({ max: "otsu" }).close({ radius: 1 });
+
+await scan.write("scan-clean.png");
+```
+
+`close` also removes dark lines narrower than 2 × `radius` + 1 pixels, so keep the radius smaller than the thinnest stroke you want to keep. A radius of `1` removes specks up to 2 pixels across. To make the remaining text heavier, follow with [`erode`](/jimp/methods/erode/#thicken-text-on-a-scan).
+
+### Fill holes in a mask
+
+This builds a black-and-white mask from a photo on a white background, then closes it.
+Light details inside the shape, such as highlights or white print, are above the cut-off and leave holes in the mask; `close` fills them:
+
+```ts title="example.ts"
+import { Jimp } from "jimp";
+
+const image = await Jimp.read("product.png"); // on a white background
+
+const mask = image
+  .clone()
+  .threshold({ max: 230 }) // background: 255
+  .invert() // background: 0, shape: 26 or more
+  .threshold({ max: 1 }) // shape: 255
+  .close({ radius: 12, shape: "disk" }); // fill the holes
+
+image.mask(mask);
+
+await image.write("product-cut-out.png");
+```
+
+The first `threshold` makes the near-white background pure white and leaves the shape's gray levels, `invert` makes the background black, and the second `threshold` turns everything that isn't background white. A `radius` of `12` fills holes up to about 25 pixels across.
+
+If the mask also has white specks outside the shape, run [`open`](/jimp/methods/open/#remove-specks-from-a-mask) on it as well.
+
+## Try it
+
+Drag `radius` and switch `shape`. On the dice, the dark gaps between nearby pips fill in, so the pips join up as the radius grows, while the dice keep their size.
+
+<Playground method="close" client:visible />
+
+## Notes
+
+- **Shapes keep their size.** The dilation and erosion cancel out everywhere except where a hole or gap was filled. With `"disk"`, sharp dark corners get rounded.
+- **Light and dark.** `close` fills *dark* holes. On dark text or line art on a light background, that means it removes dark specks and thin dark lines. To fill light gaps in dark strokes, use [`open`](/jimp/methods/open/#dark-ink-on-a-light-page).
+- **Each channel on its own.** Red, green, blue and alpha are each processed separately. On a grayscale or black-and-white image this is the usual closing. On a color image, a pixel can end up with channels taken from different neighbors.
+- **Transparency.** Alpha is closed too, so on a transparent background small transparent holes and gaps inside opaque shapes are filled.
+- **Edges don't wrap.** The neighborhood is clipped to the image: pixels near an edge only look at the pixels inside it. Pixels outside the image don't count as black or white, and nothing wraps around from the other side.
+- **Radius.** `radius` is rounded to the nearest whole number, so `1.5` is `2` and `0.4` is `0`. A radius of `0` or less leaves the image unchanged, without an error. Radii larger than the image's width plus height are capped, since that already covers the whole image.
+- **Speed.** `close` makes two passes. A `"square"` costs the same for any radius. A `"disk"` gets slower as the radius grows, so prefer a square for large radii.
+- **Errors.** Calling `close()` with no options, a `radius` that isn't a number or a `shape` other than `"square"` or `"disk"` throws a `ZodError`.
+- Added in 2.0.
+
+## Related
+
+<Related methods={["open", "erode", "dilate", "threshold", "otsuThreshold", "mask"]} />

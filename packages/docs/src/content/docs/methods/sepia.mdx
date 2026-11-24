@@ -1,0 +1,82 @@
+---
+title: "sepia()"
+description: "Apply a warm sepia tone."
+category: color
+method: "sepia"
+plugin: "@jimp/plugin-color"
+---
+
+import Playground from "../../../components/playground/Playground";
+import Related from "../../../components/Related.astro";
+
+`sepia` gives the image the warm brown tone of an old photograph.
+At full strength it replaces the original colors with shades of brown, from near black to pale cream; a smaller `amount` keeps some of the original color.
+
+## Signature
+
+```ts title="sepia.d.ts"
+image.sepia(amount?: number): this
+```
+
+`sepia` changes the image in place and returns it, so you can chain more calls after it.
+
+## Parameters
+
+| Parameter | Type     | Default | Description                                                                                       |
+| --------- | -------- | ------- | ------------------------------------------------------------------------------------------------- |
+| `amount`  | `number` | `1`     | How much sepia to apply, from `0` (the original image) to `1` (full sepia), like CSS `sepia()`.   |
+
+## Example
+
+```ts title="example.ts"
+import { Jimp } from "jimp";
+
+const image = await Jimp.read("photo.jpg");
+
+image.sepia();
+
+await image.write("photo-sepia.jpg");
+```
+
+### A softer tone
+
+Pass an `amount` below `1` to blend the sepia tone with the original colors:
+
+```ts title="example.ts"
+image.sepia(0.5); // half way between the original and full sepia
+```
+
+### An aged photo
+
+Combine `sepia` with lower contrast and a slight fade toward white:
+
+```ts title="example.ts"
+image
+  .sepia(0.8)
+  .contrast(-0.15)
+  .color([{ apply: "lighten", params: [8] }]);
+```
+
+## Try it
+
+Drag the slider to change `amount`. Hold the compare button to see the original.
+
+<Playground method="sepia" client:visible />
+
+## Notes
+
+- **How it's computed.** Each pixel goes through the standard sepia matrix, with results capped at `255`:
+  - red = `0.393 × R + 0.769 × G + 0.189 × B`
+  - green = `0.349 × R + 0.686 × G + 0.168 × B`
+  - blue = `0.272 × R + 0.534 × G + 0.131 × B`
+
+  The result is then blended with the original pixel: `sepia × amount + original × (1 − amount)`.
+- **Light areas get brighter.** The weights add up to more than `1` for red and green, so pale areas clip to cream: white becomes `(255, 255, 238)`.
+- **Out-of-range amounts are clamped** to `0`–`1`, so `sepia(2)` is the same as `sepia(1)`. A value that isn't a number throws a `ZodError`.
+- **Alpha is unchanged.**
+- **Other tones.** For a monochrome image in another color, use [`greyscale`](/jimp/methods/greyscale/) followed by the `mix` action of [`color`](/jimp/methods/color/).
+- Added in 2.0: the `amount` parameter. `sepia()` with no argument gives the same result as before.
+
+## Related
+
+<Related methods={["greyscale", "color", "contrast", "vibrance"]} />

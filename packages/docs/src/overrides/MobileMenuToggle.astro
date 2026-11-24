@@ -1,0 +1,91 @@
+---
+import type { Props } from "@astrojs/starlight/props";
+import { uiIcon } from "../components/icons";
+
+const { labels } = Astro.props;
+---
+
+<starlight-menu-button>
+  <button
+    aria-expanded="false"
+    aria-label={labels["menuButton.accessibleLabel"]}
+    aria-controls="starlight__sidebar"
+  >
+    <Fragment set:html={uiIcon("menu")} />
+  </button>
+</starlight-menu-button>
+
+<script>
+  class StarlightMenuButton extends HTMLElement {
+    btn = this.querySelector("button")!;
+
+    constructor() {
+      super();
+      this.btn.addEventListener("click", () => this.toggleExpanded());
+
+      const nav = this.closest("nav");
+      nav?.addEventListener("keyup", (e) => this.closeOnEscape(e));
+      nav
+        ?.querySelector("[data-close-menu]")
+        ?.addEventListener("click", () => this.setExpanded(false));
+    }
+
+    setExpanded(expanded: boolean) {
+      this.setAttribute("aria-expanded", String(expanded));
+      this.btn.setAttribute("aria-expanded", String(expanded));
+      document.body.toggleAttribute("data-mobile-menu-expanded", expanded);
+    }
+
+    toggleExpanded() {
+      this.setExpanded(this.getAttribute("aria-expanded") !== "true");
+    }
+
+    closeOnEscape(e: KeyboardEvent) {
+      if (e.code === "Escape") {
+        this.setExpanded(false);
+        this.btn.focus();
+      }
+    }
+  }
+
+  customElements.define("starlight-menu-button", StarlightMenuButton);
+</script>
+
+<style>
+  button {
+    display: none;
+    position: fixed;
+    top: calc((var(--sl-nav-height) - 42px) / 2);
+    left: 12px;
+    z-index: calc(var(--sl-z-index-navbar) + 1);
+    width: 42px;
+    height: 42px;
+    padding: 0;
+    place-items: center;
+    cursor: pointer;
+    background: #fff;
+    border: 3px solid var(--jp-ink);
+    border-radius: 12px;
+    box-shadow: 0 3px 0 var(--jp-ink);
+  }
+  button :global(svg) {
+    width: 22px;
+    height: 22px;
+  }
+  button[aria-expanded="true"] {
+    background: var(--jp-yellow);
+  }
+  @media (max-width: 49.99rem) {
+    button {
+      display: grid;
+    }
+  }
+</style>
+
+<style is:global>
+  @media (max-width: 49.99rem) {
+    [data-mobile-menu-expanded] {
+      overflow: hidden;
+    }
+  }
+</style>

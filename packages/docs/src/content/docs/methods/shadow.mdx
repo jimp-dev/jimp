@@ -1,0 +1,102 @@
+---
+title: "shadow()"
+description: "Add a shadow shaped like the image. Not included in the jimp package."
+category: effects
+method: "shadow"
+plugin: "@jimp/plugin-shadow"
+---
+
+import { Aside } from "@astrojs/starlight/components";
+import InstallCommand from "../../../components/InstallCommand.astro";
+import Related from "../../../components/Related.astro";
+
+`shadow` draws a soft, offset shadow in the shape of the image's opaque pixels, such as a logo or a cut-out product photo, and puts the image back on top.
+It comes from `@jimp/plugin-shadow`, which isn't part of the `jimp` package, so you add it to a custom Jimp first.
+
+<Aside type="note" title="Looking for a box shadow?">
+  For a CSS-style shadow under a rectangular image, which grows the image to
+  fit, use [`boxShadow`](/jimp/methods/box-shadow/). It's included in `jimp`.
+</Aside>
+
+## Setup
+
+Install the plugin and `@jimp/core`:
+
+<InstallCommand pkg="jimp @jimp/core @jimp/plugin-shadow" />
+
+Then build a Jimp class with the default formats and plugins plus the shadow plugin, and use it everywhere you'd use `Jimp`:
+
+```ts title="jimp.ts"
+import { createJimp } from "@jimp/core";
+import { defaultFormats, defaultPlugins } from "jimp";
+import * as shadow from "@jimp/plugin-shadow";
+
+export const Jimp = createJimp({
+  formats: defaultFormats,
+  plugins: [...defaultPlugins, shadow.methods],
+});
+```
+
+See [Custom Jimp](/jimp/guides/custom-jimp/) for more on `createJimp`.
+
+## Signature
+
+```ts title="shadow.d.ts"
+image.shadow(options?: {
+  opacity?: number;
+  size?: number;
+  blur?: number;
+  x?: number;
+  y?: number;
+}): this
+```
+
+`shadow` changes the image in place and returns it, so you can chain more calls after it. The image keeps its size.
+The options type is exported from `@jimp/plugin-shadow` as `ShadowOptions`.
+
+## Options
+
+| Option    | Type     | Default | Description                                                                                         |
+| --------- | -------- | ------- | --------------------------------------------------------------------------------------------------- |
+| `opacity` | `number` | `0.7`   | How dark the shadow is, from `0` (invisible) to `1`.                                                |
+| `size`    | `number` | `1.1`   | How much bigger than the image the shadow is drawn, scaled from the image's center. `1` is the same size. |
+| `blur`    | `number` | `5`     | The blur radius in pixels, passed to [`blur`](/jimp/methods/blur/). Rounded; `0` doesn't blur.      |
+| `x`       | `number` | `-25`   | How far to move the shadow right, in pixels. Negative moves it left.                                |
+| `y`       | `number` | `25`    | How far to move the shadow down, in pixels. Negative moves it up.                                   |
+
+## Example
+
+The shadow can only appear where the image is transparent, so give the subject some transparent room around it first.
+Here a logo is placed on a larger transparent canvas, then given a shadow down and to the right:
+
+```ts title="example.ts"
+import { Jimp } from "./jimp";
+
+const logo = await Jimp.read("logo.png");
+
+const canvas = new Jimp({ width: logo.width + 60, height: logo.height + 60 });
+
+canvas
+  .composite(logo, 20, 20)
+  .shadow({ x: 12, y: 12, blur: 6, size: 1 });
+
+await canvas.write("logo-shadow.png");
+```
+
+With no options, `image.shadow()` uses the defaults: a shadow 10% larger than the image, 25 pixels left and 25 pixels down, at 70% opacity.
+
+## Notes
+
+- **How it's drawn.** Jimp copies the image, turns every pixel black while keeping its alpha, resizes the copy by `size`, blurs it and sets its opacity. It then centers the copy on a transparent canvas the size of the image, moves it by `x`, `y`, and draws the original image on top.
+- **Opaque images hide it.** Because the image keeps its size and goes back on top, a fully opaque image, such as a photo, covers its whole shadow and nothing changes. Use `shadow` on images with transparency, or use [`boxShadow`](/jimp/methods/box-shadow/) for rectangles.
+- **Clipped at the edges.** Any part of the shadow that falls outside the image's bounds is cut off. Add transparent space first, as in the example.
+- **`size` grows from the center.** The enlarged shadow is centered on the image before `x` and `y` move it, so with `size: 1.2` it reaches 10% past each side.
+- **Blur is rounded.** `blur` is rounded to a whole number before it's passed to [`blur`](/jimp/methods/blur/), and a value that rounds to `0` leaves the shadow sharp.
+- **Mixing Jimp classes.** Images from the `jimp` package's `Jimp` and from your custom class can be [composited](/jimp/methods/composite/) onto each other, but only images made by your class have the `shadow` method.
+- **Color profiles.** The canvas the shadow is drawn on gets the image's ICC profile, so images in Display P3 or another color space keep their colors.
+- **Validation.** `opacity` must be between `0` and `1`; other values throw a validation error.
+- **Changed in 2.0:** `size` used to grow the shadow from the top-left corner, so it reached further right and down than the image; it's now centered. A fractional `blur` used to make the shadow disappear and `blur: 0` threw `r must be greater than 0`; `blur` is now rounded and `0` means no blur. Compositing images from different Jimp classes used to throw `The source must be a Jimp image`.
+
+## Related
+
+<Related methods={["boxShadow", "blur", "composite", "opacity", "contain"]} />

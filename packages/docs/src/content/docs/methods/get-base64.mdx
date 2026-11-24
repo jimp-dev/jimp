@@ -1,0 +1,75 @@
+---
+title: "getBase64()"
+description: "Encode the image in a format and get it as a base64 data URL."
+category: io
+method: "getBase64"
+plugin: "@jimp/core"
+---
+
+import { Aside } from "@astrojs/starlight/components";
+import Related from "../../../components/Related.astro";
+
+`getBase64` encodes the image and returns it as a `data:` URL, such as `data:image/png;base64,iVBORw0KGgo…`.
+Set it as the `src` of an `<img>` to show the result in a browser, or embed it in HTML, CSS or JSON.
+
+## Signature
+
+```ts title="getBase64.d.ts"
+image.getBase64(mime: string, options?: EncodeOptions): Promise<string>
+```
+
+`getBase64` returns a promise for a string. It doesn't change the image.
+
+## Parameters
+
+| Parameter | Type     | Default  | Description                                                                                                                        |
+| --------- | -------- | -------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| `mime`    | `string` | required | The output format's MIME type, such as `"image/png"` or [`JimpMime.jpeg`](/jimp/methods/get-buffer/#choosing-the-format).           |
+| `options` | `object` | none     | Encoder options for that format, the same as for [`getBuffer`](/jimp/methods/get-buffer/#options), for example `{ quality: 80 }`. |
+
+## Example
+
+```ts title="main.ts"
+import { Jimp } from "jimp";
+
+const image = await Jimp.read("/images/cat.jpg");
+
+image.resize({ w: 300 }).greyscale();
+
+document.querySelector("img")!.src = await image.getBase64("image/jpeg", { quality: 85 });
+```
+
+### Embed an image in HTML
+
+```ts title="example.ts"
+import { Jimp } from "jimp";
+
+const thumbnail = await Jimp.read("photo.png");
+thumbnail.scaleToFit({ w: 64, h: 64 });
+
+const html = `<img src="${await thumbnail.getBase64("image/png")}" alt="Thumbnail">`;
+```
+
+### Get only the base64 text
+
+Some APIs want the base64 data without the `data:` prefix. Encode with [`getBuffer`](/jimp/methods/get-buffer/) and convert it yourself:
+
+```ts title="example.ts"
+const base64 = (await image.getBuffer("image/png")).toString("base64");
+```
+
+## Notes
+
+- **It's `getBuffer` plus a prefix.** `getBase64` calls [`getBuffer`](/jimp/methods/get-buffer/) with the same arguments and returns `"data:" + mime + ";base64," + data`. Everything on that page applies, including how transparency is handled in JPEG and the `Unsupported MIME type` error.
+- **Base64 is a third bigger.** It stores 3 bytes in 4 characters. For large images, or for uploading, send the bytes from `getBuffer` instead. In the browser, `URL.createObjectURL(new Blob([bytes]))` also gives you a URL for an `<img>` without the extra size.
+- **v0 difference.** Jimp v0 had `getBase64Async`, and `getBase64` took a callback. In v1, `getBase64` returns a promise.
+
+<Aside type="caution" title="Remember to await it">
+  `getBase64` is async. Setting `img.src = image.getBase64("image/png")` without
+  `await` assigns a promise, which the browser turns into the URL
+  `[object Promise]`.
+</Aside>
+
+## Related
+
+<Related methods={["getBuffer", "write", "Jimp.read", "Jimp.fromBuffer"]} />

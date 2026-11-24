@@ -1,0 +1,72 @@
+---
+title: "greyscale()"
+description: "Remove all color from the image."
+category: color
+method: "greyscale"
+plugin: "@jimp/plugin-color"
+---
+
+import Playground from "../../../components/playground/Playground";
+import Related from "../../../components/Related.astro";
+
+`greyscale` turns the image into shades of gray.
+Each pixel's gray level is based on how bright its color looks to the eye, so greens stay lighter than blues of the same strength.
+
+## Signature
+
+```ts title="greyscale.d.ts"
+image.greyscale(): this
+```
+
+`greyscale` takes no arguments. It changes the image in place and returns it, so you can chain more calls after it.
+
+## Example
+
+```ts title="example.ts"
+import { Jimp } from "jimp";
+
+const image = await Jimp.read("photo.jpg");
+
+image.greyscale();
+
+await image.write("photo-grey.jpg");
+```
+
+### Black and white with more punch
+
+Raise the contrast after removing the color:
+
+```ts title="example.ts"
+image.greyscale().contrast(0.25);
+```
+
+### Tinted monochrome
+
+To get a single-color look, remove the color and then mix one back in with [`color`](/jimp/methods/color/):
+
+```ts title="example.ts"
+image.greyscale().color([{ apply: "mix", params: [{ r: 40, g: 90, b: 200 }, 40] }]);
+```
+
+For the classic brown tone, use [`sepia`](/jimp/methods/sepia/).
+
+## Try it
+
+Run the playground to see the result. Hold the compare button to see the original.
+
+<Playground method="greyscale" client:visible />
+
+## Notes
+
+- **Luminance weights.** The gray value is `0.2126 × R + 0.7152 × G + 0.0722 × B` (ITU-R BT.709), rounded to the nearest whole number, and written to all three channels. An orange `(200, 100, 50)` becomes `118`.
+- **Calling it twice changes nothing.** Pixels that are already gray keep their value, so `greyscale()` on a gray image leaves it as it is.
+- **Raw values.** The weights are applied to the stored values, whatever the image's [color space](/jimp/guides/color-spaces/). Grays, black and white are the same in sRGB and Display P3.
+- **Alpha is unchanged.** Transparent areas stay transparent.
+- **Spelling.** The method is spelled `greyscale`; there is no `grayscale` alias.
+- **The same as the `greyscale` color action.** `image.color([{ apply: "greyscale" }])` gives exactly the same result, so you can use it inside a longer list of [`color`](/jimp/methods/color/) actions. The `desaturate` action with `100` gives a different gray, the HSL lightness.
+- **The image stays RGBA.** The pixels are gray, but the bitmap still has four channels. When you write a PNG, Jimp picks a grayscale PNG automatically if every pixel is gray. See [Formats](/jimp/concepts/formats/).
+- Changed in 2.0: the gray value is rounded; before, it was rounded down, so many pixels came out one level darker and calling `greyscale()` again could darken them further.
+
+## Related
+
+<Related methods={["sepia", "color", "threshold", "contrast", "invert"]} />

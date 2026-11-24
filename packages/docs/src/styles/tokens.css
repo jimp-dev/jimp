@@ -1,0 +1,207 @@
+/*
+ * Kid Studio design tokens.
+ *
+ * Light ("Kid Studio") and dark ("Night Studio") themes share the same token
+ * names. Components should only use these `--jp-*` variables (or the color
+ * primaries) so they work in both themes. Starlight's own `--sl-*` variables
+ * are mapped from them at the bottom of each block.
+ */
+
+:root,
+:root[data-theme="light"] {
+  color-scheme: light;
+
+  /* Primaries */
+  --jp-red: #ff4b4b;
+  --jp-orange: #ff8f1f;
+  --jp-yellow: #ffd83a;
+  --jp-green: #22c76b;
+  --jp-mint: #3fe0b5;
+  --jp-blue: #3a7bff;
+  --jp-sky: #5cc8ff;
+  --jp-purple: #8b46ff;
+  --jp-pink: #ff5fb0;
+
+  /* Ink is always dark: use it for text on bright fills (stickers, buttons). */
+  --jp-ink: #1b1840;
+
+  /* Surfaces and lines */
+  --jp-text: #1b1840;
+  --jp-text-2: #4a4673;
+  --jp-line: #1b1840;
+  --jp-shadow: #1b1840;
+  --jp-surface: #ffffff;
+  --jp-surface-2: #f3f0ff;
+  --jp-paper: #fffdf6;
+  --jp-rule: rgba(124, 170, 230, 0.32);
+  --jp-margin-line: rgba(255, 123, 142, 0.45);
+  --jp-dash: #ddd6f6;
+  --jp-link: #2457d6;
+  --jp-link-hover: #8b46ff;
+  --jp-header: #8b46ff;
+  --jp-note: #fff27a;
+  --jp-note-glow: transparent;
+  --jp-options: #fff7d1;
+  --jp-sheet: #cdeeff;
+  --jp-check-a: #ece9fb;
+  --jp-check-b: #ffffff;
+  --jp-hover: #fff4c2;
+
+  /* Code */
+  --jp-code-bg: #1d1846;
+  --jp-code-head: #2b2466;
+  --jp-code-line: #1b1840;
+  --jp-code-text: #f2efff;
+  --jp-inline-code-bg: #efeaff;
+  --jp-inline-code-line: #d9d0ff;
+
+  /* Tables */
+  --jp-table-head: #ffd83a;
+  --jp-table-row: #ffffff;
+  --jp-table-stripe: #faf8ff;
+  --jp-table-line: #ece8fb;
+
+  /* Asides */
+  --jp-note-bg: #eaf4ff;
+  --jp-tip-bg: #e3fbf1;
+  --jp-caution-bg: #fff3cf;
+  --jp-danger-bg: #ffe6e6;
+
+  /* Wallpaper */
+  --jp-wall: #ffe14f;
+  --jp-wall-dot: #ffd23a;
+  --jp-wall-doodles: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='260' height='260' viewBox='0 0 260 260'%3E%3Cg fill='none' stroke-width='6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 40q15-20 30 0t30 0 30 0' stroke='%23ff4b4b'/%3E%3Cpath d='M150 30l20 35h-40z' stroke='%233a7bff'/%3E%3Ccircle cx='215' cy='60' r='16' stroke='%2322c76b'/%3E%3Cpath d='M30 150l12 12 12-12 12 12 12-12 12 12' stroke='%23ff8f1f'/%3E%3Cpath d='M180 140l7 15 16 2-12 11 3 16-14-8-14 8 3-16-12-11 16-2z' stroke='%238b46ff'/%3E%3Cpath d='M120 120q10 25-10 40' stroke='%23ff5fb0'/%3E%3Crect x='60' y='205' width='26' height='26' rx='4' transform='rotate(18 73 218)' stroke='%235cc8ff'/%3E%3Cpath d='M160 215q20-25 40 0' stroke='%2322c76b'/%3E%3Ccircle cx='235' cy='235' r='5' fill='%23ff4b4b' stroke='none'/%3E%3Ccircle cx='110' cy='95' r='5' fill='%233a7bff' stroke='none'/%3E%3C/g%3E%3C/svg%3E");
+  --jp-stars: none;
+
+  /* Type */
+  --jp-display: "Luckiest Guy", "Fredoka", system-ui, sans-serif;
+  --jp-ui: "Fredoka", system-ui, sans-serif;
+  --jp-body: "Nunito Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --jp-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  /* Starlight */
+  --sl-color-white: var(--jp-text);
+  --sl-color-gray-1: #2c2858;
+  --sl-color-gray-2: var(--jp-text-2);
+  --sl-color-gray-3: #6b6796;
+  --sl-color-gray-4: #9a96bf;
+  --sl-color-gray-5: #cfc9ec;
+  --sl-color-gray-6: #efeaff;
+  --sl-color-gray-7: #f8f6ff;
+  --sl-color-black: var(--jp-paper);
+  --sl-color-accent-low: #dfe8ff;
+  --sl-color-accent: var(--jp-blue);
+  --sl-color-accent-high: var(--jp-link);
+  --sl-color-text: var(--jp-text);
+  --sl-color-text-accent: var(--jp-link);
+  --sl-color-text-invert: var(--jp-ink);
+  --sl-color-bg: var(--jp-wall);
+  --sl-color-bg-nav: var(--jp-header);
+  --sl-color-bg-sidebar: var(--jp-surface);
+  --sl-color-bg-inline-code: var(--jp-inline-code-bg);
+  --sl-color-hairline-light: var(--jp-dash);
+  --sl-color-hairline: var(--jp-dash);
+  --sl-color-hairline-shade: var(--jp-line);
+  --sl-color-backdrop-overlay: rgba(27, 24, 64, 0.45);
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+
+  /* Primaries, a touch brighter so they glow on dark surfaces */
+  --jp-red: #ff5c6c;
+  --jp-orange: #ffa040;
+  --jp-yellow: #ffe14a;
+  --jp-green: #2ee87d;
+  --jp-mint: #4df0c4;
+  --jp-blue: #5b93ff;
+  --jp-sky: #6dd3ff;
+  --jp-purple: #a674ff;
+  --jp-pink: #ff70bd;
+
+  --jp-text: #f4f1ff;
+  --jp-text-2: #c9c2f2;
+  --jp-line: #8b80d9;
+  --jp-shadow: #05040f;
+  --jp-surface: #241e57;
+  --jp-surface-2: #2f2870;
+  --jp-paper: #1f1a4d;
+  --jp-rule: rgba(120, 170, 255, 0.13);
+  --jp-margin-line: rgba(255, 112, 189, 0.4);
+  --jp-dash: #463d94;
+  --jp-link: #9cc4ff;
+  --jp-link-hover: #ffb0dd;
+  --jp-header: #3a1f8c;
+  --jp-note: #f6e76a;
+  --jp-note-glow: rgba(255, 233, 106, 0.32);
+  --jp-options: #2b2463;
+  --jp-sheet: #17133b;
+  --jp-check-a: #2c2668;
+  --jp-check-b: #221d55;
+  --jp-hover: #3a327f;
+
+  --jp-code-bg: #0f0c2b;
+  --jp-code-head: #1c1748;
+  --jp-code-line: #8b80d9;
+  --jp-code-text: #f2efff;
+  --jp-inline-code-bg: #332b79;
+  --jp-inline-code-line: #4d43a3;
+
+  --jp-table-head: #ffe14a;
+  --jp-table-row: #241e57;
+  --jp-table-stripe: #29225f;
+  --jp-table-line: #3a3280;
+
+  --jp-note-bg: #1d2f5c;
+  --jp-tip-bg: #173f43;
+  --jp-caution-bg: #3d3519;
+  --jp-danger-bg: #44182c;
+
+  --jp-wall: #130f2e;
+  --jp-wall-dot: #1d1847;
+  --jp-wall-doodles: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='260' height='260' viewBox='0 0 260 260'%3E%3Cg fill='none' stroke-width='6' stroke-linecap='round' stroke-linejoin='round' opacity='.42'%3E%3Cpath d='M20 40q15-20 30 0t30 0 30 0' stroke='%23ff5c6c'/%3E%3Cpath d='M150 30l20 35h-40z' stroke='%235b93ff'/%3E%3Ccircle cx='215' cy='60' r='16' stroke='%232ee87d'/%3E%3Cpath d='M30 150l12 12 12-12 12 12 12-12 12 12' stroke='%23ffa040'/%3E%3Cpath d='M180 140l7 15 16 2-12 11 3 16-14-8-14 8 3-16-12-11 16-2z' stroke='%23a674ff'/%3E%3Cpath d='M120 120q10 25-10 40' stroke='%23ff70bd'/%3E%3Crect x='60' y='205' width='26' height='26' rx='4' transform='rotate(18 73 218)' stroke='%236dd3ff'/%3E%3Cpath d='M160 215q20-25 40 0' stroke='%232ee87d'/%3E%3C/g%3E%3C/svg%3E");
+  --jp-stars: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='260' height='260' viewBox='0 0 260 260'%3E%3Cg fill='%23fff6c2'%3E%3Cpath d='M235 228l2.5 5 5 2.5-5 2.5-2.5 5-2.5-5-5-2.5 5-2.5z'/%3E%3Ccircle cx='110' cy='95' r='3'/%3E%3Cpath d='M190 145l2 4 4 2-4 2-2 4-2-4-4-2 4-2z'/%3E%3Ccircle cx='45' cy='100' r='2.2'/%3E%3Ccircle cx='140' cy='190' r='2.5'/%3E%3Cpath d='M70 20l2 4 4 2-4 2-2 4-2-4-4-2 4-2z'/%3E%3Ccircle cx='245' cy='120' r='2'/%3E%3C/g%3E%3C/svg%3E");
+
+  --sl-color-white: var(--jp-text);
+  --sl-color-gray-1: #e4dfff;
+  --sl-color-gray-2: var(--jp-text-2);
+  --sl-color-gray-3: #a39bd6;
+  --sl-color-gray-4: #7a72b8;
+  --sl-color-gray-5: #463d94;
+  --sl-color-gray-6: #2a2366;
+  --sl-color-gray-7: #211b52;
+  --sl-color-black: var(--jp-paper);
+  --sl-color-accent-low: #26306b;
+  --sl-color-accent: var(--jp-blue);
+  --sl-color-accent-high: var(--jp-link);
+  --sl-color-text: var(--jp-text);
+  --sl-color-text-accent: var(--jp-link);
+  --sl-color-text-invert: var(--jp-ink);
+  --sl-color-bg: var(--jp-wall);
+  --sl-color-bg-nav: var(--jp-header);
+  --sl-color-bg-sidebar: var(--jp-surface);
+  --sl-color-bg-inline-code: var(--jp-inline-code-bg);
+  --sl-color-hairline-light: var(--jp-dash);
+  --sl-color-hairline: var(--jp-dash);
+  --sl-color-hairline-shade: var(--jp-line);
+  --sl-color-backdrop-overlay: rgba(5, 4, 15, 0.6);
+}
+
+:root {
+  --sl-font: var(--jp-body);
+  --sl-font-mono: var(--jp-mono);
+  --sl-text-code: 0.875rem;
+  --sl-text-code-sm: 0.86em;
+  --sl-nav-height: 4.25rem;
+  --sl-mobile-toc-height: 0rem;
+  --sl-sidebar-width: 15.75rem;
+  --sl-content-width: 54rem;
+  --sl-content-margin-inline: 0;
+  --sl-line-height: 1.7;
+}
+
+@media (max-width: 49.99rem) {
+  :root {
+    --sl-nav-height: 3.875rem;
+  }
+}

@@ -1,0 +1,145 @@
+---
+title: "resize()"
+description: "Resize to a width and/or height. Pass one side to keep the aspect ratio."
+category: shape
+method: "resize"
+plugin: "@jimp/plugin-resize"
+---
+
+import { Aside } from "@astrojs/starlight/components";
+import Playground from "../../../components/playground/Playground";
+import Related from "../../../components/Related.astro";
+
+`resize` changes the image to an exact width and height.
+Pass only `w` or only `h` and the other side is worked out from the aspect ratio, which is what you want for thumbnails and previews.
+
+## Signature
+
+```ts title="resize.d.ts"
+image.resize(options: {
+  w: number;
+  h?: number;
+  mode?: ResizeStrategy;
+  premultiplyAlpha?: boolean;
+}): this
+image.resize(options: {
+  w?: number;
+  h: number;
+  mode?: ResizeStrategy;
+  premultiplyAlpha?: boolean;
+}): this
+```
+
+`resize` changes the image in place and returns it, so you can chain more calls after it.
+
+## Options
+
+| Option             | Type                                          | Default          | Description                                                                                                                       |
+| ------------------ | --------------------------------------------- | ---------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| `w`                | `number`                                      | from `h`         | The new width in pixels. Must be `0` or more. Required if `h` is missing.                                                         |
+| `h`                | `number`                                      | from `w`         | The new height in pixels. Must be `0` or more. Required if `w` is missing.                                                        |
+| `mode`             | [`ResizeStrategy`](/jimp/concepts/constants/) | built-in resizer | The resampling algorithm. See [Resize strategies](#resize-strategies).                                                            |
+| `premultiplyAlpha` | `boolean`                                     | `true`           | Treat alpha as opacity, so transparent pixels don't darken their neighbors. See [Alpha that isn't opacity](#alpha-that-isnt-opacity). |
+
+When one side is left out it's calculated as `original * (other side / original other side)`, then rounded.
+
+## Example
+
+```ts title="example.ts"
+import { Jimp } from "jimp";
+
+const image = await Jimp.read("photo.jpg");
+
+// 800 x 600 becomes 200 x 150
+image.resize({ w: 200 });
+
+await image.write("photo-small.jpg");
+```
+
+### Set both sides
+
+Give both `w` and `h` to get an exact size. The image is stretched or squashed if the ratio differs from the original.
+To keep the ratio while hitting an exact size, use [`cover`](/jimp/methods/cover/) (crops the overflow) or [`contain`](/jimp/methods/contain/) (pads the gap).
+
+```ts title="example.ts"
+image.resize({ w: 300, h: 300 });
+```
+
+### Pick an algorithm
+
+```ts title="example.ts"
+import { Jimp, ResizeStrategy } from "jimp";
+
+const sprite = await Jimp.read("sprite.png");
+
+// Keep hard pixel edges when enlarging pixel art
+sprite.resize({ w: sprite.width * 4, mode: ResizeStrategy.NEAREST_NEIGHBOR });
+
+const photo = await Jimp.read("photo.jpg");
+
+// Keep the most detail when shrinking a photo
+photo.resize({ w: 400, mode: ResizeStrategy.LANCZOS });
+```
+
+### Alpha that isn't opacity
+
+By default, colors are weighted by alpha while resizing, and pixels that end up fully transparent come out as transparent black. That's right for images where alpha is transparency.
+Some images use the alpha channel for other data, such as a game texture whose alpha holds an emissive or smoothness mask. Pass `premultiplyAlpha: false` to resample every channel on its own, so the color under transparent pixels is kept:
+
+```ts title="example.ts"
+const texture = await Jimp.read("texture.png");
+
+texture.resize({ w: 256, premultiplyAlpha: false });
+```
+
+The color comes out exactly as it would for the same image made opaque, and the alpha exactly as it does by default.
+`scale`, `scaleToFit`, `cover` and `contain` accept the same option.
+
+## Resize strategies
+
+Leave `mode` out to use the default resizer, a two-pass resampler that averages pixels when shrinking and blends linearly when enlarging. It's a good choice for most photos.
+Pass a `ResizeStrategy` to use a different algorithm:
+
+| Strategy                          | What it does                                                                                                                       |
+| --------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| `ResizeStrategy.NEAREST_NEIGHBOR` | Copies the nearest source pixel. The fastest, and it keeps hard edges, so it suits pixel art and icons. Shrunk photos look jagged. |
+| `ResizeStrategy.BILINEAR`         | Blends the four nearest pixels. Smooth when enlarging, but it doesn't average when shrinking, so large reductions can alias.      |
+| `ResizeStrategy.BICUBIC`          | Cubic interpolation from the 16 nearest pixels. Sharper than bilinear. When shrinking to half size or smaller it also averages.   |
+| `ResizeStrategy.HERMITE`          | Hermite spline interpolation over the same 16 pixels, and the same averaging when shrinking.                                      |
+| `ResizeStrategy.BEZIER`           | Bezier curve interpolation over the same 16 pixels, and the same averaging when shrinking.                                        |
+| `ResizeStrategy.LANCZOS`          | Lanczos3: a windowed sinc filter 3 pixels wide on each side, the same as Pillow's `LANCZOS` and ImageMagick's `-filter Lanczos`. Keeps the most detail when enlarging and shrinking, with slight ringing next to hard edges. |
+| `ResizeStrategy.LANCZOS2`         | Lanczos with a 2-pixel window. A little softer than `LANCZOS`, with less ringing.                                                 |
+| `ResizeStrategy.MITCHELL`         | The Mitchell–Netravali cubic filter (B = C = 1/3), the same as ImageMagick's `-filter Mitchell`. Slightly softer than `LANCZOS`, with almost no ringing. |
+
+`LANCZOS`, `LANCZOS2` and `MITCHELL` use every source pixel when shrinking, so fine detail doesn't alias, and they take about as long as `BICUBIC` or less.
+For the best quality, use `ResizeStrategy.LANCZOS`, or `ResizeStrategy.MITCHELL` for a smoother result.
+
+By default every algorithm, including the default resizer, weights colors by alpha, so transparent pixels don't bleed into their neighbors. `NEAREST_NEIGHBOR` copies pixels, so it has nothing to weight.
+The same `mode` option is accepted by [`scale`](/jimp/methods/scale/), [`scaleToFit`](/jimp/methods/scale-to-fit/), [`cover`](/jimp/methods/cover/), [`contain`](/jimp/methods/contain/), and as an interpolation mode by [`rotate`](/jimp/methods/rotate/), [`skew`](/jimp/methods/skew/) and [`affine`](/jimp/methods/affine/).
+
+## Try it
+
+Drag `w`, turn off `keep ratio` to set `h` too, and switch strategies to compare them. Use the hold-to-compare button to see the original.
+
+<Playground method="resize" client:visible />
+
+## Notes
+
+- **Sizes are rounded.** `w` and `h` are rounded to whole pixels. A size that rounds to `0` becomes `1`, so `resize({ w: 0 })` gives a 1 × 1 image rather than an error.
+- **Validation.** Negative sizes fail validation with `Too small: expected number to be >=0`, and leaving out both `w` and `h` fails with `Invalid input`. Both arrive as a zod error; see [Errors and validation](/jimp/concepts/errors-and-validation/).
+- **Added in 2.0:** the `LANCZOS`, `LANCZOS2` and `MITCHELL` strategies, and the `premultiplyAlpha` option.
+- **Changed in 2.0:** the default resizer weights colors by alpha for images with any transparent pixel. Before, enlarging darkened colors next to transparent pixels, which showed as a dark fringe around cut-out shapes. Opaque images give the same result as before.
+- **Changed in 2.0:** when an opaque image keeps its height and only its width changes, the default resizer rounds its result. Before, it truncated, so some values came out one level too dark.
+- **Enlarging adds no detail.** Upscaling only interpolates between existing pixels. Resize from the largest source you have.
+- **Use `image.width` and `image.height`** for sizes based on the current image, such as `resize({ w: image.width / 2 })`, or use [`scale`](/jimp/methods/scale/) for that.
+
+<Aside type="note" title="Coming from v0?">
+  v0 took positional arguments and `Jimp.AUTO`: `resize(200, Jimp.AUTO)`. In v1
+  pass an options object and leave out the side to calculate:
+  `resize({ w: 200 })`. The `Jimp.RESIZE_*` constants are now `ResizeStrategy`
+  values. See the [migration guide](/jimp/guides/migrate-to-v1/).
+</Aside>
+
+## Related
+
+<Related methods={["scale", "scaleToFit", "cover", "contain", "crop"]} />

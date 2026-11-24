@@ -1,0 +1,79 @@
+---
+title: "measureText()"
+description: "Measure the width of a string in a font."
+category: text
+method: "measureText"
+plugin: "@jimp/plugin-print"
+---
+
+import Related from "../../../components/Related.astro";
+
+`measureText` returns how many pixels wide text is when printed in a font without wrapping: the width of its widest line.
+Use it to size a canvas or a label before you [`print`](/jimp/methods/print/), or to pick a font size that fits.
+
+## Signature
+
+```ts title="measureText.d.ts"
+import { measureText } from "jimp";
+
+measureText(font: BmFont, text: string): number
+```
+
+`measureText` is a function, not an image method. It doesn't draw anything; it returns a width in pixels.
+
+## Parameters
+
+| Parameter | Type     | Default  | Description                                       |
+| --------- | -------- | -------- | ------------------------------------------------- |
+| `font`    | `BmFont` | required | A font from [`loadFont`](/jimp/methods/load-font/). |
+| `text`    | `string` | required | The text to measure. `\n`, `\r\n` and `\r` start a new line. |
+
+## Example
+
+Make a label that is exactly as big as its text, plus some padding:
+
+```ts title="example.ts"
+import { Jimp, loadFont, measureText, measureTextHeight } from "jimp";
+import { SANS_32_BLACK } from "jimp/fonts";
+
+const font = await loadFont(SANS_32_BLACK);
+const text = "Sale";
+
+const width = measureText(font, text); // 64
+const height = measureTextHeight(font, text); // 36
+
+const label = new Jimp({ width: width + 20, height: height + 10, color: 0xffd83aff });
+label.print({ font, x: 10, y: 5, text });
+
+await label.write("label.png");
+```
+
+### Pick the largest font that fits
+
+```ts title="example.ts"
+import { Jimp, loadFont, measureText } from "jimp";
+import { SANS_128_BLACK, SANS_64_BLACK, SANS_32_BLACK, SANS_16_BLACK } from "jimp/fonts";
+
+const image = new Jimp({ width: 300, height: 100, color: 0xffffffff });
+const text = "Hello, world";
+
+for (const path of [SANS_128_BLACK, SANS_64_BLACK, SANS_32_BLACK, SANS_16_BLACK]) {
+  const font = await loadFont(path);
+
+  if (measureText(font, text) <= image.width) {
+    image.print({ font, x: 0, y: 0, text });
+    break;
+  }
+}
+```
+
+## Notes
+
+- **Widest line.** Line breaks (`\n`, `\r\n` or `\r`) split the text into lines as they do in `print`, and the result is the width of the widest one. Empty lines are `0` wide. `measureText` doesn't wrap; for the height of wrapped or multi-line text, use [`measureTextHeight`](/jimp/methods/measure-text-height/).
+- **It matches `print`.** The width is the sum of each glyph's advance plus the font's kerning, the same spacing `print` uses. Characters the font doesn't have are measured as `?`, which is how `print` draws them.
+- **Trailing spaces count.** `"Hi "` is wider than `"Hi"`, because a space has an advance width.
+- **Changed in 2.0:** line breaks used to be skipped, so `"Hello\nHello"` measured as one line twice as wide. Characters without a glyph used to count as `0` wide, so text with them measured narrower than it printed.
+
+## Related
+
+<Related methods={["measureTextHeight", "print", "loadFont"]} />

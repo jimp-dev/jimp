@@ -1,0 +1,46 @@
+---
+/**
+ * Starlight renders two panels per page: the first holds the page title, the
+ * second the content. The first is styled as the ruled notebook-paper header.
+ */
+import type { Props } from "@astrojs/starlight/props";
+---
+
+<div class="content-panel">
+  <div class="sl-container"><slot /></div>
+</div>
+
+<style>
+  .content-panel {
+    padding: 10px 52px 44px 64px;
+  }
+  .sl-container {
+    max-width: var(--sl-content-width);
+  }
+  .sl-container > :global(* + *) {
+    margin-top: 1.5rem;
+  }
+
+  :global(html:not([data-has-hero])) .content-panel:first-child {
+    padding: 38px 52px 22px 64px;
+    border-radius: 20px 20px 0 0;
+    border-bottom: 3px dashed var(--jp-dash);
+    background: repeating-linear-gradient(transparent 0 31px, var(--jp-rule) 31px 32px) 0 14px;
+  }
+
+  :global(html[data-has-hero]) .content-panel {
+    padding: 0;
+  }
+  :global(html[data-has-hero]) .sl-container {
+    max-width: none;
+  }
+
+  @media (max-width: 49.99rem) {
+    .content-panel {
+      padding: 6px 20px 34px 40px;
+    }
+    :global(html:not([data-has-hero])) .content-panel:first-child {
+      padding: 34px 22px 18px 40px;
+    }
+  }
+</style>

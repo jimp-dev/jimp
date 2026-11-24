@@ -1,46 +1,156 @@
 ---
 title: Custom Jimp
-description: How to create a custom Jimp
+description: Build a Jimp with only the plugins and formats you need, or add extra ones.
 ---
 
-If you don't want to use all the default plugins included in the `jimp` package, you can create a custom Jimp.
+import { Aside, Steps } from "@astrojs/starlight/components";
+
+The `Jimp` class exported by `jimp` is built from separate packages: one per image format and one per group of methods.
+You can build your own `Jimp` class from those packages with `createJimp`. Do that to:
+
+- **Add** something `jimp` doesn't include, such as [WebP and AVIF](/jimp/guides/webp/), [`shadow`](/jimp/methods/shadow/), or [your own plugins](/jimp/guides/writing-plugins/).
+- **Remove** what you don't use, to make a browser bundle smaller.
+- **Replace** a built-in format, for example with a WASM codec or different defaults.
 
 ## Creating a custom Jimp
 
-To create a custom Jimp, you can use the `create` function from the `jimp` package.
+`createJimp` from `@jimp/core` takes the method plugins and format plugins to include, and returns a `Jimp` class with the same API as the one from `jimp`.
 
-```ts
-import { promises as fs } from "fs";
+<Steps>
 
+1. Install `@jimp/core` and the packages you want. Jimp needs Node.js 22 or later.
+
+   ```sh
+   npm install @jimp/core @jimp/js-png @jimp/plugin-resize
+   ```
+
+2. Create the class. Pass each plugin package's `methods` export, and each format package's default export without calling it:
+
+   ```ts title="jimp.ts"
+   import { createJimp } from "@jimp/core";
+   import png from "@jimp/js-png";
+   import { methods as resize } from "@jimp/plugin-resize";
+
+   export const Jimp = createJimp({
+     plugins: [resize],
+     formats: [png],
+   });
+   ```
+
+3. Use it like the regular `Jimp`:
+
+   ```ts title="index.ts"
+   import { Jimp } from "./jimp.js";
+
+   const image = await Jimp.read("photo.png");
+
+   image.resize({ w: 100 });
+
+   await image.write("thumbnail.png");
+   ```
+
+</Steps>
+
+This `Jimp` can only read and write PNG, and its images only have the resize methods plus the [built-in methods](#always-included).
+Calling anything else fails:
+
+| You call                          | Error                                              |
+| --------------------------------- | -------------------------------------------------- |
+| `image.blur(5)`                   | `TypeError: image.blur is not a function`          |
+| `Jimp.read("photo.jpg")`          | `Mime type image/jpeg does not support decoding`   |
+| `image.write("out.jpg")`          | `Unsupported MIME type: image/jpeg`                |
+
+In TypeScript these are caught at compile time: the class's types only include the methods and MIME types you passed in.
+
+## Starting from the defaults
+
+`jimp` exports the plugins and formats it uses as `defaultPlugins` and `defaultFormats`.
+Spread them to add to the regular `Jimp` instead of starting from nothing:
+
+```ts title="jimp.ts"
 import { createJimp } from "@jimp/core";
-import png from "@jimp/js-png";
-import * as resize from "@jimp/plugin-resize";
+import { defaultFormats, defaultPlugins } from "jimp";
+import { methods as shadow } from "@jimp/plugin-shadow";
+import webp from "@jimp/wasm-webp";
 
-const MyJimp = createJimp({
-  plugins: [resize.methods],
-  formats: [png],
+export const Jimp = createJimp({
+  formats: [...defaultFormats, webp],
+  plugins: [...defaultPlugins, shadow],
 });
-
-const image = await MyJimp.read("test/image.png");
-
-image.resize({ w: 100 });
-
-await image.write("test/output.png");
 ```
+
+When two formats have the same MIME type, Jimp uses the first one in the list.
+To replace a built-in format, put the new one first: `formats: [wasmPng, ...defaultFormats]`.
+When two plugins have a method with the same name, the later plugin's method wins.
+
+`defaultFormats` contains `@jimp/js-bmp` (as `image/bmp` and `image/x-ms-bmp`), `@jimp/js-gif`, `@jimp/js-ico` (as `image/x-icon` and `image/vnd.microsoft.icon`), `@jimp/js-jpeg`, `@jimp/js-png` and `@jimp/js-tiff`.
+ICO was added to the defaults in 2.0.
+
+## Which package has which method
+
+<a id="always-included"></a>
+These methods are part of `@jimp/core`, so every Jimp class has them: [`Jimp.read`](/jimp/methods/read/), [`Jimp.fromBuffer`](/jimp/methods/from-buffer/), [`Jimp.fromBitmap`](/jimp/methods/from-bitmap/), [`getBuffer`](/jimp/methods/get-buffer/), [`getBase64`](/jimp/methods/get-base64/), [`write`](/jimp/methods/write/), [`clone`](/jimp/methods/clone/), [`toColorSpace`](/jimp/methods/to-color-space/), [`composite`](/jimp/methods/composite/), [`getPixelColor`](/jimp/methods/get-pixel-color/), [`setPixelColor`](/jimp/methods/set-pixel-color/), [`getPixelIndex`](/jimp/methods/get-pixel-index/), [`hasAlpha`](/jimp/methods/has-alpha/), [`scan`](/jimp/methods/scan/) and [`scanIterator`](/jimp/methods/scan-iterator/).
+
+Everything else comes from a plugin:
+
+| Package                  | Methods                                                                                                                                                                                                                                                                                                                          |
+| ------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `@jimp/plugin-blit`      | [`blit`](/jimp/methods/blit/)                                                                                                                                                                                                                                                                                                    |
+| `@jimp/plugin-blur`      | [`blur`](/jimp/methods/blur/), [`gaussian`](/jimp/methods/gaussian/), [`sharpen`](/jimp/methods/sharpen/)                                                                                                                                                                                                                      |
+| `@jimp/plugin-border`    | [`border`](/jimp/methods/border/), [`roundCorners`](/jimp/methods/round-corners/), [`boxShadow`](/jimp/methods/box-shadow/)                                                                                                                                                                                                      |
+| `@jimp/plugin-circle`    | [`circle`](/jimp/methods/circle/)                                                                                                                                                                                                                                                                                                |
+| `@jimp/plugin-color`     | [`color`](/jimp/methods/color/), [`brightness`](/jimp/methods/brightness/), [`contrast`](/jimp/methods/contrast/), [`exposure`](/jimp/methods/exposure/), [`vibrance`](/jimp/methods/vibrance/), [`greyscale`](/jimp/methods/greyscale/), [`invert`](/jimp/methods/invert/), [`sepia`](/jimp/methods/sepia/), [`posterize`](/jimp/methods/posterize/), [`normalize`](/jimp/methods/normalize/), [`opacity`](/jimp/methods/opacity/), [`fade`](/jimp/methods/fade/), [`opaque`](/jimp/methods/opaque/), [`pixelate`](/jimp/methods/pixelate/), [`convolute`](/jimp/methods/convolute/), [`convolution`](/jimp/methods/convolution/) |
+| `@jimp/plugin-contain`   | [`contain`](/jimp/methods/contain/)                                                                                                                                                                                                                                                                                              |
+| `@jimp/plugin-cover`     | [`cover`](/jimp/methods/cover/)                                                                                                                                                                                                                                                                                                  |
+| `@jimp/plugin-crop`      | [`crop`](/jimp/methods/crop/), [`autocrop`](/jimp/methods/autocrop/), [`autocropRect`](/jimp/methods/autocrop-rect/)                                                                                                                                                                                                             |
+| `@jimp/plugin-displace`  | [`displace`](/jimp/methods/displace/)                                                                                                                                                                                                                                                                                            |
+| `@jimp/plugin-dither`    | [`dither`](/jimp/methods/dither/)                                                                                                                                                                                                                                                                                                |
+| `@jimp/plugin-fisheye`   | [`fisheye`](/jimp/methods/fisheye/)                                                                                                                                                                                                                                                                                              |
+| `@jimp/plugin-flip`      | [`flip`](/jimp/methods/flip/)                                                                                                                                                                                                                                                                                                    |
+| `@jimp/plugin-hash`      | [`hash`](/jimp/methods/hash/), [`pHash`](/jimp/methods/phash/), [`distanceFromHash`](/jimp/methods/distance-from-hash/), and the functions [`distance`](/jimp/methods/distance/) and [`compareHashes`](/jimp/methods/compare-hashes/)                                                                                             |
+| `@jimp/plugin-mask`      | [`mask`](/jimp/methods/mask/)                                                                                                                                                                                                                                                                                                    |
+| `@jimp/plugin-print`     | [`print`](/jimp/methods/print/), and the functions [`measureText`](/jimp/methods/measure-text/) and [`measureTextHeight`](/jimp/methods/measure-text-height/). [`loadFont`](/jimp/methods/load-font/) is exported from `@jimp/plugin-print/load-font` and the fonts from `@jimp/plugin-print/fonts`.                             |
+| `@jimp/plugin-quantize`  | [`quantize`](/jimp/methods/quantize/)                                                                                                                                                                                                                                                                                            |
+| `@jimp/plugin-resize`    | [`resize`](/jimp/methods/resize/), [`scale`](/jimp/methods/scale/), [`scaleToFit`](/jimp/methods/scale-to-fit/)                                                                                                                                                                                                                  |
+| `@jimp/plugin-rotate`    | [`rotate`](/jimp/methods/rotate/), [`skew`](/jimp/methods/skew/), [`affine`](/jimp/methods/affine/)                                                                                                                                                                                                                              |
+| `@jimp/plugin-threshold` | [`threshold`](/jimp/methods/threshold/), and the function [`otsuThreshold`](/jimp/methods/otsu-threshold/)                                                                                                                                                                                                                      |
+| `@jimp/plugin-shadow`    | [`shadow`](/jimp/methods/shadow/). Not included in `jimp`.                                                                                                                                                                                                                                                                      |
+
+[`diff`](/jimp/methods/diff/) is a function from `@jimp/diff`, and the color helpers such as [`intToRGBA`](/jimp/methods/int-to-rgba/) come from `@jimp/utils`. Neither needs to be registered with `createJimp`.
+
+## Types
+
+`createJimp` infers the class's types from what you pass it, so methods and MIME types you didn't include are type errors.
+To type an image from your class, use `InstanceType`:
+
+```ts title="jimp.ts"
+export const Jimp = createJimp({ plugins: [resize], formats: [png] });
+
+export type JimpImage = InstanceType<typeof Jimp>;
+
+function thumbnail(image: JimpImage) {
+  return image.resize({ w: 100 });
+}
+```
+
+The `jimp` package exports the same type for its own class as `JimpInstance`.
+See [TypeScript](/jimp/concepts/typescript/) for more.
 
 ## Using a custom Jimp outside of Node.js
 
 Jimp's packages import `Buffer` from the [`buffer`](https://www.npmjs.com/package/buffer) package instead of relying on the Node.js global.
-In Node.js, Deno, and Bun this resolves to the built-in module, and bundlers targeting the browser use the npm package.
+In Node.js, Deno and Bun this resolves to the built-in module, and bundlers targeting the browser use the npm package.
 So a custom Jimp works in browsers and in Cloudflare Workers without a `Buffer` polyfill.
 
 ### Browsers
 
-The `jimp` package ships a pre-bundled browser build with everything it needs.
+The `jimp` package ships a pre-bundled browser build with everything it needs (see [Using in Browser](/jimp/guides/browser/)).
 A custom Jimp is bundled by your own bundler instead, so there are a few things to know.
 
 `@jimp/js-png` has a `browser` export condition that uses the browser build of `pngjs`.
 Bundlers that target the browser (Vite, webpack, esbuild, Rollup with `@rollup/plugin-node-resolve`'s `browser: true`) pick it up automatically, so you don't need to polyfill `stream`, `zlib` or `util`.
+
+The WASM format plugins need extra config in Vite 7 and earlier; see [WEBP / WASM](/jimp/guides/webp/#vite).
 
 Older versions of `@jimp/core` and the format plugins use the global `Buffer`, which browsers don't provide.
 If you see `ReferenceError: Buffer is not defined`, update your Jimp packages.
@@ -52,9 +162,21 @@ Vite logs `Module "fs" has been externalized for browser compatibility` for it, 
 ### Cloudflare Workers
 
 A custom Jimp works in Workers without any extra configuration.
-The WASM format plugins (like `@jimp/wasm-webp`) don't currently load in Workers, though.
+The WASM format plugins need their `.wasm` files passed in; see [Cloudflare Workers](/jimp/guides/webp/#cloudflare-workers) in the WASM guide.
 If other dependencies in your worker need Node.js APIs, enable the [`nodejs_compat`](https://developers.cloudflare.com/workers/runtime-apis/nodejs/) compatibility flag:
 
 ```toml title="wrangler.toml"
 compatibility_flags = ["nodejs_compat"]
 ```
+
+<Aside type="caution" title="Keep versions in step">
+  `@jimp/core` and the plugin packages are released together. Install the same
+  version of each, and of `jimp` if you import `defaultPlugins` from it, so
+  your app doesn't end up with two copies of `@jimp/core`.
+</Aside>
+
+## See also
+
+- [Writing Plugins](/jimp/guides/writing-plugins/) to add your own methods and formats
+- [WEBP / WASM](/jimp/guides/webp/) for the WASM format plugins
+- [Formats](/jimp/concepts/formats/) for what each format supports

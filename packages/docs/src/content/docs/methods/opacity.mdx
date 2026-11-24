@@ -1,0 +1,75 @@
+---
+title: "opacity()"
+description: "Multiply the alpha channel by a factor from 0 to 1."
+category: color
+method: "opacity"
+plugin: "@jimp/plugin-color"
+---
+
+import Playground from "../../../components/playground/Playground";
+import Related from "../../../components/Related.astro";
+
+`opacity` makes the whole image more transparent by multiplying the alpha channel of every pixel by `f`.
+`1` leaves the image unchanged, `0.5` makes it half as opaque and `0` makes it fully transparent.
+
+## Signature
+
+```ts title="opacity.d.ts"
+image.opacity(f: number): this
+```
+
+`opacity` changes the image in place and returns it, so you can chain more calls after it.
+
+## Parameters
+
+| Parameter | Type     | Default  | Description                                                           |
+| --------- | -------- | -------- | --------------------------------------------------------------------- |
+| `f`       | `number` | required | The factor to multiply each pixel's alpha by, from `0` to `1`.        |
+
+## Example
+
+```ts title="example.ts"
+import { Jimp } from "jimp";
+
+const image = await Jimp.read("logo.png");
+
+image.opacity(0.5);
+
+await image.write("logo-half.png");
+```
+
+### A translucent watermark
+
+Lower the opacity of a logo, then draw it on a photo with [`composite`](/jimp/methods/composite/):
+
+```ts title="example.ts"
+import { Jimp } from "jimp";
+
+const photo = await Jimp.read("photo.jpg");
+const logo = await Jimp.read("logo.png");
+
+logo.resize({ w: 120 }).opacity(0.4);
+
+photo.composite(logo, photo.width - logo.width - 16, photo.height - logo.height - 16);
+
+await photo.write("photo-watermarked.jpg");
+```
+
+`composite` also takes an `opacitySource` option, which does the same without changing `logo`.
+
+## Try it
+
+Drag the slider to change `f`. Transparent areas show the background through them.
+
+<Playground method="opacity" client:visible />
+
+## Notes
+
+- **Multiplies, never adds.** Pixels that are already transparent stay transparent, and `opacity` can't make an image more opaque. To make every pixel fully opaque, use [`opaque`](/jimp/methods/opaque/).
+- **Colors are unchanged.** Only alpha changes. Saving to a format without transparency, such as JPEG, drops the alpha channel again, so the image looks unchanged there.
+- **`opacity` or `fade`?** [`fade(f)`](/jimp/methods/fade/) is the same as `opacity(1 - f)`: it says how much to remove instead of how much to keep.
+- **Errors.** An `f` that isn't a number throws `f must be a number`. A value outside `0` to `1` throws `f must be a number from 0 to 1`.
+
+## Related
+
+<Related methods={["fade", "opaque", "composite", "mask", "hasAlpha"]} />

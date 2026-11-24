@@ -1,0 +1,144 @@
+---
+title: "composite()"
+description: "Draw another image on top, with blend modes and opacity."
+category: compose
+method: "composite"
+plugin: "@jimp/core"
+---
+
+import { Aside } from "@astrojs/starlight/components";
+import Playground from "../../../components/playground/Playground";
+import Related from "../../../components/Related.astro";
+
+`composite` draws another image on top of this one at a position, respecting both images' transparency.
+Use it for watermarks, stickers, collages and anything else built from layers. A blend mode controls how the colors combine, and two opacity options fade either layer.
+
+## Signature
+
+```ts title="composite.d.ts"
+image.composite(
+  src: Jimp,
+  x?: number,
+  y?: number,
+  options?: {
+    mode?: BlendMode;
+    opacitySource?: number;
+    opacityDest?: number;
+  },
+): this
+```
+
+`composite` changes this image in place and returns it, so you can chain more calls after it. The source image isn't changed.
+It's built into `@jimp/core`, so every Jimp class has it, including [custom ones](/jimp/guides/custom-jimp/).
+
+## Parameters
+
+| Parameter | Type     | Default  | Description                                                                                |
+| --------- | -------- | -------- | ------------------------------------------------------------------------------------------ |
+| `src`     | `Jimp`   | required | The image to draw on top. Any Jimp image, from any Jimp class.                             |
+| `x`       | `number` | `0`      | Where the left edge of `src` goes, in pixels. Can be negative or fractional (it's rounded). |
+| `y`       | `number` | `0`      | Where the top edge of `src` goes.                                                          |
+| `options` | `object` | `{}`     | See [Options](#options).                                                                   |
+
+## Options
+
+| Option          | Type        | Default              | Description                                                                                   |
+| --------------- | ----------- | -------------------- | --------------------------------------------------------------------------------------------- |
+| `mode`          | `BlendMode` | `BlendMode.SRC_OVER` | How the source's colors combine with the image's. See [blend modes](/jimp/concepts/compositing/#blend-modes). |
+| `opacitySource` | `number`    | `1`                  | Multiplies the source's alpha, from `0` (invisible) to `1`. Clamped to that range.            |
+| `opacityDest`   | `number`    | `1`                  | Multiplies the alpha of every pixel of this image before drawing, from `0` to `1`. Clamped.   |
+
+`BlendMode` is a named export of `jimp`:
+
+| Constant                | Effect                                                                  |
+| ----------------------- | ----------------------------------------------------------------------- |
+| `BlendMode.SRC_OVER`    | The source is painted over the image. The default.                      |
+| `BlendMode.DST_OVER`    | The source goes under the image and shows only where it's transparent. |
+| `BlendMode.MULTIPLY`    | Multiplies colors. Only darkens; white has no effect.                   |
+| `BlendMode.ADD`         | Adds colors. Only brightens, and clips to white quickly.                |
+| `BlendMode.SCREEN`      | Inverse of multiply. Only lightens; black has no effect.                |
+| `BlendMode.OVERLAY`     | Multiply in the image's dark areas, screen in its light areas.         |
+| `BlendMode.DARKEN`      | Keeps the darker value of each channel.                                 |
+| `BlendMode.LIGHTEN`     | Keeps the lighter value of each channel.                                |
+| `BlendMode.HARD_LIGHT`  | Like overlay, but decided by the source's brightness instead.           |
+| `BlendMode.DIFFERENCE`  | The difference of each channel. White inverts, black has no effect.     |
+| `BlendMode.EXCLUSION`   | A softer, lower-contrast difference.                                    |
+
+The [Compositing](/jimp/concepts/compositing/#blend-modes) page shows every mode side by side.
+
+## Example
+
+Add a watermark: shrink a logo, then draw it at half opacity in the bottom-right corner.
+
+```ts title="example.ts"
+import { Jimp } from "jimp";
+
+const image = await Jimp.read("photo.jpg");
+const logo = await Jimp.read("logo.png");
+
+logo.resize({ w: Math.round(image.width / 5) });
+
+image.composite(
+  logo,
+  image.width - logo.width - 20,
+  image.height - logo.height - 20,
+  { opacitySource: 0.5 },
+);
+
+await image.write("photo-watermarked.jpg");
+```
+
+### Use a blend mode
+
+Pass `mode` to change how colors combine. `MULTIPLY` is a good way to lay a texture or a dark design over a photo, since white parts of the source disappear:
+
+```ts title="example.ts"
+import { BlendMode, Jimp } from "jimp";
+
+const photo = await Jimp.read("wall.jpg");
+const stencil = await Jimp.read("stencil.png");
+
+photo.composite(stencil, 0, 0, { mode: BlendMode.MULTIPLY });
+```
+
+### Build an image from scratch
+
+Start from a blank canvas with [`new Jimp()`](/jimp/methods/new-jimp/) and composite layers onto it:
+
+```ts title="example.ts"
+const canvas = new Jimp({ width: 800, height: 400, color: 0xffffffff });
+
+canvas
+  .composite(left, 0, 0)
+  .composite(right, 400, 0)
+  .composite(badge, 360, 160);
+```
+
+## Try it
+
+Click the image to move the sticker, choose a `mode` and fade either layer with the opacity sliders.
+
+<Playground method="composite" src="dice-on-paper.png" client:visible />
+
+## Notes
+
+<Aside type="caution" title="opacityDest fades the whole image">
+  `opacityDest` multiplies the alpha of every pixel in the image, not only the
+  ones under the source. `opacityDest: 0.5` leaves the whole image
+  half-transparent, with the source drawn on top. To fade only the area under
+  the source, crop that area out and work on it separately.
+</Aside>
+
+- **Out-of-bounds parts are skipped.** Pixels of `src` that land outside the image are ignored, so a negative or large `x`, `y` crops the source at the edges. The image never grows.
+- **Transparency.** In every mode the result's alpha is `src + dst - src × dst`, the standard "over" formula, so fully transparent source pixels leave the image unchanged.
+- **Any Jimp class.** `src` can come from a different Jimp class than the image, such as a [custom Jimp](/jimp/guides/custom-jimp/) and the `jimp` package's `Jimp`. Anything that isn't an image throws `The source must be a Jimp image: an object with a bitmap of width, height and data`.
+- **Color profiles.** If `src` is in a different color space from the image, for example an sRGB logo on a Display P3 photo, a copy of it is converted to the image's color space first, so its colors look the same. See [Color spaces](/jimp/guides/color-spaces/).
+- **Opacity values are clamped.** `opacitySource` and `opacityDest` are clamped to `0`–`1`. A value that isn't a number is treated as `1`.
+- **Unknown modes.** A `mode` that isn't a `BlendMode` value throws `Unknown blend mode "nope", expected one of: srcOver, dstOver, multiply, add, screen, overlay, darken, lighten, hardLight, difference, exclusion` (with your value in the quotes).
+- **Non-number positions** throw `x and y must be numbers`.
+- **`composite` or `blit`?** [`blit`](/jimp/methods/blit/) can copy just part of the source image, and always blends like `SRC_OVER` at full opacity.
+- **Changed in 2.0:** `src` had to come from the same Jimp class as the image, or `composite` threw `The source must be a Jimp image`. An unknown `mode` threw `TypeError: blendmode is not a function`, and an opacity outside `0`–`1` was treated as `1`, so a negative opacity drew the source at full strength. Sources in a different color space were drawn without conversion.
+
+## Related
+
+<Related methods={["blit", "mask", "new Jimp", "opacity", "clone", "boxShadow"]} />

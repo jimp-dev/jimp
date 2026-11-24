@@ -1,69 +1,70 @@
 ---
 title: Jimp
-description: JavaScript Image Manipulation Program
+description: Jimp reads, edits and writes images in Node.js and the browser. It's written entirely in JavaScript, so there are no native dependencies to install or compile.
 template: splash
+editUrl: false
+prev: false
+next: false
 hero:
-  tagline: The JavaScript Image Manipulation Program
-  image:
-    file: ../../assets/image.png
+  tagline: Image processing in plain JavaScript.
   actions:
-    - text: Read the docs
+    - text: Get started
       link: /jimp/guides/getting-started/
-      icon: right-arrow
-      variant: primary
-    - text: GitHub
-      link: https://github.com/jimp-dev/jimp
-      icon: external
+    - text: All methods
+      link: /jimp/methods/
 ---
 
-import { Steps, Card, CardGrid, LinkCard } from "@astrojs/starlight/components";
+import Playground from "../../components/playground/Playground";
+import Section from "../../components/home/Section.astro";
+import Features from "../../components/home/Features.astro";
+import Usage from "../../components/home/Usage.astro";
+import DocCards from "../../components/home/DocCards.astro";
 
-<CardGrid>
-  <Card title="Image Formats" icon="pencil">
-    Supported image formats include PNG, JPEG, BMP, GIF, and TIFF.
-  </Card>
-  <Card title="Image Manipulation" icon="add-document">
-    You can resize, crop, apply filters and more.
-  </Card>
-  <Card title="Pluggable" icon="setting">
-    Create your own plugins to add new image manipulation methods or formats.
-  </Card>
-  <Card title="Just JavaScript" icon="open-book">
-    Jimp is just JavaScript, so you can use it in anywhere that JavaScript can
-    be used.
-  </Card>
-</CardGrid>
+<Section
+  id="playground"
+  title="Try it"
+  note="Each button runs a real Jimp method on the image. The code panel shows the program you'd write to get the same result."
+  link={{ text: "Full playground", href: "/jimp/playground/" }}
+/>
 
-## Usage
+<Playground
+  client:visible
+  tools={[
+    "resize",
+    "crop",
+    "rotate",
+    "flip",
+    "fisheye",
+    "circle",
+    "roundCorners",
+    "blur",
+    "sharpen",
+    "pixelate",
+    "dither",
+    "color",
+    "greyscale",
+    "invert",
+    "sepia",
+    "posterize",
+    "threshold",
+    "brightness",
+    "contrast",
+  ]}
+  steps={[{ op: "pixelate" }]}
+/>
 
-Using Jimp is simple.
-Load an image, manipulate it, and save it.
+<Section id="features" title="Features" />
 
-<Steps>
+<Features />
 
-1. Load an image.
+<Section id="usage" title="How it works" note="Every Jimp program follows the same three steps." />
 
-   ```ts
-   import { Jimp } from "jimp";
+<Usage />
 
-   const image = await Jimp.read("test/image.png");
-   ```
+<Section
+  id="docs"
+  title="Documentation"
+  note="Guides walk through common tasks. The method reference covers every API, with live previews."
+/>
 
-2. Manipulate the image.
-
-   ```ts
-   image.resize({ w: 100 });
-   ```
-
-3. Save the image.
-
-   ```ts
-   await image.write("test/output.png");
-   ```
-
-</Steps>
-
-<CardGrid>
-  <LinkCard title="Getting Started" href="/jimp/guides/getting-started/" />
-  <LinkCard title="API Reference" href="/jimp/api/jimp/classes/jimp/" />
-</CardGrid>
+<DocCards />

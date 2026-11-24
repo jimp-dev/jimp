@@ -1,0 +1,115 @@
+---
+title: "affine()"
+description: "Transform the image with a 2D matrix: scale, skew, flip, rotate, move."
+category: shape
+method: "affine"
+plugin: "@jimp/plugin-rotate"
+---
+
+import Playground from "../../../components/playground/Playground";
+import Related from "../../../components/Related.astro";
+
+`affine` transforms the image with a 2D affine matrix, the same kind CSS `transform: matrix()` uses.
+One call can combine scaling, skewing, flipping, rotating and moving. For a single transform, the dedicated methods such as [`skew`](/jimp/methods/skew/), [`rotate`](/jimp/methods/rotate/) and [`flip`](/jimp/methods/flip/) are easier to read.
+
+## Signature
+
+```ts title="affine.d.ts"
+image.affine(options: {
+  matrix: readonly [a: number, b: number, c: number, d: number, e: number, f: number];
+  mode?: ResizeStrategy;
+  fit?: boolean;
+}): this
+```
+
+`affine` changes the image in place and returns it, so you can chain more calls after it. The options type is exported as `AffineOptions`.
+
+## Options
+
+| Option   | Type                                          | Default       | Description                                                                                                                                |
+| -------- | --------------------------------------------- | ------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| `matrix` | `[a, b, c, d, e, f]`                          | required      | The transform, in the same order as CSS `matrix(a, b, c, d, e, f)`. See [The matrix](#the-matrix).                                        |
+| `mode`   | [`ResizeStrategy`](/jimp/concepts/constants/) | nearest pixel | How to sample the pixels. Leave it out to copy the nearest pixel, which keeps hard edges. Pass a strategy to interpolate.                 |
+| `fit`    | `boolean`                                     | `true`        | `true` resizes the canvas to the transformed image's bounding box, and `e` and `f` have no effect. `false` keeps the width and height. |
+
+## Example
+
+```ts title="example.ts"
+import { Jimp } from "jimp";
+
+const image = await Jimp.read("photo.jpg");
+
+// Shear along x, like CSS matrix(1, 0, 0.5, 1, 0, 0): 800 x 600 becomes 1100 x 600
+image.affine({ matrix: [1, 0, 0.5, 1, 0, 0] });
+
+await image.write("photo-sheared.png");
+```
+
+New space on the canvas is filled with `image.background`, which is transparent black for images loaded with `Jimp.read`. Save as PNG to keep it transparent, or set `image.background` first.
+
+### Combine transforms
+
+This flips the image horizontally and squashes it to half its height in one pass, with smooth edges:
+
+```ts title="example.ts"
+import { Jimp, ResizeStrategy } from "jimp";
+
+const image = await Jimp.read("photo.jpg");
+
+// 800 x 600 becomes 800 x 300
+image.affine({ matrix: [-1, 0, 0, 0.5, 0, 0], mode: ResizeStrategy.BICUBIC });
+```
+
+### Move the image
+
+With `fit: false` the canvas keeps its size and `e` and `f` move the result, in pixels:
+
+```ts title="example.ts"
+// Shift 10 px right and 5 px up; the uncovered strip is filled with image.background
+image.affine({ matrix: [1, 0, 0, 1, 10, -5], fit: false });
+```
+
+## The matrix
+
+Each point `(x, y)` of the image moves to:
+
+```ts
+x' = a * x + c * y + e
+y' = b * x + d * y + f
+```
+
+As in CSS, the origin is the center of the image and y points down. These matrices give the basic transforms:
+
+| Transform                         | `matrix`                               |
+| --------------------------------- | -------------------------------------- |
+| Nothing (identity)                | `[1, 0, 0, 1, 0, 0]`                   |
+| Scale by `sx` and `sy`            | `[sx, 0, 0, sy, 0, 0]`                 |
+| Flip horizontally                 | `[-1, 0, 0, 1, 0, 0]`                  |
+| Flip vertically                   | `[1, 0, 0, -1, 0, 0]`                  |
+| Skew by `x°` and `y°`             | `[1, tan(y°), tan(x°), 1, 0, 0]`       |
+| Rotate counter-clockwise by `θ`   | `[cos θ, -sin θ, sin θ, cos θ, 0, 0]`  |
+| Move by `tx` and `ty` (`fit: false`) | `[1, 0, 0, 1, tx, ty]`              |
+
+To apply one transform after another, multiply their matrices, the same way you would for CSS.
+
+`rotate(deg)` turns counter-clockwise, so it matches CSS `rotate(-deg)`. For example, `affine` with `[cos 30°, -sin 30°, sin 30°, cos 30°, 0, 0]` gives the same pixels as `rotate(30)`.
+
+## Try it
+
+Pick a preset, or choose `custom matrix` to enter the six numbers yourself. Set a `mode` to smooth the edges, and turn off `fit` to keep the size, which also makes `e` and `f` move the image.
+
+<Playground method="affine" client:visible />
+
+## Notes
+
+- **Added in 2.0.**
+- **Canvas size.** With `fit` on, each side is the transformed bounding box rounded up to whole pixels, plus one pixel if that keeps the samples centered on source pixels. The result is never smaller than 1 × 1.
+- **Exact where possible.** Flips, right-angle rotations, whole-pixel moves and 45° skews land every output pixel on a source pixel center, so the nearest pixel is taken even when `mode` is set. A flip with `ResizeStrategy.MITCHELL` gives exactly the same pixels as [`flip`](/jimp/methods/flip/).
+- **Transparency.** With a `mode`, colors are weighted by alpha, so edges against a transparent background don't get a dark fringe. With `fit` on, the image is drawn over `image.background` first, as [`rotate`](/jimp/methods/rotate/) does.
+- **No perspective.** An affine matrix keeps parallel lines parallel, so it can't make a true perspective or keystone effect.
+- **Errors.** A matrix that would flatten the image, where `a * d - b * c` is `0` (for example `[1, 2, 2, 4, 0, 0]`), throws `The matrix can't be inverted (a * d - b * c is 0), so it would flatten the image into a line or a point`. `NaN` and `Infinity` fail validation with `Invalid input: expected number, received NaN` (or `Infinity`), and a matrix with fewer than six numbers with `Too small: expected array to have >=6 items`. These arrive as a zod error; see [Errors and validation](/jimp/concepts/errors-and-validation/).
+- **TypeScript.** A matrix stored in a variable needs `as const` (or a tuple type) so it's typed as six numbers: `const m = [1, 0, 0.5, 1, 0, 0] as const;`.
+
+## Related
+
+<Related methods={["skew", "rotate", "flip", "scale", "resize"]} />

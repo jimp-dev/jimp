@@ -1,0 +1,325 @@
+---
+/**
+ * Home page hero: the JIMP wordmark, tagline, lede (the page description),
+ * chunky call-to-action buttons, the install command and Jimpy with a speech
+ * bubble. Click Jimpy for another tip.
+ */
+import type { Props } from "@astrojs/starlight/props";
+import InstallCommand from "../components/InstallCommand.astro";
+import Jimpy from "../components/Jimpy.astro";
+import { uiIcon } from "../components/icons";
+
+const { data } = Astro.props.entry;
+const { title = data.title, tagline, actions = [] } = data.hero ?? {};
+
+const letters = [
+  ["J", "var(--jp-red)", -5],
+  ["I", "var(--jp-yellow)", 4],
+  ["M", "var(--jp-sky)", -3],
+  ["P", "var(--jp-green)", 5],
+] as const;
+const buttonColors = ["var(--jp-red)", "var(--jp-blue)", "var(--jp-green)"];
+
+const tips = [
+  "Every example on this site runs the real Jimp, in your browser.",
+  "Methods change the image in place. Call <code>clone()</code> first to keep the original.",
+  "In v1, <code>write</code>, <code>getBuffer</code> and <code>getBase64</code> all return promises.",
+  "Need WEBP or AVIF? Add a WASM format plugin.",
+  "<code>resize</code> keeps the aspect ratio when you pass only <code>w</code> or <code>h</code>.",
+];
+---
+
+<section class="hero not-content" aria-labelledby="_top">
+  <div class="copy">
+    <h1 id="_top" class="logo" aria-label={title}>
+      {
+        letters.map(([ch, color, rot]) => (
+          <span aria-hidden="true" style={`--c:${color}; transform:rotate(${rot}deg)`}>
+            {ch}
+          </span>
+        ))
+      }
+    </h1>
+    {tagline && <p class="tagline" set:html={tagline} />}
+    {data.description && <p class="lede">{data.description}</p>}
+    <div class="ctas">
+      {
+        actions.map(({ text, link, attrs }, i) => (
+          <a class="big" href={link} style={`--c:${buttonColors[i % buttonColors.length]}`} {...attrs}>
+            {text}
+            {i === 0 && <Fragment set:html={uiIcon("arrow", "#fff")} />}
+          </a>
+        ))
+      }
+    </div>
+    <InstallCommand />
+  </div>
+  <div class="mascot">
+    <svg class="splat" viewBox="0 0 400 400" aria-hidden="true">
+      <path d="M200 30c30 0 30 40 60 40s50-30 70 0-10 50 10 80 50 30 40 60-50 20-50 60 30 60 0 80-50-20-80 0-30 50-60 40-20-50-50-60-60 20-80-10 20-50 0-80-50-30-40-60 50-20 50-60-20-70 10-80 50 30 70 10 30-60 60-60z" fill="#ff5fb0" stroke="#1b1840" stroke-width="6"></path>
+      <circle cx="350" cy="90" r="16" fill="#3fe0b5" stroke="#1b1840" stroke-width="5"></circle>
+      <circle cx="40" cy="320" r="12" fill="#ffd83a" stroke="#1b1840" stroke-width="5"></circle>
+      <circle cx="370" cy="330" r="9" fill="#3a7bff" stroke="#1b1840" stroke-width="4"></circle>
+    </svg>
+    <p class="bubble" aria-live="polite" set:html={tips[0]} />
+    <button type="button" class="jimpy-button" aria-label="Show another tip" data-tips={JSON.stringify(tips)}>
+      <Jimpy />
+    </button>
+  </div>
+</section>
+
+<script>
+  const button = document.querySelector<HTMLButtonElement>(".jimpy-button");
+  const bubble = document.querySelector<HTMLElement>(".mascot .bubble");
+
+  if (button && bubble) {
+    const tips: string[] = JSON.parse(button.dataset.tips ?? "[]");
+    let index = 0;
+
+    button.addEventListener("click", () => {
+      index = (index + 1) % tips.length;
+      bubble.innerHTML = tips[index]!;
+      button.classList.remove("bob");
+      void button.offsetWidth;
+      button.classList.add("bob");
+    });
+
+    // Jimpy's eyes follow the pointer.
+    const svg = button.querySelector("svg")!;
+    const pupils = [...svg.querySelectorAll<SVGCircleElement>(".pupil")];
+    document.addEventListener(
+      "pointermove",
+      (e) => {
+        const r = svg.getBoundingClientRect();
+        if (!r.width) return;
+        for (const pupil of pupils) {
+          const cx = Number(pupil.dataset.cx);
+          const cy = 146;
+          const sx = r.left + (cx / 250) * r.width;
+          const sy = r.top + (cy / 270) * r.height;
+          const angle = Math.atan2(e.clientY - sy, e.clientX - sx);
+          const dist = Math.min(10, Math.hypot(e.clientX - sx, e.clientY - sy) / 22);
+          pupil.setAttribute("cx", String(cx + Math.cos(angle) * dist));
+          pupil.setAttribute("cy", String(cy + Math.sin(angle) * dist));
+        }
+      },
+      { passive: true },
+    );
+  }
+</script>
+
+<style>
+  .hero {
+    position: relative;
+    isolation: isolate;
+    display: grid;
+    grid-template-columns: 1.25fr 1fr;
+    gap: 24px;
+    align-items: center;
+    padding: 72px 76px 64px;
+  }
+  /* Wobbly hand-drawn card behind the hero */
+  .hero::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -2;
+    background: var(--jp-surface);
+    border: 4px solid var(--jp-line);
+    border-radius: 32px;
+    box-shadow: 12px 12px 0 var(--jp-shadow);
+    filter: url(#wob);
+  }
+  .hero::after {
+    content: "";
+    position: absolute;
+    inset: 14px;
+    z-index: -1;
+    border: 3px dashed var(--jp-dash);
+    border-radius: 24px;
+    pointer-events: none;
+  }
+
+  .logo {
+    margin: 0 0 4px;
+    font-family: var(--jp-display);
+    font-weight: 400;
+    font-size: clamp(84px, 11vw, 150px);
+    line-height: 0.9;
+    letter-spacing: 3px;
+  }
+  .logo span {
+    display: inline-block;
+    color: var(--c);
+    -webkit-text-stroke: 4.5px var(--jp-ink);
+    paint-order: stroke fill;
+    text-shadow: 6px 7px 0 var(--jp-ink);
+    transition: transform 0.18s cubic-bezier(0.3, 1.8, 0.5, 1);
+  }
+  .logo span:hover {
+    transform: translateY(-8px) rotate(-4deg) !important;
+  }
+  .tagline {
+    max-width: 560px;
+    margin: 14px 0 12px;
+    font-family: var(--jp-ui);
+    font-weight: 600;
+    font-size: clamp(26px, 3vw, 34px);
+    line-height: 1.2;
+    color: var(--jp-text);
+  }
+  .lede {
+    max-width: 540px;
+    margin: 0 0 24px;
+    font-size: 18.5px;
+    line-height: 1.6;
+    color: var(--jp-text-2);
+  }
+
+  .ctas {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    align-items: center;
+    margin-bottom: 22px;
+  }
+  .big {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 11px 20px 7px;
+    font-family: var(--jp-display);
+    font-weight: 400;
+    font-size: 22px;
+    letter-spacing: 1px;
+    color: #fff;
+    text-decoration: none;
+    text-shadow: 2px 2px 0 var(--jp-ink);
+    background: var(--c);
+    border: 4px solid var(--jp-ink);
+    border-radius: 18px;
+    box-shadow: 0 6px 0 var(--jp-ink);
+    transition: transform 0.12s;
+  }
+  .big:hover {
+    transform: translateY(-3px);
+    color: #fff;
+  }
+  .big:active {
+    transform: translateY(4px);
+    box-shadow: 0 2px 0 var(--jp-ink);
+  }
+  .big :global(svg) {
+    width: 22px;
+    height: 22px;
+    margin-top: -4px;
+  }
+
+  .mascot {
+    position: relative;
+    display: grid;
+    place-items: center;
+    min-height: 360px;
+  }
+  .splat {
+    position: absolute;
+    z-index: -1;
+    width: 108%;
+    max-width: 470px;
+    transform: rotate(-8deg);
+  }
+  .jimpy-button {
+    padding: 0;
+    border: 0;
+    background: none;
+    cursor: pointer;
+    transition: transform 0.2s cubic-bezier(0.3, 1.8, 0.5, 1);
+  }
+  .jimpy-button :global(svg) {
+    display: block;
+    width: 250px;
+    height: auto;
+  }
+  .jimpy-button:hover {
+    transform: rotate(-3deg);
+  }
+  .jimpy-button.bob {
+    animation: bob 0.45s cubic-bezier(0.3, 1.8, 0.5, 1);
+  }
+  @keyframes bob {
+    40% {
+      transform: translateY(-12px) scale(1.02, 0.98);
+    }
+    100% {
+      transform: none;
+    }
+  }
+  .bubble {
+    position: absolute;
+    top: -6px;
+    left: -14px;
+    z-index: 1;
+    max-width: 230px;
+    margin: 0;
+    padding: 10px 14px;
+    font-family: var(--jp-ui);
+    font-weight: 500;
+    font-size: 15.5px;
+    line-height: 1.35;
+    color: var(--jp-ink);
+    background: #fff;
+    border: 3.5px solid var(--jp-ink);
+    border-radius: 22px;
+    box-shadow: 4px 4px 0 var(--jp-ink);
+    transform: rotate(-3deg);
+  }
+  .bubble::after {
+    content: "";
+    position: absolute;
+    bottom: -20px;
+    right: 40px;
+    width: 24px;
+    height: 24px;
+    background: #fff;
+    border-right: 3.5px solid var(--jp-ink);
+    border-bottom: 3.5px solid var(--jp-ink);
+    transform: skew(25deg) rotate(30deg);
+  }
+  .bubble :global(code) {
+    font-family: var(--jp-mono);
+    font-size: 0.85em;
+    background: #efeaff;
+    border: 1.5px solid #d9d0ff;
+    border-radius: 6px;
+    padding: 0 4px;
+  }
+
+  @media (max-width: 1180px) {
+    .hero {
+      padding: 60px 52px 56px;
+    }
+  }
+  @media (max-width: 49.99rem) {
+    .hero {
+      grid-template-columns: minmax(0, 1fr);
+      padding: 50px 38px 46px;
+    }
+    .copy {
+      min-width: 0;
+    }
+    .mascot {
+      min-height: 300px;
+    }
+    .splat {
+      width: 100%;
+    }
+  }
+  @media (max-width: 30rem) {
+    .hero {
+      padding: 42px 30px 38px;
+    }
+    .logo {
+      font-size: 72px;
+    }
+  }
+</style>

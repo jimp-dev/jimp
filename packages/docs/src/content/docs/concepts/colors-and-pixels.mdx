@@ -1,0 +1,301 @@
+---
+title: "Colors and pixels"
+description: "How Jimp stores pixels, how to read and write them, and the helpers for converting colors."
+---
+
+import { Aside } from "@astrojs/starlight/components";
+import Playground from "../../../components/playground/Playground";
+import StickerSheet from "../../../components/StickerSheet.astro";
+
+Every Jimp image is a grid of pixels stored in one flat buffer of bytes, four bytes per pixel.
+Built-in methods such as [`blur`](/jimp/methods/blur/) or [`greyscale`](/jimp/methods/greyscale/) work on that buffer for you, but when you need an effect Jimp doesn't have, or want to measure something about an image, you read and write the pixels yourself.
+This page covers how the pixels are laid out, the methods for reaching them, and the helpers for converting between color formats.
+
+## The bitmap
+
+An image's pixels live in `image.bitmap`, a [`Bitmap`](/jimp/api/jimp/interfaces/bitmap/) object with three properties:
+
+| Property | Type     | Description                                                     |
+| -------- | -------- | --------------------------------------------------------------- |
+| `width`  | `number` | Width in pixels. Also available as `image.width`.              |
+| `height` | `number` | Height in pixels. Also available as `image.height`.            |
+| `data`   | `Buffer` | The pixels, `width * height * 4` bytes long.                    |
+
+`data` holds the pixels row by row, starting at the top-left corner.
+Each pixel takes four bytes, always in the same order, each from `0` to `255`:
+
+| Byte      | Channel | Meaning                                  |
+| --------- | ------- | ---------------------------------------- |
+| `idx`     | red     |                                          |
+| `idx + 1` | green   |                                          |
+| `idx + 2` | blue    |                                          |
+| `idx + 3` | alpha   | `0` is fully transparent, `255` opaque.  |
+
+Every image is stored this way, whatever format it was read from: a JPEG gets an alpha of `255` everywhere, and a palette-based GIF is expanded to full RGBA.
+It's the same layout as the canvas [`ImageData`](https://developer.mozilla.org/en-US/docs/Web/API/ImageData), so you can copy between them directly; see [Using in Browser](/jimp/guides/browser/).
+
+### Finding a pixel
+
+The first byte of the pixel at `x`, `y` is at index `(y * width + x) * 4`:
+
+```ts title="example.ts"
+import { Jimp } from "jimp";
+
+const image = await Jimp.read("photo.png");
+const { data, width } = image.bitmap;
+
+const x = 10;
+const y = 20;
+const idx = (y * width + x) * 4;
+
+const [r, g, b, a] = data.subarray(idx, idx + 4);
+```
+
+[`getPixelIndex`](/jimp/methods/get-pixel-index/) does this calculation for you, and decides what happens to coordinates outside the image.
+
+<Aside type="caution" title="Values wrap around">
+  `data` is a `Buffer`, a kind of `Uint8Array`. Writing a value outside `0` to
+  `255` doesn't throw or clamp: it wraps, so `300` is stored as `44` and `-1`
+  as `255`, and fractions are truncated. Clamp computed values with
+  [`limit255`](/jimp/methods/limit255/) and round them with `Math.round`.
+</Aside>
+
+## Colors as numbers
+
+Methods that read or take a single color use one number in `0xRRGGBBAA` form: two hex digits each for red, green, blue and alpha.
+
+```ts title="example.ts"
+0xff0000ff; // opaque red
+0x00ff0080; // half-transparent green
+0xffffffff; // opaque white
+0x00000000; // transparent black
+```
+
+Note the alpha at the end: `0x0000ff` (blue without alpha digits) is `0x000000ff`, which is opaque black.
+The numbers are unsigned 32-bit integers from `0` to `0xffffffff`.
+
+Several helpers convert between this form and others:
+
+| Helper                                             | Converts                                | Example                                       |
+| -------------------------------------------------- | --------------------------------------- | --------------------------------------------- |
+| [`intToRGBA`](/jimp/methods/int-to-rgba/)          | number to `{ r, g, b, a }`              | `0xff8800ff` → `{ r: 255, g: 136, b: 0, a: 255 }` |
+| [`rgbaToInt`](/jimp/methods/rgba-to-int/)          | four channels to number                 | `255, 136, 0, 255` → `0xff8800ff`             |
+| [`cssColorToHex`](/jimp/methods/css-color-to-hex/) | CSS string to number                    | `"rgba(255, 0, 0, 0.5)"` → `0xff000080`       |
+| [`limit255`](/jimp/methods/limit255/)              | any number to the `0`–`255` range       | `300` → `255`                                 |
+| [`colorDiff`](/jimp/methods/color-diff/)           | two colors to a difference, `0` to `1`  | black and white → `1`                         |
+
+All of them are named exports of `jimp`:
+
+```ts title="example.ts"
+import { intToRGBA, rgbaToInt, cssColorToHex, limit255, colorDiff } from "jimp";
+```
+
+<StickerSheet category="utils" />
+
+### CSS color strings
+
+A few APIs accept a CSS color string as well as a number: the `color` of `new Jimp({ width, height, color })`, the `color` options of [`border`](/jimp/methods/border/) and [`boxShadow`](/jimp/methods/box-shadow/), and the `mix`, `multiply` and `xor` actions of [`color`](/jimp/methods/color/).
+They're converted with [`cssColorToHex`](/jimp/methods/css-color-to-hex/).
+The pixel methods don't: [`setPixelColor`](/jimp/methods/set-pixel-color/) only takes a number, so convert strings first.
+
+```ts title="example.ts"
+import { Jimp, cssColorToHex } from "jimp";
+
+const image = new Jimp({ width: 100, height: 100, color: "#ffeedd" }); // a string works here
+
+image.setPixelColor(cssColorToHex("tomato"), 10, 10); // but not here
+```
+
+A string that isn't a color throws, for example `Invalid color "nope"`.
+
+### Building numbers yourself
+
+If you assemble a color with bit operators, finish with `>>> 0`.
+JavaScript's `<<` and `|` produce signed 32-bit numbers, so any color with red `128` or above comes out negative, and `setPixelColor` throws a `RangeError` for negative numbers.
+
+```ts title="example.ts"
+const r = 200, g = 100, b = 50, a = 255;
+
+const wrong = (r << 24) | (g << 16) | (b << 8) | a; // -932957441
+const right = ((r << 24) | (g << 16) | (b << 8) | a) >>> 0; // 0xc86432ff
+
+// or let the helper do it:
+const same = rgbaToInt(r, g, b, a); // 0xc86432ff
+```
+
+## Reading and writing single pixels
+
+[`getPixelColor`](/jimp/methods/get-pixel-color/) reads a pixel as a number and [`setPixelColor`](/jimp/methods/set-pixel-color/) writes one.
+Note that `setPixelColor` takes the color first:
+
+```ts title="example.ts"
+import { Jimp, intToRGBA } from "jimp";
+
+const image = await Jimp.read("photo.png");
+
+const color = image.getPixelColor(10, 20);
+const { r, g, b, a } = intToRGBA(color);
+
+image.setPixelColor(0xff0000ff, 10, 20); // make it red
+```
+
+`setPixelColor` replaces all four channels, including alpha. It doesn't blend the new color with the old one; use [`composite`](/jimp/methods/composite/) for that.
+
+Try both: click the image to pick a pixel for `getPixelColor`, or to place a dot drawn with `setPixelColor`.
+
+<Playground
+  client:visible
+  title="Pixels"
+  tools={["getPixelColor", "setPixelColor", "colorDiff"]}
+  steps={[{ op: "getPixelColor" }]}
+/>
+
+### Coordinates outside the image
+
+Coordinates are rounded to whole pixels, and coordinates outside the image don't throw:
+
+- `getPixelColor` reads the nearest edge pixel, so `getPixelColor(-5, 0)` returns the color of `(0, 0)`.
+- `setPixelColor` does nothing, like drawing outside a canvas, so `setPixelColor(color, 500, 0)` on a 100-pixel-wide image leaves the image unchanged. Shapes drawn across the border are clipped.
+
+`NaN` coordinates throw, so a bad calculation doesn't silently change pixel `(0, 0)`.
+
+## Edge handling
+
+[`getPixelIndex`](/jimp/methods/get-pixel-index/) takes an optional third argument that controls what happens to coordinates outside the image. Its values come from the `Edge` enum:
+
+| Value | Name          | Outside coordinates                         |
+| ----- | ------------- | ------------------------------------------- |
+| `1`   | `Edge.EXTEND` | Clamp to the nearest edge pixel (default). |
+| `2`   | `Edge.WRAP`   | Wrap around to the opposite side.           |
+| `3`   | `Edge.CROP`   | Return `-1`.                                |
+
+```ts title="example.ts"
+import { Edge } from "jimp";
+
+const idx = image.getPixelIndex(x - 10, y, Edge.CROP);
+
+if (idx !== -1) {
+  // the pixel exists
+}
+```
+
+The same enum is used by the `edgeHandling` option of [`convolution`](/jimp/methods/convolution/).
+See [Constants and enums](/jimp/concepts/constants/#edge).
+
+## Looping over pixels
+
+To work on many pixels, use [`scan`](/jimp/methods/scan/) or [`scanIterator`](/jimp/methods/scan-iterator/).
+Both visit every pixel of the image, or of a region, row by row, and give you `x`, `y` and the pixel's index `idx`.
+
+`scan` takes a callback:
+
+```ts title="example.ts"
+image.scan((x, y, idx) => {
+  const { data } = image.bitmap;
+  data[idx] = 255 - data[idx]; // invert red
+  data[idx + 1] = 255 - data[idx + 1]; // invert green
+  data[idx + 2] = 255 - data[idx + 2]; // invert blue
+});
+
+// only a 50 × 50 region at (10, 10)
+image.scan(10, 10, 50, 50, (x, y, idx) => {
+  image.bitmap.data[idx + 3] = 0;
+});
+```
+
+`scanIterator` gives you an iterator for `for...of`, so you can `break` early:
+
+```ts title="example.ts"
+let hasRed = false;
+
+for (const { idx } of image.scanIterator()) {
+  if (image.bitmap.data[idx] > 200) {
+    hasRed = true;
+    break;
+  }
+}
+```
+
+Choose an effect, turn on a region, and compare the two loops in the code panel:
+
+<Playground
+  client:visible
+  title="Loops"
+  tools={["scan", "scanIterator", "limit255"]}
+  steps={[{ op: "scan" }]}
+/>
+
+Both clamp the region to the image, so a region that reaches past an edge only visits the pixels inside the image.
+
+### Performance
+
+From fastest to slowest:
+
+1. A plain loop over `image.bitmap.data`, four bytes at a time, when you don't need `x` and `y`.
+2. `scan`.
+3. `scanIterator`, which creates an object for every pixel; it takes roughly two to three times as long as `scan`.
+4. `getPixelColor` and `setPixelColor` for every pixel, which compute an index and convert the color on every call.
+
+```ts title="example.ts"
+const { data } = image.bitmap;
+
+for (let idx = 0; idx < data.length; idx += 4) {
+  data[idx + 3] = Math.round(data[idx + 3] * 0.5); // halve the alpha
+}
+```
+
+## Color spaces
+
+Pixel values are stored in the image's own color space.
+Most images are sRGB, but a photo from a phone is often Display P3, and Jimp keeps it that way: `image.colorSpace` tells you which, and the ICC profile is written back when you save.
+See [Color spaces](/jimp/guides/color-spaces/) for the full picture.
+
+That affects colors in two ways:
+
+- **Numbers are raw pixel values.** `0xff0000ff`, `setPixelColor`, `getPixelColor`, `image.background` and the `{ r, g, b }` colors of `color()` are used as they are, in the image's color space. Reading a pixel and writing it back never changes it.
+- **CSS strings are sRGB**, as in a browser, and are converted to the image's color space. On a Display P3 image, `"#ff0000"` becomes `rgb(234, 51, 35)`, the same red you'd see in a browser. Use `color(display-p3 r g b)` for a Display P3 color.
+
+```ts title="example.ts"
+import { Jimp } from "jimp";
+
+const image = new Jimp({ width: 10, height: 10, color: "#ff0000", colorSpace: "display-p3" });
+
+image.getPixelColor(0, 0).toString(16); // "ea3323ff": sRGB red, converted to Display P3
+```
+
+Methods that change pixels, such as [`greyscale`](/jimp/methods/greyscale/), [`brightness`](/jimp/methods/brightness/) and the `color()` actions, work on the stored values. [`exposure`](/jimp/methods/exposure/) is the exception: it uses the image's tone curves to work in linear light.
+To convert the pixels to another space, use [`toColorSpace`](/jimp/methods/to-color-space/).
+
+## Transparency
+
+The alpha byte says how opaque each pixel is.
+[`hasAlpha`](/jimp/methods/has-alpha/) returns `true` if any pixel's alpha is below `255`:
+
+```ts title="example.ts"
+await image.write(image.hasAlpha() ? "out.png" : "out.jpeg");
+```
+
+PNG, TIFF and ICO keep the alpha channel when written, GIF keeps fully transparent pixels, and JPEG and BMP drop it.
+Before writing JPEG or BMP, Jimp draws the image over `image.background`, a color number that is transparent black (`0x00000000`) for images you read and the fill color for images made with `new Jimp({ color })`.
+Set it to choose what transparent areas turn into:
+
+```ts title="example.ts"
+image.background = 0xffffffff; // white
+
+await image.write("flattened.jpeg");
+```
+
+To change alpha across a whole image, use [`opacity`](/jimp/methods/opacity/), [`fade`](/jimp/methods/fade/) or [`opaque`](/jimp/methods/opaque/).
+
+## All pixel methods
+
+<StickerSheet category="pixels" />
+
+## See also
+
+- [Compositing](/jimp/concepts/compositing/): combining images with blend modes instead of copying pixels.
+- [Constants and enums](/jimp/concepts/constants/): `Edge` and the other enums.
+- [TypeScript](/jimp/concepts/typescript/): the `Bitmap`, `RGBAColor` and `RGBColor` types.
+- [Color spaces](/jimp/guides/color-spaces/): Display P3, ICC profiles and converting between spaces.
+- [Writing Plugins](/jimp/guides/writing-plugins/): package a pixel effect as a reusable method.
+- [Using in Browser](/jimp/guides/browser/): moving pixels between Jimp and a canvas.

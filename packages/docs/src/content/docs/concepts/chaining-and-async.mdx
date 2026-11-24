@@ -1,0 +1,199 @@
+---
+title: "Chaining and async"
+description: "Image methods change the image in place and return it. Find out which calls are async and when to clone."
+---
+
+import { Aside } from "@astrojs/starlight/components";
+import Playground from "../../../components/playground/Playground";
+
+Jimp's image methods work on the image you call them on: they change its pixels in place and return the same image, so calls can be chained.
+Only the calls that read or write files and bytes are async.
+Knowing these two rules tells you where to put `await` and when you need a copy.
+
+## Methods change the image
+
+Calling a method such as [`resize`](/jimp/methods/resize/) or [`greyscale`](/jimp/methods/greyscale/) replaces the image's pixels. There's no undo:
+
+```ts title="example.ts"
+import { Jimp } from "jimp";
+
+const image = await Jimp.read("photo.jpg");
+
+image.greyscale();
+
+// `image` is now grey. The colors are gone.
+```
+
+Each method also returns the image it was called on, not a new one:
+
+```ts title="example.ts"
+const small = image.resize({ w: 100 });
+
+small === image; // true
+image.width; // 100
+```
+
+## Chaining
+
+Because every editing method returns the image, you can chain calls. Each one works on the result of the one before:
+
+```ts title="example.ts"
+const image = await Jimp.read("photo.jpg");
+
+image
+  .resize({ w: 600 })
+  .crop({ x: 0, y: 0, w: 600, h: 400 })
+  .greyscale()
+  .contrast(0.2);
+
+await image.write("banner.jpg");
+```
+
+That's the same as writing each call on its own line. Order matters: blurring then resizing doesn't give the same image as resizing then blurring.
+Build a chain step by step here, then try a different order:
+
+<Playground
+  client:visible
+  title="Chain"
+  tools={["resize", "rotate", "crop", "flip", "blur", "pixelate", "greyscale", "brightness"]}
+  steps={[{ op: "greyscale" }, { op: "pixelate" }]}
+/>
+
+## Keeping the original with `clone`
+
+When you need the image before and after a change, call [`clone`](/jimp/methods/clone/) first and edit the copy:
+
+```ts title="example.ts"
+const image = await Jimp.read("photo.jpg");
+
+const thumbnail = image.clone().cover({ w: 150, h: 150 });
+const banner = image.clone().resize({ w: 1200 }).blur(4);
+
+// `image` is unchanged
+await Promise.all([
+  thumbnail.write("thumb.jpg"),
+  banner.write("banner.jpg"),
+  image.write("original.png"),
+]);
+```
+
+Cloning copies every pixel, so clone once per version you need, not before every call.
+
+## What's async
+
+Anything that reads or writes encoded image data, fonts or files returns a promise. Everything else is synchronous.
+
+| Async: `await` these                                         | Returns                    |
+| ------------------------------------------------------------ | -------------------------- |
+| [`Jimp.read(pathOrUrl)`](/jimp/methods/read/)                | `Promise<Jimp>`            |
+| [`Jimp.fromBuffer(buffer)`](/jimp/methods/from-buffer/)      | `Promise<Jimp>`            |
+| [`image.getBuffer(mime)`](/jimp/methods/get-buffer/)         | `Promise<Buffer>`          |
+| [`image.getBase64(mime)`](/jimp/methods/get-base64/)         | `Promise<string>`          |
+| [`image.write(path)`](/jimp/methods/write/)                  | `Promise<void>`            |
+| [`loadFont(file)`](/jimp/methods/load-font/)                 | `Promise<font>`            |
+
+These are synchronous, including two ways of creating an image:
+
+- [`new Jimp({ width, height })`](/jimp/methods/new-jimp/) and [`Jimp.fromBitmap(bitmap)`](/jimp/methods/from-bitmap/)
+- [`clone`](/jimp/methods/clone/) and every editing method: `resize`, `crop`, `rotate`, `blur`, `color`, `composite`, `mask`, `print`…
+- Every method that returns a value, and helper functions such as [`intToRGBA`](/jimp/methods/int-to-rgba/), [`diff`](/jimp/methods/diff/) and [`measureText`](/jimp/methods/measure-text/)
+
+So a typical program awaits at the start and the end, and nowhere in between:
+
+```ts title="example.ts"
+import { Jimp, loadFont } from "jimp";
+import { SANS_32_WHITE } from "jimp/fonts";
+
+const [image, font] = await Promise.all([Jimp.read("photo.jpg"), loadFont(SANS_32_WHITE)]);
+
+image
+  .cover({ w: 800, h: 400 })
+  .brightness(0.8)
+  .print({ font, x: 20, y: 20, text: "Hello" });
+
+const bytes = await image.getBuffer("image/jpeg", { quality: 85 });
+```
+
+### Chaining across `await`
+
+A chain can start from a promise as long as you wrap the `await`, and it can end with an async call:
+
+```ts title="example.ts"
+const bytes = await (await Jimp.read("photo.jpg")).resize({ w: 300 }).getBuffer("image/png");
+```
+
+That works, but two statements are easier to read:
+
+```ts title="example.ts"
+const image = await Jimp.read("photo.jpg");
+const bytes = await image.resize({ w: 300 }).getBuffer("image/png");
+```
+
+<Aside type="caution" title="Forgetting await">
+  Without `await`, you get a promise instead of the image or the data.
+  `Jimp.read("a.png").resize(...)` throws `Jimp.read(...).resize is not a
+  function`, and
+  `img.src = image.getBase64("image/png")` sets the source to `[object Promise]`.
+  A missing `await` on `write` can also let your program exit, or move on,
+  before the file is saved.
+</Aside>
+
+## Methods that return values
+
+Some methods measure or inspect the image instead of changing it. They return a value, so they end a chain:
+
+| Method                                                       | Returns                                     |
+| ------------------------------------------------------------ | ------------------------------------------- |
+| [`getPixelColor(x, y)`](/jimp/methods/get-pixel-color/)      | The pixel's color as an RGBA `number`       |
+| [`getPixelIndex(x, y)`](/jimp/methods/get-pixel-index/)      | The pixel's offset in `image.bitmap.data`   |
+| [`hasAlpha()`](/jimp/methods/has-alpha/)                     | `boolean`                                   |
+| [`autocropRect()`](/jimp/methods/autocrop-rect/)             | `{ x, y, w, h }`: the area `autocrop` would keep |
+| [`hash()`](/jimp/methods/hash/), [`pHash()`](/jimp/methods/phash/) | A perceptual hash `string`             |
+| [`distanceFromHash(pHash)`](/jimp/methods/distance-from-hash/) | A `number` from `0` (same) to `1`         |
+| [`scanIterator()`](/jimp/methods/scan-iterator/)             | An iterator over the pixels                 |
+
+[`setPixelColor`](/jimp/methods/set-pixel-color/), [`scan`](/jimp/methods/scan/) and [`composite`](/jimp/methods/composite/) change the image and return it, like the other editing methods.
+
+```ts title="example.ts"
+const image = await Jimp.read("photo.png");
+
+const transparent = image.hasAlpha(); // a boolean, not the image
+const hash = image.greyscale().hash(); // a string
+```
+
+The second line still changes `image`: it's grey afterwards. Clone first if you only want the measurement: `image.clone().greyscale().hash()`.
+
+## Processing many images
+
+Each image is independent, so you can process several at the same time with `Promise.all`.
+The image work itself runs on the main thread, though: the decoding, encoding and pixel operations don't run in parallel.
+For large batches, limit how many images you load at once to keep memory down, or spread the work across [worker threads](https://nodejs.org/api/worker_threads.html) (in the browser, [web workers](/jimp/guides/browser/#web-workers)).
+
+```ts title="example.ts"
+import { Jimp } from "jimp";
+
+const files = ["a.jpg", "b.jpg", "c.jpg"];
+
+await Promise.all(
+  files.map(async (file) => {
+    const image = await Jimp.read(file);
+    await image.resize({ w: 200 }).write(`thumbs/${file}`);
+  }),
+);
+```
+
+## Coming from v0
+
+Jimp v0 took callbacks and had separate `…Async` methods. In v1:
+
+- `Jimp.read`, `getBuffer`, `getBase64` and `write` return promises. `getBufferAsync`, `getBase64Async` and `writeAsync` are gone.
+- Methods no longer take a callback as their last argument.
+- Methods take an options object instead of positional arguments, such as `resize({ w: 100 })` instead of `resize(100, Jimp.AUTO)`.
+
+See [Migrate to v1](/jimp/guides/migrate-to-v1/) for the full list.
+
+## See also
+
+- [Reading and writing](/jimp/concepts/reading-and-writing/)
+- [Errors and validation](/jimp/concepts/errors-and-validation/): what happens when a call fails
+- Methods: [`clone`](/jimp/methods/clone/), [`Jimp.read`](/jimp/methods/read/), [`getBuffer`](/jimp/methods/get-buffer/), [`write`](/jimp/methods/write/)

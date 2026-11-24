@@ -1,0 +1,1591 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Jimp: 1-Bit Edition (JimPaint)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;500;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;0,8..60,700;1,8..60,400&family=IBM+Plex+Mono:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet" />
+<style>
+:root {
+  --chrome: "Pixelify Sans", "Courier New", monospace;
+  --prose: "Source Serif 4", Georgia, "Times New Roman", serif;
+  --mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+  --desk: none;
+  --pat-canvas: none;
+  --cur-arrow: default;
+  --cur-busy: wait;
+  --cur-cross: crosshair;
+}
+* { box-sizing: border-box; }
+html { background: #fff; }
+body {
+  margin: 0;
+  color: #000;
+  font: 17px/1.6 var(--prose);
+  background: #fff var(--desk) 0 0 / 16px 16px;
+  image-rendering: pixelated;
+  cursor: var(--cur-arrow);
+  padding-top: 26px;
+  min-height: 100vh;
+}
+body.busy, body.busy * { cursor: var(--cur-busy) !important; }
+button, a, input, label, summary, select { cursor: var(--cur-arrow); }
+::selection { background: #000; color: #fff; }
+a { color: #000; text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px; }
+a:hover { background: #000; color: #fff; text-decoration: none; }
+
+/* ---------- screen corners (the CRT had rounded glass) ---------- */
+.corner { position: fixed; width: 10px; height: 10px; z-index: 9999; pointer-events: none; }
+.corner::after { content: ""; position: absolute; inset: 0; background: radial-gradient(circle at var(--o), transparent 9px, #000 9.5px); }
+.corner.tl { top: 0; left: 0; --o: 100% 100%; }
+.corner.tr { top: 0; right: 0; --o: 0 100%; }
+.corner.bl { bottom: 0; left: 0; --o: 100% 0; }
+.corner.br { bottom: 0; right: 0; --o: 0 0; }
+
+/* ---------- menu bar ---------- */
+#menubar {
+  position: fixed; top: 0; left: 0; right: 0; height: 26px; z-index: 1000;
+  background: #fff; border-bottom: 1px solid #000;
+  display: flex; align-items: stretch; padding: 0 14px;
+  font: 500 16px/26px var(--chrome); user-select: none;
+}
+.menu { position: relative; }
+.menu > button {
+  font: inherit; background: none; border: 0; padding: 0 10px; height: 25px; color: #000;
+}
+.menu > button img { vertical-align: -3px; }
+.menu.open > button { background: #000; color: #fff; }
+.menu.open > button img { filter: invert(1); }
+.dropdown {
+  display: none; position: absolute; top: 25px; left: 0; min-width: 230px;
+  background: #fff; border: 1px solid #000; box-shadow: 2px 2px 0 #000; padding: 2px 0;
+}
+.menu.open .dropdown { display: block; }
+.dropdown button, .dropdown a {
+  display: flex; justify-content: space-between; gap: 24px; width: 100%;
+  font: 400 16px/24px var(--chrome); text-align: left; padding: 0 16px; background: none; border: 0; color: #000; text-decoration: none;
+}
+.dropdown button:hover:not([disabled]), .dropdown a:hover { background: #000; color: #fff; }
+.dropdown button[disabled] { color: #000; opacity: 1; background: none;
+}
+.dropdown button[disabled] span:first-child { background: repeating-conic-gradient(#000 0 25%, #fff 0 50%) 0 0/2px 2px; -webkit-background-clip: text; background-clip: text; color: transparent; }
+.dropdown hr { border: 0; border-top: 1px dotted #000; margin: 2px 0; }
+.dropdown .chk::before { content: "\2713"; margin-right: 6px; visibility: hidden; }
+.dropdown .chk.on::before { visibility: visible; }
+.dropdown .indent { padding-left: 16px; }
+#mb-right { margin-left: auto; display: flex; gap: 14px; align-items: center; }
+#mb-hourglass { visibility: hidden; }
+body.busy #mb-hourglass { visibility: visible; animation: flip 0.6s steps(2) infinite; }
+@keyframes flip { 50% { transform: rotate(180deg); } }
+#clock { padding: 0 4px; }
+
+/* ---------- desk icons (fixed right column) ---------- */
+#deskicons {
+  position: fixed; top: 44px; right: 18px; bottom: 18px; width: 104px; z-index: 50;
+  display: flex; flex-direction: column; gap: 14px; align-items: center;
+}
+#deskicons .trash { margin-top: auto; }
+.icon {
+  display: flex; flex-direction: column; align-items: center; gap: 4px; width: 100px;
+  background: none; border: 0; padding: 2px; font: 500 14px/1.1 var(--chrome); color: #000; text-decoration: none;
+}
+.icon img { width: 32px; height: 32px; }
+.icon span { background: #fff; padding: 1px 4px; text-align: center; }
+.icon:hover { background: none; color: #000; }
+.icon:hover span, .icon.sel span { background: #000; color: #fff; }
+.icon:hover img, .icon.sel img { filter: invert(1) drop-shadow(0 0 0 #000); }
+.icon.blink img { animation: blink 0.15s steps(1) 4; }
+@keyframes blink { 50% { filter: invert(1); } }
+
+/* ---------- desktop ---------- */
+#desktop { padding: 30px 150px 40px 34px; display: flex; flex-direction: column; gap: 34px; }
+.row { display: grid; gap: 30px; align-items: start; }
+.row.hero { grid-template-columns: minmax(0, 1fr) 310px; }
+.row.play { grid-template-columns: minmax(0, 1fr) 440px; }
+.row.docs { grid-template-columns: 300px minmax(0, 1fr); }
+.row.api { grid-template-columns: minmax(0, 1fr); }
+.col { display: flex; flex-direction: column; gap: 30px; }
+
+/* ---------- windows ---------- */
+.win { background: #fff; border: 1px solid #000; box-shadow: 2px 2px 0 #000; position: relative; min-width: 0; }
+.win[hidden] { display: none; }
+.win.dragging { z-index: 60; }
+.tb {
+  height: 23px; border-bottom: 1px solid #000; display: flex; align-items: center; gap: 8px;
+  padding: 4px 4px; position: relative; user-select: none; touch-action: none;
+}
+.tb::before { /* pinstripes */
+  content: ""; position: absolute; inset: 4px 2px; pointer-events: none;
+  background: repeating-linear-gradient(to bottom, #000 0 1px, transparent 1px 2px);
+  opacity: 0; transition: opacity 0s;
+}
+.win.active > .tb::before { opacity: 1; }
+.tb h2 {
+  position: relative; margin: 0 auto; padding: 0 10px; background: #fff; font: 600 16px/15px var(--chrome); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 75%;
+}
+.box {
+  position: relative; z-index: 1; width: 13px; height: 13px; border: 1px solid #000; background: #fff; padding: 0; margin: 0 4px;
+  box-shadow: 0 0 0 2px #fff; flex: none;
+}
+.win:not(.active) .box { visibility: hidden; }
+.box:active { background: repeating-conic-gradient(#000 0 25%, #fff 0 50%) 0 0/2px 2px; }
+.box.zoom::after { content: ""; position: absolute; left: 0; top: 0; width: 6px; height: 6px; border-right: 1px solid #000; border-bottom: 1px solid #000; }
+.win.shade > :not(.tb) { display: none; }
+.win.shade > .tb { border-bottom: 0; }
+.wbody { padding: 0; }
+.infobar { display: flex; justify-content: space-between; padding: 2px 10px; border-bottom: 1px solid #000; font: 400 14px/20px var(--chrome); }
+.infobar + .infobar2 { border-top: 1px solid #000; height: 3px; }
+
+/* scrollbars, 1-bit style */
+.scroll { overflow: auto; }
+.scroll::-webkit-scrollbar { width: 16px; height: 16px; }
+.scroll::-webkit-scrollbar-track { background: repeating-conic-gradient(#000 0 25%, #fff 0 50%) 0 0/2px 2px; border-left: 1px solid #000; }
+.scroll::-webkit-scrollbar-thumb { background: #fff; border: 1px solid #000; }
+.scroll::-webkit-scrollbar-corner { background: #fff; }
+
+/* ---------- buttons ---------- */
+.btn {
+  font: 500 15px/1 var(--chrome); color: #000; background: #fff; border: 1px solid #000; border-radius: 7px; padding: 6px 14px; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; white-space: nowrap;
+}
+.btn:hover { background: #fff; color: #000; }
+.btn:active, .btn.pressed { background: #000; color: #fff; }
+.btn.def { box-shadow: 0 0 0 2px #fff, 0 0 0 5px #000; border-radius: 8px; margin: 4px; }
+.btn.sm { padding: 3px 9px; font-size: 14px; border-radius: 5px; }
+.btn[disabled] { border-style: dotted; }
+
+/* ---------- hero ---------- */
+.hero-body { display: grid; grid-template-columns: minmax(0, 1fr) 414px; gap: 30px; padding: 30px 34px 26px; align-items: center; }
+.wordmark { position: relative; font: 700 118px/0.9 var(--chrome); letter-spacing: 2px; margin: 0 0 14px; }
+.wordmark span { position: relative; z-index: 1; }
+.wordmark::before { /* hatched 1-bit drop shadow */
+  content: "Jimp"; position: absolute; left: 7px; top: 7px; z-index: 0; color: transparent;
+  background: repeating-linear-gradient(135deg, #000 0 1px, transparent 1px 4px);
+  -webkit-background-clip: text; background-clip: text;
+}
+.tagline { font: 600 26px/1.2 var(--chrome); margin: 0 0 14px; }
+.lede { font-size: 19px; max-width: 34em; margin: 0 0 20px; }
+.hero-actions { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 18px; }
+.install { display: inline-flex; align-items: center; gap: 10px; border: 1px solid #000; padding: 4px 4px 4px 12px; font: 15px var(--mono); background: #fff; }
+.install b { font-weight: 600; }
+.frame { justify-self: start; border: 1px solid #000; padding: 6px; background: #fff; box-shadow: 2px 2px 0 #000; }
+.frame .pic { width: 400px; height: 300px; display: grid; place-items: center; background: #fff; border: 1px solid #000; overflow: hidden; }
+.frame .pic img { display: block; width: 400px; }
+.caption { font: 400 14px/1.4 var(--chrome); margin-top: 6px; display: flex; justify-content: space-between; gap: 10px; }
+.caption code { font: 13px var(--mono); }
+.features { display: grid; grid-template-columns: repeat(4, 1fr); border-top: 1px solid #000; }
+.feature { padding: 14px 18px 16px; border-right: 1px solid #000; display: grid; grid-template-columns: 32px 1fr; gap: 4px 12px; }
+.feature:last-child { border-right: 0; }
+.feature img { width: 32px; height: 32px; grid-row: span 2; }
+.feature h3 { margin: 0; font: 600 17px/1.2 var(--chrome); }
+.feature p { margin: 0; font-size: 15px; line-height: 1.45; }
+
+/* finder window */
+.finder-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px 4px; padding: 18px 8px 22px; }
+.finder-grid .icon span { background: none; }
+.finder-grid .icon:hover span, .finder-grid .icon.sel span { background: #000; }
+.note { padding: 12px 16px 14px; border-top: 1px solid #000; font-size: 15px; line-height: 1.5; }
+.note b { font-family: var(--chrome); font-weight: 600; }
+
+/* ---------- JimPaint ---------- */
+.optbar { display: flex; align-items: center; gap: 10px; padding: 6px 10px; border-bottom: 1px solid #000; font: 400 15px/1 var(--chrome); flex-wrap: wrap; min-height: 42px; }
+.optbar .cur { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.optbar .btn.sm { padding: 3px 7px; }
+.optbar { gap: 8px; }
+.optbar .cur img { width: 32px; height: 32px; border: 1px solid #000; }
+.optbar .cur b { font-weight: 600; font-size: 17px; }
+.optbar code { font: 14px var(--mono); }
+.optbar .spacer { flex: 1; }
+.optbar label { display: flex; align-items: center; gap: 6px; }
+.optbar output { font: 14px var(--mono); min-width: 3.5em; display: inline-block; }
+input[type="range"] { -webkit-appearance: none; appearance: none; width: 120px; height: 18px; background: transparent; }
+input[type="range"]::-webkit-slider-runnable-track { height: 6px; border: 1px solid #000; background: repeating-conic-gradient(#000 0 25%, #fff 0 50%) 0 0/2px 2px; }
+input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 11px; height: 16px; margin-top: -6px; background: #fff; border: 1px solid #000; box-shadow: inset 0 0 0 2px #fff, inset 0 0 0 3px #000; }
+select { font: 15px var(--chrome); border: 1px solid #000; background: #fff; box-shadow: 1px 1px 0 #000; padding: 1px 4px; border-radius: 0; }
+.paint-main { display: grid; grid-template-columns: 92px minmax(0, 1fr); }
+.palette { display: grid; grid-template-columns: repeat(2, 42px); grid-auto-rows: 38px; gap: 0; padding: 6px; border-right: 1px solid #000; align-content: start; }
+.tool { width: 42px; height: 38px; border: 1px solid #000; margin: 0 -1px -1px 0; background: #fff; display: grid; place-items: center; padding: 0; position: relative; }
+.tool img { width: 32px; height: 32px; }
+.tool:hover { outline: 1px solid #000; outline-offset: -4px; }
+.tool.on { background: #000; }
+.tool.on img { filter: invert(1); }
+.tool .tip { display: none; }
+.canvas-wrap { position: relative; height: 532px; display: grid; place-items: center; background: var(--pat-canvas) 0 0/16px 16px; overflow: hidden; }
+.canvas-wrap.cross { cursor: var(--cur-cross); }
+.canvas-wrap img#pimg { display: block; box-shadow: 0 0 0 1px #000, 3px 3px 0 1px #000; background: transparent; }
+.canvas-wrap .hint { position: absolute; left: 10px; top: 10px; background: #fff; border: 1px solid #000; font: 400 14px/1.3 var(--chrome); padding: 4px 8px; max-width: 70%; }
+.canvas-wrap .hint:empty { display: none; }
+#marquee { position: absolute; border: 1px dashed #000; outline: 1px dashed #fff; outline-offset: -2px; display: none; pointer-events: none; animation: ants 0.4s steps(2) infinite; }
+@keyframes ants { 50% { border-style: dotted; } }
+.busy-badge { position: absolute; right: 10px; top: 10px; background: #fff; border: 1px solid #000; padding: 4px 8px; font: 400 14px var(--chrome); display: none; align-items: center; gap: 6px; }
+body.busy .busy-badge { display: flex; }
+body.busy .busy-badge img { animation: flip 0.6s steps(2) infinite; }
+.canvas-wrap.dropping::after { content: "Drop to open with Jimp.fromBuffer()"; position: absolute; inset: 12px; border: 3px dashed #000; display: grid; place-items: center; background: #fff; font: 600 22px var(--chrome); }
+.colour-emu img#pimg { animation: emu 3s steps(6) infinite; }
+@keyframes emu { 0%,100% { box-shadow: 0 0 0 1px #000, 3px 3px 0 1px #000; } 50% { box-shadow: 0 0 0 1px #000, 3px 3px 0 1px #000, 0 0 0 6px #fff, 0 0 0 7px #000; } }
+.emu-label { position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%); background: #000; color: #fff; font: 500 14px var(--chrome); padding: 3px 10px; display: none; white-space: nowrap; }
+.colour-emu .emu-label { display: block; }
+.patterns { display: flex; align-items: center; gap: 10px; padding: 6px 10px; border-top: 1px solid #000; }
+.patterns .curpat { width: 48px; height: 30px; border: 1px solid #000; background: var(--pat-canvas) 0 0/16px 16px; flex: none; }
+#pats { display: flex; flex-wrap: wrap; gap: 0; flex: 1; }
+#pats button { width: 28px; height: 22px; border: 1px solid #000; margin: 0 -1px -1px 0; padding: 0; background-size: 16px 16px; }
+#pats button.on { outline: 2px solid #000; outline-offset: 1px; position: relative; z-index: 1; }
+.status { display: flex; gap: 10px 14px; flex-wrap: wrap; align-items: center; padding: 5px 10px; border-top: 1px solid #000; font: 400 14px/20px var(--chrome); }
+.status .spacer { flex: 1; }
+.toggle { display: inline-flex; align-items: center; gap: 6px; font: 500 15px var(--chrome); }
+.toggle input { -webkit-appearance: none; appearance: none; width: 14px; height: 14px; border: 1px solid #000; background: #fff; margin: 0; display: grid; place-items: center; }
+.toggle input:checked::after { content: ""; width: 12px; height: 12px; background: linear-gradient(45deg, transparent 45%, #000 45% 55%, transparent 55%), linear-gradient(-45deg, transparent 45%, #000 45% 55%, transparent 55%); }
+
+/* ---------- Note Pad ---------- */
+.notepad .page { margin: 10px; border: 1px solid #000; position: relative; background: #fff; padding-bottom: 22px; }
+.notepad .page::after { /* dog-ear */
+  content: ""; position: absolute; left: -1px; bottom: -1px; width: 22px; height: 22px;
+  background: linear-gradient(45deg, #fff 50%, #000 50% calc(50% + 1px), #fff calc(50% + 1px));
+  border-right: 1px solid #000; border-top: 1px solid #000;
+}
+.np-intro { padding: 10px 14px 8px; font-size: 15px; line-height: 1.5; border-bottom: 1px dotted #000; }
+.np-intro b { font-family: var(--chrome); font-weight: 600; }
+#code { margin: 0; padding: 10px 0 10px; font: 14.5px/1.65 var(--mono); max-height: 440px; min-height: 360px; }
+#code .ln { display: block; padding: 0 12px 0 64px; text-indent: -22px; position: relative; white-space: pre-wrap; overflow-wrap: anywhere; min-height: 1.65em; }
+#code .ln::before { content: attr(data-n); position: absolute; left: 0; width: 32px; text-indent: 0; text-align: right; font-size: 12px; }
+#code .ln.step:hover { background: #000; color: #fff; text-decoration: line-through; }
+#code .ln.step:hover::after { content: "\2190 click to remove"; position: absolute; right: 8px; text-decoration: none; font: 400 13px var(--chrome); }
+#code .ln.fresh { animation: fresh 0.9s steps(1); }
+@keyframes fresh { 0%, 33%, 66% { background: #000; color: #fff; } 16%, 50%, 83% { background: #fff; color: #000; } }
+#code .ln.drv { font-style: normal; }
+.np-foot { display: flex; align-items: center; gap: 10px; padding: 8px 12px 10px; flex-wrap: wrap; }
+.np-foot .pg { margin-left: auto; font: 400 14px var(--chrome); }
+
+/* syntax: 1-bit means type does the work */
+.k { font-weight: 600; }
+.s { text-decoration: underline dotted; text-underline-offset: 3px; }
+.c { font-style: italic; }
+.m { font-weight: 600; }
+.n { }
+
+/* ---------- guides ---------- */
+.list { width: 100%; border-collapse: collapse; font: 400 15px/1.2 var(--chrome); }
+.list th { text-align: left; font-weight: 600; padding: 6px 10px; border-bottom: 1px solid #000; }
+.list td { padding: 4px 10px; }
+.list tr.g { cursor: var(--cur-arrow); }
+.list tr.g td:first-child { display: flex; align-items: center; gap: 8px; }
+.list tr.g img { width: 16px; height: 16px; }
+.list tr.g:hover td { text-decoration: underline; }
+.list tr.g.sel td { background: #000; color: #fff; }
+.list tr.g.sel img { filter: invert(1); }
+.reader .crumbs { display: flex; justify-content: space-between; align-items: center; padding: 6px 14px; border-bottom: 1px solid #000; font: 400 14px var(--chrome); }
+.prose { padding: 26px 46px 40px; max-width: 860px; }
+.prose h1 { font: 700 44px/1.05 var(--chrome); margin: 0 0 8px; }
+.prose .desc { font-size: 20px; font-style: italic; margin: 0 0 22px; }
+.prose h2 { font: 700 26px/1.2 var(--chrome); margin: 36px 0 10px; padding-bottom: 6px; background: repeating-conic-gradient(#000 0 25%, #fff 0 50%) 0 100%/2px 2px no-repeat; background-size: 100% 3px; background-image: repeating-linear-gradient(90deg, #000 0 2px, transparent 2px 4px); background-repeat: no-repeat; background-position: 0 100%; }
+.prose h3 { font: 600 20px/1.2 var(--chrome); margin: 26px 0 8px; }
+.prose p, .prose li { font-size: 18px; line-height: 1.65; }
+.prose p { margin: 0 0 14px; }
+.prose ul { padding-left: 22px; }
+.prose ul li { list-style: none; position: relative; }
+.prose ul li::before { content: ""; position: absolute; left: -18px; top: 0.62em; width: 7px; height: 7px; background: #000; }
+.prose code:not(pre code) { font: 0.86em var(--mono); border: 1px solid #000; padding: 0 4px; white-space: nowrap; }
+.steps { counter-reset: st; list-style: none; padding: 0; margin: 10px 0 18px; }
+.steps > li { counter-increment: st; position: relative; padding: 0 0 6px 52px; border-left: 1px dashed #000; margin-left: 15px; }
+.steps > li:last-child { border-left-color: transparent; }
+.steps > li::before { content: counter(st); position: absolute; left: -16px; top: -2px; width: 31px; height: 31px; background: #000; color: #fff; font: 700 18px/31px var(--chrome); text-align: center; box-shadow: 0 0 0 3px #fff; }
+.steps > li > p { margin: 0 0 8px; }
+.aside { display: grid; grid-template-columns: 32px 1fr; gap: 14px; border: 1px solid #000; box-shadow: 3px 3px 0 #000; padding: 14px 18px; margin: 18px 0 22px; outline: 1px solid #000; outline-offset: 3px; }
+.aside img { width: 32px; height: 32px; }
+.aside b { font: 600 18px var(--chrome); display: block; margin-bottom: 2px; }
+.aside p { margin: 0; font-size: 17px; }
+.code { border: 1px solid #000; margin: 6px 0 18px; background: #fff; box-shadow: 2px 2px 0 #000; }
+.code .cbar { display: flex; align-items: center; gap: 8px; height: 24px; padding: 0 4px 0 10px; border-bottom: 1px solid #000; font: 400 13px var(--chrome); position: relative; }
+.code .cbar .fn { background: #fff; padding: 0 6px; position: relative; }
+.code .cbar::before { content: ""; position: absolute; inset: 6px 4px; background: repeating-linear-gradient(to bottom, #000 0 1px, transparent 1px 2px); pointer-events: none; }
+.code .cbar .sp { flex: 1; }
+.code .cbar button { position: relative; font: 500 13px/1 var(--chrome); border: 1px solid #000; background: #fff; padding: 2px 8px; border-radius: 4px; }
+.code .cbar button:active { background: #000; color: #fff; }
+.code pre { margin: 0; padding: 12px 16px; font: 15px/1.6 var(--mono); overflow-x: auto; }
+.scrap { border-top: 1px solid #000; padding: 12px 16px; display: none; gap: 16px; align-items: flex-start; background: var(--pat-canvas) 0 0/16px 16px; }
+.scrap.show { display: flex; }
+.scrap img { border: 1px solid #000; box-shadow: 2px 2px 0 #000; background: #fff; }
+.scrap .lbl { background: #fff; border: 1px solid #000; padding: 4px 8px; font: 400 14px/1.35 var(--chrome); max-width: 340px; }
+.pager { display: flex; justify-content: space-between; gap: 12px; margin-top: 36px; }
+.pager .btn { font-size: 15px; }
+.more { font-size: 16px; border-top: 1px dotted #000; padding-top: 14px; margin-top: 26px; }
+
+/* ---------- API ---------- */
+.api-body { display: grid; grid-template-columns: minmax(0, 1fr) 470px; }
+.api-left { border-right: 1px solid #000; }
+.api-filter { display: flex; gap: 10px; align-items: center; padding: 8px 12px; border-bottom: 1px solid #000; font: 400 14px var(--chrome); }
+.api-filter input { font: 15px var(--mono); border: 1px solid #000; padding: 3px 8px; width: 220px; }
+.api-filter input:focus { outline: 2px solid #000; outline-offset: 1px; }
+.api-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)); gap: 16px 6px; padding: 18px 12px 22px; max-height: 560px; }
+.api-grid .icon { width: auto; font: 400 14px/1.2 var(--mono); }
+.api-grid .icon span { background: none; word-break: break-all; }
+.api-grid h4 { grid-column: 1 / -1; margin: 6px 0 -4px; font: 600 15px var(--chrome); border-bottom: 1px dotted #000; padding-bottom: 2px; }
+.getinfo { padding: 18px 22px 22px; }
+.getinfo .gi-head { display: flex; gap: 14px; align-items: center; margin-bottom: 12px; }
+.getinfo .gi-head img { width: 64px; height: 64px; }
+.getinfo h3 { margin: 0; font: 700 26px/1.1 var(--mono); }
+.getinfo .kind { font: 400 14px var(--chrome); }
+.getinfo dl { display: grid; grid-template-columns: 90px 1fr; gap: 6px 10px; margin: 0 0 14px; font-size: 16px; }
+.getinfo dt { font: 600 15px/1.5 var(--chrome); }
+.getinfo dd { margin: 0; }
+.getinfo dd code { font: 14px var(--mono); }
+.getinfo p { font-size: 17px; margin: 0 0 12px; }
+
+/* ---------- dialogs ---------- */
+#scrim { position: fixed; inset: 0; z-index: 2000; display: none; }
+#scrim.show { display: block; }
+.dlg {
+  position: fixed; z-index: 2001; left: 50%; top: 42%; transform: translate(-50%, -50%);
+  background: #fff; border: 1px solid #000; box-shadow: inset 0 0 0 3px #fff, inset 0 0 0 5px #000, 3px 3px 0 #000;
+  padding: 22px 24px 18px; width: 470px; max-width: calc(100vw - 30px); display: none;
+}
+.dlg.show { display: block; }
+.dlg .d-row { display: grid; grid-template-columns: 64px 1fr; gap: 18px; align-items: start; }
+.dlg .d-row > img { width: 64px; height: 64px; }
+.dlg h3 { margin: 0 0 6px; font: 700 20px/1.2 var(--chrome); }
+.dlg p { margin: 0 0 8px; font-size: 16px; line-height: 1.5; }
+.dlg .d-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 12px; align-items: center; }
+.dlg .errmsg { font: 14px/1.5 var(--mono); border: 1px solid #000; padding: 6px 10px; word-break: break-word; }
+.dlg.shake { animation: shake 0.32s steps(4) 1; }
+@keyframes shake { 25% { margin-left: -8px; } 50% { margin-left: 8px; } 75% { margin-left: -4px; } }
+#dlg-about { width: 520px; text-align: center; }
+#dlg-about img.big { width: 96px; height: 96px; }
+#dlg-about h3 { font-size: 40px; margin: 6px 0 0; }
+#dlg-about .mem { text-align: left; border: 1px solid #000; margin: 14px 0 6px; font: 400 14px/1.5 var(--chrome); }
+#dlg-about .mem div { display: grid; grid-template-columns: 170px 1fr 70px; gap: 10px; padding: 3px 10px; align-items: center; }
+#dlg-about .mem div + div { border-top: 1px dotted #000; }
+#dlg-about .bar { height: 10px; border: 1px solid #000; background: linear-gradient(90deg, #000 var(--p), transparent var(--p)); }
+
+/* floating windows (trash, puzzle) */
+.float { position: fixed; z-index: 1500; }
+#w-trash { left: calc(50% - 230px); top: 120px; width: 460px; }
+#w-puzzle { left: calc(50% + 40px); top: 160px; width: 296px; }
+.trash-list { list-style: none; margin: 0; padding: 10px 14px; font: 15px/1.9 var(--mono); }
+.trash-list li { display: flex; gap: 8px; align-items: center; }
+.trash-list li img { width: 16px; height: 16px; }
+.trash-list li.gone { animation: fall 0.6s ease-in forwards; }
+@keyframes fall { to { transform: translate(40px, 140px) rotate(40deg); opacity: 0; } }
+.puzzle { display: grid; grid-template-columns: repeat(4, 64px); grid-auto-rows: 64px; gap: 0; padding: 12px; justify-content: center; }
+.puzzle button { padding: 0; border: 1px solid #000; margin: 0 -1px -1px 0; background: #fff; width: 64px; height: 64px; }
+.puzzle button img { width: 62px; height: 62px; display: block; }
+.puzzle button.blank { background: repeating-conic-gradient(#000 0 25%, #fff 0 50%) 0 0/2px 2px; }
+
+/* zoom rects */
+.zr { position: fixed; border: 1px dotted #000; z-index: 3000; pointer-events: none; outline: 1px dotted #fff; }
+
+/* boot + shutdown */
+#boot, #shutdown { position: fixed; inset: 0; z-index: 5000; display: grid; place-items: center; }
+#boot { background: #fff var(--desk) 0 0/16px 16px; }
+#boot .bootbox { background: #fff; border: 1px solid #000; box-shadow: inset 0 0 0 3px #fff, inset 0 0 0 5px #000, 3px 3px 0 #000; padding: 26px 40px; text-align: center; font: 600 24px var(--chrome); }
+#boot .bootbox img { width: 64px; height: 64px; display: block; margin: 0 auto 8px; }
+#boot .prog { width: 240px; height: 12px; border: 1px solid #000; margin: 12px auto 0; background: linear-gradient(90deg, #000 50%, transparent 50%) 0 0/200% 100% no-repeat; animation: prog 0.9s steps(8) forwards; background-position: 100% 0; }
+@keyframes prog { to { background-position: 0 0; } }
+#boot.gone { display: none; }
+#shutdown { background: #000; color: #fff; font: 500 22px/1.5 var(--chrome); text-align: center; display: none; }
+#shutdown.show { display: grid; }
+#toast { position: fixed; bottom: 22px; left: 50%; transform: translateX(-50%); background: #000; color: #fff; font: 500 16px var(--chrome); padding: 8px 16px; z-index: 4000; display: none; box-shadow: 0 0 0 2px #fff, 0 0 0 3px #000; }
+#toast.show { display: block; }
+html.inverted { filter: invert(1); }
+
+footer.desk-foot { display: flex; justify-content: center; }
+footer.desk-foot .win { width: min(760px, 100%); }
+footer.desk-foot p { margin: 0; padding: 12px 18px; font-size: 15px; text-align: center; }
+
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+
+/* ---------- narrower screens ---------- */
+@media (max-width: 1180px) {
+  .hero-body { grid-template-columns: 1fr; }
+  .row.play { grid-template-columns: 1fr; }
+  .api-body { grid-template-columns: 1fr; }
+  .api-left { border-right: 0; border-bottom: 1px solid #000; }
+}
+@media (max-width: 1000px) {
+  #deskicons { display: none; }
+  #desktop { padding: 18px 14px 30px; }
+  .row.hero, .row.docs { grid-template-columns: 1fr; }
+  .features { grid-template-columns: repeat(2, 1fr); }
+  .feature:nth-child(2) { border-right: 0; }
+  .feature:nth-child(-n+2) { border-bottom: 1px solid #000; }
+  .wordmark { font-size: 84px; }
+  .prose { padding: 20px 22px 30px; }
+  #menubar .hide-sm { display: none; }
+}
+@media (max-width: 640px) {
+  .frame .pic { width: 100%; height: auto; }
+  .frame .pic img { width: 100%; }
+  .paint-main { grid-template-columns: 1fr; }
+  .palette { grid-template-columns: repeat(auto-fill, 42px); border-right: 0; border-bottom: 1px solid #000; }
+}
+@media (prefers-reduced-motion: reduce) {
+  * { animation: none !important; }
+}
+</style>
+</head>
+<body>
+<div class="corner tl"></div><div class="corner tr"></div><div class="corner bl"></div><div class="corner br"></div>
+
+<div id="boot"><div class="bootbox"><img data-px="logo" data-scale="4" alt="" />Welcome to Jimp<div class="prog"></div></div></div>
+<div id="shutdown"><div>You may now close this tab.<br /><span style="font-size:16px">(Or click anywhere to start Jimp again.)</span></div></div>
+
+<!-- ================= MENU BAR ================= -->
+<nav id="menubar" aria-label="Main menu">
+  <div class="menu"><button aria-label="Jimp menu"><img data-px="logo" alt="" /></button>
+    <div class="dropdown">
+      <button data-act="about"><span>About Jimp&hellip;</span></button>
+      <hr />
+      <button data-act="puzzle"><span>Puzzle</span><span>made with crop()</span></button>
+      <button data-act="notepad"><span>Note Pad</span></button>
+      <button data-act="trash"><span>Trash</span></button>
+    </div>
+  </div>
+  <div class="menu"><button>File</button>
+    <div class="dropdown">
+      <button data-act="open"><span>Open Image&hellip;</span><span>&#8984;O</span></button>
+      <button data-act="save"><span>Save as PNG</span><span>&#8984;S</span></button>
+      <button data-act="revert"><span>Revert to dice.png</span></button>
+      <hr />
+      <button disabled title="print() needs bitmap fonts, and the CDN build can't bring them"><span>Print&hellip;</span><span>no fonts</span></button>
+    </div>
+  </div>
+  <div class="menu"><button>Edit</button>
+    <div class="dropdown">
+      <button data-act="undo"><span>Undo last step</span><span>&#8984;Z</span></button>
+      <button data-act="clear"><span>Clear all steps</span></button>
+      <button data-act="copycode"><span>Copy code</span><span>&#8984;C</span></button>
+    </div>
+  </div>
+  <div class="menu"><button>Guides</button>
+    <div class="dropdown" id="menu-guides"></div>
+  </div>
+  <div class="menu"><button>API</button>
+    <div class="dropdown">
+      <button data-act="api"><span>Open API folder</span></button>
+      <a href="https://jimp-dev.github.io/jimp/api/jimp/classes/jimp/" target="_blank" rel="noopener"><span>Full API reference</span><span>&#8599;</span></a>
+      <hr />
+      <button data-act="api-pick" data-m="resize"><span>resize()</span></button>
+      <button data-act="api-pick" data-m="crop"><span>crop()</span></button>
+      <button data-act="api-pick" data-m="dither"><span>dither()</span></button>
+      <button data-act="api-pick" data-m="read"><span>Jimp.read()</span></button>
+    </div>
+  </div>
+  <div class="menu hide-sm"><button>Special</button>
+    <div class="dropdown">
+      <button data-act="colour" class="chk" id="mi-colour"><span>Colour mode</span></button>
+      <button data-act="driver" class="chk" id="mi-driver"><span>Show display driver</span></button>
+      <button data-act="pattern"><span>Next desktop pattern</span></button>
+      <button data-act="cleanup"><span>Clean Up Windows</span></button>
+      <hr />
+      <button data-act="shutdown"><span>Shut Down</span></button>
+    </div>
+  </div>
+  <div id="mb-right">
+    <img id="mb-hourglass" data-px="hourglass" alt="busy" />
+    <a class="hide-sm" href="https://github.com/jimp-dev/jimp" target="_blank" rel="noopener" style="font-family:var(--chrome)">GitHub</a>
+    <span id="clock">12:00</span>
+  </div>
+</nav>
+
+<!-- ================= DESK ICONS ================= -->
+<aside id="deskicons" aria-label="Desktop">
+  <button class="icon" data-go="w-welcome"><img data-px="disk" data-scale="2" alt="" /><span>Jimp HD</span></button>
+  <button class="icon" data-go="w-guides"><img data-px="folder" data-scale="2" alt="" /><span>Guides</span></button>
+  <button class="icon" data-go="w-api"><img data-px="folder" data-scale="2" alt="" /><span>API</span></button>
+  <button class="icon" data-go="w-paint"><img data-px="app" data-scale="2" alt="" /><span>JimPaint</span></button>
+  <button class="icon" data-go="w-notepad"><img data-px="notepad" data-scale="2" alt="" /><span>Note Pad</span></button>
+  <button class="icon" data-act="puzzle"><img data-px="puzzle" data-scale="2" alt="" /><span>Puzzle</span></button>
+  <button class="icon trash" data-act="trash"><img data-px="trash" data-scale="2" alt="" id="trash-icon" /><span>Trash</span></button>
+</aside>
+
+<main id="desktop">
+
+<!-- ================= HERO ================= -->
+<div class="row hero">
+  <section class="win" id="w-welcome" data-icon="w-welcome">
+    <header class="tb"><button class="box close" aria-label="Close"></button><h2>Welcome to Jimp</h2><button class="box zoom" aria-label="Collapse"></button></header>
+    <div class="hero-body">
+      <div>
+        <h1 class="wordmark"><span>Jimp</span></h1>
+        <p class="tagline">The JavaScript Image Manipulation Program</p>
+        <p class="lede">Load an image, change it, save it. Jimp resizes, crops, filters and encodes images in the browser and Node.js, written entirely in JavaScript. Every picture on this page was drawn by Jimp, live, in two colours.</p>
+        <div class="hero-actions">
+          <a class="btn def" href="#w-reader" data-guide="getting-started">Read the docs</a>
+          <a class="btn" href="#w-paint">Open JimPaint</a>
+          <a class="btn" href="https://github.com/jimp-dev/jimp" target="_blank" rel="noopener">GitHub &#8599;</a>
+        </div>
+        <div class="install"><span><b>npm</b> install jimp</span><button class="btn sm" data-copy="npm install jimp">Copy</button></div>
+      </div>
+      <figure class="frame" style="margin:0">
+        <div class="pic"><img id="hero-img" alt="Dice photo, dithered to 1-bit by Jimp" /></div>
+        <figcaption class="caption"><span>dice.png &rarr; <code>dither()</code> &rarr; 2 colours</span><span id="hero-ms">rendering&hellip;</span></figcaption>
+      </figure>
+    </div>
+    <div class="features">
+      <div class="feature"><img data-px="doc" data-scale="2" alt="" /><h3>Image formats</h3><p>PNG, JPEG, BMP, GIF and TIFF out of the box. WEBP and AVIF through WASM plugins.</p></div>
+      <div class="feature"><img data-px="t_crop" data-scale="2" alt="" /><h3>Manipulation</h3><p>Resize, crop, rotate, blur, dither, mask, composite and a lot more.</p></div>
+      <div class="feature"><img data-px="puzzle" data-scale="2" alt="" /><h3>Pluggable</h3><p>Write plugins to add your own methods or image formats.</p></div>
+      <div class="feature"><img data-px="app" data-scale="2" alt="" /><h3>Just JavaScript</h3><p>No native binaries. If it runs JavaScript, it runs Jimp.</p></div>
+    </div>
+  </section>
+
+  <div class="col">
+    <section class="win" id="w-hd" data-icon="w-welcome">
+      <header class="tb"><button class="box close" aria-label="Close"></button><h2>Jimp HD</h2><button class="box zoom" aria-label="Collapse"></button></header>
+      <div class="infobar"><span>9 items</span><span>2 colours available</span></div>
+      <div class="finder-grid">
+        <button class="icon" data-guide="getting-started"><img data-px="doc" data-scale="2" alt="" /><span>Getting Started</span></button>
+        <button class="icon" data-go="w-guides"><img data-px="folder" data-scale="2" alt="" /><span>Guides</span></button>
+        <button class="icon" data-go="w-api"><img data-px="folder" data-scale="2" alt="" /><span>API</span></button>
+        <button class="icon" data-go="w-paint"><img data-px="app" data-scale="2" alt="" /><span>JimPaint</span></button>
+        <button class="icon" data-go="w-notepad"><img data-px="notepad" data-scale="2" alt="" /><span>Note Pad</span></button>
+        <button class="icon" data-guide="migrate-to-v1"><img data-px="doc" data-scale="2" alt="" /><span>Migrate to v1</span></button>
+        <button class="icon" data-guide="browser"><img data-px="doc" data-scale="2" alt="" /><span>Using in Browser</span></button>
+        <button class="icon" data-act="puzzle"><img data-px="puzzle" data-scale="2" alt="" /><span>Puzzle</span></button>
+        <button class="icon" data-act="trash"><img data-px="trash" data-scale="2" alt="" /><span>Trash</span></button>
+      </div>
+      <div class="note"><b>Tip:</b> click a document to open it. The tools in JimPaint are real Jimp methods, and the Note Pad writes the code for you while you click.</div>
+    </section>
+  </div>
+</div>
+
+<!-- ================= PLAYGROUND ================= -->
+<div class="row play">
+  <section class="win" id="w-paint" data-icon="w-paint">
+    <header class="tb"><button class="box close" aria-label="Close"></button><h2 id="paint-title">JimPaint: dice.png</h2><button class="box zoom" aria-label="Collapse"></button></header>
+    <div class="optbar">
+      <div class="cur"><img id="opt-icon" alt="" /><div><b id="opt-name">Blur</b><br /><code id="opt-sig">image.blur(r)</code></div></div>
+      <label id="opt-param"></label>
+      <button class="btn sm" id="opt-apply">Apply</button>
+      <input type="file" id="file" accept="image/png,image/jpeg,image/bmp,image/gif,image/tiff" class="sr" />
+    </div>
+    <div class="paint-main">
+      <div class="palette" id="palette" role="toolbar" aria-label="Tools"></div>
+      <div class="canvas-wrap" id="canvas">
+        <img id="pimg" alt="Your image, processed by Jimp" />
+        <div class="hint" id="hint"></div>
+        <div id="marquee"></div>
+        <div class="busy-badge"><img data-px="hourglass" alt="" />Jimp is thinking&hellip;</div>
+        <div class="emu-label">COLOUR EMULATION: not legally colour</div>
+      </div>
+    </div>
+    <div class="patterns"><div class="curpat" title="Current pattern"></div><div id="pats" aria-label="Patterns"></div></div>
+    <div class="status">
+      <span id="st-size">loading&hellip;</span><span id="st-steps">0 steps</span><span id="st-ms"></span>
+      <span class="spacer"></span>
+      <button class="btn sm" data-act="open" title="Or drop an image on the picture">Open&hellip;</button>
+      <button class="btn sm" data-act="save">Save</button>
+      <button class="btn sm" data-act="undo">Undo</button>
+      <button class="btn sm" data-act="clear">Clear</button>
+      <label class="toggle"><input type="checkbox" id="colour" /> Colour</label>
+    </div>
+  </section>
+
+  <section class="win notepad" id="w-notepad" data-icon="w-notepad">
+    <header class="tb"><button class="box close" aria-label="Close"></button><h2>Note Pad: edit.js</h2><button class="box zoom" aria-label="Collapse"></button></header>
+    <div class="page">
+      <div class="np-intro"><b>Every click is a real Jimp call.</b> Pick a tool in JimPaint and this page rewrites itself. Click a step line to remove it.</div>
+      <pre id="code" class="scroll" aria-live="polite"></pre>
+    </div>
+    <div class="np-foot">
+      <button class="btn sm" data-act="copycode">Copy code</button>
+      <label class="toggle"><input type="checkbox" id="driver" /> Show display driver</label>
+      <span class="pg">Page 1</span>
+    </div>
+  </section>
+</div>
+
+<!-- ================= GUIDES ================= -->
+<div class="row docs">
+  <section class="win" id="w-guides" data-icon="w-guides">
+    <header class="tb"><button class="box close" aria-label="Close"></button><h2>Guides</h2><button class="box zoom" aria-label="Collapse"></button></header>
+    <div class="infobar"><span>8 documents</span><span>v1</span></div>
+    <table class="list"><thead><tr><th>Name</th><th>Size</th></tr></thead><tbody id="guide-list"></tbody></table>
+    <div class="note"><b>Also on this disk:</b> the <a href="#w-api" data-go="w-api">API folder</a>, with every method you can try in JimPaint.</div>
+  </section>
+
+  <section class="win reader" id="w-reader" data-icon="w-guides">
+    <header class="tb"><button class="box close" aria-label="Close"></button><h2 id="reader-title">Getting Started</h2><button class="box zoom" aria-label="Collapse"></button></header>
+    <div class="crumbs"><span id="crumbs">Jimp HD &#9656; Guides &#9656; Getting Started</span><a href="#" id="edit-link" target="_blank" rel="noopener">Edit page &#8599;</a></div>
+    <article class="prose" id="reader"></article>
+  </section>
+</div>
+
+<!-- ================= API ================= -->
+<div class="row api">
+  <section class="win" id="w-api" data-icon="w-api">
+    <header class="tb"><button class="box close" aria-label="Close"></button><h2>API Reference</h2><button class="box zoom" aria-label="Collapse"></button></header>
+    <div class="api-body">
+      <div class="api-left">
+        <div class="api-filter"><label for="api-q">Find:</label><input id="api-q" placeholder="blur, crop, read&hellip;" autocomplete="off" /><span id="api-count"></span></div>
+        <div class="api-grid scroll" id="api-grid"></div>
+      </div>
+      <div class="getinfo" id="getinfo"></div>
+    </div>
+  </section>
+</div>
+
+<footer class="desk-foot">
+  <section class="win active">
+    <header class="tb"><h2>Colophon</h2></header>
+    <p>Jimp is MIT licensed and built by the jimp-dev contributors. This page is exploration 03, <b>1-Bit Classic</b>: no pixels were harmed, because there are only two.</p>
+  </section>
+</footer>
+</main>
+
+<!-- ================= FLOATING WINDOWS ================= -->
+<section class="win float" id="w-trash" hidden>
+  <header class="tb"><button class="box close" aria-label="Close"></button><h2>Trash</h2><button class="box zoom" aria-label="Collapse"></button></header>
+  <div class="infobar"><span id="trash-count">10 items</span><span>v0 leftovers</span></div>
+  <ul class="trash-list" id="trash-list"></ul>
+  <div class="note">v1 threw these away. Their replacements are in <a href="#w-reader" data-guide="migrate-to-v1">Migrate to v1</a>.
+    <div style="margin-top:10px;display:flex;justify-content:flex-end"><button class="btn sm" id="empty-trash">Empty Trash</button></div></div>
+</section>
+
+<section class="win float" id="w-puzzle" hidden>
+  <header class="tb"><button class="box close" aria-label="Close"></button><h2>Puzzle</h2><button class="box zoom" aria-label="Collapse"></button></header>
+  <div class="puzzle" id="puzzle"></div>
+  <div class="note" id="puzzle-note" style="font-size:14px">15 tiles cut from your image with <code style="font:13px var(--mono)">clone().crop()</code>. Slide them back.</div>
+</section>
+
+<div id="scrim"></div>
+
+<div class="dlg" id="dlg-bomb" role="alertdialog" aria-labelledby="bomb-h">
+  <div class="d-row"><img data-px="bomb" data-scale="4" alt="" />
+    <div><h3 id="bomb-h">Sorry, Jimp dropped the paint bucket.</h3>
+      <p>A pixel error occurred. Error ID = <b id="bomb-id">1478</b></p>
+      <div class="errmsg" id="bomb-msg"></div>
+    </div></div>
+  <div class="d-actions"><button class="btn" data-close>Resume</button><button class="btn def" id="bomb-restart">Restart</button></div>
+</div>
+
+<div class="dlg" id="dlg-colour" role="dialog" aria-labelledby="col-h">
+  <div class="d-row"><img data-px="warn" data-scale="4" alt="" />
+    <div><h3 id="col-h">This computer cannot display colour.</h3>
+      <p>It knows exactly two: black, and not black. Jimp can still compute every colour; this monitor just won't show them.</p>
+      <p>Emulate colour anyway?</p></div></div>
+  <div class="d-actions"><button class="btn" id="col-emulate">Emulate</button><button class="btn def" data-close>Stay 1-bit</button></div>
+</div>
+
+<div class="dlg" id="dlg-about" role="dialog" aria-labelledby="about-h">
+  <img class="big" data-px="logo" data-scale="6" alt="" />
+  <h3 id="about-h">Jimp</h3>
+  <p style="font:600 18px var(--chrome)">The JavaScript Image Manipulation Program</p>
+  <p>Version 1, 1-bit edition. Built by the jimp-dev contributors.</p>
+  <div class="mem">
+    <div><span>Colours available</span><span class="bar" style="--p:100%"></span><span>2 of 2</span></div>
+    <div><span>Native dependencies</span><span class="bar" style="--p:0%"></span><span>0</span></div>
+    <div><span>Plugins loaded</span><span class="bar" style="--p:86%"></span><span id="about-plugins">lots</span></div>
+    <div><span>Jimp operations run</span><span class="bar" id="about-opsbar" style="--p:10%"></span><span id="about-ops">0</span></div>
+  </div>
+  <div class="d-actions" style="justify-content:center"><button class="btn def" data-close>OK</button></div>
+</div>
+
+<div id="toast" role="status"></div>
+
+<!-- ================= SCRIPT ================= -->
+<script type="module">
+/* ------------------------------------------------------------------
+ * Pixel art. Every icon on this page is drawn here from ASCII:
+ * '#' = black, 'o' = white, anything else = transparent.
+ * ------------------------------------------------------------------ */
+const W16 = (f) => { const rows = []; for (let y = 0; y < 16; y++) { let r = ""; for (let x = 0; x < 16; x++) r += f(x, y) || "."; rows.push(r); } return rows; };
+const dist = (x, y, cx, cy) => Math.hypot(x - cx, y - cy);
+const chk = (x, y) => ((x + y) & 1 ? "#" : "o");
+function shape(inside, fill = () => "o") {
+  return W16((x, y) => {
+    if (!inside(x, y)) return ".";
+    const edge = !inside(x - 1, y) || !inside(x + 1, y) || !inside(x, y - 1) || !inside(x, y + 1);
+    return edge ? "#" : fill(x, y);
+  });
+}
+const BAYER = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5];
+const inDrop = (x, y) => dist(x, y, 7.5, 10) < 5.2 || (y >= 1 && y < 10 && Math.abs(x - 7.5) < (y - 0.5) * 0.55);
+
+const ART = {
+  logo: W16((x, y) => {
+    if (!inDrop(x, y)) return ".";
+    const J = (x === 9 && y >= 5 && y <= 11) || (y === 12 && x >= 6 && x <= 8) || (x === 5 && y === 11) || (y === 5 && x >= 8 && x <= 10);
+    return J ? "o" : "#";
+  }),
+  disk: ["", "", "", "", "################", "#oooooooooooooo#", "#oooooooooooooo#", "#oooooooooooooo#", "#o##ooooooooooo#", "#oooooooooooooo#", "################", ".##..........##."],
+  folder: ["", "", ".#####", "#ooooo#", "################", "#oooooooooooooo#", "#oooooooooooooo#", "#oooooooooooooo#", "#oooooooooooooo#", "#oooooooooooooo#", "#oooooooooooooo#", "#oooooooooooooo#", "#oooooooooooooo#", "#oooooooooooooo#", "################"],
+  doc: ["..#########", "..#ooooooo##", "..#ooooooo#o#", "..#ooooooo####", "..#oooooooooo#", "..#o#######oo#", "..#oooooooooo#", "..#o######ooo#", "..#oooooooooo#", "..#o########o#", "..#oooooooooo#", "..#o#####oooo#", "..#oooooooooo#", "..#oooooooooo#", "..############"],
+  app: ["", ".....######", "....#oooooo#", "...#o######o#", "...#o#....#o#", "..############", "..#oooooooooo#", "..#ooooo##ooo##", "..#oooooo#ooo#o#", "..#oooooo#ooo#o#", "..#ooo#oo#ooo#.#", "..#ooo#oo#ooo#.#", "..#oooo##oooo#", "..#oooooooooo#.#", "...##########"],
+  notepad: ["", "..#.#.#.#.#.#", ".#############", ".#ooooooooooo#", ".#o#########o#", ".#ooooooooooo#", ".#o######oooo#", ".#ooooooooooo#", ".#o########oo#", ".#ooooooooooo#", ".#o####oooooo#", ".#ooooooooooo#", ".#ooooooooo###", ".#oooooooo#o#", ".##########"],
+  trash: ["......####", "..############", "..#oooooooooo#", "..############", "...#oooooooo#", "...#oo#oo#oo#", "...#oo#oo#oo#", "...#oo#oo#oo#", "...#oo#oo#oo#", "...#oo#oo#oo#", "...#oo#oo#oo#", "...#oo#oo#oo#", "...#oooooooo#", "...##########"],
+  trashEmpty: ["", "", "..############", "..#oooooooooo#", "..############", "...#oooooooo#", "...#oo#oo#oo#", "...#oo#oo#oo#", "...#oo#oo#oo#", "...#oo#oo#oo#", "...#oo#oo#oo#", "...#oo#oo#oo#", "...#oooooooo#", "...##########"],
+  puzzle: W16((x, y) => {
+    if (x > 15 || y > 15) return ".";
+    if (x >= 12 && y >= 12 && x < 15 && y < 15) return chk(x, y);
+    if (x % 4 === 3 || y % 4 === 3 || x === 0 || y === 0) return "#";
+    return (x >> 2) + (y >> 2) & 1 ? "o" : "o";
+  }),
+  bomb: ["..........#.#", "...........#", "..........#.#", ".........#", "........#", "......####", "......#oo#", "....########", "...##########", "..####oo######", "..###oo#######", "..###o########", "..############", "..############", "...##########", "....########"],
+  warn: shape((x, y) => y >= 1 && y <= 14 && Math.abs(x - 7.5) <= (y - 0.5) * 0.52 + 0.6, (x, y) => ((x === 7 || x === 8) && ((y >= 5 && y <= 9) || y === 11 || y === 12)) ? "#" : "o"),
+  hourglass: W16((x, y) => {
+    if (y === 0 || y === 15) return x >= 2 && x <= 13 ? "#" : ".";
+    const hw = Math.max(1.2, y < 8 ? 6 - (y - 1) * 0.75 : 6 - (14 - y) * 0.75);
+    const d = Math.abs(x - 7.5);
+    if (d > hw) return ".";
+    if (d > hw - 1) return "#";
+    if (y >= 2 && y <= 4) return chk(x, y);
+    if (y >= 11) return "#";
+    return "o";
+  }),
+  arrow: ["#", "##", "#o#", "#oo#", "#ooo#", "#oooo#", "#ooooo#", "#oooooo#", "#ooooooo#", "#oooo#####", "#oo#oo#", "#o#.#oo#", "##..#oo#", "#....#oo#", ".....#oo#", "......##"],
+  cross: W16((x, y) => {
+    const onV = x === 7 && y !== 7 && y >= 1 && y <= 13, onH = y === 7 && x !== 7 && x >= 1 && x <= 13;
+    if (onV || onH) return "#";
+    if ((x === 6 || x === 8) && y >= 1 && y <= 13 && y !== 7) return "o";
+    if ((y === 6 || y === 8) && x >= 1 && x <= 13 && x !== 7) return "o";
+    return ".";
+  }),
+  /* tool icons */
+  t_greyscale: W16((x, y) => { if (x < 1 || x > 14 || y < 3 || y > 12) return "."; if (x === 1 || x === 14 || y === 3 || y === 12) return "#"; return x < 6 ? "#" : x < 10 ? chk(x, y) : "o"; }),
+  t_invert: W16((x, y) => { if (x < 1 || x > 14 || y < 1 || y > 14) return "."; if (x === 1 || x === 14 || y === 1 || y === 14) return "#"; return (x < 8) !== (dist(x, y, 7.5, 7.5) < 4.2) ? "#" : "o"; }),
+  t_sepia: ["....#..#..#", ".....#..#..#", "....#..#..#", "", "..##########", "..#oooooooo####", "..#oooooooo#..#", "..#oooooooo#..#", "..#oooooooo####", "..#oooooooo#", "...#oooooo#", "....######", ".##############", "..############"],
+  t_blur: shape(inDrop, (x, y) => (dist(x, y, 5.5, 9) < 1.5 ? "#" : "o")),
+  t_gaussian: shape(inDrop, (x, y) => (dist(x, y, 7.5, 10) < 3.4 ? chk(x, y) : "o")),
+  t_posterize: W16((x, y) => { if (x < 1 || x > 14 || y > 14) return "."; const h = (Math.floor((x - 1) / 3.5) + 1) * 3; return y >= 14 - h ? "#" : "."; }),
+  t_pixelate: W16((x, y) => { if (x < 0 || y < 0) return "."; if (x === 0 || y === 0 || x === 15 || y === 15) return "#"; return ((x >> 2) * 3 + (y >> 2)) % 3 === 0 ? "#" : ((x >> 2) + (y >> 2)) % 2 ? chk(x, y) : "o"; }),
+  t_contrast: shape((x, y) => dist(x, y, 7.5, 7.5) < 7.2, (x) => (x < 8 ? "#" : "o")),
+  t_brightness: W16((x, y) => { const d = dist(x, y, 7.5, 7.5); if (d < 3.6) return d > 2.7 ? "#" : "o"; const a = Math.atan2(y - 7.5, x - 7.5); const ray = Math.abs(Math.sin(a * 4)) < 0.28; return d > 4.8 && d < 7.6 && ray ? "#" : "."; }),
+  t_rotate: W16((x, y) => { const d = dist(x, y, 7.5, 8.5); const a = Math.atan2(y - 8.5, x - 7.5) * 180 / Math.PI; if (d > 4.4 && d < 6.4 && !(a > -80 && a < -5)) return "#"; if (y >= 1 && y <= 6 && Math.abs(x - 12) <= (y - 1) * 0.7 && y >= 2) return "#"; return "."; }),
+  t_flip: W16((x, y) => { if (x === 7 || x === 8) return y % 3 === 0 ? "." : (x === 7 ? "#" : "."); const L = (xx) => xx >= 1 && xx <= 5 && Math.abs(y - 7.5) <= (xx - 0.5) * 1.15; if (L(x)) return "#"; const R = (xx) => xx >= 10 && xx <= 14 && Math.abs(y - 7.5) <= (15 - xx - 0.5) * 1.15; if (R(x)) { const e = !R(x - 1) || !R(x + 1) || Math.abs(y - 7.5) > (15 - x - 0.5) * 1.15 - 1.1; return e ? "#" : "o"; } return "."; }),
+  t_fisheye: W16((x, y) => { const t = (x - 7.5) / 7.6; const hh = 5.6 * (1 - t * t); const dy = Math.abs(y - 7.5); if (Math.abs(t) > 1 || dy > hh) return "."; if (dist(x, y, 6.5, 6.5) < 1.1) return "o"; if (dist(x, y, 7.5, 7.5) < 3.2) return "#"; return dy > hh - 1.1 ? "#" : "o"; }),
+  t_circle: W16((x, y) => { const d = dist(x, y, 7.5, 7.5); return d < 7.3 && d > 5.9 ? "#" : d <= 5.9 ? chk(x, y) === "#" && (x % 4 === 0 && y % 4 === 0) ? "#" : "." : "."; }),
+  t_crop: W16((x, y) => { if ((x === 3 || x === 4) && y <= 12) return "#"; if ((y === 11 || y === 12) && x >= 3) return "#"; if ((y === 3 || y === 4) && x <= 12) return "#"; if ((x === 11 || x === 12) && y >= 3) return "#"; return "."; }),
+  t_resize: W16((x, y) => { if ((x === 1 || x === 14) && y >= 1 && y <= 14 || (y === 1 || y === 14) && x >= 1 && x <= 14) return (x + y) % 2 ? "#" : "."; if (x >= 3 && x <= 8 && y >= 7 && y <= 12) return x === 3 || x === 8 || y === 7 || y === 12 ? "#" : "o"; if (x === y + 0 && x >= 8 && x <= 12 || x === y + 1 && x >= 9 && x <= 12) return "#"; if (x >= 9 && x <= 12 && y >= 3 && y <= 4 || x >= 11 && x <= 12 && y >= 3 && y <= 6) return "#"; return "."; }),
+  t_opacity: [".....######", "...##oooooo##", "..#oooooooooo#", ".#oooooooooooo#", ".#ooo##oo##ooo#", ".#ooo##oo##ooo#", ".#oooooooooooo#", ".#oooooooooooo#", ".#ooooo##ooooo#", ".#oooooooooooo#", ".#oooooooooooo#", ".#oooooooooooo#", ".#oooooooooooo#", ".#oo#o#oo#o#oo#.", "..##.#.##.#.##"],
+  t_normalize: W16((x, y) => { if (y === 15) return x <= 15 ? "#" : "."; const hs = [3, 6, 9, 12, 14, 12, 9, 7, 5, 3]; const i = Math.floor((x - 1) / 1.4); if (x < 1 || i >= hs.length) return "."; return 15 - y <= hs[i] ? (x % 3 === 0 ? "." : "#") : "."; }),
+  t_color: W16((x, y) => { if (y > 14) return "."; const d = dist(x, y, 7.5, 14.5); if (d > 7.6 || d < 2.2) return "."; const band = Math.floor((d - 2.2) / 1.35); return band % 2 ? "#" : band === 2 ? chk(x, y) : "."; }),
+  t_threshold: W16((x, y) => { if (x < 1 || x > 14 || y < 1 || y > 14) return "."; if (x === 1 || x === 14 || y === 1 || y === 14) return "#"; return x + y < 15 ? "#" : "o"; }),
+  t_dither: W16((x, y) => { if (x < 0 || y < 1 || y > 14) return "."; if (x === 0 || x === 15 || y === 1 || y === 14) return "#"; return BAYER[(y & 3) * 4 + (x & 3)] < x ? "#" : "o"; }),
+};
+ART.t_bomb = ART.bomb;
+
+function pxURL(name, scale = 1) {
+  const rows = ART[name];
+  const w = 16, h = 16;
+  const c = document.createElement("canvas");
+  c.width = w * scale; c.height = h * scale;
+  const g = c.getContext("2d");
+  rows.forEach((row, y) => [...row].forEach((ch, x) => {
+    if (ch === "#" || ch === "o") { g.fillStyle = ch === "#" ? "#000" : "#fff"; g.fillRect(x * scale, y * scale, scale, scale); }
+  }));
+  return c.toDataURL();
+}
+const pxCache = {};
+const px = (name, scale = 2) => (pxCache[name + scale] ??= pxURL(name, scale));
+function paintIcons(root = document) {
+  root.querySelectorAll("img[data-px]").forEach((img) => { img.src = px(img.dataset.px, +(img.dataset.scale || 1)); });
+}
+paintIcons();
+
+/* cursors, also pixel art */
+const curCSS = (name, hx, hy, fallback) => `url(${px(name, 1)}) ${hx} ${hy}, ${fallback}`;
+const rootStyle = document.documentElement.style;
+rootStyle.setProperty("--cur-arrow", curCSS("arrow", 0, 0, "default"));
+rootStyle.setProperty("--cur-busy", curCSS("hourglass", 8, 8, "wait"));
+rootStyle.setProperty("--cur-cross", curCSS("cross", 7, 7, "crosshair"));
+
+/* ------------------------------------------------------------------
+ * 1-bit fill patterns (8x8, one byte per row)
+ * ------------------------------------------------------------------ */
+const PATTERNS = [
+  [0xaa, 0x55, 0xaa, 0x55, 0xaa, 0x55, 0xaa, 0x55], // 50%
+  [0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00], // white
+  [0x88, 0x00, 0x22, 0x00, 0x88, 0x00, 0x22, 0x00], // 12%
+  [0x88, 0x22, 0x88, 0x22, 0x88, 0x22, 0x88, 0x22], // 25%
+  [0x77, 0xdd, 0x77, 0xdd, 0x77, 0xdd, 0x77, 0xdd], // 75%
+  [0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff], // black
+  [0xff, 0x00, 0xff, 0x00, 0xff, 0x00, 0xff, 0x00], // h-lines
+  [0xaa, 0xaa, 0xaa, 0xaa, 0xaa, 0xaa, 0xaa, 0xaa], // v-lines
+  [0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x80], // diag
+  [0x80, 0x40, 0x20, 0x10, 0x08, 0x04, 0x02, 0x01], // anti-diag
+  [0x81, 0x42, 0x24, 0x18, 0x18, 0x24, 0x42, 0x81], // cross-hatch
+  [0xff, 0x80, 0x80, 0x80, 0xff, 0x08, 0x08, 0x08], // bricks
+  [0xff, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80], // grid
+  [0x10, 0x28, 0x44, 0x82, 0x44, 0x28, 0x10, 0x00], // diamonds
+  [0xf8, 0x74, 0x22, 0x47, 0x8f, 0x17, 0x22, 0x71], // weave
+  [0x80, 0x80, 0x41, 0x3e, 0x08, 0x08, 0x14, 0xe3], // scales
+  [0xf0, 0xf0, 0xf0, 0xf0, 0x0f, 0x0f, 0x0f, 0x0f], // big checker
+  [0x00, 0x00, 0x00, 0x10, 0x00, 0x00, 0x00, 0x00], // stars
+  [0x82, 0x44, 0x28, 0x11, 0x82, 0x44, 0x28, 0x11], // zigzag
+  [0x3c, 0x42, 0x81, 0x81, 0x81, 0x81, 0x42, 0x3c], // rings
+  [0x1e, 0x04, 0x04, 0x04, 0x44, 0x44, 0x38, 0x00], // J for Jimp
+  [0x00, 0x66, 0xff, 0xff, 0x7e, 0x3c, 0x18, 0x00], // hearts
+];
+function patURL(bytes) {
+  const c = document.createElement("canvas"); c.width = c.height = 8;
+  const g = c.getContext("2d"); g.fillStyle = "#fff"; g.fillRect(0, 0, 8, 8); g.fillStyle = "#000";
+  bytes.forEach((b, y) => { for (let x = 0; x < 8; x++) if (b & (0x80 >> x)) g.fillRect(x, y, 1, 1); });
+  return `url(${c.toDataURL()})`;
+}
+const PATURLS = PATTERNS.map(patURL);
+let deskPat = 0, canvasPat = 8;
+const setDesk = (i) => { deskPat = i; rootStyle.setProperty("--desk", PATURLS[i]); };
+const setCanvasPat = (i) => {
+  canvasPat = i; rootStyle.setProperty("--pat-canvas", PATURLS[i]);
+  document.querySelectorAll("#pats button").forEach((b, j) => b.classList.toggle("on", j === i));
+};
+setDesk(0); setCanvasPat(8);
+const pats = document.getElementById("pats");
+PATURLS.forEach((u, i) => {
+  const b = document.createElement("button");
+  b.style.backgroundImage = u; b.title = "Click: picture backdrop. Double-click: desktop pattern";
+  b.setAttribute("aria-label", `Pattern ${i + 1}`);
+  b.onclick = () => setCanvasPat(i);
+  b.ondblclick = () => { setDesk(i); toast("Desktop pattern changed. Very 1-bit of you."); };
+  pats.append(b);
+});
+setCanvasPat(8);
+
+/* ------------------------------------------------------------------
+ * Small helpers
+ * ------------------------------------------------------------------ */
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const esc = (s) => s.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+const frame = () => new Promise((r) => { let done = false; const f = () => { if (!done) { done = true; r(); } }; requestAnimationFrame(() => setTimeout(f, 0)); setTimeout(f, 40); });
+let toastT;
+function toast(msg) { const t = $("#toast"); t.textContent = msg; t.classList.add("show"); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove("show"), 2600); }
+let audio;
+function beep(freq = 520, dur = 0.12) {
+  try {
+    audio ??= new AudioContext();
+    const o = audio.createOscillator(), g = audio.createGain();
+    o.type = "square"; o.frequency.value = freq; g.gain.value = 0.04;
+    o.connect(g).connect(audio.destination); o.start(); o.stop(audio.currentTime + dur);
+  } catch {}
+}
+
+/* tiny JS highlighter: in 1-bit, typography does the colouring */
+function highlight(src) {
+  const re = /(\/\/[^\n]*)|("(?:[^"\\\n]|\\.)*"|'(?:[^'\\\n]|\\.)*'|`[^`]*`)|\b(import|from|const|let|await|async|export|default|return|new|function|true|false|satisfies|type|if|else)\b|(\.[A-Za-z_$][\w$]*)(?=\()|\b(\d+(?:\.\d+)?)\b/g;
+  let out = "", last = 0, m;
+  while ((m = re.exec(src))) {
+    out += esc(src.slice(last, m.index));
+    const [t] = m;
+    out += m[1] ? `<span class="c">${esc(t)}</span>` : m[2] ? `<span class="s">${esc(t)}</span>` : m[3] ? `<span class="k">${t}</span>` : m[4] ? `.<span class="m">${esc(t.slice(1))}</span>` : `<span class="n">${t}</span>`;
+    last = m.index + t.length;
+  }
+  return out + esc(src.slice(last));
+}
+const hlShell = (src) => src.split("\n").map((l) => l.replace(/^(\s*)(\S+)/, (_, a, b) => `${a}<span class="k">${esc(b)}</span>`)).join("\n");
+
+/* zoom rectangles: the classic "window flies out of its icon" outline */
+function zoomRects(from, to, n = 7) {
+  for (let i = 1; i <= n; i++) {
+    const t = i / n;
+    const d = document.createElement("div"); d.className = "zr";
+    const L = from.left + (to.left - from.left) * t, T = from.top + (to.top - from.top) * t;
+    const Wd = from.width + (to.width - from.width) * t, H = from.height + (to.height - from.height) * t;
+    Object.assign(d.style, { left: L + "px", top: T + "px", width: Wd + "px", height: H + "px", display: "none" });
+    document.body.append(d);
+    setTimeout(() => (d.style.display = "block"), i * 28);
+    setTimeout(() => d.remove(), i * 28 + 110);
+  }
+}
+
+/* ------------------------------------------------------------------
+ * Load Jimp from the CDN
+ * ------------------------------------------------------------------ */
+let Jimp;
+try {
+  ({ Jimp } = await import("https://cdn.jsdelivr.net/npm/jimp@1/dist/browser/index.js"));
+} catch (e) {
+  bomb(new Error("Couldn't load Jimp from cdn.jsdelivr.net. Are you offline? (" + e.message + ")"), 404);
+}
+let opsRun = 0;
+
+/* The "display driver": how this 1-bit monitor shows any image, using only Jimp.
+   contrast(-0.88) squeezes the tones into a 16-step band so dither()'s 4x4 matrix
+   (which adds 1..16) spans the whole range, then threshold + invert snap to pure B/W. */
+function toOneBit(img) {
+  opsRun += 6;
+  return img.greyscale().contrast(-0.88).dither().threshold({ max: 136, replace: 0 }).threshold({ max: 1 }).invert();
+}
+const DRIVER_CODE = [
+  "",
+  "// Display driver: how this page draws it in 1-bit",
+  "const screen = image.clone()",
+  "  .greyscale()",
+  "  .contrast(-0.88)  // squeeze tones into dither()'s 16 steps",
+  "  .dither()         // 4x4 ordered dither",
+  "  .threshold({ max: 136, replace: 0 })",
+  "  .threshold({ max: 1 })",
+  "  .invert();        // pure black and white",
+];
+
+/* ------------------------------------------------------------------
+ * TOOLS: each one is a real Jimp method
+ * ------------------------------------------------------------------ */
+const num = (v) => +(+v).toFixed(2);
+const TOOLS = [
+  { id: "greyscale", name: "Greyscale", sig: "greyscale()", pkg: "plugin-color", run: (i) => i.greyscale(), code: () => "image.greyscale();", doc: "Removes colour, leaving luminance. On this monitor it changes nothing (try Colour mode)." },
+  { id: "invert", name: "Invert", sig: "invert()", pkg: "plugin-color", run: (i) => i.invert(), code: () => "image.invert();", doc: "Inverts every channel: black becomes white, red becomes cyan." },
+  { id: "sepia", name: "Sepia", sig: "sepia()", pkg: "plugin-color", run: (i) => i.sepia(), code: () => "image.sepia();", doc: "Applies an old-photo brown tone. Very dramatic in 1-bit." },
+  { id: "blur", name: "Blur", sig: "blur(r)", pkg: "plugin-blur", param: { label: "r", min: 1, max: 20, step: 1, def: 4 }, run: (i, a) => i.blur(a), code: (a) => `image.blur(${a});`, doc: "A fast blur. r is the radius in pixels." },
+  { id: "gaussian", name: "Gaussian", sig: "gaussian(r)", pkg: "plugin-blur", param: { label: "r", min: 1, max: 6, step: 1, def: 2 }, run: (i, a) => i.gaussian(a), code: (a) => `image.gaussian(${a});`, doc: "A true Gaussian blur. Prettier than blur(), slower too." },
+  { id: "posterize", name: "Posterize", sig: "posterize(n)", pkg: "plugin-color", param: { label: "n", min: 2, max: 12, step: 1, def: 4 }, run: (i, a) => i.posterize(a), code: (a) => `image.posterize(${a});`, doc: "Reduces each channel to n levels." },
+  { id: "pixelate", name: "Pixelate", sig: "pixelate(size | { size, x, y, w, h })", pkg: "plugin-color", drag: true, hint: "Drag on the picture to pixelate just that region.", param: { label: "size", min: 2, max: 24, step: 1, def: 8 },
+    mk: (p, prev, old) => (old && typeof old === "object" ? { ...old, size: p } : p),
+    run: (i, a) => i.pixelate(a), code: (a) => (typeof a === "object" ? `image.pixelate({ size: ${a.size}, x: ${a.x}, y: ${a.y}, w: ${a.w}, h: ${a.h} });` : `image.pixelate(${a});`), doc: "Turns the image (or a region of it) into big square pixels." },
+  { id: "contrast", name: "Contrast", sig: "contrast(val)", pkg: "plugin-color", param: { label: "val", min: -0.9, max: 0.9, step: 0.05, def: 0.5 }, run: (i, a) => i.contrast(a), code: (a) => `image.contrast(${num(a)});`, doc: "Adjusts contrast. val runs from -1 to +1." },
+  { id: "brightness", name: "Brightness", sig: "brightness(val)", pkg: "plugin-color", param: { label: "val", min: 0, max: 2.5, step: 0.05, def: 1.4 }, run: (i, a) => i.brightness(a), code: (a) => `image.brightness(${num(a)});`, doc: "Multiplies every channel. 1 leaves the image unchanged, 0 makes it black (new in v1)." },
+  { id: "rotate", name: "Rotate", sig: "rotate(deg)", pkg: "plugin-rotate", param: { label: "deg", min: -180, max: 180, step: 15, def: 90 }, run: (i, a) => i.rotate(a), code: (a) => `image.rotate(${a});`, doc: "Rotates by any angle. Non-right angles grow the canvas and leave transparent corners." },
+  { id: "flip", name: "Flip", sig: "flip({ horizontal, vertical })", pkg: "plugin-flip", param: { label: "axis", options: ["horizontal", "vertical", "both"], def: "horizontal" },
+    mk: (p) => ({ horizontal: p !== "vertical", vertical: p !== "horizontal" }),
+    run: (i, a) => i.flip(a), code: (a) => `image.flip({ horizontal: ${a.horizontal}, vertical: ${a.vertical} });`, doc: "Mirrors the image along either or both axes." },
+  { id: "fisheye", name: "Fisheye", sig: "fisheye({ radius })", pkg: "plugin-fisheye", param: { label: "radius", min: 1, max: 5, step: 0.25, def: 2.5 }, mk: (p) => ({ radius: p }), run: (i, a) => i.fisheye(a), code: (a) => `image.fisheye({ radius: ${num(a.radius)} });`, doc: "Bulges the centre like a peephole lens. The default radius is 2.5." },
+  { id: "circle", name: "Circle", sig: "circle({ radius, x, y })", pkg: "plugin-circle", drag: true, hint: "Click on the picture to centre the circle there.", param: { label: "radius", min: 20, max: 200, step: 5, def: 0 },
+    mk: (p, prev, old) => (old && typeof old === "object" && old.x != null ? { ...old, radius: p } : p ? { radius: p } : undefined),
+    run: (i, a) => i.circle(a), code: (a) => (a ? `image.circle({ ${Object.entries(a).map(([k, v]) => `${k}: ${Math.round(v)}`).join(", ")} });` : "image.circle();"), doc: "Masks the image to a circle. Defaults to the biggest circle that fits." },
+  { id: "crop", name: "Crop", sig: "crop({ x, y, w, h })", pkg: "plugin-crop", drag: true, hint: "Drag a rectangle on the picture to crop to it.", param: { label: "inset %", min: 5, max: 40, step: 5, def: 15 },
+    mk: (p, prev) => { const w = prev.bitmap.width, h = prev.bitmap.height; const x = Math.round(w * p / 100), y = Math.round(h * p / 100); return { x, y, w: w - 2 * x, h: h - 2 * y }; },
+    run: (i, a) => i.crop(a), code: (a) => `image.crop({ x: ${a.x}, y: ${a.y}, w: ${a.w}, h: ${a.h} });`, doc: "Cuts out a rectangle. x and y are the top-left corner." },
+  { id: "resize", name: "Resize", sig: "resize({ w, h?, mode? })", pkg: "plugin-resize", param: { label: "w", min: 40, max: 480, step: 10, def: 160 }, mk: (p) => ({ w: p }), run: (i, a) => i.resize(a), code: (a) => `image.resize({ w: ${a.w} });`, doc: "Scales the image. Pass only w (or only h) to keep the aspect ratio." },
+  { id: "opacity", name: "Opacity", sig: "opacity(f)", pkg: "plugin-color", param: { label: "f", min: 0, max: 1, step: 0.05, def: 0.5 }, run: (i, a) => i.opacity(a), code: (a) => `image.opacity(${num(a)});`, doc: "Multiplies the alpha channel by f, from 0 to 1." },
+  { id: "normalize", name: "Normalize", sig: "normalize()", pkg: "plugin-color", run: (i) => i.normalize(), code: () => "image.normalize();", doc: "Stretches the histogram so the darkest pixel is black and the lightest is white." },
+  { id: "color", name: "Hue", sig: "color([{ apply, params }])", pkg: "plugin-color", param: { label: "hue", min: -180, max: 180, step: 15, def: 90 }, mk: (p) => [{ apply: "hue", params: [p] }], run: (i, a) => i.color(a), code: (a) => `image.color([{ apply: "hue", params: [${a[0].params[0]}] }]);`, doc: "Applies a list of colour actions: hue, lighten, darken, saturate, mix, tint, shade and more." },
+  { id: "threshold", name: "Threshold", sig: "threshold({ max, replace?, autoGreyscale? })", pkg: "plugin-threshold", param: { label: "max", min: 10, max: 250, step: 5, def: 128 }, mk: (p) => ({ max: p }), run: (i, a) => i.threshold(a), code: (a) => `image.threshold({ max: ${a.max} });`, doc: "Greyscales, then turns every pixel at or above max white." },
+  { id: "dither", name: "Dither", sig: "dither()", pkg: "plugin-dither", run: (i) => i.dither(), code: () => "image.dither();", doc: "Ordered 4x4 dithering, built for reducing to 16-bit (RGB565) colour. This monitor's driver is built on it." },
+  { id: "bomb", name: "Don't", sig: "contrast(2)", pkg: "your mistake", run: (i) => i.contrast(2), code: () => "image.contrast(2); // what does this button do?", doc: "Calls contrast() with an out-of-range value, so you can see how Jimp reports errors." },
+];
+const TOOL = Object.fromEntries(TOOLS.map((t) => [t.id, t]));
+TOOLS.forEach((t) => (t.icon = "t_" + t.id));
+
+/* ------------------------------------------------------------------
+ * Playground state
+ * ------------------------------------------------------------------ */
+const PROC_W = 320;
+let source = null, srcName = "dice.png", srcCode = 'await Jimp.read("dice.png")';
+let steps = [];         // [{ tool, args, p }]
+let cache = [];         // cache[i] = image after i steps
+let colour = false, showDriver = false;
+let curTool = "blur";
+const pvals = Object.fromEntries(TOOLS.filter((t) => t.param).map((t) => [t.id, t.param.def]));
+
+const pimg = $("#pimg"), canvasEl = $("#canvas");
+
+function busy(on) { document.body.classList.toggle("busy", on); }
+
+async function loadBase(url) {
+  const img = await Jimp.read(url);
+  if (img.bitmap.width > PROC_W) img.resize({ w: PROC_W });
+  return img;
+}
+
+let renderSeq = 0;
+async function render(freshLine) {
+  if (!source) return;
+  const seq = ++renderSeq;
+  busy(true);
+  await frame();
+  if (seq !== renderSeq) return;
+  const t0 = performance.now();
+  try {
+    cache[0] = source;
+    for (let i = cache.length; i <= steps.length; i++) {
+      const s = steps[i - 1];
+      const img = cache[i - 1].clone();
+      try { TOOL[s.tool].run(img, s.args); opsRun++; }
+      catch (e) { steps.splice(i - 1); cache.length = i; renderCode(); throw e; }
+      cache[i] = img;
+    }
+    const out = cache[steps.length];
+    const disp = colour ? out.clone() : toOneBit(out.clone());
+    const b64 = await disp.getBase64("image/png");
+    if (seq !== renderSeq) return;
+    pimg.src = b64;
+    await new Promise((r) => (pimg.complete ? r() : (pimg.onload = r)));
+    const wrap = canvasEl.getBoundingClientRect();
+    const w = out.bitmap.width, h = out.bitmap.height;
+    let scale = Math.min(2, (wrap.width - 40) / w, (wrap.height - 40) / h);
+    if (scale >= 1) scale = Math.floor(scale);
+    pimg.style.width = Math.round(w * scale) + "px";
+    pimg.style.height = Math.round(h * scale) + "px";
+    $("#st-size").textContent = `${w} × ${h} px` + (scale !== 1 ? ` (shown at ${+scale.toFixed(2)}×)` : "");
+    $("#st-ms").textContent = `${Math.round(performance.now() - t0)} ms`;
+  } catch (e) {
+    bomb(e);
+  } finally {
+    if (seq === renderSeq) busy(false);
+  }
+  $("#st-steps").textContent = `${steps.length} step${steps.length === 1 ? "" : "s"}`;
+  renderCode(freshLine);
+}
+
+function argsFor(toolId, prevImg, old) {
+  const t = TOOL[toolId];
+  if (!t.param) return undefined;
+  const p = pvals[toolId];
+  return t.mk ? t.mk(p, prevImg, old) : p;
+}
+function applyTool(toolId, explicitArgs) {
+  const prev = cache[steps.length] || source;
+  const args = explicitArgs !== undefined ? explicitArgs : argsFor(toolId, prev);
+  steps.push({ tool: toolId, args });
+  cache.length = Math.min(cache.length, steps.length);
+  render(steps.length - 1);
+  if (toolId === "bomb") beep(220, 0.25);
+}
+let tweakT;
+function tweakLast() {
+  const i = steps.length - 1;
+  if (i < 0 || steps[i].tool !== curTool) return false;
+  steps[i].args = argsFor(curTool, cache[i] || source, steps[i].args);
+  cache.length = Math.min(cache.length, i + 1);
+  clearTimeout(tweakT);
+  tweakT = setTimeout(() => render(i), 90);
+  return true;
+}
+function removeStep(i) {
+  steps.splice(i, 1);
+  cache.length = Math.min(cache.length, i + 1);
+  render();
+}
+
+/* palette + option bar */
+const palette = $("#palette");
+TOOLS.forEach((t) => {
+  const b = document.createElement("button");
+  b.className = "tool"; b.dataset.tool = t.id; b.title = `${t.name}: image.${t.sig}`;
+  b.setAttribute("aria-label", t.name);
+  b.innerHTML = `<img src="${px(t.icon, 2)}" alt="" />`;
+  b.onclick = () => { selectTool(t.id); applyTool(t.id); };
+  palette.append(b);
+});
+function selectTool(id) {
+  curTool = id;
+  const t = TOOL[id];
+  $$(".tool").forEach((b) => b.classList.toggle("on", b.dataset.tool === id));
+  $("#opt-icon").src = px(t.icon, 2);
+  $("#opt-name").textContent = t.name;
+  $("#opt-sig").textContent = "image." + t.sig;
+  const lab = $("#opt-param");
+  lab.innerHTML = "";
+  if (t.param) {
+    const P = t.param;
+    if (P.options) {
+      lab.innerHTML = `${P.label} <select>${P.options.map((o) => `<option${o === pvals[id] ? " selected" : ""}>${o}</option>`).join("")}</select>`;
+      $("select", lab).onchange = (e) => { pvals[id] = e.target.value; tweakLast(); };
+    } else {
+      const v = pvals[id];
+      lab.innerHTML = `${P.label} <input type="range" min="${P.min}" max="${P.max}" step="${P.step}" value="${v || P.min}" /> <output>${v === 0 && id === "circle" ? "auto" : v}</output>`;
+      const inp = $("input", lab), out = $("output", lab);
+      inp.oninput = () => { pvals[id] = +inp.value; out.textContent = inp.value; tweakLast(); };
+    }
+  }
+  $("#hint").textContent = t.drag ? t.hint : "";
+  canvasEl.classList.toggle("cross", !!t.drag);
+}
+$("#opt-apply").onclick = () => applyTool(curTool);
+selectTool("blur");
+
+/* drag tools: crop, pixelate (rect) and circle (click) */
+let drag = null;
+const marquee = $("#marquee");
+function toImg(e) {
+  const r = pimg.getBoundingClientRect(), img = cache[steps.length] || source;
+  const x = Math.max(0, Math.min(img.bitmap.width, ((e.clientX - r.left) / r.width) * img.bitmap.width));
+  const y = Math.max(0, Math.min(img.bitmap.height, ((e.clientY - r.top) / r.height) * img.bitmap.height));
+  return { x: Math.round(x), y: Math.round(y) };
+}
+canvasEl.addEventListener("pointerdown", (e) => {
+  const t = TOOL[curTool];
+  if (!t.drag || !source || e.target.closest(".hint")) return;
+  e.preventDefault();
+  const w = canvasEl.getBoundingClientRect();
+  drag = { sx: e.clientX, sy: e.clientY, a: toImg(e), w };
+  canvasEl.setPointerCapture(e.pointerId);
+});
+canvasEl.addEventListener("pointermove", (e) => {
+  if (!drag) return;
+  const { sx, sy, w } = drag;
+  Object.assign(marquee.style, { display: "block", left: Math.min(sx, e.clientX) - w.left + "px", top: Math.min(sy, e.clientY) - w.top + "px", width: Math.abs(e.clientX - sx) + "px", height: Math.abs(e.clientY - sy) + "px" });
+});
+canvasEl.addEventListener("pointerup", (e) => {
+  if (!drag) return;
+  const a = drag.a, b = toImg(e); drag = null; marquee.style.display = "none";
+  const rect = { x: Math.min(a.x, b.x), y: Math.min(a.y, b.y), w: Math.abs(b.x - a.x), h: Math.abs(b.y - a.y) };
+  if (curTool === "circle") {
+    const img = cache[steps.length] || source;
+    const r = pvals.circle || Math.round(Math.min(img.bitmap.width, img.bitmap.height) / 3);
+    applyTool("circle", { radius: r, x: b.x, y: b.y });
+  } else if (rect.w < 4 || rect.h < 4) {
+    toast("Drag a bigger rectangle.");
+  } else if (curTool === "crop") applyTool("crop", rect);
+  else if (curTool === "pixelate") applyTool("pixelate", { size: pvals.pixelate, ...rect });
+});
+
+/* code window */
+function codeLines() {
+  const L = [];
+  L.push({ t: 'import { Jimp } from "jimp";' }, { t: "" });
+  L.push({ t: `const image = ${srcCode};` });
+  L.push({ t: `image.resize({ w: ${PROC_W} }); // small = fast` }, { t: "" });
+  if (!steps.length) L.push({ t: "// pick a tool in JimPaint…" });
+  steps.forEach((s, i) => L.push({ t: TOOL[s.tool].code(s.args), step: i }));
+  L.push({ t: "" });
+  L.push({ t: `await image.write("${srcName.replace(/\.\w+$/, "")}-edited.png");` });
+  L.push({ t: "// in a browser: await image.getBase64(\"image/png\")" });
+  if (showDriver) DRIVER_CODE.forEach((t) => L.push({ t, drv: true }));
+  return L;
+}
+function codeText() { return codeLines().map((l) => l.t).join("\n"); }
+function renderCode(fresh) {
+  const pre = $("#code");
+  pre.innerHTML = codeLines().map((l, n) => `<span class="ln${l.step != null ? " step" : ""}${l.step != null && l.step === fresh ? " fresh" : ""}${l.drv ? " drv" : ""}" data-n="${n + 1}"${l.step != null ? ` data-step="${l.step}" title="Click to remove this step"` : ""}>${highlight(l.t)}</span>`).join("");
+  const f = $(".fresh", pre);
+  if (f) f.scrollIntoView({ block: "nearest" });
+}
+$("#code").addEventListener("click", (e) => { const ln = e.target.closest(".ln.step"); if (ln) removeStep(+ln.dataset.step); });
+
+/* colour mode */
+const colourBox = $("#colour");
+colourBox.addEventListener("change", (e) => {
+  if (colourBox.checked) { colourBox.checked = false; openDlg("#dlg-colour"); beep(660); }
+  else setColour(false);
+});
+function setColour(on) {
+  colour = on; colourBox.checked = on;
+  $("#mi-colour").classList.toggle("on", on);
+  canvasEl.classList.toggle("colour-emu", on);
+  render();
+}
+$("#col-emulate").onclick = () => { closeDlg(); setColour(true); toast("Colour emulation engaged. Please do not look directly at it."); };
+const driverBox = $("#driver");
+driverBox.onchange = () => { showDriver = driverBox.checked; $("#mi-driver").classList.toggle("on", showDriver); renderCode(); };
+
+/* upload / drop / save */
+const fileInput = $("#file");
+fileInput.onchange = () => fileInput.files[0] && openFile(fileInput.files[0]);
+async function openFile(file) {
+  busy(true); await frame();
+  try {
+    const buf = await file.arrayBuffer();
+    const img = await Jimp.fromBuffer(buf);
+    if (img.bitmap.width > PROC_W) img.resize({ w: PROC_W });
+    source = img; srcName = file.name; srcCode = `await Jimp.fromBuffer(await file.arrayBuffer())`;
+    steps = []; cache = [];
+    $("#paint-title").textContent = `JimPaint: ${file.name}`;
+    await render();
+    toast(`Opened ${file.name} with Jimp.fromBuffer()`);
+  } catch (e) { busy(false); bomb(e); }
+}
+canvasEl.addEventListener("dragover", (e) => { e.preventDefault(); canvasEl.classList.add("dropping"); });
+canvasEl.addEventListener("dragleave", () => canvasEl.classList.remove("dropping"));
+canvasEl.addEventListener("drop", (e) => { e.preventDefault(); canvasEl.classList.remove("dropping"); const f = e.dataTransfer.files[0]; if (f) openFile(f); });
+async function save() {
+  if (!source) return;
+  const out = cache[steps.length] || source;
+  const a = document.createElement("a");
+  a.href = await out.getBase64("image/png");
+  a.download = srcName.replace(/\.\w+$/, "") + "-edited.png";
+  a.click();
+  toast("Saved the real full-colour pixels. Your actual monitor can handle them.");
+}
+
+/* ------------------------------------------------------------------
+ * Errors: the bomb
+ * ------------------------------------------------------------------ */
+function bomb(e, id) {
+  console.warn(e);
+  $("#bomb-id").textContent = id ?? (1000 + ((String(e?.message).length * 37) % 900));
+  $("#bomb-msg").textContent = `Jimp said: ${e?.message || e}`;
+  openDlg("#dlg-bomb");
+  const d = $("#dlg-bomb"); d.classList.remove("shake"); void d.offsetWidth; d.classList.add("shake");
+  beep(180, 0.3);
+}
+$("#bomb-restart").onclick = () => { closeDlg(); steps = []; cache = []; render(); toast("Restarted. Fresh pixels."); };
+
+/* dialogs */
+let openD = null;
+function openDlg(sel, fromEl) {
+  closeDlg();
+  openD = $(sel);
+  $("#scrim").classList.add("show");
+  openD.classList.add("show");
+  const to = openD.getBoundingClientRect();
+  const from = fromEl ? fromEl.getBoundingClientRect() : { left: innerWidth / 2 - 10, top: innerHeight / 2 - 10, width: 20, height: 20 };
+  zoomRects(from, to, 5);
+  $(".def", openD)?.focus();
+}
+function closeDlg() { if (!openD) return; openD.classList.remove("show"); openD = null; $("#scrim").classList.remove("show"); }
+$$("[data-close]").forEach((b) => (b.onclick = closeDlg));
+$("#scrim").onclick = closeDlg;
+
+/* ------------------------------------------------------------------
+ * Windows: focus, drag, close, shade
+ * ------------------------------------------------------------------ */
+let topZ = 10;
+function activate(win) { $$(".win").forEach((w) => w.classList.toggle("active", w === win)); }
+$$(".win").forEach((win) => {
+  const tb = $(".tb", win);
+  win.addEventListener("pointerdown", () => { activate(win); if (win.classList.contains("float")) win.style.zIndex = 1500 + ++topZ; });
+  let st = null;
+  tb.addEventListener("pointerdown", (e) => {
+    if (e.target.closest("button") || innerWidth < 1000) return;
+    const m = /translate\(([-\d.]+)px, ([-\d.]+)px\)/.exec(win.style.transform || "") || [0, 0, 0];
+    st = { x: e.clientX, y: e.clientY, ox: +m[1], oy: +m[2] };
+    tb.setPointerCapture(e.pointerId);
+    win.classList.add("dragging"); win.style.zIndex = win.classList.contains("float") ? 1500 + ++topZ : 60 + ++topZ;
+  });
+  tb.addEventListener("pointermove", (e) => { if (st) win.style.transform = `translate(${st.ox + e.clientX - st.x}px, ${st.oy + e.clientY - st.y}px)`; });
+  tb.addEventListener("pointerup", () => { st = null; win.classList.remove("dragging"); });
+  tb.addEventListener("dblclick", (e) => { if (!e.target.closest("button")) win.style.transform = ""; });
+  $(".close", win)?.addEventListener("click", () => closeWin(win));
+  $(".zoom", win)?.addEventListener("click", () => win.classList.toggle("shade"));
+});
+function iconFor(win) {
+  if (win.id === "w-trash") return $("#deskicons .trash");
+  if (win.id === "w-puzzle") return $('#deskicons [data-act="puzzle"]');
+  return $(`#deskicons [data-go="${win.dataset.icon}"]`);
+}
+function closeWin(win) {
+  const ic = iconFor(win);
+  const from = win.getBoundingClientRect();
+  win.hidden = true;
+  if (ic && ic.offsetParent) zoomRects(from, ic.getBoundingClientRect());
+}
+function openWin(id, srcEl) {
+  const win = document.getElementById(id);
+  if (!win) return;
+  const wasHidden = win.hidden;
+  win.hidden = false; win.classList.remove("shade");
+  if (!win.classList.contains("float")) win.scrollIntoView({ behavior: "smooth", block: "start" });
+  activate(win);
+  if (win.classList.contains("float")) win.style.zIndex = 1500 + ++topZ;
+  if (wasHidden && srcEl) requestAnimationFrame(() => zoomRects(srcEl.getBoundingClientRect(), win.getBoundingClientRect()));
+  if (srcEl?.classList.contains("icon")) { srcEl.classList.remove("blink"); void srcEl.offsetWidth; srcEl.classList.add("blink"); }
+}
+/* scroll-driven focus: the window you're reading gets the pinstripes */
+function updateActive() {
+  if ($(".win.float.active:not([hidden])")) return;
+  const vis = $$("#desktop .win:not([hidden])").map((w) => { const r = w.getBoundingClientRect(); return [w, Math.min(r.bottom, innerHeight * 0.6) - Math.max(r.top, 60)]; }).sort((a, b) => b[1] - a[1]);
+  if (vis[0]) activate(vis[0][0]);
+}
+let scT;
+addEventListener("scroll", () => { clearTimeout(scT); scT = setTimeout(updateActive, 60); }, { passive: true });
+updateActive();
+
+/* ------------------------------------------------------------------
+ * Guides
+ * ------------------------------------------------------------------ */
+const CODE = (lang, file, src, run) => `<div class="code"${run ? ` data-run="${run}"` : ""}><div class="cbar"><span class="fn">${file}</span><span class="sp"></span>${run ? `<button data-runbtn>Run ▸</button>` : ""}<button data-copybtn>Copy</button></div><pre data-lang="${lang}">${esc(src)}</pre><div class="scrap"></div></div>`;
+const ASIDE = (title, body) => `<div class="aside"><img src="${px("warn", 2)}" alt="" /><div><b>${title}</b><p>${body}</p></div></div>`;
+const GUIDES = [
+  { id: "getting-started", title: "Getting Started", size: "2K", desc: "How to use Jimp", html: () => `
+<p>Jimp (JavaScript Image Manipulation Program) is a package that makes it easy to load and manipulate images in the browser and Node.js. It aims to run anywhere that JavaScript is supported.</p>
+<p><a href="#w-api" data-go="w-api">Browse the API folder</a> to learn more about each method.</p>
+${CODE("sh", "Terminal", "pnpm add jimp")}
+<p>Jimp supports the following image formats:</p>
+<ul><li>bmp</li><li>gif</li><li>jpeg</li><li>png</li><li>tiff</li></ul>
+${ASIDE("Watch out!", "Jimp is built on JavaScript implementations of image formats. These implementations are not optimized for performance and may allocate a lot of memory before using.")}
+<p>By default JPEG, GIF, TIFF and BMP images larger than 100 megapixels are rejected. See <a href="#" data-guide="reading-large-images">Reading Large Images</a> to raise the limits.</p>
+<h2>Usage</h2>
+<p>The workflow for using Jimp has three steps. Press <b>Run</b> on a step to try it right here.</p>
+<ol class="steps">
+<li><p>Load an image.</p>${CODE("ts", "load.ts", 'import { Jimp } from "jimp";\n\nconst image = await Jimp.read("test/image.png");', "load")}</li>
+<li><p>Manipulate the image.</p>${CODE("ts", "edit.ts", "image.resize({ w: 100 });", "resize100")}</li>
+<li><p>Save the image.</p>${CODE("ts", "save.ts", 'await image.write("test/output.png");', "save")}</li>
+</ol>
+<p>That's the whole loop. Every method in the <a href="#w-api" data-go="w-api">API folder</a> slots into step 2, and you can chain them: <code>image.resize({ w: 100 }).greyscale().dither()</code>.</p>` },
+  { id: "browser", title: "Using in Browser", size: "4K", desc: "How to use Jimp in the browser.", html: () => `
+<p>Jimp can be used anywhere that JavaScript is supported: in the browser, in Node.js, or in a web worker. Jimp comes with a pre-bundled browser version. To use it, simply import <code>jimp</code>.</p>
+<h2>From a CDN</h2>
+<p>The browser build at <code>dist/browser/index.js</code> is a self-contained ES module, so you can import it straight from a CDN without a bundler. This page does exactly that.</p>
+${CODE("html", "index.html", '<script type="module">\n  import { Jimp } from "https://cdn.jsdelivr.net/npm/jimp@1/dist/browser/index.js";\n\n  const image = await Jimp.read("/some/url");\n\n  image.greyscale();\n\n  document.querySelector("img").src = await image.getBase64("image/png");\n<\/script>', "greyscale")}
+<p><code>jimp@1</code> always loads the latest v1 release. Pin an exact version such as <code>jimp@1.7.0</code> to make sure an update never changes your page.</p>
+<h2>With uploaded files</h2>
+<p>You can also hand Jimp an <code>ArrayBuffer</code>. JimPaint's <b>Open&hellip;</b> button does this with your file.</p>
+${CODE("ts", "upload.ts", 'input.addEventListener("change", async (e) => {\n  const file = e.target.files[0];\n  const image = await Jimp.fromBuffer(await file.arrayBuffer());\n\n  image.greyscale();\n\n  img.src = await image.getBase64("image/jpeg");\n});')}
+<h2>Web Workers</h2>
+<p>Jimp can be slow, and you don't want that running on the main thread. Move the work into a worker, pass it the image buffer, and post the result back.</p>` },
+  { id: "reading-large-images", title: "Reading Large Images", size: "3K", desc: "How to pass decode options to Jimp, including the size limits for each format.", html: () => `
+<p>Jimp decodes images with JavaScript implementations of each format. To avoid running out of memory on huge or malicious files, most decoders refuse images above a size limit. If you need to read an image larger than the defaults, pass decode options to <code>Jimp.read</code> or <code>Jimp.fromBuffer</code>.</p>
+<h2>Passing decode options</h2>
+<p>The second argument is an object keyed by MIME type. Jimp detects the image's type and passes only the matching options to its decoder, so you can set options for several formats at once.</p>
+${CODE("ts", "huge.ts", 'import { Jimp } from "jimp";\n\nconst image = await Jimp.read("huge-photo.jpg", {\n  "image/jpeg": { maxResolutionInMP: 200, maxMemoryUsageInMB: 1024 },\n  "image/gif": { maxResolutionInMP: 200 },\n  "image/tiff": { maxResolutionInMP: 200 },\n  "image/bmp": { maxResolutionInMP: 200 },\n});')}
+<p>When an image is over a limit, decoding throws an error instead of allocating memory for it. (On this page, that error would arrive as a bomb.)</p>` },
+  { id: "exif", title: "EXIF", size: "3K", desc: "How Jimp reads, rotates and writes EXIF metadata.", html: () => `
+<p>Cameras and phones store metadata in JPEG files as EXIF: the camera make and model, the resolution, the date, the orientation and often the GPS location. Jimp reads EXIF from JPEG images. Other formats are read without it.</p>
+<h2>Auto-rotation on read</h2>
+<p>Cameras often store the pixels sideways and record how to turn them in the EXIF <code>Orientation</code> tag. When Jimp loads a JPEG with an orientation other than 1, it rotates and flips the pixels so the image is upright, then sets the orientation to 1.</p>
+${CODE("ts", "exif.ts", '// Stored as 3000x4000 with orientation 6 (rotate 90° clockwise)\nconst image = await Jimp.read("photo.jpg");\n\nimage.width; // 4000\nimage.height; // 3000')}
+<h2>Keeping EXIF on write</h2>
+<p>Pass the <code>exif</code> option when writing a JPEG to carry the metadata through to the new file.</p>` },
+  { id: "writing-plugins", title: "Writing Plugins", size: "2K", desc: "How to write plugins for Jimp", html: () => `
+<p>There are two types of plugins you can write for Jimp: <b>image format plugins</b>, which load and save a format, and <b>image manipulation plugins</b>, which add methods. Combine them to build a <a href="#" data-guide="custom-jimp">Custom Jimp</a>.</p>
+<h2>Image manipulation plugins</h2>
+<p>A manipulation method takes an image as its first argument, does something to it, and returns the image. Every tool in JimPaint is one of these.</p>
+${CODE("ts", "plugin.ts", 'import { JimpClass } from "@jimp/types";\n\nexport const methods = {\n  // image.oneBit() would then be available on your Jimp\n  oneBit<I extends JimpClass>(image: I) {\n    return image.greyscale().dither();\n  },\n};')}` },
+  { id: "custom-jimp", title: "Custom Jimp", size: "2K", desc: "How to create a custom Jimp", html: () => `
+<p>If you don't want all the default plugins included in the <code>jimp</code> package, you can create a custom Jimp with only what you need.</p>
+${CODE("ts", "my-jimp.ts", 'import { createJimp } from "@jimp/core";\nimport png from "@jimp/js-png";\nimport * as resize from "@jimp/plugin-resize";\n\nconst MyJimp = createJimp({\n  plugins: [resize.methods],\n  formats: [png],\n});\n\nconst image = await MyJimp.read("test/image.png");')}
+<p>The result only knows PNG and <code>resize()</code>, and ships a lot less code.</p>` },
+  { id: "migrate-to-v1", title: "Migrate to v1", size: "10K", desc: "How to migrate from v0 to v1", html: () => `
+<p>The goals of v1 were to make Jimp easier to use in any environment, make its API more consistent, and replace most constants with plain, typed strings. Some of what v0 had is now <a href="#" data-act="trash">in the Trash</a>.</p>
+<h2>Async everywhere</h2>
+<p>All "export" methods are now async, and they lost the <code>Async</code> suffix: <code>getBufferAsync</code> is <code>getBuffer</code>, <code>getBase64Async</code> is <code>getBase64</code>, and <code>writeAsync</code> is <code>write</code>. Callbacks are gone; everything returns a promise.</p>
+<h2>Options objects</h2>
+<p>Positional arguments became options objects.</p>
+${CODE("ts", "v0-vs-v1.ts", '// v0\nimage.resize(100, Jimp.AUTO);\nimage.crop(10, 10, 50, 50);\n\n// v1\nimage.resize({ w: 100 });\nimage.crop({ x: 10, y: 10, w: 50, h: 50 });')}
+<h2>Behaviour changes</h2>
+<p><code>brightness(val)</code> now multiplies each channel: <code>1</code> leaves the image unchanged and <code>0</code> makes it black. Try it with the sun tool in JimPaint.</p>` },
+  { id: "webp", title: "WEBP / WASM", size: "6K", desc: "How to use Jimp WebP and other WASM plugins.", html: () => `
+<p>The default build of Jimp only includes image formats written in JavaScript. To use WEBP, AVIF and anything else without a JS implementation, add a WASM format plugin and create a custom Jimp.</p>
+${CODE("sh", "Terminal", "npm install jimp @jimp/core @jimp/wasm-webp")}
+${CODE("ts", "webp.ts", 'import { createJimp } from "@jimp/core";\nimport { defaultFormats, defaultPlugins } from "jimp";\nimport webp from "@jimp/wasm-webp";\n\n// A custom jimp that supports webp\nconst Jimp = createJimp({\n  formats: [...defaultFormats, webp],\n  plugins: defaultPlugins,\n});')}
+<p>That's also why opening a <code>.webp</code> in JimPaint gives you a bomb: this page uses the default build.</p>` },
+];
+const GUIDE = Object.fromEntries(GUIDES.map((g) => [g.id, g]));
+const glist = $("#guide-list");
+glist.innerHTML = GUIDES.map((g) => `<tr class="g" data-guide="${g.id}" tabindex="0"><td><img src="${px("doc", 1)}" alt="" />${g.title}</td><td>${g.size}</td></tr>`).join("");
+$("#menu-guides").innerHTML = GUIDES.map((g) => `<button data-guide="${g.id}"><span>${g.title}</span></button>`).join("");
+
+function openGuide(id, scroll = true) {
+  const g = GUIDE[id]; if (!g) return;
+  const i = GUIDES.indexOf(g), prev = GUIDES[i - 1], next = GUIDES[i + 1];
+  $("#reader-title").textContent = g.title;
+  $("#crumbs").textContent = `Jimp HD ▸ Guides ▸ ${g.title}`;
+  $("#edit-link").href = `https://github.com/jimp-dev/jimp/edit/main/packages/docs/src/content/docs/guides/${id}.mdx`;
+  $("#reader").innerHTML = `<h1>${g.title}</h1><p class="desc">${g.desc}</p>${g.html()}
+    <div class="pager">${prev ? `<button class="btn" data-guide="${prev.id}">◂ ${prev.title}</button>` : "<span></span>"}${next ? `<button class="btn" data-guide="${next.id}">${next.title} ▸</button>` : ""}</div>
+    <p class="more">This prototype carries a trimmed copy of each guide. <a href="https://jimp-dev.github.io/jimp/guides/${id}/" target="_blank" rel="noopener">Read the full ${g.title} guide &#8599;</a></p>`;
+  $$("#reader pre[data-lang]").forEach((pre) => (pre.innerHTML = pre.dataset.lang === "sh" ? hlShell(pre.textContent) : highlight(pre.textContent)));
+  $$("#guide-list tr").forEach((tr) => tr.classList.toggle("sel", tr.dataset.guide === id));
+  const w = $("#w-reader"); w.hidden = false; w.classList.remove("shade");
+  if (scroll) $("#w-guides").scrollIntoView({ behavior: "smooth", block: "start" });
+}
+glist.addEventListener("keydown", (e) => { if (e.key === "Enter") e.target.closest("tr")?.click(); });
+
+/* runnable snippets: the scrapbook under a code block */
+const RUNNERS = {
+  load: async () => ({ img: (await getDice()).clone(), note: "Jimp.read() decoded dice.png (shown 1-bit, naturally)." }),
+  resize100: async () => ({ img: (await getDice()).clone().resize({ w: 100 }), note: "image.resize({ w: 100 }): height follows to keep the aspect ratio.", scale: 2 }),
+  save: async () => ({ img: (await getDice()).clone().resize({ w: 100 }), note: "Browsers can't write files, so this ran image.getBase64(\"image/png\") instead. In Node, write() saves to disk.", scale: 2 }),
+  greyscale: async () => ({ img: (await getDice()).clone().greyscale(), note: "image.greyscale(). In 1-bit you'll have to take our word for it.", colour: true }),
+};
+let dice = null;
+async function getDice() { return (dice ??= await loadBase("./dice.png")); }
+document.addEventListener("click", async (e) => {
+  const cb = e.target.closest("[data-copybtn]");
+  if (cb) { navigator.clipboard?.writeText(cb.closest(".code").querySelector("pre").textContent); cb.textContent = "Copied"; setTimeout(() => (cb.textContent = "Copy"), 1200); return; }
+  const rb = e.target.closest("[data-runbtn]");
+  if (rb) {
+    const box = rb.closest(".code"), scrap = $(".scrap", box);
+    busy(true); await frame();
+    try {
+      const r = await RUNNERS[box.dataset.run]();
+      const out = r.colour && colour ? r.img : toOneBit(r.img.clone());
+      const src = await out.getBase64("image/png");
+      const s = r.scale || 1;
+      scrap.innerHTML = `<img src="${src}" width="${r.img.bitmap.width * s}" height="${r.img.bitmap.height * s}" alt="Result" /><div class="lbl"><b>Scrapbook</b> &middot; ${r.img.bitmap.width} &times; ${r.img.bitmap.height}<br />${r.note}</div>`;
+      scrap.classList.add("show");
+    } catch (err) { bomb(err); }
+    busy(false);
+  }
+});
+
+/* ------------------------------------------------------------------
+ * API reference
+ * ------------------------------------------------------------------ */
+const CORE = [
+  { id: "read", name: "Jimp.read", sig: "Jimp.read(url | buffer, options?)", pkg: "@jimp/core", icon: "doc", doc: "Loads an image from a URL, file path or buffer. The second argument passes decode options keyed by MIME type.", ex: 'const image = await Jimp.read("dice.png");' },
+  { id: "fromBuffer", name: "Jimp.fromBuffer", sig: "Jimp.fromBuffer(buffer, options?)", pkg: "@jimp/core", icon: "doc", doc: "Decodes an image from a Buffer or ArrayBuffer, such as an uploaded file.", ex: "const image = await Jimp.fromBuffer(await file.arrayBuffer());" },
+  { id: "getBase64", name: "getBase64", sig: "image.getBase64(mime, options?)", pkg: "@jimp/core", icon: "notepad", doc: "Encodes the image and returns a data URL. Perfect for an img src.", ex: 'img.src = await image.getBase64("image/png");' },
+  { id: "getBuffer", name: "getBuffer", sig: "image.getBuffer(mime, options?)", pkg: "@jimp/core", icon: "notepad", doc: "Encodes the image to a Buffer in the given format.", ex: 'const png = await image.getBuffer("image/png");' },
+  { id: "write", name: "write", sig: "image.write(path, options?)", pkg: "@jimp/core", icon: "disk", doc: "Encodes and saves to disk in Node.js. The format comes from the file extension.", ex: 'await image.write("out.jpg");' },
+  { id: "clone", name: "clone", sig: "image.clone()", pkg: "@jimp/core", icon: "doc", doc: "Returns a copy, so you can branch an edit without touching the original. The Puzzle uses it for every tile.", ex: "const copy = image.clone();" },
+  { id: "scan", name: "scan", sig: "image.scan(cb)", pkg: "@jimp/core", icon: "t_dither", doc: "Visits every pixel with (x, y, idx). Read or write image.bitmap.data[idx..idx+3] for RGBA.", ex: "image.scan((x, y, idx) => {\n  image.bitmap.data[idx + 3] = 255; // opaque\n});" },
+];
+const exampleFor = (t) => { const a = t.param ? argsFor(t.id, source || { bitmap: { width: 320, height: 240 } }) : undefined; return TOOL[t.id].code(a); };
+const grid = $("#api-grid");
+function renderApi(q = "") {
+  q = q.trim().toLowerCase();
+  const match = (x) => !q || x.name.toLowerCase().includes(q) || x.sig.toLowerCase().includes(q) || x.doc.toLowerCase().includes(q);
+  const core = CORE.filter(match), plug = TOOLS.filter((t) => t.id !== "bomb").filter(match);
+  const item = (x, kind) => `<button class="icon" data-api="${kind}:${x.id}"><img src="${px(x.icon, 2)}" alt="" /><span>${kind === "core" ? x.name : x.id}()</span></button>`;
+  grid.innerHTML = (core.length ? `<h4>Jimp core</h4>${core.map((x) => item(x, "core")).join("")}` : "") + (plug.length ? `<h4>Plugins: try any of these in JimPaint</h4>${plug.map((x) => item(x, "tool")).join("")}` : "") || `<p style="grid-column:1/-1;font:16px var(--chrome)">Nothing matches. Maybe it's in the Trash?</p>`;
+  $("#api-count").textContent = `${core.length + plug.length} items`;
+}
+function showInfo(key) {
+  const [kind, id] = key.split(":");
+  const x = kind === "core" ? CORE.find((c) => c.id === id) : TOOL[id];
+  if (!x) return;
+  $$("#api-grid .icon").forEach((b) => b.classList.toggle("sel", b.dataset.api === key));
+  const ex = kind === "core" ? x.ex : exampleFor(x);
+  $("#getinfo").innerHTML = `
+    <div class="gi-head"><img src="${px(x.icon, 4)}" alt="" /><div><h3>${kind === "core" ? x.name : x.id}</h3><div class="kind">${kind === "core" ? "Jimp core" : "Plugin method"} Info</div></div></div>
+    <dl><dt>Signature</dt><dd><code>${esc(kind === "core" ? x.sig : "image." + x.sig)}</code></dd><dt>Package</dt><dd><code>${kind === "core" ? x.pkg : "@jimp/" + x.pkg}</code></dd>${x.param ? `<dt>Range</dt><dd><code>${x.param.options ? x.param.options.join(" | ") : `${x.param.label}: ${x.param.min} to ${x.param.max}`}</code></dd>` : ""}</dl>
+    <p>${x.doc}</p>
+    <div class="code"><div class="cbar"><span class="fn">Example</span><span class="sp"></span><button data-copybtn>Copy</button></div><pre>${highlight(ex)}</pre></div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap">${kind === "tool" ? `<button class="btn def" data-try="${x.id}">Try it in JimPaint</button>` : ""}<a class="btn" href="https://jimp-dev.github.io/jimp/api/jimp/classes/jimp/" target="_blank" rel="noopener">Full reference &#8599;</a></div>`;
+}
+grid.addEventListener("click", (e) => { const b = e.target.closest("[data-api]"); if (b) showInfo(b.dataset.api); });
+$("#api-q").addEventListener("input", (e) => renderApi(e.target.value));
+$("#getinfo").addEventListener("click", (e) => {
+  const b = e.target.closest("[data-try]"); if (!b) return;
+  selectTool(b.dataset.try);
+  openWin("w-paint");
+  setTimeout(() => applyTool(b.dataset.try), 350);
+});
+renderApi(); showInfo("tool:dither");
+
+/* ------------------------------------------------------------------
+ * Trash + Puzzle (desk accessories)
+ * ------------------------------------------------------------------ */
+const TRASH = ["getBufferAsync()", "getBase64Async()", "writeAsync()", "Jimp.read(path, callback)", "new Jimp(w, h, callback)", "Jimp.AUTO", "Jimp.MIME_PNG", "image.getWidth()", "image.getHeight()", "image.getMIME()"];
+const tl = $("#trash-list");
+tl.innerHTML = TRASH.map((t) => `<li><img src="${px("doc", 1)}" alt="" />${esc(t)}</li>`).join("");
+$("#empty-trash").onclick = () => {
+  const lis = $$("li", tl); if (!lis.length) return;
+  lis.forEach((li, i) => setTimeout(() => li.classList.add("gone"), i * 70));
+  beep(300, 0.08); setTimeout(() => beep(240, 0.12), 120);
+  setTimeout(() => { tl.innerHTML = `<li style="font-family:var(--chrome)">The Trash is empty. Long live v1.</li>`; $("#trash-count").textContent = "0 items"; $("#trash-icon").src = px("trashEmpty", 2); }, lis.length * 70 + 600);
+};
+
+let puzzle = [];
+async function openPuzzle(srcEl) {
+  openWin("w-puzzle", srcEl);
+  const box = $("#puzzle");
+  box.innerHTML = `<p style="grid-column:1/-1;font:15px var(--chrome)">Cutting tiles&hellip;</p>`;
+  busy(true); await frame();
+  try {
+    const base = cache[steps.length] || (await getDice());
+    const sq = base.clone(); const s = Math.min(sq.bitmap.width, sq.bitmap.height);
+    sq.crop({ x: Math.floor((sq.bitmap.width - s) / 2), y: Math.floor((sq.bitmap.height - s) / 2), w: s, h: s }).resize({ w: 128, h: 128 });
+    toOneBit(sq);
+    const tiles = [];
+    for (let i = 0; i < 15; i++) tiles.push(await sq.clone().crop({ x: (i % 4) * 32, y: Math.floor(i / 4) * 32, w: 32, h: 32 }).getBase64("image/png"));
+    puzzle = [...Array(15).keys(), null];
+    let blank = 15;
+    for (let k = 0; k < 120; k++) { // shuffle by legal moves so it's always solvable
+      const nb = [blank - 4, blank + 4, blank % 4 ? blank - 1 : -1, blank % 4 < 3 ? blank + 1 : -1].filter((n) => n >= 0 && n < 16);
+      const n = nb[(Math.random() * nb.length) | 0];
+      [puzzle[blank], puzzle[n]] = [puzzle[n], puzzle[blank]]; blank = n;
+    }
+    const draw = () => {
+      box.innerHTML = puzzle.map((t, i) => (t == null ? `<button class="blank" aria-label="empty"></button>` : `<button data-i="${i}" aria-label="tile ${t + 1}"><img src="${tiles[t]}" alt="" /></button>`)).join("");
+    };
+    draw();
+    box.onclick = (e) => {
+      const b = e.target.closest("[data-i]"); if (!b) return;
+      const i = +b.dataset.i, bl = puzzle.indexOf(null);
+      const adj = (Math.abs(i - bl) === 4) || (Math.abs(i - bl) === 1 && Math.floor(i / 4) === Math.floor(bl / 4));
+      if (!adj) { beep(150, 0.05); return; }
+      [puzzle[i], puzzle[bl]] = [puzzle[bl], puzzle[i]]; draw(); beep(880, 0.02);
+      if (puzzle.slice(0, 15).every((t, k) => t === k)) { $("#puzzle-note").textContent = "Solved! You reassembled 15 calls to crop()."; beep(660, 0.1); setTimeout(() => beep(990, 0.15), 120); }
+    };
+  } catch (e) { bomb(e); }
+  busy(false);
+}
+
+/* ------------------------------------------------------------------
+ * Menus, actions, keyboard
+ * ------------------------------------------------------------------ */
+const menus = $$(".menu");
+menus.forEach((m) => {
+  $(":scope > button", m).addEventListener("click", (e) => { e.stopPropagation(); const was = m.classList.contains("open"); menus.forEach((x) => x.classList.remove("open")); if (!was) m.classList.add("open"); });
+  $(":scope > button", m).addEventListener("mouseenter", () => { if (menus.some((x) => x.classList.contains("open"))) { menus.forEach((x) => x.classList.remove("open")); m.classList.add("open"); } });
+});
+document.addEventListener("click", () => menus.forEach((x) => x.classList.remove("open")));
+
+const ACTIONS = {
+  about: (el) => { $("#about-ops").textContent = opsRun; $("#about-opsbar").style.setProperty("--p", Math.min(100, opsRun / 2) + "%"); openDlg("#dlg-about", el); },
+  open: () => fileInput.click(),
+  save,
+  revert: async () => { source = await loadBase("./dice.png"); srcName = "dice.png"; srcCode = 'await Jimp.read("dice.png")'; steps = []; cache = []; $("#paint-title").textContent = "JimPaint: dice.png"; render(); },
+  undo: () => { if (steps.length) { steps.pop(); cache.length = Math.min(cache.length, steps.length + 1); render(); } else { beep(200, 0.08); toast("Nothing to undo."); } },
+  clear: () => { steps = []; cache.length = 1; render(); },
+  copycode: () => { navigator.clipboard?.writeText(codeText()); toast("Code copied to the clipboard."); },
+  colour: () => { if (colour) setColour(false); else openDlg("#dlg-colour"); },
+  driver: () => { driverBox.checked = !driverBox.checked; driverBox.onchange(); },
+  pattern: () => setDesk((deskPat + 1) % PATURLS.length),
+  cleanup: () => $$(".win").forEach((w) => { w.style.transform = ""; w.classList.remove("shade"); if (!w.classList.contains("float")) w.hidden = false; }),
+  shutdown: () => { $("#shutdown").classList.add("show"); beep(300, 0.3); },
+  api: (el) => openWin("w-api", el),
+  "api-pick": (el) => { openWin("w-api", el); showInfo((CORE.some((c) => c.id === el.dataset.m) ? "core:" : "tool:") + el.dataset.m); },
+  notepad: (el) => openWin("w-notepad", el),
+  trash: (el) => openWin("w-trash", el),
+  puzzle: (el) => openPuzzle(el),
+};
+document.addEventListener("click", (e) => {
+  const act = e.target.closest("[data-act]");
+  if (act && ACTIONS[act.dataset.act]) { e.preventDefault(); menus.forEach((x) => x.classList.remove("open")); ACTIONS[act.dataset.act](act); return; }
+  const g = e.target.closest("[data-guide]");
+  if (g) { e.preventDefault(); menus.forEach((x) => x.classList.remove("open")); openGuide(g.dataset.guide); if (g.classList.contains("icon")) { g.classList.remove("blink"); void g.offsetWidth; g.classList.add("blink"); } return; }
+  const go = e.target.closest("[data-go]");
+  if (go) { e.preventDefault(); openWin(go.dataset.go, go); return; }
+  const cp = e.target.closest("[data-copy]");
+  if (cp) { navigator.clipboard?.writeText(cp.dataset.copy); cp.textContent = "Copied"; setTimeout(() => (cp.textContent = "Copy"), 1200); }
+});
+$$('a[href^="#w-"]:not([data-guide]):not([data-go])').forEach((a) => a.addEventListener("click", (e) => { e.preventDefault(); openWin(a.getAttribute("href").slice(1), a); }));
+$("#shutdown").onclick = () => { $("#shutdown").classList.remove("show"); const b = $("#boot"); b.classList.remove("gone"); setTimeout(() => b.classList.add("gone"), 1100); };
+
+let typed = "";
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape") { closeDlg(); menus.forEach((x) => x.classList.remove("open")); }
+  const inField = e.target.matches("input, textarea, select");
+  if ((e.metaKey || e.ctrlKey) && !inField) {
+    const k = e.key.toLowerCase();
+    if (k === "z") { e.preventDefault(); ACTIONS.undo(); }
+    if (k === "o") { e.preventDefault(); ACTIONS.open(); }
+    if (k === "s") { e.preventDefault(); ACTIONS.save(); }
+  }
+  if (inField || e.metaKey || e.ctrlKey || e.key.length !== 1) return;
+  typed = (typed + e.key.toLowerCase()).slice(-5);
+  if (typed.endsWith("jimp")) {
+    document.documentElement.classList.add("inverted");
+    toast("document.invert() applied. (Not a real API. Yet.)");
+    setTimeout(() => document.documentElement.classList.remove("inverted"), 700);
+  }
+});
+
+/* clock */
+const tick = () => { const d = new Date(); $("#clock").textContent = d.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" }); };
+tick(); setInterval(tick, 15000);
+
+/* ------------------------------------------------------------------
+ * Boot
+ * ------------------------------------------------------------------ */
+openGuide("getting-started", false);
+renderCode();
+const bootEl = $("#boot");
+const bootDone = sleep(matchMedia("(prefers-reduced-motion: reduce)").matches ? 0 : 950).then(() => bootEl.classList.add("gone"));
+
+if (Jimp) {
+  busy(true);
+  try {
+    const t0 = performance.now();
+    const d = await getDice();
+    const hero = d.clone().resize({ w: 200 });
+    opsRun++;
+    $("#hero-img").src = await toOneBit(hero).getBase64("image/png");
+    $("#hero-ms").textContent = `live, ${Math.round(performance.now() - t0)} ms`;
+    source = d.clone();
+    // ?steps=blur:4,rotate:90,circle  (shareable playground state)
+    const qs = new URLSearchParams(location.search);
+    (qs.get("steps") || "").split(",").filter(Boolean).forEach((tok) => {
+      const [id, v] = tok.split(":");
+      if (!TOOL[id]) return;
+      if (v != null && TOOL[id].param) pvals[id] = TOOL[id].param.options ? v : +v;
+      selectTool(id);
+      steps.push({ tool: id, args: argsFor(id, source) });
+    });
+    if (qs.has("colour")) { colour = true; colourBox.checked = true; canvasEl.classList.add("colour-emu"); }
+    if (qs.has("driver")) { driverBox.checked = true; showDriver = true; }
+    await bootDone;
+    await render(steps.length - 1);
+    if (qs.get("open") && ACTIONS[qs.get("open")]) ACTIONS[qs.get("open")](document.body);
+    if (qs.get("guide")) openGuide(qs.get("guide"), false);
+  } catch (e) { busy(false); bomb(e); }
+}
+</script>
+</body>
+</html>

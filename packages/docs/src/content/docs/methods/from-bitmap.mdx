@@ -1,0 +1,119 @@
+---
+title: "Jimp.fromBitmap()"
+description: "Create an image from raw RGBA pixel data, such as canvas ImageData."
+category: io
+method: "Jimp.fromBitmap"
+plugin: "@jimp/core"
+---
+
+import { Aside } from "@astrojs/starlight/components";
+import Related from "../../../components/Related.astro";
+
+`Jimp.fromBitmap` wraps raw, already-decoded pixels in a Jimp image.
+Use it for pixels that come from somewhere other than an image file: a canvas, a video frame, another library's raw output or pixels you computed yourself.
+
+## Signature
+
+```ts title="fromBitmap.d.ts"
+Jimp.fromBitmap(bitmap: {
+  width: number;
+  height: number;
+  data: Buffer | Uint8Array | Uint8ClampedArray | number[];
+  colorSpace?: "srgb" | "display-p3";
+}): Jimp
+```
+
+`Jimp.fromBitmap` is a static method. Unlike [`Jimp.read`](/jimp/methods/read/) it's synchronous and returns the new image directly.
+It always copies `data`, so changing the image never changes the object you passed in.
+
+## Parameters
+
+| Option       | Type                                                  | Default  | Description                                                                                                                       |
+| ------------ | ----------------------------------------------------- | -------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| `width`      | `number`                                              | required | Width in pixels.                                                                                                                  |
+| `height`     | `number`                                              | required | Height in pixels.                                                                                                                 |
+| `data`       | `Buffer \| Uint8Array \| Uint8ClampedArray \| number[]` | required | The pixels, row by row from the top left. Byte arrays hold exactly 4 bytes per pixel (red, green, blue, alpha); a `number[]` holds one `0xRRGGBBAA` number per pixel. |
+| `colorSpace` | `"srgb" \| "display-p3"`                              | `"srgb"` | The color space the pixels are in. A Display P3 image is written with a Display P3 profile. See [Color Spaces](/jimp/guides/color-spaces/). |
+
+The type of `bitmap` is [`RawImageData`](/jimp/api/jimp/interfaces/rawimagedata/).
+
+## Example
+
+```ts title="example.ts"
+import { Jimp } from "jimp";
+
+// A 2 × 1 image: one red pixel, one half-transparent green pixel
+const image = Jimp.fromBitmap({
+  width: 2,
+  height: 1,
+  data: [0xff0000ff, 0x00ff0080],
+});
+
+await image.write("pixels.png");
+```
+
+### From a canvas
+
+`ImageData` already has `width`, `height` and a `Uint8ClampedArray` of RGBA bytes, so you can pass it straight in.
+Jimp copies the pixels, so editing the image leaves the canvas's `ImageData` as it was:
+
+```ts title="main.ts"
+import { Jimp } from "jimp";
+
+const canvas = document.querySelector("canvas")!;
+const ctx = canvas.getContext("2d")!;
+
+const image = Jimp.fromBitmap(ctx.getImageData(0, 0, canvas.width, canvas.height));
+
+image.greyscale();
+
+// Draw the result back onto the canvas
+ctx.putImageData(
+  new ImageData(new Uint8ClampedArray(image.bitmap.data), image.width, image.height),
+  0,
+  0,
+);
+```
+
+### From raw bytes
+
+Any byte array in RGBA order works. For example, you can build a horizontal gradient by hand:
+
+```ts title="example.ts"
+import { Jimp } from "jimp";
+
+const width = 256;
+const height = 32;
+const data = Buffer.alloc(width * height * 4);
+
+for (let y = 0; y < height; y++) {
+  for (let x = 0; x < width; x++) {
+    const i = (y * width + x) * 4;
+    data[i] = x; // red
+    data[i + 1] = 0; // green
+    data[i + 2] = 255 - x; // blue
+    data[i + 3] = 255; // alpha
+  }
+}
+
+const gradient = Jimp.fromBitmap({ width, height, data });
+```
+
+## Notes
+
+- **Pixels are RGBA, 8 bits per channel.** Data with 3 channels (RGB), premultiplied alpha or a different channel order has to be converted first.
+- **The size is checked.** `data` must hold exactly `width * height * 4` bytes (or `width * height` numbers), like the `ImageData` constructor. Anything else throws, for example `bitmap data is 70 bytes, but a 50x50 RGBA image needs exactly 10000 (width * height * 4)`. A wrong length usually means a wrong width or height, RGB data or padded rows.
+- **The data is always copied**, whatever its type, including a `Buffer`. For a typed array only the view's own bytes are copied, not the whole `ArrayBuffer` behind it. [`new Jimp({ width, height, data })`](/jimp/methods/new-jimp/#from-an-existing-bitmap) is the one way to wrap a `Buffer` without copying it.
+- **No format.** The image has no `mime` and no EXIF data, since it wasn't decoded from a file.
+- **Errors.** Data of another type, such as a `Float32Array`, throws `data must be a Buffer, Uint8Array, Uint8ClampedArray or an array of numbers`. A missing `width` or `height` throws `bitmap must have width and height`, and an unknown `colorSpace` throws `Unknown color space "rec2020", expected "srgb" or "display-p3"`.
+- **Added in 2.0:** the `colorSpace` option.
+- **Changed in 2.0:** `Uint8Array` and `Uint8ClampedArray` data is copied, and its length is checked. Before, it was shared with the caller, and data that was too short only failed later, when a method read past its end.
+
+<Aside type="tip" title="Encoded bytes go to fromBuffer">
+  `fromBitmap` expects decoded pixels. If you have the bytes of a PNG or JPEG
+  file, use [`Jimp.fromBuffer`](/jimp/methods/from-buffer/) instead.
+</Aside>
+
+## Related
+
+<Related methods={["new Jimp", "Jimp.fromBuffer", "Jimp.read", "clone", "scan"]} />

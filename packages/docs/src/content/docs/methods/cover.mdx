@@ -1,0 +1,109 @@
+---
+title: "cover()"
+description: "Scale and crop the image to fill a box exactly."
+category: shape
+method: "cover"
+plugin: "@jimp/plugin-cover"
+---
+
+import Playground from "../../../components/playground/Playground";
+import Related from "../../../components/Related.astro";
+
+`cover` scales the image until it fills a `w` × `h` box, keeping its aspect ratio, then crops whatever sticks out.
+The result is always exactly `w` × `h`, like CSS `object-fit: cover`. It's the usual choice for thumbnails, avatars and banners.
+
+## Signature
+
+```ts title="cover.d.ts"
+image.cover(options: {
+  w: number;
+  h: number;
+  align?: number | { x?: number; y?: number };
+  mode?: ResizeStrategy;
+  premultiplyAlpha?: boolean;
+}): this
+```
+
+`cover` changes the image in place and returns it, so you can chain more calls after it.
+
+## Options
+
+| Option             | Type                                          | Default          | Description                                                                                                                                                                   |
+| ------------------ | --------------------------------------------- | ---------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `w`                | `number`                                      | required         | The output width in pixels.                                                                                                                                                   |
+| `h`                | `number`                                      | required         | The output height in pixels.                                                                                                                                                  |
+| `align`            | `number` or `{ x?, y? }`                      | centered         | Which part of the image to keep: `HorizontalAlign` and `VerticalAlign` flags, or `{ x, y }` fractions from `0` to `1`. See [Alignment](#alignment).                          |
+| `mode`             | [`ResizeStrategy`](/jimp/concepts/constants/) | built-in resizer | The resampling algorithm. See [resize strategies](/jimp/methods/resize/#resize-strategies).                                                                                   |
+| `premultiplyAlpha` | `boolean`                                     | `true`           | Treat alpha as opacity. Pass `false` when alpha holds other data, to keep the color of transparent pixels. See [Alpha that isn't opacity](/jimp/methods/resize/#alpha-that-isnt-opacity). |
+
+## Example
+
+```ts title="example.ts"
+import { Jimp } from "jimp";
+
+const image = await Jimp.read("photo.jpg");
+
+// 800 x 600 is scaled to 400 x 300, then 50 px is cut from each side
+image.cover({ w: 300, h: 300 });
+
+await image.write("thumbnail.jpg");
+```
+
+## Alignment
+
+`align` decides which part of the scaled image is kept when it's cropped.
+Only the direction that overflows matters. A wide image in a square box is cropped left and right, so only the horizontal value has an effect.
+
+### With flags
+
+Combine at most one [`HorizontalAlign`](/jimp/concepts/constants/) value and one [`VerticalAlign`](/jimp/concepts/constants/) value with `|`:
+
+```ts title="example.ts"
+import { Jimp, HorizontalAlign, VerticalAlign } from "jimp";
+
+const image = await Jimp.read("portrait.jpg");
+
+// Keep the top of a tall photo, where the face usually is
+image.cover({ w: 300, h: 300, align: VerticalAlign.TOP });
+```
+
+| Value                    | Keeps                |
+| ------------------------ | -------------------- |
+| `HorizontalAlign.LEFT`   | the left edge        |
+| `HorizontalAlign.CENTER` | the middle (default) |
+| `HorizontalAlign.RIGHT`  | the right edge       |
+| `VerticalAlign.TOP`      | the top edge         |
+| `VerticalAlign.MIDDLE`   | the middle (default) |
+| `VerticalAlign.BOTTOM`   | the bottom edge      |
+
+A direction you leave out is centered, so `VerticalAlign.TOP` is the same as `HorizontalAlign.CENTER | VerticalAlign.TOP`.
+
+### With fractions
+
+Pass `{ x, y }` to pick any position between the edges, like the percentages of CSS `object-position`.
+`0` keeps the left or top edge, `0.5` the middle and `1` the right or bottom edge:
+
+```ts title="example.ts"
+// Like CSS object-position: center 20%
+image.cover({ w: 150, h: 100, align: { x: 0.5, y: 0.2 } });
+```
+
+A missing `x` or `y` is centered (`0.5`), and values outside `0` to `1` are clamped.
+
+## Try it
+
+Set the box with `w` and `h`, then change the alignment to choose which part of the dice is kept.
+Switch `align with` to `{ x, y } fractions` to use sliders instead of flags.
+
+<Playground method="cover" client:visible />
+
+## Notes
+
+- **It enlarges too.** An image smaller than the box is scaled up until it fills it.
+- **Invalid flags.** Two flags for one direction (such as `HorizontalAlign.LEFT | HorizontalAlign.RIGHT`), unknown bits or a fractional number throw `align must combine at most one HorizontalAlign and one VerticalAlign flag`. `align: 0` has no flags, so it's centered.
+- **Added in 2.0:** `{ x, y }` fractions for `align`, the `premultiplyAlpha` option, and the `LANCZOS`, `LANCZOS2` and `MITCHELL` strategies.
+- **Changed in 2.0:** a direction left out of `align` is centered, and any invalid combination of flags throws. Before, a missing direction aligned to the left or top, and two flags in one direction were accepted unless both directions were invalid.
+
+## Related
+
+<Related methods={["contain", "scaleToFit", "resize", "crop", "circle"]} />

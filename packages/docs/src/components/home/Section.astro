@@ -1,0 +1,84 @@
+---
+/** A home page section heading: big outlined title with an optional note bubble. */
+interface Props {
+  id: string;
+  title: string;
+  note?: string;
+  /** Optional button after the note. */
+  link?: { text: string; href: string };
+}
+
+const { id, title, note, link } = Astro.props;
+---
+
+<div class="shead not-content">
+  <h2 id={id}>{title}</h2>
+  {note && <p>{note}</p>}
+  {
+    link && (
+      <a class="more" href={link.href}>
+        {link.text} <span aria-hidden="true">→</span>
+      </a>
+    )
+  }
+</div>
+
+<style>
+  .more {
+    align-self: center;
+    font-family: var(--jp-ui);
+    font-weight: 600;
+    font-size: 16px;
+    color: var(--jp-ink);
+    background: var(--jp-yellow);
+    border: 3px solid var(--jp-ink);
+    border-radius: 999px;
+    padding: 6px 16px;
+    box-shadow: 0 4px 0 var(--jp-ink);
+    text-decoration: none;
+    white-space: nowrap;
+    transition: transform 0.12s;
+  }
+  .more:hover {
+    transform: translateY(-2px);
+    color: var(--jp-ink);
+  }
+  :global(.sl-markdown-content) .shead,
+  .shead {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: 12px 20px;
+    margin: 64px 0 22px;
+  }
+  h2 {
+    margin: 0;
+    font-family: var(--jp-display);
+    font-weight: 400;
+    font-size: 50px;
+    line-height: 0.95;
+    letter-spacing: 1px;
+    color: #fff;
+    -webkit-text-stroke: 3px var(--jp-ink);
+    paint-order: stroke fill;
+    text-shadow: 5px 5px 0 var(--jp-ink);
+    scroll-margin-top: calc(var(--sl-nav-height) + 24px);
+  }
+  p {
+    max-width: 640px;
+    margin: 0 0 4px;
+    padding: 6px 14px;
+    font-size: 17px;
+    line-height: 1.45;
+    color: var(--jp-text);
+    background: var(--jp-surface);
+    border: 3px solid var(--jp-line);
+    border-radius: 14px;
+    box-shadow: 4px 4px 0 var(--jp-shadow);
+  }
+  @media (max-width: 49.99rem) {
+    h2 {
+      font-size: 40px;
+    }
+  }
+</style>

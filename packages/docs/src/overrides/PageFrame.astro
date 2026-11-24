@@ -1,0 +1,131 @@
+---
+import type { Props } from "@astrojs/starlight/props";
+import MobileMenuToggle from "./MobileMenuToggle.astro";
+import SiteFooter from "../components/SiteFooter.astro";
+
+const { hasSidebar, labels } = Astro.props;
+---
+
+<div class="frame">
+  <svg class="filters" width="0" height="0" aria-hidden="true">
+    <defs>
+      <filter id="wob" x="-5%" y="-5%" width="110%" height="110%">
+        <feTurbulence type="fractalNoise" baseFrequency="0.018" numOctaves="2" seed="4" result="n"></feTurbulence>
+        <feDisplacementMap in="SourceGraphic" in2="n" scale="6" xChannelSelector="R" yChannelSelector="G"></feDisplacementMap>
+      </filter>
+    </defs>
+  </svg>
+  <header class="header"><slot name="header" /></header>
+  <div class="shell">
+    {
+      hasSidebar && (
+        <nav class="sidebar" aria-label={labels["sidebarNav.accessibleLabel"]}>
+          <MobileMenuToggle {...Astro.props} />
+          <div id="starlight__sidebar" class="sidebar-pane">
+            <div class="sidebar-content">
+              <slot name="sidebar" />
+            </div>
+          </div>
+          <div class="backdrop" data-close-menu></div>
+        </nav>
+      )
+    }
+    <div class="main-frame"><slot /></div>
+  </div>
+  <SiteFooter />
+</div>
+
+<style>
+  .frame {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+  }
+  .filters {
+    position: absolute;
+  }
+
+  .header {
+    position: sticky;
+    top: 0;
+    z-index: var(--sl-z-index-navbar);
+    height: var(--sl-nav-height);
+    background: var(--jp-header);
+    border-bottom: 4px solid var(--jp-ink);
+    box-shadow: 0 4px 0 rgba(27, 24, 64, 0.18);
+  }
+
+  .shell {
+    flex: 1;
+    width: 100%;
+    max-width: 1440px;
+    margin: 26px auto 0;
+    padding: 0 22px;
+  }
+  :global([data-has-sidebar]) .shell {
+    display: grid;
+    grid-template-columns: var(--sl-sidebar-width) minmax(0, 1fr);
+    gap: 26px;
+    align-items: start;
+  }
+  :global(html:not([data-has-sidebar])) .shell {
+    max-width: 1304px;
+  }
+
+  .main-frame {
+    min-width: 0;
+  }
+
+  .sidebar-pane {
+    position: sticky;
+    top: calc(var(--sl-nav-height) + 22px);
+    max-height: calc(100vh - var(--sl-nav-height) - 44px);
+    overflow: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+    background: var(--jp-surface);
+    border: 3.5px solid var(--jp-line);
+    border-radius: 20px;
+    box-shadow: 6px 6px 0 var(--jp-shadow);
+    padding: 16px 12px 14px;
+  }
+  .backdrop {
+    display: none;
+  }
+
+  @media (max-width: 1180px) {
+    :global(:root) {
+      --sl-sidebar-width: 14.5rem;
+    }
+  }
+
+  @media (max-width: 49.99rem) {
+    .shell {
+      padding: 0 12px;
+      margin-top: 22px;
+    }
+    :global([data-has-sidebar]) .shell {
+      display: block;
+    }
+    .sidebar-pane {
+      visibility: var(--sl-sidebar-visibility, hidden);
+      position: fixed;
+      z-index: var(--sl-z-index-menu);
+      top: calc(var(--sl-nav-height) + 10px);
+      left: 12px;
+      bottom: 12px;
+      width: min(300px, 86vw);
+      max-height: none;
+    }
+    :global([aria-expanded="true"]) ~ .sidebar-pane {
+      --sl-sidebar-visibility: visible;
+    }
+    :global([aria-expanded="true"]) ~ .backdrop {
+      display: block;
+      position: fixed;
+      inset: 0;
+      z-index: calc(var(--sl-z-index-menu) - 1);
+      background: var(--sl-color-backdrop-overlay);
+    }
+  }
+</style>

@@ -1,0 +1,74 @@
+---
+title: "brightness()"
+description: "Multiply every color channel. 1 leaves the image unchanged."
+category: color
+method: "brightness"
+plugin: "@jimp/plugin-color"
+---
+
+import { Aside } from "@astrojs/starlight/components";
+import Playground from "../../../components/playground/Playground";
+import Related from "../../../components/Related.astro";
+
+`brightness` makes an image lighter or darker by multiplying the red, green and blue channels of every pixel by the same factor.
+`1` leaves the image unchanged, `1.5` makes it 50% brighter and `0.5` makes it 50% darker.
+
+## Signature
+
+```ts title="brightness.d.ts"
+image.brightness(val: number): this
+```
+
+`brightness` changes the image in place and returns it, so you can chain more calls after it.
+
+## Parameters
+
+| Parameter | Type     | Default  | Description                                                                                       |
+| --------- | -------- | -------- | ------------------------------------------------------------------------------------------------- |
+| `val`     | `number` | required | The factor to multiply each channel by. Above `1` brightens, below `1` darkens, `0` or less makes the image black. |
+
+## Example
+
+```ts title="example.ts"
+import { Jimp } from "jimp";
+
+const image = await Jimp.read("photo.jpg");
+
+image.brightness(1.3); // 30% brighter
+
+await image.write("photo-bright.jpg");
+```
+
+### Darken an image
+
+Use a factor between `0` and `1`:
+
+```ts title="example.ts"
+image.brightness(0.6); // 40% darker
+```
+
+## Try it
+
+Drag the slider to change `val`. Values above `1` brighten and values below `1` darken.
+
+<Playground method="brightness" client:visible />
+
+## Notes
+
+- **Results are clamped.** Each channel is multiplied and then limited to `0`–`255`, so bright areas turn white quickly at large factors and the detail in them is lost.
+- **Black stays black.** Multiplying `0` gives `0`, so `brightness` can't lift pure black. To move every pixel toward white instead, use the `lighten` or `tint` action of [`color`](/jimp/methods/color/).
+- **Alpha is unchanged.** Only the red, green and blue channels are multiplied.
+- **Errors.** A `val` that isn't a number throws `val must be numbers`. There is no upper limit.
+- **`brightness` or `exposure`?** `brightness` multiplies the stored 8-bit values, so a factor of `2` turns a mid-gray `128` into white. [`exposure`](/jimp/methods/exposure/) multiplies the light those values stand for, as a camera would: `exposure(1)` doubles the light and turns `128` into `176`, keeping detail in the highlights.
+- **For fine control** of light and dark tones, [`contrast`](/jimp/methods/contrast/) and [`normalize`](/jimp/methods/normalize/) often give better results than a single multiplier.
+
+<Aside type="caution" title="Changed in v1">
+  In v0, `brightness` took a value from `-1` to `+1`, where `0` meant no change.
+  An old call such as `brightness(0.2)` now darkens the image to 20% of its
+  brightness. See the [migration guide](/jimp/guides/migrate-to-v1/#brightness)
+  for how to convert old values.
+</Aside>
+
+## Related
+
+<Related methods={["exposure", "contrast", "color", "normalize", "invert", "opacity"]} />

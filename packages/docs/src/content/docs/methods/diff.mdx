@@ -1,0 +1,140 @@
+---
+title: "diff()"
+description: "Compare two images pixel by pixel and get a diff image."
+category: compare
+method: "diff"
+plugin: "@jimp/diff"
+---
+
+import { Aside } from "@astrojs/starlight/components";
+import Playground from "../../../components/playground/Playground";
+import Related from "../../../components/Related.astro";
+
+`diff` compares two images pixel by pixel and returns the share of pixels that differ, plus an image that shows where they are.
+It's the tool for visual regression tests and for checking that an edit changed only what it should. Jimp uses [pixelmatch](https://github.com/mapbox/pixelmatch) for the comparison.
+
+## Signature
+
+```ts title="diff.d.ts"
+import { diff } from "jimp";
+
+diff(
+  img1: JimpInstance,
+  img2: JimpInstance,
+  options?: DiffOptions | number,
+): { percent: number; image: JimpInstance }
+```
+
+`diff` is a function exported from `jimp`. It doesn't change either image; it returns a new one.
+A number as the third argument is the `threshold`, so `diff(a, b, 0.2)` is `diff(a, b, { threshold: 0.2 })`.
+
+## Parameters
+
+| Parameter | Type                   | Default  | Description                                                                                   |
+| --------- | ---------------------- | -------- | --------------------------------------------------------------------------------------------- |
+| `img1`    | `Jimp`                 | required | The first image.                                                                              |
+| `img2`    | `Jimp`                 | required | The second image. If its size differs, the larger image is resized to match the smaller one. |
+| `options` | `DiffOptions \| number` | `{}`     | The options below, or just the threshold.                                                     |
+
+## Options
+
+| Option         | Type        | Default     | Description                                                                                                                   |
+| -------------- | ----------- | ----------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| `threshold`    | `number`    | `0.1`       | How different two pixels' colors must be to count, from `0` to `1`. Smaller values are more sensitive.                        |
+| `alpha`        | `number`    | `0.1`       | Opacity of `img1` in the unchanged pixels of the diff image, from `0` (white) to `1` (full strength). Clamped to `0`–`1`.     |
+| `includeAA`    | `boolean`   | `false`     | Count anti-aliased pixels as differences instead of detecting and ignoring them.                                              |
+| `aaColor`      | `DiffColor` | yellow      | Color of anti-aliased pixels in the diff image.                                                                               |
+| `diffColor`    | `DiffColor` | red         | Color of changed pixels.                                                                                                      |
+| `diffColorAlt` | `DiffColor` | `diffColor` | Color of changed pixels that are darker in `img2`, to tell added and removed parts apart.                                     |
+| `diffMask`     | `boolean`   | `false`     | Draw only the changed pixels, on a transparent background, instead of over a faded copy of `img1`.                           |
+
+A `DiffColor` is a `0xRRGGBBAA` number, a CSS color string such as `"lime"` or `"#00ff00"`, or an `{ r, g, b }` object. Its alpha is ignored: pixels are drawn opaque.
+
+## Returns
+
+| Property  | Type     | Description                                                                                                    |
+| --------- | -------- | -------------------------------------------------------------------------------------------------------------- |
+| `percent` | `number` | The share of pixels that differ, from `0` (identical) to `1` (every pixel). Despite the name, not multiplied by 100. |
+| `image`   | `Jimp`   | An image the size of the compared images. By default it's opaque: changed pixels in `diffColor` over a faded grayscale copy of `img1`. With `diffMask`, only the changed pixels, on transparency. |
+
+## Example
+
+```ts title="example.ts"
+import { Jimp, diff } from "jimp";
+
+const expected = await Jimp.read("expected.png");
+const actual = await Jimp.read("actual.png");
+
+const result = diff(expected, actual);
+
+console.log(`${(result.percent * 100).toFixed(2)}% of pixels differ`);
+
+await result.image.write("diff.png");
+```
+
+### In a visual test
+
+Fail when more than a small share of pixels changed, and save the diff image to look at:
+
+```ts title="screenshot.test.ts"
+import { Jimp, diff } from "jimp";
+
+const result = diff(await Jimp.read("baseline.png"), await Jimp.read("current.png"));
+
+if (result.percent > 0.001) {
+  await result.image.write("current.diff.png");
+  throw new Error(`Screenshot changed: ${result.percent * 100}% of pixels differ`);
+}
+```
+
+### A dark diff
+
+With `diffMask`, the diff image holds only the changed pixels, so you can put it on any background.
+Here the changes are drawn in lime on a dark gray canvas:
+
+```ts title="example.ts"
+import { Jimp, diff } from "jimp";
+
+const expected = await Jimp.read("expected.png");
+const actual = await Jimp.read("actual.png");
+
+const { image: changes } = diff(expected, actual, {
+  diffMask: true,
+  diffColor: "lime",
+});
+
+const dark = new Jimp({ width: changes.width, height: changes.height, color: 0x1e1e1eff });
+dark.composite(changes);
+
+await dark.write("diff-dark.png");
+```
+
+To highlight the changes on the original instead, composite the mask onto a copy of it: `expected.clone().composite(changes)`.
+
+## Try it
+
+Choose how to edit a copy of the image, and the playground draws the diff between the original and the copy.
+Try `brightness` and raise `threshold` until the change stops counting, or turn on `diffMask` to draw only the changes over the original.
+
+<Playground method="diff" client:visible />
+
+## Notes
+
+- **Reading the diff image.** Pixels in `diffColor` (red by default) differ. Pixels in `aaColor` (yellow) differ too, but pixelmatch has detected them as anti-aliasing (the soft edge of a shape), and they aren't counted in `percent`. Everything else is `img1` in faded grayscale. With `diffMask`, anti-aliased pixels aren't drawn.
+- **Different sizes.** When the images aren't the same size, the one with more pixels is resized to the other's width and height (on a copy) before comparing, even if that changes its aspect ratio. The diff image has the smaller size.
+- **Transparency counts.** Each pixel is blended onto white before comparing, so the same color at a clearly different opacity is a difference.
+- **Invalid options.** Options are checked with zod. A `threshold` outside `0` to `1`, or one that isn't a number, throws a `ZodError` with the message `threshold must be a number between 0 and 1`. An invalid CSS color throws `Invalid color "<value>"`.
+- **Pixels or perception?** `diff` notices any change, including a one-pixel shift or recompression. To ask whether two images show the same picture, use [`distance`](/jimp/methods/distance/), which compares perceptual hashes.
+- **Added in 2.0:** the options object, with `alpha`, `includeAA`, `aaColor`, `diffColor`, `diffColorAlt` and `diffMask`. Before, the third argument could only be the threshold. The `DiffOptions` and `DiffColor` types are exported from `jimp`.
+- **Changed in 2.0:** an invalid threshold throws a `ZodError` instead of a plain `Error`, with the same message.
+
+<Aside type="tip" title="Choosing a threshold">
+  The default `0.1` ignores tiny color shifts such as JPEG noise. Use `0` to
+  count every changed pixel, and raise it towards `1` to count only large color
+  changes. In the playground, `brightness(1.3)` on the dice changes about 11% of
+  the pixels at the default threshold and none at `0.5`.
+</Aside>
+
+## Related
+
+<Related methods={["distance", "compareHashes", "pHash", "colorDiff", "clone"]} />

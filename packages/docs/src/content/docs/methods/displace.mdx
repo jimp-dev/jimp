@@ -1,0 +1,118 @@
+---
+title: "displace()"
+description: "Move pixels right and down using a displacement map image."
+category: shape
+method: "displace"
+plugin: "@jimp/plugin-displace"
+---
+
+import { Aside } from "@astrojs/starlight/components";
+import Playground from "../../../components/playground/Playground";
+import Related from "../../../components/Related.astro";
+
+`displace` moves each pixel by an amount read from a second image, the displacement map.
+Brighter areas of the map move pixels further: the red channel moves them right and, if you ask for it, the green channel moves them down. It's used for ripple, wave, heat-haze and glass effects.
+
+## Signature
+
+```ts title="displace.d.ts"
+image.displace(options: {
+  map: Jimp;
+  offset: number | { x?: number; y?: number };
+}): this
+```
+
+`displace` changes the image in place and returns it, so you can chain more calls after it. The map isn't changed.
+
+## Options
+
+| Option   | Type                       | Default  | Description                                                                                                                                                                        |
+| -------- | -------------------------- | -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `map`    | `Jimp`                     | required | The displacement map, a Jimp image. It's stretched to the size of `image`, so it can be any size.                                                                                  |
+| `offset` | `number` or `{ x?, y? }`   | required | The largest move in pixels. A number moves pixels right by up to that much, using the map's red channel. `{ x, y }` also moves them down by up to `y`, using the green channel. |
+
+## Example
+
+```ts title="example.ts"
+import { Jimp } from "jimp";
+
+const image = await Jimp.read("photo.jpg");
+const map = await Jimp.read("waves.png");
+
+image.displace({ map, offset: 20 });
+
+await image.write("photo-waves.jpg");
+```
+
+### Move along both axes
+
+Pass `{ x, y }` to move pixels right by the map's red channel and down by its green channel, like SVG's `feDisplacementMap` with `xChannelSelector="R"` and `yChannelSelector="G"`:
+
+```ts title="example.ts"
+// Right by up to 10 px (red) and down by up to 10 px (green)
+image.displace({ map, offset: { x: 10, y: 10 } });
+
+// Down only
+image.displace({ map, offset: { y: 10 } });
+```
+
+A missing axis isn't moved, and negative values move pixels left or up.
+
+### Make a map in code
+
+A map is just an image, so you can draw one with [`scan`](/jimp/methods/scan/). This one varies by row, which bends vertical lines into waves:
+
+```ts title="example.ts"
+import { Jimp } from "jimp";
+
+const image = await Jimp.read("photo.jpg");
+const map = new Jimp({ width: image.width, height: image.height });
+
+map.scan((x, y, idx) => {
+  const v = Math.round(127.5 + 127.5 * Math.sin((2 * Math.PI * y) / 45));
+  map.bitmap.data[idx] = v; // red: the move along x
+  map.bitmap.data[idx + 1] = v; // green: the move along y, with offset: { y }
+  map.bitmap.data[idx + 2] = v;
+  map.bitmap.data[idx + 3] = 255;
+});
+
+image.displace({ map, offset: 20 });
+```
+
+The playground below uses a map made the same way.
+
+## How it works
+
+For each pixel at `(x, y)`, `displace` reads the map at the same position and copies the pixel, including its alpha, to `(x + dx, y + dy)`:
+
+```ts
+dx = Math.round((red / 256) * offset.x)
+dy = Math.round((green / 256) * offset.y)
+```
+
+- A channel value of `0` means no move; `255` moves by almost the full offset.
+- A map of one flat color moves the whole image by the same amount. The effect comes from changes in the map: where a channel changes, pixels are pulled apart or pushed together.
+- With a number as `offset`, the green channel is ignored and pixels only move horizontally.
+
+## Try it
+
+Drag `x` to change the strength of the waves, and `y` to move pixels down as well. The map is gray, so its red and green channels are the same.
+
+<Playground method="displace" client:visible />
+
+## Notes
+
+- **Gaps keep the original pixel.** Where nothing lands on a pixel (because the move grows along a row or column), it keeps its old color, which can leave thin copies of edges.
+- **Edges.** Pixels moved past an edge of the image are lost.
+- **Map size.** The map is stretched to the image with nearest-neighbor sampling. Resize it yourself first, for example with [`resize`](/jimp/methods/resize/) and a `ResizeStrategy`, if you want it smoothed.
+- **Added in 2.0:** `offset: { x, y }`.
+- **Changed in 2.0:** alpha moves with the pixel, and the map is stretched to the image's size. Before, only the color moved, so images with transparency got dark streaks, and the map was read by pixel index, so a map of a different size didn't line up.
+
+<Aside type="tip">
+  Blur the map before using it, for example with [`blur`](/jimp/methods/blur/),
+  to soften sharp steps in the move.
+</Aside>
+
+## Related
+
+<Related methods={["fisheye", "blur", "scan", "composite"]} />

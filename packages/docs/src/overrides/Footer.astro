@@ -1,0 +1,49 @@
+---
+/** Bottom of the page card: chunky prev/next links and the edit link. */
+import type { Props } from "@astrojs/starlight/props";
+import EditLink from "@astrojs/starlight/components/EditLink.astro";
+import Pagination from "./Pagination.astro";
+import { version } from "../../package.json";
+
+const { entry, slug } = Astro.props;
+const isGenerated = slug.startsWith("api/");
+---
+
+{
+  !entry.data.hero && (
+    <footer class="doc-footer not-content">
+      <Pagination {...Astro.props} />
+      <div class="meta">
+        {!isGenerated && <EditLink {...Astro.props} />}
+        <span>Jimp v{version}</span>
+      </div>
+    </footer>
+  )
+}
+
+<style>
+  .doc-footer {
+    margin-top: 48px;
+    padding-top: 24px;
+    border-top: 3px dashed var(--jp-dash);
+  }
+  .meta {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 28px;
+    font-family: var(--jp-ui);
+    font-size: 14.5px;
+    color: var(--jp-text-2);
+  }
+  .meta :global(a) {
+    color: inherit;
+  }
+  .meta :global(a:hover) {
+    color: var(--jp-link);
+  }
+  .meta > span:only-child {
+    margin-inline-start: auto;
+  }
+</style>

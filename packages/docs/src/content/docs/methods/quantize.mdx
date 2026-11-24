@@ -1,0 +1,140 @@
+---
+title: "quantize()"
+description: "Reduce the image to a limited palette of colors."
+category: color
+method: "quantize"
+plugin: "@jimp/plugin-quantize"
+---
+
+import Playground from "../../../components/playground/Playground";
+import Related from "../../../components/Related.astro";
+
+`quantize` reduces the image to at most a given number of colors.
+It builds the best palette it can for the image and then redraws every pixel with it, by default using dithering to hide the banding.
+It's powered by the [image-q](https://github.com/ibezkrovnyi/image-quantization) library.
+
+## Signature
+
+```ts title="quantize.d.ts"
+image.quantize(options: {
+  colors?: number;
+  paletteQuantization?: string; // one of the names listed below
+  imageQuantization?: string; // one of the names listed below
+  colorDistanceFormula?: string; // one of the names listed below
+}): this
+```
+
+`quantize` changes the image in place and returns it, so you can chain more calls after it.
+Every option is optional, but the options object itself is required: pass `{}` for the defaults.
+The string options accept only the names in the tables below; in TypeScript they're typed as unions of those names. The options type is exported as `QuantizeOptions` from `@jimp/plugin-quantize` (not from `jimp`).
+
+## Options
+
+| Option                 | Type     | Default             | Description                                                                 |
+| ---------------------- | -------- | ------------------- | --------------------------------------------------------------------------- |
+| `colors`               | `number` | `256`               | The maximum number of colors in the palette: at least `1`, or at least `2` with `"rgbquant"`. |
+| `paletteQuantization`  | `string` | `"wuquant"`         | The algorithm that picks the palette. See below.                            |
+| `imageQuantization`    | `string` | `"floyd-steinberg"` | How each pixel is matched to the palette: nearest color or a dither. See below. |
+| `colorDistanceFormula` | `string` | `"euclidean-bt709"` | How the difference between two colors is measured, for both steps. See below. |
+
+### `paletteQuantization`
+
+| Value              | Description                                                                             |
+| ------------------ | --------------------------------------------------------------------------------------- |
+| `"wuquant"`        | Xiaolin Wu's algorithm. Accurate palettes; the default.                                 |
+| `"neuquant"`       | A neural-network quantizer. Fast and good on photos.                                    |
+| `"neuquant-float"` | NeuQuant using floating-point math. Slightly more precise, slightly slower.             |
+| `"rgbquant"`       | Leon Sorokin's RgbQuant. Fast; good on images with large flat areas.                    |
+
+### `imageQuantization`
+
+| Value                     | Description                                                                 |
+| ------------------------- | --------------------------------------------------------------------------- |
+| `"nearest"`               | No dithering: each pixel gets the closest palette color. Flat bands, crisp edges. |
+| `"floyd-steinberg"`       | Floyd–Steinberg error diffusion. The default.                               |
+| `"false-floyd-steinberg"` | A cheaper variant of Floyd–Steinberg that spreads error to three neighbors. |
+| `"stucki"`                | Stucki error diffusion. Spreads error wider for a smoother result.          |
+| `"atkinson"`              | Atkinson dithering, as on the original Macintosh. Higher contrast.          |
+| `"jarvis"`                | Jarvis–Judice–Ninke error diffusion. Smooth, spreads error widely.          |
+| `"burkes"`                | Burkes error diffusion. A faster alternative to Stucki.                     |
+| `"sierra"`                | Sierra error diffusion.                                                     |
+| `"two-sierra"`            | Two-row Sierra. Faster than `sierra`.                                       |
+| `"sierra-lite"`           | Sierra Lite. The fastest Sierra variant.                                    |
+| `"riemersma"`             | Riemersma dithering along a Hilbert curve. Avoids directional patterns.     |
+
+### `colorDistanceFormula`
+
+| Value                       | Description                                                                |
+| --------------------------- | -------------------------------------------------------------------------- |
+| `"euclidean-bt709"`         | Straight-line RGBA distance, weighted by perceived brightness. The default. |
+| `"euclidean-bt709-noalpha"` | The same, ignoring alpha.                                                  |
+| `"euclidean"`               | Unweighted straight-line RGBA distance.                                    |
+| `"manhattan"`               | Sum of the channel differences.                                            |
+| `"manhattan-bt709"`         | Manhattan distance weighted by perceived brightness.                       |
+| `"manhattan-nommyde"`       | Manhattan distance with Nommyde's channel weights (`0.4984`, `0.8625`, `0.2979`). |
+| `"cie94-textiles"`          | CIE94 color difference for textiles. Perceptual, slower.                   |
+| `"cie94-graphic-arts"`      | CIE94 color difference for graphic arts. Perceptual, slower.               |
+| `"ciede2000"`               | CIEDE2000, the most accurate perceptual formula, and the slowest.          |
+| `"color-metric"`            | The low-cost "redmean" approximation of perceptual distance.              |
+| `"pngquant"`                | The distance formula used by pngquant.                                     |
+
+## Example
+
+```ts title="example.ts"
+import { Jimp } from "jimp";
+
+const image = await Jimp.read("photo.jpg");
+
+image.quantize({ colors: 16 });
+
+await image.write("photo-16.png");
+```
+
+### Flat colors without dithering
+
+Dithering hides banding in photos, but adds noise to logos and illustrations.
+Use `"nearest"` for flat areas of color:
+
+```ts title="example.ts"
+image.quantize({ colors: 8, imageQuantization: "nearest" });
+```
+
+### A retro look
+
+Few colors and a coarse dither give an 8-bit look:
+
+```ts title="example.ts"
+import { Jimp, ResizeStrategy } from "jimp";
+
+const image = await Jimp.read("photo.jpg");
+
+image
+  .resize({ w: 160 })
+  .quantize({
+    colors: 8,
+    paletteQuantization: "neuquant",
+    imageQuantization: "atkinson",
+  })
+  .resize({ w: 640, mode: ResizeStrategy.NEAREST_NEIGHBOR });
+
+await image.write("photo-retro.png");
+```
+
+## Try it
+
+Drag `colors` and try different algorithms. The perceptual distance formulas (`cie94-*` and `ciede2000`) are much slower, and `ciede2000` can take many seconds to run.
+
+<Playground method="quantize" client:visible />
+
+## Notes
+
+- **The image stays RGBA.** `quantize` changes the pixels, not the bitmap format. Jimp's PNG encoder doesn't write palette (indexed) PNGs, so the file is still truecolor, although fewer colors usually compress better.
+- **Alpha is quantized too.** Palette entries include alpha, so soft, semi-transparent edges snap to a few transparency levels. For clean edges, quantize the image before adding transparency, or call [`opaque`](/jimp/methods/opaque/) first if you don't need it.
+- **Speed.** At the defaults, a 360 × 270 image takes under a second in Node. Large images and the perceptual formulas are much slower: on the same image `"ciede2000"` takes tens of seconds, and the gap grows with `colors`. [`posterize`](/jimp/methods/posterize/) is far faster if you don't need an optimal palette.
+- **Errors.** Calling `quantize()` without an options object, or passing an unknown algorithm name, throws a `ZodError`. So does a `colors` below `1` (`colors must be at least 1`), or below `2` with `paletteQuantization: "rgbquant"` (`colors must be at least 2 for rgbquant`).
+- **Fewer colors than requested.** The palette never has more colors than the image, and some algorithms return a palette one or two colors smaller than `colors`.
+- Changed in 2.0: a `colors` below `1`, or below `2` with `"rgbquant"`, throws a `ZodError` naming the problem; before, it failed inside image-q with a `TypeError`.
+
+## Related
+
+<Related methods={["posterize", "dither", "threshold", "greyscale", "pixelate"]} />

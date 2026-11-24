@@ -1,0 +1,219 @@
+---
+title: "Compositing"
+description: "Layer images on top of each other with composite, blit and mask, and control how they blend."
+---
+
+import Playground from "../../../components/playground/Playground";
+import StickerSheet from "../../../components/StickerSheet.astro";
+
+export const modes = [
+  ["SRC_OVER", "srcOver", "The source over the image. The default."],
+  ["DST_OVER", "dstOver", "The source under the image."],
+  ["MULTIPLY", "multiply", "Darkens. White disappears."],
+  ["ADD", "add", "Brightens, clipping to white."],
+  ["SCREEN", "screen", "Lightens. Black disappears."],
+  ["OVERLAY", "overlay", "Contrast, decided by the image."],
+  ["DARKEN", "darken", "The darker value per channel."],
+  ["LIGHTEN", "lighten", "The lighter value per channel."],
+  ["HARD_LIGHT", "hardLight", "Contrast, decided by the source."],
+  ["DIFFERENCE", "difference", "White inverts the image."],
+  ["EXCLUSION", "exclusion", "A softer difference."],
+];
+
+Compositing means building one image out of several: a logo on a photo, a row of thumbnails on a canvas, a picture cut to a shape.
+Jimp has three methods for it. [`composite`](/jimp/methods/composite/) layers a whole image with blend modes and opacity, [`blit`](/jimp/methods/blit/) copies an image or a rectangle of it, and [`mask`](/jimp/methods/mask/) uses an image's brightness to make parts of another transparent.
+
+<StickerSheet methods={["composite", "blit", "mask"]} />
+
+## Layering one image on another
+
+Every compositing call is made on the image that receives the pixels, the destination. The image you pass in is the source, and it isn't changed.
+`composite` takes the source and the position of its top-left corner:
+
+```ts title="example.ts"
+import { Jimp } from "jimp";
+
+const photo = await Jimp.read("photo.jpg");
+const logo = await Jimp.read("logo.png");
+
+photo.composite(logo, 20, 20);
+
+await photo.write("photo-logo.jpg");
+```
+
+Transparency is respected: transparent pixels of the logo let the photo show through, and partly transparent ones mix with it.
+The destination never grows. Any part of the source that lands outside it, for example because of a negative position, is cut off.
+
+### Positioning
+
+Positions are in pixels from the destination's top-left corner, and fractional values are rounded. Use the images' sizes to place a layer relative to the edges or the center:
+
+```ts title="example.ts"
+// Centered
+photo.composite(logo, (photo.width - logo.width) / 2, (photo.height - logo.height) / 2);
+
+// Bottom-right corner, with a 20px margin
+photo.composite(logo, photo.width - logo.width - 20, photo.height - logo.height - 20);
+```
+
+## Starting from a blank canvas
+
+To build an image from parts, create an empty one with [`new Jimp()`](/jimp/methods/new-jimp/) and composite onto it. `color` fills the canvas; leave it out for a transparent one.
+
+```ts title="example.ts"
+import { Jimp } from "jimp";
+
+const files = ["a.jpg", "b.jpg", "c.jpg"];
+const size = 200;
+const gap = 10;
+
+const sheet = new Jimp({
+  width: files.length * size + (files.length + 1) * gap,
+  height: size + gap * 2,
+  color: 0xffffffff,
+});
+
+for (const [i, file] of files.entries()) {
+  const thumb = await Jimp.read(file);
+  thumb.cover({ w: size, h: size });
+  sheet.composite(thumb, gap + i * (size + gap), gap);
+}
+
+await sheet.write("contact-sheet.jpg");
+```
+
+`color` takes an RGBA number such as `0xffffffff` (opaque white) or a CSS color string such as `"#1b1840"`. See [Colors and pixels](/jimp/concepts/colors-and-pixels/) for the formats.
+
+Because every compositing method returns the image, you can chain layers:
+
+```ts title="example.ts"
+canvas
+  .composite(background, 0, 0)
+  .composite(photo, 40, 40)
+  .composite(caption, 40, 360);
+```
+
+Sources can come from any Jimp class, so images read with a [custom Jimp](/jimp/guides/custom-jimp/) and with the `jimp` package's `Jimp` can be layered onto each other.
+
+## Opacity
+
+`composite`'s fourth argument takes two opacity options, each from `0` to `1`:
+
+- `opacitySource` fades the layer you're drawing. `0.5` draws it at half strength, which is how you make a subtle watermark.
+- `opacityDest` multiplies the alpha of **every** pixel of the destination before drawing, not only the pixels under the source. Use it when you want the whole background faded.
+
+```ts title="example.ts"
+photo.composite(logo, 20, 20, { opacitySource: 0.4 });
+```
+
+Values outside `0`–`1` are clamped to that range, and a value that isn't a number counts as `1`.
+To fade an image without compositing it, use [`opacity`](/jimp/methods/opacity/) or [`fade`](/jimp/methods/fade/).
+
+## Blend modes
+
+`mode` decides how each source color combines with the color under it. The modes are the `BlendMode` constants, a named export of `jimp`:
+
+```ts title="example.ts"
+import { BlendMode, Jimp } from "jimp";
+
+photo.composite(texture, 0, 0, { mode: BlendMode.MULTIPLY });
+```
+
+Here is the same star sticker composited onto the same photo with every mode:
+
+<div class="not-content" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(190px, 1fr))", gap: "1.25rem", margin: "1.5rem 0" }}>
+  {modes.map(([name, value, blurb]) => (
+    <figure style={{ margin: 0, padding: "8px 8px 10px", background: "var(--jp-surface)", color: "var(--jp-text)", borderRadius: "16px", boxShadow: "0 0 0 3px var(--jp-line), 3px 5px 0 3px var(--jp-shadow)" }}>
+      <img src={`/jimp/compositing/blend-${value}.png`} alt={`A star sticker composited onto a photo of dice with BlendMode.${name}`} width="240" height="180" loading="lazy" style={{ display: "block", width: "100%", height: "auto", borderRadius: "10px" }} />
+      <figcaption style={{ marginTop: "8px", fontSize: "0.85rem", lineHeight: 1.35 }}>
+        <code style={{ fontFamily: "var(--jp-mono)", fontWeight: 700 }}>{name}</code>
+        <br />
+        {blurb}
+      </figcaption>
+    </figure>
+  ))}
+</div>
+
+| Mode         | What it does                                                                                                         |
+| ------------ | -------------------------------------------------------------------------------------------------------------------- |
+| `SRC_OVER`   | Paints the source over the image. The default, and what you usually want.                                            |
+| `DST_OVER`   | Puts the source under the image, so it only shows where the image is transparent. Handy for adding a background.    |
+| `MULTIPLY`   | Multiplies the colors. The result is never lighter; white in the source has no effect.                               |
+| `ADD`        | Adds the colors. The result is never darker and clips to white quickly.                                              |
+| `SCREEN`     | Inverts both, multiplies, and inverts back. The result is never darker; black in the source has no effect.           |
+| `OVERLAY`    | Multiplies where the image is dark and screens where it's light, which boosts contrast.                              |
+| `DARKEN`     | Keeps the darker of the two values in each channel.                                                                  |
+| `LIGHTEN`    | Keeps the lighter of the two values in each channel.                                                                 |
+| `HARD_LIGHT` | Like `OVERLAY`, but chooses multiply or screen by the source's brightness instead of the image's.                    |
+| `DIFFERENCE` | Subtracts the smaller value from the larger. White inverts the image; black has no effect.                           |
+| `EXCLUSION`  | Like `DIFFERENCE` with less contrast: mid-tones turn gray instead of saturated.                                      |
+
+All modes compute the result's alpha the same way, as `src + dst - src × dst`. Where the destination is fully transparent, every mode shows the source unchanged, so blend modes are only visible over opaque or partly transparent images.
+
+Try them on your own images. Click to move the sticker and pick a `mode`:
+
+<Playground method="composite" src="dice-on-paper.png" client:visible />
+
+## Copying regions with blit
+
+[`blit`](/jimp/methods/blit/) copies pixels from a source onto the image, like `composite` with `SRC_OVER` at full opacity. What it adds is a source rectangle: `srcX`, `srcY`, `srcW` and `srcH` pick the part of the source to copy, and `x`, `y` say where it goes.
+
+```ts title="example.ts"
+const sheet = await Jimp.read("sprites.png");
+const frame = new Jimp({ width: 32, height: 32 });
+
+// The third 32 × 32 sprite in the top row
+frame.blit({ src: sheet, srcX: 64, srcY: 0, srcW: 32, srcH: 32 });
+```
+
+To move part of an image within itself, blit from a [`clone`](/jimp/methods/clone/) so the copy doesn't read pixels it has already overwritten:
+
+```ts title="example.ts"
+image.blit({ src: image.clone(), x: 10, y: 10, srcX: 120, srcY: 80, srcW: 100, srcH: 60 });
+```
+
+The source rectangle is clamped to the source image, so a rectangle that runs past its edges copies only the part inside it.
+
+<Playground method="blit" src="dice-on-paper.png" client:visible />
+
+## Cutting shapes with mask
+
+[`mask`](/jimp/methods/mask/) uses a second image as a stencil. For every pixel it covers, the mask's gray value scales the image's alpha: white keeps the pixel, black makes it transparent and gray makes it partly transparent. The mask's own alpha counts too, so transparent parts of a mask hide the image, and colored pixels count by their luminance.
+
+```ts title="example.ts"
+const photo = await Jimp.read("photo.png");
+const shape = await Jimp.read("heart-mask.png"); // white heart on black
+
+photo.mask(shape);
+
+await photo.write("photo-heart.png");
+```
+
+Masks only lower alpha, and only where they cover the image, so make them at least as large as the image. Pass `{ src, x, y }` to position one. Save masked images as PNG or another format with an alpha channel.
+
+<Playground method="mask" src="dice-on-paper.png" client:visible />
+
+For circles and rounded rectangles you don't need a mask image: use [`circle`](/jimp/methods/circle/) and [`roundCorners`](/jimp/methods/round-corners/).
+
+## Color profiles
+
+Most images are sRGB, but photos from phones are often Display P3. When a source's color space differs from the destination's, `composite` and `blit` convert a copy of the source to the destination's space first, so an sRGB logo keeps its colors on a P3 photo. The source itself isn't changed. `mask` only reads gray values, so it doesn't convert. See [Color spaces](/jimp/guides/color-spaces/) for more.
+
+## Which one to use
+
+| You want to…                                         | Use                                                                      |
+| ---------------------------------------------------- | ------------------------------------------------------------------------ |
+| Draw a whole image on top, possibly faded or blended | [`composite`](/jimp/methods/composite/)                                  |
+| Copy a rectangle out of a sprite sheet or tile set   | [`blit`](/jimp/methods/blit/) with `srcX`, `srcY`, `srcW`, `srcH`        |
+| Put something behind an image's transparent areas    | `composite` with `BlendMode.DST_OVER`                                    |
+| Make parts of an image transparent with a stencil    | [`mask`](/jimp/methods/mask/)                                            |
+| Add a drop shadow                                    | [`boxShadow`](/jimp/methods/box-shadow/) or [`shadow`](/jimp/methods/shadow/) |
+
+## See also
+
+- [`composite`](/jimp/methods/composite/), [`blit`](/jimp/methods/blit/) and [`mask`](/jimp/methods/mask/): the full reference for each method
+- [`new Jimp()`](/jimp/methods/new-jimp/): create blank canvases
+- [Colors and pixels](/jimp/concepts/colors-and-pixels/): color numbers, alpha and reading pixels
+- [Color spaces](/jimp/guides/color-spaces/): Display P3, ICC profiles and converting between them
+- [Constants](/jimp/concepts/constants/): `BlendMode` and the other named exports
+- [`boxShadow`](/jimp/methods/box-shadow/), [`opacity`](/jimp/methods/opacity/) and [`crop`](/jimp/methods/crop/): methods that pair well with compositing

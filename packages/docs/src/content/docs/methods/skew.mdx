@@ -1,0 +1,91 @@
+---
+title: "skew()"
+description: "Slant the image along x and/or y by an angle, like CSS skew()."
+category: shape
+method: "skew"
+plugin: "@jimp/plugin-rotate"
+---
+
+import Playground from "../../../components/playground/Playground";
+import Related from "../../../components/Related.astro";
+
+`skew` slants the image by an angle in degrees, like CSS `skew(x, y)`.
+Use `x` to lean vertical lines over, as for italic or a sense of speed, and `y` to tilt horizontal lines, as for a slanted banner.
+
+## Signature
+
+```ts title="skew.d.ts"
+image.skew(options: {
+  x?: number;
+  y?: number;
+  mode?: ResizeStrategy;
+  fit?: boolean;
+}): this
+```
+
+`skew` changes the image in place and returns it, so you can chain more calls after it. The options type is exported as `SkewOptions`.
+
+## Options
+
+| Option | Type                                          | Default       | Description                                                                                                                         |
+| ------ | --------------------------------------------- | ------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| `x`    | `number`                                      | `0`           | The angle in degrees along the x axis, like CSS `skewX()`. Positive values slant vertical lines like `\`, negative values like `/`. |
+| `y`    | `number`                                      | `0`           | The angle in degrees along the y axis, like CSS `skewY()`. Positive values move the right side down.                               |
+| `mode` | [`ResizeStrategy`](/jimp/concepts/constants/) | nearest pixel | How to sample the pixels. Leave it out to copy the nearest pixel, which keeps hard edges. Pass a strategy to interpolate.          |
+| `fit`  | `boolean`                                     | `true`        | `true` grows the canvas to fit the skewed image. `false` keeps the width and height and crops what falls outside.                  |
+
+## Example
+
+```ts title="example.ts"
+import { Jimp } from "jimp";
+
+const image = await Jimp.read("photo.jpg");
+
+// 800 x 600 becomes 1019 x 600
+image.skew({ x: 20 });
+
+await image.write("photo-skewed.png");
+```
+
+The canvas grows by `height * tan(x)` in width (and `width * tan(y)` in height), so nothing is cut off.
+The new space is filled with `image.background`, which is transparent black for images loaded with `Jimp.read`. Save as PNG to keep it transparent, or set `image.background` first.
+
+### Smooth edges
+
+The default copies the nearest pixel, so the slanted edges look stepped. Pass a [`ResizeStrategy`](/jimp/methods/resize/#resize-strategies) to interpolate:
+
+```ts title="example.ts"
+import { Jimp, ResizeStrategy } from "jimp";
+
+const image = await Jimp.read("photo.jpg");
+
+image.skew({ x: 10, y: -15, mode: ResizeStrategy.BILINEAR });
+```
+
+### Keep the size
+
+```ts title="example.ts"
+image.skew({ x: 20, fit: false });
+```
+
+The image is skewed about its center and keeps its width and height. The corners that slide outside are cropped, and the areas the image no longer covers are filled with `image.background`.
+
+## Try it
+
+Drag `x` and `y` to change the angles, pick a `mode` to smooth the edges, and turn off `fit` to keep the size.
+
+<Playground method="skew" client:visible />
+
+## Notes
+
+- **Added in 2.0.**
+- **A shortcut for `affine`.** `skew({ x, y })` is [`affine`](/jimp/methods/affine/) with the matrix `[1, tan(y), tan(x), 1, 0, 0]`. Use `affine` to combine a skew with scaling, flipping or rotating in one step.
+- **Same as CSS.** The angles have the same meaning as in CSS `skew()`, so `skew({ x: 20, y: -10 })` matches `transform: skew(20deg, -10deg)` with the default `transform-origin` of the center.
+- **Exact where possible.** If every output pixel lands on the center of a source pixel, as at 45°, the nearest pixel is taken even when `mode` is set, so the result stays sharp.
+- **Transparency.** With a `mode`, colors are weighted by alpha, so edges against a transparent background don't get a dark fringe. With `fit` on, the image is drawn over `image.background` first, as [`rotate`](/jimp/methods/rotate/) does.
+- **Errors.** An angle of 90° (or 90° plus a multiple of 180°) throws `Skew angles can't be 90 degrees (or 90 plus a multiple of 180), it would make the image infinitely long`. Skewing both axes by 45° flattens the image and throws `The matrix can't be inverted (a * d - b * c is 0), so it would flatten the image into a line or a point`. `NaN` fails validation with `Invalid input: expected number, received NaN`. These arrive as a zod error; see [Errors and validation](/jimp/concepts/errors-and-validation/).
+- **Options object required.** `skew(20)` fails with `Invalid input: expected object, received number`. Pass `skew({ x: 20 })`.
+
+## Related
+
+<Related methods={["affine", "rotate", "flip", "resize"]} />

@@ -1,0 +1,76 @@
+---
+title: "pHash()"
+description: "Compute the perceptual hash of the image as a binary string."
+category: compare
+method: "pHash"
+plugin: "@jimp/plugin-hash"
+---
+
+import Related from "../../../components/Related.astro";
+
+`pHash` computes a perceptual hash: a short fingerprint of what the image looks like, as a string of `0`s and `1`s.
+Images that look alike get hashes that differ in only a few bits, even after resizing, recompressing or a change in brightness, so you can use it to find duplicates and near-duplicates.
+
+## Signature
+
+```ts title="pHash.d.ts"
+image.pHash(options?: { size?: number; smallerSize?: number }): string
+```
+
+`pHash` doesn't change the image. It returns a string of `smallerSize * smallerSize` binary digits, 64 by default.
+
+## Options
+
+| Option        | Type     | Default | Description                                                                                                          |
+| ------------- | -------- | ------- | -------------------------------------------------------------------------------------------------------------------- |
+| `size`        | `number` | `32`    | Width and height the image is scaled to before the transform. A whole number from `2` to `256`, at least `smallerSize`. |
+| `smallerSize` | `number` | `8`     | Width and height of the block of low frequencies the hash is made from. A whole number from `2` to `64`.             |
+
+## Example
+
+```ts title="example.ts"
+import { Jimp, compareHashes } from "jimp";
+
+const original = await Jimp.read("photo.jpg");
+const thumbnail = await Jimp.read("photo-thumbnail.jpg");
+
+const a = original.pHash(); // "1011111000011111110010111110000011100000011000000001111010010010"
+const b = thumbnail.pHash();
+
+compareHashes(a, b); // 0 for identical hashes, about 0.5 for unrelated images
+```
+
+Store the hashes, for example in a database, and compare new images against them with [`compareHashes`](/jimp/methods/compare-hashes/) or [`distanceFromHash`](/jimp/methods/distance-from-hash/) without keeping the images around.
+
+### A longer hash
+
+A larger `smallerSize` keeps more detail, so it tells similar images apart more finely. The hash is `smallerSize * smallerSize` bits long:
+
+```ts title="example.ts"
+image.pHash({ smallerSize: 16 }).length; // 256
+image.pHash({ size: 64, smallerSize: 16 }).length; // 256, from a 64x64 copy
+```
+
+Only compare hashes made with the same options.
+
+## How it works
+
+1. Transparent pixels are flattened onto mid-gray (`128`), so transparency is handled the same way for every image.
+2. The image is resized to `size` × `size` and converted to grayscale.
+3. A discrete cosine transform (DCT) splits it into frequencies, and the top-left `smallerSize` × `smallerSize` block, the lowest frequencies, is kept.
+4. Each of those values becomes a `1` if it's above their average (not counting the first, overall-brightness term) and `0` otherwise.
+
+Because only the coarse structure survives, the hash ignores small changes. It isn't designed to survive changes to that structure: a flipped, rotated or cropped image usually gets a very different hash.
+
+## Notes
+
+- **Doesn't modify the image.** The hash is computed from a copy.
+- **Same as `hash(2)`.** [`hash`](/jimp/methods/hash/) returns the same bits in a shorter base, 64 by default.
+- **Validation.** Options are checked with zod. `{ size: 1 }` fails with `Too small: expected number to be >=2`, a fraction fails with `Invalid input: expected int, received number`, and a `smallerSize` above `size` fails with `smallerSize must not be larger than size`.
+- **Speed.** Larger options cost more. On an 800 × 600 image the default hash took about 12 ms in our tests, and `{ size: 256, smallerSize: 64 }` about 200 ms.
+- **Added in 2.0:** the `size` and `smallerSize` options. Earlier versions always use `size: 32` and `smallerSize: 8`.
+- **Changed in 2.0:** the average used to include the first, overall-brightness term, which made bright, low-contrast images such as sketches all hash alike, and transparent pixels were hashed by whatever color was hidden under them. Every hash, opaque images' included, differs from 1.x, so hash stored images again. [`greyscale`](/jimp/methods/greyscale/)'s rounding change in 2.0 doesn't affect the hash.
+
+## Related
+
+<Related methods={["hash", "compareHashes", "distanceFromHash", "distance", "diff"]} />

@@ -1,0 +1,151 @@
+---
+title: "convolution()"
+description: "Apply a convolution kernel with a choice of edge handling."
+category: effects
+method: "convolution"
+plugin: "@jimp/plugin-color"
+---
+
+import Playground from "../../../components/playground/Playground";
+import Related from "../../../components/Related.astro";
+
+`convolution` runs a convolution kernel over the red, green and blue channels of the whole image: every pixel becomes a weighted sum of itself and its neighbors.
+It leaves alpha untouched, so it suits edge detection and other kernels that don't add up to `1`. Compared with [`convolute`](/jimp/methods/convolute/), it also lets you choose what the kernel sees past the image's edges, but it can't be limited to a region.
+
+## Signature
+
+```ts title="convolution.d.ts"
+image.convolution(kernel: number[][]): this
+image.convolution(options: {
+  kernel: number[][];
+  edgeHandling?: Edge;
+  divisor?: number;
+  bias?: number;
+}): this
+```
+
+`convolution` changes the image in place and returns it, so you can chain more calls after it.
+
+## Options
+
+Pass the kernel on its own, or an object to set the other options.
+
+| Option         | Type         | Default       | Description                                                                                             |
+| -------------- | ------------ | ------------- | ------------------------------------------------------------------------------------------------------- |
+| `kernel`       | `number[][]` | required      | The weights, row by row. Any size, including even and non-square; every row must have the same length. |
+| `edgeHandling` | `Edge`       | `Edge.EXTEND` | What the kernel reads for pixels past the border. See [Edge handling](#edge-handling).                  |
+| `divisor`      | `number`     | `1`           | Divide each weighted sum by this. Pass the sum of the weights to keep the brightness. Can't be `0`.     |
+| `bias`         | `number`     | `0`           | Add this after dividing. Use `128` to center kernels that give negative results.                        |
+
+## Example
+
+Find the edges in a photo: convert it to grayscale, then apply an edge-detection kernel. Flat areas become black and edges become bright lines.
+
+```ts title="example.ts"
+import { Jimp } from "jimp";
+
+const image = await Jimp.read("photo.png");
+
+image.greyscale().convolution([
+  [-1, -1, -1],
+  [-1, 8, -1],
+  [-1, -1, -1],
+]);
+
+await image.write("photo-edges.png");
+```
+
+### Divisor and bias
+
+Kernels are often written with whole-number weights and a divisor. This is a 3×3 Gaussian blur:
+
+```ts title="example.ts"
+image.convolution({
+  kernel: [
+    [1, 2, 1],
+    [2, 4, 2],
+    [1, 2, 1],
+  ],
+  divisor: 16,
+});
+```
+
+`bias` shifts the result. Edge-detection kernels give negative values on one side of an edge, which clamp to `0`; with `bias: 128` both sides show, as darker and lighter lines on mid-gray:
+
+```ts title="example.ts"
+image.greyscale().convolution({
+  kernel: [
+    [-1, 0, 1],
+    [-2, 0, 2],
+    [-1, 0, 1],
+  ],
+  bias: 128,
+});
+```
+
+### Edge handling
+
+Near the border, part of the kernel falls outside the image. `edgeHandling` decides what it reads there. `Edge` is a named export of `jimp`:
+
+| Value         | Number | Pixels past the border are…                                      |
+| ------------- | ------ | ---------------------------------------------------------------- |
+| `Edge.EXTEND` | `1`    | copies of the nearest edge pixel. The default.                   |
+| `Edge.WRAP`   | `2`    | taken from the opposite side, as if the image were tiled.        |
+| `Edge.CROP`   | `3`    | black, so the border darkens with blurring kernels.              |
+
+```ts title="example.ts"
+import { Edge, Jimp } from "jimp";
+
+const texture = await Jimp.read("texture.png");
+
+// Blur a tileable texture so its edges still match up
+const row = [1, 1, 1, 1, 1];
+
+texture.convolution({
+  kernel: [row, row, row, row, row],
+  divisor: 25,
+  edgeHandling: Edge.WRAP,
+});
+```
+
+### Rectangular and even-sized kernels
+
+Rows and columns can differ. A single row blurs horizontally only:
+
+```ts title="example.ts"
+image.convolution({ kernel: [[1, 1, 1, 1, 1]], divisor: 5 });
+```
+
+Even sizes work too. The kernel's origin is at `Math.floor((size - 1) / 2)` along each axis, so this 2×2 Roberts cross compares each pixel with the one below and to the right:
+
+```ts title="example.ts"
+image.greyscale().convolution({
+  kernel: [
+    [1, 0],
+    [0, -1],
+  ],
+  bias: 128,
+});
+```
+
+## Try it
+
+Pick a kernel and change `bias`. `edgeHandling` only changes the outermost pixels, so look closely at the border, or try **box blur** with `Edge.CROP` to see a dark rim.
+
+<Playground method="convolution" src="dice-on-paper.png" client:visible />
+
+## Notes
+
+- **Alpha is untouched.** Only red, green and blue are filtered, so transparent areas stay transparent and opaque ones stay opaque.
+- **Kernel layout.** `kernel[row][col]` weights the pixel `col - originX` to the right and `row - originY` below, with the origin at `Math.floor((size - 1) / 2)` along each axis. An even-sized axis has one more entry after the origin than before it: a 4×4 kernel covers offsets `-1` to `2`. This is ImageMagick's and Matlab's default origin.
+- **Not flipped.** Strictly this is correlation: the kernel is applied as written, like ImageMagick's `-convolve`, GIMP's convolution matrix and Matlab's `imfilter`. For a true convolution, reverse the order of the rows and of each row.
+- **Sources are read from a copy.** Every pixel is computed from the original image, so pixels already filtered don't feed into their neighbors.
+- **Results are clamped and truncated.** Each channel becomes `sum / divisor + bias`. Negative results become `0`, results over 255 become 255, and fractional results are cut down to a whole number.
+- **Validation.** The options are checked with zod and throw a validation error with one of these messages: `kernel must be a matrix` for `[]`, `kernel rows must not be empty` for `[[]]`, `kernel rows must all have the same length` for ragged rows, and `divisor must not be 0`. An `edgeHandling` other than `1`, `2` or `3` also fails validation.
+- **`convolution` or `convolute`?** Use [`convolute`](/jimp/methods/convolute/) to filter a region, or to filter alpha too. Both read the kernel the same way, so a kernel gives the same colors in each.
+- Added in 2.0: `divisor` and `bias`, and support for even-sized kernels.
+- **Changed in 2.0:** even-sized kernels such as 2×2 or 4×4 used to throw a `TypeError` or turn the image black. `Edge` used to be exported from `jimp` only as a type, so you had to pass the number; it's now a value you can import.
+
+## Related
+
+<Related methods={["convolute", "sharpen", "greyscale", "blur", "gaussian", "threshold"]} />

@@ -1,0 +1,95 @@
+---
+title: "Jimp.fromBuffer()"
+description: "Decode an image that's already in memory, such as a Buffer or a Blob."
+category: io
+method: "Jimp.fromBuffer"
+plugin: "@jimp/core"
+---
+
+import Related from "../../../components/Related.astro";
+
+`Jimp.fromBuffer` decodes the bytes of an encoded image (a PNG file, an uploaded JPEG, a response body) into a new Jimp image.
+Use it when you already have the data in memory; use [`Jimp.read`](/jimp/methods/read/) to load from a path or URL.
+
+## Signature
+
+```ts title="fromBuffer.d.ts"
+Jimp.fromBuffer(
+  buffer: Buffer | ArrayBuffer | ArrayBufferView | Blob,
+  options?: ReadOptions & DecodeOptions,
+): Promise<Jimp>
+```
+
+`Jimp.fromBuffer` is a static method. It returns a promise for a new image.
+
+## Parameters
+
+| Parameter | Type                                                 | Default  | Description                                                                                                                                                         |
+| --------- | ---------------------------------------------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `buffer`  | `Buffer \| ArrayBuffer \| ArrayBufferView \| Blob` | required | The encoded image: the whole file, not raw pixels. A `Uint8Array`, a subarray or a `DataView` works too. For raw RGBA pixels use [`Jimp.fromBitmap`](/jimp/methods/from-bitmap/). |
+| `options` | `object`                                             | none     | `exifRotate`, plus decode options keyed by MIME type, as for [`Jimp.read`](/jimp/methods/read/#options).                                                            |
+
+## Example
+
+```ts title="example.ts"
+import { readFile } from "node:fs/promises";
+import { Jimp } from "jimp";
+
+const buffer = await readFile("photo.jpg");
+const image = await Jimp.fromBuffer(buffer);
+
+console.log(image.mime); // "image/jpeg"
+```
+
+### Decode a download
+
+`fetch` gives you an `ArrayBuffer`, which `fromBuffer` accepts as is.
+
+```ts title="example.ts"
+const response = await fetch("https://example.com/cat.png");
+const image = await Jimp.fromBuffer(await response.arrayBuffer());
+```
+
+### Decode an upload in the browser
+
+A `File` from an `<input type="file">` is a `Blob`, so you can pass it directly:
+
+```ts title="main.ts"
+import { Jimp } from "jimp";
+
+const input = document.querySelector<HTMLInputElement>("input[type=file]")!;
+
+input.addEventListener("change", async () => {
+  const image = await Jimp.fromBuffer(input.files![0]!);
+
+  image.greyscale();
+
+  document.querySelector("img")!.src = await image.getBase64("image/png");
+});
+```
+
+### Pass options
+
+Decode options are keyed by MIME type, and only the ones for the detected format reach its decoder.
+`exifRotate` applies to every format:
+
+```ts title="example.ts"
+const image = await Jimp.fromBuffer(buffer, {
+  exifRotate: false,
+  "image/jpeg": { maxResolutionInMP: 200, maxMemoryUsageInMB: 1024 },
+  "image/png": { checkCRC: false },
+});
+```
+
+## Notes
+
+- **The format is detected from the data.** Jimp reads the file's signature with [file-type](https://www.npmjs.com/package/file-type), then picks the matching format. Text formats such as SVG, which file-type can't identify, are recognized by their format plugin instead. The MIME type is stored on `image.mime`.
+- **EXIF orientation is applied.** JPEGs with an EXIF orientation are rotated upright unless you pass `exifRotate: false`. Their EXIF data is kept for [`getBuffer`'s `exif` option](/jimp/methods/get-buffer/#jpeg). See [EXIF](/jimp/guides/exif/).
+- **The color profile is kept.** An ICC profile in a JPEG, PNG or WebP is stored on `image.iccProfile` and written back on output. See [Color Spaces](/jimp/guides/color-spaces/).
+- **Typed arrays aren't copied.** A `Uint8Array` or other view is read in place, using only its own bytes.
+- **Errors.** Data whose format can't be recognized throws `Could not find MIME for Buffer`. A recognized format with no decoder in your Jimp throws, for example, `Mime type image/webp does not support decoding`; add the format with a [custom Jimp](/jimp/guides/webp/). Anything that isn't image data, such as a string, throws `Expected image data as a Buffer, ArrayBuffer, Uint8Array (or other ArrayBuffer view) or Blob`. Decoders throw their own errors for corrupt data and for images over a size limit.
+- **Added in 2.0:** `Uint8Array`, other `ArrayBufferView`s and `Blob`s as input (before, a `Uint8Array` failed with `data.readUInt32BE is not a function`), and the `exifRotate` option.
+
+## Related
+
+<Related methods={["Jimp.read", "Jimp.fromBitmap", "getBuffer", "getBase64"]} />

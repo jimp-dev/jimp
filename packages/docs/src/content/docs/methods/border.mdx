@@ -1,0 +1,92 @@
+---
+title: "border()"
+description: "Add a solid border around the image, optionally with rounded corners."
+category: shape
+method: "border"
+plugin: "@jimp/plugin-border"
+---
+
+import Playground from "../../../components/playground/Playground";
+import Related from "../../../components/Related.astro";
+
+`border` draws a solid border around the outside of the image, like a CSS border.
+The image grows by the border width on every side, so none of it is covered. Add a `radius` for rounded corners.
+
+## Signature
+
+```ts title="border.d.ts"
+image.border(options: {
+  width: number;
+  color?: number | string;
+  radius?: CornerRadius;
+}): this
+
+type CornerRadius =
+  | number
+  | { topLeft?: number; topRight?: number; bottomRight?: number; bottomLeft?: number };
+```
+
+`border` changes the image in place and returns it, so you can chain more calls after it.
+
+## Options
+
+| Option   | Type                 | Default      | Description                                                                                                                   |
+| -------- | -------------------- | ------------ | ----------------------------------------------------------------------------------------------------------------------------- |
+| `width`  | `number`             | required     | The border width in pixels. A whole number, `0` or more.                                                                      |
+| `color`  | `number` or `string` | `0x000000ff` | The border color: an RGBA number such as `0xff0000ff`, or a CSS color such as `"#ff0000"`, `"rgb(255 0 0)"` or `"red"`.        |
+| `radius` | `number` or `object` | none         | The radius of the border's outer corners. One number for every corner, or `{ topLeft, topRight, bottomRight, bottomLeft }`. |
+
+## Example
+
+```ts title="example.ts"
+import { Jimp } from "jimp";
+
+const image = await Jimp.read("photo.jpg");
+
+// 800 x 600 becomes 840 x 640
+image.border({ width: 20, color: "white" });
+
+await image.write("photo-framed.jpg");
+```
+
+### Rounded corners
+
+```ts title="example.ts"
+image.border({ width: 8, color: "#ff5fb0", radius: 32 });
+
+await image.write("photo-rounded.png");
+```
+
+The outer corners of the border get the radius you pass. The image's own corners are rounded to fit inside, with a radius `width` smaller (here `24`), just like CSS `border-radius` does for the padding box.
+The rounded-off corners outside the border are transparent, so save as PNG to keep them.
+
+### A double border
+
+Call `border` twice to stack borders:
+
+```ts title="example.ts"
+image
+  .border({ width: 4, color: "#1b1840" })
+  .border({ width: 12, color: "#ffd83a" });
+```
+
+## Try it
+
+Change `width`, pick a `color`, and drag `radius` to round the corners.
+
+<Playground method="border" client:visible />
+
+## Notes
+
+- **The image grows.** The new size is `image.width + 2 * width` by `image.height + 2 * width`. To keep the original size, scale the image down first, for example with [`contain`](/jimp/methods/contain/) or [`resize`](/jimp/methods/resize/).
+- **Transparent areas stay transparent.** The border is drawn around the image's rectangle, not behind it. Transparent pixels inside the image aren't filled with the border color.
+- **Semi-transparent borders.** The alpha of `color` is respected, so `0x00000080` draws a 50% black border.
+- **Oversized radii are scaled like CSS.** If two corners on one side add up to more than that side, all radii are scaled down by the same factor.
+- **Use `border` instead of `roundCorners` + `border`.** Rounding the image first and then adding a border leaves the border's outer corners square, with transparent gaps between the border and the image's rounded corners. Pass `radius` to `border` and both are rounded to match.
+- **Invalid colors throw.** A string that isn't a CSS color throws `Invalid color "nope"` (with your string in the quotes).
+- **Validation.** `width` must be a whole number: `2.5` fails with `Invalid input: expected int, received number`, and negative values with `Too small: expected number to be >=0`.
+- **Added in 2.0.**
+
+## Related
+
+<Related methods={["roundCorners", "boxShadow", "contain", "composite"]} />

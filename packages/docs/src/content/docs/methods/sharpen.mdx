@@ -1,0 +1,82 @@
+---
+title: "sharpen()"
+description: "Sharpen edges with an unsharp mask, with strength, radius and threshold."
+category: effects
+method: "sharpen"
+plugin: "@jimp/plugin-blur"
+---
+
+import Playground from "../../../components/playground/Playground";
+import Related from "../../../components/Related.astro";
+
+`sharpen` makes edges crisper with an unsharp mask: it compares each pixel with a blurred copy of the image and pushes it further away from the blur.
+Edges gain contrast while flat areas stay as they are. Use it after shrinking a photo, or to bring back detail in a slightly soft image.
+
+## Signature
+
+```ts title="sharpen.d.ts"
+image.sharpen(options: {
+  amount: number;
+  radius?: number;
+  threshold?: number;
+}): this
+```
+
+`sharpen` changes the image in place and returns it, so you can chain more calls after it.
+The options type is exported from `@jimp/plugin-blur` as `SharpenOptions`.
+
+## Options
+
+| Option      | Type     | Default  | Description                                                                                                                         |
+| ----------- | -------- | -------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| `amount`    | `number` | required | The strength. `0` changes nothing; `0.5` to `1.5` suits most photos. Must be `0` or more.                                          |
+| `radius`    | `number` | `1`      | The standard deviation of the blur, in pixels, as in [`gaussian`](/jimp/methods/gaussian/). Must be greater than `0`; fractions work. |
+| `threshold` | `number` | `0`      | Leave a channel unchanged when it differs from the blurred image by less than this, from `0` to `255`. Raise it to avoid sharpening noise. |
+
+## Example
+
+```ts title="example.ts"
+import { Jimp } from "jimp";
+
+const image = await Jimp.read("photo.jpg");
+
+image.sharpen({ amount: 1 });
+
+await image.write("photo-sharp.jpg");
+```
+
+### Sharpen after resizing
+
+Shrinking a photo softens it. A light sharpen with a small radius brings back the fine detail:
+
+```ts title="example.ts"
+image.resize({ w: 800 }).sharpen({ amount: 0.6, radius: 0.8 });
+```
+
+### Leave noise and smooth areas alone
+
+A `threshold` skips small differences, so grain in skies and skin isn't sharpened along with the edges. A larger `radius` affects a wider band around each edge:
+
+```ts title="example.ts"
+image.sharpen({ amount: 0.8, radius: 2, threshold: 4 });
+```
+
+## Try it
+
+Raise `amount` to strengthen the effect, `radius` to widen it, and `threshold` to stop it from sharpening low-contrast detail.
+
+<Playground method="sharpen" client:visible />
+
+## Notes
+
+- **How it works.** Each red, green and blue value becomes `original + amount × (original - blurred)`, where `blurred` is a [`gaussian`](/jimp/methods/gaussian/) blur of the image with standard deviation `radius`. Results are rounded and clamped to `0`–`255`.
+- **Halos.** Strong settings brighten the light side of an edge and darken the dark side, which shows as a halo. Lower `amount` or `radius` if you see one.
+- **Transparency is handled.** The blurred colors are weighted by alpha, so transparent pixels around a shape don't darken its edges. Alpha itself isn't changed, and fully transparent pixels are skipped.
+- **Matching ImageMagick.** `sharpen({ amount, radius, threshold })` matches `magick -unsharp 0x{radius}+{amount}+{threshold × 2 / 255}` to within a couple of levels.
+- **Validation.** The options are checked with zod. Leaving out `amount`, a negative `amount`, a `radius` of `0` or less, or a `threshold` outside `0`–`255` throws a validation error.
+- **Other sharpening kernels.** For a fixed 3×3 sharpening kernel, use [`convolution`](/jimp/methods/convolution/). To soften an image instead, use [`blur`](/jimp/methods/blur/) or [`gaussian`](/jimp/methods/gaussian/).
+- Added in 2.0.
+
+## Related
+
+<Related methods={["gaussian", "blur", "convolution", "convolute", "resize"]} />
