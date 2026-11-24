@@ -1,5 +1,4 @@
 import { expect, test, describe } from "vitest";
-import GIF from "omggif";
 import { createJimp, ReadFramesOptions } from "@jimp/core";
 import { Bitmap } from "@jimp/types";
 import { getTestImagePath } from "@jimp/test-utils";
@@ -59,37 +58,100 @@ function solid(width: number, height: number, color: number): Bitmap {
   return { data, width, height };
 }
 
-/** Build a GIF with omggif: a palette of black and white, frames of indexes */
-function createGif(
-  width: number,
-  height: number,
-  frames: {
-    x: number;
-    y: number;
-    width: number;
-    height: number;
-    indexes: number[];
-    options?: GIF.FrameOptions;
-  }[]
-) {
-  const buffer = new Uint8Array(4096);
-  const writer = new GIF.GifWriter(buffer, width, height, {
-    palette: [0x000000, 0xffffff],
-  });
+interface FrameOptions {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  indexes: number[];
+  /** A graphic control extension. Leave out to write none */
+  control?: { delay?: number; disposal?: number; transparent?: number };
+}
+
+/**
+ * LZW data for indexes of a 2 color palette: 3 bit codes, with a clear code
+ * before every two indexes so the code size doesn't grow
+ */
+function lzw(indexes: number[]) {
+  const CLEAR = 4;
+  const END = 5;
+  const codes = indexes.flatMap((index, i) =>
+    i % 2 === 0 ? [CLEAR, index] : [index]
+  );
+  const bytes: number[] = [];
+  let bits = 0;
+  let bitCount = 0;
+
+  for (const code of [...codes, END]) {
+    bits |= code << bitCount;
+    bitCount += 3;
+
+    while (bitCount >= 8) {
+      bytes.push(bits & 0xff);
+      bits >>= 8;
+      bitCount -= 8;
+    }
+  }
+
+  if (bitCount > 0) {
+    bytes.push(bits);
+  }
+
+  return bytes;
+}
+
+const short = (value: number) => [value & 0xff, value >> 8];
+
+/** Build a GIF with a palette of black and white, frames of indexes */
+function createGif(width: number, height: number, frames: FrameOptions[]) {
+  const bytes = [
+    ...Buffer.from("GIF89a"),
+    ...short(width),
+    ...short(height),
+    0x80,
+    0,
+    0,
+    ...[0x00, 0x00, 0x00, 0xff, 0xff, 0xff],
+  ];
 
   for (const frame of frames) {
-    writer.addFrame(
-      frame.x,
-      frame.y,
-      frame.width,
-      frame.height,
-      frame.indexes,
-      frame.options
+    if (frame.control) {
+      const { delay = 0, disposal = 0, transparent } = frame.control;
+
+      bytes.push(
+        0x21,
+        0xf9,
+        4,
+        (disposal << 2) | (transparent === undefined ? 0 : 1),
+        ...short(delay),
+        transparent ?? 0,
+        0
+      );
+    }
+
+    const data = lzw(frame.indexes);
+
+    bytes.push(
+      0x2c,
+      ...short(frame.x),
+      ...short(frame.y),
+      ...short(frame.width),
+      ...short(frame.height),
+      0,
+      // LZW minimum code size, one sub-block and its terminator
+      2,
+      data.length,
+      ...data,
+      0
     );
   }
 
-  return Buffer.from(buffer.subarray(0, writer.end()));
+  bytes.push(0x3b);
+
+  return Buffer.from(bytes);
 }
+
+const BLACK = 0x000000ff;
 
 describe("GIF frames", () => {
   test("decodes every frame with its delay and the loop count", async () => {
@@ -185,20 +247,21 @@ describe("GIF frames", () => {
         width: 2,
         height: 1,
         indexes: [1, 1],
-        options: { delay: 50, disposal: 1, transparent: 0 },
+        control: { delay: 5, disposal: 1, transparent: 0 },
       },
-      // omggif writes no extension for a frame without options
       { x: 0, y: 0, width: 2, height: 1, indexes: [0, 1] },
     ]);
     const { frames } = await gif().decodeFrames(data);
 
+    expect(frames[0]!.delay).toBe(50);
     expect(frames[1]!.delay).toBe(0);
     // Index 0 is black here, not transparent
-    expect(pixels(frames[1]!.bitmap)).toEqual([[0x000000ff, WHITE]]);
+    expect(pixels(frames[1]!.bitmap)).toEqual([[BLACK, WHITE]]);
   });
 
-  test("clips frames that extend past the image", async () => {
+  test("clips frames after the first that extend past the image", async () => {
     const data = createGif(2, 2, [
+      { x: 0, y: 0, width: 2, height: 2, indexes: [0, 0, 0, 0] },
       // Without clipping, the second pixel of each row would wrap into the
       // start of the next row
       { x: 1, y: 0, width: 2, height: 3, indexes: [1, 1, 1, 1, 1, 1] },
@@ -207,12 +270,67 @@ describe("GIF frames", () => {
     ]);
     const { frames } = await gif().decodeFrames(data);
 
-    expect(pixels(frames[0]!.bitmap)).toEqual([
-      [CLEAR, WHITE],
-      [CLEAR, WHITE],
+    expect(pixels(frames[1]!.bitmap)).toEqual([
+      [BLACK, WHITE],
+      [BLACK, WHITE],
     ]);
-    expect(pixels(frames[1]!.bitmap)).toEqual(pixels(frames[0]!.bitmap));
+    expect(pixels(frames[2]!.bitmap)).toEqual(pixels(frames[1]!.bitmap));
+  });
+
+  test("grows the image to fit the first frame, like browsers", async () => {
+    const data = createGif(2, 2, [
+      { x: 1, y: 1, width: 2, height: 2, indexes: [1, 0, 0, 1] },
+      // Later frames don't grow it
+      { x: 0, y: 0, width: 4, height: 1, indexes: [1, 1, 1, 1] },
+    ]);
+    const { frames } = await gif().decodeFrames(data);
+
+    expect(pixels(frames[0]!.bitmap)).toEqual([
+      [CLEAR, CLEAR, CLEAR],
+      [CLEAR, WHITE, BLACK],
+      [CLEAR, BLACK, WHITE],
+    ]);
+    expect(pixels(frames[1]!.bitmap)[0]).toEqual([WHITE, WHITE, WHITE]);
     expect(pixels(gif().decode(data))).toEqual(pixels(frames[0]!.bitmap));
+  });
+
+  test("keeps the pixels of a frame cut off by the end of the file", async () => {
+    const data = createGif(4, 1, [
+      { x: 0, y: 0, width: 4, height: 1, indexes: [1, 1, 1, 1] },
+      {
+        x: 0,
+        y: 0,
+        width: 4,
+        height: 1,
+        indexes: [0, 0, 0, 0],
+        control: { transparent: 1 },
+      },
+    ]);
+    // Cut after the second frame's first data byte, which holds a clear
+    // code and one pixel. It has a transparent color, so the pixels it
+    // doesn't have show the frame before it.
+    const cut = data.subarray(0, data.length - 4);
+    const { frames } = await gif().decodeFrames(cut);
+
+    expect(frames).toHaveLength(2);
+    expect(pixels(frames[1]!.bitmap)).toEqual([[BLACK, WHITE, WHITE, WHITE]]);
+  });
+
+  test("throws for a file that ends before the first frame's data", () => {
+    const data = createGif(1, 1, [
+      { x: 0, y: 0, width: 1, height: 1, indexes: [1] },
+    ]);
+
+    // Header, palette and image descriptor
+    expect(() => gif().decode(data.subarray(0, 13 + 6 + 10))).toThrow(
+      "Invalid GIF file: no frames found"
+    );
+  });
+
+  test("throws for a file that isn't a GIF", () => {
+    expect(() => gif().decode(Buffer.from("GIF90a and then some"))).toThrow(
+      "Invalid GIF file: missing GIF87a or GIF89a header"
+    );
   });
 
   test("loop is null for a GIF without a loop count", async () => {
