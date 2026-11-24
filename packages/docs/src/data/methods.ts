@@ -102,6 +102,14 @@ export const methods: MethodEntry[] = [
   m("blit", "blit", "compose", "@jimp/plugin-blit"),
   m("mask", "mask", "compose", "@jimp/plugin-mask"),
 
+  // Drawing
+  m("draw-line", "drawLine", "draw", "@jimp/plugin-draw"),
+  m("draw-rect", "drawRect", "draw", "@jimp/plugin-draw"),
+  m("draw-ellipse", "drawEllipse", "draw", "@jimp/plugin-draw"),
+  m("draw-polygon", "drawPolygon", "draw", "@jimp/plugin-draw"),
+  m("draw-path", "drawPath", "draw", "@jimp/plugin-draw"),
+  m("flood-fill", "floodFill", "draw", "@jimp/plugin-draw"),
+
   // Text
   m("print", "print", "text", "@jimp/plugin-print"),
   m("load-font", "loadFont", "text", "@jimp/plugin-print"),

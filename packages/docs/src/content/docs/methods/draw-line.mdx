@@ -1,0 +1,116 @@
+---
+title: "drawLine()"
+description: "Draw a straight, antialiased line in a color or gradient."
+category: draw
+method: "drawLine"
+plugin: "@jimp/plugin-draw"
+---
+
+import Playground from "../../../components/playground/Playground";
+import Related from "../../../components/Related.astro";
+
+`drawLine` draws a straight line from one point to another, with smooth antialiased edges.
+Use it for rules, arrows, charts and annotations; for a line with several segments, use [`drawPolygon`](/jimp/methods/draw-polygon/) with `closed: false`.
+
+## Signature
+
+```ts title="draw-line.d.ts"
+image.drawLine(options: {
+  x1: number;
+  y1: number;
+  x2: number;
+  y2: number;
+  color: Paint;
+  width?: number;
+  cap?: "butt" | "round" | "square";
+}): this
+```
+
+`drawLine` draws on the image in place and returns it, so you can chain more calls after it.
+`Paint` is a color or a gradient; see [Colors and gradients](/jimp/concepts/drawing/#colors-and-gradients). The options type is exported from `jimp` as `DrawLineOptions`.
+
+## Options
+
+| Option   | Type                              | Default   | Description                                                                                       |
+| -------- | --------------------------------- | --------- | ------------------------------------------------------------------------------------------------- |
+| `x1`     | `number`                          | required  | The x of the start of the line, in pixels from the left.                                         |
+| `y1`     | `number`                          | required  | The y of the start of the line, in pixels from the top.                                          |
+| `x2`     | `number`                          | required  | The x of the end of the line.                                                                     |
+| `y2`     | `number`                          | required  | The y of the end of the line.                                                                     |
+| `color`  | `Paint`                           | required  | The color of the line: a `0xRRGGBBAA` number, a CSS color, `{ r, g, b, a }` or a gradient.       |
+| `width`  | `number`                          | `1`       | The width of the line in pixels, centered on the line between the two points. Must be `0` or more. |
+| `cap`    | `"butt" \| "round" \| "square"`   | `"butt"`  | How the ends look. `"butt"` stops at the end points, `"round"` adds a half circle and `"square"` adds half the width. |
+
+## Example
+
+```ts title="example.ts"
+import { Jimp } from "jimp";
+
+const image = new Jimp({ width: 200, height: 100, color: "white" });
+
+image
+  .drawLine({ x1: 10, y1: 10, x2: 190, y2: 90, color: "#e63946", width: 4 })
+  .drawLine({ x1: 10, y1: 90, x2: 190, y2: 10, color: 0x1d3557ff, width: 8, cap: "round" });
+
+await image.write("lines.png");
+```
+
+### Crisp 1-pixel lines
+
+A line is centered on the points you give it. Pixel `(x, y)` covers the square from `(x, y)` to `(x + 1, y + 1)`, so a 1-pixel line along `y: 50` covers half of row 49 and half of row 50, and both come out half-strength gray.
+Add `0.5` to put the line through the middle of a row and cover it fully:
+
+```ts title="example.ts"
+// Two gray rows
+image.drawLine({ x1: 0, y1: 50, x2: 200, y2: 50, color: "black" });
+
+// One black row
+image.drawLine({ x1: 0, y1: 50.5, x2: 200, y2: 50.5, color: "black" });
+```
+
+The same goes for any odd width. Even widths, such as `2`, are crisp on whole-pixel coordinates.
+
+### A gradient line
+
+`color` can be a gradient. Its coordinates are in image pixels, so give it the same start and end as the line to run from one end to the other:
+
+```ts title="example.ts"
+image.drawLine({
+  x1: 20,
+  y1: 50,
+  x2: 180,
+  y2: 50,
+  width: 12,
+  cap: "round",
+  color: {
+    type: "linear",
+    x1: 20,
+    y1: 50,
+    x2: 180,
+    y2: 50,
+    stops: [
+      { offset: 0, color: "#ff4b4b" },
+      { offset: 1, color: "#3a7bff" },
+    ],
+  },
+});
+```
+
+## Try it
+
+Pick each end of the line on the image, then change the width, cap and color.
+
+<Playground method="drawLine" client:visible />
+
+## Notes
+
+- **Drawn over the image.** The line is blended over the pixels below it with the same source-over maths as [`composite`](/jimp/methods/composite/), so a semi-transparent color, or the antialiased edge of the line, lets the image show through. See [Compositing](/jimp/concepts/drawing/#compositing).
+- **Clipped to the image.** Points can be anywhere, including outside the image or at fractional coordinates. Only the part of the line inside the image is drawn, and nothing throws.
+- **Zero length.** A line whose two points are the same draws a dot with `cap: "round"` or `"square"`, and nothing with `"butt"`, as in SVG. A `width` of `0` draws nothing.
+- **Validation.** Every coordinate must be a finite number: `NaN` or `Infinity` throws a `ZodError` naming the option, such as `x1`. A negative `width` throws a `ZodError` too. A `color` string that isn't a CSS color throws `Invalid color "notacolor"` (with your string in the quotes).
+- **Color spaces.** CSS color strings are sRGB and are converted to the image's color space, so they look the same on a [Display P3](/jimp/guides/color-spaces/) image. Numbers and `{ r, g, b, a }` objects are pixel values and aren't converted.
+- **Added in 2.0.**
+
+## Related
+
+<Related methods={["drawPolygon", "drawPath", "drawRect", "drawEllipse", "composite"]} />

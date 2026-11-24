@@ -226,6 +226,11 @@ await image.write("out.bmp", { bitPP: 1, palette: ["black", "white"] });
 - [`dither`](/jimp/methods/dither/) types `"floyd-steinberg"`, `"atkinson"`, `"bayer4"` and `"bayer8"`, with a palette. `dither()` with no options is unchanged.
 - [`threshold({ max: "otsu" })`](/jimp/methods/threshold/) and [`otsuThreshold`](/jimp/methods/otsu-threshold/) pick the level automatically.
 
+### Drawing
+
+- Vector drawing, from the new default plugin `@jimp/plugin-draw`: [`drawLine`](/jimp/methods/draw-line/), [`drawRect`](/jimp/methods/draw-rect/), [`drawEllipse`](/jimp/methods/draw-ellipse/), [`drawPolygon`](/jimp/methods/draw-polygon/), [`drawPath`](/jimp/methods/draw-path/) (SVG path data) and [`floodFill`](/jimp/methods/flood-fill/). Shapes are antialiased and take colors or linear and radial gradients. See [Drawing](/jimp/concepts/drawing/).
+- The rasterizer behind them is exported from `@jimp/plugin-draw` for plugins that draw their own shapes.
+
 ### Effects
 
 - [`sharpen`](/jimp/methods/sharpen/).

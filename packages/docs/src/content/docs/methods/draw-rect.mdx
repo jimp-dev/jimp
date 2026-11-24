@@ -1,0 +1,137 @@
+---
+title: "drawRect()"
+description: "Draw a filled or outlined rectangle, optionally with rounded corners."
+category: draw
+method: "drawRect"
+plugin: "@jimp/plugin-draw"
+---
+
+import Playground from "../../../components/playground/Playground";
+import Related from "../../../components/Related.astro";
+
+`drawRect` draws a rectangle on the image: filled, outlined or both, with square or rounded corners.
+Use it for backgrounds behind text, highlight boxes, badges and buttons.
+
+## Signature
+
+```ts title="draw-rect.d.ts"
+image.drawRect(options: {
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+  radius?:
+    | number
+    | {
+        topLeft?: number;
+        topRight?: number;
+        bottomRight?: number;
+        bottomLeft?: number;
+      };
+  fill?: Paint;
+  stroke?: Paint;
+  strokeWidth?: number;
+  join?: "miter" | "round" | "bevel";
+  miterLimit?: number;
+}): this
+```
+
+`drawRect` draws on the image in place and returns it, so you can chain more calls after it.
+`Paint` is a color or a gradient; see [Colors and gradients](/jimp/concepts/drawing/#colors-and-gradients). The options type is exported from `jimp` as `DrawRectOptions`.
+
+## Options
+
+| Option        | Type                                   | Default                     | Description                                                                                                    |
+| ------------- | -------------------------------------- | --------------------------- | -------------------------------------------------------------------------------------------------------------- |
+| `x`           | `number`                               | required                    | The x of the left edge, in pixels.                                                                             |
+| `y`           | `number`                               | required                    | The y of the top edge, in pixels.                                                                              |
+| `w`           | `number`                               | required                    | The width. A negative width goes left from `x`.                                                                |
+| `h`           | `number`                               | required                    | The height. A negative height goes up from `y`.                                                                |
+| `radius`      | `number \| object`                     | `0`                         | The corner radius: one number for every corner, or `{ topLeft, topRight, bottomRight, bottomLeft }` (missing corners are `0`). Each must be `0` or more. |
+| `fill`        | `Paint`                                | black, if there's no `stroke` | What to fill the rectangle with: a color or a gradient.                                                       |
+| `stroke`      | `Paint`                                | none                        | What to draw the outline with: a color or a gradient.                                                          |
+| `strokeWidth` | `number`                               | `1`                         | The width of the outline in pixels, centered on the edge. Must be `0` or more.                                 |
+| `join`        | `"miter" \| "round" \| "bevel"`        | `"miter"`                   | How the outline's corners look. Only matters for square corners.                                               |
+| `miterLimit`  | `number`                               | `10`                        | How long a miter corner can be, as a multiple of `strokeWidth`, before it's beveled. Must be `1` or more.      |
+
+## Example
+
+```ts title="example.ts"
+import { Jimp } from "jimp";
+
+const image = new Jimp({ width: 200, height: 100, color: "white" });
+
+image
+  .drawRect({ x: 10, y: 10, w: 80, h: 80, fill: "#a8dadc" })
+  .drawRect({ x: 110, y: 10, w: 80, h: 80, radius: 16, stroke: "#1d3557", strokeWidth: 4 });
+
+await image.write("rects.png");
+```
+
+### Fill and outline
+
+Give both `fill` and `stroke` to draw a filled rectangle with an outline. The fill is drawn first and the outline on top, as in SVG:
+
+```ts title="example.ts"
+image.drawRect({
+  x: 20,
+  y: 20,
+  w: 160,
+  h: 60,
+  radius: 12,
+  fill: "#ffd83a",
+  stroke: "#1b1840",
+  strokeWidth: 4,
+});
+```
+
+### A label behind text
+
+Draw a semi-transparent box, then [`print`](/jimp/methods/print/) on top of it:
+
+```ts title="example.ts"
+import { Jimp, loadFont } from "jimp";
+import { SANS_32_WHITE } from "jimp/fonts";
+
+const image = await Jimp.read("photo.jpg");
+const font = await loadFont(SANS_32_WHITE);
+
+image
+  .drawRect({ x: 16, y: 16, w: 220, h: 52, radius: 8, fill: "rgba(0, 0, 0, 0.6)" })
+  .print({ font, x: 28, y: 26, text: "Hello there" });
+```
+
+### Different corners
+
+Pass an object to round only some corners. Corners you leave out stay square:
+
+```ts title="example.ts"
+image.drawRect({
+  x: 20,
+  y: 20,
+  w: 160,
+  h: 60,
+  radius: { topLeft: 24, bottomRight: 24 },
+  fill: "#ff9ccf",
+});
+```
+
+## Try it
+
+Drag on the image to place the rectangle, then change the radius, the style and the colors. Turn on **gradient fill** to fill it with a linear gradient.
+
+<Playground method="drawRect" client:visible />
+
+## Notes
+
+- **Crisp edges on whole pixels.** A rectangle whose edges fall on whole-pixel coordinates fills every pixel it covers completely, with no antialiased fringe. Edges at fractional coordinates are blended by how much of each pixel they cover: `x: 10.5` makes column 10 half-strength.
+- **The outline straddles the edge.** Like SVG and canvas, half of `strokeWidth` is inside the rectangle and half outside, so `{ x: 10, w: 80, strokeWidth: 4 }` covers `x` from 8 to 92. To keep the outline inside a box, inset the rectangle by half the stroke width.
+- **No paint means black.** With neither `fill` nor `stroke`, the rectangle is filled black. With only `stroke`, it isn't filled.
+- **Radii are scaled to fit**, the way CSS `border-radius` does: when two corners on one side add up to more than that side, every radius is scaled down by the same factor. A radius of half the height or more makes a pill.
+- **Clipped to the image.** The rectangle can be partly or entirely outside the image. Only the part inside is drawn, and nothing throws.
+- **Validation.** Coordinates and sizes must be finite numbers: `NaN` or `Infinity` throws a `ZodError` naming the option. Negative radii, stroke widths and a `miterLimit` below `1` throw a `ZodError` too. An invalid CSS color throws `Invalid color "notacolor"` before anything is drawn, even when only the stroke is invalid.
+- **Added in 2.0.**
+
+## Related
+
+<Related methods={["drawEllipse", "drawPolygon", "drawLine", "roundCorners", "border", "print"]} />
