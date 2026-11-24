@@ -44,6 +44,16 @@ export interface AvifFormatOptions {
   wasm?: AvifWasm;
 }
 
+/**
+ * @jsquash/avif 2 (libavif 1) takes a quality from 0 (worst) to 100
+ * (lossless) instead of a quantizer from 0 (best) to 63. Convert the quantizer
+ * so cqLevel and cqAlphaLevel keep their meaning: libavif turns the quality
+ * back into the same quantizer.
+ */
+function quantizerToQuality(quantizer: number) {
+  return Math.round(((63 - Math.min(Math.max(quantizer, 0), 63)) * 100) / 63);
+}
+
 let decoderReady: Promise<unknown> | undefined;
 let encoderReady: Promise<unknown> | undefined;
 
@@ -89,8 +99,8 @@ export default function avif({ wasm }: AvifFormatOptions = {}) {
         },
         {
           chromaDeltaQ,
-          cqAlphaLevel,
-          cqLevel,
+          quality: quantizerToQuality(cqLevel),
+          qualityAlpha: quantizerToQuality(cqAlphaLevel),
           denoiseLevel,
           sharpness,
           speed,
@@ -106,6 +116,10 @@ export default function avif({ wasm }: AvifFormatOptions = {}) {
     decode: async (data) => {
       await initDecoderOnce(wasm?.decoder);
       const result = await decode(new Uint8Array(data).buffer);
+
+      if (!result) {
+        throw new Error("Could not decode the AVIF image");
+      }
 
       return {
         data: Buffer.from(new Uint8Array(result.data.buffer, result.data.byteOffset, result.data.byteLength)),
