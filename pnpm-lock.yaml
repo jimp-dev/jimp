@@ -677,6 +677,9 @@ importers:
       '@types/node':
         specifier: ^22.20.5
         version: 22.20.5
+      '@types/pngjs':
+        specifier: ^6.0.5
+        version: 6.0.5
       '@vitest/browser':
         specifier: ^5.1.1
         version: 5.1.1(vite@8.3.8(@types/node@22.20.5)(esbuild@0.28.2)(terser@5.51.4)(yaml@2.9.1))(vitest@5.1.1)

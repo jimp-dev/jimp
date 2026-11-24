@@ -51,7 +51,9 @@ const mutations: Record<string, Mutation> = {
     const copy = data.slice();
 
     for (let i = 0, n = 1 + randomInt(rand, 8); i < n; i++) {
-      copy[randomInt(rand, copy.length)] ^= 1 << randomInt(rand, 8);
+      const at = randomInt(rand, copy.length);
+
+      copy[at] = copy[at]! ^ (1 << randomInt(rand, 8));
     }
 
     return copy;

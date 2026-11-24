@@ -2,7 +2,7 @@ import { describe, expect, test } from "vitest";
 
 import { gradient, readChunks } from "../test/helpers.js";
 import { ColorType, FilterType, decode, encode, readHeader } from "./index.js";
-import type { BitDepth } from "./index.js";
+import type { BitDepth, ImageData } from "./index.js";
 
 function header(png: Uint8Array) {
   const { colorType, depth, interlace } = readHeader(png);
@@ -11,11 +11,7 @@ function header(png: Uint8Array) {
 }
 
 /** An image whose pixels are all taken from `colors` */
-function fromColors(
-  colors: number[][],
-  width = 16,
-  height = 16,
-): { width: number; height: number; data: Uint8Array } {
+function fromColors(colors: number[][], width = 16, height = 16): ImageData {
   const data = new Uint8Array(width * height * 4);
 
   for (let p = 0; p < width * height; p++) {
@@ -128,7 +124,7 @@ describe("choosing the format", () => {
 describe("round trips", () => {
   const image = gradient(37, 19);
   const opaqueGray = fromColors(grays([0, 17, 85, 255]), 37, 19);
-  const cases: [string, ColorType, BitDepth, typeof image][] = [
+  const cases: [string, ColorType, BitDepth, ImageData][] = [
     ["gray 1", ColorType.GRAYSCALE, 1, fromColors(grays([0, 255]), 37, 19)],
     ["gray 2", ColorType.GRAYSCALE, 2, fromColors(grays([0, 85, 255]), 37, 19)],
     ["gray 4", ColorType.GRAYSCALE, 4, opaqueGray],

@@ -1,6 +1,8 @@
 export { decode, readHeader } from "./decode.js";
 export type { PngInput } from "./decode.js";
 export { encode } from "./encode.js";
+export { decodeFrames } from "./apng.js";
+export type { DecodeFramesOptions, DecodedFrames, PngFrame } from "./apng.js";
 export { adjustGamma } from "./gamma.js";
 export type { GammaImage } from "./gamma.js";
 export { ColorType, FilterType } from "./constants.js";

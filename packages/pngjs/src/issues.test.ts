@@ -65,7 +65,7 @@ describe("decoding", () => {
     const compressed = deflate(raw, { level: 9 }).slice();
 
     // Break the checksum at the end of the zlib stream
-    compressed[compressed.length - 1] ^= 0xff;
+    compressed[compressed.length - 1] = compressed.at(-1)! ^ 0xff;
 
     const png = buildPng(ihdr(8, 8), makeChunk("IDAT", compressed), iend());
 
@@ -150,7 +150,7 @@ describe("decoding", () => {
   test("a CRC error in a metadata chunk skips the chunk", () => {
     const text = makeChunk("tEXt", new TextEncoder().encode("Title\0Hello"));
 
-    text[text.length - 1] ^= 1;
+    text[text.length - 1] = text.at(-1)! ^ 1;
 
     const png = encode(gradient(2, 2));
     const broken = concat(png.subarray(0, 33), text, png.subarray(33));
@@ -163,7 +163,7 @@ describe("decoding", () => {
     const png = encode(gradient(2, 2)).slice();
 
     // The last byte of IHDR's CRC
-    png[32] ^= 1;
+    png[32] = png[32]! ^ 1;
 
     expect(catchError(() => decode(png)).message).toBe(
       "CRC error in IHDR chunk",

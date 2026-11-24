@@ -74,9 +74,9 @@ export function testPngSuite() {
       expected,
     );
     expect([...PNG.sync.read(PNG.sync.write(image)).data]).toEqual(expected);
-    expect([
-      ...decode(encode(image16), { outputDepth: 16 }).data,
-    ]).toEqual([...image16.data]);
+    expect([...decode(encode(image16), { outputDepth: 16 }).data]).toEqual([
+      ...image16.data,
+    ]);
   });
 
   test.each(corruptImages)("rejects %s with an Error", (name) => {
