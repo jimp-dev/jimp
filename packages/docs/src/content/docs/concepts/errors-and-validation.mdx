@@ -152,7 +152,7 @@ new Jimp({ width: 100, height: 100, color: "color(display-p3 foo 0 0)" });
 ```
 
 The same goes for [`cssColorToHex`](/jimp/methods/css-color-to-hex/).
-**Changed in 2.0:** invalid color strings used to become opaque black without an error.
+**Changed in 2.0:** `new Jimp({ color })` and `cssColorToHex` used to turn an invalid color string into opaque black without an error. The other options above didn't take CSS color strings before 2.0.
 
 ## Regions and coordinates
 
