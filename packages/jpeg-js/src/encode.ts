@@ -1,5 +1,7 @@
 import { toBytes, type JpegData } from "./decode.js";
-import { encodeBaseline } from "./encoder/encoder.js";
+import { type ChromaSubsampling, encodeImage } from "./encoder/encoder.js";
+
+export type { ChromaSubsampling };
 
 export interface RawImageData<T = JpegData> {
   width: number;
@@ -18,6 +20,29 @@ export interface EncodeJpegOptions {
    * @default 75
    */
   quality?: number;
+  /**
+   * How much to reduce the resolution of the colour (chroma) channels, which
+   * the eye is less sensitive to: not at all (4:4:4), by half horizontally
+   * (4:2:2) or by half both ways (4:2:0). By default 4:2:0 below quality 90
+   * and 4:4:4 from 90, like sharp. Greyscale images have no chroma.
+   */
+  chromaSubsampling?: ChromaSubsampling;
+  /**
+   * Build Huffman tables for the image instead of using the example tables
+   * of the JPEG standard, like libjpeg's `optimize_coding`. The file is
+   * usually 5-15% smaller with the same pixels, but the image is transformed
+   * before it's written, which takes more memory.
+   * @default true
+   */
+  optimizeHuffman?: boolean;
+  /**
+   * Write a progressive JPEG, which browsers show at a low quality first and
+   * refine as it downloads, with libjpeg's default scans. It's usually a few
+   * percent smaller too, but takes more memory and time to encode and
+   * decode. Its Huffman tables are always optimized.
+   * @default false
+   */
+  progressive?: boolean;
   /** Text to write in COM segments, one per string. */
   comments?: string[];
   /**
@@ -86,11 +111,24 @@ export function encodeJpeg(
     );
   }
 
-  return encodeBaseline(
+  // Like jpeg-js, clamp to 1..100
+  const clamped = Math.min(Math.max(Math.round(quality), 1), 100);
+  const subsampling =
+    options.chromaSubsampling ?? (clamped >= 90 ? "4:4:4" : "4:2:0");
+
+  if (!["4:4:4", "4:2:2", "4:2:0"].includes(subsampling)) {
+    throw new RangeError(
+      `Expected chromaSubsampling to be "4:4:4", "4:2:2" or "4:2:0", got ${String(subsampling)}`,
+    );
+  }
+
+  return encodeImage(
     { width, height, data, channels: channelCount(width, height, data.length) },
     {
-      // Like jpeg-js, clamp to 1..100
-      quality: Math.min(Math.max(Math.round(quality), 1), 100),
+      quality: clamped,
+      subsampling,
+      optimizeHuffman: options.optimizeHuffman ?? true,
+      progressive: options.progressive ?? false,
       comments: options.comments,
       exif:
         options.exif === undefined

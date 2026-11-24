@@ -17,6 +17,10 @@ full text of each license.
                    BSD 3-Clause License, Adobe Systems (section 3). The
                    JPGEncoder of as3corelib, ported to JavaScript by Andreas
                    Ritter.
+  src/encoder/huffman.ts, src/encoder/progressive.ts
+                   Independent JPEG Group License (section 4, README.ijg).
+                   Ports of libjpeg-turbo's optimal Huffman tables and
+                   progressive encoding.
   everything else  BSD 3-Clause License, Eugene Ware (section 1). The jpeg-js
                    API, tests and packaging.
 

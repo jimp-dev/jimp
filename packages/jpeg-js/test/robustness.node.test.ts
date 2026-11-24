@@ -444,7 +444,9 @@ describe("fuzzing", () => {
     switch (next(6)) {
       case 0: // Flip bits anywhere
         for (let i = 0; i < count; i++) {
-          out[next(out.length)] ^= 1 << next(8);
+          const at = next(out.length);
+
+          out[at] = out[at]! ^ (1 << next(8));
         }
 
         break;
