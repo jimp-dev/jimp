@@ -62,6 +62,7 @@
     "@jimp/plugin-quantize": "workspace:*",
     "@jimp/plugin-resize": "workspace:*",
     "@jimp/plugin-rotate": "workspace:*",
+    "@jimp/plugin-text": "workspace:*",
     "@jimp/plugin-threshold": "workspace:*",
     "@jimp/types": "workspace:*",
     "@jimp/utils": "workspace:*"
@@ -108,7 +109,8 @@
     "exports": {
       "./package.json": "./package.json",
       ".": "./src/index.ts",
-      "./fonts": "./src/fonts.ts"
+      "./fonts": "./src/fonts.ts",
+      "./load-ttf": "./src/load-ttf.ts"
     }
   },
   "exports": {
@@ -140,6 +142,20 @@
         "types": "./dist/commonjs/fonts.d.ts",
         "default": "./dist/commonjs/fonts.js"
       }
+    },
+    "./load-ttf": {
+      "browser": {
+        "types": "./dist/browser/load-ttf.d.ts",
+        "default": "./dist/browser/load-ttf.js"
+      },
+      "import": {
+        "types": "./dist/esm/load-ttf.d.ts",
+        "default": "./dist/esm/load-ttf.js"
+      },
+      "require": {
+        "types": "./dist/commonjs/load-ttf.d.ts",
+        "default": "./dist/commonjs/load-ttf.js"
+      }
     }
   },
   "main": "./dist/commonjs/index.js",
@@ -148,6 +164,9 @@
     "*": {
       "fonts": [
         "./dist/commonjs/fonts.d.ts"
+      ],
+      "load-ttf": [
+        "./dist/commonjs/load-ttf.d.ts"
       ]
     }
   },

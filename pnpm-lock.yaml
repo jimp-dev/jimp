@@ -554,6 +554,9 @@ importers:
       '@jimp/plugin-rotate':
         specifier: workspace:*
         version: link:../../plugins/plugin-rotate
+      '@jimp/plugin-text':
+        specifier: workspace:*
+        version: link:../../plugins/plugin-text
       '@jimp/plugin-threshold':
         specifier: workspace:*
         version: link:../../plugins/plugin-threshold
@@ -2148,6 +2151,61 @@ importers:
       '@jimp/test-utils':
         specifier: workspace:*
         version: link:../../packages/test-utils
+      '@vitest/browser':
+        specifier: ^4.1.12
+        version: 4.1.12(vite@8.3.8(@types/node@22.20.5)(esbuild@0.28.2)(terser@5.51.4)(yaml@2.5.0))(vitest@4.1.12)
+      eslint:
+        specifier: ^9.9.1
+        version: 9.9.1(supports-color@7.2.0)
+      tshy:
+        specifier: ^3.0.2
+        version: 3.0.2
+      typescript:
+        specifier: ^5.5.4
+        version: 5.5.4
+      vite-plugin-node-polyfills:
+        specifier: ^0.28.0
+        version: 0.28.0(rollup@4.68.8)(vite@8.3.8(@types/node@22.20.5)(esbuild@0.28.2)(terser@5.51.4)(yaml@2.5.0))
+      vitest:
+        specifier: ^4.1.12
+        version: 4.1.12(@types/node@22.20.5)(@vitest/browser-playwright@4.1.12)(vite@8.3.8(@types/node@22.20.5)(esbuild@0.28.2)(terser@5.51.4)(yaml@2.5.0))
+
+  plugins/plugin-text:
+    dependencies:
+      '@jimp/core':
+        specifier: workspace:*
+        version: link:../../packages/core
+      '@jimp/plugin-draw':
+        specifier: workspace:*
+        version: link:../plugin-draw
+      '@jimp/types':
+        specifier: workspace:*
+        version: link:../../packages/types
+      opentype.js:
+        specifier: ^2.0.0
+        version: 2.0.0
+      zod:
+        specifier: ^4.6.7
+        version: 4.6.7
+    devDependencies:
+      '@jimp/config-eslint':
+        specifier: workspace:*
+        version: link:../../packages/config-eslint
+      '@jimp/config-typescript':
+        specifier: workspace:*
+        version: link:../../packages/config-typescript
+      '@jimp/config-vitest':
+        specifier: workspace:*
+        version: link:../../packages/config-vitest
+      '@jimp/js-png':
+        specifier: workspace:*
+        version: link:../js-png
+      '@jimp/test-utils':
+        specifier: workspace:*
+        version: link:../../packages/test-utils
+      '@types/node':
+        specifier: ^22.20.5
+        version: 22.20.5
       '@vitest/browser':
         specifier: ^4.1.12
         version: 4.1.12(vite@8.3.8(@types/node@22.20.5)(esbuild@0.28.2)(terser@5.51.4)(yaml@2.5.0))(vitest@4.1.12)
@@ -7043,6 +7101,10 @@ packages:
   onetime@7.0.0:
     resolution: {integrity: sha512-VXJjc87FScF88uafS3JllDgvAm+c/Slfz06lorj2uAY34rlUu0Nt+v8wreiImcrgAjjIHp1rXpTDlLOGw29WwQ==}
     engines: {node: '>=18'}
+
+  opentype.js@2.0.0:
+    resolution: {integrity: sha512-kCyjv6xdDY1W/jLWZ/L3QhhTlKUqDZMQ5+Jdlw12b3dXkKNpYBqqlMMj0YDQPShWFTMwgZI1hG14kN3XUDSg/A==}
+    hasBin: true
 
   optionator@0.9.3:
     resolution: {integrity: sha512-JjCoypp+jKn1ttEFExxhetCKeJt9zhAgAve5FXHixTvFDW/5aEktX9bufBKLRRMdU7bNtpLfcGu94B3cdEJgjg==}
@@ -14032,6 +14094,8 @@ snapshots:
   onetime@7.0.0:
     dependencies:
       mimic-function: 5.0.1
+
+  opentype.js@2.0.0: {}
 
   optionator@0.9.3:
     dependencies:

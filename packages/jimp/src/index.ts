@@ -30,6 +30,7 @@ import * as morphology from "@jimp/plugin-morphology";
 import * as print from "@jimp/plugin-print";
 import * as resize from "@jimp/plugin-resize";
 import * as rotate from "@jimp/plugin-rotate";
+import * as text from "@jimp/plugin-text";
 import * as threshold from "@jimp/plugin-threshold";
 import * as quantize from "@jimp/plugin-quantize";
 
@@ -55,6 +56,7 @@ export const defaultPlugins = [
   print.methods,
   resize.methods,
   rotate.methods,
+  text.methods,
   threshold.methods,
   quantize.methods,
 ];
@@ -230,6 +232,13 @@ export { Edge } from "@jimp/types";
 export type { Bitmap, RGBAColor, RGBColor } from "@jimp/types";
 export { loadFont } from "@jimp/plugin-print/load-font";
 export { measureText, measureTextHeight } from "@jimp/plugin-print";
+// loadTTF is in "jimp/load-ttf", so the font parser is only bundled when it's used
+export { measureVectorText } from "@jimp/plugin-text";
+export type {
+  PrintTextOptions,
+  TextLayoutOptions,
+  VectorFont,
+} from "@jimp/plugin-text";
 export { diff } from "@jimp/diff";
 export type { DiffOptions, DiffColor } from "@jimp/diff";
 export {

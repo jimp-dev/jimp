@@ -5,11 +5,18 @@ import * as resize from "@jimp/plugin-resize";
 import png from "@jimp/js-png";
 import jpeg from "@jimp/js-jpeg";
 import type { BmFont } from "@jimp/plugin-print";
-import { Jimp, JimpInstance, RawImageData, ResizeStrategy } from "./index.js";
+import {
+  Jimp,
+  JimpInstance,
+  RawImageData,
+  ResizeStrategy,
+  type VectorFont,
+} from "./index.js";
 
 declare const buffer: Buffer;
 declare const image: JimpInstance;
 declare const font: BmFont<JimpInstance>;
+declare const vectorFont: VectorFont;
 
 describe("one instance type (#1337, #1364)", () => {
   test("constructor, readers, clone and chained methods are interchangeable", async () => {
@@ -175,6 +182,21 @@ describe("chainable methods return the instance type", () => {
       open: image.open({ radius: 1 }),
       close: image.close({ radius: 1, shape: "square" }),
       print: image.print({ font, x: 0, y: 0, text: "hi" }),
+      printText: image.printText({
+        font: vectorFont,
+        size: 12,
+        x: 0,
+        y: 0,
+        text: "hi",
+        color: "red",
+        stroke: {
+          type: "radial",
+          cx: 0,
+          cy: 0,
+          r: 1,
+          stops: [{ offset: 0, color: 0 }],
+        },
+      }),
       resize: image.resize({ w: 1, mode: ResizeStrategy.BILINEAR }),
       scale: image.scale(2),
       scaleToFit: image.scaleToFit({ w: 1, h: 1 }),
