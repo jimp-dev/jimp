@@ -867,9 +867,6 @@ importers:
       buffer:
         specifier: ^6.0.3
         version: 6.0.3
-      omggif:
-        specifier: ^1.0.10
-        version: 1.0.10
     devDependencies:
       '@jimp/config-eslint':
         specifier: workspace:*
@@ -886,9 +883,6 @@ importers:
       '@types/node':
         specifier: ^22.20.5
         version: 22.20.5
-      '@types/omggif':
-        specifier: ^1.0.5
-        version: 1.0.5
       '@vitest/browser':
         specifier: ^5.1.1
         version: 5.1.1(vite@8.3.8(@types/node@22.20.5)(esbuild@0.28.2)(terser@5.51.4)(yaml@2.9.1))(vitest@5.1.1)
@@ -4896,9 +4890,6 @@ packages:
   '@types/node@22.20.5':
     resolution: {integrity: sha512-U2+DNr+wSjpsTS/wZGYHq7GcwfuSmKiKvoPvK22zwTlRhU91yOniN4qRR5KhIjvif7ysw/dz/hKmfDH0Ris4aA==}
 
-  '@types/omggif@1.0.5':
-    resolution: {integrity: sha512-gDQJflz1rOgEcUXkMAl80bDGN46f5mp8GbcM5dyvq+zsFV6YRBRtmNxlJJ5mjY77T7BRkRFzdIBVmK90QYhCxA==}
-
   '@types/parse-json@4.0.2':
     resolution: {integrity: sha512-dISoDXWWQwUquiKsyZ4Ng+HX2KsPL7LyHKHQwgGFEA3IaKac4Obd+h2a/a6waisAoepJlBcx9paWqjA8/HVjCw==}
 
@@ -7219,9 +7210,6 @@ packages:
 
   ofetch@1.5.1:
     resolution: {integrity: sha512-2W4oUZlVaqAPAil6FUg/difl6YhqhUR7x2eZY4bQCko22UXg3hptq9KLQdqFClV+Wu85UX7hNtdGTngi/1BxcA==}
-
-  omggif@1.0.10:
-    resolution: {integrity: sha512-LMJTtvgc/nugXj0Vcrrs68Mn2D1r0zf630VNtqtpI1FEO7e+O9FP4gqs9AcnBaSEeoHIPm28u6qgPR0oyEpGSw==}
 
   once@1.4.0:
     resolution: {integrity: sha512-lNaJgI+2Q5URQBkccEKHTQOPaXdUxnZZElQTZY0MFUAuaEqe1E+Nyvgdz/aIyNi6Z9MzO5dv1H8n58/GELp3+w==}
@@ -11061,8 +11049,6 @@ snapshots:
     dependencies:
       undici-types: 6.21.0
 
-  '@types/omggif@1.0.5': {}
-
   '@types/parse-json@4.0.2': {}
 
   '@types/pixelmatch@5.2.6':
@@ -13778,8 +13764,6 @@ snapshots:
       destr: 2.0.5
       node-fetch-native: 1.6.7
       ufo: 1.6.4
-
-  omggif@1.0.10: {}
 
   once@1.4.0:
     dependencies:

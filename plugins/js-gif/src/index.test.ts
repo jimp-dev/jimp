@@ -217,16 +217,19 @@ describe("GIF", () => {
     );
   });
 
-  test("rejects a frame whose dimensions don't fit its data", async () => {
-    const crafted = createGif({
-      width: 5000,
-      height: 5000,
-      frame: { width: 5000, height: 5000, lzw: ONE_PIXEL_LZW },
-    });
-
-    await expect(jimp.read(crafted)).rejects.toThrow(
-      "GIF data is too short for a frame of 5000x5000"
+  test("draws what a frame's data holds when it's too short for the frame", async () => {
+    // Like browsers, the rest of the frame isn't drawn. Only as many indexes
+    // as the data can hold are allocated, not 4000x4000.
+    const image = await jimp.read(
+      createGif({
+        width: 4000,
+        height: 4000,
+        frame: { width: 4000, height: 4000, lzw: ONE_PIXEL_LZW },
+      })
     );
+
+    expect(image.getPixelColor(0, 0)).toBe(0xff0000ff);
+    expect(image.getPixelColor(1, 0)).toBe(0);
   });
 
   test("maxResolutionInMP can be configured", async () => {
@@ -250,15 +253,33 @@ describe("GIF", () => {
   test.each([
     [0, 10],
     [10, 0],
-  ])("rejects a GIF with dimensions %ix%i", async (width, height) => {
+  ])(
+    "grows a %ix%i logical screen to fit the first frame, like browsers",
+    async (width, height) => {
+      const image = await jimp.read(
+        createGif({
+          width,
+          height,
+          frame: { width: 1, height: 1, lzw: ONE_PIXEL_LZW },
+        })
+      );
+
+      expect([image.width, image.height]).toEqual([
+        Math.max(width, 1),
+        Math.max(height, 1),
+      ]);
+    }
+  );
+
+  test("rejects a GIF whose image is empty", async () => {
     const crafted = createGif({
-      width,
-      height,
-      frame: { width: 1, height: 1, lzw: ONE_PIXEL_LZW },
+      width: 0,
+      height: 0,
+      frame: { width: 0, height: 0, lzw: ONE_PIXEL_LZW },
     });
 
     await expect(jimp.read(crafted)).rejects.toThrow(
-      `Invalid GIF dimensions ${width}x${height}`
+      "Invalid GIF dimensions 0x0"
     );
   });
 

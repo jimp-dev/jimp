@@ -24,7 +24,6 @@
     "@jimp/config-vitest": "workspace:*",
     "@jimp/test-utils": "workspace:*",
     "@types/node": "^22.20.5",
-    "@types/omggif": "^1.0.5",
     "@vitest/browser": "^5.1.1",
     "eslint": "^10.15.0",
     "tshy": "~4.0.0",
@@ -60,8 +59,7 @@
   "dependencies": {
     "@jimp/core": "workspace:*",
     "@jimp/types": "workspace:*",
-    "buffer": "^6.0.3",
-    "omggif": "^1.0.10"
+    "buffer": "^6.0.3"
   },
   "publishConfig": {
     "access": "public"

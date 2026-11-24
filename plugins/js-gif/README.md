@@ -23,7 +23,9 @@ await Jimp.writeFrames("grey.gif", frames, { loop });
 
 ## Reading
 
-Each frame is the full image shown at that point of the animation. Frames that only cover part of the image are drawn over the previous ones, following their disposal method: frames disposed to the background are cleared to transparent, as browsers do, and parts of frames outside the image are clipped.
+Each frame is the full image shown at that point of the animation, decoded the way browsers show it. Frames that only cover part of the image are drawn over the previous ones, following their disposal method: frames disposed to the background are cleared to transparent, as browsers do. If the first frame is larger than the GIF's logical screen, the image grows to fit it, like in browsers; parts of later frames outside the image are clipped.
+
+Damaged files decode as far as they can, like in browsers: a file cut off part-way through a frame keeps the pixels decoded so far, and so does a frame with corrupt pixel data. A file that ends before any frame's pixel data throws an error.
 
 - `delay` is how long the frame is shown, in milliseconds. GIFs store hundredths of a second, so it's a multiple of 10. Browsers show frames with a delay of 0 or 10ms for 100ms.
 - `loop` is how many times the animation repeats after it first plays: 0 for forever, or `null` for a GIF without a loop count, which plays once.
@@ -39,3 +41,7 @@ Every frame must be the same size. Each frame gets its own palette of up to 256 
 Options for `encodeFrames` and `writeFrames`:
 
 - `loop` (default 0): how many times the animation repeats after it first plays, from 0 to 65535. 0 repeats forever, `null` writes no loop count, so the animation plays once.
+
+## Credits
+
+Jimp read GIFs with [omggif](https://github.com/deanm/omggif) (MIT, © 2013 Dean McNamee) before it had its own decoder, and the encoder writes the same bytes as omggif's `GifWriter`. The decoder is tested against GIFs from libnsgif, image-rs/image-gif, giflib, Skia and Chromium, compared with how Chromium and Firefox show them: see [the conformance corpus](https://github.com/jimp-dev/jimp/tree/main/plugins/js-gif/test/corpus).

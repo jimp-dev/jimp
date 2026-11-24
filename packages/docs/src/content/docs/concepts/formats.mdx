@@ -62,11 +62,12 @@ Lossy and small, for photos. No transparency.
 
 Up to 256 colors, and animation.
 
-- **Decoder:** [omggif](https://www.npmjs.com/package/omggif). `Jimp.read` reads the first frame of an animated GIF; [`Jimp.readFrames`](/jimp/methods/read-frames/) reads them all.
+- **Decoder:** Jimp's own, which draws frames the way browsers do. `Jimp.read` reads the first frame of an animated GIF; [`Jimp.readFrames`](/jimp/methods/read-frames/) reads them all.
 - **Encoder:** Jimp's own. `getBuffer` and `write` write a single frame; [`Jimp.encodeFrames`](/jimp/methods/encode-frames/) and [`Jimp.writeFrames`](/jimp/methods/write-frames/) write an animation. Images with 256 colors or fewer get an exact palette; others are reduced to 256 colors with Wu's quantization algorithm, without dithering. For control over the palette, call [`quantize`](/jimp/methods/quantize/) or [`dither`](/jimp/methods/dither/) first.
 - **Transparency:** pixels with an alpha of `0` become transparent. Every other pixel is written as opaque.
 - **Encode options:** none. Width and height can be at most 65,535. For animations, `loop`.
 - **Decode options:** `maxResolutionInMP` (default `100`). With `readFrames` it limits all frames together.
+- **Damaged files:** a file cut off part-way through a frame keeps the pixels decoded so far, as browsers show it, and so does a frame with corrupt pixel data. Bytes after the end of the file are ignored.
 
 ### BMP
 
