@@ -59,6 +59,19 @@ Build a chain step by step here, then try a different order:
   steps={[{ op: "greyscale" }, { op: "pixelate" }]}
 />
 
+### Edits as data
+
+[`apply`](/jimp/methods/apply/) runs the same kind of chain from a list, so edits can be stored as JSON or sent to a server or worker:
+
+```ts title="example.ts"
+image.apply([
+  ["resize", { w: 600 }],
+  ["crop", { x: 0, y: 0, w: 600, h: 400 }],
+  ["greyscale"],
+  ["contrast", 0.2],
+]);
+```
+
 ## Keeping the original with `clone`
 
 When you need the image before and after a change, call [`clone`](/jimp/methods/clone/) first and edit the copy:
@@ -196,4 +209,4 @@ See [Migrate to v1](/jimp/guides/migrate-to-v1/) for the full list.
 
 - [Reading and writing](/jimp/concepts/reading-and-writing/)
 - [Errors and validation](/jimp/concepts/errors-and-validation/): what happens when a call fails
-- Methods: [`clone`](/jimp/methods/clone/), [`Jimp.read`](/jimp/methods/read/), [`getBuffer`](/jimp/methods/get-buffer/), [`write`](/jimp/methods/write/)
+- Methods: [`clone`](/jimp/methods/clone/), [`apply`](/jimp/methods/apply/), [`Jimp.read`](/jimp/methods/read/), [`getBuffer`](/jimp/methods/get-buffer/), [`write`](/jimp/methods/write/)
