@@ -51,12 +51,12 @@ Lossless, with full transparency. The best default for anything that isn't a pho
 
 Lossy and small, for photos. No transparency.
 
-- **Encoder and decoder:** [jpeg-js](https://www.npmjs.com/package/jpeg-js).
-- **Encode options:** `quality`, from `1` to `100`, default `100`; `exif`, default `false`, which writes back the EXIF data of the JPEG the image was read from; and `icc`, default `true`. See [JPEG options](/jimp/methods/get-buffer/#jpeg).
-- **Decode options:** `maxResolutionInMP` (default `100`), `maxMemoryUsageInMB` (default `512`), `tolerantDecoding` and `colorTransform`. See [Reading Large Images](/jimp/guides/reading-large-images/#jpeg-imagejpeg).
+- **Encoder and decoder:** [@jimp/jpeg-js](https://www.npmjs.com/package/@jimp/jpeg-js), Jimp's maintained fork of jpeg-js. Decoded pixels match libjpeg-turbo, which most browsers and image tools use, exactly.
+- **Encode options:** `quality`, from `1` to `100`, default `100`; `chromaSubsampling`, which halves the color resolution (`"4:2:0"`) below quality 90 by default; `progressive`, default `false`; `exif`, default `false`, which writes back the EXIF data of the JPEG the image was read from; and `icc`, default `true`. Huffman tables are always optimized for the image. See [JPEG options](/jimp/methods/get-buffer/#jpeg).
+- **Decode options:** `maxResolutionInMP` (default `100`), `maxMemoryUsageInMB` (default `512`), `tolerantDecoding`, `allowTruncated` and `colorTransform`. See [Reading Large Images](/jimp/guides/reading-large-images/#jpeg-imagejpeg).
 - **EXIF:** on read, Jimp parses the EXIF data and rotates the pixels to match the orientation tag, unless you pass `exifRotate: false`. See [EXIF](/jimp/guides/exif/).
 - **Color profiles:** an ICC profile in the `APP2` segments is read on decode and written back on encode.
-- **Damaged files:** files missing the end-of-image marker, or with stray bytes between header segments, are repaired before decoding.
+- **Damaged files:** files missing the end-of-image marker, with stray bytes between header segments, a marker that lost its `0xFF` or a wrong segment length are decoded anyway, and corrupt image data is recovered from like libjpeg does. Files cut off before the end of the image data throw, unless you pass `allowTruncated: true` to decode them with the missing part gray, like browsers show them. Lossless and hierarchical JPEGs, which are rare, aren't supported.
 
 ### GIF
 

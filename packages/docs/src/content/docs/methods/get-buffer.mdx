@@ -98,11 +98,13 @@ The options depend on the format. With TypeScript, the type of `options` follows
 
 Type: [`JPEGOptions`](/jimp/api/jimp/interfaces/jpegoptions/).
 
-| Option    | Type      | Default | Description                                                                                                                                          |
-| --------- | --------- | ------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `quality` | `number`  | `100`   | Compression quality from `1` (smallest file, most artifacts) to `100` (largest, best). Values below `1` count as `1` and values above `100` as `100`. |
-| `exif`    | `boolean` | `false` | Write the EXIF data of the JPEG the image was read from, with the orientation and size updated. See [EXIF](/jimp/guides/exif/#writing-exif-data).    |
-| `icc`     | `boolean` | `true`  | Write the image's ICC profile, such as Display P3. `false` writes sRGB without a profile, converting the colors first. See [Color Spaces](/jimp/guides/color-spaces/#reading-and-writing). |
+| Option              | Type                            | Default                                    | Description                                                                                                                                                                                |
+| ------------------- | ------------------------------- | ------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `quality`           | `number`                        | `100`                                      | Compression quality from `1` (smallest file, most artifacts) to `100` (largest, best). Values below `1` count as `1` and values above `100` as `100`.                                      |
+| `chromaSubsampling` | `"4:4:4" \| "4:2:2" \| "4:2:0"` | `"4:2:0"` below quality 90, else `"4:4:4"` | How much to reduce the resolution of the color channels, which the eye is less sensitive to: not at all, by half horizontally, or by half both ways, which makes photos much smaller.      |
+| `progressive`       | `boolean`                       | `false`                                    | Write a progressive JPEG, which browsers show at a low quality first and refine as it loads. Usually a few percent smaller, but slower to encode and decode.                               |
+| `exif`              | `boolean`                       | `false`                                    | Write the EXIF data of the JPEG the image was read from, with the orientation and size updated. See [EXIF](/jimp/guides/exif/#writing-exif-data).                                          |
+| `icc`               | `boolean`                       | `true`                                     | Write the image's ICC profile, such as Display P3. `false` writes sRGB without a profile, converting the colors first. See [Color Spaces](/jimp/guides/color-spaces/#reading-and-writing). |
 
 ```ts title="example.ts"
 const photo = await Jimp.read("camera.jpg");
@@ -110,6 +112,10 @@ const photo = await Jimp.read("camera.jpg");
 photo.resize({ w: 1600 });
 
 const small = await photo.getBuffer("image/jpeg", { quality: 75, exif: true });
+const forTheWeb = await photo.getBuffer("image/jpeg", {
+  quality: 80,
+  progressive: true,
+});
 ```
 
 <Aside type="note" title="The default quality is 100">

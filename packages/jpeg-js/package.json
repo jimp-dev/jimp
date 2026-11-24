@@ -53,6 +53,7 @@
     "@vitest/browser": "^5.1.1",
     "@vitest/browser-playwright": "^5.1.1",
     "eslint": "^10.15.0",
+    "jpeg-js": "^0.4.4",
     "playwright": "^1.65.1",
     "tshy": "~4.0.0",
     "typescript": "^7.0.2",
