@@ -54,6 +54,7 @@ jobs:
     needs: install
     steps:
       - uses: actions/checkout@v3
+      - uses: ./.github/actions/lfs-pull
       - uses: ./.github/actions/install-deps
       - uses: ./.github/actions/turbo-cache
       - run: pnpm test
@@ -64,6 +65,7 @@ jobs:
     needs: install
     steps:
       - uses: actions/checkout@v3
+      - uses: ./.github/actions/lfs-pull
       - uses: ./.github/actions/install-deps
         with:
           node-version: 24
@@ -75,6 +77,7 @@ jobs:
     needs: install
     steps:
       - uses: actions/checkout@v3
+      - uses: ./.github/actions/lfs-pull
       - uses: ./.github/actions/install-deps
       - uses: ./.github/actions/turbo-cache
       - run: pnpm exec playwright install --with-deps chromium
@@ -87,6 +90,7 @@ jobs:
     needs: install
     steps:
       - uses: actions/checkout@v3
+      - uses: ./.github/actions/lfs-pull
       - uses: ./.github/actions/install-deps
         with:
           node-version: 22

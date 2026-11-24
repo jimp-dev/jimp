@@ -17,7 +17,7 @@ You can help answering issue questions; maturing or voting on feature suggestion
 If you know how to code, we welcome you to send fixes and new features, but in order to be efficient we ask you to follow the following procedure:
 
 - Fork this repo;
-- Clone your forked repo locally;
+- Install [Git LFS](https://git-lfs.com) (`git lfs install`), then clone your forked repo locally. The codecs' conformance test images are stored in LFS; if you cloned without it, run `git lfs pull`;
 - Code your changes (if you want to implement many features do each one in a separated branch);
 - Write tests to ensure your feature works as expected and protect its behavior on future changes;
 - Test it! Ensure you don't crash Jimp in Node.js or Browser environments;

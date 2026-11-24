@@ -17,3 +17,15 @@
 *.webp binary
 *.avif binary
 *.wasm binary
+
+# Codec conformance corpora are stored in Git LFS so they don't bloat clones.
+# CI pulls them with ./.github/actions/lfs-pull. Locally, install git-lfs
+# (https://git-lfs.com) before cloning, or run `git lfs pull` afterwards.
+packages/pngjs/test/**/*.png filter=lfs diff=lfs merge=lfs -text
+packages/pngjs/test/**/*.gz filter=lfs diff=lfs merge=lfs -text
+packages/jpeg-js/test/**/*.jpg filter=lfs diff=lfs merge=lfs -text
+packages/jpeg-js/test/**/*.png filter=lfs diff=lfs merge=lfs -text
+packages/jpeg-js/test/**/*.ppm filter=lfs diff=lfs merge=lfs -text
+packages/jpeg-js/test/**/*.gz filter=lfs diff=lfs merge=lfs -text
+plugins/js-gif/test/corpus/**/*.gif filter=lfs diff=lfs merge=lfs -text
+plugins/js-gif/test/corpus/**/*.png filter=lfs diff=lfs merge=lfs -text
