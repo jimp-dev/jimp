@@ -15,6 +15,8 @@ export default defineConfig({
       },
     ],
   },
+  // Pre-bundle pako so Vite doesn't discover it mid-run and reload the tests
+  optimizeDeps: { include: ["pako"] },
   test: {
     include: ["src/**/*.test.ts"],
     exclude: ["**/*.node.test.ts", "**/node_modules/**", "**/dist/**"],
