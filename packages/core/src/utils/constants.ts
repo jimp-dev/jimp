@@ -85,4 +85,46 @@ export enum BlendMode {
    * The effect is similar to difference but softer.
    */
   EXCLUSION = "exclusion",
+  /**
+   * Brighten the destination to reflect the source, by dividing it by the inverse of the source.
+   * Compositing black has no effect; the brighter the source, the brighter the result, with white giving white wherever the destination isn't black.
+   * The opacity of the output image is computed in the same way as for srcOver.
+   */
+  COLOR_DODGE = "colorDodge",
+  /**
+   * Darken the destination to reflect the source, by dividing its inverse by the source and inverting the result.
+   * Compositing white has no effect; the darker the source, the darker the result, with black giving black wherever the destination isn't white.
+   * The opacity of the output image is computed in the same way as for srcOver.
+   */
+  COLOR_BURN = "colorBurn",
+  /**
+   * Darken or lighten the destination, depending on the source.
+   * Where the source is lighter than 50% grey the destination is lightened, as if it were dodged, and where it is darker the destination is darkened, as if it were burned in.
+   * The effect is similar to shining a diffused spotlight on the destination, and is a softer version of hardLight.
+   * The opacity of the output image is computed in the same way as for srcOver.
+   */
+  SOFT_LIGHT = "softLight",
+  /**
+   * Use the hue of the source with the saturation and luminosity of the destination.
+   * The opacity of the output image is computed in the same way as for srcOver.
+   */
+  HUE = "hue",
+  /**
+   * Use the saturation of the source with the hue and luminosity of the destination.
+   * Compositing a grey source, which has no saturation, makes the destination grey.
+   * The opacity of the output image is computed in the same way as for srcOver.
+   */
+  SATURATION = "saturation",
+  /**
+   * Use the hue and saturation of the source with the luminosity of the destination.
+   * This keeps the destination's shading while giving it the source's colors, which is useful for tinting greyscale images.
+   * The opacity of the output image is computed in the same way as for srcOver.
+   */
+  COLOR = "color",
+  /**
+   * Use the luminosity of the source with the hue and saturation of the destination.
+   * This is the inverse of color.
+   * The opacity of the output image is computed in the same way as for srcOver.
+   */
+  LUMINOSITY = "luminosity",
 }

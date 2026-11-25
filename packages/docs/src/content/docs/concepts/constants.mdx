@@ -93,6 +93,13 @@ Pass it as the `mode` option. The default is `BlendMode.SRC_OVER`.
 | `HARD_LIGHT` | `"hardLight"`  | Like overlay, but decided by the source: bright source colors screen, dark ones multiply.  |
 | `DIFFERENCE` | `"difference"` | Subtracts the smaller value from the larger. White inverts, black has no effect.           |
 | `EXCLUSION`  | `"exclusion"`  | Like difference, with lower contrast.                                                       |
+| `COLOR_DODGE` | `"colorDodge"` | Brightens the destination to reflect the source. Black has no effect.                      |
+| `COLOR_BURN` | `"colorBurn"`  | Darkens the destination to reflect the source. White has no effect.                         |
+| `SOFT_LIGHT` | `"softLight"`  | A softer hard light: light source colors dodge, dark ones burn.                             |
+| `HUE`        | `"hue"`        | The source's hue, with the destination's saturation and luminosity.                         |
+| `SATURATION` | `"saturation"` | The source's saturation, with the destination's hue and luminosity.                         |
+| `COLOR`      | `"color"`      | The source's hue and saturation, with the destination's luminosity. Tints.                  |
+| `LUMINOSITY` | `"luminosity"` | The source's luminosity, with the destination's hue and saturation.                         |
 
 ```ts title="example.ts"
 import { Jimp, BlendMode } from "jimp";

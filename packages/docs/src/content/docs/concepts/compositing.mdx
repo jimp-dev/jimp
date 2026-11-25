@@ -18,6 +18,13 @@ export const modes = [
   ["HARD_LIGHT", "hardLight", "Contrast, decided by the source."],
   ["DIFFERENCE", "difference", "White inverts the image."],
   ["EXCLUSION", "exclusion", "A softer difference."],
+  ["COLOR_DODGE", "colorDodge", "Brightens. Black disappears."],
+  ["COLOR_BURN", "colorBurn", "Darkens. White disappears."],
+  ["SOFT_LIGHT", "softLight", "A gentle hard light."],
+  ["HUE", "hue", "The source's hue."],
+  ["SATURATION", "saturation", "The source's saturation."],
+  ["COLOR", "color", "The source's hue and saturation."],
+  ["LUMINOSITY", "luminosity", "The source's brightness."],
 ];
 
 Compositing means building one image out of several: a logo on a photo, a row of thumbnails on a canvas, a picture cut to a shape.
@@ -147,6 +154,15 @@ Here is the same star sticker composited onto the same photo with every mode:
 | `HARD_LIGHT` | Like `OVERLAY`, but chooses multiply or screen by the source's brightness instead of the image's.                    |
 | `DIFFERENCE` | Subtracts the smaller value from the larger. White inverts the image; black has no effect.                           |
 | `EXCLUSION`  | Like `DIFFERENCE` with less contrast: mid-tones turn gray instead of saturated.                                      |
+| `COLOR_DODGE` | Divides the image by the inverse of the source. The result is never darker; brighter sources brighten more, and black has no effect. |
+| `COLOR_BURN`  | Divides the inverse of the image by the source and inverts it. The result is never lighter; darker sources darken more, and white has no effect. |
+| `SOFT_LIGHT`  | A gentler `HARD_LIGHT`: source colors lighter than 50% gray dodge the image, darker ones burn it.                   |
+| `HUE`         | The hue of the source, with the saturation and luminosity of the image.                                              |
+| `SATURATION`  | The saturation of the source, with the hue and luminosity of the image. A gray source makes the image gray.         |
+| `COLOR`       | The hue and saturation of the source, with the luminosity of the image. Tints an image and keeps its shading.        |
+| `LUMINOSITY`  | The luminosity of the source, with the hue and saturation of the image. The opposite of `COLOR`.                     |
+
+The modes from `MULTIPLY` on are the blend modes of the W3C [Compositing and Blending](https://www.w3.org/TR/compositing-1/#blending) spec, the same as CSS `mix-blend-mode` and canvas `globalCompositeOperation`, and they give the same colors. `HUE`, `SATURATION`, `COLOR` and `LUMINOSITY` mix the three channels together; the others work on each channel separately.
 
 All modes compute the result's alpha the same way, as `src + dst - src × dst`. Where the destination is fully transparent, every mode shows the source unchanged, so blend modes are only visible over opaque or partly transparent images.
 

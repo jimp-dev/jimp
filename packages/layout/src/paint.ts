@@ -1,4 +1,4 @@
-import { composite, HorizontalAlign } from "@jimp/core";
+import { BlendMode, composite, HorizontalAlign } from "@jimp/core";
 import { methods as borderMethods } from "@jimp/plugin-border";
 import { methods as containMethods } from "@jimp/plugin-contain";
 import { methods as coverMethods } from "@jimp/plugin-cover";
@@ -14,6 +14,7 @@ import {
   type BoxNode,
   type Fill,
   type ImageNode,
+  type LayoutBlendMode,
   type Radius,
   type Shadow,
 } from "./schema.js";
@@ -255,25 +256,136 @@ function drawText(placed: PlacedNode, content: Rect, target: Target) {
   }
 }
 
+const blendModes: Record<LayoutBlendMode, BlendMode> = {
+  normal: BlendMode.SRC_OVER,
+  multiply: BlendMode.MULTIPLY,
+  screen: BlendMode.SCREEN,
+  overlay: BlendMode.OVERLAY,
+  darken: BlendMode.DARKEN,
+  lighten: BlendMode.LIGHTEN,
+  "color-dodge": BlendMode.COLOR_DODGE,
+  "color-burn": BlendMode.COLOR_BURN,
+  "hard-light": BlendMode.HARD_LIGHT,
+  "soft-light": BlendMode.SOFT_LIGHT,
+  difference: BlendMode.DIFFERENCE,
+  exclusion: BlendMode.EXCLUSION,
+  hue: BlendMode.HUE,
+  saturation: BlendMode.SATURATION,
+  color: BlendMode.COLOR,
+  luminosity: BlendMode.LUMINOSITY,
+};
+
 /** Draw a node and everything in it */
 export function paint(placed: PlacedNode, target: Target, create: CreateImage) {
-  const { opacity = 1 } = placed.resolved.node;
+  const { opacity = 1, blendMode = "normal" } = placed.resolved.node;
 
   if (opacity <= 0) {
     return;
   }
 
-  if (opacity < 1) {
-    // Draw it on its own, then fade the whole thing in one go
+  if (opacity < 1 || blendMode !== "normal") {
+    // Draw it on its own, then fade and blend the whole thing in one go, like
+    // CSS does with a group
     const layer = create(target.image.bitmap.width, target.image.bitmap.height);
 
     paintNode(placed, { ...target, image: layer }, create);
-    composite(target.image, layer, 0, 0, { opacitySource: opacity });
+    composite(target.image, layer, 0, 0, {
+      mode: blendModes[blendMode],
+      opacitySource: opacity,
+    });
 
     return;
   }
 
   paintNode(placed, target, create);
+}
+
+/**
+ * Copy part of the target to a new image, so what's drawn on it blends with
+ * what's behind it
+ */
+function copyRegion(target: Target, rect: Rect, create: CreateImage) {
+  const layer = create(rect.width, rect.height);
+  const from = target.image.bitmap;
+  const to = layer.bitmap;
+  const left = rect.x - target.x;
+  const top = rect.y - target.y;
+
+  for (let y = Math.max(0, -top); y < rect.height; y++) {
+    if (top + y >= from.height) {
+      break;
+    }
+
+    const x0 = Math.max(0, -left);
+    const x1 = Math.min(rect.width, from.width - left);
+
+    if (x1 > x0) {
+      const start = ((top + y) * from.width + left + x0) * 4;
+
+      to.data.set(
+        from.data.subarray(start, start + (x1 - x0) * 4),
+        (y * rect.width + x0) * 4,
+      );
+    }
+  }
+
+  return layer;
+}
+
+/**
+ * Put a copy made by `copyRegion` back, where `mask` is opaque. Where it's
+ * partly transparent, at the edges of rounded corners, mix it with what's
+ * there in proportion.
+ */
+function putRegion(
+  target: Target,
+  layer: JimpClass,
+  rect: Rect,
+  mask: JimpClass | undefined,
+) {
+  const to = target.image.bitmap;
+  const from = layer.bitmap;
+  const left = rect.x - target.x;
+  const top = rect.y - target.y;
+
+  for (let y = Math.max(0, -top); y < rect.height; y++) {
+    if (top + y >= to.height) {
+      break;
+    }
+
+    for (let x = Math.max(0, -left); x < rect.width; x++) {
+      if (left + x >= to.width) {
+        break;
+      }
+
+      const i = (y * rect.width + x) * 4;
+      const j = ((top + y) * to.width + left + x) * 4;
+      const m = mask ? mask.bitmap.data[i + 3]! / 255 : 1;
+
+      if (m === 1) {
+        to.data.set(from.data.subarray(i, i + 4), j);
+        continue;
+      }
+
+      if (m === 0) {
+        continue;
+      }
+
+      // Mix premultiplied colors, so transparent pixels' colors don't count
+      const a0 = (to.data[j + 3]! / 255) * (1 - m);
+      const a1 = (from.data[i + 3]! / 255) * m;
+      const a = a0 + a1;
+
+      for (let c = 0; c < 3; c++) {
+        to.data[j + c] =
+          a === 0
+            ? 0
+            : Math.round((to.data[j + c]! * a0 + from.data[i + c]! * a1) / a);
+      }
+
+      to.data[j + 3] = Math.round(a * 255);
+    }
+  }
 }
 
 function paintNode(placed: PlacedNode, target: Target, create: CreateImage) {
@@ -345,7 +457,9 @@ function paintNode(placed: PlacedNode, target: Target, create: CreateImage) {
       return;
     }
 
-    let layer = create(inside.width, inside.height);
+    // Start from what's already there, so children with a blendMode blend
+    // with the box's background and everything behind it, like CSS
+    const layer = copyRegion(target, inside, create);
     const clipped = { image: layer, x: inside.x, y: inside.y };
 
     for (const child of placed.children) {
@@ -353,12 +467,15 @@ function paintNode(placed: PlacedNode, target: Target, create: CreateImage) {
     }
 
     const radius = insetRadius(node.radius, border);
+    let mask: JimpClass | undefined;
 
     if (radius) {
-      layer = borderMethods.roundCorners(layer, { radius });
+      mask = create(inside.width, inside.height);
+      mask.bitmap.data.fill(255);
+      mask = borderMethods.roundCorners(mask, { radius });
     }
 
-    composite(target.image, layer, inside.x - target.x, inside.y - target.y);
+    putRegion(target, layer, inside, mask);
   } else {
     for (const child of placed.children) {
       paint(child, target, create);

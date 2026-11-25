@@ -204,6 +204,104 @@ describe("render", () => {
     expect(pixel(image, 10, 10)).toStrictEqual([255, 0, 0, 255]);
   });
 
+  test("overflow: hidden keeps what's behind the rounded corners", async () => {
+    const image = await render(
+      {
+        type: "box",
+        radius: 10,
+        overflow: "hidden",
+        children: [{ type: "box", grow: 1, background: "#ff0000" }],
+      },
+      { Jimp, width: 20, height: 20, background: "#0000ff" },
+    );
+
+    expect(pixel(image, 0, 0)).toStrictEqual([0, 0, 255, 255]);
+    expect(pixel(image, 10, 10)).toStrictEqual([255, 0, 0, 255]);
+  });
+
+  describe("blendMode", () => {
+    const group = (props: Partial<LayoutNode>): LayoutNode => ({
+      type: "box",
+      padding: 2,
+      background: "#00ffff",
+      children: [{ type: "box", grow: 1, background: "#ff00ff" }],
+      ...(props as object),
+    });
+
+    test("blends the box and everything in it with what's behind it", async () => {
+      const image = await render(group({ blendMode: "multiply" }), {
+        Jimp,
+        width: 6,
+        height: 6,
+        background: "#ffff00",
+      });
+
+      // Cyan and magenta each multiplied by yellow. The child is drawn on the
+      // box first, like CSS, so it isn't multiplied by cyan.
+      expect(pixel(image, 0, 0)).toStrictEqual([0, 255, 0, 255]);
+      expect(pixel(image, 3, 3)).toStrictEqual([255, 0, 0, 255]);
+    });
+
+    test("normal is the same as no blendMode", async () => {
+      const options = { Jimp, width: 6, height: 6, background: "#ffff00" };
+      const normal = await render(group({ blendMode: "normal" }), options);
+      const none = await render(group({}), options);
+
+      expect(normal.bitmap.data).toStrictEqual(none.bitmap.data);
+    });
+
+    test("works with opacity", async () => {
+      const image = await render(
+        group({ blendMode: "multiply", opacity: 0.5 }),
+        { Jimp, width: 6, height: 6, background: "#ffff00" },
+      );
+
+      // Halfway between yellow and green
+      expect(pixel(image, 0, 0)).toStrictEqual([128, 255, 0, 255]);
+    });
+
+    test("blends with the background of a box with overflow: hidden", async () => {
+      const image = await render(
+        {
+          type: "box",
+          padding: 2,
+          overflow: "hidden",
+          background: "#ffff00",
+          children: [
+            {
+              type: "box",
+              grow: 1,
+              background: "#00ffff",
+              blendMode: "multiply",
+            },
+          ],
+        },
+        { Jimp, width: 6, height: 6 },
+      );
+
+      expect(pixel(image, 0, 0)).toStrictEqual([255, 255, 0, 255]);
+      expect(pixel(image, 3, 3)).toStrictEqual([0, 255, 0, 255]);
+    });
+
+    test("uses the CSS names", async () => {
+      const image = await render(
+        group({ blendMode: "color-burn", background: "#808080" }),
+        { Jimp, width: 6, height: 6, background: "#ffffff" },
+      );
+
+      // Burning white leaves it white
+      expect(pixel(image, 0, 0)).toStrictEqual([255, 255, 255, 255]);
+
+      await expect(
+        render(
+          // @ts-expect-error testing an invalid blend mode
+          group({ blendMode: "colorBurn" }),
+          { Jimp, width: 6, height: 6 },
+        ),
+      ).rejects.toThrow();
+    });
+  });
+
   test("shadows are centered under the box without an offset", async () => {
     const image = await render(
       {

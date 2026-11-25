@@ -135,6 +135,29 @@ export type Shadow = z.infer<typeof ShadowSchema>;
 
 const AlignSchema = z.enum(["start", "center", "end", "stretch"]);
 
+/** A CSS `mix-blend-mode` */
+const BlendModeSchema = z.enum([
+  "normal",
+  "multiply",
+  "screen",
+  "overlay",
+  "darken",
+  "lighten",
+  "color-dodge",
+  "color-burn",
+  "hard-light",
+  "soft-light",
+  "difference",
+  "exclusion",
+  "hue",
+  "saturation",
+  "color",
+  "luminosity",
+]);
+
+/** How a node blends with what's behind it, like CSS `mix-blend-mode` */
+export type LayoutBlendMode = z.infer<typeof BlendModeSchema>;
+
 /** The props every node has: its size, its spacing and its place in a row or column */
 const LayoutPropsSchema = z.strictObject({
   /** the width, border and padding included. Defaults to `"auto"`. */
@@ -189,6 +212,11 @@ const BoxStylePropsSchema = z.strictObject({
   shadow: z.union([ShadowSchema, z.array(ShadowSchema)]).optional(),
   /** the opacity of the node and everything in it, from 0 to 1 */
   opacity: z.number().min(0).max(1).optional(),
+  /**
+   * how the node and everything in it blends with what's behind it, like
+   * CSS `mix-blend-mode`. Defaults to `"normal"`.
+   */
+  blendMode: BlendModeSchema.optional(),
 });
 
 /** Text props. Set them on a box and the text inside it inherits them. */
