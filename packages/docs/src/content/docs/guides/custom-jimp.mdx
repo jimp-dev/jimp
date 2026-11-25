@@ -142,7 +142,7 @@ See [TypeScript](/jimp/concepts/typescript/) for more.
 ## Using a custom Jimp outside of Node.js
 
 Jimp's packages import `Buffer` from the [`buffer`](https://www.npmjs.com/package/buffer) package instead of relying on the Node.js global.
-In Node.js, Deno and Bun this resolves to the built-in module, and bundlers targeting the browser use the npm package.
+In Node.js and Bun this resolves to the built-in module, and bundlers targeting the browser use the npm package.
 So a custom Jimp works in browsers and in Cloudflare Workers without a `Buffer` polyfill.
 
 ### Browsers

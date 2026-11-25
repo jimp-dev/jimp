@@ -95,7 +95,7 @@ Some formats have no extension `write` can map, such as JPEG 2000 codestreams (`
 
 <Aside type="caution" title="Node only">
   `write` uses the file system, so it only works in Node (and runtimes with
-  `node:fs`, like Bun and Deno). In the browser it throws `Jimp.write cannot
+  `node:fs`, like Bun). In the browser it throws `Jimp.write cannot
   write directly to a local path in the browser. Use getBuffer to retrieve the
   encoded image bytes.` Use [`getBuffer`](/jimp/methods/get-buffer/#download-in-the-browser)
   or [`getBase64`](/jimp/methods/get-base64/) there instead.

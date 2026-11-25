@@ -5,7 +5,7 @@
 </div>
 
 Resize, crop and convert images on request from URL params, like imgix or Next.js's `/_next/image`, with Jimp.
-It takes a web `Request` and returns a `Response`, so it runs on Cloudflare Workers, Vercel Edge Functions, Deno, Bun and Node.js, without native binaries.
+It takes a web `Request` and returns a `Response`, so it runs on Cloudflare Workers, Vercel Edge Functions, Bun and Node.js, without native binaries.
 
 ## Usage
 

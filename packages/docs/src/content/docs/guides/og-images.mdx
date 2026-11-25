@@ -11,7 +11,7 @@ You could draw one with [`drawRect`](/jimp/methods/draw-rect/) and [`print`](/ji
 
 `@jimp/layout` lays the card out for you.
 You write it as JSX, or as plain objects, made of boxes, text and images in rows and columns like CSS flexbox. [`render`](/jimp/methods/render/) measures the text, wraps it, positions everything and draws it with Jimp.
-It's plain JavaScript with no browser, SVG, React or WebAssembly involved, so it runs anywhere Jimp does: Node.js, browsers, workers, Deno and Bun.
+It's plain JavaScript with no browser, SVG, React or WebAssembly involved, so it runs anywhere Jimp does: Node.js, browsers, workers and Bun.
 
 This guide builds this card:
 
@@ -23,7 +23,7 @@ This guide builds this card:
 
 <InstallCommand pkg="jimp @jimp/layout" />
 
-To write JSX, point your compiler at `@jimp/layout`'s JSX runtime. TypeScript, esbuild, Vite and Bun read it from `tsconfig.json`, and Deno from `deno.json`:
+To write JSX, point your compiler at `@jimp/layout`'s JSX runtime. TypeScript, esbuild, Vite and Bun read it from `tsconfig.json`:
 
 ```json title="tsconfig.json"
 {
@@ -485,7 +485,7 @@ See [JSX](/jimp/methods/render/#jsx) on the `render` page for all the rules.
 
 ## Serve the card
 
-To make cards on demand, wrap the card in one component that takes the post, render it for each request and send the PNG bytes. With the Fetch API's `Response`, which works in Node.js, Deno, Bun and workers:
+To make cards on demand, wrap the card in one component that takes the post, render it for each request and send the PNG bytes. With the Fetch API's `Response`, which works in Node.js, Bun and workers:
 
 ```tsx title="server.tsx"
 function OgCard({ post }: { post: Post }) {

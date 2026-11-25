@@ -1,6 +1,6 @@
 ---
 title: Image Server
-description: Resize, crop and convert images on request from URL params, on Cloudflare Workers, Vercel Edge, Deno, Bun and Node.js.
+description: Resize, crop and convert images on request from URL params, on Cloudflare Workers, Vercel Edge, Bun and Node.js.
 ---
 
 import { Aside, Steps, TabItem, Tabs } from "@astrojs/starlight/components";
@@ -10,7 +10,7 @@ import InstallCommand from "../../../components/InstallCommand.astro";
 You point it at your originals (a bucket, a website or a directory) and put a CDN in front of it.
 
 It's built on Jimp, which is plain JavaScript with optional WASM codecs, so it doesn't need native binaries such as sharp's libvips.
-The same handler runs on Cloudflare Workers, Vercel Edge Functions, Deno Deploy, Bun and Node.js.
+The same handler runs on Cloudflare Workers, Vercel Edge Functions, Bun and Node.js.
 
 ## Getting started
 
@@ -34,12 +34,14 @@ The same handler runs on Cloudflare Workers, Vercel Edge Functions, Deno Deploy,
    });
    ```
 
-3. Serve it. The handler takes a [`Request`](https://developer.mozilla.org/en-US/docs/Web/API/Request) and returns a `Response`, so most runtimes can use it as it is:
+3. Serve it. The handler takes a [`Request`](https://developer.mozilla.org/en-US/docs/Web/API/Request) and returns a `Response`. Node's `http` module uses its own request and response objects, so wrap the handler with `toNodeHandler`:
 
    ```ts title="server.ts"
+   import { createServer } from "node:http";
+   import { toNodeHandler } from "@jimp/server/node";
    import { handler } from "./images.js";
 
-   Deno.serve(handler);
+   createServer(toNodeHandler(handler)).listen(3000);
    ```
 
 4. Request an image:
@@ -138,24 +140,6 @@ export const GET = createImageHandler({
 ```
 
 The handler also works with the Node.js runtime: leave out `runtime`.
-
-  </TabItem>
-  <TabItem label="Deno">
-
-```ts title="main.ts"
-import { Jimp } from "npm:jimp";
-import { createImageHandler, fetchSource } from "npm:@jimp/server";
-
-const handler = createImageHandler({
-  Jimp,
-  source: fetchSource({ baseUrl: "https://assets.example.com/" }),
-  basePath: "/images",
-});
-
-Deno.serve(handler);
-```
-
-Run it with `deno run --allow-net --allow-env main.ts`, or deploy it to Deno Deploy.
 
   </TabItem>
   <TabItem label="Bun">
@@ -332,7 +316,7 @@ Hosts that aren't listed are a 403, and redirects to them aren't followed.
 
 ### `directorySource`
 
-Reads images from a directory, in Node.js, Bun and Deno. It's exported from `@jimp/server/node`, which imports `node:fs`:
+Reads images from a directory, in Node.js and Bun. It's exported from `@jimp/server/node`, which imports `node:fs`:
 
 ```ts title="images.ts"
 import { directorySource } from "@jimp/server/node";

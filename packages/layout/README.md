@@ -5,7 +5,7 @@
   <p>Lay out boxes, text and images like CSS flexbox, and draw them with Jimp.</p>
 </div>
 
-For Open Graph cards, social banners and badges. You describe the image as a tree of boxes, text and images, laid out in rows and columns, and `render` measures and wraps the text, positions everything and draws it. It's plain JavaScript with no browser, SVG or WebAssembly step, so it runs in Node.js, browsers, workers, Deno and Bun.
+For Open Graph cards, social banners and badges. You describe the image as a tree of boxes, text and images, laid out in rows and columns, and `render` measures and wraps the text, positions everything and draws it. It's plain JavaScript with no browser, SVG or WebAssembly step, so it runs in Node.js, browsers, workers and Bun.
 
 `@jimp/layout` isn't part of `jimp`. Install it alongside:
 
