@@ -1,3 +1,17 @@
+# v2.2.0 (Wed Nov 25 2026)
+
+#### 🚀 Enhancement
+
+- feat: complete the W3C blend modes, and blendMode in @jimp/layout [#1565](https://github.com/jimp-dev/jimp/pull/1565) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- feat: @jimp/worker runs Jimp off the main thread [#1561](https://github.com/jimp-dev/jimp/pull/1561) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- feat(core): apply() runs a list of edits stored as data [#1558](https://github.com/jimp-dev/jimp/pull/1558) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+
+#### Authors: 1
+
+- Andrew Lisowski ([@hipstersmoothie](https://github.com/hipstersmoothie))
+
+---
+
 # v2.1.0 (Tue Nov 24 2026)
 
 #### 🚀 Enhancement

@@ -1,0 +1,14 @@
+# v2.2.0 (Wed Nov 25 2026)
+
+#### 🚀 Enhancement
+
+- feat: grain() and gradient dithering to fix banding [#1568](https://github.com/jimp-dev/jimp/pull/1568) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- feat: colorGrade() in @jimp/plugin-lut, 3D LUT color grading from .cube files and Hald images [#1570](https://github.com/jimp-dev/jimp/pull/1570) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- feat: median() and bilateral() noise reduction in @jimp/plugin-blur [#1571](https://github.com/jimp-dev/jimp/pull/1571) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- feat: smart cropping for cover with "entropy" and "attention" [#1566](https://github.com/jimp-dev/jimp/pull/1566) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- feat: palette() and dominantColor() extract an image's main colors [#1569](https://github.com/jimp-dev/jimp/pull/1569) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- feat: @jimp/worker runs Jimp off the main thread [#1561](https://github.com/jimp-dev/jimp/pull/1561) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+
+#### Authors: 1
+
+- Andrew Lisowski ([@hipstersmoothie](https://github.com/hipstersmoothie))

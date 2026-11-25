@@ -1,3 +1,15 @@
+# v2.2.0 (Wed Nov 25 2026)
+
+#### 🚀 Enhancement
+
+- feat: smart cropping for cover with "entropy" and "attention" [#1566](https://github.com/jimp-dev/jimp/pull/1566) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+
+#### Authors: 1
+
+- Andrew Lisowski ([@hipstersmoothie](https://github.com/hipstersmoothie))
+
+---
+
 # v2.1.0 (Tue Nov 24 2026)
 
 #### 📝 Documentation

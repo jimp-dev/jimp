@@ -1,3 +1,15 @@
+# v2.2.0 (Wed Nov 25 2026)
+
+#### 🚀 Enhancement
+
+- feat: palette() and dominantColor() extract an image's main colors [#1569](https://github.com/jimp-dev/jimp/pull/1569) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+
+#### Authors: 1
+
+- Andrew Lisowski ([@hipstersmoothie](https://github.com/hipstersmoothie))
+
+---
+
 # v2.1.0 (Tue Nov 24 2026)
 
 #### 📝 Documentation

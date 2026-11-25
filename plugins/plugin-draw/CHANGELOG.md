@@ -1,3 +1,17 @@
+# v2.2.0 (Wed Nov 25 2026)
+
+#### 🚀 Enhancement
+
+- feat: grain() and gradient dithering to fix banding [#1568](https://github.com/jimp-dev/jimp/pull/1568) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- feat: gradientMap() for duotones and gradient maps [#1564](https://github.com/jimp-dev/jimp/pull/1564) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- feat: @jimp/layout, a flexbox-style layout renderer for OG images [#1559](https://github.com/jimp-dev/jimp/pull/1559) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+
+#### Authors: 1
+
+- Andrew Lisowski ([@hipstersmoothie](https://github.com/hipstersmoothie))
+
+---
+
 # v2.1.0 (Tue Nov 24 2026)
 
 #### 📝 Documentation

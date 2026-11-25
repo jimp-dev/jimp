@@ -1,3 +1,15 @@
+# v2.2.0 (Wed Nov 25 2026)
+
+#### 🚀 Enhancement
+
+- feat: BlurHash placeholders (image.blurhash, decodeBlurhash, fm=blurhash) [#1567](https://github.com/jimp-dev/jimp/pull/1567) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+
+#### Authors: 1
+
+- Andrew Lisowski ([@hipstersmoothie](https://github.com/hipstersmoothie))
+
+---
+
 # v2.0.0 (Mon Nov 23 2026)
 
 #### 💥 Breaking Change

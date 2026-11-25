@@ -1,3 +1,16 @@
+# v2.2.0 (Wed Nov 25 2026)
+
+#### 🚀 Enhancement
+
+- feat: grain() and gradient dithering to fix banding [#1568](https://github.com/jimp-dev/jimp/pull/1568) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- feat: gradientMap() for duotones and gradient maps [#1564](https://github.com/jimp-dev/jimp/pull/1564) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+
+#### Authors: 1
+
+- Andrew Lisowski ([@hipstersmoothie](https://github.com/hipstersmoothie))
+
+---
+
 # v2.0.0 (Mon Nov 23 2026)
 
 #### 💥 Breaking Change

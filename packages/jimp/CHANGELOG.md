@@ -1,3 +1,24 @@
+# v2.2.0 (Wed Nov 25 2026)
+
+#### 🚀 Enhancement
+
+- feat: grain() and gradient dithering to fix banding [#1568](https://github.com/jimp-dev/jimp/pull/1568) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- feat: colorGrade() in @jimp/plugin-lut, 3D LUT color grading from .cube files and Hald images [#1570](https://github.com/jimp-dev/jimp/pull/1570) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- feat: BlurHash placeholders (image.blurhash, decodeBlurhash, fm=blurhash) [#1567](https://github.com/jimp-dev/jimp/pull/1567) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- feat: median() and bilateral() noise reduction in @jimp/plugin-blur [#1571](https://github.com/jimp-dev/jimp/pull/1571) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- feat: gradientMap() for duotones and gradient maps [#1564](https://github.com/jimp-dev/jimp/pull/1564) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- feat: complete the W3C blend modes, and blendMode in @jimp/layout [#1565](https://github.com/jimp-dev/jimp/pull/1565) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- feat: palette() and dominantColor() extract an image's main colors [#1569](https://github.com/jimp-dev/jimp/pull/1569) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- feat: @jimp/layout, a flexbox-style layout renderer for OG images [#1559](https://github.com/jimp-dev/jimp/pull/1559) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- feat: @jimp/worker runs Jimp off the main thread [#1561](https://github.com/jimp-dev/jimp/pull/1561) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+- feat(core): apply() runs a list of edits stored as data [#1558](https://github.com/jimp-dev/jimp/pull/1558) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+
+#### Authors: 1
+
+- Andrew Lisowski ([@hipstersmoothie](https://github.com/hipstersmoothie))
+
+---
+
 # v2.1.0 (Tue Nov 24 2026)
 
 #### 🚀 Enhancement
