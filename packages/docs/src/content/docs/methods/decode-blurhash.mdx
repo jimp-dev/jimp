@@ -1,0 +1,96 @@
+---
+title: "decodeBlurhash()"
+description: "Turn a BlurHash string back into a blurred placeholder image."
+category: io
+method: "decodeBlurhash"
+plugin: "@jimp/plugin-hash"
+---
+
+import Related from "../../../components/Related.astro";
+
+`decodeBlurhash` turns a [BlurHash](https://blurha.sh) string, from [`blurhash`](/jimp/methods/blurhash/) or any BlurHash encoder, into pixels: a blurred picture of the image it was made from.
+Pass the result to [`Jimp.fromBitmap`](/jimp/methods/from-bitmap/) to edit or save it as an image.
+
+## Signature
+
+```ts title="decodeBlurhash.d.ts"
+import { decodeBlurhash } from "jimp";
+
+decodeBlurhash(
+  hash: string,
+  options: { w: number; h: number; punch?: number },
+): { data: Uint8ClampedArray; width: number; height: number }
+```
+
+`decodeBlurhash` is a function exported from `jimp`. It returns the pixels as RGBA in sRGB, all opaque, in the shape `Jimp.fromBitmap` and a canvas's `ImageData` take.
+
+## Parameters
+
+| Parameter | Type     | Default  | Description               |
+| --------- | -------- | -------- | ------------------------- |
+| `hash`    | `string` | required | A BlurHash string.        |
+| `options` | `object` | required | See [Options](#options).  |
+
+## Options
+
+| Option  | Type     | Default  | Description                                                                         |
+| ------- | -------- | -------- | ----------------------------------------------------------------------------------- |
+| `w`     | `number` | required | The width to decode to, a whole number of pixels from `1`.                          |
+| `h`     | `number` | required | The height to decode to, a whole number of pixels from `1`.                         |
+| `punch` | `number` | `1`      | Scales the contrast. Above `1` the colors stand out more, `0` gives the average color. |
+
+## Example
+
+```ts title="example.ts"
+import { Jimp, decodeBlurhash } from "jimp";
+
+const placeholder = Jimp.fromBitmap(
+  decodeBlurhash("LqQ0K:jL_NtMD+V{t6k7yDahMdj=", { w: 32, h: 24 }),
+);
+
+placeholder.resize({ w: 400 }); // 400 x 300
+await placeholder.write("placeholder.png");
+```
+
+### Inline the placeholder in a page
+
+Decode at a small size and send it as a data URL, so the placeholder shows before any image request:
+
+```ts title="example.ts"
+import { Jimp, decodeBlurhash } from "jimp";
+
+const placeholder = Jimp.fromBitmap(
+  decodeBlurhash("LqQ0K:jL_NtMD+V{t6k7yDahMdj=", { w: 32, h: 24 }),
+);
+const src = await placeholder.getBase64("image/png");
+
+const html = `<img src="${src}" width="800" height="600" alt="" />`;
+```
+
+### Draw it on a canvas
+
+In a browser, the result fits `ImageData` without a copy:
+
+```ts title="example.ts"
+import { decodeBlurhash } from "jimp";
+
+const hash = "LqQ0K:jL_NtMD+V{t6k7yDahMdj=";
+const { data, width, height } = decodeBlurhash(hash, { w: 32, h: 24 });
+const canvas = document.createElement("canvas");
+
+canvas.width = width;
+canvas.height = height;
+canvas.getContext("2d")!.putImageData(new ImageData(data, width, height), 0, 0);
+```
+
+## Notes
+
+- **Size.** The hash doesn't store a size or aspect ratio, so pass the size you want, with the original image's aspect ratio. Decoding takes time for every pixel, so decode small, about 32 pixels across, and scale it up where it's shown. BlurHash has no fine detail to lose.
+- **Same as the reference.** The pixels match the [`blurhash`](https://www.npmjs.com/package/blurhash) package's `decode` to within one level per channel. That package rounds `punch` up to an odd whole number, so a `punch` of `1.5` there is `3`; here it's `1.5`.
+- **Invalid hashes.** A hash shorter than 6 characters throws `A BlurHash must be at least 6 characters`. A hash whose length doesn't match its component count throws, for example, `This BlurHash has 4x3 components, so it should be 28 characters, not 27`. A character outside BlurHash's base 83 digits throws, for example, `"!" isn't a BlurHash character`.
+- **Invalid options.** A `w` or `h` that isn't a whole number from `1`, or a negative `punch`, throws a validation error.
+- **Added in 2.2.**
+
+## Related
+
+<Related methods={["blurhash", "Jimp.fromBitmap", "getBase64"]} />

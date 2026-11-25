@@ -6,6 +6,7 @@ import png from "@jimp/js-png";
 import jpeg from "@jimp/js-jpeg";
 import type { BmFont } from "@jimp/plugin-print";
 import {
+  decodeBlurhash,
   Jimp,
   JimpInstance,
   RawImageData,
@@ -318,6 +319,17 @@ describe("other methods keep their return types", () => {
     ).toEqualTypeOf<number>();
     // @ts-expect-error size must be a number
     image.pHash({ size: "64" });
+    expectTypeOf(image.blurhash()).toEqualTypeOf<string>();
+    expectTypeOf(
+      image.blurhash({ componentsX: 3, componentsY: 4 }),
+    ).toEqualTypeOf<string>();
+    // @ts-expect-error componentsX must be a number
+    image.blurhash({ componentsX: "3" });
+    expectTypeOf(
+      Jimp.fromBitmap(decodeBlurhash("00ADE+", { w: 4, h: 4 })),
+    ).toEqualTypeOf<JimpInstance>();
+    // @ts-expect-error w and h are required
+    decodeBlurhash("00ADE+", { w: 4 });
   });
 });
 

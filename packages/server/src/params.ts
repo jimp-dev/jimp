@@ -121,7 +121,7 @@ const ParamsSchema = z
       })
       .optional(),
     q: wholeNumber("q", 1, 100).optional(),
-    fm: oneOf("fm", ["auto", ...Object.keys(FORMATS)]).optional(),
+    fm: oneOf("fm", ["auto", "blurhash", ...Object.keys(FORMATS)]).optional(),
     bg: z
       .string()
       .transform((value, ctx) => {
@@ -169,7 +169,10 @@ export interface ImageParams {
   /** The width and height the request asks for, after `dpr` */
   width?: number;
   height?: number;
-  /** `auto`, a MIME type, or undefined for the default */
+  /**
+   * `auto`, `blurhash` for a BlurHash string instead of an image, a MIME
+   * type, or undefined for the default
+   */
   format?: string;
   quality?: number;
   background?: number;
@@ -318,7 +321,9 @@ export function parseParams(searchParams: URLSearchParams): ImageParams {
     width,
     height,
     format:
-      params.fm === undefined || params.fm === "auto"
+      params.fm === undefined ||
+      params.fm === "auto" ||
+      params.fm === "blurhash"
         ? params.fm
         : FORMATS[params.fm],
     quality: params.q,

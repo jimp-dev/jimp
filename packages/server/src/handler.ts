@@ -34,6 +34,8 @@ export interface JimpImage {
     options?: Record<string, unknown>,
   ): Promise<Uint8Array>;
   hasAlpha(): boolean;
+  /** From `@jimp/plugin-hash`, for `fm=blurhash` */
+  blurhash?(): string;
 }
 
 /** A Jimp class, from `jimp` or `createJimp` */
@@ -615,7 +617,14 @@ export function createImageHandler(options: ImageHandlerOptions) {
     const format =
       params.format ?? (defaultFormat === "auto" ? "auto" : undefined);
 
-    if (format && format !== "auto" && !encodable.has(format)) {
+    if (format === "blurhash") {
+      if (typeof probe.blurhash !== "function") {
+        throw new ImageHandlerError(
+          415,
+          "The Jimp class can't make BlurHashes: it needs the blurhash method from @jimp/plugin-hash",
+        );
+      }
+    } else if (format && format !== "auto" && !encodable.has(format)) {
       throw new ImageHandlerError(415, `The Jimp class can't encode ${format}`);
     }
 
@@ -719,6 +728,25 @@ export function createImageHandler(options: ImageHandlerOptions) {
 
     if (Math.max(image.bitmap.width, image.bitmap.height) > largest) {
       throw tooLarge(image.bitmap.width, image.bitmap.height);
+    }
+
+    // A BlurHash placeholder: a string instead of an image. It has no
+    // alpha, so like formats without alpha it's drawn over white unless the
+    // request sets bg.
+    if (format === "blurhash") {
+      if (params.background === undefined) {
+        image.background = 0xffffffff;
+      }
+
+      const hash = image.blurhash!();
+
+      headers.set("Content-Type", "text/plain; charset=utf-8");
+      headers.set("Content-Length", String(hash.length));
+
+      return new Response(request.method === "HEAD" ? null : hash, {
+        status: 200,
+        headers,
+      });
     }
 
     const mime =

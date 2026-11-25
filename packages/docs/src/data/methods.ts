@@ -38,6 +38,8 @@ export const methods: MethodEntry[] = [
   m("new-jimp", "new Jimp", "io", "@jimp/core", "new Jimp()"),
   m("get-buffer", "getBuffer", "io", "@jimp/core"),
   m("get-base64", "getBase64", "io", "@jimp/core"),
+  m("blurhash", "blurhash", "io", "@jimp/plugin-hash"),
+  m("decode-blurhash", "decodeBlurhash", "io", "@jimp/plugin-hash"),
   m("write", "write", "io", "@jimp/core"),
   m("read-frames", "Jimp.readFrames", "io", "@jimp/core"),
   m("encode-frames", "Jimp.encodeFrames", "io", "@jimp/core"),

@@ -2038,6 +2038,9 @@ importers:
       '@vitest/browser':
         specifier: ^5.1.1
         version: 5.1.1(vite@8.3.8(@types/node@22.20.5)(esbuild@0.28.2)(terser@5.51.4)(yaml@2.9.1))(vitest@5.1.1)
+      blurhash:
+        specifier: ^2.0.5
+        version: 2.0.5
       eslint:
         specifier: ^10.15.0
         version: 10.15.0(supports-color@7.2.0)
@@ -5701,6 +5704,9 @@ packages:
 
   before-after-hook@2.2.3:
     resolution: {integrity: sha512-NzUnlZexiaH/46WDhANlyR2bXRopNg4F/zuSA3OpZnllCUgRaOF2znDioDWrmbNVsuZk6l9pMquQB38cfBZwkQ==}
+
+  blurhash@2.0.5:
+    resolution: {integrity: sha512-cRygWd7kGBQO3VEhPiTgq4Wc43ctsM+o46urrmPOiuAe+07fzlSB9OJVdpgDL0jPqXUVQ9ht7aq7kxOeJHRK+w==}
 
   bmp-ts@1.2.0:
     resolution: {integrity: sha512-+4SpFsTOqmFCmfhyDRVp1p9B6TTKmMXalz3HQDI8KZnK5EK0C1HqxLyHcTL/AMivqy0jrd74JLQ1sTbsl4cwIA==}
@@ -11942,6 +11948,8 @@ snapshots:
       is-decimal: 2.0.1
 
   before-after-hook@2.2.3: {}
+
+  blurhash@2.0.5: {}
 
   bmp-ts@1.2.0: {}
 

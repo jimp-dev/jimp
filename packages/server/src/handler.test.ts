@@ -419,6 +419,60 @@ describe("format", () => {
     expect(response.status).toBe(415);
   });
 
+  test("fm=blurhash responds with the edited image's BlurHash", async () => {
+    const handler = createHandler();
+    const response = await get(handler, "/images/halves.png?w=50&fm=blurhash");
+
+    expect(response.status).toBe(200);
+    expect(response.headers.get("Content-Type")).toBe(
+      "text/plain; charset=utf-8",
+    );
+    expect(await response.text()).toBe(
+      halves.clone().resize({ w: 50 }).blurhash(),
+    );
+
+    const head = await handler(
+      new Request("https://example.com/images/halves.png?fm=blurhash", {
+        method: "HEAD",
+      }),
+    );
+
+    expect(head.status).toBe(200);
+    expect(head.headers.get("Content-Length")).toBe("28");
+    expect(await head.text()).toBe("");
+  });
+
+  test("fm=blurhash draws transparent pixels over white, or bg", async () => {
+    const handler = createHandler();
+    const white = new Jimp({ width: 10, height: 10, color: 0xffffffff });
+    const red = new Jimp({ width: 10, height: 10, color: 0xff0000ff });
+
+    expect(
+      await (await get(handler, "/images/transparent.png?fm=blurhash")).text(),
+    ).toBe(white.blurhash());
+    expect(
+      await (
+        await get(handler, "/images/transparent.png?fm=blurhash&bg=red")
+      ).text(),
+    ).toBe(red.blurhash());
+  });
+
+  test("fm=blurhash needs @jimp/plugin-hash", async () => {
+    const NoHashJimp = createJimp({
+      formats: defaultFormats,
+      plugins: defaultPlugins.filter((plugin) => !("blurhash" in plugin)),
+    });
+    const response = await get(
+      createHandler({ Jimp: NoHashJimp }),
+      "/images/halves.png?fm=blurhash",
+    );
+
+    expect(response.status).toBe(415);
+    expect(await response.text()).toBe(
+      "The Jimp class can't make BlurHashes: it needs the blurhash method from @jimp/plugin-hash",
+    );
+  });
+
   test("encodeOptions are passed to getBuffer", async () => {
     const small = await get(
       createHandler({ encodeOptions: { "image/png": { deflateLevel: 9 } } }),
