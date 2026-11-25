@@ -1,5 +1,6 @@
-// Makes the LUTs and before/after images for the lut() page
-// (src/content/docs/methods/lut.mdx) and its playground op, in public/lut/.
+// Makes the LUTs and before/after images for the colorGrade() page
+// (src/content/docs/methods/color-grade.mdx) and its playground op, in
+// public/lut/.
 // The looks are defined here, so there are no third-party LUT files. Run it
 // from packages/docs after `pnpm build`:
 //
@@ -106,7 +107,7 @@ for (const [name, look] of Object.entries(looks)) {
   await image.write(path(`${name}.png`));
   await photo
     .clone()
-    .lut(image)
+    .colorGrade(image)
     .write(path(`dice-${name}.jpg`), {
       quality: 85,
     });
@@ -118,6 +119,6 @@ const text = cube("Teal and orange", looks["teal-orange"], 17);
 await writeFile(path("teal-orange.cube"), text);
 await photo
   .clone()
-  .lut(parseCubeLut(text), { strength: 0.5 })
+  .colorGrade(parseCubeLut(text), { strength: 0.5 })
   .write(path("dice-teal-orange-half.jpg"), { quality: 85 });
 await photo.clone().write(path("dice.jpg"), { quality: 85 });

@@ -5,12 +5,12 @@
   <p>Color grade images with 3D LUTs.</p>
 </div>
 
-- [lut](https://jimp-dev.github.io/jimp/methods/lut/)
+- [colorGrade](https://jimp-dev.github.io/jimp/methods/color-grade/)
 - [parseCubeLut](https://jimp-dev.github.io/jimp/methods/parse-cube-lut/)
 
 ## Usage
 
-`lut` maps every pixel's color through a 3D LUT (lookup table) with
+`colorGrade` maps every pixel's color through a 3D LUT (lookup table) with
 tetrahedral interpolation, the way photo and video editors apply a "look".
 The LUT can come from a `.cube` file, read with `parseCubeLut`, or be a Hald
 CLUT image, the format of many film emulation packs. Alpha is unchanged.
@@ -22,12 +22,12 @@ import { Jimp, parseCubeLut } from "jimp";
 const image = await Jimp.read("photo.jpg");
 const lut = parseCubeLut(await readFile("teal-orange.cube", "utf8"));
 
-image.lut(lut);
+image.colorGrade(lut);
 
 // A Hald CLUT image, blended half way with the original
 const hald = await Jimp.read("kodachrome.png");
 
-image.lut(hald, { strength: 0.5 });
+image.colorGrade(hald, { strength: 0.5 });
 ```
 
 `parseCubeLut` reads `LUT_3D_SIZE`, `TITLE`, `DOMAIN_MIN` and `DOMAIN_MAX`
@@ -44,5 +44,5 @@ import * as lut from "@jimp/plugin-lut";
 const Jimp = createJimp({ formats: [jpeg], plugins: [lut.methods] });
 ```
 
-See [the lut() docs](https://jimp-dev.github.io/jimp/methods/lut/) for Hald
+See [the colorGrade() docs](https://jimp-dev.github.io/jimp/methods/color-grade/) for Hald
 images, `apply`, workers and serving looks from `@jimp/server`.

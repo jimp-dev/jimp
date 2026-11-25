@@ -220,7 +220,11 @@ export type {
   DecodeBlurhashOptions,
   PHashOptions,
 } from "@jimp/plugin-hash";
-export { parseCubeLut, type Lut, type LutOptions } from "@jimp/plugin-lut";
+export {
+  parseCubeLut,
+  type Lut,
+  type ColorGradeOptions,
+} from "@jimp/plugin-lut";
 export type { JPEGOptions } from "@jimp/js-jpeg";
 export { PNGColorType, PNGFilterType } from "@jimp/js-png";
 export { BmpCompression } from "@jimp/js-bmp";

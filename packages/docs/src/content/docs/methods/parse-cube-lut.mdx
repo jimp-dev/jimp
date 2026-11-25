@@ -9,7 +9,7 @@ plugin: "@jimp/plugin-lut"
 import Related from "../../../components/Related.astro";
 
 `parseCubeLut` reads the text of a `.cube` file, the 3D LUT format from Adobe that DaVinci Resolve, Premiere, Final Cut Pro, Photoshop and most LUT packs use.
-Pass the result to [`lut`](/jimp/methods/lut/) to color grade an image with it.
+Pass the result to [`colorGrade`](/jimp/methods/color-grade/) to color grade an image with it.
 
 ## Signature
 
@@ -51,7 +51,7 @@ console.log(lut.title, lut.size); // "Teal and orange" 17
 
 const image = await Jimp.read("photo.jpg");
 
-image.lut(lut);
+image.colorGrade(lut);
 ```
 
 ### In a browser
@@ -79,7 +79,7 @@ for (let i = 0; i < size ** 3; i++) {
   data.set([b, g, r], i * 3);
 }
 
-image.lut({ size, data });
+image.colorGrade({ size, data });
 ```
 
 ## The `.cube` format
@@ -117,11 +117,11 @@ Errors name the problem, and the line where there is one:
 
 ## Notes
 
-- **The result is plain data**, so it can be kept, reused for many images, and sent to a [worker](/jimp/guides/workers/). To store it as JSON, convert `data` to an array first, as shown on the [`lut`](/jimp/methods/lut/#apply-and-json) page.
+- **The result is plain data**, so it can be kept, reused for many images, and sent to a [worker](/jimp/guides/workers/). To store it as JSON, convert `data` to an array first, as shown on the [`colorGrade`](/jimp/methods/color-grade/#apply-and-json) page.
 - **Memory.** `data` takes 12 bytes per point: 0.4 MB for a 33-point LUT and 3.3 MB for a 65-point one.
 - **Custom Jimp.** `parseCubeLut` is also exported from `@jimp/plugin-lut`.
 - **Added in 2.2.**
 
 ## Related
 
-<Related methods={["lut", "color", "toColorSpace"]} />
+<Related methods={["colorGrade", "color", "toColorSpace"]} />

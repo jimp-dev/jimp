@@ -35,7 +35,7 @@ function parseNumbers(
 
 /**
  * Parses a 3D LUT in the `.cube` format from Adobe and DaVinci Resolve, for
- * `image.lut`.
+ * `image.colorGrade`.
  *
  * - Reads `LUT_3D_SIZE`, `TITLE`, `DOMAIN_MIN` and `DOMAIN_MAX`, and
  *   Resolve's `LUT_3D_INPUT_RANGE`. Other keywords, such as
@@ -49,7 +49,7 @@ function parseNumbers(
  * or out-of-range `LUT_3D_SIZE`, lines that aren't numbers, and the wrong
  * number of data lines.
  * @param text the contents of a `.cube` file
- * @returns a LUT for `image.lut`. It's plain data, so it can be sent to a
+ * @returns a LUT for `image.colorGrade`. It's plain data, so it can be sent to a
  * worker or kept and reused for many images.
  * @example
  * ```ts
@@ -59,7 +59,7 @@ function parseNumbers(
  * const lut = parseCubeLut(await readFile("film.cube", "utf8"));
  * const image = await Jimp.read("test/image.jpg");
  *
- * image.lut(lut);
+ * image.colorGrade(lut);
  * ```
  */
 export function parseCubeLut(text: string): Lut {

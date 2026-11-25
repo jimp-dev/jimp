@@ -6,7 +6,7 @@ import { applyLutTable, LutSchema, type Lut, type LutTable } from "./lut.js";
 export { parseCubeLut } from "./cube.js";
 export type { Lut };
 
-const LutOptionsSchema = z.object({
+const ColorGradeOptionsSchema = z.object({
   /**
    * How much of the graded image to use, from 0 (the original image) to 1
    * (the LUT's colors). Values outside 0-1 are clamped. (default 1)
@@ -14,7 +14,7 @@ const LutOptionsSchema = z.object({
   strength: z.number().optional(),
 });
 
-export type LutOptions = z.infer<typeof LutOptionsSchema>;
+export type ColorGradeOptions = z.infer<typeof ColorGradeOptionsSchema>;
 
 /**
  * Read a Hald CLUT image as a LUT, in place. A level `L` Hald image is
@@ -64,20 +64,20 @@ export const methods = {
    * const image = await Jimp.read("test/image.jpg");
    * const film = parseCubeLut(await readFile("film.cube", "utf8"));
    *
-   * image.lut(film);
+   * image.colorGrade(film);
    *
    * // A Hald CLUT image, at half strength
    * const hald = await Jimp.read("film-hald.png");
    *
-   * image.lut(hald, { strength: 0.5 });
+   * image.colorGrade(hald, { strength: 0.5 });
    * ```
    */
-  lut<I extends JimpClass>(
+  colorGrade<I extends JimpClass>(
     image: I,
     lut: Lut | JimpClass,
-    options: LutOptions = {},
+    options: ColorGradeOptions = {},
   ) {
-    const { strength = 1 } = LutOptionsSchema.parse(options);
+    const { strength = 1 } = ColorGradeOptionsSchema.parse(options);
     const amount = Math.min(1, Math.max(0, strength));
     let table: LutTable;
 

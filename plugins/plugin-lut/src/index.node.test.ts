@@ -53,7 +53,7 @@ describe("matches FFmpeg's tetrahedral interpolation", () => {
     const image = await readImage("sweep.png");
 
     expectToMatchFfmpeg(
-      image.lut(tealOrange),
+      image.colorGrade(tealOrange),
       await readImage("sweep-teal-orange.png"),
     );
   });
@@ -62,7 +62,7 @@ describe("matches FFmpeg's tetrahedral interpolation", () => {
     const image = await readImage("sweep.png");
 
     expectToMatchFfmpeg(
-      image.lut(await readImage("teal-orange-hald.png")),
+      image.colorGrade(await readImage("teal-orange-hald.png")),
       await readImage("sweep-teal-orange-hald.png"),
     );
   });
@@ -74,6 +74,6 @@ describe("matches FFmpeg's tetrahedral interpolation", () => {
     const image = await readImage("sweep.png");
     const original = Buffer.from(image.bitmap.data);
 
-    expect(image.lut(identity).bitmap.data).toEqual(original);
+    expect(image.colorGrade(identity).bitmap.data).toEqual(original);
   });
 });

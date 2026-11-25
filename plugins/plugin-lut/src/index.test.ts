@@ -234,14 +234,14 @@ describe("parseCubeLut", () => {
   });
 });
 
-describe("lut", () => {
+describe("colorGrade", () => {
   test.each([2, 3, 17, 33])(
     "a size %i identity LUT changes nothing",
     (size) => {
       const image = noise();
       const original = Buffer.from(image.bitmap.data);
 
-      image.lut(makeLut(size, identity));
+      image.colorGrade(makeLut(size, identity));
 
       expect(image.bitmap.data).toEqual(original);
     },
@@ -253,7 +253,7 @@ describe("lut", () => {
       const image = noise();
       const original = Buffer.from(image.bitmap.data);
 
-      image.lut(makeHald(level, identity));
+      image.colorGrade(makeHald(level, identity));
 
       expect(image.bitmap.data).toEqual(original);
     },
@@ -270,7 +270,7 @@ describe("lut", () => {
       const image = noise();
       const original = Buffer.from(image.bitmap.data);
 
-      image.lut(make(size));
+      image.colorGrade(make(size));
 
       for (let i = 0; i < original.length; i += 4) {
         const rgb = [original[i]!, original[i + 1]!, original[i + 2]!].map(
@@ -293,7 +293,7 @@ describe("lut", () => {
     const lut = makeLut(3, ([r, g, b]) => [r * r, g, b]);
     const image = new Jimp({ width: 1, height: 1, color: 0x40000000 });
 
-    image.lut(lut);
+    image.colorGrade(lut);
 
     expect(image.bitmap.data[0]).toBe(Math.round((64 / 127.5) * 0.25 * 255));
   });
@@ -306,7 +306,7 @@ describe("lut", () => {
     );
     const image = new Jimp({ width: 1, height: 1, color: 0x80c0ffff });
 
-    image.lut(lut);
+    image.colorGrade(lut);
 
     expect(image.bitmap.data[0]).toBe(0x80);
   });
@@ -321,7 +321,7 @@ describe("lut", () => {
     [0x000000ff, 0x400000ff, 0x800000ff, 0xff0000ff].forEach((color, x) =>
       image.setPixelColor(color, x, 0),
     );
-    image.lut(lut);
+    image.colorGrade(lut);
 
     const reds = [0, 1, 2, 3].map((x) => image.bitmap.data[x * 4]);
 
@@ -335,7 +335,7 @@ describe("lut", () => {
 
     image.setPixelColor(0x100000ff, 0, 0);
     image.setPixelColor(0xf00000ff, 1, 0);
-    image.lut(lut);
+    image.colorGrade(lut);
 
     expect(image.bitmap.data[0]).toBe(0);
     expect(image.bitmap.data[4]).toBe(255);
@@ -344,8 +344,8 @@ describe("lut", () => {
   test("blends with the original by strength", () => {
     const lut = makeLut(2, swapAndInvert);
     const original = noise();
-    const full = original.clone().lut(lut);
-    const half = original.clone().lut(lut, { strength: 0.5 });
+    const full = original.clone().colorGrade(lut);
+    const half = original.clone().colorGrade(lut, { strength: 0.5 });
 
     for (let i = 0; i < original.bitmap.data.length; i++) {
       const expected =
@@ -361,15 +361,15 @@ describe("lut", () => {
     const lut = makeLut(2, swapAndInvert);
     const original = noise();
 
-    expect(original.clone().lut(lut, { strength: 0 }).bitmap.data).toEqual(
-      original.bitmap.data,
-    );
-    expect(original.clone().lut(lut, { strength: -1 }).bitmap.data).toEqual(
-      original.bitmap.data,
-    );
-    expect(original.clone().lut(lut, { strength: 3 }).bitmap.data).toEqual(
-      original.clone().lut(lut).bitmap.data,
-    );
+    expect(
+      original.clone().colorGrade(lut, { strength: 0 }).bitmap.data,
+    ).toEqual(original.bitmap.data);
+    expect(
+      original.clone().colorGrade(lut, { strength: -1 }).bitmap.data,
+    ).toEqual(original.bitmap.data);
+    expect(
+      original.clone().colorGrade(lut, { strength: 3 }).bitmap.data,
+    ).toEqual(original.clone().colorGrade(lut).bitmap.data);
   });
 
   test("gives the same result for a .cube LUT, a Hald image and plain arrays", () => {
@@ -378,9 +378,9 @@ describe("lut", () => {
     const fromJson = JSON.parse(
       JSON.stringify({ ...lut, data: Array.from(lut.data) }),
     );
-    const viaLut = noise().lut(lut);
-    const viaJson = noise().lut(fromJson);
-    const viaHald = noise().lut(makeHald(4, look));
+    const viaLut = noise().colorGrade(lut);
+    const viaJson = noise().colorGrade(fromJson);
+    const viaHald = noise().colorGrade(makeHald(4, look));
 
     expect(viaJson.bitmap.data).toEqual(viaLut.bitmap.data);
 
@@ -391,9 +391,9 @@ describe("lut", () => {
 
   test("can grade a Hald image with itself", () => {
     const hald = makeHald(2, ([r, g, b]) => [g, b, r]);
-    const expected = hald.clone().lut(hald.clone());
+    const expected = hald.clone().colorGrade(hald.clone());
 
-    hald.lut(hald);
+    hald.colorGrade(hald);
 
     expect(hald.bitmap.data).toEqual(expected.bitmap.data);
   });
@@ -402,18 +402,20 @@ describe("lut", () => {
     const lut = makeLut(2, swapAndInvert);
 
     expect(
-      noise().apply([["lut", lut, { strength: 0.5 }]]).bitmap.data,
-    ).toEqual(noise().lut(lut, { strength: 0.5 }).bitmap.data);
+      noise().apply([["colorGrade", lut, { strength: 0.5 }]]).bitmap.data,
+    ).toEqual(noise().colorGrade(lut, { strength: 0.5 }).bitmap.data);
   });
 
   test("rejects a Hald image that isn't level³ pixels square", () => {
-    expect(() => noise().lut(new Jimp({ width: 64, height: 32 }))).toThrow(
+    expect(() =>
+      noise().colorGrade(new Jimp({ width: 64, height: 32 })),
+    ).toThrow(
       "A Hald CLUT image must be square, with a side of level³ pixels, like 512 × 512 for level 8. This one is 64 × 32.",
     );
-    expect(() => noise().lut(new Jimp({ width: 50, height: 50 }))).toThrow(
-      "This one is 50 × 50.",
-    );
-    expect(() => noise().lut(new Jimp({ width: 1, height: 1 }))).toThrow(
+    expect(() =>
+      noise().colorGrade(new Jimp({ width: 50, height: 50 })),
+    ).toThrow("This one is 50 × 50.");
+    expect(() => noise().colorGrade(new Jimp({ width: 1, height: 1 }))).toThrow(
       "This one is 1 × 1.",
     );
   });
@@ -441,13 +443,13 @@ describe("lut", () => {
       "domainMin must be less than domainMax in each channel",
     ],
   ])("rejects a LUT with %s", (_, lut, message) => {
-    expect(() => noise().lut(lut as never)).toThrow(ZodError);
-    expect(() => noise().lut(lut as never)).toThrow(message);
+    expect(() => noise().colorGrade(lut as never)).toThrow(ZodError);
+    expect(() => noise().colorGrade(lut as never)).toThrow(message);
   });
 
   test("rejects options that aren't valid", () => {
     expect(() =>
-      noise().lut(makeLut(2, identity), { strength: "1" as never }),
+      noise().colorGrade(makeLut(2, identity), { strength: "1" as never }),
     ).toThrow(ZodError);
   });
 });

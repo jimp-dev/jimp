@@ -236,8 +236,8 @@ describe("tasks", () => {
     const hald = new Jimp({ width: 8, height: 8, color: 0x808080ff });
     const input = new Jimp({ width: 2, height: 1, color: 0xff8000ff });
     const [fromLut, fromHald] = await Promise.all([
-      jimp.run({ input, edits: [["lut", lut, { strength: 0.5 }]] }),
-      jimp.run({ input, edits: [["lut", hald]] }),
+      jimp.run({ input, edits: [["colorGrade", lut, { strength: 0.5 }]] }),
+      jimp.run({ input, edits: [["colorGrade", hald]] }),
     ]);
 
     expect(fromLut.getPixelColor(0, 0)).toBe(0x808080ff);

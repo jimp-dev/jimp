@@ -1,5 +1,5 @@
 /**
- * Playground op: lut, with the Hald CLUT looks in public/lut/ (made by
+ * Playground op: colorGrade, with the Hald CLUT looks in public/lut/ (made by
  * scripts/lut-images.mjs). See ops/shape.ts for how to add an op.
  */
 import { js, num } from "../code";
@@ -15,8 +15,8 @@ const looks = ["teal-orange", "faded-film", "bleach-bypass"] as const;
 
 export default [
   defineOp({
-    id: "lut",
-    label: "lut",
+    id: "colorGrade",
+    label: "colorGrade",
     icon,
     group: "color",
     description:
@@ -31,14 +31,14 @@ export default [
     ],
     defaults: { look: "teal-orange", strength: 1 },
     apply: async (image, { look, strength }, ctx) => {
-      image.lut(await ctx.loadImage(`lut/${look}.png`), { strength });
+      image.colorGrade(await ctx.loadImage(`lut/${look}.png`), { strength });
     },
     code: ({ look, strength }) => {
       const hald = `await Jimp.read(${js(`lut/${look}.png`)})`;
 
       return num(strength) === 1
-        ? `image.lut(${hald});`
-        : `image.lut(${hald}, ${js({ strength })});`;
+        ? `image.colorGrade(${hald});`
+        : `image.colorGrade(${hald}, ${js({ strength })});`;
     },
   }),
 ];

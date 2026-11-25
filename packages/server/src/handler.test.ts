@@ -10,8 +10,8 @@ import {
   intToRGBA,
   parseCubeLut,
   type JimpInstance,
+  type ColorGradeOptions,
   type Lut,
-  type LutOptions,
 } from "jimp";
 
 import {
@@ -666,7 +666,7 @@ describe("signing", () => {
   });
 
   test("edits can apply a LUT by name with a custom method", async () => {
-    // As on the lut() docs page: LUTs stay on the server
+    // As on the colorGrade() docs page: LUTs stay on the server
     const looks: Record<string, Lut> = {
       // Swaps red and blue
       swap: parseCubeLut(
@@ -681,13 +681,13 @@ describe("signing", () => {
           look<I extends JimpClass>(
             image: I,
             name: string,
-            options?: LutOptions,
+            options?: ColorGradeOptions,
           ) {
             if (!Object.hasOwn(looks, name)) {
               throw new Error(`There's no look called "${name}"`);
             }
 
-            return (image as unknown as JimpInstance).lut(
+            return (image as unknown as JimpInstance).colorGrade(
               looks[name]!,
               options,
             ) as unknown as I;
@@ -719,10 +719,10 @@ describe("signing", () => {
     expect(unknown.status).toBe(400);
     expect(await unknown.text()).toContain(`There's no look called "toString"`);
 
-    const raw = await request([["lut", { size: 2, data: [] }]]);
+    const raw = await request([["colorGrade", { size: 2, data: [] }]]);
 
     expect(raw.status).toBe(400);
-    expect(await raw.text()).toBe("The lut edit isn't allowed");
+    expect(await raw.text()).toBe("The colorGrade edit isn't allowed");
   });
 });
 
