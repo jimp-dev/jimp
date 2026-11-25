@@ -63,7 +63,15 @@ It's built into `@jimp/core`, so every Jimp class has it, including [custom ones
 | `BlendMode.HARD_LIGHT`  | Like overlay, but decided by the source's brightness instead.           |
 | `BlendMode.DIFFERENCE`  | The difference of each channel. White inverts, black has no effect.     |
 | `BlendMode.EXCLUSION`   | A softer, lower-contrast difference.                                    |
+| `BlendMode.COLOR_DODGE` | Brightens the image to reflect the source. Black has no effect.        |
+| `BlendMode.COLOR_BURN`  | Darkens the image to reflect the source. White has no effect.          |
+| `BlendMode.SOFT_LIGHT`  | A gentler hard light: light source colors dodge, dark ones burn.       |
+| `BlendMode.HUE`         | The source's hue, with the image's saturation and luminosity.          |
+| `BlendMode.SATURATION`  | The source's saturation, with the image's hue and luminosity.          |
+| `BlendMode.COLOR`       | The source's hue and saturation, with the image's luminosity.          |
+| `BlendMode.LUMINOSITY`  | The source's luminosity, with the image's hue and saturation.          |
 
+The blend modes follow the W3C [Compositing and Blending](https://www.w3.org/TR/compositing-1/#blending) spec, so they give the same colors as CSS `mix-blend-mode` and canvas `globalCompositeOperation`.
 The [Compositing](/jimp/concepts/compositing/#blend-modes) page shows every mode side by side.
 
 ## Example
@@ -101,6 +109,17 @@ const stencil = await Jimp.read("stencil.png");
 photo.composite(stencil, 0, 0, { mode: BlendMode.MULTIPLY });
 ```
 
+`COLOR` takes its colors from the source and keeps the image's light and shade, so a solid color over a black and white photo tints it like an old print:
+
+```ts title="example.ts"
+import { BlendMode, Jimp } from "jimp";
+
+const photo = await Jimp.read("portrait.jpg");
+const tint = new Jimp({ width: photo.width, height: photo.height, color: 0x2b6cb0ff });
+
+photo.greyscale().composite(tint, 0, 0, { mode: BlendMode.COLOR });
+```
+
 ### Build an image from scratch
 
 Start from a blank canvas with [`new Jimp()`](/jimp/methods/new-jimp/) and composite layers onto it:
@@ -134,7 +153,7 @@ Click the image to move the sticker, choose a `mode` and fade either layer with 
 - **Any Jimp class.** `src` can come from a different Jimp class than the image, such as a [custom Jimp](/jimp/guides/custom-jimp/) and the `jimp` package's `Jimp`. Anything that isn't an image throws `The source must be a Jimp image: an object with a bitmap of width, height and data`.
 - **Color profiles.** If `src` is in a different color space from the image, for example an sRGB logo on a Display P3 photo, a copy of it is converted to the image's color space first, so its colors look the same. See [Color spaces](/jimp/guides/color-spaces/).
 - **Opacity values are clamped.** `opacitySource` and `opacityDest` are clamped to `0`–`1`. A value that isn't a number is treated as `1`.
-- **Unknown modes.** A `mode` that isn't a `BlendMode` value throws `Unknown blend mode "nope", expected one of: srcOver, dstOver, multiply, add, screen, overlay, darken, lighten, hardLight, difference, exclusion` (with your value in the quotes).
+- **Unknown modes.** A `mode` that isn't a `BlendMode` value throws `Unknown blend mode "nope", expected one of: srcOver, dstOver, multiply, add, screen, overlay, darken, lighten, hardLight, difference, exclusion, colorDodge, colorBurn, softLight, hue, saturation, color, luminosity` (with your value in the quotes).
 - **Non-number positions** throw `x and y must be numbers`.
 - **`composite` or `blit`?** [`blit`](/jimp/methods/blit/) can copy just part of the source image, and always blends like `SRC_OVER` at full opacity.
 - **Changed in 2.0:** `src` had to come from the same Jimp class as the image, or `composite` threw `The source must be a Jimp image`. An unknown `mode` threw `TypeError: blendmode is not a function`, and an opacity outside `0`–`1` was treated as `1`, so a negative opacity drew the source at full strength. Sources in a different color space were drawn without conversion. Results were truncated instead of rounded, so an opaque source over a semi-transparent pixel could give alpha 254.
