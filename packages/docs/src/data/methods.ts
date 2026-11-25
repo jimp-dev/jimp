@@ -97,6 +97,8 @@ export const methods: MethodEntry[] = [
   m("gradient-map", "gradientMap", "color", "@jimp/plugin-color"),
   m("posterize", "posterize", "color", "@jimp/plugin-color"),
   m("normalize", "normalize", "color", "@jimp/plugin-color"),
+  m("lut", "lut", "color", "@jimp/plugin-lut"),
+  m("parse-cube-lut", "parseCubeLut", "color", "@jimp/plugin-lut"),
   m("threshold", "threshold", "color", "@jimp/plugin-threshold"),
   m("otsu-threshold", "otsuThreshold", "color", "@jimp/plugin-threshold"),
   m("quantize", "quantize", "color", "@jimp/plugin-quantize"),

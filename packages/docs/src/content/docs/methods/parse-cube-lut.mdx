@@ -1,0 +1,127 @@
+---
+title: "parseCubeLut()"
+description: "Read a .cube file into a 3D LUT for lut()."
+category: color
+method: "parseCubeLut"
+plugin: "@jimp/plugin-lut"
+---
+
+import Related from "../../../components/Related.astro";
+
+`parseCubeLut` reads the text of a `.cube` file, the 3D LUT format from Adobe that DaVinci Resolve, Premiere, Final Cut Pro, Photoshop and most LUT packs use.
+Pass the result to [`lut`](/jimp/methods/lut/) to color grade an image with it.
+
+## Signature
+
+```ts title="parseCubeLut.d.ts"
+import { parseCubeLut } from "jimp";
+
+parseCubeLut(text: string): Lut
+```
+
+`parseCubeLut` throws an `Error` if the file isn't a valid 3D LUT. It doesn't read files itself, so it works the same in Node.js and in browsers.
+
+## Parameters
+
+| Parameter | Type     | Default  | Description                     |
+| --------- | -------- | -------- | ------------------------------- |
+| `text`    | `string` | required | The contents of a `.cube` file. |
+
+## Returns
+
+A `Lut`, an object of plain data:
+
+| Property    | Type                       | Description                                                                                                       |
+| ----------- | -------------------------- | ----------------------------------------------------------------------------------------------------------------- |
+| `title`     | `string`                   | The file's `TITLE`. Not set if it has none.                                                                       |
+| `size`      | `number`                   | The `LUT_3D_SIZE`: how many points the grid has along each of red, green and blue, from `2` to `256`.            |
+| `domainMin` | `[number, number, number]` | The input red, green and blue at the first point of each axis, from `DOMAIN_MIN`. `[0, 0, 0]` by default.         |
+| `domainMax` | `[number, number, number]` | The input red, green and blue at the last point of each axis, from `DOMAIN_MAX`. `[1, 1, 1]` by default.          |
+| `data`      | `Float32Array`             | The output red, green and blue of every point, `size`³ × 3 numbers, with red changing fastest, then green, then blue. |
+
+## Example
+
+```ts title="example.ts"
+import { readFile } from "node:fs/promises";
+import { Jimp, parseCubeLut } from "jimp";
+
+const lut = parseCubeLut(await readFile("teal-orange.cube", "utf8"));
+
+console.log(lut.title, lut.size); // "Teal and orange" 17
+
+const image = await Jimp.read("photo.jpg");
+
+image.lut(lut);
+```
+
+### In a browser
+
+```ts title="main.ts"
+import { parseCubeLut } from "jimp";
+
+const response = await fetch("/luts/teal-orange.cube");
+const lut = parseCubeLut(await response.text());
+```
+
+### Making a LUT
+
+A `Lut` doesn't have to come from a file. This one swaps red and blue:
+
+```ts title="example.ts"
+const size = 2;
+const data = new Float32Array(size ** 3 * 3);
+
+for (let i = 0; i < size ** 3; i++) {
+  const r = i % size;
+  const g = Math.floor(i / size) % size;
+  const b = Math.floor(i / size ** 2);
+
+  data.set([b, g, r], i * 3);
+}
+
+image.lut({ size, data });
+```
+
+## The `.cube` format
+
+```txt title="teal-orange.cube"
+# Comments start with #
+TITLE "Teal and orange"
+LUT_3D_SIZE 17
+DOMAIN_MIN 0 0 0
+DOMAIN_MAX 1 1 1
+
+0.0000 0.0000 0.0800
+0.0000 0.0000 0.0754
+…
+```
+
+- **Keywords** come first: `LUT_3D_SIZE` is required, and `TITLE`, `DOMAIN_MIN` and `DOMAIN_MAX` are optional. Resolve's `LUT_3D_INPUT_RANGE min max` sets the same domain for all three channels.
+- **Other keywords are ignored**, such as Resolve's `LUT_IN_VIDEO_RANGE`.
+- **The data** follows: `LUT_3D_SIZE`³ lines of three numbers, the output for each point, with red changing fastest. Outputs are usually from `0` to `1`, but may be outside it.
+- **Comments and blank lines** are skipped, as are a byte order mark and Windows line endings.
+
+## Errors
+
+Errors name the problem, and the line where there is one:
+
+| Problem                                    | Message                                                                                                                         |
+| ------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------- |
+| A 1D LUT, or a 1D shaper before a 3D LUT    | `Invalid .cube LUT, line 1: LUT_1D_SIZE is for 1D LUTs, which aren't supported. Only 3D LUTs (LUT_3D_SIZE) can be applied.`     |
+| No `LUT_3D_SIZE`                           | `Invalid .cube LUT: it has no LUT_3D_SIZE`                                                                                       |
+| A size that isn't from 2 to 256            | `Invalid .cube LUT, line 2: LUT_3D_SIZE must be a whole number from 2 to 256, got 300`                                         |
+| Missing data lines                         | `Invalid .cube LUT: LUT_3D_SIZE 17 needs 4913 data lines, found 4912`                                                           |
+| A line that isn't three numbers            | `Invalid .cube LUT, line 9: A data line needs 3 numbers, got 2` or `Invalid .cube LUT, line 9: "abc" isn't a number`           |
+| A keyword after the data                   | `Invalid .cube LUT, line 4920: keywords must come before the LUT data, found more after it`                                     |
+| `DOMAIN_MIN` not less than `DOMAIN_MAX`     | `Invalid .cube LUT: DOMAIN_MIN must be less than DOMAIN_MAX in each channel, got 0 0 0 and 1 0 1`                               |
+
+## Notes
+
+- **The result is plain data**, so it can be kept, reused for many images, and sent to a [worker](/jimp/guides/workers/). To store it as JSON, convert `data` to an array first, as shown on the [`lut`](/jimp/methods/lut/#apply-and-json) page.
+- **Memory.** `data` takes 12 bytes per point: 0.4 MB for a 33-point LUT and 3.3 MB for a 65-point one.
+- **Custom Jimp.** `parseCubeLut` is also exported from `@jimp/plugin-lut`.
+- **Added in 2.2.**
+
+## Related
+
+<Related methods={["lut", "color", "toColorSpace"]} />
