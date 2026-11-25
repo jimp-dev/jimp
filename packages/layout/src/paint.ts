@@ -105,12 +105,7 @@ export function toPaint(fill: Fill, rect: Rect): Paint {
     return fill;
   }
 
-  const last = fill.stops.length - 1;
-  const stops = fill.stops.map((stop, i) =>
-    typeof stop === "object"
-      ? stop
-      : { offset: last === 0 ? 0 : i / last, color: stop },
-  );
+  const { stops } = fill;
   const cx = rect.x + rect.width / 2;
   const cy = rect.y + rect.height / 2;
 

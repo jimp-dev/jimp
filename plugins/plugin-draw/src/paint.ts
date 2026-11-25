@@ -1,36 +1,18 @@
 import type { JimpClass } from "@jimp/types";
-import { cssColorToHex, getColorSpace, intToRGBA } from "@jimp/utils";
+import {
+  ColorSchema,
+  getColorSpace,
+  gradientTable,
+  GradientStopsSchema as StopsSchema,
+  normalizeStops,
+  resolveColor,
+  type Color,
+  type GradientStop,
+  type GradientStops,
+} from "@jimp/utils";
 import { z } from "zod";
 
-export const ColorSchema = z.union([
-  z.number().int().min(0).max(0xffffffff),
-  z.string(),
-  z.object({
-    r: z.number(),
-    g: z.number(),
-    b: z.number(),
-    /** the alpha, from 0 to 255. Defaults to 255. */
-    a: z.number().optional(),
-  }),
-]);
-
-/**
- * A color: a hex number (`0xRRGGBBAA`), a CSS color string, which is
- * converted to the image's colour space, or an object of pixel values from 0
- * to 255 (`{ r, g, b, a }`, where `a` defaults to 255).
- */
-export type Color = z.infer<typeof ColorSchema>;
-
-const GradientStopSchema = z.object({
-  /** where the color is along the gradient, from 0 (the start) to 1 (the end) */
-  offset: z.number(),
-  /** the color at that point */
-  color: ColorSchema,
-});
-
-export type GradientStop = z.infer<typeof GradientStopSchema>;
-
-const StopsSchema = z.array(GradientStopSchema).min(1);
+export { ColorSchema, type Color, type GradientStop, type GradientStops };
 
 const LinearGradientSchema = z.object({
   type: z.literal("linear"),
@@ -99,83 +81,6 @@ export interface ResolvedPaint {
   at?: (x: number, y: number) => number;
 }
 
-function clamp(n: number, min: number, max: number) {
-  return n < min ? min : n > max ? max : n;
-}
-
-/** The r, g, b and a of a color, as pixel values for the image */
-function resolveColor(
-  color: Color,
-  image: Pick<JimpClass, "iccProfile">,
-): [number, number, number, number] {
-  if (typeof color === "object") {
-    const channel = (n: number) => Math.round(clamp(n, 0, 255));
-
-    return [
-      channel(color.r),
-      channel(color.g),
-      channel(color.b),
-      channel(color.a ?? 255),
-    ];
-  }
-
-  const { r, g, b, a } = intToRGBA(cssColorToHex(color, getColorSpace(image)));
-
-  return [r, g, b, a];
-}
-
-/**
- * Sample the gradient's stops into a table. Colors are interpolated with
- * premultiplied alpha, like CSS and canvas, so fading to transparent doesn't
- * go grey.
- */
-function gradientTable(
-  stops: GradientStop[],
-  image: Pick<JimpClass, "iccProfile">,
-) {
-  // Like CSS, offsets are clamped and each is at least the one before
-  let previous = 0;
-  const resolved = stops.map(({ offset, color }) => {
-    const [r, g, b, a] = resolveColor(color, image);
-    const position = Math.max(previous, clamp(offset, 0, 1));
-    const alpha = a / 255;
-
-    previous = position;
-
-    return { position, color: [r * alpha, g * alpha, b * alpha, a] };
-  });
-  const lut = new Float32Array(LUT_SIZE * 4);
-  let stop = 0;
-
-  for (let i = 0; i < LUT_SIZE; i++) {
-    const t = i / (LUT_SIZE - 1);
-
-    while (stop < resolved.length && resolved[stop]!.position <= t) {
-      stop++;
-    }
-
-    // Between stops `stop - 1` and `stop`
-    const before = resolved[Math.max(0, stop - 1)]!;
-    const after = resolved[Math.min(resolved.length - 1, stop)]!;
-    const span = after.position - before.position;
-    const mix = span > 0 ? clamp((t - before.position) / span, 0, 1) : 0;
-    const premultiplied = before.color.map(
-      (c, channel) => c + (after.color[channel]! - c) * mix,
-    );
-    const a = premultiplied[3]!;
-    const alpha = a / 255;
-
-    for (let channel = 0; channel < 3; channel++) {
-      lut[i * 4 + channel] =
-        alpha > 0 ? Math.round(premultiplied[channel]! / alpha) : 0;
-    }
-
-    lut[i * 4 + 3] = a;
-  }
-
-  return lut;
-}
-
 /**
  * Resolve a paint for an image: CSS colors are parsed and converted to the
  * image's colour space, and gradients are sampled. Throws for invalid
@@ -185,11 +90,13 @@ export function resolvePaint(
   paint: Paint,
   image: Pick<JimpClass, "iccProfile">,
 ): ResolvedPaint {
+  const colorSpace = getColorSpace(image);
+
   if (typeof paint !== "object" || !("type" in paint)) {
-    return { color: resolveColor(paint, image) };
+    return { color: resolveColor(paint, colorSpace) };
   }
 
-  const lut = gradientTable(paint.stops, image);
+  const lut = gradientTable(normalizeStops(paint.stops), colorSpace, LUT_SIZE);
 
   if (paint.type === "linear") {
     const { x1, y1 } = paint;
