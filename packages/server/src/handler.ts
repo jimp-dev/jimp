@@ -52,6 +52,7 @@ export interface JimpClassLike {
  */
 export const defaultAllowedEdits = [
   "autocrop",
+  "bilateral",
   "blur",
   "border",
   "brightness",
@@ -67,6 +68,7 @@ export const defaultAllowedEdits = [
   "gaussian",
   "greyscale",
   "invert",
+  "median",
   "normalize",
   "opacity",
   "opaque",

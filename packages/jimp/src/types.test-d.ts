@@ -132,6 +132,8 @@ describe("chainable methods return the instance type", () => {
       blur: image.blur(1),
       gaussian: image.gaussian(1),
       sharpen: image.sharpen({ amount: 1, radius: 1, threshold: 2 }),
+      median: image.median(1),
+      bilateral: image.bilateral({ radius: 2, tolerance: 30 }),
       roundCorners: image.roundCorners({ radius: 1 }),
       border: image.border({ width: 1, radius: { topLeft: 1 } }),
       boxShadow: image.boxShadow({ blur: 1, color: "black" }),

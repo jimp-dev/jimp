@@ -1,0 +1,100 @@
+---
+title: "bilateral()"
+description: "Smooth grain and JPEG noise in photos while keeping edges sharp."
+category: effects
+method: "bilateral"
+plugin: "@jimp/plugin-blur"
+---
+
+import Playground from "../../../components/playground/Playground";
+import Related from "../../../components/Related.astro";
+
+export const figure = { margin: 0, padding: "8px 8px 10px", background: "var(--jp-surface)", color: "var(--jp-text)", borderRadius: "16px", boxShadow: "0 0 0 3px var(--jp-line), 3px 5px 0 3px var(--jp-shadow)" };
+export const picture = { display: "block", width: "100%", height: "auto", borderRadius: "10px" };
+export const caption = { marginTop: "8px", fontSize: "0.85rem", lineHeight: 1.35 };
+
+`bilateral` reduces noise in photos without blurring them.
+Each pixel becomes an average of its neighbors, weighted both by how close they are and by how similar their color is.
+Grain in flat areas such as sky, skin and walls is averaged away, but neighbors across an edge have a very different color, so they barely count and the edge stays sharp.
+
+<div class="not-content" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(190px, 1fr))", gap: "1.25rem", margin: "1.5rem 0" }}>
+  <figure style={figure}>
+    <img src="/jimp/denoise/grain.png" alt="A photo of dice with heavy grain over the background and the dice" width="360" height="270" loading="lazy" style={picture} />
+    <figcaption style={caption}>Before: grain like a photo taken in low light</figcaption>
+  </figure>
+  <figure style={figure}>
+    <img src="/jimp/denoise/grain-bilateral.png" alt="The same photo with smooth background and dice, and crisp pips" width="360" height="270" loading="lazy" style={picture} />
+    <figcaption style={caption}>After: <code>image.bilateral()</code>. The grain is gone and the pips stay crisp.</figcaption>
+  </figure>
+  <figure style={figure}>
+    <img src="/jimp/denoise/grain-gaussian.png" alt="The same photo blurred: smooth, but the pips and edges are soft" width="360" height="270" loading="lazy" style={picture} />
+    <figcaption style={caption}>For comparison, <code>image.gaussian(1.5)</code> smooths the grain but softens every edge.</figcaption>
+  </figure>
+</div>
+
+## Signature
+
+```ts title="bilateral.d.ts"
+image.bilateral(options?: {
+  radius?: number;
+  tolerance?: number;
+}): this
+```
+
+`bilateral` changes the image in place and returns it, so you can chain more calls after it.
+The options type is exported from `@jimp/plugin-blur` as `BilateralOptions`.
+
+## Options
+
+| Option      | Type     | Default | Description                                                                                                                                                                      |
+| ----------- | -------- | ------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `radius`    | `number` | `2`     | How far the averaging reaches: the standard deviation of the distance weight in pixels, as in [`gaussian`](/jimp/methods/gaussian/). Neighbors up to `2 × radius` away count. Greater than `0`, at most `5`. |
+| `tolerance` | `number` | `30`    | How different two colors can be, from `0` to `255`, and still be averaged together: the standard deviation of the color weight, measured as the distance between RGB colors. Greater than `0`, at most `255`. |
+
+## Example
+
+```ts title="example.ts"
+import { Jimp } from "jimp";
+
+const image = await Jimp.read("photo.jpg");
+
+image.bilateral();
+
+await image.write("photo-clean.jpg");
+```
+
+### Match the tolerance to the noise
+
+`tolerance` should be about 3 times the noise's standard deviation, in levels from `0` to `255`.
+The default of `30` suits moderate grain. Raise it for heavier noise, and lower it if fine texture such as hair or fabric is being smoothed away:
+
+```ts title="example.ts"
+// Heavy grain, from a phone camera at night
+image.bilateral({ tolerance: 50 });
+
+// Light JPEG noise: only smooth very similar colors, close by
+image.bilateral({ radius: 1, tolerance: 15 });
+```
+
+A higher `radius` smooths larger blotches, but costs more (see below). For a stronger effect, running `bilateral` twice is usually better than a large radius.
+
+## Try it
+
+The photo below has grain added. Hold the compare button to see it, then raise `tolerance` until the background is smooth.
+
+<Playground method="bilateral" src="denoise/grain.png" client:visible />
+
+## Notes
+
+- **Specks are a job for `median`.** A black or white speck has no neighbors of a similar color, so `bilateral` leaves it alone. Use [`median`](/jimp/methods/median/) for salt-and-pepper noise, dust and dead pixels.
+- **Too high a tolerance blurs.** When `tolerance` is larger than the contrast of an edge, colors on both sides count and the edge softens, as with [`gaussian`](/jimp/methods/gaussian/). With a very high tolerance, flat areas can also start to look like a painting.
+- **Speed.** Every pixel looks at each neighbor in a circle of radius `2 × radius`, so the cost grows with `radius²`. A 1200×630 photo, the size of an Open Graph image, takes about 45ms with `radius: 1`, 100ms with the default `radius: 2` and 190ms with `radius: 3` in Node.js on a laptop. The radius is capped at `5` (about 0.6s for that photo).
+- **Transparency is handled.** Colors are weighted by their alpha, so transparent pixels don't pull colors toward black. Alpha isn't changed, and fully transparent pixels are left as they are.
+- **Edges are extended.** Pixels past the border count as copies of the nearest edge pixel.
+- **Validation.** The options are checked with zod. A `radius` of `0` or less or above `5`, or a `tolerance` of `0` or less or above `255`, throws a validation error.
+- **The whole image.** `bilateral` has no region option. To smooth part of an image, such as a face, filter a cropped copy and [`composite`](/jimp/methods/composite/) it back.
+- Added in 2.2.
+
+## Related
+
+<Related methods={["median", "gaussian", "blur", "sharpen"]} />
