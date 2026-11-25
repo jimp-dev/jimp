@@ -259,12 +259,20 @@ export default [
       { type: "rect", key: "rect", label: "rectangle" },
       { type: "slider", key: "radius", min: 0, max: 100, step: 1, unit: "px" },
       ...styleControls,
+      {
+        type: "select",
+        key: "strokeAlign",
+        label: "stroke align",
+        options: ["center", "inside", "outside"],
+        when: (o) => o.style !== "fill",
+      },
       joinControl,
     ],
     defaults: ({ width, height }: ImageSize) => ({
       ...shapeDefaults,
       rect: centeredRect(width, height, 0.6),
       radius: r(Math.min(width, height) / 10),
+      strokeAlign: "center",
       join: "miter",
       strokeWidth: Math.max(2, r(width / 60)),
     }),
@@ -431,7 +439,9 @@ function lineOptions(o: {
   };
 }
 
-function rectOptions(o: ShapeOpts & { rect: { x: number; y: number; w: number; h: number }; radius: number; join: string }) {
+function rectOptions(
+  o: ShapeOpts & { rect: { x: number; y: number; w: number; h: number }; radius: number; strokeAlign: string; join: string },
+) {
   const { x, y, w, h } = o.rect;
   return {
     x,
@@ -440,6 +450,8 @@ function rectOptions(o: ShapeOpts & { rect: { x: number; y: number; w: number; h
     h,
     radius: o.radius || undefined,
     ...shapeStyle(o, () => linear(x, y, x + w, y + h, o.fill, o.fill2)),
+    strokeAlign:
+      o.style === "fill" ? undefined : (unlessDefault(o.strokeAlign, "center") as "inside" | "outside" | undefined),
     join: o.style === "fill" ? undefined : (unlessDefault(o.join, "miter") as "round" | "bevel" | undefined),
   };
 }

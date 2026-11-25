@@ -143,6 +143,10 @@ The optional WASM plugins add AVIF, JPEG 2000, JPEG XL, WebP and reading SVG, or
 - [`@jimp/wasm-svg`](https://www.npmjs.com/package/@jimp/wasm-svg)
 - [`@jimp/wasm-webp`](https://www.npmjs.com/package/@jimp/wasm-webp)
 
+## Layout
+
+[`@jimp/layout`](https://www.npmjs.com/package/@jimp/layout) lays out boxes, text and images like CSS flexbox and draws them with Jimp, for Open Graph cards, banners and badges. It isn't part of `jimp`; see the [Open Graph images guide](https://jimp-dev.github.io/jimp/guides/og-images/).
+
 ## Migrating from 1.x
 
 Jimp 2.0 keeps the v1 API. It needs Node.js 22 or later, and invalid input that 1.x accepted now throws.

@@ -1,0 +1,523 @@
+---
+title: Open Graph Images
+description: Build an Open Graph card from boxes, text and images with @jimp/layout and JSX, step by step.
+---
+
+import { Aside, Steps, TabItem, Tabs } from "@astrojs/starlight/components";
+import InstallCommand from "../../../components/InstallCommand.astro";
+
+An Open Graph image is the card a link shows when it's shared: a title, maybe a logo and some tags, usually 1200 × 630 pixels.
+You could draw one with [`drawRect`](/jimp/methods/draw-rect/) and [`print`](/jimp/methods/print/), but you'd be working out every coordinate yourself, and a longer title would break it.
+
+`@jimp/layout` lays the card out for you.
+You write it as JSX, or as plain objects, made of boxes, text and images in rows and columns like CSS flexbox. [`render`](/jimp/methods/render/) measures the text, wraps it, positions everything and draws it with Jimp.
+It's plain JavaScript with no browser, SVG, React or WebAssembly involved, so it runs anywhere Jimp does: Node.js, browsers, workers, Deno and Bun.
+
+This guide builds this card:
+
+![An Open Graph card: a dark purple gradient with a round avatar and the site name at the top, a two-line bold title and a description in the middle, and three yellow tag pills at the bottom](/jimp/layout/og-card.png)
+
+## Set up
+
+`@jimp/layout` isn't part of `jimp`, so install it alongside:
+
+<InstallCommand pkg="jimp @jimp/layout" />
+
+To write JSX, point your compiler at `@jimp/layout`'s JSX runtime. TypeScript, esbuild, Vite and Bun read it from `tsconfig.json`, and Deno from `deno.json`:
+
+```json title="tsconfig.json"
+{
+  "compilerOptions": {
+    "jsx": "react-jsx",
+    "jsxImportSource": "@jimp/layout"
+  }
+}
+```
+
+If the rest of your project uses React, leave `tsconfig.json` alone and start each card file with this comment instead:
+
+```tsx title="og-card.tsx"
+/** @jsxImportSource @jimp/layout */
+```
+
+If your `tsconfig.json` has `"jsx": "preserve"`, as Astro's does, add `/** @jsxRuntime automatic */` above it too.
+
+Node.js can't run JSX by itself, so compile the file with `tsc` or your bundler, or run it with a loader such as [tsx](https://tsx.is). If you'd rather not compile anything, every step below also shows the same card as plain objects: pick **Objects** on any of the tabs.
+
+You also need a font. `@jimp/layout` draws text with the fonts [`loadTTF`](/jimp/methods/load-ttf/) loads (TrueType, OpenType or WOFF) at any size and color, or with the bitmap fonts from [`loadFont`](/jimp/methods/load-font/). This guide uses [Inter](https://rsms.me/inter/) in two weights.
+
+## Build the card
+
+<Steps>
+
+1. **Start with the background.** A card is a `Box` that fills the image. Give it the padding and the gradient. Text props like `font` and `color` set on a box are inherited by all the text inside it, the way CSS inherits them, so set them here once.
+
+   The `Card` is a component: a function that takes props and returns nodes. The later steps fill it with more components.
+
+   <Tabs syncKey="layout-syntax">
+   <TabItem label="JSX">
+
+   ```tsx title="og-card.tsx"
+   import { Jimp } from "jimp";
+   import { loadTTF } from "jimp/load-ttf";
+   import {
+     Box,
+     render,
+     type LayoutChildren,
+   } from "@jimp/layout";
+
+   const regular = await loadTTF("Inter-Regular.otf");
+   const bold = await loadTTF("Inter-Bold.otf");
+
+   function Card({
+     children,
+   }: {
+     children?: LayoutChildren;
+   }) {
+     return (
+       <Box
+         padding={72}
+         justify="space-between"
+         background={{
+           type: "linear",
+           angle: 135,
+           stops: ["#1b1840", "#3a2d7a"],
+         }}
+         font={regular}
+         color="white"
+       >
+         {children}
+       </Box>
+     );
+   }
+
+   const image = await render(<Card />, {
+     width: 1200,
+     height: 630,
+     Jimp,
+   });
+
+   await image.write("og-card.png");
+   ```
+
+   </TabItem>
+   <TabItem label="Objects">
+
+   ```ts title="og-card.ts"
+   import { Jimp } from "jimp";
+   import { loadTTF } from "jimp/load-ttf";
+   import {
+     render,
+     type BoxNode,
+     type LayoutNode,
+   } from "@jimp/layout";
+
+   const regular = await loadTTF("Inter-Regular.otf");
+   const bold = await loadTTF("Inter-Bold.otf");
+
+   const card = (
+     children: LayoutNode[] = [],
+   ): BoxNode => ({
+     type: "box",
+     padding: 72,
+     justify: "space-between",
+     background: {
+       type: "linear",
+       angle: 135,
+       stops: ["#1b1840", "#3a2d7a"],
+     },
+     font: regular,
+     color: "white",
+     children,
+   });
+
+   const image = await render(card(), {
+     width: 1200,
+     height: 630,
+     Jimp,
+   });
+
+   await image.write("og-card.png");
+   ```
+
+   </TabItem>
+   </Tabs>
+
+   `render` returns a Jimp image, so you can [`write`](/jimp/methods/write/) it, get its bytes with [`getBuffer`](/jimp/methods/get-buffer/), or keep editing it.
+   The gradient's `angle` works like CSS `linear-gradient`: `135` goes from the top left to the bottom right. Gradients are sized to the box they fill.
+
+   ![Step 1: an empty card with the purple gradient](/jimp/layout/step-1-background.png)
+
+2. **Add the title and description.** A box lays out its children in a column, with `gap` pixels between them. Text wraps to the width of the column. `maxLines` cuts a long title short with an ellipsis, so the card never overflows however long the title is:
+
+   <Tabs syncKey="layout-syntax">
+   <TabItem label="JSX">
+
+   ```tsx title="og-card.tsx"
+   import { Text } from "@jimp/layout";
+
+   const post = {
+     title:
+       "Generating Open Graph images " +
+       "with plain JavaScript",
+     description:
+       "Lay out text and images like CSS flexbox, " +
+       "then draw them with Jimp.",
+     site: "jimp-dev.github.io",
+     tags: ["jimp", "layout", "og-images"],
+   };
+
+   function Body({
+     title,
+     description,
+   }: {
+     title: string;
+     description: string;
+   }) {
+     return (
+       <Box gap={24}>
+         <Text
+           font={bold}
+           fontSize={72}
+           lineHeight={84}
+           maxLines={2}
+         >
+           {title}
+         </Text>
+         <Text fontSize={32} color="#c9c4f0">
+           {description}
+         </Text>
+       </Box>
+     );
+   }
+
+   const image = await render(
+     <Card>
+       <Body
+         title={post.title}
+         description={post.description}
+       />
+     </Card>,
+     { width: 1200, height: 630, Jimp },
+   );
+   ```
+
+   </TabItem>
+   <TabItem label="Objects">
+
+   ```ts title="og-card.ts"
+   const post = {
+     title:
+       "Generating Open Graph images " +
+       "with plain JavaScript",
+     description:
+       "Lay out text and images like CSS flexbox, " +
+       "then draw them with Jimp.",
+     site: "jimp-dev.github.io",
+     tags: ["jimp", "layout", "og-images"],
+   };
+
+   const body = (
+     title: string,
+     description: string,
+   ): BoxNode => ({
+     type: "box",
+     gap: 24,
+     children: [
+       {
+         type: "text",
+         text: title,
+         font: bold,
+         fontSize: 72,
+         lineHeight: 84,
+         maxLines: 2,
+       },
+       {
+         type: "text",
+         text: description,
+         fontSize: 32,
+         color: "#c9c4f0",
+       },
+     ],
+   });
+
+   const image = await render(
+     card([body(post.title, post.description)]),
+     {
+       width: 1200,
+       height: 630,
+       Jimp,
+     },
+   );
+   ```
+
+   </TabItem>
+   </Tabs>
+
+   ![Step 2: the title and description at the top of the card](/jimp/layout/step-2-text.png)
+
+3. **Add a header with an avatar.** `direction="row"` lays the avatar and the site name side by side, and `align="center"` centers them vertically. The image is 64 pixels wide, `aspectRatio={1}` makes it square, `fit="cover"` crops it to fill that square, and a `radius` of half its width makes it a circle.
+   The card's `justify="space-between"` pushes the header to the top and the body to the bottom:
+
+   <Tabs syncKey="layout-syntax">
+   <TabItem label="JSX">
+
+   ```tsx title="og-card.tsx"
+   import { Image } from "@jimp/layout";
+
+   const avatar = await Jimp.read("avatar.png");
+
+   function Header({ site }: { site: string }) {
+     return (
+       <Box direction="row" align="center" gap={20}>
+         <Image
+           src={avatar}
+           width={64}
+           aspectRatio={1}
+           fit="cover"
+           radius={32}
+           borderWidth={3}
+           borderColor="white"
+           background="white"
+         />
+         <Text fontSize={28} color="#c9c4f0">
+           {site}
+         </Text>
+       </Box>
+     );
+   }
+
+   const image = await render(
+     <Card>
+       <Header site={post.site} />
+       <Body
+         title={post.title}
+         description={post.description}
+       />
+     </Card>,
+     { width: 1200, height: 630, Jimp },
+   );
+   ```
+
+   </TabItem>
+   <TabItem label="Objects">
+
+   ```ts title="og-card.ts"
+   const avatar = await Jimp.read("avatar.png");
+
+   const header = (site: string): BoxNode => ({
+     type: "box",
+     direction: "row",
+     align: "center",
+     gap: 20,
+     children: [
+       {
+         type: "image",
+         src: avatar,
+         width: 64,
+         aspectRatio: 1,
+         fit: "cover",
+         radius: 32,
+         borderWidth: 3,
+         borderColor: "white",
+         background: "white",
+       },
+       {
+         type: "text",
+         text: site,
+         fontSize: 28,
+         color: "#c9c4f0",
+       },
+     ],
+   });
+
+   const image = await render(
+     card([
+       header(post.site),
+       body(post.title, post.description),
+     ]),
+     { width: 1200, height: 630, Jimp },
+   );
+   ```
+
+   </TabItem>
+   </Tabs>
+
+   ![Step 3: the avatar and site name at the top, the title and description at the bottom](/jimp/layout/step-3-header.png)
+
+4. **Add the tags.** Each tag is a box with padding, a `radius` big enough to make a pill and a soft `shadow`. `wrap` lets a long list of tags flow onto a second line rather than off the card. A third child of the card puts the body in the middle:
+
+   <Tabs syncKey="layout-syntax">
+   <TabItem label="JSX">
+
+   ```tsx title="og-card.tsx"
+   function Tag({ label }: { label: string }) {
+     return (
+       <Box
+         padding={[10, 22]}
+         radius={999}
+         background="#ffd83a"
+         shadow={{
+           y: 6,
+           blur: 12,
+           color: "rgba(0, 0, 0, 0.35)",
+         }}
+       >
+         <Text
+           font={bold}
+           fontSize={24}
+           color="#1b1840"
+         >
+           #{label}
+         </Text>
+       </Box>
+     );
+   }
+
+   function Tags({ tags }: { tags: string[] }) {
+     return (
+       <Box direction="row" wrap gap={12}>
+         {tags.map((label) => (
+           <Tag key={label} label={label} />
+         ))}
+       </Box>
+     );
+   }
+
+   const image = await render(
+     <Card>
+       <Header site={post.site} />
+       <Body
+         title={post.title}
+         description={post.description}
+       />
+       <Tags tags={post.tags} />
+     </Card>,
+     { width: 1200, height: 630, Jimp },
+   );
+
+   await image.write("og-card.png");
+   ```
+
+   </TabItem>
+   <TabItem label="Objects">
+
+   ```ts title="og-card.ts"
+   const tag = (label: string): BoxNode => ({
+     type: "box",
+     padding: [10, 22],
+     radius: 999,
+     background: "#ffd83a",
+     shadow: {
+       y: 6,
+       blur: 12,
+       color: "rgba(0, 0, 0, 0.35)",
+     },
+     children: [
+       {
+         type: "text",
+         text: `#${label}`,
+         font: bold,
+         fontSize: 24,
+         color: "#1b1840",
+       },
+     ],
+   });
+
+   const tags = (labels: string[]): BoxNode => ({
+     type: "box",
+     direction: "row",
+     wrap: true,
+     gap: 12,
+     children: labels.map(tag),
+   });
+
+   const image = await render(
+     card([
+       header(post.site),
+       body(post.title, post.description),
+       tags(post.tags),
+     ]),
+     { width: 1200, height: 630, Jimp },
+   );
+
+   await image.write("og-card.png");
+   ```
+
+   </TabItem>
+   </Tabs>
+
+   ![Step 4: the finished card](/jimp/layout/og-card.png)
+
+</Steps>
+
+This site's own Open Graph images are made this way, one per page at build time: see [`src/og/card.tsx`](https://github.com/jimp-dev/jimp/blob/main/packages/docs/src/og/card.tsx).
+
+<Aside type="tip">
+  Load fonts and images once and reuse them for every card. Rendering a card
+  like this one takes a few tens of milliseconds; loading the fonts takes
+  longer.
+</Aside>
+
+## About the JSX
+
+The components return plain objects, the same ones the **Objects** tabs build, so there's no React, virtual DOM or hooks: `<Card>` runs `Card` once and the result goes straight to `render`.
+Inside a `Text`, children are joined into one string, which is why `#{label}` works. Inside a `Box`, arrays from `.map()` are flattened, and `null`, `false` and empty strings are skipped, so `{subtitle && <Text>{subtitle}</Text>}` works too.
+See [JSX](/jimp/methods/render/#jsx) on the `render` page for all the rules.
+
+## Serve the card
+
+To make cards on demand, wrap the card in one component that takes the post, render it for each request and send the PNG bytes. With the Fetch API's `Response`, which works in Node.js, Deno, Bun and workers:
+
+```tsx title="server.tsx"
+function OgCard({ post }: { post: Post }) {
+  return (
+    <Card>
+      <Header site={post.site} />
+      <Body
+        title={post.title}
+        description={post.description}
+      />
+      <Tags tags={post.tags} />
+    </Card>
+  );
+}
+
+async function ogImage(post: Post) {
+  const image = await render(<OgCard post={post} />, {
+    width: 1200,
+    height: 630,
+    Jimp,
+  });
+  const png = await image.getBuffer("image/png");
+
+  return new Response(new Uint8Array(png), {
+    headers: {
+      "Content-Type": "image/png",
+      "Cache-Control": "public, max-age=86400",
+    },
+  });
+}
+```
+
+Here `Post` is the type of `post` from step 2: `{ title: string; description: string; site: string; tags: string[] }`.
+
+## How the layout works
+
+The layout is a subset of CSS flexbox, written in TypeScript:
+
+- A box lays out its children in a `"column"` (the default) or a `"row"`, with `gap` between them and `padding` around them. Children can have a `margin`.
+- `justify` places children along the direction: `"start"`, `"center"`, `"end"`, `"space-between"`, `"space-around"` or `"space-evenly"`. `align` places them across it: `"start"`, `"center"`, `"end"` or `"stretch"` (the default). A child's `alignSelf` overrides its parent's `align`.
+- `width` and `height` are pixels, percentages of the parent like `"50%"`, or `"auto"` to fit the content, and `aspectRatio` gives one from the other. `grow` shares out spare space and `shrink` takes away space that's missing, but not below a node's content: text doesn't get narrower than its longest word.
+- `wrap` starts a new line for children that don't fit, for rows of tags.
+- `position: "absolute"` takes a node out of the row or column and places it with `top`, `right`, `bottom` and `left`, for badges and background images.
+- Text is measured with [`measureText`](/jimp/methods/measure-text/) and [`measureTextHeight`](/jimp/methods/measure-text-height/), and wrapped the same way [`print`](/jimp/methods/print/) wraps it.
+
+See [`render`](/jimp/methods/render/) for every prop and how they differ from CSS.
+
+## See also
+
+- [`render`](/jimp/methods/render/): every node type and prop, and `layout` to get positions without drawing.
+- [Text and fonts](/jimp/concepts/text-and-fonts/): loading fonts with `loadTTF` and `loadFont`.
+- [Drawing](/jimp/concepts/drawing/): the shapes and gradients `@jimp/layout` draws with.
+- [Using in Browser](/jimp/guides/browser/): rendering cards in the browser or a worker.

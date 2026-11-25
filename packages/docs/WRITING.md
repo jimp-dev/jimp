@@ -27,6 +27,7 @@ comes from the theme and components; page content stays plain Markdown/MDX.
 | `src/overrides/`                         | Starlight component overrides (header, sidebar, page title, TOC…)           |
 | `src/styles/`                            | Design tokens and global styles                                              |
 | `public/`                                | Static files. `dice.png` is the playground's default image.                 |
+| `src/og/`, `src/pages/og/`               | Each page's Open Graph image, drawn at build time with `@jimp/layout`. `src/routeData.ts` points `og:image` at it. |
 
 ### Shared files
 

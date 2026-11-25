@@ -139,6 +139,13 @@ export const guides: DocPage[] = [
     icon: "custom",
   },
   {
+    slug: "guides/og-images",
+    title: "Open Graph Images",
+    blurb: "Lay out cards and banners from boxes, text and images.",
+    color: "#3a7bff",
+    icon: "layers",
+  },
+  {
     slug: "guides/webp",
     title: "WEBP / WASM",
     blurb: "Add WEBP, AVIF and other formats with WASM plugins.",

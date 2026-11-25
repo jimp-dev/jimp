@@ -1,0 +1,611 @@
+---
+title: "render()"
+description: "Lay out boxes, text and images like flexbox and draw them."
+category: draw
+method: "render"
+plugin: "@jimp/layout"
+---
+
+import { Aside, TabItem, Tabs } from "@astrojs/starlight/components";
+import InstallCommand from "../../../components/InstallCommand.astro";
+import Related from "../../../components/Related.astro";
+
+`render` takes a tree of boxes, text and images, lays it out in rows and columns like CSS flexbox, and draws it on a new image.
+Use it for Open Graph cards, social banners, badges and anything else where text has to wrap and things have to line up.
+Write the tree with JSX, or as plain objects if you'd rather not compile anything.
+The [Open Graph images guide](/jimp/guides/og-images/) builds a card step by step.
+
+`render` comes from `@jimp/layout`, which isn't part of `jimp`:
+
+<InstallCommand pkg="@jimp/layout" />
+
+## Signature
+
+```ts title="render.d.ts"
+import {
+  Box,
+  Image,
+  Text,
+  layout,
+  render,
+} from "@jimp/layout";
+
+render<I>(
+  tree: LayoutNode,
+  options: {
+    Jimp: JimpConstructor<I>;
+    width?: number;
+    height?: number;
+    background?: Fill;
+  },
+): Promise<I>
+
+layout(
+  tree: LayoutNode,
+  options?: {
+    width?: number;
+    height?: number;
+    Jimp?: { read };
+  },
+): Promise<ComputedLayout>
+
+// The components, for JSX: <Box>, <Text> and <Image />
+Box(props: BoxProps & { children?: Children }): BoxNode
+Text(props: TextProps & { children?: Children }): TextNode
+Image(props: ImageProps & { src: ImageSource }): ImageNode
+```
+
+`render` returns a promise of a new image, made with the `Jimp` class you pass. `layout` works out the same positions without drawing anything.
+The components build the nodes `render` takes; see [JSX](#jsx). `Children` is `LayoutChildren`: nodes, strings, numbers, and arrays of them.
+The node, prop and option types are exported from `@jimp/layout`.
+
+## Options
+
+| Option       | Type                    | Default             | Description                                                                                                                                       |
+| ------------ | ----------------------- | ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Jimp`       | Jimp class              | required            | The class to make the image with: `Jimp` from `jimp`, or one from [`createJimp`](/jimp/guides/custom-jimp/). Its `read` reads image nodes whose `src` is a path, URL or buffer. |
+| `width`      | `number`                | the tree's width    | The width of the image, a whole number of pixels.                                                                                                |
+| `height`     | `number`                | the tree's height   | The height of the image, a whole number of pixels.                                                                                               |
+| `background` | `Fill`                  | transparent         | A color or gradient to fill the image with before drawing the tree.                                                                              |
+
+The root of the tree fills the image, less its margin, unless it has its own `width` or `height`. Give the root `width: "auto"` or `height: "auto"` to size it to its content instead.
+Without a `width` or `height` option, the image is the size of the tree in that direction.
+
+## Nodes
+
+A tree is made of three kinds of node: boxes, text and images. Write them with the `Box`, `Text` and `Image` components in JSX, or as plain objects told apart by `type`. Both build the same objects:
+
+<Tabs syncKey="layout-syntax">
+<TabItem label="JSX">
+
+```tsx title="tree.tsx"
+const tree = (
+  <Box direction="row" gap={16}>
+    <Image src={logo} width={48} height={48} />
+    <Text font={font} fontSize={32}>
+      Hello
+    </Text>
+  </Box>
+);
+```
+
+</TabItem>
+<TabItem label="Objects">
+
+```ts title="tree.ts"
+const tree = {
+  type: "box",
+  direction: "row",
+  gap: 16,
+  children: [
+    { type: "image", src: logo, width: 48, height: 48 },
+    { type: "text", text: "Hello", font, fontSize: 32 },
+  ],
+};
+```
+
+</TabItem>
+</Tabs>
+
+- **Box** (`type: "box"`): a row or column of other nodes, its children.
+- **Text** (`type: "text"`): a string, wrapped to fit its box. In JSX it's the `Text`'s children; as an object it's `text`.
+- **Image** (`type: "image"`): the image in `src`, a Jimp image or anything `Jimp.read` reads.
+
+Every node takes the [layout props](#layout-props) and the [style props](#style-props). Boxes also take the [box props](#box-props), and boxes and text take the [text props](#text-props). Props have the same names in JSX and in objects.
+
+### Layout props
+
+| Prop                         | Type        | Default      | Description                                                                                                                  |
+| ---------------------------- | ----------- | ------------ | ---------------------------------------------------------------------------------------------------------------------------- |
+| `width`, `height`            | `Size`      | `"auto"`     | The size, border and padding included. `"auto"` sizes the node to its content, or stretches it.                             |
+| `minWidth`, `maxWidth`       | `Length`    | none         | Limits on the width. A min beats a max.                                                                                      |
+| `minHeight`, `maxHeight`     | `Length`    | none         | Limits on the height.                                                                                                        |
+| `aspectRatio`                | `number`    | none         | The width divided by the height, like CSS `aspect-ratio`. With only one of them known, set or stretched, it gives the other. |
+| `padding`                    | `Spacing`   | `0`          | Space inside the border, around the content.                                                                                 |
+| `margin`                     | `Spacing`   | `0`          | Space outside the border, around the node. Can be negative.                                                                  |
+| `grow`                       | `number`    | `0`          | How much of the parent's spare space along its direction the node takes, relative to its siblings.                          |
+| `shrink`                     | `number`    | `1`          | How much the node shrinks when its parent is too small, relative to its siblings and its size. `0` keeps its size. See [minimum sizes](#minimum-sizes). |
+| `alignSelf`                  | `Align`     | parent's     | Where the node goes across its parent's direction, instead of the parent's `align`.                                         |
+| `position`                   | `string`    | `"relative"` | `"absolute"` takes the node out of the row or column and places it with `top`, `right`, `bottom` and `left`.                |
+| `top`, `right`, `bottom`, `left` | `Length` | none        | For `position: "absolute"`: how far the node is from each edge of the parent's padding box.                                  |
+
+- A `Size` is a number of pixels, a percentage of the parent's content box such as `"50%"`, or `"auto"`.
+- A `Length` is a number of pixels or a percentage.
+- A `Spacing` is one number for every side, `[vertical, horizontal]`, or `[top, right, bottom, left]`, like CSS.
+- An `Align` is `"start"`, `"center"`, `"end"` or `"stretch"`.
+
+An absolutely positioned node with `left` and `right` and no `width` stretches between them, and the same goes for `top`, `bottom` and `height`.
+
+### Style props
+
+| Prop          | Type                  | Default      | Description                                                                                                                      |
+| ------------- | --------------------- | ------------ | -------------------------------------------------------------------------------------------------------------------------------- |
+| `background`  | `Fill`                | none         | A color or gradient to fill the box with, under the border.                                                                      |
+| `borderWidth` | `number`              | `0`          | The width of the border. It's inside the box, like CSS with `box-sizing: border-box`.                                           |
+| `borderColor` | `Color`               | black        | The color of the border.                                                                                                         |
+| `radius`      | `number \| object`    | `0`          | The corner radius: one number, or `{ topLeft, topRight, bottomRight, bottomLeft }`. Radii too big for the box are scaled down, so `999` makes a pill. |
+| `shadow`      | `Shadow \| Shadow[]`  | none         | Shadows under the box, like CSS `box-shadow`. The first one is drawn on top.                                                     |
+| `opacity`     | `number`              | `1`          | The opacity of the node and everything in it, from `0` to `1`.                                                                   |
+
+A `Color` is a hex number (`0xRRGGBBAA`) or a CSS color string. A `Fill` is a color or a gradient sized to the box it fills:
+
+- `{ type: "linear", angle?, stops }`: like CSS `linear-gradient`. `angle` is in degrees: `0` goes up, `90` right, and `180`, the default, down.
+- `{ type: "radial", stops }`: a circle from the center out to the farthest corner, like CSS `radial-gradient(circle, ...)`.
+
+`stops` is a list of colors, spread out evenly, or of `{ offset, color }` with offsets from `0` to `1`.
+
+A `Shadow` takes the options of [`boxShadow`](/jimp/methods/box-shadow/), with the same defaults: `x` (`0`), `y` (`4`), `blur` (`12`), `spread` (`0`) and `color` (50% black). It follows the box's `radius`.
+
+### Box props
+
+| Prop        | Type                                                                                          | Default      | Description                                                    |
+| ----------- | --------------------------------------------------------------------------------------------- | ------------ | -------------------------------------------------------------- |
+| `children`  | `LayoutNode[]`                                                                                | `[]`         | The nodes in the box. In JSX, the elements inside the `Box`.   |
+| `direction` | `"column" \| "row"`                                                                           | `"column"`   | Whether children are laid out top to bottom or left to right.  |
+| `gap`       | `number`                                                                                      | `0`          | The space between children, and between lines when they wrap. |
+| `wrap`      | `boolean`                                                                                     | `false`      | Whether children that don't fit start a new line, like `flex-wrap: wrap`. A column wraps into more columns. |
+| `justify`   | `"start" \| "center" \| "end" \| "space-between" \| "space-around" \| "space-evenly"`         | `"start"`    | Where children go along the direction, like `justify-content`. |
+| `align`     | `Align`                                                                                       | `"stretch"`  | Where children go across the direction, like `align-items`. `"stretch"` makes children without a size as wide as a column, or as tall as a row. |
+| `overflow`  | `"visible" \| "hidden"`                                                                       | `"visible"`  | `"hidden"` clips the children to inside the border, rounded corners included. |
+
+### Text props
+
+Set text props on a box and the text inside it inherits them, the way CSS inherits `font` and `color`. A text node's own props win.
+
+| Prop            | Type                              | Default                 | Description                                                                                               |
+| --------------- | --------------------------------- | ----------------------- | --------------------------------------------------------------------------------------------------------- |
+| `text`          | `string`                          | required                | Text nodes only: the text. `\n` starts a new line. In JSX, the `Text`'s children.                        |
+| `font`          | font                              | required                | A font from [`loadTTF`](/jimp/methods/load-ttf/), or a bitmap font from [`loadFont`](/jimp/methods/load-font/). |
+| `fontSize`      | `number`                          | required for `loadTTF`  | The font size in pixels.                                                                                  |
+| `color`         | `Fill`                            | black                   | What to fill the text with: a color, or a gradient sized to the text's box.                              |
+| `lineHeight`    | `number`                          | the font's              | The height of each line in pixels.                                                                       |
+| `letterSpacing` | `number`                          | `0`                     | Extra space between characters, in pixels.                                                              |
+| `textAlign`     | `"left" \| "center" \| "right"`   | `"left"`                | How lines are aligned in the text's box.                                                                |
+| `maxLines`      | `number`                          | none                    | Text nodes only: the most lines to show. Longer text is cut short with an ellipsis (`…`, or `...` if the font has no `…`). |
+
+`fontSize`, `color`, `lineHeight` and `letterSpacing` only work with `loadTTF` fonts: bitmap fonts are drawn at the size and in the color they were made with.
+
+### Image props
+
+| Prop  | Type                                     | Default    | Description                                                                                                                       |
+| ----- | ---------------------------------------- | ---------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| `src` | Jimp image, `string`, `ArrayBuffer`, `Uint8Array` | required | The image, or a path, URL or buffer to read with the `Jimp` class's `read`. The image itself isn't changed.                |
+| `fit` | `"fill" \| "cover" \| "contain"`         | `"fill"`   | How the image fills its box, like CSS `object-fit`: stretched, cropped to fill it with [`cover`](/jimp/methods/cover/), or fitted inside it with [`contain`](/jimp/methods/contain/). |
+
+Without a `width` or `height` an image is its natural size. With only one of them, the other keeps the image's aspect ratio, or `aspectRatio` if you set it. An image with a `radius` is clipped to its rounded corners.
+
+### Minimum sizes
+
+Like CSS flex items, nodes don't shrink smaller than their content:
+
+- Text in a row doesn't get narrower than its longest word, so words aren't broken; if they can't fit, the text overflows. In a column, text is as wide as the column, and a word wider than that is broken like [`print`](/jimp/methods/print/) breaks it.
+- An image doesn't get smaller than its size.
+- A box doesn't get smaller than what's in it: its children side by side in a row, or the biggest of them in a column.
+
+A node with a size still shrinks as far as its content allows, so an empty box with a `width` shrinks all the way. Set `minWidth: 0` (or `minHeight: 0` in a column) to let a node shrink past its content, and `shrink: 0` to stop it shrinking at all. A box with `overflow: "hidden"` can always shrink, since its content is clipped.
+
+## JSX
+
+`@jimp/layout` has its own JSX runtime, so you can write trees with `Box`, `Text` and `Image` and your own components. It doesn't use React: each component is called once and returns the plain objects described above, which go straight to `render`.
+
+### Set up
+
+Point your compiler at the runtime. TypeScript, esbuild, Vite and Bun read it from `tsconfig.json`, and Deno from `deno.json`:
+
+```json title="tsconfig.json"
+{
+  "compilerOptions": {
+    "jsx": "react-jsx",
+    "jsxImportSource": "@jimp/layout"
+  }
+}
+```
+
+In a project that uses React for everything else, start each file that builds images with `/** @jsxImportSource @jimp/layout */` instead. If `jsx` is `"preserve"` in your `tsconfig.json`, as it is in Astro projects, add `/** @jsxRuntime automatic */` too. Node.js can't run JSX by itself: compile with `tsc` or a bundler, or run the file with a loader such as [tsx](https://tsx.is).
+
+### Children
+
+- Inside a `Text`, children are joined into one string, so `Hello {name}` works. A `Text` can't contain other nodes; it throws `layout: Text can only contain strings and numbers, not other nodes`.
+- Inside a `Box`, strings and numbers become text nodes that inherit the box's text props.
+- `null`, `undefined`, `true`, `false` and empty strings are skipped, so `{subtitle && <Text>{subtitle}</Text>}` adds nothing when there's no subtitle.
+- Arrays and fragments (`<>...</>`) are flattened into the box around them, so `{tags.map(...)}` works. A fragment can't be the root of the tree.
+- `key` is accepted, so code written for React type checks, and ignored.
+
+### Your own components
+
+A component is a function that takes props and returns a node. Type `children` as `LayoutChildren` to pass nodes through:
+
+```tsx title="components.tsx"
+import { Jimp } from "jimp";
+import { loadTTF } from "jimp/load-ttf";
+import {
+  Box,
+  Text,
+  render,
+  type LayoutChildren,
+} from "@jimp/layout";
+
+const regular = await loadTTF("Inter-Regular.otf");
+const bold = await loadTTF("Inter-Bold.otf");
+
+// Text passed in as children inherits the font and color
+function Panel({
+  title,
+  children,
+}: {
+  title: string;
+  children?: LayoutChildren;
+}) {
+  return (
+    <Box
+      padding={24}
+      gap={12}
+      radius={16}
+      background="white"
+      font={regular}
+      fontSize={20}
+      color="#1b1840"
+    >
+      <Text font={bold} fontSize={28}>
+        {title}
+      </Text>
+      {children}
+    </Box>
+  );
+}
+
+const image = await render(
+  <Panel title="Today">
+    <Text>Sunny, 24°</Text>
+  </Panel>,
+  { Jimp, width: 400 },
+);
+```
+
+Without JSX, call the same functions: `Box({ direction: "row", children: [...] })` returns the same node as `<Box direction="row">...</Box>`.
+
+## Example
+
+A badge as big as its text. With no `width` or `height` option the image is the size of the tree, and `overflow: "hidden"` clips the two halves to the rounded corners:
+
+<Tabs syncKey="layout-syntax">
+<TabItem label="JSX">
+
+```tsx title="badge.tsx"
+import { Jimp } from "jimp";
+import { loadTTF } from "jimp/load-ttf";
+import { Box, Text, render } from "@jimp/layout";
+
+const font = await loadTTF("Inter-Bold.otf");
+
+const badge = await render(
+  <Box
+    direction="row"
+    radius={6}
+    overflow="hidden"
+    font={font}
+    fontSize={14}
+    color="white"
+  >
+    <Text padding={[4, 8]} background="#555555">
+      build
+    </Text>
+    <Text padding={[4, 8]} background="#22c76b">
+      passing
+    </Text>
+  </Box>,
+  { Jimp },
+);
+
+await badge.write("badge.png");
+```
+
+</TabItem>
+<TabItem label="Objects">
+
+```ts title="badge.ts"
+import { Jimp } from "jimp";
+import { loadTTF } from "jimp/load-ttf";
+import { render } from "@jimp/layout";
+
+const font = await loadTTF("Inter-Bold.otf");
+
+const badge = await render(
+  {
+    type: "box",
+    direction: "row",
+    radius: 6,
+    overflow: "hidden",
+    font,
+    fontSize: 14,
+    color: "white",
+    children: [
+      {
+        type: "text",
+        text: "build",
+        padding: [4, 8],
+        background: "#555555",
+      },
+      {
+        type: "text",
+        text: "passing",
+        padding: [4, 8],
+        background: "#22c76b",
+      },
+    ],
+  },
+  { Jimp },
+);
+
+await badge.write("badge.png");
+```
+
+</TabItem>
+</Tabs>
+
+![A badge reading "build" on gray and "passing" on green, with rounded corners](/jimp/layout/badge.png)
+
+### Get the positions without drawing
+
+`layout` returns where every node goes, as boxes on the image in whole pixels, in the same tree shape. Text nodes also get the `text` that's drawn, after `maxLines`:
+
+<Tabs syncKey="layout-syntax">
+<TabItem label="JSX">
+
+```tsx title="example.tsx"
+import { Box, layout } from "@jimp/layout";
+
+const result = await layout(
+  <Box direction="row" gap={10}>
+    <Box width={100} />
+    <Box grow={1} />
+  </Box>,
+  { width: 400, height: 100 },
+);
+
+// { x: 110, y: 0, width: 290, height: 100, ... }
+result.children[1];
+```
+
+</TabItem>
+<TabItem label="Objects">
+
+```ts title="example.ts"
+import { layout } from "@jimp/layout";
+
+const result = await layout(
+  {
+    type: "box",
+    direction: "row",
+    gap: 10,
+    children: [
+      { type: "box", width: 100 },
+      { type: "box", grow: 1 },
+    ],
+  },
+  { width: 400, height: 100 },
+);
+
+// { x: 110, y: 0, width: 290, height: 100, ... }
+result.children[1];
+```
+
+</TabItem>
+</Tabs>
+
+### Place something absolutely
+
+`position: "absolute"` takes a node out of the column, for a background image or a corner badge. With `top`, `right`, `bottom` and `left` all `0` it fills its parent. Nodes are drawn in tree order, so a background image goes first:
+
+<Tabs syncKey="layout-syntax">
+<TabItem label="JSX">
+
+```tsx title="example.tsx"
+const image = await render(
+  <Box padding={48} justify="end">
+    <Image
+      src={photo}
+      fit="cover"
+      position="absolute"
+      top={0}
+      right={0}
+      bottom={0}
+      left={0}
+    />
+    <Text font={font} fontSize={64} color="white">
+      Over the photo
+    </Text>
+  </Box>,
+  { width: 1200, height: 630, Jimp },
+);
+```
+
+</TabItem>
+<TabItem label="Objects">
+
+```ts title="example.ts"
+const image = await render(
+  {
+    type: "box",
+    padding: 48,
+    justify: "end",
+    children: [
+      {
+        type: "image",
+        src: photo,
+        fit: "cover",
+        position: "absolute",
+        top: 0,
+        right: 0,
+        bottom: 0,
+        left: 0,
+      },
+      {
+        type: "text",
+        text: "Over the photo",
+        font,
+        fontSize: 64,
+        color: "white",
+      },
+    ],
+  },
+  { width: 1200, height: 630, Jimp },
+);
+```
+
+</TabItem>
+</Tabs>
+
+### Wrap onto more lines
+
+With `wrap`, children that don't fit start a new line, so a row of tags flows onto as many lines as it needs. Each line grows, shrinks, justifies and aligns its children on its own, and `gap` separates the lines too:
+
+<Tabs syncKey="layout-syntax">
+<TabItem label="JSX">
+
+```tsx title="example.tsx"
+const tags = [
+  "layout",
+  "flexbox",
+  "open graph",
+  "typescript",
+  "no wasm",
+  "jimp",
+  "cards",
+];
+
+const image = await render(
+  <Box
+    direction="row"
+    padding={16}
+    gap={16}
+    align="start"
+    background="#f4f1ea"
+    font={bold}
+    fontSize={14}
+  >
+    <Image
+      src={photo}
+      width={96}
+      aspectRatio={1}
+      fit="cover"
+      radius={12}
+    />
+    <Box grow={1} direction="row" wrap gap={8}>
+      {tags.map((tag) => (
+        <Text
+          key={tag}
+          padding={[4, 10]}
+          radius={999}
+          background="#3a2d7a"
+          color="white"
+        >
+          {tag}
+        </Text>
+      ))}
+    </Box>
+  </Box>,
+  { width: 360, Jimp },
+);
+```
+
+</TabItem>
+<TabItem label="Objects">
+
+```ts title="example.ts"
+const tags = [
+  "layout",
+  "flexbox",
+  "open graph",
+  "typescript",
+  "no wasm",
+  "jimp",
+  "cards",
+];
+
+const image = await render(
+  {
+    type: "box",
+    direction: "row",
+    padding: 16,
+    gap: 16,
+    align: "start",
+    background: "#f4f1ea",
+    font: bold,
+    fontSize: 14,
+    children: [
+      {
+        type: "image",
+        src: photo,
+        width: 96,
+        aspectRatio: 1,
+        fit: "cover",
+        radius: 12,
+      },
+      {
+        type: "box",
+        grow: 1,
+        direction: "row",
+        wrap: true,
+        gap: 8,
+        children: tags.map((tag) => ({
+          type: "text",
+          text: tag,
+          padding: [4, 10],
+          radius: 999,
+          background: "#3a2d7a",
+          color: "white",
+        })),
+      },
+    ],
+  },
+  { width: 360, Jimp },
+);
+```
+
+</TabItem>
+</Tabs>
+
+![A square photo of dice beside seven purple tag pills that wrap onto three lines](/jimp/layout/wrap.png)
+
+## Notes
+
+- **A subset of flexbox.** There's no `flex-basis`, `order`, `z-index`, `align-content` or `rowGap`/`columnGap`: wrapped lines are packed at the start and share `gap`. Nodes are drawn in tree order, so later siblings are drawn over earlier ones, whether they're absolutely positioned or not. (CSS draws positioned nodes last.) Put a background image first.
+- **Differences from CSS.** Boxes are columns unless you set `direction: "row"`, like React Native. Borders are the same width and color on every side.
+- **Text** is measured with [`measureText`](/jimp/methods/measure-text/) and [`measureTextHeight`](/jimp/methods/measure-text-height/) and drawn with [`print`](/jimp/methods/print/), so it wraps exactly like `print`. A text node without a set width is as wide as its longest line, up to the space there is.
+- **Whole pixels.** Positions are worked out with fractions, then each node's edges are rounded to whole pixels, so neighbors still touch and backgrounds stay crisp.
+- **Shadows show through.** Like [`boxShadow`](/jimp/methods/box-shadow/), a shadow is drawn under the whole box, so it shows through a transparent or semi-transparent background, where CSS would hide it.
+- **Validation.** The tree is checked before anything is drawn. Unknown props, like `justifyContent`, and invalid values throw a `ZodError` with the path to the node. Text without a font throws ``layout: text needs a font. Set `font` on the text or on a box around it.`` A `loadTTF` font without a `fontSize` throws too, and so does a `fontSize`, `color`, `lineHeight` or `letterSpacing` set on text with a bitmap font. An image node with a path, URL or buffer throws when the `Jimp` class has no `read`.
+- **Fonts and images are loaded by you**, once, so rendering many cards doesn't read them again.
+- **Added in 2.2.**
+
+<Aside type="tip">
+  `render` draws with the methods from `@jimp/plugin-draw`, `@jimp/plugin-print`,
+  `@jimp/plugin-border` and the resize plugins directly, so it works with a
+  custom Jimp that has none of them. Only `read`, for image nodes with a path,
+  needs the formats you read.
+</Aside>
+
+## Related
+
+<Related methods={["print", "measureText", "drawRect", "boxShadow", "roundCorners", "loadTTF"]} />

@@ -1,0 +1,101 @@
+{
+  "name": "@jimp/layout",
+  "version": "2.1.0",
+  "description": "Lay out boxes, text and images like CSS flexbox and render them with Jimp: Open Graph cards, banners and badges.",
+  "files": [
+    "dist"
+  ],
+  "repository": "jimp-dev/jimp",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "lint": "eslint .",
+    "test": "vitest",
+    "test:browser": "vitest --config vitest.config.browser.mjs",
+    "build": "tshy",
+    "dev": "tshy --watch",
+    "clean": "rimraf node_modules .tshy .tshy-build dist .turbo"
+  },
+  "author": "Andrew Lisowski <lisowski54@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "@jimp/core": "workspace:*",
+    "@jimp/plugin-border": "workspace:*",
+    "@jimp/plugin-contain": "workspace:*",
+    "@jimp/plugin-cover": "workspace:*",
+    "@jimp/plugin-draw": "workspace:*",
+    "@jimp/plugin-print": "workspace:*",
+    "@jimp/plugin-resize": "workspace:*",
+    "@jimp/types": "workspace:*",
+    "@jimp/utils": "workspace:*",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@jimp/config-eslint": "workspace:*",
+    "@jimp/config-typescript": "workspace:*",
+    "@jimp/config-vitest": "workspace:*",
+    "@jimp/js-png": "workspace:*",
+    "@jimp/test-utils": "workspace:*",
+    "@types/node": "^22.20.5",
+    "@vitest/browser": "^5.1.1",
+    "eslint": "^10.15.0",
+    "tshy": "~4.0.0",
+    "typescript": "^7.0.2",
+    "vite-plugin-node-polyfills": "^0.28.0",
+    "vitest": "^5.1.1"
+  },
+  "tshy": {
+    "exclude": [
+      "**/*.test.ts",
+      "**/*.test.tsx"
+    ],
+    "exports": {
+      "./package.json": "./package.json",
+      ".": "./src/index.ts",
+      "./jsx-runtime": "./src/jsx-runtime.ts",
+      "./jsx-dev-runtime": "./src/jsx-dev-runtime.ts"
+    }
+  },
+  "exports": {
+    "./package.json": "./package.json",
+    ".": {
+      "import": {
+        "types": "./dist/esm/index.d.ts",
+        "default": "./dist/esm/index.js"
+      },
+      "require": {
+        "types": "./dist/commonjs/index.d.ts",
+        "default": "./dist/commonjs/index.js"
+      }
+    },
+    "./jsx-runtime": {
+      "import": {
+        "types": "./dist/esm/jsx-runtime.d.ts",
+        "default": "./dist/esm/jsx-runtime.js"
+      },
+      "require": {
+        "types": "./dist/commonjs/jsx-runtime.d.ts",
+        "default": "./dist/commonjs/jsx-runtime.js"
+      }
+    },
+    "./jsx-dev-runtime": {
+      "import": {
+        "types": "./dist/esm/jsx-dev-runtime.d.ts",
+        "default": "./dist/esm/jsx-dev-runtime.js"
+      },
+      "require": {
+        "types": "./dist/commonjs/jsx-dev-runtime.d.ts",
+        "default": "./dist/commonjs/jsx-dev-runtime.js"
+      }
+    }
+  },
+  "main": "./dist/commonjs/index.js",
+  "types": "./dist/commonjs/index.d.ts",
+  "type": "module",
+  "publishConfig": {
+    "access": "public"
+  },
+  "sideEffects": false,
+  "module": "./dist/esm/index.js"
+}

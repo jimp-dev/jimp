@@ -1,0 +1,9 @@
+{
+  "extends": "@jimp/config-typescript/base.json",
+  "compilerOptions": {
+    "outDir": "dist",
+    "jsx": "react-jsx",
+    "jsxImportSource": "@jimp/layout",
+    "types": ["node"]
+  }
+}
