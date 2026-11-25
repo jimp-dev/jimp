@@ -2,6 +2,8 @@ import { readFile } from "node:fs/promises";
 import { describe, expect, test } from "vitest";
 import { createJimp } from "@jimp/core";
 import png from "@jimp/js-png";
+import { getTestImagePath } from "@jimp/test-utils";
+import "@jimp/test-utils/image-snapshot";
 
 import { methods as lutMethods, parseCubeLut } from "./index.js";
 
@@ -75,5 +77,26 @@ describe("matches FFmpeg's tetrahedral interpolation", () => {
     const original = Buffer.from(image.bitmap.data);
 
     expect(image.colorGrade(identity).bitmap.data).toEqual(original);
+  });
+});
+
+describe("grades a photo", () => {
+  // Colorful dice on a transparent background, so the snapshots also show
+  // that alpha is kept
+  const photo = () => Jimp.read(getTestImagePath("dice.png"));
+
+  test("with a .cube LUT", async () => {
+    const image = await photo();
+    const output = await image.colorGrade(tealOrange).getBuffer("image/png");
+
+    expect(output).toMatchImageSnapshot();
+  });
+
+  test("with a Hald CLUT image", async () => {
+    const image = await photo();
+    const hald = await readImage("teal-orange-hald.png");
+    const output = await image.colorGrade(hald).getBuffer("image/png");
+
+    expect(output).toMatchImageSnapshot();
   });
 });
