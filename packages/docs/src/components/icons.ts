@@ -49,13 +49,13 @@ export const categoryIcons: Record<string, string> = {
 /** Icons for guides, concepts and home page feature cards. */
 export const guideIcons: Record<string, string> = {
   start: `<path d="M7 4h14l5 5v19H7z" fill="#fff" ${S}/><path d="M11 13h10M11 18h10M11 23h6" ${S}/>`,
-  browser: `<rect x="3" y="6" width="26" height="20" rx="3" fill="#fff" ${S}/><path d="M3 11h26" ${S}/><circle cx="7" cy="8.5" r="1" fill="${INK}"/><path d="M12 17l-3 2 3 2M20 17l3 2-3 2" ${S}/>`,
-  large: `<rect x="3" y="3" width="26" height="26" rx="4" fill="#fff" ${S}/><path d="M9 15V9h6M23 17v6h-6M9 9l14 14" ${S}/>`,
+  browser: `<rect x="3" y="6" width="26" height="20" rx="3" fill="#fff" ${S}/><path d="M3 11h26" ${S}/><circle cx="7" cy="8.5" r="1" fill="${INK}"/><path d="M12 17l-3 2 3 2M20 17l3 2-3 2" fill="none" ${S}/>`,
+  large: `<rect x="3" y="3" width="26" height="26" rx="4" fill="#fff" ${S}/><path d="M9 15V9h6M23 17v6h-6M9 9l14 14" fill="none" ${S}/>`,
   colorSpace: `<path d="M16 3 29 27H3z" fill="#fff" ${S}/><path d="M16 9l8 15H8z" fill="#ff5fb0" ${S} stroke-width="2"/><circle cx="16" cy="19" r="2.2" fill="${INK}"/>`,
-  exif: `<rect x="4" y="9" width="24" height="17" rx="3" fill="#fff" ${S}/><path d="M11 9l2-4h6l2 4" ${S}/><circle cx="16" cy="17" r="5" fill="#5cc8ff" ${S}/>`,
+  exif: `<rect x="4" y="9" width="24" height="17" rx="3" fill="#fff" ${S}/><path d="M11 9l2-4h6l2 4" fill="none" ${S}/><circle cx="16" cy="17" r="5" fill="#5cc8ff" ${S}/>`,
   plugin: `<path d="M6 12h6V8a3 3 0 016 0v4h6v6h-3a3 3 0 000 6h3v4H6z" fill="#fff" ${S}/>`,
   custom: `<path d="M16 4l3 3h5v5l3 4-3 4v5h-5l-3 3-3-3H8v-5l-3-4 3-4V7h5z" fill="#fff" ${S}/><circle cx="16" cy="16" r="4" fill="#ffd83a" ${S}/>`,
-  wasm: `<path d="M16 3l11 6v14l-11 6-11-6V9z" fill="#fff" ${S}/><path d="M10 13l2 7 2-5 2 5 2-7M20 13h3" ${S} stroke-width="2"/>`,
+  wasm: `<path d="M16 3l11 6v14l-11 6-11-6V9z" fill="#fff" ${S}/><path d="M10 13l2 7 2-5 2 5 2-7M20 13h3" fill="none" ${S} stroke-width="2"/>`,
   server: `<rect x="4" y="4" width="24" height="10" rx="3" fill="#fff" ${S}/><rect x="4" y="18" width="24" height="10" rx="3" fill="#ff8f1f" ${S}/><circle cx="9" cy="9" r="1.6" fill="${INK}"/><circle cx="9" cy="23" r="1.6" fill="${INK}"/><path d="M15 9h8M15 23h8" ${S} stroke-width="2"/>`,
   worker: `<rect x="3" y="5" width="17" height="13" rx="3" fill="#fff" ${S}/><rect x="12" y="14" width="17" height="13" rx="3" fill="#5cc8ff" ${S}/><path d="M7 10h9M7 14h4" ${S}/>`,
   migrate: `<path d="M5 22c0-7 5-12 12-12h7" fill="none" ${S}/><path d="M20 5l5 5-5 5" fill="none" ${S}/><circle cx="7" cy="25" r="3" fill="#ffd83a" ${S}/>`,
