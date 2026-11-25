@@ -284,6 +284,30 @@ export interface JimpPlugin {
   [key: string]: JimpChainableMethod | JimpMethod;
 }
 
+/** Methods every Jimp class has, which `apply` can't run */
+type CoreMethodName =
+  | keyof JimpClass
+  | "apply"
+  | "clone"
+  | "composite"
+  | "toColorSpace";
+
+type PluginMethodName<Image> = Exclude<keyof Image, CoreMethodName>;
+
+/**
+ * One edit for `image.apply`: the name of a plugin method that changes the
+ * image, followed by its arguments, e.g. `["resize", { w: 100 }]`.
+ */
+export type JimpEdit<Image> = {
+  [Key in PluginMethodName<Image>]: Image[Key] extends (
+    ...args: infer Args
+  ) => infer Return
+    ? Return extends JimpClass
+      ? [Key, ...Args]
+      : never
+    : never;
+}[PluginMethodName<Image>];
+
 type UnionToIntersection<U> = (U extends any ? (k: U) => void : never) extends (
   k: infer I
 ) => void
@@ -490,6 +514,7 @@ export function createJimp<
 
   const plugins = pluginsArg || [];
   const formats = (formatsArg || []).map((format) => format());
+  const pluginMethodNames = new Set(plugins.flatMap(Object.keys));
 
   /** Find the format of encoded image data */
   async function detectFormat(buffer: Buffer) {
@@ -1284,6 +1309,70 @@ export function createJimp<
       clone.mime = (this as { mime?: string }).mime;
 
       return clone as unknown as S;
+    }
+
+    /**
+     * Run a list of edits on the image, in order. Each edit is the name of a
+     * plugin method followed by its arguments, so a list of edits made of
+     * plain values can be stored as JSON, sent over the network or to a
+     * worker, and applied later.
+     *
+     * Only plugin methods that change the image can be used. Every method
+     * name is checked before the first edit runs.
+     * @param edits the edits to make, e.g. `[["resize", { w: 100 }], ["greyscale"]]`
+     * @example
+     * ```ts
+     * import { Jimp } from "jimp";
+     *
+     * const image = await Jimp.read("test/image.png");
+     *
+     * image.apply([
+     *   ["cover", { w: 400, h: 300 }],
+     *   ["greyscale"],
+     *   ["blur", 2],
+     * ]);
+     * ```
+     */
+    apply<S extends JimpClass>(this: S, edits: JimpEdit<S>[]): S {
+      if (!Array.isArray(edits)) {
+        throw new Error("apply needs an array of edits");
+      }
+
+      edits.forEach((edit: unknown, i) => {
+        if (!Array.isArray(edit) || typeof edit[0] !== "string") {
+          throw new Error(
+            `Edit ${i} must be an array of a method name and its arguments, like ["resize", { w: 100 }]`
+          );
+        }
+
+        if (!pluginMethodNames.has(edit[0])) {
+          throw new Error(
+            `Edit ${i}: "${edit[0]}" isn't a plugin method of this Jimp class`
+          );
+        }
+      });
+
+      edits.forEach((edit, i) => {
+        const [name, ...args] = edit as unknown as [string, ...unknown[]];
+        let result: unknown;
+
+        try {
+          result = (this as any)[name](...args);
+        } catch (error) {
+          throw new Error(
+            `Edit ${i} (${name}) failed: ${(error as Error).message}`,
+            { cause: error }
+          );
+        }
+
+        if (result !== this) {
+          throw new Error(
+            `Edit ${i}: "${name}" returns a value instead of changing the image, so it can't be used in apply`
+          );
+        }
+      });
+
+      return this;
     }
 
     /**

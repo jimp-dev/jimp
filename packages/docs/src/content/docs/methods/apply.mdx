@@ -1,0 +1,112 @@
+---
+title: "apply()"
+description: "Run a list of edits stored as data, such as JSON from a request or a saved preset."
+category: io
+method: "apply"
+plugin: "@jimp/core"
+---
+
+import { Aside } from "@astrojs/starlight/components";
+import Related from "../../../components/Related.astro";
+
+`apply` runs a list of edits on an image, in order.
+Each edit is a method name followed by its arguments, so `["resize", { w: 300 }]` does the same as `image.resize({ w: 300 })`.
+Because the list is plain data, you can save it as JSON, send it to a server or a worker, keep presets in a database, or build it from a form, and apply it later.
+
+## Signature
+
+```ts title="apply.d.ts"
+image.apply(edits: JimpEdit[]): Jimp
+```
+
+`apply` is synchronous. It changes the image and returns it, like the methods it runs, so you can keep chaining.
+
+| Parameter | Type         | Description                                                                         |
+| --------- | ------------ | ----------------------------------------------------------------------------------- |
+| `edits`   | `JimpEdit[]` | The edits to make. Each is `[methodName, ...arguments]`, e.g. `["blur", 2]`. |
+
+## Example
+
+```ts title="example.ts"
+import { Jimp, type JimpEdit } from "jimp";
+
+const edits: JimpEdit[] = [
+  ["cover", { w: 400, h: 300 }],
+  ["greyscale"],
+  ["contrast", 0.2],
+];
+
+const image = await Jimp.read("photo.jpg");
+
+image.apply(edits);
+
+await image.write("thumbnail.jpg");
+```
+
+That's the same as chaining the methods:
+
+```ts title="example.ts"
+image.cover({ w: 400, h: 300 }).greyscale().contrast(0.2);
+```
+
+### Edits from JSON
+
+```ts title="example.ts"
+import { readFile } from "node:fs/promises";
+
+const preset = JSON.parse(await readFile("presets/avatar.json", "utf8"));
+
+image.apply(preset);
+```
+
+```json title="presets/avatar.json"
+[
+  ["cover", { "w": 256, "h": 256 }],
+  ["circle"],
+  ["brightness", 1.1]
+]
+```
+
+Write [constants](/jimp/concepts/constants/) such as `ResizeStrategy.BICUBIC` as their values, and colors as numbers or CSS strings, so the edits survive `JSON.stringify`.
+
+## Typing edits
+
+`JimpEdit` is the type of one edit for the `Jimp` class from `jimp`.
+TypeScript checks each method name and its arguments, so `["resize", { width: 300 }]` is an error.
+
+For a [custom Jimp](/jimp/guides/custom-jimp/), get the type from `@jimp/core`:
+
+```ts title="example.ts"
+import { createJimp, type JimpEdit } from "@jimp/core";
+
+const MyJimp = createJimp({ plugins: [/* ... */] });
+
+type MyEdit = JimpEdit<InstanceType<typeof MyJimp>>;
+```
+
+## Which methods can be used
+
+Any method from one of the class's plugins that changes the image: `resize`, `crop`, `blur`, `color`, `drawRect`, `print`…
+These can't be used:
+
+- **Methods every Jimp has**, such as `write`, `getBuffer`, `clone`, `composite` and `scan`. Reading and writing stay outside the list of edits.
+- **Methods that return a value** instead of the image, such as `hash`, `pHash`, `distanceFromHash` and `autocropRect`.
+
+Arguments that are images or fonts, such as the source for [`blit`](/jimp/methods/blit/) or the font for [`print`](/jimp/methods/print/), work when you call `apply` yourself but can't be stored as JSON.
+
+## Errors
+
+- Every method name is checked before the first edit runs. An unknown name, or an edit that isn't an array starting with a name, throws and leaves the image unchanged.
+- Each method validates its own arguments, as it does when you call it directly. If an edit fails, `apply` throws an error that says which edit failed, like `Edit 1 (resize) failed: …`, with the method's error as its `cause`.
+- The edits before the one that failed have already been made. [Clone](/jimp/methods/clone/) first if you need the original back.
+
+<Aside type="caution" title="Edits from users">
+  `apply` only runs image methods, so it can't read or write files. But a big
+  `resize`, a large `blur` radius or a long list of edits can still use a lot
+  of time and memory. Check the methods and sizes you allow before applying
+  edits from people you don't trust.
+</Aside>
+
+## Related
+
+<Related methods={["clone", "resize", "cover", "getBuffer"]} />

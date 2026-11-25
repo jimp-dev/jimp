@@ -33,7 +33,7 @@ import * as rotate from "@jimp/plugin-rotate";
 import * as threshold from "@jimp/plugin-threshold";
 import * as quantize from "@jimp/plugin-quantize";
 
-import { createJimp } from "@jimp/core";
+import { createJimp, type JimpEdit as CoreJimpEdit } from "@jimp/core";
 
 export const defaultPlugins = [
   blit.methods,
@@ -150,6 +150,9 @@ export const Jimp = createJimp({
 });
 
 export type JimpInstance = InstanceType<typeof Jimp>;
+
+/** One edit for `image.apply`, e.g. `["resize", { w: 100 }]` */
+export type JimpEdit = CoreJimpEdit<JimpInstance>;
 
 export { ColorActionName } from "@jimp/plugin-color";
 export type {

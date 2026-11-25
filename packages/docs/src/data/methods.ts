@@ -43,6 +43,7 @@ export const methods: MethodEntry[] = [
   m("encode-frames", "Jimp.encodeFrames", "io", "@jimp/core"),
   m("write-frames", "Jimp.writeFrames", "io", "@jimp/core"),
   m("clone", "clone", "io", "@jimp/core"),
+  m("apply", "apply", "io", "@jimp/core"),
 
   // Size & shape
   m("resize", "resize", "shape", "@jimp/plugin-resize"),
