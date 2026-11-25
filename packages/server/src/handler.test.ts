@@ -525,6 +525,21 @@ describe("signing", () => {
     expect(image.getPixelColor(0, 0) & 0xff).toBe(0);
   });
 
+  test("edits can denoise by default", async () => {
+    const edits = editsParam([
+      ["median", 1],
+      ["bilateral", { radius: 1, tolerance: 20 }],
+    ]);
+    const url = await signUrl(`/images/halves.png?edits=${edits}`, secret);
+    const response = await get(handler, url);
+    const image = await readImage(response);
+
+    expect(response.status).toBe(200);
+    // Both keep the edge between the halves sharp
+    expect(image.getPixelColor(99, 50)).toBe(0xff0000ff);
+    expect(image.getPixelColor(100, 50)).toBe(0x0000ffff);
+  });
+
   test("edits needs a signature", async () => {
     const edits = editsParam([["invert"]]);
     const optional = createHandler({ secret, requireSignature: false });

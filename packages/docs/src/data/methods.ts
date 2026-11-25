@@ -69,6 +69,8 @@ export const methods: MethodEntry[] = [
   m("blur", "blur", "effects", "@jimp/plugin-blur"),
   m("gaussian", "gaussian", "effects", "@jimp/plugin-blur"),
   m("sharpen", "sharpen", "effects", "@jimp/plugin-blur"),
+  m("median", "median", "effects", "@jimp/plugin-blur"),
+  m("bilateral", "bilateral", "effects", "@jimp/plugin-blur"),
   m("pixelate", "pixelate", "effects", "@jimp/plugin-color"),
   m("dither", "dither", "effects", "@jimp/plugin-dither"),
   m("erode", "erode", "effects", "@jimp/plugin-morphology"),

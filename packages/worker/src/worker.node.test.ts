@@ -138,6 +138,20 @@ describe("tasks", () => {
     expect([stored.width, stored.height]).toEqual([150, 200]);
   });
 
+  test("runs the denoise filters", async () => {
+    const jimp = createPool();
+    const bytes = await readFile(dicePath);
+    const image = await jimp.run({
+      input: bytes,
+      edits: [["median", 2], ["bilateral", { radius: 1 }]],
+    });
+    const expected = (await Jimp.read(bytes))
+      .median(2)
+      .bilateral({ radius: 1 });
+
+    expect(image.bitmap.data.equals(expected.bitmap.data)).toBe(true);
+  });
+
   test("runs without edits", async () => {
     const jimp = createPool();
     const image = await jimp.run({ input: await readFile(dicePath) });

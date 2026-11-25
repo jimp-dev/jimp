@@ -1,4 +1,6 @@
 import { mulTable, shgTable } from "./blur-tables.js";
+import { bilateralFilter } from "./bilateral.js";
+import { medianFilter } from "./median.js";
 import { JimpClass } from "@jimp/types";
 import { limit255 } from "@jimp/utils";
 import { z } from "zod";
@@ -16,6 +18,26 @@ const SharpenOptionsSchema = z.object({
 });
 
 export type SharpenOptions = z.infer<typeof SharpenOptionsSchema>;
+
+const MedianRadiusSchema = z.number().gt(0);
+
+const BilateralOptionsSchema = z.object({
+  /**
+   * the standard deviation of the distance weight, in pixels, like
+   * `gaussian` (default 2, at most 5). Neighbors up to twice this far away
+   * are averaged.
+   */
+  radius: z.number().gt(0).max(5).optional(),
+  /**
+   * how different a neighbor's color can be and still be averaged in, 0-255
+   * (default 30). It's the standard deviation of the color weight, measured
+   * as the distance between RGB colors. About 3 times the noise's standard
+   * deviation works well.
+   */
+  tolerance: z.number().gt(0).max(255).optional(),
+});
+
+export type BilateralOptions = z.infer<typeof BilateralOptionsSchema>;
 
 /** The largest radius `blur` supports, the size of its lookup tables */
 const MAX_BLUR_RADIUS = mulTable.length - 1;
@@ -447,6 +469,80 @@ export const methods = {
         data[idx + c] = limit255(Math.round(original + amount * difference));
       }
     });
+
+    return image;
+  },
+
+  /**
+   * Replaces each pixel with the median of the pixels around it, per
+   * channel. It removes salt-and-pepper noise, specks and dust while keeping
+   * edges sharp, because a few outliers don't change a median.
+   *
+   * The window is a square of `2 * radius + 1` pixels on each side, so
+   * `median(1)` looks at 3×3 pixels, like sharp's `median(3)` and
+   * ImageMagick's `-statistic Median 3x3`. Larger radii remove bigger specks,
+   * and round off corners and thin lines.
+   *
+   * Pixels past the edges are copies of the nearest edge pixel, as in
+   * `blur` and `gaussian`. Colors are weighted by alpha, so transparent
+   * pixels don't darken a shape's edges.
+   *
+   * For the grainy noise of photos, `bilateral` gives a smoother result.
+   * @param radius the size of the window, greater than 0. It's rounded to a
+   * whole number of pixels, at least 1 and at most 256, like `blur`'s.
+   * @example
+   * ```ts
+   * import { Jimp } from "jimp";
+   *
+   * const image = await Jimp.read("test/image.png");
+   *
+   * image.median(1);
+   * ```
+   */
+  median<I extends JimpClass>(image: I, radius: number) {
+    const r = Math.min(
+      MAX_BLUR_RADIUS,
+      Math.max(1, Math.round(MedianRadiusSchema.parse(radius))),
+    );
+
+    medianFilter(image, r);
+
+    return image;
+  },
+
+  /**
+   * Smooths noise while keeping edges sharp, with a bilateral filter. Each
+   * pixel becomes an average of its neighbors, weighted both by how close
+   * they are and by how similar their color is. Grain and JPEG noise in flat
+   * areas such as skin and sky are averaged away, but neighbors across an
+   * edge have a very different color, so they barely count.
+   *
+   * - `radius` is how far the averaging reaches, as a standard deviation in
+   *   pixels like `gaussian`. `1` to `3` suits most photos.
+   * - `tolerance` is how different two colors can be, 0-255, and still be
+   *   averaged together. Raise it for stronger noise; too high and it blurs
+   *   like `gaussian`. About 3 times the noise's standard deviation works
+   *   well.
+   *
+   * Colors are weighted by alpha, so transparent pixels don't pull colors
+   * toward black. Alpha itself is left unchanged.
+   *
+   * For salt-and-pepper noise and isolated specks, use `median`.
+   * @example
+   * ```ts
+   * import { Jimp } from "jimp";
+   *
+   * const image = await Jimp.read("test/image.png");
+   *
+   * image.bilateral();
+   * image.bilateral({ radius: 3, tolerance: 40 });
+   * ```
+   */
+  bilateral<I extends JimpClass>(image: I, options: BilateralOptions = {}) {
+    const { radius = 2, tolerance = 30 } =
+      BilateralOptionsSchema.parse(options);
+
+    bilateralFilter(image, radius, tolerance);
 
     return image;
   },
