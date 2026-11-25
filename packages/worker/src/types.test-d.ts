@@ -28,6 +28,15 @@ describe("createJimpWorker", () => {
     ).resolves.toEqualTypeOf<Uint8Array<ArrayBuffer>>();
   });
 
+  test("only takes edits that change the image", () => {
+    const jimp = createJimpWorker(createWorker, { Jimp });
+
+    // @ts-expect-error returns a color, not the image
+    void jimp.run({ input: bytes, edits: [["dominantColor"]] });
+    // @ts-expect-error returns a list of colors, not the image
+    void jimp.run({ input: bytes, edits: [["palette", 5]] });
+  });
+
   test("checks edits against the class", () => {
     const jimp = createJimpWorker<typeof CropJimp>(createWorker);
 

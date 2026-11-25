@@ -30,6 +30,7 @@ export const toolIcons: Record<string, string> = {
   normalize: `<path d="M3 28h26" ${S}/><g ${S}><rect x="5" y="16" width="5" height="12" fill="#ff4b4b"/><rect x="11" y="8" width="5" height="20" fill="#ffd83a"/><rect x="17" y="12" width="5" height="16" fill="#22c76b"/><rect x="23" y="5" width="5" height="23" fill="#3a7bff"/></g>`,
   opacity: `<path d="M6 28V14a10 10 0 0120 0v14l-3.3-3-3.3 3-3.4-3-3.3 3-3.4-3z" fill="#fff" ${S}/><circle cx="12.5" cy="14" r="2" fill="${INK}"/><circle cx="19.5" cy="14" r="2" fill="${INK}"/>`,
   palette: `<path d="M16 3C8 3 3 9 3 15c0 7 6 10 10 9 3 0 3-3 5-3 3 0 4 4 8 2s5-6 5-9C31 8 25 3 16 3z" fill="#fff" stroke="${INK}" stroke-width="2.5"/><circle cx="10" cy="12" r="2.6" fill="#ff4b4b"/><circle cx="16" cy="9" r="2.6" fill="#ffd83a"/><circle cx="22" cy="11" r="2.6" fill="#22c76b"/><circle cx="24" cy="17" r="2.6" fill="#8b46ff"/>`,
+  dominantColor: `<rect x="3" y="4" width="20" height="18" rx="3" fill="#fff" ${S}/><path d="M3 18l6-6 5 5 3-3 6 6" fill="none" ${S}/><circle cx="23" cy="23" r="6.5" fill="#ff5fb0" ${S}/>`,
 };
 
 /** Fallback sticker icons for methods that can't be shown as a thumbnail. */

@@ -163,6 +163,8 @@ Some methods measure or inspect the image instead of changing it. They return a 
 | [`autocropRect()`](/jimp/methods/autocrop-rect/)             | `{ x, y, w, h }`: the area `autocrop` would keep |
 | [`hash()`](/jimp/methods/hash/), [`pHash()`](/jimp/methods/phash/) | A perceptual hash `string`             |
 | [`distanceFromHash(pHash)`](/jimp/methods/distance-from-hash/) | A `number` from `0` (same) to `1`         |
+| [`dominantColor()`](/jimp/methods/dominant-color/)           | The main color as an RGBA `number`          |
+| [`palette(count)`](/jimp/methods/palette/)                   | `{ color, weight }[]`: the main colors, most common first |
 | [`scanIterator()`](/jimp/methods/scan-iterator/)             | An iterator over the pixels                 |
 
 [`setPixelColor`](/jimp/methods/set-pixel-color/), [`scan`](/jimp/methods/scan/) and [`composite`](/jimp/methods/composite/) change the image and return it, like the other editing methods.
