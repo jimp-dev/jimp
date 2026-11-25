@@ -94,6 +94,8 @@ export const methods: MethodEntry[] = [
   m("threshold", "threshold", "color", "@jimp/plugin-threshold"),
   m("otsu-threshold", "otsuThreshold", "color", "@jimp/plugin-threshold"),
   m("quantize", "quantize", "color", "@jimp/plugin-quantize"),
+  m("palette", "palette", "color", "@jimp/plugin-quantize"),
+  m("dominant-color", "dominantColor", "color", "@jimp/plugin-quantize"),
   m("opacity", "opacity", "color", "@jimp/plugin-color"),
   m("fade", "fade", "color", "@jimp/plugin-color"),
   m("opaque", "opaque", "color", "@jimp/plugin-color"),

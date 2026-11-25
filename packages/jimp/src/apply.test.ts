@@ -132,6 +132,16 @@ describe("apply", () => {
     ).toThrow(
       'Edit 0: "hash" returns a value instead of changing the image, so it can\'t be used in apply',
     );
+
+    for (const edit of [["dominantColor"], ["palette", 5]]) {
+      const image = makeImage();
+      const before = new Uint8Array(image.bitmap.data);
+
+      expect(() => image.apply([edit] as unknown as JimpEdit[])).toThrow(
+        `Edit 0: "${edit[0]}" returns a value instead of changing the image, so it can't be used in apply`,
+      );
+      expect(new Uint8Array(image.bitmap.data)).toEqual(before);
+    }
   });
 
   test("only allows the plugins of a custom Jimp class", () => {

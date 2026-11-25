@@ -90,7 +90,7 @@ Any method from one of the class's plugins that changes the image: `resize`, `cr
 These can't be used:
 
 - **Methods every Jimp has**, such as `write`, `getBuffer`, `clone`, `composite` and `scan`. Reading and writing stay outside the list of edits.
-- **Methods that return a value** instead of the image, such as `hash`, `pHash`, `distanceFromHash` and `autocropRect`.
+- **Methods that return a value** instead of the image, such as `hash`, `pHash`, `distanceFromHash`, `autocropRect`, `palette` and `dominantColor`.
 
 Arguments that are images or fonts, such as the source for [`blit`](/jimp/methods/blit/) or the font for [`print`](/jimp/methods/print/), work when you call `apply` yourself but can't be stored as JSON.
 

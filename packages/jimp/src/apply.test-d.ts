@@ -37,6 +37,10 @@ describe("apply", () => {
     image.apply([["hash"]]);
     // @ts-expect-error returns a number
     image.apply([["distanceFromHash", "abc"]]);
+    // @ts-expect-error returns a color
+    image.apply([["dominantColor"]]);
+    // @ts-expect-error returns a list of colors
+    image.apply([["palette", 5]]);
   });
 
   test("JimpEdit names exactly the plugin methods that change the image", () => {
@@ -49,7 +53,12 @@ describe("apply", () => {
       "resize" | "greyscale" | "print" | "drawRect"
     >().toExtend<Names>();
     expectTypeOf<
-      "hash" | "pHash" | "distanceFromHash" | "autocropRect"
+      | "hash"
+      | "pHash"
+      | "distanceFromHash"
+      | "autocropRect"
+      | "dominantColor"
+      | "palette"
     >().not.toExtend<Names>();
   });
 

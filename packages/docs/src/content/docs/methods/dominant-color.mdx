@@ -1,0 +1,116 @@
+---
+title: "dominantColor()"
+description: "Find the color that covers most of an image, for backgrounds and accents."
+category: color
+method: "dominantColor"
+plugin: "@jimp/plugin-quantize"
+---
+
+import Related from "../../../components/Related.astro";
+
+`dominantColor` returns the color that covers the most of the image, without changing it.
+Use it to pick a background or accent color that goes with a picture: the backdrop behind album art, the card color for a user's avatar, a placeholder to show while an image loads.
+For more than one color, use [`palette`](/jimp/methods/palette/).
+
+## Signature
+
+```ts title="dominantColor.d.ts"
+image.dominantColor(options?: { sampleSize?: number }): number | undefined
+```
+
+`dominantColor` returns an opaque RGBA hex number such as `0x1b2a4eff`, the same form [`getPixelColor`](/jimp/methods/get-pixel-color/) returns, so you can pass it to any method that takes a color.
+It returns `undefined` if the image is fully transparent.
+
+## Options
+
+| Option       | Type     | Default | Description                                                                                                               |
+| ------------ | -------- | ------- | ------------------------------------------------------------------------------------------------------------------------- |
+| `sampleSize` | `number` | `10000` | The most pixels to look at, at least `1`. Larger images are sampled on an even grid. Pass `image.width * image.height` to look at every pixel. |
+
+The options type is exported as `PaletteOptions` from `@jimp/plugin-quantize`.
+
+## Example
+
+```ts title="example.ts"
+import { Jimp, intToRGBA } from "jimp";
+
+const cover = await Jimp.read("album.jpg");
+
+const color = cover.dominantColor()!; // 0x1b2a4eff
+const { r, g, b } = intToRGBA(color); // { r: 27, g: 42, b: 78, a: 255 }
+```
+
+### An Open Graph card in the colors of the album art
+
+Give each card a background that matches its picture: the dominant color of the album art, or of a user's avatar, behind the image and the title.
+Pick white or black text by how light the color is, so the title stays readable:
+
+```tsx title="og-card.tsx"
+/** @jsxImportSource @jimp/layout */
+import { Jimp, intToRGBA } from "jimp";
+import { loadTTF } from "jimp/load-ttf";
+import { Box, Image, Text, render } from "@jimp/layout";
+
+const bold = await loadTTF("Inter-Bold.otf");
+
+/** Black on light colors, white on dark ones */
+function textOn(color: number) {
+  const { r, g, b } = intToRGBA(color);
+  const luma = 0.2126 * r + 0.7152 * g + 0.0722 * b;
+
+  return luma > 150 ? "#111111" : "white";
+}
+
+export async function albumCard(album: { title: string; cover: string }) {
+  const cover = await Jimp.read(album.cover);
+  // Fall back to a neutral color for a fully transparent image
+  const background = cover.dominantColor() ?? 0x222222ff;
+
+  return render(
+    <Box
+      direction="row"
+      align="center"
+      gap={56}
+      padding={64}
+      background={background}
+      font={bold}
+      color={textOn(background)}
+    >
+      <Image src={cover} width={502} height={502} radius={16} />
+      <Text fontSize={64} grow={1}>
+        {album.title}
+      </Text>
+    </Box>,
+    { width: 1200, height: 630, Jimp },
+  );
+}
+```
+
+![A card with a star sticker on an orange background, the sticker's dominant color, with the title in black](/jimp/palette/dominant-color-card.png)
+
+See the [Open Graph images guide](/jimp/guides/og-images/) for building and serving cards like this one.
+For a gradient, or a separate accent color, take two colors from [`palette`](/jimp/methods/palette/#a-gradient-from-the-top-two-colors).
+
+### Logos and icons with transparency
+
+Transparent pixels don't count, so a logo on a transparent background gives the logo's color, not the background's:
+
+```ts title="example.ts"
+const logo = await Jimp.read("logo.png"); // a red mark on transparent
+
+logo.dominantColor(); // 0xe0102aff
+```
+
+## Notes
+
+- **Doesn't change the image.** `dominantColor` only reads the pixels, so it can't be used in [`apply`](/jimp/methods/apply/), `@jimp/server` edits or `@jimp/worker` tasks, which only take methods that change the image. Call it on the image you get back instead.
+- **How it works.** It's the first color of [`palette(5)`](/jimp/methods/palette/): the image's colors are grouped into five clusters with Xiaolin Wu's quantizer from [image-q](https://github.com/ibezkrovnyi/image-quantization), the same one [`quantize`](/jimp/methods/quantize/) uses by default, and the color is the mean of the largest cluster. Grouping keeps the shades of one color together, so a photo of a blue sky gives a sky blue rather than one exact pixel value. It also means the result is usually a color near the image's pixels, not one of them exactly.
+- **Transparency.** Fully transparent pixels are skipped, and partially transparent ones count by their alpha: a pixel at 50% alpha counts half as much as an opaque one. The color is always opaque (`a` is `255`).
+- **Speed.** Images with more pixels than `sampleSize` are sampled on an even grid, so the time doesn't grow with the image: about 10 ms in Node.js, whether the image is 100 × 100 or 10000 × 800. Reading the image takes longer than that. A lower `sampleSize` is a little faster, and can miss small details.
+- **Color space.** The color is in the image's color space, like the values [`getPixelColor`](/jimp/methods/get-pixel-color/) returns. For an image in Display P3, call [`toColorSpace("srgb")`](/jimp/methods/to-color-space/) first if you need an sRGB color, for example to use in CSS.
+- **Errors.** A `sampleSize` below `1` throws a `ZodError` (`sampleSize must be at least 1`).
+- **Added in 2.2.**
+
+## Related
+
+<Related methods={["palette", "quantize", "getPixelColor", "intToRGBA", "render"]} />

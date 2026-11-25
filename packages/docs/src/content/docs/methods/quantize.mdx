@@ -12,6 +12,7 @@ import Related from "../../../components/Related.astro";
 `quantize` reduces the image to at most a given number of colors.
 It builds the best palette it can for the image and then redraws every pixel with it, by default using dithering to hide the banding.
 It's powered by the [image-q](https://github.com/ibezkrovnyi/image-quantization) library.
+To get an image's main colors without changing it, use [`palette`](/jimp/methods/palette/) or [`dominantColor`](/jimp/methods/dominant-color/).
 
 ## Signature
 
@@ -137,4 +138,4 @@ Drag `colors` and try different algorithms. The perceptual distance formulas (`c
 
 ## Related
 
-<Related methods={["posterize", "dither", "threshold", "greyscale", "pixelate"]} />
+<Related methods={["palette", "posterize", "dither", "threshold", "greyscale", "pixelate"]} />

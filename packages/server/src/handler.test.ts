@@ -532,6 +532,11 @@ describe("signing", () => {
       "The write edit isn't allowed",
     ],
     [
+      "a method that returns a value",
+      editsParam([["dominantColor"]]),
+      "The dominantColor edit isn't allowed",
+    ],
+    [
       "bad arguments",
       editsParam([["resize", { width: 1 }]]),
       "Edit 0 (resize) failed",
@@ -628,6 +633,23 @@ describe("limits", () => {
     const response = await get(handler, "/images/halves.png?w=50&blur=2");
     expect(response.status).toBe(400);
     expect(await response.text()).toBe("The blur edit isn't allowed");
+  });
+
+  test("methods that return a value are a 400 even if allowed", async () => {
+    const handler = createHandler({
+      allowedEdits: ["palette"],
+      secret: "s",
+    });
+    const edits = editsParam([["palette", 5]]);
+    const response = await get(
+      handler,
+      await signUrl(`/images/halves.png?edits=${edits}`, "s"),
+    );
+
+    expect(response.status).toBe(400);
+    expect(await response.text()).toContain(
+      '"palette" returns a value instead of changing the image',
+    );
   });
 
   test("edits the Jimp class doesn't have are a 400", async () => {
