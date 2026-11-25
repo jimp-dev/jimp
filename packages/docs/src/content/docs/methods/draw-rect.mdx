@@ -31,6 +31,7 @@ image.drawRect(options: {
   fill?: Paint;
   stroke?: Paint;
   strokeWidth?: number;
+  strokeAlign?: "center" | "inside" | "outside";
   join?: "miter" | "round" | "bevel";
   miterLimit?: number;
 }): this
@@ -50,7 +51,8 @@ image.drawRect(options: {
 | `radius`      | `number \| object`                     | `0`                         | The corner radius: one number for every corner, or `{ topLeft, topRight, bottomRight, bottomLeft }` (missing corners are `0`). Each must be `0` or more. |
 | `fill`        | `Paint`                                | black, if there's no `stroke` | What to fill the rectangle with: a color or a gradient.                                                       |
 | `stroke`      | `Paint`                                | none                        | What to draw the outline with: a color or a gradient.                                                          |
-| `strokeWidth` | `number`                               | `1`                         | The width of the outline in pixels, centered on the edge. Must be `0` or more.                                 |
+| `strokeWidth` | `number`                               | `1`                         | The width of the outline in pixels. Must be `0` or more.                                                       |
+| `strokeAlign` | `"center" \| "inside" \| "outside"`    | `"center"`                  | Where the outline goes: centered on the edge like SVG, inside the rectangle like a CSS border, or all around it. |
 | `join`        | `"miter" \| "round" \| "bevel"`        | `"miter"`                   | How the outline's corners look. Only matters for square corners.                                               |
 | `miterLimit`  | `number`                               | `10`                        | How long a miter corner can be, as a multiple of `strokeWidth`, before it's beveled. Must be `1` or more.      |
 
@@ -85,6 +87,27 @@ image.drawRect({
 });
 ```
 
+### A CSS border
+
+Set `strokeAlign: "inside"` to keep the outline within the rectangle, the way a CSS `border` sits inside an element's box. The inner corners are rounded `strokeWidth` tighter than the outer ones, as in CSS:
+
+```ts title="example.ts"
+// Covers exactly x 20 to 180 and y 20 to 80, border included
+image.drawRect({
+  x: 20,
+  y: 20,
+  w: 160,
+  h: 60,
+  radius: 16,
+  fill: "white",
+  stroke: "#1b1840",
+  strokeWidth: 4,
+  strokeAlign: "inside",
+});
+```
+
+`strokeAlign: "outside"` draws the outline all around the rectangle instead, so the fill keeps its full size.
+
 ### A label behind text
 
 Draw a semi-transparent box, then [`print`](/jimp/methods/print/) on top of it:
@@ -118,19 +141,20 @@ image.drawRect({
 
 ## Try it
 
-Drag on the image to place the rectangle, then change the radius, the style and the colors. Turn on **gradient fill** to fill it with a linear gradient.
+Drag on the image to place the rectangle, then change the radius, the style and the colors. Turn on **gradient fill** to fill it with a linear gradient, and change **stroke align** to move the outline inside or outside the rectangle.
 
 <Playground method="drawRect" client:visible />
 
 ## Notes
 
 - **Crisp edges on whole pixels.** A rectangle whose edges fall on whole-pixel coordinates fills every pixel it covers completely, with no antialiased fringe. Edges at fractional coordinates are blended by how much of each pixel they cover: `x: 10.5` makes column 10 half-strength.
-- **The outline straddles the edge.** Like SVG and canvas, half of `strokeWidth` is inside the rectangle and half outside, so `{ x: 10, w: 80, strokeWidth: 4 }` covers `x` from 8 to 92. To keep the outline inside a box, inset the rectangle by half the stroke width.
+- **The outline straddles the edge by default.** Like SVG and canvas, half of `strokeWidth` is inside the rectangle and half outside, so `{ x: 10, w: 80, strokeWidth: 4 }` covers `x` from 8 to 92. With `strokeAlign: "inside"` it covers 10 to 90, and with `"outside"` 6 to 94.
+- **Inside and outside corners.** With `strokeAlign: "inside"` the inner corners have a radius `strokeWidth` smaller than `radius` (square once that's `0` or less), and a `strokeWidth` of half the rectangle or more fills it. With `"outside"` the outer corners have a radius `strokeWidth` bigger, but square corners stay square. `join` and `miterLimit` only apply to centered outlines.
 - **No paint means black.** With neither `fill` nor `stroke`, the rectangle is filled black. With only `stroke`, it isn't filled.
 - **Radii are scaled to fit**, the way CSS `border-radius` does: when two corners on one side add up to more than that side, every radius is scaled down by the same factor. A radius of half the height or more makes a pill.
 - **Clipped to the image.** The rectangle can be partly or entirely outside the image. Only the part inside is drawn, and nothing throws.
 - **Validation.** Coordinates and sizes must be finite numbers: `NaN` or `Infinity` throws a `ZodError` naming the option. Negative radii, stroke widths and a `miterLimit` below `1` throw a `ZodError` too. An invalid CSS color throws `Invalid color "notacolor"` before anything is drawn, even when only the stroke is invalid.
-- **Added in 2.0.**
+- **Added in 2.0.** `strokeAlign` was added in 2.2.
 
 ## Related
 

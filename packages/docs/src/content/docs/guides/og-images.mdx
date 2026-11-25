@@ -1,0 +1,269 @@
+---
+title: Open Graph Images
+description: Build an Open Graph card from boxes, text and images with @jimp/layout, step by step.
+---
+
+import { Aside, Steps } from "@astrojs/starlight/components";
+import InstallCommand from "../../../components/InstallCommand.astro";
+
+An Open Graph image is the card a link shows when it's shared: a title, maybe a logo and some tags, usually 1200 × 630 pixels.
+You could draw one with [`drawRect`](/jimp/methods/draw-rect/) and [`print`](/jimp/methods/print/), but you'd be working out every coordinate yourself, and a longer title would break it.
+
+`@jimp/layout` lays the card out for you.
+You describe it as a tree of boxes, text and images, laid out in rows and columns like CSS flexbox, and [`render`](/jimp/methods/render/) measures the text, wraps it, positions everything and draws it with Jimp.
+It's plain JavaScript with no browser, SVG or WebAssembly step, so it runs anywhere Jimp does: Node.js, browsers, workers, Deno and Bun.
+
+This guide builds this card:
+
+![An Open Graph card: a dark purple gradient with a round avatar and the site name at the top, a two-line bold title and a description in the middle, and three yellow tag pills at the bottom](/jimp/layout/og-card.png)
+
+## Install
+
+`@jimp/layout` isn't part of `jimp`, so install it alongside:
+
+<InstallCommand pkg="jimp @jimp/layout" />
+
+You also need a font. `@jimp/layout` draws text with the fonts [`loadTTF`](/jimp/methods/load-ttf/) loads (TrueType, OpenType or WOFF) at any size and color, or with the bitmap fonts from [`loadFont`](/jimp/methods/load-font/). This guide uses [Inter](https://rsms.me/inter/) in two weights.
+
+## Build the card
+
+<Steps>
+
+1. **Start with the background.** The root of the tree is a box. It fills the image, so give it the padding and the gradient. Text props like `font` and `color` set on a box are inherited by the text inside it, the way CSS inherits them:
+
+   ```ts title="og-card.ts"
+   import { Jimp } from "jimp";
+   import { loadTTF } from "jimp/load-ttf";
+   import { render, type BoxNode } from "@jimp/layout";
+
+   const regular = await loadTTF("Inter-Regular.otf");
+   const bold = await loadTTF("Inter-Bold.otf");
+
+   const background: BoxNode = {
+     type: "box",
+     padding: 72,
+     background: { type: "linear", angle: 135, stops: ["#1b1840", "#3a2d7a"] },
+     font: regular,
+     color: "white",
+   };
+
+   const card = await render(
+     { ...background, children: [] },
+     { width: 1200, height: 630, Jimp },
+   );
+
+   await card.write("og-card.png");
+   ```
+
+   `render` returns a Jimp image, so you can [`write`](/jimp/methods/write/) it, get its bytes with [`getBuffer`](/jimp/methods/get-buffer/), or keep editing it.
+   The gradient's `angle` works like CSS `linear-gradient`: `135` goes from the top left to the bottom right, and the gradient is sized to the box it fills.
+
+   ![Step 1: an empty card with the purple gradient](/jimp/layout/step-1-background.png)
+
+2. **Add the title and description.** A box lays out its children in a column, with `gap` pixels between them. Text wraps to the width of the column. `maxLines` cuts a long title short with an ellipsis, so the card never overflows:
+
+   ```ts title="og-card.ts"
+   const post = {
+     title: "Generating Open Graph images with plain JavaScript",
+     description:
+       "Lay out text and images like CSS flexbox, then draw them with Jimp.",
+     site: "jimp-dev.github.io",
+     tags: ["jimp", "layout", "og-images"],
+   };
+
+   const body: BoxNode = {
+     type: "box",
+     gap: 24,
+     children: [
+       {
+         type: "text",
+         text: post.title,
+         font: bold,
+         fontSize: 72,
+         lineHeight: 84,
+         maxLines: 2,
+       },
+       { type: "text", text: post.description, fontSize: 32, color: "#c9c4f0" },
+     ],
+   };
+
+   const card = await render(
+     { ...background, children: [body] },
+     { width: 1200, height: 630, Jimp },
+   );
+   ```
+
+   ![Step 2: the title and description at the top of the card](/jimp/layout/step-2-text.png)
+
+3. **Add a header with an avatar.** `direction: "row"` lays the avatar and the site name side by side, and `align: "center"` centers them vertically. The image node is `fit: "cover"` cropped to a square and rounded into a circle by its `radius`, with a white border.
+   On the root, `justify: "space-between"` pushes the header to the top and the body to the bottom:
+
+   ```ts title="og-card.ts"
+   const avatar = await Jimp.read("avatar.png");
+
+   const header: BoxNode = {
+     type: "box",
+     direction: "row",
+     align: "center",
+     gap: 20,
+     children: [
+       {
+         type: "image",
+         src: avatar,
+         width: 64,
+         height: 64,
+         radius: 32,
+         fit: "cover",
+         borderWidth: 3,
+         borderColor: "white",
+         background: "white",
+       },
+       { type: "text", text: post.site, fontSize: 28, color: "#c9c4f0" },
+     ],
+   };
+
+   const card = await render(
+     { ...background, justify: "space-between", children: [header, body] },
+     { width: 1200, height: 630, Jimp },
+   );
+   ```
+
+   ![Step 3: the avatar and site name at the top, the title and description at the bottom](/jimp/layout/step-3-header.png)
+
+4. **Add the tags.** Each tag is a box with padding, a `radius` big enough to make a pill and a soft `shadow`. A third child of the root puts the body in the middle:
+
+   ```ts title="og-card.ts"
+   const tag = (label: string): BoxNode => ({
+     type: "box",
+     padding: [10, 22],
+     radius: 999,
+     background: "#ffd83a",
+     shadow: { y: 6, blur: 12, color: "rgba(0, 0, 0, 0.35)" },
+     children: [
+       {
+         type: "text",
+         text: `#${label}`,
+         font: bold,
+         fontSize: 24,
+         color: "#1b1840",
+       },
+     ],
+   });
+
+   const tags: BoxNode = {
+     type: "box",
+     direction: "row",
+     gap: 12,
+     children: post.tags.map(tag),
+   };
+
+   const card = await render(
+     {
+       ...background,
+       justify: "space-between",
+       children: [header, body, tags],
+     },
+     { width: 1200, height: 630, Jimp },
+   );
+
+   await card.write("og-card.png");
+   ```
+
+   ![Step 4: the finished card](/jimp/layout/og-card.png)
+
+</Steps>
+
+<Aside type="tip">
+  Load fonts and images once and reuse them for every card. Rendering a card
+  like this one takes a few tens of milliseconds; loading the fonts takes
+  longer.
+</Aside>
+
+## Serve the card
+
+To make cards on demand, render one per request and send its PNG bytes. With the Fetch API's `Response`, which works in Node.js, Deno, Bun and workers:
+
+```ts title="server.ts"
+async function ogImage(post: { title: string; site: string }) {
+  const card = await render(cardFor(post), { width: 1200, height: 630, Jimp });
+  const png = await card.getBuffer("image/png");
+
+  return new Response(new Uint8Array(png), {
+    headers: {
+      "Content-Type": "image/png",
+      "Cache-Control": "public, max-age=86400",
+    },
+  });
+}
+```
+
+Here `cardFor` is a function that returns the tree from the steps above for a post.
+
+## Write it with JSX
+
+Trees are plain objects, so you can build them with functions, loops and spreads as above.
+If you prefer JSX, `@jimp/layout` has components for each kind of node and a JSX runtime. Point TypeScript (or your bundler) at it in `tsconfig.json`:
+
+```json title="tsconfig.json"
+{
+  "compilerOptions": {
+    "jsx": "react-jsx",
+    "jsxImportSource": "@jimp/layout"
+  }
+}
+```
+
+Or start a single file with `/** @jsxImportSource @jimp/layout */`. Then `Box`, `Text` and `Image` take the same props as the objects, with children inside them:
+
+```tsx title="og-card.tsx"
+import { Box, Image, Text, render } from "@jimp/layout";
+
+function Tag({ label }: { label: string }) {
+  return (
+    <Box padding={[10, 22]} radius={999} background="#ffd83a">
+      <Text font={bold} fontSize={24} color="#1b1840">
+        #{label}
+      </Text>
+    </Box>
+  );
+}
+
+const card = await render(
+  <Box padding={72} justify="space-between" background="#1b1840" font={regular} color="white">
+    <Box direction="row" align="center" gap={20}>
+      <Image src={avatar} width={64} height={64} radius={32} fit="cover" />
+      <Text fontSize={28}>{post.site}</Text>
+    </Box>
+    <Text font={bold} fontSize={72} lineHeight={84} maxLines={2}>
+      {post.title}
+    </Text>
+    <Box direction="row" gap={12}>
+      {post.tags.map((label) => (
+        <Tag label={label} />
+      ))}
+    </Box>
+  </Box>,
+  { width: 1200, height: 630, Jimp },
+);
+```
+
+The components return the same objects as the steps above, so there's no virtual DOM and no React. Strings inside a `Box` become text nodes, and the children of a `Text` are joined into its text.
+
+## How the layout works
+
+The layout is a subset of CSS flexbox, written in TypeScript:
+
+- A box lays out its children in a `"column"` (the default) or a `"row"`, with `gap` between them and `padding` around them. Children can have a `margin`.
+- `justify` places children along the direction: `"start"`, `"center"`, `"end"`, `"space-between"`, `"space-around"` or `"space-evenly"`. `align` places them across it: `"start"`, `"center"`, `"end"` or `"stretch"` (the default). A child's `alignSelf` overrides its parent's `align`.
+- `width` and `height` are pixels, percentages of the parent like `"50%"`, or `"auto"` to fit the content. `grow` shares out spare space and `shrink` takes away space that's missing.
+- `position: "absolute"` takes a node out of the row or column and places it with `top`, `right`, `bottom` and `left`, for badges and background images.
+- Text is measured with [`measureText`](/jimp/methods/measure-text/) and [`measureTextHeight`](/jimp/methods/measure-text-height/), and wrapped the same way [`print`](/jimp/methods/print/) wraps it.
+
+See [`render`](/jimp/methods/render/) for every prop and how they differ from CSS.
+
+## See also
+
+- [`render`](/jimp/methods/render/): every node type and prop, and `layout` to get positions without drawing.
+- [Text and fonts](/jimp/concepts/text-and-fonts/): loading fonts with `loadTTF` and `loadFont`.
+- [Drawing](/jimp/concepts/drawing/): the shapes and gradients `@jimp/layout` draws with.
+- [Using in Browser](/jimp/guides/browser/): rendering cards in the browser or a worker.

@@ -109,6 +109,7 @@ export const methods: MethodEntry[] = [
   m("draw-polygon", "drawPolygon", "draw", "@jimp/plugin-draw"),
   m("draw-path", "drawPath", "draw", "@jimp/plugin-draw"),
   m("flood-fill", "floodFill", "draw", "@jimp/plugin-draw"),
+  m("render", "render", "draw", "@jimp/layout"),
 
   // Text
   m("print", "print", "text", "@jimp/plugin-print"),

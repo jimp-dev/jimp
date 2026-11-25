@@ -79,7 +79,7 @@ image.drawLine({ x1: 0, y1: 50.5, x2: 300, y2: 50.5, color: "black" }); // one c
 [`drawRect`](/jimp/methods/draw-rect/), [`drawEllipse`](/jimp/methods/draw-ellipse/), [`drawPolygon`](/jimp/methods/draw-polygon/) and [`drawPath`](/jimp/methods/draw-path/) take a `fill`, a `stroke` or both:
 
 - `fill` paints the inside of the shape.
-- `stroke` paints its outline, `strokeWidth` pixels wide (default `1`), centered on the edge: half inside the shape and half outside.
+- `stroke` paints its outline, `strokeWidth` pixels wide (default `1`), centered on the edge: half inside the shape and half outside. `drawRect` also takes `strokeAlign: "inside"` to keep the outline within the rectangle like a CSS border, or `"outside"` to put it all around.
 - With both, the fill is drawn first and the stroke on top, as in SVG.
 - With neither, the shape is filled black.
 
