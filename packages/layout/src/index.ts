@@ -283,7 +283,14 @@ export function Box(
 ): BoxNode {
   const { children, ...rest } = props;
   const nodes = flatten(children).flatMap((child): LayoutNode[] => {
-    if (child === null || child === undefined || typeof child === "boolean") {
+    // Skipped like React skips them, and so are empty strings, so
+    // `{subtitle && <Text>...</Text>}` adds no empty line
+    if (
+      child === null ||
+      child === undefined ||
+      typeof child === "boolean" ||
+      child === ""
+    ) {
       return [];
     }
 

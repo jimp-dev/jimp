@@ -1016,6 +1016,7 @@ describe("components", () => {
           [Image({ src: picture, width: 10 })],
           "plain",
           undefined,
+          "",
         ],
       }),
     ).toStrictEqual({

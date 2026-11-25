@@ -2,7 +2,7 @@ import { describe, expect, test } from "vitest";
 import { createJimp } from "@jimp/core";
 import type { VectorFont } from "@jimp/plugin-print";
 
-import { Box, Image, Text } from "./index.js";
+import { Box, Image, Text, type LayoutChildren } from "./index.js";
 
 const Jimp = createJimp();
 
@@ -25,7 +25,7 @@ describe("JSX", () => {
           {null}
         </>
         {[1, 2].map((n) => (
-          <Box width={n} />
+          <Box key={n} width={n} />
         ))}
       </Box>,
     ).toStrictEqual({
@@ -38,6 +38,41 @@ describe("JSX", () => {
         { type: "box", width: 1, children: [] },
         { type: "box", width: 2, children: [] },
       ],
+    });
+  });
+
+  test("your own components take props and children", () => {
+    function Card({
+      title,
+      children,
+    }: {
+      title: string;
+      children?: LayoutChildren;
+    }) {
+      return (
+        <Box padding={10}>
+          <Text font={regular}>{title}</Text>
+          {children}
+        </Box>
+      );
+    }
+
+    expect(
+      <Card title="Hi">
+        <Box width={1} />
+        <Box width={2} />
+      </Card>,
+    ).toStrictEqual({
+      type: "box",
+      padding: 10,
+      children: [
+        { type: "text", font: regular, text: "Hi" },
+        { type: "box", width: 1, children: [] },
+        { type: "box", width: 2, children: [] },
+      ],
+    });
+    expect(<Card title="Empty" />).toMatchObject({
+      children: [{ type: "text", text: "Empty" }],
     });
   });
 });

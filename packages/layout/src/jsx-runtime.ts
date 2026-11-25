@@ -26,6 +26,13 @@ export namespace JSX {
   // Only components, no elements like <div>
   // eslint-disable-next-line @typescript-eslint/no-empty-object-type
   export interface IntrinsicElements {}
+  /**
+   * Props every element takes. `key` is allowed, so code written for React
+   * type checks, but there's nothing to reconcile so it's ignored.
+   */
+  export interface IntrinsicAttributes {
+    key?: string | number | bigint | null;
+  }
   export interface ElementChildrenAttribute {
     // eslint-disable-next-line @typescript-eslint/no-empty-object-type
     children: {};

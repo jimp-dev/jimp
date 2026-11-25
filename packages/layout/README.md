@@ -13,55 +13,64 @@ For Open Graph cards, social banners and badges. You describe the image as a tre
 npm install jimp @jimp/layout
 ```
 
-```ts
+Write the image with JSX (no React needed) by setting `"jsx": "react-jsx"` and `"jsxImportSource": "@jimp/layout"` in your `tsconfig.json`:
+
+```tsx
 import { Jimp } from "jimp";
 import { loadTTF } from "jimp/load-ttf";
-import { render } from "@jimp/layout";
+import { Box, Text, render } from "@jimp/layout";
 
 const regular = await loadTTF("Inter-Regular.otf");
 const bold = await loadTTF("Inter-Bold.otf");
 
+function Tag({ label }: { label: string }) {
+  return (
+    <Box padding={[10, 22]} radius={999} background="#ffd83a">
+      <Text font={bold} fontSize={24} color="#1b1840">
+        #{label}
+      </Text>
+    </Box>
+  );
+}
+
 const card = await render(
-  {
-    type: "box",
-    padding: 72,
-    justify: "space-between",
-    background: { type: "linear", angle: 135, stops: ["#1b1840", "#3a2d7a"] },
-    font: regular,
-    color: "white",
-    children: [
-      { type: "text", text: "jimp-dev.github.io", fontSize: 28 },
-      {
-        type: "text",
-        text: "Generating Open Graph images with plain JavaScript",
-        font: bold,
-        fontSize: 72,
-        maxLines: 2,
-      },
-      {
-        type: "box",
-        direction: "row",
-        gap: 12,
-        children: ["jimp", "layout"].map((tag) => ({
-          type: "box",
-          padding: [10, 22],
-          radius: 999,
-          background: "#ffd83a",
-          shadow: { y: 6, blur: 12, color: "rgba(0, 0, 0, 0.35)" },
-          children: [
-            { type: "text", text: `#${tag}`, fontSize: 24, color: "#1b1840" },
-          ],
-        })),
-      },
-    ],
-  },
+  <Box
+    padding={72}
+    justify="space-between"
+    background={{ type: "linear", angle: 135, stops: ["#1b1840", "#3a2d7a"] }}
+    font={regular}
+    color="white"
+  >
+    <Text fontSize={28}>jimp-dev.github.io</Text>
+    <Text font={bold} fontSize={72} maxLines={2}>
+      Generating Open Graph images with plain JavaScript
+    </Text>
+    <Box direction="row" wrap gap={12}>
+      {["jimp", "layout"].map((label) => (
+        <Tag key={label} label={label} />
+      ))}
+    </Box>
+  </Box>,
   { width: 1200, height: 630, Jimp },
 );
 
 await card.write("og-card.png");
 ```
 
-Or write the tree with JSX: set `"jsxImportSource": "@jimp/layout"` and use the `Box`, `Text` and `Image` components.
+Or skip the compile step and write the tree as plain objects, with the same props:
+
+```ts
+const card = await render(
+  {
+    type: "box",
+    padding: 72,
+    font: regular,
+    color: "white",
+    children: [{ type: "text", text: "Hello", font: bold, fontSize: 72 }],
+  },
+  { width: 1200, height: 630, Jimp },
+);
+```
 
 - [Open Graph images guide](https://jimp-dev.github.io/jimp/guides/og-images/)
 - [render reference](https://jimp-dev.github.io/jimp/methods/render/)
