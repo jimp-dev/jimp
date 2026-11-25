@@ -404,6 +404,9 @@ importers:
       '@jimp/layout':
         specifier: workspace:*
         version: link:../layout
+      '@jimp/plugin-draw':
+        specifier: workspace:*
+        version: link:../../plugins/plugin-draw
       '@jimp/plugin-print':
         specifier: workspace:*
         version: link:../../plugins/plugin-print

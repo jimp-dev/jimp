@@ -17,6 +17,7 @@
     "@astrojs/starlight": "^0.43.1",
     "@jimp/core": "workspace:*",
     "@jimp/layout": "workspace:*",
+    "@jimp/plugin-draw": "workspace:*",
     "@jimp/plugin-print": "workspace:*",
     "@jimp/wasm-webp": "workspace:*",
     "@types/react": "^18.3.5",

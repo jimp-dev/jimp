@@ -160,6 +160,8 @@ export default defineConfig({
         },
       },
       sidebar: createSidebar(typeDocSidebarGroup),
+      // Points each page's og:image at the one src/pages/og/ renders for it
+      routeMiddleware: "./src/routeData.ts",
       plugins: [
         starlightTypeDoc({
           entryPoints: [
