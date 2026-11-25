@@ -38,6 +38,7 @@
     "@jimp/js-png": "workspace:*",
     "@jimp/plugin-crop": "workspace:*",
     "@jimp/test-utils": "workspace:*",
+    "@jimp/wasm-webp": "workspace:*",
     "@types/node": "^22.20.5",
     "@vitest/browser": "^5.1.1",
     "eslint": "^10.15.0",

@@ -194,6 +194,28 @@ describe("tasks", () => {
   });
 });
 
+describe("custom Jimp classes", () => {
+  test("can use WASM formats", async () => {
+    const jimp = createJimpWorker<typeof Jimp>(
+      () => new Worker(fixture("webp.worker.mjs"))
+    );
+
+    pools.push(jimp);
+
+    const webp = await jimp.run({
+      input: dicePath,
+      edits: [["resize", { w: 50 }]],
+      output: { mime: "image/webp" as "image/png", options: { quality: 80 } },
+    });
+
+    expect(new TextDecoder().decode(webp.subarray(8, 12))).toBe("WEBP");
+
+    const png = await jimp.run({ input: webp, output: { mime: "image/png" } });
+
+    expect((await Jimp.fromBuffer(png)).width).toBe(50);
+  });
+});
+
 describe("copying and transferring", () => {
   test("copies inputs by default", async () => {
     const jimp = createPool();

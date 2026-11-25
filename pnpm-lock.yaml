@@ -913,6 +913,9 @@ importers:
       '@jimp/test-utils':
         specifier: workspace:*
         version: link:../test-utils
+      '@jimp/wasm-webp':
+        specifier: workspace:*
+        version: link:../../plugins/wasm-webp
       '@types/node':
         specifier: ^22.20.5
         version: 22.20.5

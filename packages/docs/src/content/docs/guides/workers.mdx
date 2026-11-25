@@ -1,0 +1,407 @@
+---
+title: Workers
+description: Run Jimp in web workers or Node.js worker threads with @jimp/worker, so image work doesn't block the page or the event loop.
+---
+
+import { Aside, Steps, TabItem, Tabs } from "@astrojs/starlight/components";
+import InstallCommand from "../../../components/InstallCommand.astro";
+
+Jimp is written in JavaScript, so decoding, editing and encoding run on the thread that calls them.
+In a browser a large image can freeze the page while it's processed; in Node.js it blocks the event loop, so a server stops answering requests.
+`@jimp/worker` moves that work to [web workers](https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API) or [Node.js worker threads](https://nodejs.org/api/worker_threads.html), and spreads it over several when you have many images.
+
+## How it works
+
+You write a small worker script that calls `expose` with your `Jimp` class.
+On the main thread, `createJimpWorker` starts workers that run it, and `run` sends them tasks:
+
+```ts title="main.ts"
+const thumbnail = await jimp.run({
+  input: file,
+  edits: [
+    ["cover", { w: 200, h: 200 }],
+    ["greyscale"],
+  ],
+  output: { mime: "image/jpeg", options: { quality: 80 } },
+});
+```
+
+A task is plain data: the image to start from, a list of edits in the format [`apply`](/jimp/methods/apply/) takes, and what to send back.
+The worker reads the image, runs the edits, and sends back encoded bytes or the image itself.
+
+Install it with `jimp`:
+
+<InstallCommand pkg="jimp @jimp/worker" />
+
+## Setting up
+
+<Tabs syncKey="worker-setup">
+  <TabItem label="Vite">
+
+<Steps>
+
+1. Write the worker script. Export the type of what `expose` returns, so the main thread can type its tasks:
+
+   ```ts title="src/jimp.worker.ts"
+   import { Jimp } from "jimp";
+   import { expose } from "@jimp/worker";
+
+   const exposed = expose(Jimp);
+
+   export type JimpWorkerApi = typeof exposed;
+   ```
+
+2. Create the workers on the main thread. Vite bundles a worker started with `new Worker(new URL(...), { type: "module" })` into its own file, with everything it imports:
+
+   ```ts title="src/main.ts"
+   import { createJimpWorker } from "@jimp/worker";
+   import type { JimpWorkerApi } from "./jimp.worker";
+
+   const jimp = createJimpWorker<JimpWorkerApi>(() =>
+     new Worker(new URL("./jimp.worker.ts", import.meta.url), {
+       type: "module",
+     }),
+   );
+   ```
+
+3. Run tasks. Here a file from an `<input type="file">` is made into a thumbnail:
+
+   ```ts title="src/main.ts"
+   picker.addEventListener("change", async () => {
+     const bytes = await jimp.run({
+       input: picker.files![0]!,
+       edits: [["cover", { w: 200, h: 200 }]],
+       output: { mime: "image/jpeg" },
+     });
+
+     output.src = URL.createObjectURL(new Blob([bytes], { type: "image/jpeg" }));
+   });
+   ```
+
+</Steps>
+
+`import type` is removed when the code is compiled, so `jimp` is only bundled into the worker, not into your page's JavaScript.
+
+  </TabItem>
+  <TabItem label="webpack">
+
+<Steps>
+
+1. Write the worker script. Export the type of what `expose` returns, so the main thread can type its tasks:
+
+   ```ts title="src/jimp.worker.ts"
+   import { Jimp } from "jimp";
+   import { expose } from "@jimp/worker";
+
+   const exposed = expose(Jimp);
+
+   export type JimpWorkerApi = typeof exposed;
+   ```
+
+2. Create the workers on the main thread. webpack 5 bundles a worker started with `new Worker(new URL(...), { type: "module" })` into its own chunk, with everything it imports. There's nothing to add to your webpack config:
+
+   ```ts title="src/index.ts"
+   import { createJimpWorker } from "@jimp/worker";
+   import type { JimpWorkerApi } from "./jimp.worker";
+
+   const jimp = createJimpWorker<JimpWorkerApi>(() =>
+     new Worker(new URL("./jimp.worker.ts", import.meta.url), {
+       type: "module",
+     }),
+   );
+   ```
+
+   Keep the `new URL(...)` inside the `new Worker(...)` call, written out like this: webpack only recognizes that exact pattern.
+
+3. Run tasks. Here a file from an `<input type="file">` is made into a thumbnail:
+
+   ```ts title="src/index.ts"
+   picker.addEventListener("change", async () => {
+     const bytes = await jimp.run({
+       input: picker.files![0]!,
+       edits: [["cover", { w: 200, h: 200 }]],
+       output: { mime: "image/jpeg" },
+     });
+
+     output.src = URL.createObjectURL(new Blob([bytes], { type: "image/jpeg" }));
+   });
+   ```
+
+</Steps>
+
+`import type` is removed when the code is compiled, so `jimp` is only bundled into the worker chunk, not into your page's JavaScript.
+
+  </TabItem>
+  <TabItem label="Node.js">
+
+<Steps>
+
+1. Write the worker script. Node.js runs it as is, so write it in JavaScript, or point the next step at the compiled file:
+
+   ```js title="jimp.worker.js"
+   import { Jimp } from "jimp";
+   import { expose } from "@jimp/worker";
+
+   expose(Jimp);
+   ```
+
+2. Create the workers with `Worker` from `node:worker_threads`. Pass `Jimp` to type the tasks, and to get images back:
+
+   ```ts title="index.ts"
+   import { availableParallelism } from "node:os";
+   import { Worker } from "node:worker_threads";
+   import { createJimpWorker } from "@jimp/worker";
+   import { Jimp } from "jimp";
+
+   const jimp = createJimpWorker(
+     () => new Worker(new URL("./jimp.worker.js", import.meta.url)),
+     { Jimp, concurrency: availableParallelism() },
+   );
+   ```
+
+3. Run tasks. File paths and `file:` URLs are read in the worker, so the main thread doesn't read the file either:
+
+   ```ts title="index.ts"
+   import { writeFile } from "node:fs/promises";
+
+   const bytes = await jimp.run({
+     input: "photos/beach.jpg",
+     edits: [["resize", { w: 1200 }]],
+     output: { mime: "image/jpeg", options: { quality: 85 } },
+   });
+
+   await writeFile("beach-small.jpg", bytes);
+   ```
+
+</Steps>
+
+Idle workers don't keep the process running, so a script exits once its last task is done, without calling [`terminate`](#shutting-down).
+
+  </TabItem>
+</Tabs>
+
+## Tasks
+
+`jimp.run(task, options?)` returns a promise for the result. A task has these fields:
+
+| Field    | Type                    | Description                                                                          |
+| -------- | ----------------------- | ------------------------------------------------------------------------------------ |
+| `input`  | see [Inputs](#inputs)   | The image to start from. Required.                                                   |
+| `read`   | `object`                | Options for reading the input, such as `exifRotate`, as for [`Jimp.read`](/jimp/methods/read/). |
+| `edits`  | `JimpEdit[]`            | The edits to make, in order, as for [`apply`](/jimp/methods/apply/).                 |
+| `output` | `{ mime, options? }`    | Encode the result, as [`getBuffer(mime, options)`](/jimp/methods/get-buffer/) would.  |
+
+### Inputs
+
+| Input                                                  | What happens                                                                                       |
+| ------------------------------------------------------ | -------------------------------------------------------------------------------------------------- |
+| `ArrayBuffer`, `Uint8Array` or other view (`Buffer`)   | Copied to the worker and decoded there. See [Copying and transferring](#copying-and-transferring). |
+| `Blob` or `File`                                       | Sent to the worker without copying its data, and decoded there.                                   |
+| A URL, as a string or `URL`                            | Fetched in the worker. In a browser, relative URLs are resolved against the page, not the worker.  |
+| A file path or `file:` URL (Node.js)                   | Read in the worker.                                                                                |
+| A Jimp image                                           | Its pixels are copied to the worker, with its MIME type, background, ICC profile and EXIF data.   |
+
+### Results
+
+With `output`, `run` resolves with the encoded image as a `Uint8Array`.
+Wrap it in a `Blob` to show or upload it in a browser, or pass it to `writeFile` in Node.js.
+
+Without `output`, `run` resolves with a Jimp image.
+To build it, the main thread needs the `Jimp` class, so pass the same class the worker exposes:
+
+```ts title="main.ts"
+import { createJimpWorker } from "@jimp/worker";
+import { Jimp } from "jimp";
+
+const jimp = createJimpWorker(
+  () =>
+    new Worker(new URL("./jimp.worker.ts", import.meta.url), {
+      type: "module",
+    }),
+  { Jimp },
+);
+
+const image = await jimp.run({ input: file, edits: [["resize", { w: 800 }]] });
+
+image.width; // 800
+```
+
+The image is an instance of the class you passed, with the result's pixels, MIME type, background, ICC profile and EXIF data, so `getBuffer("image/jpeg", { exif: true })` still writes the original EXIF.
+Its pixels aren't copied on the way back.
+Passing `Jimp` adds `jimp` to your page's bundle, so prefer `output` when you only need the bytes.
+
+Without `Jimp`, a task without `output` rejects with `To get an image back, pass the Jimp class to createJimpWorker's Jimp option. To get encoded bytes, set the task's output.`
+
+### Images and fonts in edits
+
+Edits whose arguments include images, such as the source of [`blit`](/jimp/methods/blit/) or [`mask`](/jimp/methods/mask/), or the font of [`print`](/jimp/methods/print/), work too.
+The images, including a font's pages, are copied to the worker with every task:
+
+```ts title="index.ts"
+import { Jimp, loadFont } from "jimp";
+import { SANS_32_WHITE } from "jimp/fonts";
+
+const [logo, font] = await Promise.all([Jimp.read("logo.png"), loadFont(SANS_32_WHITE)]);
+
+const bytes = await jimp.run({
+  input: "photo.jpg",
+  edits: [
+    ["cover", { w: 800, h: 400 }],
+    ["blit", { src: logo, x: 16, y: 16 }],
+    ["print", { font, x: 16, y: 340, text: "Summer 2026" }],
+  ],
+  output: { mime: "image/jpeg" },
+});
+```
+
+## Types
+
+`createJimpWorker` checks tasks against the worker's `Jimp` class: method names and their arguments in `edits`, the `read` options, and the MIME type in `output`.
+Give it the class in one of two ways:
+
+- **The type of what `expose` returns**, exported from the worker script: `createJimpWorker<JimpWorkerApi>(...)`. Tasks are then checked against the class the worker really uses.
+- **The `Jimp` option**: `createJimpWorker(createWorker, { Jimp })` infers the type from the class. With both, the class must match the worker's.
+
+```ts title="main.ts"
+const jimp = createJimpWorker<JimpWorkerApi>(createWorker);
+
+// Type error: resize takes { w }, not { width }
+await jimp.run({ input: file, edits: [["resize", { width: 300 }]] });
+```
+
+The encode `options` in `output` aren't checked against the format by TypeScript; the worker checks them like `getBuffer` does.
+
+## Copying and transferring
+
+By default, `run` copies encoded data and Jimp images to the worker, so you can keep using them.
+The copy is made when you call `run`, even if the task waits in the queue, so later changes to an image don't change the task.
+Pass `transfer: true` to move them instead.
+That saves a copy, which matters for large images, but it detaches the memory: after the call, the `ArrayBuffer` you passed, or the buffer behind the `Uint8Array` or the image's pixels, is empty.
+
+```ts title="main.ts"
+const data = await file.arrayBuffer();
+
+const bytes = await jimp.run(
+  { input: data, output: { mime: "image/png" } },
+  { transfer: true },
+);
+
+data.byteLength; // 0
+```
+
+<Aside type="caution" title="Transferred memory is gone">
+  Only transfer data you won't use again. A Jimp image whose pixels were
+  transferred can't be edited or encoded afterwards, and a `Buffer` from Node's
+  shared pool is copied instead, because transferring it would also empty
+  other buffers.
+</Aside>
+
+`Blob` inputs are never copied, and results are always transferred back to you, as the worker doesn't keep them.
+
+## Many images
+
+Each worker runs one task at a time. `concurrency` sets how many workers run at once (1 by default).
+Workers start when a task needs one, and tasks wait in a queue, in the order they were run, until one is free:
+
+```ts title="main.ts"
+const jimp = createJimpWorker<JimpWorkerApi>(createWorker, {
+  concurrency: navigator.hardwareConcurrency,
+});
+
+const thumbnails = await Promise.all(
+  files.map((file) =>
+    jimp.run({
+      input: file,
+      edits: [["cover", { w: 200, h: 200 }]],
+      output: { mime: "image/jpeg" },
+    }),
+  ),
+);
+```
+
+`jimp.running` and `jimp.queued` are the number of tasks running and waiting.
+Every worker loads its own copy of Jimp and holds the images it's working on, so more workers also need more memory.
+In Node.js, `availableParallelism()` from `node:os` is a good upper limit.
+
+## Cancelling
+
+Pass an `AbortSignal` as `signal` to cancel a task.
+A task that's still waiting is removed from the queue.
+A task that's running can't be interrupted, so its worker is stopped, and a new one starts for the next task.
+Either way, `run` rejects with the signal's reason:
+
+```ts title="main.ts"
+const controller = new AbortController();
+
+cancelButton.onclick = () => controller.abort();
+
+const bytes = await jimp.run(
+  { input: file, edits: [["blur", 20]], output: { mime: "image/png" } },
+  { signal: controller.signal },
+);
+```
+
+`AbortSignal.timeout(ms)` gives a task a time limit. It then rejects with a `TimeoutError`.
+
+## Errors
+
+When a task fails in the worker, `run` rejects with a `JimpWorkerError` that has the original message:
+
+- `editIndex` is the position of the edit that failed, for errors from `apply`. Unknown method names are reported before any edit runs, as with `apply`.
+- `cause` is the method's own error, with its name and message.
+
+```ts title="main.ts"
+import { JimpWorkerError } from "@jimp/worker";
+
+try {
+  await jimp.run({ input: file, edits: [["greyscale"], ["resize", { w: -1 }]] });
+} catch (error) {
+  if (error instanceof JimpWorkerError) {
+    error.message; // "Edit 1 (resize) failed: …"
+    error.editIndex; // 1
+  }
+}
+```
+
+Errors reading the input have no `editIndex`, such as `Could not find MIME for Buffer` for data that isn't an image.
+
+If a worker stops before its task is done, because its script couldn't be loaded, an error wasn't caught or it exited, the task rejects with `The Jimp worker stopped: …` and the next task starts a new worker.
+
+## Custom Jimp
+
+The worker can expose a [custom Jimp](/jimp/guides/custom-jimp/), such as one with [WASM formats](/jimp/guides/webp/) or extra plugins.
+Only the worker script imports it:
+
+```ts title="jimp.worker.ts"
+import { createJimp } from "@jimp/core";
+import webp from "@jimp/wasm-webp";
+import { expose } from "@jimp/worker";
+import { defaultFormats, defaultPlugins } from "jimp";
+
+const exposed = expose(
+  createJimp({ formats: [...defaultFormats, webp], plugins: defaultPlugins }),
+);
+
+export type JimpWorkerApi = typeof exposed;
+```
+
+`createJimpWorker<JimpWorkerApi>` then accepts `output: { mime: "image/webp" }`. To get images back, export the class from a module of its own and pass it as `Jimp` on the main thread too.
+
+## Shutting down
+
+`jimp.terminate()` stops every worker. Tasks that are running or waiting reject with `The Jimp worker was terminated`, and so does every later `run`.
+In a browser, workers stop when the page is closed. In Node.js, idle workers don't keep the process running.
+
+## Notes
+
+- `expose` throws `expose must be called in a worker: in a web worker or a Node.js worker thread` outside a worker. It listens for tasks on the worker's `self`, or `parentPort` in Node.js; pass `{ scope }` to use another `MessagePort`.
+- Image methods are synchronous, so a worker can't be told to stop halfway through an edit. Stopping the worker is the only way, which is what cancelling a running task does.
+- The parsed EXIF data on `image._exif` comes back as plain data: it keeps `tags` and `imageSize`, but not exif-parser's methods.
+- Use the same version of `@jimp/worker` and `jimp`.
+
+## See also
+
+- [`apply`](/jimp/methods/apply/): the edits a task runs
+- [Using in Browser](/jimp/guides/browser/)
+- [Custom Jimp](/jimp/guides/custom-jimp/)
+- [Chaining and async](/jimp/concepts/chaining-and-async/#processing-many-images)

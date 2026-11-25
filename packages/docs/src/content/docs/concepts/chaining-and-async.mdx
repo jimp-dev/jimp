@@ -61,7 +61,7 @@ Build a chain step by step here, then try a different order:
 
 ### Edits as data
 
-[`apply`](/jimp/methods/apply/) runs the same kind of chain from a list, so edits can be stored as JSON or sent to a server or worker:
+[`apply`](/jimp/methods/apply/) runs the same kind of chain from a list, so edits can be stored as JSON or sent to a server or [worker](/jimp/guides/workers/):
 
 ```ts title="example.ts"
 image.apply([
@@ -180,7 +180,7 @@ The second line still changes `image`: it's grey afterwards. Clone first if you 
 
 Each image is independent, so you can process several at the same time with `Promise.all`.
 The image work itself runs on the main thread, though: the decoding, encoding and pixel operations don't run in parallel.
-For large batches, limit how many images you load at once to keep memory down, or spread the work across [worker threads](https://nodejs.org/api/worker_threads.html) (in the browser, [web workers](/jimp/guides/browser/#web-workers)).
+For large batches, limit how many images you load at once to keep memory down.
 
 ```ts title="example.ts"
 import { Jimp } from "jimp";
@@ -194,6 +194,35 @@ await Promise.all(
   }),
 );
 ```
+
+To run them in parallel, and keep the main thread free, use [`@jimp/worker`](/jimp/guides/workers/).
+It runs the same edits as [`apply`](#edits-as-data) in [worker threads](https://nodejs.org/api/worker_threads.html) or, in the browser, web workers:
+
+```ts title="example.ts"
+import { writeFile } from "node:fs/promises";
+import { availableParallelism } from "node:os";
+import { Worker } from "node:worker_threads";
+import { createJimpWorker } from "@jimp/worker";
+import type { Jimp } from "jimp";
+
+const jimp = createJimpWorker<typeof Jimp>(
+  () => new Worker(new URL("./jimp.worker.js", import.meta.url)),
+  { concurrency: availableParallelism() },
+);
+
+await Promise.all(
+  files.map(async (file) => {
+    const bytes = await jimp.run({
+      input: file,
+      edits: [["resize", { w: 200 }]],
+      output: { mime: "image/jpeg" },
+    });
+    await writeFile(`thumbs/${file}`, bytes);
+  }),
+);
+```
+
+`jimp.worker.js` is a two-line script that calls `expose(Jimp)`; see [Workers](/jimp/guides/workers/) for setting it up.
 
 ## Coming from v0
 
@@ -209,4 +238,5 @@ See [Migrate to v1](/jimp/guides/migrate-to-v1/) for the full list.
 
 - [Reading and writing](/jimp/concepts/reading-and-writing/)
 - [Errors and validation](/jimp/concepts/errors-and-validation/): what happens when a call fails
+- [Workers](/jimp/guides/workers/): running image work off the main thread
 - Methods: [`clone`](/jimp/methods/clone/), [`apply`](/jimp/methods/apply/), [`Jimp.read`](/jimp/methods/read/), [`getBuffer`](/jimp/methods/get-buffer/), [`write`](/jimp/methods/write/)

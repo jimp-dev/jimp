@@ -11,7 +11,7 @@ import Related from "../../../components/Related.astro";
 
 `apply` runs a list of edits on an image, in order.
 Each edit is a method name followed by its arguments, so `["resize", { w: 300 }]` does the same as `image.resize({ w: 300 })`.
-Because the list is plain data, you can save it as JSON, send it to a server or a worker, keep presets in a database, or build it from a form, and apply it later.
+Because the list is plain data, you can save it as JSON, send it to a server or a [worker](/jimp/guides/workers/), keep presets in a database, or build it from a form, and apply it later.
 
 ## Signature
 
@@ -98,6 +98,7 @@ Arguments that are images or fonts, such as the source for [`blit`](/jimp/method
 
 - Every method name is checked before the first edit runs. An unknown name, or an edit that isn't an array starting with a name, throws and leaves the image unchanged.
 - Each method validates its own arguments, as it does when you call it directly. If an edit fails, `apply` throws an error that says which edit failed, like `Edit 1 (resize) failed: …`, with the method's error as its `cause`.
+- Errors about one edit have an `editIndex` property with its position in the list, here `1`.
 - The edits before the one that failed have already been made. [Clone](/jimp/methods/clone/) first if you need the original back.
 
 <Aside type="caution" title="Edits from users">

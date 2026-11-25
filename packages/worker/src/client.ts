@@ -207,14 +207,18 @@ export function createJimpWorker(
   function settle(task: Task, data: FromWorkerMessage) {
     task.done();
 
-    if (data.type === "error") {
-      task.reject(JimpWorkerError.fromWire(data.error));
-    } else if (data.type === "bytes") {
-      task.resolve(data.data as never);
-    } else {
-      task.resolve(
-        fromWireImage(Jimp as unknown as JimpConstructor, data.image) as never
-      );
+    try {
+      if (data.type === "error") {
+        task.reject(JimpWorkerError.fromWire(data.error));
+      } else if (data.type === "bytes") {
+        task.resolve(data.data as never);
+      } else {
+        task.resolve(
+          fromWireImage(Jimp as unknown as JimpConstructor, data.image) as never
+        );
+      }
+    } catch (error) {
+      task.reject(error);
     }
   }
 

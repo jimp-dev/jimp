@@ -1,6 +1,7 @@
 import { describe, expectTypeOf, test } from "vitest";
 import { createJimp } from "@jimp/core";
 import png from "@jimp/js-png";
+import webp from "@jimp/wasm-webp";
 import * as crop from "@jimp/plugin-crop";
 import { Jimp } from "jimp";
 import { createJimpWorker, expose, type JimpWorker } from "./index.js";
@@ -9,6 +10,7 @@ declare const createWorker: () => Worker;
 declare const bytes: ArrayBuffer;
 
 const CropJimp = createJimp({ plugins: [crop.methods], formats: [png] });
+const WebpJimp = createJimp({ formats: [png, webp] });
 
 describe("createJimpWorker", () => {
   test("infers the class from the Jimp option", () => {
@@ -70,3 +72,12 @@ describe("createJimpWorker", () => {
   });
 });
 
+describe("custom classes", () => {
+  test("take the class's formats", () => {
+    const jimp = createJimpWorker(createWorker, { Jimp: WebpJimp });
+
+    void jimp.run({ input: bytes, output: { mime: "image/webp" } });
+    // @ts-expect-error not one of the class's formats
+    void jimp.run({ input: bytes, output: { mime: "image/gif" } });
+  });
+});
