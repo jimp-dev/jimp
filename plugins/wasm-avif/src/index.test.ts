@@ -31,6 +31,39 @@ describe("WASM AVIF", () => {
     expect(decoded.data.length).toBe(image.width * image.height * 4);
   });
 
+  test("quality sets the quality from 0 to 100", async () => {
+    const width = 64;
+    const height = 64;
+    const data = Buffer.alloc(width * height * 4);
+
+    for (let i = 0; i < data.length; i++) {
+      data[i] = i % 4 === 3 ? 255 : (i * 37) % 256;
+    }
+
+    const noisy = { width, height, data };
+    const low = await format.encode(noisy, { quality: 10 });
+    const high = await format.encode(noisy, { quality: 90 });
+
+    expect(low.length).toBeLessThan(high.length);
+    await expect(format.encode(noisy, { quality: 101 })).rejects.toThrow();
+  });
+
+  test("maxResolutionInMP rejects larger images before decoding", async () => {
+    const buffer = await format.encode(image);
+    const limit = (image.width * image.height - 1) / 1_000_000;
+
+    await expect(
+      format.decode(buffer, { maxResolutionInMP: limit }),
+    ).rejects.toThrow(
+      `AVIF dimensions ${image.width}x${image.height} exceed the maximum resolution of ${limit} megapixels`,
+    );
+
+    const decoded = await format.decode(buffer, {
+      maxResolutionInMP: (image.width * image.height) / 1_000_000,
+    });
+    expect(decoded.width).toBe(image.width);
+  });
+
   describe("getBuffer", () => {
     const Jimp = createJimp({ formats: [avif] });
 

@@ -15,6 +15,26 @@ describe("PNG", () => {
     expect(image.getPixelColor(400, 250)).toBe(0x7e0c0cda);
   });
 
+  test("maxResolutionInMP rejects larger images before decoding", async () => {
+    const path = getTestImagePath("dice.png");
+    const { width, height } = (await jimp.read(path)).bitmap;
+    const limit = (width * height - 1) / 1_000_000;
+
+    await expect(
+      jimp.read(path, { "image/png": { maxResolutionInMP: limit } }),
+    ).rejects.toThrow(
+      `PNG dimensions ${width}x${height} exceed the maximum resolution of ${limit} megapixels`,
+    );
+    await expect(
+      jimp.readFrames(path, { "image/png": { maxResolutionInMP: limit } }),
+    ).rejects.toThrow("exceed the maximum resolution");
+
+    const image = await jimp.read(path, {
+      "image/png": { maxResolutionInMP: (width * height) / 1_000_000 },
+    });
+    expect(image.bitmap.width).toBe(width);
+  });
+
   test("decodes 16-bit PNGs to 8 bits", async () => {
     const source = new PNG({ width: 1, height: 1 });
     source.data = Buffer.from(new Uint16Array(4).fill(0x8000).buffer);

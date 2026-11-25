@@ -5,6 +5,7 @@ import { Format } from "@jimp/types";
 import { simd } from "wasm-feature-detect";
 import { z } from "zod";
 
+import { readWebpSize } from "./header.js";
 import { loadWasm } from "./load-wasm.js";
 
 const WebpOptionsSchema = z.object({
@@ -110,6 +111,15 @@ export interface WebpWasm {
   encoder?: WebAssembly.Module;
 }
 
+export interface DecodeWebpOptions {
+  /**
+   * Largest image, in megapixels, that will be decoded. Larger images are
+   * rejected before any pixel memory is allocated.
+   * @default Infinity
+   */
+  maxResolutionInMP?: number;
+}
+
 export interface WebpFormatOptions {
   /**
    * Precompiled wasm modules for runtimes where the codecs can't load their
@@ -212,7 +222,19 @@ export default function webp({ wasm }: WebpFormatOptions = {}) {
 
       return Buffer.from(arrayBuffer);
     },
-    decode: async (data) => {
+    decode: async (data, { maxResolutionInMP }: DecodeWebpOptions = {}) => {
+      const size = readWebpSize(data);
+
+      if (
+        size &&
+        maxResolutionInMP !== undefined &&
+        size.width * size.height > maxResolutionInMP * 1_000_000
+      ) {
+        throw new Error(
+          `WebP dimensions ${size.width}x${size.height} exceed the maximum resolution of ${maxResolutionInMP} megapixels`,
+        );
+      }
+
       await initDecoderOnce(wasm?.decoder);
       const result = await decode(new Uint8Array(data).buffer);
 
