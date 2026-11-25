@@ -6,7 +6,8 @@
 // Also fails if the bundle stops parsing once Babel's preset-env has
 // transformed it, which many apps do to their dependencies. See #1405.
 import { parseSync, transformSync } from "@babel/core";
-import { readFileSync, statSync } from "node:fs";
+import { readdirSync, readFileSync, statSync } from "node:fs";
+import { builtinModules } from "node:module";
 import { fileURLToPath } from "node:url";
 
 const bundle = fileURLToPath(
@@ -74,3 +75,27 @@ try {
 }
 
 console.log(`jimp browser bundle OK (${size} bytes)`);
+
+// @jimp/worker's browser build must not import Node.js modules, which only
+// its Node.js build (platform.ts) uses
+const workerBuild = fileURLToPath(
+  new URL("../packages/worker/dist/browser/", import.meta.url),
+);
+const nodeModules = new Set(builtinModules);
+
+for (const file of readdirSync(workerBuild).filter((f) => f.endsWith(".js"))) {
+  const source = readFileSync(workerBuild + file, "utf8");
+
+  for (const [, specifier] of source.matchAll(
+    /(?:\bfrom|\bimport)\s*\(?\s*["']([^"']+)["']/g,
+  )) {
+    if (specifier.startsWith("node:") || nodeModules.has(specifier)) {
+      console.error(
+        `@jimp/worker's browser build imports ${specifier} in ${workerBuild + file}`,
+      );
+      process.exit(1);
+    }
+  }
+}
+
+console.log("@jimp/worker browser build OK");

@@ -114,6 +114,16 @@ describe("apply", () => {
 
     expect(error?.message).toMatch(/^Edit 1 \(resize\) failed: /);
     expect(error?.cause).toBeInstanceOf(Error);
+    expect(error).toHaveProperty("editIndex", 1);
+  });
+
+  test("errors from the name check have the edit's index too", () => {
+    expect(() =>
+      makeImage().apply([["invert"], ["nope"]] as unknown as JimpEdit[]),
+    ).toThrow(expect.objectContaining({ editIndex: 1 }));
+    expect(() =>
+      makeImage().apply([["invert"], ["hash"]] as unknown as JimpEdit[]),
+    ).toThrow(expect.objectContaining({ editIndex: 1 }));
   });
 
   test("rejects methods that return a value instead of changing the image", () => {

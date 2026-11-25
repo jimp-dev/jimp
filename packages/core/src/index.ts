@@ -284,6 +284,22 @@ export interface JimpPlugin {
   [key: string]: JimpChainableMethod | JimpMethod;
 }
 
+/**
+ * An error `apply` throws for one of the edits. `editIndex` is the edit's
+ * position in the list, so code that sends edits elsewhere (like
+ * `@jimp/worker`) can report it without parsing the message.
+ */
+function editError(editIndex: number, message: string, cause?: unknown) {
+  const error = new Error(
+    message,
+    cause === undefined ? undefined : { cause }
+  ) as Error & { editIndex: number };
+
+  error.editIndex = editIndex;
+
+  return error;
+}
+
 /** Methods every Jimp class has, which `apply` can't run */
 type CoreMethodName =
   | keyof JimpClass
@@ -1318,7 +1334,8 @@ export function createJimp<
      * worker, and applied later.
      *
      * Only plugin methods that change the image can be used. Every method
-     * name is checked before the first edit runs.
+     * name is checked before the first edit runs. Errors about an edit have
+     * an `editIndex` property with its position in the list.
      * @param edits the edits to make, e.g. `[["resize", { w: 100 }], ["greyscale"]]`
      * @example
      * ```ts
@@ -1340,13 +1357,15 @@ export function createJimp<
 
       edits.forEach((edit: unknown, i) => {
         if (!Array.isArray(edit) || typeof edit[0] !== "string") {
-          throw new Error(
+          throw editError(
+            i,
             `Edit ${i} must be an array of a method name and its arguments, like ["resize", { w: 100 }]`
           );
         }
 
         if (!pluginMethodNames.has(edit[0])) {
-          throw new Error(
+          throw editError(
+            i,
             `Edit ${i}: "${edit[0]}" isn't a plugin method of this Jimp class`
           );
         }
@@ -1359,14 +1378,16 @@ export function createJimp<
         try {
           result = (this as any)[name](...args);
         } catch (error) {
-          throw new Error(
+          throw editError(
+            i,
             `Edit ${i} (${name}) failed: ${(error as Error).message}`,
-            { cause: error }
+            error
           );
         }
 
         if (result !== this) {
-          throw new Error(
+          throw editError(
+            i,
             `Edit ${i}: "${name}" returns a value instead of changing the image, so it can't be used in apply`
           );
         }

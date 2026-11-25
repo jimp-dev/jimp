@@ -35,8 +35,24 @@ const TAG_EXIF_IFD = 0x8769;
 const TAG_PIXEL_X_DIMENSION = 0xa002;
 const TAG_PIXEL_Y_DIMENSION = 0xa003;
 
-/** Raw EXIF (TIFF) data read from each image, kept out of the public API */
-const rawExif = new WeakMap<object, Buffer>();
+/**
+ * Key of the raw EXIF (TIFF) data read from an image, kept out of the public
+ * API in a non-enumerable property. It's a registered symbol so that
+ * `@jimp/worker` can move the data between threads, and so it works with any
+ * copy of this module, such as the one in jimp's browser bundle.
+ */
+const RAW_EXIF = Symbol.for("jimp.rawExif");
+
+const rawExif = {
+  get: (image: object) =>
+    (image as { [RAW_EXIF]?: Buffer | Uint8Array })[RAW_EXIF],
+  set: (image: object, tiff: Buffer | Uint8Array) =>
+    Object.defineProperty(image, RAW_EXIF, {
+      value: tiff,
+      configurable: true,
+      writable: true,
+    }),
+};
 
 interface JpegSegment {
   marker: number;

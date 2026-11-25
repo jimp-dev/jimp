@@ -255,63 +255,51 @@ image.print({ font, size: 32, x: 10, y: 20, text: "Hello, browser" });
 ## Web workers
 
 Decoding, editing and encoding all run on the thread that calls them.
-On the main thread a large image can freeze the page for a moment, so move the work into a [web worker](https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API).
-Jimp works in module workers, including `loadFont`.
+On the main thread a large image can freeze the page for a moment, so move the work into a [web worker](https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API) with [`@jimp/worker`](/jimp/guides/workers/).
 
-First, write the worker. It receives the image bytes, edits them and posts back a `Blob`:
+The worker script exposes your `Jimp` class:
 
 ```ts title="jimp.worker.ts"
 import { Jimp } from "jimp";
+import { expose } from "@jimp/worker";
 
-interface Job {
-  data: ArrayBuffer;
-  blur: number;
-}
+const exposed = expose(Jimp);
 
-self.addEventListener("message", async (event: MessageEvent<Job>) => {
-  try {
-    const image = await Jimp.fromBuffer(event.data.data);
-
-    image.resize({ w: 800 }).blur(event.data.blur);
-
-    const buffer = await image.getBuffer("image/png");
-    self.postMessage({ blob: new Blob([buffer], { type: "image/png" }) });
-  } catch (error) {
-    self.postMessage({ error: (error as Error).message });
-  }
-});
+export type JimpWorkerApi = typeof exposed;
 ```
 
-Then start the worker from the page and send it a file:
+The page starts workers and sends them tasks: an image, a list of edits in the format [`apply`](/jimp/methods/apply/) takes, and the format to encode the result to:
 
 ```ts title="main.ts"
-const worker = new Worker(new URL("./jimp.worker.ts", import.meta.url), {
-  type: "module",
-});
+import { createJimpWorker } from "@jimp/worker";
+import type { JimpWorkerApi } from "./jimp.worker";
 
-worker.addEventListener("message", (event) => {
-  if (event.data.error) {
-    console.error(event.data.error);
-    return;
-  }
-
-  output.src = URL.createObjectURL(event.data.blob);
-});
+const jimp = createJimpWorker<JimpWorkerApi>(() =>
+  new Worker(new URL("./jimp.worker.ts", import.meta.url), {
+    type: "module",
+  }),
+);
 
 picker.addEventListener("change", async () => {
-  const data = await picker.files![0]!.arrayBuffer();
+  const bytes = await jimp.run({
+    input: picker.files![0]!,
+    edits: [["resize", { w: 800 }], ["blur", 8]],
+    output: { mime: "image/png" },
+  });
 
-  // Transfer the bytes instead of copying them
-  worker.postMessage({ data, blur: 8 }, [data]);
+  output.src = URL.createObjectURL(new Blob([bytes], { type: "image/png" }));
 });
 ```
 
 `new Worker(new URL("./file", import.meta.url), { type: "module" })` is the pattern Vite and webpack 5 recognize to bundle the worker.
-Without a bundler, point the worker at a plain `.js` file that imports Jimp from the CDN URL.
+Because the page only imports the worker's type, `jimp` is bundled into the worker and not into the page.
+Jimp works in module workers, including `loadFont`.
+
+See [Workers](/jimp/guides/workers/) for running tasks in parallel, cancelling them, getting Jimp images back, and avoiding copies of large images.
 
 ## Performance tips
 
 - **Shrink first.** Most methods take time proportional to the number of pixels. Call [`resize`](/jimp/methods/resize/) or [`scaleToFit`](/jimp/methods/scale-to-fit/) before effects such as [`blur`](/jimp/methods/blur/) or [`gaussian`](/jimp/methods/gaussian/), not after.
-- **Use a worker** for anything that takes more than a frame or two, as shown above.
+- **Use a worker** for anything that takes more than a frame or two, as shown [above](#web-workers).
 - **Reuse decoded images.** Decoding is often the slowest step. Keep the decoded image and [`clone`](/jimp/methods/clone/) it for each variation instead of reading the file again.
 - **Mind memory.** A decoded image takes four bytes per pixel: a 24 megapixel photo needs about 96 MB, and every clone needs as much again. See [Reading Large Images](/jimp/guides/reading-large-images/).

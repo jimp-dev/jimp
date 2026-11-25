@@ -153,6 +153,13 @@ export const guides: DocPage[] = [
     icon: "server",
   },
   {
+    slug: "guides/workers",
+    title: "Workers",
+    blurb: "Run Jimp in web workers and worker threads, off the main thread.",
+    color: "#5cc8ff",
+    icon: "worker",
+  },
+  {
     slug: "guides/migrate-to-v2",
     title: "Migrate to v2",
     blurb: "Breaking changes in 2.0 and how to update your code.",
