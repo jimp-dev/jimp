@@ -451,6 +451,8 @@ You also need a font. `@jimp/layout` draws text with the fonts [`loadTTF`](/jimp
 
 </Steps>
 
+This site's own Open Graph images are made this way, one per page at build time: see [`src/og/card.tsx`](https://github.com/jimp-dev/jimp/blob/main/packages/docs/src/og/card.tsx).
+
 <Aside type="tip">
   Load fonts and images once and reuse them for every card. Rendering a card
   like this one takes a few tens of milliseconds; loading the fonts takes
