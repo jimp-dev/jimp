@@ -93,22 +93,24 @@ With [`Jimp.readFrames`](/jimp/methods/read-frames/), the limit applies to all t
 
 ### PNG (`image/png`)
 
-PNG has no size limit.
+PNG has no size limit unless you set one.
 
-| Option     | Default | Description                                |
-| ---------- | ------- | ------------------------------------------ |
-| `checkCRC` | `true`  | Throw if a chunk's checksum doesn't match. |
+| Option              | Default | Description                                                                                                       |
+| ------------------- | ------- | ----------------------------------------------------------------------------------------------------------------- |
+| `maxResolutionInMP` | none    | Largest image, in megapixels, that will be decoded. Read from the PNG's header. Each frame of an APNG is checked. |
+| `checkCRC`          | `true`  | Throw if a chunk's checksum doesn't match.                                                                        |
 
 ### ICO (`image/x-icon`)
 
-ICO has no size limit. Its options pick which image in the file to decode:
+ICO has no size limit unless you set one. Its other options pick which image in the file to decode:
 
-| Option  | Default | Description                                                                                                      |
-| ------- | ------- | ---------------------------------------------------------------------------------------------------------------- |
-| `size`  | none    | Decode the smallest image whose longest side is at least this many pixels, or the largest if they're all smaller. |
-| `index` | none    | Decode the image at this position in the file.                                                                  |
+| Option              | Default | Description                                                                                                       |
+| ------------------- | ------- | ----------------------------------------------------------------------------------------------------------------- |
+| `maxResolutionInMP` | none    | Largest image, in megapixels, that will be decoded. Checked against the chosen image's header.                    |
+| `size`              | none    | Decode the smallest image whose longest side is at least this many pixels, or the largest if they're all smaller. |
+| `index`             | none    | Decode the image at this position in the file.                                                                    |
 
-Without either, the largest image is decoded.
+Without `size` or `index`, the largest image is decoded.
 
 ### JPEG 2000 (`image/jp2`, `image/j2c`, `image/jpx`)
 
@@ -135,9 +137,21 @@ The [`@jimp/wasm-svg`](/jimp/guides/webp/#svg) plugin renders the SVG at the siz
 | `width`, `height`   | the SVG's size  | Render at this width or height, keeping the aspect ratio.                           |
 | `scale`             | `1`             | Render at a multiple of the SVG's size.                                             |
 
+### WebP, AVIF and WASM PNG (`image/webp`, `image/avif`, `image/png`)
+
+[`@jimp/wasm-webp`](/jimp/guides/webp/), `@jimp/wasm-avif` and `@jimp/wasm-png` have no size limit unless you set one.
+They read the size from the file's header, so a file that's too large is rejected before the codec runs:
+
+| Option              | Default | Description                                         |
+| ------------------- | ------- | --------------------------------------------------- |
+| `maxResolutionInMP` | none    | Largest image, in megapixels, that will be decoded. |
+
+An AVIF can hold several images (a grid and its tiles, a thumbnail); the limit applies to the largest.
+With a limit set, a WebP or AVIF whose size can't be read from its header (such as a WebP without a chunk header) is refused rather than decoded unchecked.
+
 ### Other WASM formats
 
-The other [WASM format plugins](/jimp/guides/webp/) (`@jimp/wasm-avif`, `@jimp/wasm-jpeg`, `@jimp/wasm-png` and `@jimp/wasm-webp`) take no decode options, and Jimp applies no size limit to them.
+`@jimp/wasm-jpeg` takes no decode options, and Jimp applies no size limit to it.
 
 ## When an image is too large
 
@@ -152,6 +166,11 @@ When an image is over a limit, decoding throws before any pixel memory is alloca
 | TIFF   | `TIFF dimensions <w>x<h> exceed the maximum resolution of <n> megapixels`         |
 | TIFF pages | `TIFF pages together exceed the maximum resolution of <n> megapixels. Decode fewer pages with maxFrames, or raise maxResolutionInMP` |
 | BMP    | `BMP dimensions <w>x<h> exceed the maximum resolution of <n> megapixels`          |
+| PNG    | `PNG dimensions <w>x<h> exceed the maximum resolution of <n> megapixels`          |
+| WebP   | `WebP dimensions <w>x<h> exceed the maximum resolution of <n> megapixels`         |
+| AVIF   | `AVIF dimensions <w>x<h> exceed the maximum resolution of <n> megapixels`         |
+| WebP, AVIF | `Couldn't read the WebP's dimensions to check maxResolutionInMP` (or the AVIF's) |
+| ICO    | `ICO dimensions <w>x<h> exceed the maximum resolution of <n> megapixels`          |
 | JPEG 2000 | `JPEG 2000 dimensions <w>x<h> exceed the maximum resolution of <n> megapixels. Use the reduce option to decode it at a lower resolution.` |
 | SVG    | `SVG dimensions <w>x<h> exceed the maximum resolution of <n> megapixels. Use the width, height or scale option to render it smaller.` |
 
@@ -167,6 +186,8 @@ async function readUpload(data: ArrayBuffer) {
       "image/gif": { maxResolutionInMP: 40 },
       "image/tiff": { maxResolutionInMP: 40 },
       "image/bmp": { maxResolutionInMP: 40 },
+      "image/png": { maxResolutionInMP: 40 },
+      "image/x-icon": { maxResolutionInMP: 40 },
     });
   } catch (error) {
     if (/maxResolutionInMP|maxMemoryUsageInMB|exceed/.test((error as Error).message)) {
@@ -178,11 +199,11 @@ async function readUpload(data: ArrayBuffer) {
 }
 ```
 
-<Aside type="caution" title="PNG has no limit">
-  PNG decoding isn't limited, so a crafted PNG can still use a lot of memory.
-  If you accept untrusted uploads, check the file size before decoding, or read
-  the width and height from the PNG header (bytes 16 to 23) and reject images
-  that are too large.
+<Aside type="caution" title="Set limits for PNG, ICO, WebP and AVIF">
+  PNG, ICO, WebP and AVIF have no limit by default, so a small crafted file can
+  still use a lot of memory. If you accept untrusted uploads, pass
+  `maxResolutionInMP` for them too. The [image server](/jimp/guides/image-server/)
+  sets it for every format that has it.
 </Aside>
 
 ## Working with large images

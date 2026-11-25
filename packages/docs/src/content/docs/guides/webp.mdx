@@ -118,7 +118,7 @@ const image = await Jimp.read("photo.jpg");
 await image.write("photo.avif", { speed: 6 });
 ```
 
-The encode options are `cqLevel`, `cqAlphaLevel`, `speed` (default `6`), `subsample`, `tune`, `sharpness`, `denoiseLevel`, `chromaDeltaQ`, `tileColsLog2` and `tileRowsLog2`, from [libavif](https://github.com/AOMediaCodec/libavif).
+The encode options are `quality` (`0` to `100`, where `100` is lossless; it takes precedence over `cqLevel`), `cqLevel`, `cqAlphaLevel`, `speed` (default `6`), `subsample`, `tune`, `sharpness`, `denoiseLevel`, `chromaDeltaQ`, `tileColsLog2` and `tileRowsLog2`, from [libavif](https://github.com/AOMediaCodec/libavif).
 AVIF output has no ICC profile, so images in another color space are converted to sRGB first.
 In the browser, the AVIF encoder runs in a worker; see the [Vite](#vite) notes.
 
