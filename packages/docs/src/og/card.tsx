@@ -10,6 +10,8 @@ import { Box, Image, render, Text } from "@jimp/layout";
 
 import { HEIGHT, loadAssets, WIDTH, type OgAssets } from "./assets";
 import type { OgPage } from "./pages";
+import { drawIcon } from "./icon";
+import { methodIcon, preview } from "./preview";
 
 const INK = "#1b1840";
 const INK_2 = "#4a4673";
@@ -108,7 +110,100 @@ function Install({ assets, pkg }: { assets: OgAssets; pkg: string }) {
   );
 }
 
-export function OgCard({ assets, page }: { assets: OgAssets; page: OgPage }) {
+/**
+ * What a method does, as a framed photo of its result, with Jimpy peeking
+ * out from behind the corner
+ */
+function Picture({ assets, image }: { assets: OgAssets; image: JimpInstance }) {
+  return (
+    <Box>
+      <Image
+        src={image}
+        width={288}
+        aspectRatio={4 / 3}
+        fit="contain"
+        radius={20}
+        borderWidth={BORDER}
+        borderColor={INK}
+        background="#f3f0ff"
+        shadow={{ x: 10, y: 10, blur: 0, color: INK }}
+      />
+      <Image
+        src={assets.smallJimpy}
+        position="absolute"
+        left={-54}
+        bottom={-70}
+      />
+    </Box>
+  );
+}
+
+/**
+ * The page's sticker icon, large, on a tile in the page's color, like the
+ * cards on the home page, with Jimpy peeking out from behind the corner
+ */
+function IconTile({
+  assets,
+  icon,
+  color,
+}: {
+  assets: OgAssets;
+  icon: JimpInstance;
+  color: string;
+}) {
+  return (
+    <Box>
+      <Box
+        width={250}
+        aspectRatio={1}
+        justify="center"
+        align="center"
+        radius={44}
+        background={color}
+        borderWidth={BORDER}
+        borderColor={INK}
+        shadow={{ x: 10, y: 10, blur: 0, color: INK }}
+      >
+        <Image src={icon} />
+      </Box>
+      <Image
+        src={assets.smallJimpy}
+        position="absolute"
+        left={-54}
+        bottom={-70}
+      />
+    </Box>
+  );
+}
+
+const ICON_SIZE = 168;
+const icons = new Map<string, JimpInstance>();
+
+/** An icon from icons.ts, drawn once for every card that shows it */
+function iconImage(markup: string) {
+  let icon = icons.get(markup);
+
+  if (!icon) {
+    icon = drawIcon(markup, ICON_SIZE);
+    icons.set(markup, icon);
+  }
+
+  return icon;
+}
+
+export function OgCard({
+  assets,
+  page,
+  picture,
+  icon,
+}: {
+  assets: OgAssets;
+  page: OgPage;
+  /** the result of the page's method, to show instead of the big Jimpy */
+  picture?: JimpInstance;
+  /** the page's sticker icon, when there's no picture */
+  icon?: JimpInstance;
+}) {
   const size = titleSize(assets, page);
 
   return (
@@ -180,7 +275,13 @@ export function OgCard({ assets, page }: { assets: OgAssets; page: OgPage }) {
           justify="center"
           align="center"
         >
-          <Image src={assets.jimpy} />
+          {picture ? (
+            <Picture assets={assets} image={picture} />
+          ) : icon ? (
+            <IconTile assets={assets} icon={icon} color={page.color} />
+          ) : (
+            <Image src={assets.jimpy} />
+          )}
         </Box>
       </Box>
     </Box>
@@ -190,8 +291,11 @@ export function OgCard({ assets, page }: { assets: OgAssets; page: OgPage }) {
 /** The PNG of a page's Open Graph image */
 export async function renderOgImage(page: OgPage) {
   const assets = await loadAssets();
+  const picture = page.demo ? await preview(page.demo) : undefined;
+  const iconMarkup = page.demo ? methodIcon(page.demo, page.icon) : page.icon;
+  const icon = !picture && iconMarkup ? iconImage(iconMarkup) : undefined;
   const image: JimpInstance = await render(
-    <OgCard assets={assets} page={page} />,
+    <OgCard assets={assets} page={page} picture={picture} icon={icon} />,
     {
       width: WIDTH,
       height: HEIGHT,

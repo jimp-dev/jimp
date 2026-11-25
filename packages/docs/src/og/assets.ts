@@ -22,6 +22,8 @@ export interface OgAssets {
   logo: JimpInstance;
   /** Jimpy on a paint splash, in the middle of a square */
   jimpy: JimpInstance;
+  /** a smaller Jimpy, to peek out from behind a picture */
+  smallJimpy: JimpInstance;
 }
 
 // Astro bundles this file, so find files from the package, not from here
@@ -135,6 +137,7 @@ function drawWall() {
 
 /** The size Jimpy is drawn at, on the images */
 export const JIMPY_SIZE = 330;
+export const SMALL_JIMPY_SIZE = 136;
 
 let assets: Promise<OgAssets> | undefined;
 
@@ -155,6 +158,7 @@ export function loadAssets() {
       // Found by trimming the white around it on the banner's card
       logo: banner.clone().crop({ x: 150, y: 122, w: 361, h: 130 }),
       jimpy: drawJimpy(JIMPY_SIZE),
+      smallJimpy: drawJimpy(SMALL_JIMPY_SIZE),
     };
   })();
 
