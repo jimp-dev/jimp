@@ -883,6 +883,61 @@ importers:
         specifier: ^5.1.1
         version: 5.1.1(@types/node@22.20.5)(@vitest/browser-playwright@5.1.1)(@vitest/ui@5.1.1)(vite@8.3.8(@types/node@22.20.5)(esbuild@0.28.2)(terser@5.51.4)(yaml@2.9.1))
 
+  packages/worker:
+    dependencies:
+      '@jimp/core':
+        specifier: workspace:*
+        version: link:../core
+      '@jimp/types':
+        specifier: workspace:*
+        version: link:../types
+      zod:
+        specifier: ^4.6.7
+        version: 4.6.7
+    devDependencies:
+      '@jimp/config-eslint':
+        specifier: workspace:*
+        version: link:../config-eslint
+      '@jimp/config-typescript':
+        specifier: workspace:*
+        version: link:../config-typescript
+      '@jimp/config-vitest':
+        specifier: workspace:*
+        version: link:../config-vitest
+      '@jimp/js-png':
+        specifier: workspace:*
+        version: link:../../plugins/js-png
+      '@jimp/plugin-crop':
+        specifier: workspace:*
+        version: link:../../plugins/plugin-crop
+      '@jimp/test-utils':
+        specifier: workspace:*
+        version: link:../test-utils
+      '@types/node':
+        specifier: ^22.20.5
+        version: 22.20.5
+      '@vitest/browser':
+        specifier: ^5.1.1
+        version: 5.1.1(vite@8.3.8(@types/node@22.20.5)(esbuild@0.28.2)(terser@5.51.4)(yaml@2.9.1))(vitest@5.1.1)
+      eslint:
+        specifier: ^10.15.0
+        version: 10.15.0(supports-color@7.2.0)
+      jimp:
+        specifier: workspace:*
+        version: link:../jimp
+      tshy:
+        specifier: ~4.0.0
+        version: 4.0.0
+      typescript:
+        specifier: ^7.0.2
+        version: 7.0.2
+      vite-plugin-node-polyfills:
+        specifier: ^0.28.0
+        version: 0.28.0(rollup@4.68.8)(vite@8.3.8(@types/node@22.20.5)(esbuild@0.28.2)(terser@5.51.4)(yaml@2.9.1))
+      vitest:
+        specifier: ^5.1.1
+        version: 5.1.1(@types/node@22.20.5)(@vitest/browser-playwright@5.1.1)(@vitest/ui@5.1.1)(vite@8.3.8(@types/node@22.20.5)(esbuild@0.28.2)(terser@5.51.4)(yaml@2.9.1))
+
   plugins/js-bmp:
     dependencies:
       '@jimp/core':
