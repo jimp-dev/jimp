@@ -24,8 +24,15 @@ halves.scan(100, 0, 100, 100, (_, __, idx) => {
   halves.bitmap.data.writeUInt32BE(0x0000ffff, idx);
 });
 
+/** 200x100 grey, with a red square near the right edge */
+const subject = new Jimp({ width: 200, height: 100, color: 0x808080ff });
+subject.scan(150, 30, 40, 40, (_, __, idx) => {
+  subject.bitmap.data.writeUInt32BE(0xff0000ff, idx);
+});
+
 const files: Record<string, Uint8Array> = {
   "halves.png": await halves.getBuffer("image/png"),
+  "subject.png": await subject.getBuffer("image/png"),
   "photo.jpg": await halves.getBuffer("image/jpeg"),
   "transparent.png": await new Jimp({
     width: 10,
@@ -128,6 +135,36 @@ describe("params", () => {
 
     expect(left.getPixelColor(40, 25)).toBe(0xff0000ff);
     expect(right.getPixelColor(10, 25)).toBe(0x0000ffff);
+  });
+
+  test.each(["entropy", "attention"])(
+    "pos=%s keeps the interesting part",
+    async (pos) => {
+      const image = await readImage(
+        await get(handler, `/images/subject.png?w=50&h=50&pos=${pos}`),
+      );
+
+      let red = 0;
+
+      image.scan((x, y) => {
+        red += image.getPixelColor(x, y) === 0xff0000ff ? 1 : 0;
+      });
+
+      // all of the 40 px square, at half size
+      expect(red).toBe(20 * 20);
+    },
+  );
+
+  test("pos=attention only works with fit=cover", async () => {
+    const response = await get(
+      handler,
+      "/images/subject.png?w=50&h=50&fit=contain&pos=attention",
+    );
+
+    expect(response.status).toBe(400);
+    expect(await response.text()).toContain(
+      "pos=attention only works with fit=cover",
+    );
   });
 
   test("fit=contain letterboxes with bg", async () => {

@@ -190,10 +190,17 @@ function drawImage(
   let image = clone(source);
 
   if (image.bitmap.width !== w || image.bitmap.height !== h) {
+    const align = node.objectPosition;
+
     if (node.fit === "cover") {
-      image = coverMethods.cover(image, { w, h });
+      image = coverMethods.cover(image, { w, h, align });
     } else if (node.fit === "contain") {
-      image = containMethods.contain(image, { w, h });
+      // contain shows the whole image, so a strategy has nothing to choose
+      image = containMethods.contain(image, {
+        w,
+        h,
+        align: typeof align === "object" ? align : undefined,
+      });
     } else {
       image = resizeMethods.resize(image, { w, h });
     }

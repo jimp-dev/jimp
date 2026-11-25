@@ -1,0 +1,63 @@
+---
+title: "coverRect()"
+description: "Measure the part of the image cover would keep, without cropping."
+category: shape
+method: "coverRect"
+plugin: "@jimp/plugin-cover"
+---
+
+import Related from "../../../components/Related.astro";
+
+`coverRect` works out which part of the image [`cover`](/jimp/methods/cover/) would keep and returns it, without changing the image.
+It's most useful with a [smart `align`](/jimp/methods/cover/#smart-cropping): crop the original at full resolution, show the crop so someone can adjust it, or work out a smart crop once and store it.
+
+## Signature
+
+```ts title="coverRect.d.ts"
+image.coverRect(options: {
+  w: number;
+  h: number;
+  align?: number | { x?: number; y?: number } | "entropy" | "attention";
+}): { x: number; y: number; w: number; h: number }
+```
+
+`coverRect` doesn't change the image. The rectangle is in the image's own pixels, rounded to whole pixels, and always lies inside the image.
+It's in the same shape as the options of [`crop`](/jimp/methods/crop/), so you can pass it straight to `crop`.
+
+## Options
+
+| Option  | Type                                                 | Default  | Description                                                                                                                         |
+| ------- | ---------------------------------------------------- | -------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| `w`     | `number`                                             | required | The width of the box to cover. Only the aspect ratio of `w` and `h` matters.                                                        |
+| `h`     | `number`                                             | required | The height of the box to cover.                                                                                                     |
+| `align` | `number`, `{ x?, y? }`, `"entropy"` or `"attention"` | centered | Which part of the image to keep, as for `cover`. See [Alignment](/jimp/methods/cover/#alignment) and [Smart cropping](/jimp/methods/cover/#smart-cropping). |
+
+## Example
+
+```ts title="example.ts"
+import { Jimp } from "jimp";
+
+// 640 × 426
+const image = await Jimp.read("photo.jpg");
+
+// The part to keep for a 1200 × 630 Open Graph card
+const rect = image.coverRect({ w: 1200, h: 630, align: "attention" });
+console.log(rect); // { x: 0, y: 3, w: 640, h: 336 }
+
+// Same framing, without scaling
+image.crop(rect);
+await image.write("card.jpg");
+```
+
+`image.cover({ w, h, align })` and `image.crop(image.coverRect({ w, h, align })).resize({ w, h })` keep the same part of the image.
+The pixels at the edges can differ slightly, because `cover` scales first and crops second.
+
+## Notes
+
+- **One side is whole.** `cover` only crops the axis that overflows, so the rectangle is always as wide or as tall as the image.
+- **Same rules as `cover`.** Invalid `align` flags throw the same error, and strategies analyse a downscaled copy in a few milliseconds.
+- **Added in 2.2.**
+
+## Related
+
+<Related methods={["cover", "crop", "autocropRect"]} />

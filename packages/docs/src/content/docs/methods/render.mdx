@@ -191,6 +191,7 @@ Set text props on a box and the text inside it inherits them, the way CSS inheri
 | ----- | ---------------------------------------- | ---------- | --------------------------------------------------------------------------------------------------------------------------------- |
 | `src` | Jimp image, `string`, `ArrayBuffer`, `Uint8Array` | required | The image, or a path, URL or buffer to read with the `Jimp` class's `read`. The image itself isn't changed.                |
 | `fit` | `"fill" \| "cover" \| "contain"`         | `"fill"`   | How the image fills its box, like CSS `object-fit`: stretched, cropped to fill it with [`cover`](/jimp/methods/cover/), or fitted inside it with [`contain`](/jimp/methods/contain/). |
+| `objectPosition` | `{ x?, y? }`, `"entropy"` or `"attention"` | middle | Which part of the image `fit` keeps, or where it places it, like CSS `object-position`: `{ x, y }` fractions from `0` (left/top) to `1` (right/bottom). With `fit: "cover"`, `"entropy"` and `"attention"` look at the image to keep its subject, so an off-center avatar isn't cut in half. See [smart cropping](/jimp/methods/cover/#smart-cropping). |
 
 Without a `width` or `height` an image is its natural size. With only one of them, the other keeps the image's aspect ratio, or `aspectRatio` if you set it. An image with a `radius` is clipped to its rounded corners.
 

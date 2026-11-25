@@ -50,6 +50,7 @@ export const methods: MethodEntry[] = [
   m("scale", "scale", "shape", "@jimp/plugin-resize"),
   m("scale-to-fit", "scaleToFit", "shape", "@jimp/plugin-resize"),
   m("cover", "cover", "shape", "@jimp/plugin-cover"),
+  m("cover-rect", "coverRect", "shape", "@jimp/plugin-cover"),
   m("contain", "contain", "shape", "@jimp/plugin-contain"),
   m("crop", "crop", "shape", "@jimp/plugin-crop"),
   m("autocrop", "autocrop", "shape", "@jimp/plugin-crop"),
