@@ -146,6 +146,13 @@ export const guides: DocPage[] = [
     icon: "wasm",
   },
   {
+    slug: "guides/image-server",
+    title: "Image Server",
+    blurb: "Resize and convert images from URL params, on the edge or in Node.",
+    color: "#ff8f1f",
+    icon: "server",
+  },
+  {
     slug: "guides/migrate-to-v2",
     title: "Migrate to v2",
     blurb: "Breaking changes in 2.0 and how to update your code.",

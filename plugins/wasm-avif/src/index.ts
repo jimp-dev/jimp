@@ -4,9 +4,15 @@ import encode, { init as initEncoder } from "@jsquash/avif/encode.js";
 import { Format } from "@jimp/types";
 import { z } from "zod";
 
+import { readAvifSize } from "./header.js";
 import { loadWasm } from "./load-wasm.js";
 
 const AvifOptionsSchema = z.object({
+  /**
+   * Image quality, from 0 (smallest file) to 100 (lossless), like the quality
+   * of the JPEG and WebP formats. Takes precedence over `cqLevel`.
+   */
+  quality: z.number().min(0).max(100).optional(),
   chromaDeltaQ: z.boolean().optional().default(false),
   cqAlphaLevel: z.number().min(0).max(100).optional().default(0),
   cqLevel: z.number().min(0).max(100).optional().default(0),
@@ -32,6 +38,15 @@ export interface AvifWasm {
    * encoder that @jsquash/avif uses in Node and Cloudflare Workers
    */
   encoder?: WebAssembly.Module;
+}
+
+export interface DecodeAvifOptions {
+  /**
+   * Largest image, in megapixels, that will be decoded. Larger images are
+   * rejected before any pixel memory is allocated.
+   * @default Infinity
+   */
+  maxResolutionInMP?: number;
 }
 
 export interface AvifFormatOptions {
@@ -78,6 +93,7 @@ export default function avif({ wasm }: AvifFormatOptions = {}) {
     hasAlpha: true,
     encode: async (bitmap, options: Partial<AvifOptions> = {}) => {
       const {
+        quality,
         chromaDeltaQ,
         cqAlphaLevel,
         cqLevel,
@@ -99,7 +115,7 @@ export default function avif({ wasm }: AvifFormatOptions = {}) {
         },
         {
           chromaDeltaQ,
-          quality: quantizerToQuality(cqLevel),
+          quality: quality ?? quantizerToQuality(cqLevel),
           qualityAlpha: quantizerToQuality(cqAlphaLevel),
           denoiseLevel,
           sharpness,
@@ -113,7 +129,24 @@ export default function avif({ wasm }: AvifFormatOptions = {}) {
 
       return Buffer.from(arrayBuffer);
     },
-    decode: async (data) => {
+    decode: async (data, { maxResolutionInMP }: DecodeAvifOptions = {}) => {
+      const size =
+        maxResolutionInMP === undefined ? undefined : readAvifSize(data);
+
+      // Without an ispe property the size can't be checked, so refuse the
+      // file rather than skip the check
+      if (maxResolutionInMP !== undefined && !size) {
+        throw new Error(
+          "Couldn't read the AVIF's dimensions to check maxResolutionInMP",
+        );
+      }
+
+      if (size && size.width * size.height > maxResolutionInMP! * 1_000_000) {
+        throw new Error(
+          `AVIF dimensions ${size.width}x${size.height} exceed the maximum resolution of ${maxResolutionInMP} megapixels`,
+        );
+      }
+
       await initDecoderOnce(wasm?.decoder);
       const result = await decode(new Uint8Array(data).buffer);
 

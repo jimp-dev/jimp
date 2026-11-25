@@ -58,6 +58,28 @@ export interface PNGOptions {
 
 export interface DecodePngOptions {
   checkCRC?: boolean | undefined;
+  /**
+   * Largest image, in megapixels, that will be decoded. Larger images are
+   * rejected before any pixel memory is allocated. Each frame of an animated
+   * PNG is the image's size, so with `decodeFrames` this limits each frame.
+   * @default Infinity
+   */
+  maxResolutionInMP?: number | undefined;
+}
+
+/** Throw if the PNG's header says it's larger than `maxResolutionInMP` */
+function checkResolution(data: Uint8Array, maxResolutionInMP?: number) {
+  if (maxResolutionInMP === undefined) {
+    return;
+  }
+
+  const { width, height } = readHeader(data);
+
+  if (width * height > maxResolutionInMP * 1_000_000) {
+    throw new Error(
+      `PNG dimensions ${width}x${height} exceed the maximum resolution of ${maxResolutionInMP} megapixels`,
+    );
+  }
 }
 
 export * from "./constants.js";
@@ -137,6 +159,8 @@ export default function png() {
       );
     },
     decode: (data, options?: DecodePngOptions) => {
+      checkResolution(data, options?.maxResolutionInMP);
+
       // Jimp bitmaps are 8-bit, so samples are always rescaled to 8 bits
       const result = decode(data, { checkCRC: options?.checkCRC });
 
@@ -152,6 +176,8 @@ export default function png() {
       options?: DecodePngOptions,
       { maxFrames = Infinity } = {},
     ) => {
+      checkResolution(data, options?.maxResolutionInMP);
+
       const { width, height, frames, plays } = decodeFrames(data, {
         checkCRC: options?.checkCRC,
         maxFrames,

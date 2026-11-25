@@ -90,6 +90,22 @@ function getPixels(image: InstanceType<typeof jimp>) {
 }
 
 describe("ICO", () => {
+  test("maxResolutionInMP rejects larger images before decoding", async () => {
+    const image = new jimp({ width: 40, height: 30, color: 0xff0000ff });
+    const buffer = await image.getBuffer("image/x-icon");
+
+    await expect(
+      jimp.fromBuffer(buffer, { "image/x-icon": { maxResolutionInMP: 0.001 } }),
+    ).rejects.toThrow(
+      "ICO dimensions 40x30 exceed the maximum resolution of 0.001 megapixels",
+    );
+
+    const decoded = await jimp.fromBuffer(buffer, {
+      "image/x-icon": { maxResolutionInMP: 0.0012 },
+    });
+    expect(decoded.width).toBe(40);
+  });
+
   describe("decode", () => {
     test("decodes a PNG image", async () => {
       const image = await jimp.read(createIco([createPng(3, 2, 0x11223380)]));

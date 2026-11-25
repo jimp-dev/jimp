@@ -35,6 +35,22 @@ describe("WASM WebP", () => {
     expect(decoded.data.length).toBe(image.width * image.height * 4);
   });
 
+  test("maxResolutionInMP rejects larger images before decoding", async () => {
+    const buffer = await format.encode(image);
+    const limit = (image.width * image.height - 1) / 1_000_000;
+
+    await expect(
+      format.decode(buffer, { maxResolutionInMP: limit }),
+    ).rejects.toThrow(
+      `WebP dimensions ${image.width}x${image.height} exceed the maximum resolution of ${limit} megapixels`,
+    );
+
+    const decoded = await format.decode(buffer, {
+      maxResolutionInMP: (image.width * image.height) / 1_000_000,
+    });
+    expect(decoded.width).toBe(image.width);
+  });
+
   describe("getBuffer", () => {
     const Jimp = createJimp({ formats: [webp] });
 

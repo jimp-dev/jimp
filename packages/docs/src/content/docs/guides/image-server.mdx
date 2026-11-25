@@ -1,0 +1,520 @@
+---
+title: Image Server
+description: Resize, crop and convert images on request from URL params, on Cloudflare Workers, Vercel Edge, Deno, Bun and Node.js.
+---
+
+import { Aside, Steps, TabItem, Tabs } from "@astrojs/starlight/components";
+import InstallCommand from "../../../components/InstallCommand.astro";
+
+`@jimp/server` turns a URL like `/images/cat.jpg?w=400&h=300&fm=auto` into a resized, re-encoded image, like imgix, Thumbor or Next.js's `/_next/image`.
+You point it at your originals (a bucket, a website or a directory) and put a CDN in front of it.
+
+It's built on Jimp, which is plain JavaScript with optional WASM codecs, so it doesn't need native binaries such as sharp's libvips.
+The same handler runs on Cloudflare Workers, Vercel Edge Functions, Deno Deploy, Bun and Node.js.
+
+## Getting started
+
+<Steps>
+
+1. Install `jimp` and `@jimp/server`:
+
+   <InstallCommand pkg="jimp @jimp/server" />
+
+2. Create a handler. `source` says where the original images come from:
+
+   ```ts title="images.ts"
+   import { Jimp } from "jimp";
+   import { createImageHandler, fetchSource } from "@jimp/server";
+
+   export const handler = createImageHandler({
+     Jimp,
+     // /images/cats/tom.jpg fetches https://assets.example.com/cats/tom.jpg
+     source: fetchSource({ baseUrl: "https://assets.example.com/" }),
+     basePath: "/images",
+   });
+   ```
+
+3. Serve it. The handler takes a [`Request`](https://developer.mozilla.org/en-US/docs/Web/API/Request) and returns a `Response`, so most runtimes can use it as it is:
+
+   ```ts title="server.ts"
+   import { handler } from "./images.js";
+
+   Deno.serve(handler);
+   ```
+
+4. Request an image:
+
+   ```html
+   <img src="/images/cats/tom.jpg?w=400&h=300&fm=auto" width="400" height="300" alt="Tom" />
+   ```
+
+</Steps>
+
+The handler reads the original, turns the params into a list of edits for [`image.apply`](/jimp/methods/apply/), and encodes the result.
+Responses have a `Cache-Control` header and an `ETag`, so browsers and CDNs can cache them.
+
+## Deploying
+
+<Tabs syncKey="runtime">
+  <TabItem label="Cloudflare Workers">
+
+A Worker can use the handler as its `fetch` handler.
+Create it on the first request if it needs bindings from `env`, such as an R2 bucket or a secret:
+
+```ts title="src/index.ts"
+import { Jimp } from "jimp";
+import { createImageHandler } from "@jimp/server";
+
+interface Env {
+  IMAGES: R2Bucket;
+  IMAGE_SECRET: string;
+}
+
+let handler: ((request: Request) => Promise<Response>) | undefined;
+
+export default {
+  fetch(request: Request, env: Env) {
+    handler ??= createImageHandler({
+      Jimp,
+      // Read the originals from an R2 bucket
+      source: async (path) => {
+        const object = await env.IMAGES.get(path);
+        return object ? object.arrayBuffer() : null;
+      },
+      basePath: "/images",
+      secret: env.IMAGE_SECRET,
+      // Workers have 128 MB of memory
+      maxSourceResolutionInMP: 12,
+    });
+
+    return handler(request);
+  },
+};
+```
+
+To serve WebP and AVIF with `fm=auto`, add the [WASM plugins](/jimp/guides/webp/).
+Workers can't fetch the `.wasm` files themselves, so [import them and pass them to the plugins](/jimp/guides/webp/#cloudflare-workers):
+
+```ts title="src/jimp.ts"
+import { createJimp } from "@jimp/core";
+import { defaultFormats, defaultPlugins } from "jimp";
+import avif from "@jimp/wasm-avif";
+import webp from "@jimp/wasm-webp";
+import avifDecoder from "@jsquash/avif/codec/dec/avif_dec.wasm";
+import avifEncoder from "@jsquash/avif/codec/enc/avif_enc.wasm";
+import webpDecoder from "@jsquash/webp/codec/dec/webp_dec.wasm";
+import webpEncoder from "@jsquash/webp/codec/enc/webp_enc_simd.wasm";
+
+export const Jimp = createJimp({
+  formats: [
+    ...defaultFormats,
+    () => webp({ wasm: { decoder: webpDecoder, encoder: webpEncoder } }),
+    () => avif({ wasm: { decoder: avifDecoder, encoder: avifEncoder } }),
+  ],
+  plugins: defaultPlugins,
+});
+```
+
+Encoding AVIF takes much more CPU time than WebP. If requests hit your Worker's CPU limit, leave AVIF out of `formats` (`fm=auto` then picks WebP) or pass a faster `speed`, like `encodeOptions: { "image/avif": { speed: 8 } }`.
+
+  </TabItem>
+  <TabItem label="Vercel / Next.js">
+
+Use the handler as a route handler on the Edge runtime.
+A catch-all route passes every path under it:
+
+```ts title="app/images/[...path]/route.ts"
+import { Jimp } from "jimp";
+import { createImageHandler, fetchSource } from "@jimp/server";
+
+export const runtime = "edge";
+
+export const GET = createImageHandler({
+  Jimp,
+  source: fetchSource({ baseUrl: process.env.IMAGE_ORIGIN! }),
+  basePath: "/images",
+  secret: process.env.IMAGE_SECRET,
+});
+```
+
+The handler also works with the Node.js runtime: leave out `runtime`.
+
+  </TabItem>
+  <TabItem label="Deno">
+
+```ts title="main.ts"
+import { Jimp } from "npm:jimp";
+import { createImageHandler, fetchSource } from "npm:@jimp/server";
+
+const handler = createImageHandler({
+  Jimp,
+  source: fetchSource({ baseUrl: "https://assets.example.com/" }),
+  basePath: "/images",
+});
+
+Deno.serve(handler);
+```
+
+Run it with `deno run --allow-net --allow-env main.ts`, or deploy it to Deno Deploy.
+
+  </TabItem>
+  <TabItem label="Bun">
+
+```ts title="server.ts"
+import { Jimp } from "jimp";
+import { createImageHandler } from "@jimp/server";
+import { directorySource } from "@jimp/server/node";
+
+const handler = createImageHandler({
+  Jimp,
+  source: directorySource("./public/images"),
+  basePath: "/images",
+});
+
+Bun.serve({ port: 3000, fetch: handler });
+```
+
+  </TabItem>
+  <TabItem label="Node.js">
+
+Node's `http` module uses its own request and response objects, so wrap the handler with `toNodeHandler` from `@jimp/server/node`:
+
+```ts title="server.ts"
+import { createServer } from "node:http";
+import { Jimp } from "jimp";
+import { createImageHandler } from "@jimp/server";
+import { directorySource, toNodeHandler } from "@jimp/server/node";
+
+const handler = createImageHandler({
+  Jimp,
+  source: directorySource("./public/images"),
+  basePath: "/images",
+});
+
+createServer(toNodeHandler(handler)).listen(3000);
+```
+
+With Express, mount it on its path. The handler sees the full path (Express's `originalUrl`), so `basePath` is the mount path:
+
+```ts title="app.ts"
+import express from "express";
+
+const app = express();
+
+app.use("/images", toNodeHandler(handler));
+app.listen(3000);
+```
+
+  </TabItem>
+</Tabs>
+
+<Aside type="tip" title="Put a cache in front of it">
+  Jimp is slower than native image libraries, so don't resize the same image
+  on every request. Serve the handler behind a CDN, or cache responses
+  yourself (on Workers, with the [Cache API](https://developers.cloudflare.com/workers/runtime-apis/cache/)).
+  The `ETag` lets caches revalidate an image without it being encoded again.
+</Aside>
+
+## URL params
+
+| Param       | Values                                                      | Description                                                                                                                                           |
+| ----------- | ----------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `w`         | whole number                                                | Width in pixels. With only `w`, the height keeps the aspect ratio.                                                                                    |
+| `h`         | whole number                                                | Height in pixels. With only `h`, the width keeps the aspect ratio.                                                                                    |
+| `dpr`       | `1` to `4`                                                  | Device pixel ratio: `w` and `h` are multiplied by it, so `w=200&dpr=2` is 400 pixels wide. Default `1`.                                               |
+| `fit`       | `cover`, `contain`, `scale-to-fit`, `fill`                  | How the image fits `w` × `h` when both are set. Default `cover`. See [Fit](#fit).                                                                     |
+| `pos`       | `center`, `top`, `bottom`, `left`, `right`, `top-left`, …, or `x,y` | The part of the image to keep with `cover`, or where to place it with `contain`. `x,y` are fractions from `0` to `1`, like a focal point: `pos=0.5,0.2`. Default `center`. |
+| `fm`        | `auto`, `avif`, `webp`, `jpeg`/`jpg`, `png`, `gif`, `jxl`, `bmp`, `tiff` | Output format. Default: the source's format. See [Formats](#formats).                                                                   |
+| `q`         | `1` to `100`                                                | Quality for AVIF, JPEG, JPEG XL and WebP. Default `75`.                                                                                               |
+| `bg`        | hex like `ff0000` or `ff000080`, or a CSS color             | Background for `fit=contain` and for transparent images saved as JPEG. Default transparent, and white for JPEG.                                      |
+| `blur`      | `1` to `100`                                                | Blur radius in pixels, with [`blur`](/jimp/methods/blur/).                                                                                            |
+| `sharpen`   | `0` to `10`                                                 | Sharpening amount, with [`sharpen`](/jimp/methods/sharpen/). `0.5` to `1.5` suits most photos.                                                        |
+| `greyscale` | `1`, `true`, or no value                                    | Remove the color.                                                                                                                                     |
+| `rot`       | `90`, `180`, `270`                                          | Rotate clockwise by this many degrees, before resizing.                                                                                               |
+| `flip`      | `h`, `v`, `hv`                                              | Mirror horizontally, vertically or both.                                                                                                              |
+| `edits`     | base64url JSON                                              | Any list of [edits](/jimp/methods/apply/), on [signed URLs](#the-edits-param) only.                                                                   |
+| `s`         | signature                                                   | The [URL signature](#signed-urls), added by `signUrl`.                                                                                                |
+
+Params can be in any order, and each can be given once.
+Unknown params are a 400, so a typo like `width=400` is caught instead of being ignored.
+
+The params run as edits in this order: `edits`, `rot`, `flip`, the resize from `w` and `h`, `blur`, `sharpen`, `greyscale`.
+Effects run after resizing, so they work on fewer pixels.
+
+### Fit
+
+When the URL has both `w` and `h`:
+
+| `fit`          | Result                                                                                       | Jimp method                                      |
+| -------------- | -------------------------------------------------------------------------------------------- | ------------------------------------------------ |
+| `cover`        | Exactly `w` × `h`. Scaled to fill the box, and the overflow is cropped, keeping `pos`.       | [`cover`](/jimp/methods/cover/)                  |
+| `contain`      | Exactly `w` × `h`. Scaled to fit inside the box, and the rest is filled with `bg`.           | [`contain`](/jimp/methods/contain/)              |
+| `scale-to-fit` | Scaled to fit inside the box, keeping the aspect ratio. One side may be smaller.             | [`scaleToFit`](/jimp/methods/scale-to-fit/)      |
+| `fill`         | Exactly `w` × `h`, stretched.                                                                | [`resize`](/jimp/methods/resize/)                |
+
+Images are scaled up as well as down, up to [`maxSize`](#limits).
+
+## Formats
+
+Without `fm`, the image keeps the source's format.
+If the Jimp class can't encode it (an SVG, for example), it's sent as PNG if it has transparency and as JPEG if it doesn't.
+
+`fm=auto` picks the best format the browser accepts:
+
+1. AVIF, if the `Accept` header lists `image/avif`
+2. WebP, if it lists `image/webp`
+3. Otherwise the source's format if it's JPEG, PNG or GIF, or PNG or JPEG as above
+
+Only formats your Jimp class can encode are picked, so with `Jimp` from `jimp`, `fm=auto` never picks AVIF or WebP.
+Add [`@jimp/wasm-avif` and `@jimp/wasm-webp`](/jimp/guides/webp/) to your Jimp to use them.
+Only formats the `Accept` header names count: `image/*` and `*/*` don't, as browsers list the formats they support.
+
+Responses to `fm=auto` have `Vary: Accept`, so caches keep a copy for each format.
+Pass `defaultFormat: "auto"` to negotiate when there's no `fm` param.
+
+An `fm` the Jimp class can't encode is a 415, as is a source it can't decode.
+Animated GIFs and APNGs are read as their first frame.
+
+## Sources
+
+The source loads the original image for a path. The path is what comes after `basePath`, decoded, without the leading slash: `/images/cats/my%20cat.jpg` loads `cats/my cat.jpg`.
+
+### `fetchSource`
+
+Fetches images from under one URL, such as a storage bucket or your website:
+
+```ts title="images.ts"
+import { fetchSource } from "@jimp/server";
+
+const source = fetchSource({
+  baseUrl: "https://my-bucket.s3.amazonaws.com/originals/",
+  // Optional
+  init: { headers: { Authorization: `Bearer ${token}` } },
+  maxBytes: 20 * 1024 * 1024,
+  timeout: 10_000,
+});
+```
+
+Each part of the path is URL-encoded and added to `baseUrl`, so a request can't reach another host or a path outside `baseUrl`.
+Redirects are followed only if they stay under `baseUrl`.
+A 404 or 410 from the origin is a 404, other errors are a 502, and a timeout is a 504.
+
+### `remoteSource`
+
+Fetches images from other sites, named by the first part of the path: `/images/images.example.com/cat.jpg` fetches `https://images.example.com/cat.jpg`.
+It only fetches hosts you list, over HTTPS:
+
+```ts title="images.ts"
+import { remoteSource } from "@jimp/server";
+
+const source = remoteSource({
+  allowedHosts: ["images.example.com", "*.cdn.example.com"],
+});
+```
+
+`*.cdn.example.com` allows its subdomains, but not `cdn.example.com` itself.
+Hosts that aren't listed are a 403, and redirects to them aren't followed.
+
+### `directorySource`
+
+Reads images from a directory, in Node.js, Bun and Deno. It's exported from `@jimp/server/node`, which imports `node:fs`:
+
+```ts title="images.ts"
+import { directorySource } from "@jimp/server/node";
+
+const source = directorySource("./public/images", { maxBytes: 20 * 1024 * 1024 });
+```
+
+Missing files and directories are a 404, and so are symlinks to files outside the directory.
+
+### Your own source
+
+A source is a function that takes the path and the request, and returns an `ArrayBuffer`, a `Uint8Array` (or Node.js `Buffer`) or a `Blob`, or `null` if there's no image:
+
+```ts title="images.ts"
+import { ImageHandlerError, type ImageSource } from "@jimp/server";
+
+const source: ImageSource = async (path, request) => {
+  const image = await db.images.find(path);
+
+  if (!image) return null; // 404
+  if (image.private) throw new ImageHandlerError(403, "This image is private");
+
+  return image.data;
+};
+```
+
+Throw an `ImageHandlerError` to respond with a status of your choice.
+Other errors are a 500.
+
+## Security
+
+An image server does work for anyone who can reach it, so decide what a URL is allowed to ask for.
+
+### Paths and SSRF
+
+Paths with `.` or `..` segments, empty segments, backslashes, null characters or an encoded `/` (`%2F`) are rejected with a 400 before the source is called.
+The sources only read from where you point them: `fetchSource` never leaves `baseUrl`, `remoteSource` only fetches the hosts you list, and `directorySource` never reads outside its directory.
+None of them fetch a URL taken from the request, so the handler can't be used to reach your internal network.
+
+### Signed URLs
+
+Pass a `secret` to accept only URLs you've signed.
+Sign them where you render your pages, never in the browser:
+
+```ts title="page.ts"
+import { signUrl } from "@jimp/server";
+
+const src = await signUrl("/images/cats/tom.jpg?w=400&fm=auto", process.env.IMAGE_SECRET);
+// "/images/cats/tom.jpg?fm=auto&w=400&s=3q2-7wE…"
+```
+
+```ts title="images.ts"
+const handler = createImageHandler({
+  Jimp,
+  source,
+  basePath: "/images",
+  secret: process.env.IMAGE_SECRET,
+});
+```
+
+The signature is an HMAC-SHA256 of the path and every param, made with [Web Crypto](https://developer.mozilla.org/en-US/docs/Web/API/SubtleCrypto), and checked in constant time.
+`signUrl` sorts the params, and only the URL exactly as it returns it is accepted: changing, adding, removing, reordering or re-encoding a param makes it invalid.
+So each signed transform has exactly one URL, and people can't make your CDN miss its cache by varying it.
+The host isn't signed, so the same URL works on every domain you serve.
+A URL without a valid signature is a 403.
+
+- **Rotating secrets:** pass `secret: [newSecret, oldSecret]`. Signatures from either are accepted while you re-sign your URLs with the new one.
+- **Signing only some requests:** with `requireSignature: false`, unsigned URLs are accepted too, and only the `edits` param needs a signature.
+
+### The `edits` param
+
+Signed URLs can carry any list of [edits](/jimp/methods/apply/), for things the params don't cover.
+Encode them with `encodeEdits`, then sign the URL:
+
+```ts title="page.ts"
+import { encodeEdits, signUrl } from "@jimp/server";
+
+const edits = encodeEdits([
+  ["crop", { x: 120, y: 40, w: 600, h: 600 }],
+  ["circle"],
+  ["brightness", 1.1],
+]);
+
+const src = await signUrl(`/images/team/ada.jpg?edits=${edits}&w=128&fm=png`, secret);
+```
+
+The edits run before the other params, so crop coordinates are in the source's pixels.
+Without a signature, the `edits` param is rejected.
+
+### Allowed edits
+
+Every edit, from the params and from `edits`, must be in `allowedEdits`.
+The default list, `defaultAllowedEdits`, has the resizing, cropping, rotating and color and blur methods.
+Methods that need images or fonts (`blit`, `mask`, `print`…) or run arbitrary kernels (`convolute`) aren't in it, and [`apply`](/jimp/methods/apply/#which-methods-can-be-used) never runs methods like `write`.
+
+```ts title="images.ts"
+import { createImageHandler, defaultAllowedEdits } from "@jimp/server";
+
+createImageHandler({
+  Jimp,
+  source,
+  // Only resizing and greyscale
+  allowedEdits: ["resize", "cover", "contain", "scaleToFit", "greyscale"],
+  // Or add to the defaults
+  // allowedEdits: [...defaultAllowedEdits, "drawRect"],
+});
+```
+
+### Limits
+
+The limits keep one request from using too much memory or time:
+
+| Option                    | Default    | Description                                                                                                                                         |
+| ------------------------- | ---------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `maxSize`                 | `4096`     | The largest `w` and `h` (after `dpr`). Edits can't make the image's longest side larger than this, or than the source's if it's larger. With only `w` or `h`, the side that follows the aspect ratio is checked too, before resizing. Over it is a 422. |
+| `maxEdits`                | `10`       | The most edits a request can make, counting the params. Over it is a 422.                                                                          |
+| `maxSourceBytes`          | 20 MB      | The largest source file. Over it is a 413.                                                                                                          |
+| `maxSourceResolutionInMP` | `25`       | The largest source image, in megapixels. Over it is a 413, before the image is decoded.                                                            |
+
+`maxSourceResolutionInMP` is passed to each format as its `maxResolutionInMP` [decode option](/jimp/guides/reading-large-images/), so oversized images are rejected from their header, before any pixel memory is allocated.
+A decoded image takes 4 bytes per pixel, so 25 megapixels take 100 MB. Lower it on runtimes with little memory, such as Workers.
+This covers every built-in format and the WASM plugins except `@jimp/wasm-jpeg`, which has no size limit; `maxSourceBytes` still applies to it.
+WebP and AVIF files whose size can't be read from their header are refused rather than decoded unchecked.
+
+To set other decode options, pass `readOptions`, keyed by MIME type like [`Jimp.read`'s](/jimp/guides/reading-large-images/#passing-decode-options). They're merged over the limits:
+
+```ts title="images.ts"
+createImageHandler({
+  Jimp,
+  source,
+  maxSourceResolutionInMP: 25,
+  readOptions: {
+    // Let JPEGs be larger than the other formats
+    "image/jpeg": { maxResolutionInMP: 50, maxMemoryUsageInMB: 1024 },
+  },
+});
+```
+
+Signed `edits` can still ask for expensive work, like a large `blur` or a big `resize`, so only sign edits you'd run yourself.
+
+## Caching
+
+Image responses have:
+
+- `Cache-Control`: `public, max-age=86400, stale-while-revalidate=604800` by default. Set `cacheControl` to change it, e.g. `"public, max-age=31536000, immutable"` if your originals never change at the same path.
+- `ETag`: a strong ETag made from a hash of the source file, the params, the format `fm=auto` picked, and the options that change the output. The same image and params always get the same ETag.
+- `Vary: Accept`, for `fm=auto`.
+
+A request whose `If-None-Match` matches the ETag gets a 304 without the image being decoded or encoded. (`If-None-Match: *` isn't matched, as the ETag is worked out before the edits run.)
+The source is still loaded, to hash it.
+
+Error responses have `Cache-Control: no-store`.
+
+## Errors
+
+Errors are sent as plain text, with the reason for 4xx errors:
+
+| Status | When                                                                                          |
+| ------ | --------------------------------------------------------------------------------------------- |
+| 400    | A param isn't valid, an edit isn't allowed or fails, or the path isn't valid. The body says why, e.g. `w must be a whole number`. |
+| 403    | The signature is missing or invalid, or `remoteSource` was asked for a host that isn't allowed. |
+| 404    | The path isn't under `basePath`, or the source returned `null`.                               |
+| 405    | The method isn't `GET` or `HEAD`.                                                             |
+| 413    | The source is over `maxSourceBytes` or `maxSourceResolutionInMP`.                             |
+| 415    | The Jimp class can't decode the source, or can't encode the format `fm` asks for.             |
+| 422    | `w`, `h` or the edited image is over `maxSize`, there are more than `maxEdits` edits, or the source can't be decoded. |
+| 500    | Anything else, like an error thrown by your source. The body is just `Internal Server Error`. |
+| 502, 504 | `fetchSource` or `remoteSource` got an error from the origin, or it timed out.              |
+
+Pass `onError` to log them. It gets an `ImageHandlerError` with the `status`, and the original error as its `cause`:
+
+```ts title="images.ts"
+createImageHandler({
+  Jimp,
+  source,
+  onError(error, request) {
+    if (error.status >= 500) {
+      console.error(request.url, error.cause ?? error);
+    }
+  },
+});
+```
+
+## Options
+
+| Option                    | Default                                               | Description                                                                                         |
+| ------------------------- | ----------------------------------------------------- | --------------------------------------------------------------------------------------------------- |
+| `Jimp`                    | required                                              | The Jimp class: `Jimp` from `jimp`, or a [custom Jimp](/jimp/guides/custom-jimp/) with the formats and plugins you need. |
+| `source`                  | required                                              | Loads the image for a path. See [Sources](#sources).                                                |
+| `basePath`                | `"/"`                                                 | The path the handler serves. Other paths are a 404.                                                 |
+| `secret`                  | none                                                  | A secret, or a list of them, for [signed URLs](#signed-urls).                                       |
+| `requireSignature`        | `true` with a `secret`                                | Whether every URL must be signed.                                                                   |
+| `allowedEdits`            | `defaultAllowedEdits`                                 | The methods edits can use. See [Allowed edits](#allowed-edits).                                     |
+| `maxSize`, `maxEdits`, `maxSourceBytes`, `maxSourceResolutionInMP` | see [Limits](#limits)        |                                                                                                     |
+| `quality`                 | `75`                                                  | The quality when there's no `q` param and `encodeOptions` doesn't set one.                          |
+| `defaultFormat`           | `"original"`                                          | The format when there's no `fm` param: `"original"`, or `"auto"` to negotiate.                     |
+| `cacheControl`            | `"public, max-age=86400, stale-while-revalidate=604800"` | The `Cache-Control` header for images and 304s.                                                 |
+| `readOptions`             | none                                                  | Decode options for `Jimp.fromBuffer`, merged over the limits.                                       |
+| `encodeOptions`           | none                                                  | Encode options for `getBuffer`, keyed by MIME type, e.g. `{ "image/png": { deflateLevel: 6 } }`. A `q` param overrides their `quality`. |
+| `onError`                 | none                                                  | Called with every error before the error response is sent.                                         |

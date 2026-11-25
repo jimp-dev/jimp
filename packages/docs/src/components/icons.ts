@@ -56,6 +56,7 @@ export const guideIcons: Record<string, string> = {
   plugin: `<path d="M6 12h6V8a3 3 0 016 0v4h6v6h-3a3 3 0 000 6h3v4H6z" fill="#fff" ${S}/>`,
   custom: `<path d="M16 4l3 3h5v5l3 4-3 4v5h-5l-3 3-3-3H8v-5l-3-4 3-4V7h5z" fill="#fff" ${S}/><circle cx="16" cy="16" r="4" fill="#ffd83a" ${S}/>`,
   wasm: `<path d="M16 3l11 6v14l-11 6-11-6V9z" fill="#fff" ${S}/><path d="M10 13l2 7 2-5 2 5 2-7M20 13h3" ${S} stroke-width="2"/>`,
+  server: `<rect x="4" y="4" width="24" height="10" rx="3" fill="#fff" ${S}/><rect x="4" y="18" width="24" height="10" rx="3" fill="#ff8f1f" ${S}/><circle cx="9" cy="9" r="1.6" fill="${INK}"/><circle cx="9" cy="23" r="1.6" fill="${INK}"/><path d="M15 9h8M15 23h8" ${S} stroke-width="2"/>`,
   migrate: `<path d="M5 22c0-7 5-12 12-12h7" fill="none" ${S}/><path d="M20 5l5 5-5 5" fill="none" ${S}/><circle cx="7" cy="25" r="3" fill="#ffd83a" ${S}/>`,
   api: `<path d="M16 3l3.6 8 8.4.8-6.4 5.6 2 8.6L16 21.6 8.4 26l2-8.6L4 11.8l8.4-.8z" fill="#fff" ${S}/>`,
   file: categoryIcons.io!,

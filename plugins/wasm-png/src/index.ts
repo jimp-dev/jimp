@@ -43,6 +43,15 @@ export interface PngWasm {
   optimise?: WebAssembly.Module;
 }
 
+export interface DecodePngOptions {
+  /**
+   * Largest image, in megapixels, that will be decoded. Larger images are
+   * rejected before any pixel memory is allocated.
+   * @default Infinity
+   */
+  maxResolutionInMP?: number;
+}
+
 export interface PngFormatOptions {
   /**
    * Precompiled wasm modules for runtimes where the codecs can't load their
@@ -107,7 +116,25 @@ export default function png({ wasm }: PngFormatOptions = {}) {
 
       return Buffer.from(arrayBuffer);
     },
-    decode: async (data) => {
+    decode: async (data, { maxResolutionInMP }: DecodePngOptions = {}) => {
+      // The width and height are the first fields of the IHDR chunk, which
+      // follows the 8-byte signature and the chunk's length and type
+      if (maxResolutionInMP !== undefined) {
+        if (data.length < 24) {
+          throw new Error("Invalid PNG: the file is too short for its header");
+        }
+
+        const view = new DataView(data.buffer, data.byteOffset, 24);
+        const width = view.getUint32(16);
+        const height = view.getUint32(20);
+
+        if (width * height > maxResolutionInMP * 1_000_000) {
+          throw new Error(
+            `PNG dimensions ${width}x${height} exceed the maximum resolution of ${maxResolutionInMP} megapixels`,
+          );
+        }
+      }
+
       await initPngOnce(wasm?.png);
       const result = await decode(new Uint8Array(data).buffer);
 
