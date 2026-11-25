@@ -5,6 +5,8 @@ import { defineOp, type ImageSize } from "../types";
 type DitherType = "floyd-steinberg" | "atkinson" | "bayer4" | "bayer8";
 
 const INK = "#1b1840";
+/** A film frame speckled with grain. */
+const grainIcon = `<rect x="4" y="6" width="24" height="20" rx="3" fill="#e4e2ee" stroke="${INK}" stroke-width="2.6"/><g fill="${INK}"><circle cx="9" cy="11" r="1.2"/><circle cx="15" cy="10" r=".9"/><circle cx="22" cy="12" r="1.3"/><circle cx="12" cy="16" r="1"/><circle cx="19" cy="17" r="1.2"/><circle cx="24" cy="20" r=".9"/><circle cx="8" cy="21" r="1.1"/><circle cx="15" cy="22" r="1.3"/></g>`;
 /** A soft blob with a crisp, outlined copy on top. */
 const sharpenIcon = `<circle cx="16" cy="16" r="12" fill="#c9a8ff" opacity=".45"/><path d="M16 4 27 26H5z" fill="#fff" stroke="${INK}" stroke-width="2.4" stroke-linejoin="round"/><path d="M16 11l6 12H10z" fill="#ff5fb0" stroke="${INK}" stroke-width="2" stroke-linejoin="round"/>`;
 
@@ -146,5 +148,34 @@ export default [
       })});`;
     },
     thumbnail: { type: "bayer4" },
+  }),
+
+  defineOp({
+    id: "grain",
+    label: "grain",
+    icon: grainIcon,
+    group: "effects",
+    description:
+      "Add film grain. The same options and seed always give the same grain. A little hides banding in gradients.",
+    controls: [
+      { type: "slider", key: "amount", min: 0, max: 0.5, step: 0.01 },
+      { type: "slider", key: "size", min: 1, max: 16, step: 0.5, unit: "px" },
+      { type: "toggle", key: "monochrome" },
+      { type: "slider", key: "seed", min: 0, max: 20, step: 1 },
+    ],
+    defaults: { amount: 0.1, size: 1, monochrome: true as boolean, seed: 0 },
+    apply: (image, { amount, size, monochrome, seed }) => {
+      image.grain({ amount: num(amount), size: num(size), monochrome, seed });
+    },
+    code: ({ amount, size, monochrome, seed }) => {
+      const options = js({
+        amount: amount === 0.1 ? undefined : amount,
+        size: size === 1 ? undefined : size,
+        monochrome: monochrome ? undefined : false,
+        seed: seed === 0 ? undefined : seed,
+      });
+      return `image.grain(${options === "{}" ? "" : options});`;
+    },
+    thumbnail: { amount: 0.25, size: 1.5 },
   }),
 ];

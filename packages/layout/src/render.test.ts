@@ -119,6 +119,38 @@ describe("render", () => {
     expect(pixel(image, 19, 0)[0]).toBeGreaterThan(235);
   });
 
+  test("dither: true dithers the gradient", async () => {
+    const node = (dither?: boolean) => ({
+      type: "box" as const,
+      background: {
+        type: "linear" as const,
+        angle: 90,
+        stops: ["#000000", "#040000"],
+        dither,
+      },
+    });
+    const size = { Jimp, width: 400, height: 20 };
+    const banded = await render(node(), size);
+    const dithered = await render(node(true), size);
+    // The mean red of column 50, an eighth of the way along, is 0.5
+    const mean = (image: typeof banded) => {
+      let sum = 0;
+
+      for (let y = 0; y < 20; y++) {
+        sum += pixel(image, 50, y)[0]!;
+      }
+
+      return sum / 20;
+    };
+
+    expect([0, 1]).toContain(mean(banded));
+    expect(mean(dithered)).toBeGreaterThan(0.2);
+    expect(mean(dithered)).toBeLessThan(0.8);
+    expect((await render(node(true), size)).bitmap.data).toStrictEqual(
+      dithered.bitmap.data,
+    );
+  });
+
   test("an angle of 180 goes down", async () => {
     const image = await render(
       {

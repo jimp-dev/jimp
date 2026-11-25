@@ -75,6 +75,7 @@ export const methods: MethodEntry[] = [
   m("bilateral", "bilateral", "effects", "@jimp/plugin-blur"),
   m("pixelate", "pixelate", "effects", "@jimp/plugin-color"),
   m("dither", "dither", "effects", "@jimp/plugin-dither"),
+  m("grain", "grain", "effects", "@jimp/plugin-color"),
   m("erode", "erode", "effects", "@jimp/plugin-morphology"),
   m("dilate", "dilate", "effects", "@jimp/plugin-morphology"),
   m("open", "open", "effects", "@jimp/plugin-morphology"),

@@ -152,6 +152,7 @@ image.drawEllipse({
 | `x1`, `y1`, `x2`, `y2` | `number`                | Linear only: the start and end of the gradient line.                        |
 | `cx`, `cy`, `r` | `number`                       | Radial only: the center and the radius where the gradient reaches offset 1. `r` must be `0` or more. |
 | `stops`  | `({ offset: number; color: Color } \| Color)[]` | At least one stop. `offset` goes from `0` (the start) to `1` (the end). Bare colors are spread out evenly, so `["red", "blue"]` is the same as stops at `0` and `1`. |
+| `dither` | `boolean`                             | Add noise smaller than one level so the gradient doesn't band. Defaults to `false`. See [Banding](#banding). |
 
 Stops work like CSS gradient stops:
 
@@ -161,6 +162,42 @@ Stops work like CSS gradient stops:
 - A gradient with no length (the same start and end, or `r: 0`) is its last stop's color, as in SVG.
 
 Gradients work everywhere a color does, including strokes, [`drawLine`](/jimp/methods/draw-line/) and [`floodFill`](/jimp/methods/flood-fill/). [`gradientMap`](/jimp/methods/gradient-map/) and [`render`](/jimp/methods/render/) backgrounds take the same stops.
+
+### Banding
+
+Images store 256 levels per channel, so a wide gradient between two close colors has to step from level to level, and each step shows as a flat band. A 1200-pixel card going from `#1b1840` to `#3a2d7a` has bands about 40 pixels wide.
+
+`dither: true` fixes that while the gradient is drawn: before each pixel is rounded to a whole level, it adds noise of less than half a level, so a pixel 30% of the way from one level to the next is rounded up 30% of the time. The bands average out to the smooth gradient. The noise is the same every time, and colors that are already whole levels, like the area before the first stop, don't change.
+
+```ts title="example.ts"
+image.drawRect({
+  x: 0,
+  y: 0,
+  w: 1200,
+  h: 630,
+  fill: {
+    type: "linear",
+    x1: 0,
+    y1: 0,
+    x2: 1200,
+    y2: 630,
+    stops: [
+      { offset: 0, color: "#1b1840" },
+      { offset: 1, color: "#3a2d7a" },
+    ],
+    dither: true,
+  },
+});
+```
+
+It's off by default for two reasons:
+
+- **PNG size.** A smooth gradient compresses very well as PNG, and noise doesn't. The 1200 × 630 card below goes from 75 KB to 512 KB.
+- **Lossy formats.** JPEG and WebP compression smooths away noise this small, and adds bands of its own. For those, add a little [`grain`](/jimp/methods/grain/) to the finished image instead: `amount: 0.01` for JPEG, and colored grain at a high quality for WebP.
+
+![The same purple gradient saved six ways, as it is and with its contrast turned up: PNG shows diagonal bands; PNG with dither: true is smooth but 512 KB instead of 75 KB; JPEG 85 bands, and JPEG 85 with grain 0.01 is smooth at 13 KB; WebP 80 bands in blocks, and WebP 95 with color grain 0.012 is mostly smooth at 21 KB](/jimp/gradients/banding.png)
+
+Gradients in [`@jimp/layout`](/jimp/methods/render/) take the same `dither` option.
 
 ## Antialiasing
 
@@ -239,6 +276,7 @@ Drawing is pure JavaScript, with typed arrays and no allocation per pixel. Some 
 | 1000 random lines on 1920 × 1080, 1 / 3 / 10 px wide   | 50 / 65 / 130 ms      |
 | 100 filled and stroked 300 × 200 ellipses on 1080p     | 258 ms                |
 | A full-frame 1080p linear gradient rectangle           | 43 ms                 |
+| The same with `dither: true`                           | about 45 ms more      |
 | Flood filling a whole 1080p image                      | 26 ms                 |
 
 The time depends mostly on the area a shape covers and the number of edges in it. The plugin adds about 7 KB gzipped to the browser bundle.

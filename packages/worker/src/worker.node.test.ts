@@ -83,6 +83,22 @@ describe("tasks", () => {
     expect(await image.getBuffer("image/png")).toBeInstanceOf(Buffer);
   });
 
+  test("grain in a worker matches grain on the main thread", async () => {
+    const jimp = createPool();
+    const bytes = await readFile(dicePath);
+    const image = await jimp.run({
+      input: bytes,
+      edits: [["grain", { amount: 0.1, size: 2, seed: 5 }]],
+    });
+    const expected = (await Jimp.read(bytes)).grain({
+      amount: 0.1,
+      size: 2,
+      seed: 5,
+    });
+
+    expect(image.bitmap.data.equals(expected.bitmap.data)).toBe(true);
+  });
+
   test("encodes the result with output", async () => {
     const jimp = createPool();
     const bytes = await jimp.run({

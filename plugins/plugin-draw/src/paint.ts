@@ -5,6 +5,7 @@ import {
   gradientTable,
   GradientStopsSchema as StopsSchema,
   normalizeStops,
+  pixelNoise,
   resolveColor,
   type Color,
   type GradientStop,
@@ -13,6 +14,15 @@ import {
 import { z } from "zod";
 
 export { ColorSchema, type Color, type GradientStop, type GradientStops };
+
+/**
+ * Add noise smaller than one level to each pixel before it's rounded, so a
+ * smooth gradient doesn't show bands of flat color. The noise is the same
+ * every time. Defaults to `false`: it makes PNGs of large gradients a lot
+ * bigger, and JPEG and WebP at normal qualities smooth it away (add a little
+ * `grain` for those).
+ */
+const DitherSchema = z.boolean().optional();
 
 const LinearGradientSchema = z.object({
   type: z.literal("linear"),
@@ -29,6 +39,7 @@ const LinearGradientSchema = z.object({
    * the gradient is the first and last stop's color.
    */
   stops: StopsSchema,
+  dither: DitherSchema,
 });
 
 /**
@@ -48,6 +59,7 @@ const RadialGradientSchema = z.object({
   r: z.number().min(0),
   /** the colors from the center (offset 0) out to the radius (offset 1) */
   stops: StopsSchema,
+  dither: DitherSchema,
 });
 
 /**
@@ -73,10 +85,12 @@ export interface ResolvedPaint {
   /** the color, for solid paints: r, g, b and a from 0 to 255 */
   color?: [number, number, number, number];
   /**
-   * for gradients, the r, g, b (whole numbers) and a of LUT_SIZE points
-   * along it
+   * for gradients, the r, g, b and a of LUT_SIZE points along it. r, g and b
+   * are whole numbers unless the gradient is dithered.
    */
   lut?: Float32Array;
+  /** for gradients, whether to dither them */
+  dither?: boolean;
   /** for gradients, the position along it of the point (x, y), from 0 to 1 */
   at?: (x: number, y: number) => number;
 }
@@ -97,6 +111,16 @@ export function resolvePaint(
   }
 
   const lut = gradientTable(normalizeStops(paint.stops), colorSpace, LUT_SIZE);
+  const dither = paint.dither ?? false;
+
+  // Without dithering, colors are rounded once here rather than per pixel
+  if (!dither) {
+    for (let i = 0; i < lut.length; i += 4) {
+      lut[i] = Math.round(lut[i]!);
+      lut[i + 1] = Math.round(lut[i + 1]!);
+      lut[i + 2] = Math.round(lut[i + 2]!);
+    }
+  }
 
   if (paint.type === "linear") {
     const { x1, y1 } = paint;
@@ -106,11 +130,12 @@ export function resolvePaint(
 
     // A gradient with no length is its last color, like SVG
     if (length2 === 0) {
-      return { lut, at: () => 1 };
+      return { lut, dither, at: () => 1 };
     }
 
     return {
       lut,
+      dither,
       at: (x, y) => ((x - x1) * dx + (y - y1) * dy) / length2,
     };
   }
@@ -118,15 +143,16 @@ export function resolvePaint(
   const { cx, cy, r } = paint;
 
   if (r === 0) {
-    return { lut, at: () => 1 };
+    return { lut, dither, at: () => 1 };
   }
 
-  return { lut, at: (x, y) => Math.hypot(x - cx, y - cy) / r };
+  return { lut, dither, at: (x, y) => Math.hypot(x - cx, y - cy) / r };
 }
 
 /**
  * Draw a color over the pixel at `i` with source-over compositing and
  * straight alpha, the same maths as Jimp's `composite`. `alpha` is from 0 to 1.
+ * `dither`, from -0.5 to 0.5, is added to each channel before it's rounded.
  */
 export function blendPixel(
   data: Uint8Array,
@@ -135,11 +161,13 @@ export function blendPixel(
   g: number,
   b: number,
   alpha: number,
+  dither = 0,
 ) {
   if (alpha >= 1) {
-    data[i] = r;
-    data[i + 1] = g;
-    data[i + 2] = b;
+    // Colors from 0 to 255 plus less than half a level round to 0 to 255
+    data[i] = Math.round(r + dither);
+    data[i + 1] = Math.round(g + dither);
+    data[i + 2] = Math.round(b + dither);
     data[i + 3] = 255;
     return;
   }
@@ -151,10 +179,10 @@ export function blendPixel(
   const under = (data[i + 3]! / 255) * (1 - alpha);
   const out = alpha + under;
 
-  data[i] = Math.round((r * alpha + data[i]! * under) / out);
-  data[i + 1] = Math.round((g * alpha + data[i + 1]! * under) / out);
-  data[i + 2] = Math.round((b * alpha + data[i + 2]! * under) / out);
-  data[i + 3] = Math.round(out * 255);
+  data[i] = Math.round((r * alpha + data[i]! * under) / out + dither);
+  data[i + 1] = Math.round((g * alpha + data[i + 1]! * under) / out + dither);
+  data[i + 2] = Math.round((b * alpha + data[i + 2]! * under) / out + dither);
+  data[i + 3] = Math.round(out * 255 + dither);
 }
 
 /** Draw a paint over pixels x0 to x1 of row y, each as much as `coverage` says */
@@ -167,7 +195,7 @@ export function paintRow(
   x1: number,
   coverage: ArrayLike<number>,
 ) {
-  const { color, lut, at } = paint;
+  const { color, lut, at, dither } = paint;
   let i = (y * width + x0) * 4;
 
   if (color) {
@@ -202,6 +230,7 @@ export function paintRow(
         lut![j + 1]!,
         lut![j + 2]!,
         (lut![j + 3]! / 255) * c,
+        dither ? pixelNoise(x, y) - 0.5 : 0,
       );
     }
   }

@@ -459,6 +459,24 @@ This site's own Open Graph images are made this way, one per page at build time:
   longer.
 </Aside>
 
+## Smooth gradients
+
+A card-sized gradient between two dark colors can show faint diagonal bands, because the image only has so many levels between the two colors. How to hide them depends on the format you send:
+
+- **PNG:** add `dither: true` to the gradient. Each 1200 × 630 card gets a lot bigger, about 75 KB to 512 KB for this one, so only do it when the bands bother you.
+- **JPEG:** render as usual, then call [`grain`](/jimp/methods/grain/) with `{ amount: 0.01 }` before encoding. JPEG smooths away `dither`'s smaller noise.
+- **WebP:** call `grain` with `{ amount: 0.012, monochrome: false }` and encode at quality `95`. WebP bands in the color more than the brightness, so it needs colored grain.
+
+```ts title="og.ts"
+const card = await render(tree, { width: 1200, height: 630, Jimp });
+
+card.grain({ amount: 0.01 });
+
+const jpeg = await card.getBuffer("image/jpeg", { quality: 85 });
+```
+
+Grain is the same every time for the same options, so cached cards don't change. See [Banding](/jimp/concepts/drawing/#banding) for a side-by-side comparison.
+
 ## About the JSX
 
 The components return plain objects, the same ones the **Objects** tabs build, so there's no React, virtual DOM or hooks: `<Card>` runs `Card` once and the result goes straight to `render`.

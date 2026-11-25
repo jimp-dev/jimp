@@ -109,6 +109,7 @@ export function toPaint(fill: Fill, rect: Rect): Paint {
   const { stops } = fill;
   const cx = rect.x + rect.width / 2;
   const cy = rect.y + rect.height / 2;
+  const { dither } = fill;
 
   if (fill.type === "radial") {
     return {
@@ -117,6 +118,7 @@ export function toPaint(fill: Fill, rect: Rect): Paint {
       cy,
       r: Math.hypot(rect.width / 2, rect.height / 2),
       stops,
+      dither,
     };
   }
 
@@ -134,6 +136,7 @@ export function toPaint(fill: Fill, rect: Rect): Paint {
     x2: cx + dx * half,
     y2: cy + dy * half,
     stops,
+    dither,
   };
 }
 

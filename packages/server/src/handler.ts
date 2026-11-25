@@ -69,6 +69,7 @@ export const defaultAllowedEdits = [
   "flip",
   "gaussian",
   "gradientMap",
+  "grain",
   "greyscale",
   "invert",
   "median",
