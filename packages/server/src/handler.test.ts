@@ -594,6 +594,16 @@ describe("signing", () => {
     expect(image.getPixelColor(100, 50)).toBe(0x0000ffff);
   });
 
+  test("grain is allowed, and the same every time, so it can be cached", async () => {
+    const edits = editsParam([["grain", { amount: 0.1, seed: 4 }]]);
+    const url = await signUrl(`/images/halves.png?edits=${edits}`, secret);
+    const first = await readImage(await get(handler, url));
+    const second = await readImage(await get(handler, url));
+
+    expect(first.bitmap.data).toStrictEqual(second.bitmap.data);
+    expect(first.bitmap.data).not.toStrictEqual(halves.bitmap.data);
+  });
+
   test("edits needs a signature", async () => {
     const edits = editsParam([["invert"]]);
     const optional = createHandler({ secret, requireSignature: false });

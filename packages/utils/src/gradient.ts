@@ -90,7 +90,8 @@ export function resolveColor(
 
 /**
  * Sample a gradient's stops at `size` evenly spaced points from 0 to 1, as
- * r, g, b (whole numbers) and a for each point. Colors are interpolated in
+ * r, g, b and a for each point. They aren't rounded, so callers can round
+ * them or dither them. Colors are interpolated in
  * the image's colour space as it's stored (gamma encoded, not linear light),
  * with premultiplied alpha, like CSS and canvas, so fading to transparent
  * doesn't go grey.
@@ -133,8 +134,7 @@ export function gradientTable(
     const alpha = a / 255;
 
     for (let channel = 0; channel < 3; channel++) {
-      lut[i * 4 + channel] =
-        alpha > 0 ? Math.round(premultiplied[channel]! / alpha) : 0;
+      lut[i * 4 + channel] = alpha > 0 ? premultiplied[channel]! / alpha : 0;
     }
 
     lut[i * 4 + 3] = a;

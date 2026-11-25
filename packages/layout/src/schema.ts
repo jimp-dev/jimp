@@ -54,6 +54,15 @@ const ColorSchema = z.union([
 
 export type Color = z.infer<typeof ColorSchema>;
 
+/**
+ * Add noise smaller than one level to each pixel before it's rounded, so a
+ * smooth gradient doesn't show bands of flat color. The noise is the same
+ * every time. Defaults to `false`: it makes PNGs of large gradients a lot
+ * bigger, and JPEG and WebP at normal qualities smooth it away (add a little
+ * `grain` to the rendered image for those).
+ */
+const DitherSchema = z.boolean().optional();
+
 const LinearGradientSchema = z.strictObject({
   type: z.literal("linear"),
   /**
@@ -66,6 +75,7 @@ const LinearGradientSchema = z.strictObject({
    * `{ offset, color }` stops with offsets from 0 to 1
    */
   stops: StopsSchema,
+  dither: DitherSchema,
 });
 
 const RadialGradientSchema = z.strictObject({
@@ -75,6 +85,7 @@ const RadialGradientSchema = z.strictObject({
    * out evenly, or `{ offset, color }` stops with offsets from 0 to 1
    */
   stops: StopsSchema,
+  dither: DitherSchema,
 });
 
 /**

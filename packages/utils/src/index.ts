@@ -10,6 +10,7 @@ import {
 
 export * from "./color-space.js";
 export * from "./gradient.js";
+export * from "./noise.js";
 
 export function clone<I extends JimpClass>(image: I): I {
   const newBitmap = {

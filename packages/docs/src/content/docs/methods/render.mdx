@@ -150,10 +150,11 @@ An absolutely positioned node with `left` and `right` and no `width` stretches b
 
 A `Color` is a hex number (`0xRRGGBBAA`) or a CSS color string. A `Fill` is a color or a gradient sized to the box it fills:
 
-- `{ type: "linear", angle?, stops }`: like CSS `linear-gradient`. `angle` is in degrees: `0` goes up, `90` right, and `180`, the default, down.
-- `{ type: "radial", stops }`: a circle from the center out to the farthest corner, like CSS `radial-gradient(circle, ...)`.
+- `{ type: "linear", angle?, stops, dither? }`: like CSS `linear-gradient`. `angle` is in degrees: `0` goes up, `90` right, and `180`, the default, down.
+- `{ type: "radial", stops, dither? }`: a circle from the center out to the farthest corner, like CSS `radial-gradient(circle, ...)`.
 
 `stops` is a list of colors, spread out evenly, or of `{ offset, color }` with offsets from `0` to `1`.
+`dither: true` adds noise smaller than one level so a large, smooth gradient doesn't show bands. It's off by default because it makes PNGs much bigger; see [Banding](/jimp/concepts/drawing/#banding).
 
 A `Shadow` takes the options of [`boxShadow`](/jimp/methods/box-shadow/), with the same defaults: `x` (`0`), `y` (`4`), `blur` (`12`), `spread` (`0`) and `color` (50% black). It follows the box's `radius`.
 

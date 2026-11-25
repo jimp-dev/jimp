@@ -9,6 +9,7 @@ import {
   intToRGBA,
   limit255,
   normalizeStops,
+  pixelNoise,
   scan,
   SRGB,
 } from "@jimp/utils";
@@ -642,6 +643,111 @@ const getBounds = function (histogramChannel: number[]) {
         .findIndex((value) => value > 0),
   ];
 };
+
+const GrainOptionsSchema = z.object({
+  /**
+   * how strong the grain is, from 0 to 1 (default 0.1). Each pixel moves by
+   * at most `amount` × 255 levels, and usually far less. 0.01 is enough to
+   * hide banding in gradients saved as JPEG.
+   */
+  amount: z.number().min(0).max(1).optional(),
+  /**
+   * roughly how wide a grain is in pixels, from 1 (default: every pixel
+   * gets its own noise) to 16. Bigger grains are softer clumps, with the
+   * same strength.
+   */
+  size: z.number().min(1).max(16).optional(),
+  /**
+   * `true` (default) for grain that only changes brightness, like black and
+   * white film. `false` for separate noise in red, green and blue.
+   */
+  monochrome: z.boolean().optional(),
+  /**
+   * picks the pattern, a whole number (default 0). The same seed always
+   * gives the same grain.
+   */
+  seed: z.number().int().optional(),
+});
+
+export type GrainOptions = z.infer<typeof GrainOptionsSchema>;
+
+/**
+ * Noise for each pixel of a width × height image, from -1 to 1 and centered
+ * on 0, with a standard deviation of 1 / √6 (that of a triangular
+ * distribution) whatever the size. It only depends on the pixel's position,
+ * the size and the seed, and uses seeds `seed * 2` and `seed * 2 + 1`.
+ */
+function grainField(width: number, height: number, size: number, seed: number) {
+  const field = new Float32Array(width * height);
+
+  if (size <= 1) {
+    // The sum of two uniform numbers is triangular, like dither noise
+    for (let y = 0, i = 0; y < height; y++) {
+      for (let x = 0; x < width; x++, i++) {
+        field[i] =
+          pixelNoise(x, y, seed * 2) + pixelNoise(x, y, seed * 2 + 1) - 1;
+      }
+    }
+
+    return field;
+  }
+
+  // Blur per-pixel noise with a gaussian about `size` wide
+  const sigma = (size - 1) / 2;
+  const radius = Math.ceil(sigma * 3);
+  const kernel: number[] = [];
+
+  for (let i = -radius; i <= radius; i++) {
+    kernel.push(Math.exp(-(i * i) / (2 * sigma * sigma)));
+  }
+
+  const total = kernel.reduce((sum, w) => sum + w, 0);
+  const weights = kernel.map((w) => w / total);
+  // Blurring shrinks the noise's standard deviation by the sum of the
+  // squared weights in each direction. Scale it back up, from that of a
+  // uniform number (1 / √12) to 1 / √6.
+  const gain = Math.SQRT2 / weights.reduce((sum, w) => sum + w * w, 0);
+  // The noise for the image and `radius` pixels around it
+  const paddedWidth = width + radius * 2;
+  const paddedHeight = height + radius * 2;
+  const noise = new Float32Array(paddedWidth * paddedHeight);
+
+  for (let py = 0, i = 0; py < paddedHeight; py++) {
+    for (let px = 0; px < paddedWidth; px++, i++) {
+      noise[i] = pixelNoise(px - radius, py - radius, seed * 2) - 0.5;
+    }
+  }
+
+  // Blur it across, then down
+  const rows = new Float32Array(width * paddedHeight);
+
+  for (let py = 0; py < paddedHeight; py++) {
+    for (let x = 0; x < width; x++) {
+      const start = py * paddedWidth + x;
+      let sum = 0;
+
+      for (let k = 0; k < weights.length; k++) {
+        sum += weights[k]! * noise[start + k]!;
+      }
+
+      rows[py * width + x] = sum;
+    }
+  }
+
+  for (let y = 0; y < height; y++) {
+    for (let x = 0; x < width; x++) {
+      let sum = 0;
+
+      for (let k = 0; k < weights.length; k++) {
+        sum += weights[k]! * rows[(y + k) * width + x]!;
+      }
+
+      field[y * width + x] = Math.max(-1, Math.min(1, sum * gain));
+    }
+  }
+
+  return field;
+}
 
 export const methods = {
   /**
@@ -1573,6 +1679,61 @@ export const methods = {
       data[idx] = r;
       data[idx + 1] = g;
       data[idx + 2] = b;
+    }
+
+    return image;
+  },
+
+  /**
+   * Adds film grain: noise that's the same every time for the same options,
+   * so the output can be cached and tested. Alpha isn't changed, and fully
+   * transparent pixels are left alone.
+   *
+   * A little grain also hides the banding that smooth gradients get from
+   * being stored with 256 levels per channel, including after JPEG
+   * compression, which smooths away weaker noise.
+   * @param options how strong and big the grain is, and its seed
+   * @example
+   * ```ts
+   * import { Jimp } from "jimp";
+   *
+   * const image = await Jimp.read("test/image.png");
+   *
+   * image.grain(); // the default grain
+   * image.grain({ amount: 0.2, size: 2 }); // stronger, bigger grain
+   * image.grain({ monochrome: false, seed: 42 }); // colored, another pattern
+   * image.grain({ amount: 0.01 }); // just enough to hide banding
+   * ```
+   */
+  grain<I extends JimpClass>(image: I, options: GrainOptions = {}) {
+    const {
+      amount = 0.1,
+      size = 1,
+      monochrome = true,
+      seed = 0,
+    } = GrainOptionsSchema.parse(options);
+    const { width, height, data } = image.bitmap;
+
+    if (amount === 0) {
+      return image;
+    }
+
+    // A different seed for each channel's noise
+    const fields = monochrome
+      ? [grainField(width, height, size, seed * 3)]
+      : [0, 1, 2].map((c) => grainField(width, height, size, seed * 3 + c));
+    const scale = amount * 255;
+
+    for (let i = 0, p = 0; p < width * height; i += 4, p++) {
+      if (data[i + 3] === 0) {
+        continue;
+      }
+
+      for (let c = 0; c < 3; c++) {
+        const value = data[i + c]! + fields[monochrome ? 0 : c]![p]! * scale;
+
+        data[i + c] = value < 0 ? 0 : value > 255 ? 255 : Math.round(value);
+      }
     }
 
     return image;

@@ -809,6 +809,137 @@ describe("gradients", () => {
   });
 });
 
+describe("gradient dithering", () => {
+  /** A 400x50 gradient from 0 to 4 in red, with 4 bands when not dithered */
+  function shallow(dither?: boolean) {
+    return makeImage(400, 50).drawRect({
+      x: 0,
+      y: 0,
+      w: 400,
+      h: 50,
+      fill: {
+        type: "linear",
+        x1: 0,
+        y1: 0,
+        x2: 400,
+        y2: 0,
+        stops: [
+          { offset: 0, color: { r: 0, g: 0, b: 0 } },
+          { offset: 1, color: { r: 4, g: 0, b: 0 } },
+        ],
+        dither,
+      },
+    });
+  }
+
+  /** The mean red of column x */
+  function columnMean(image: Image, x: number) {
+    let sum = 0;
+
+    for (let y = 0; y < image.bitmap.height; y++) {
+      sum += pixel(image, x, y)[0]!;
+    }
+
+    return sum / image.bitmap.height;
+  }
+
+  test("is off by default, so gradients are rounded to bands", () => {
+    const image = shallow();
+
+    // Every column is one whole level
+    for (let x = 0; x < 400; x += 7) {
+      expect(Number.isInteger(columnMean(image, x))).toBe(true);
+    }
+
+    expect(shallow(false).bitmap.data).toStrictEqual(image.bitmap.data);
+  });
+
+  test("averages out to the exact gradient", () => {
+    const image = shallow(true);
+
+    for (let x = 0; x < 400; x += 7) {
+      const exact = ((x + 0.5) / 400) * 4;
+
+      expect(Math.abs(columnMean(image, x) - exact)).toBeLessThan(0.2);
+
+      // Each pixel is the level just below or just above
+      for (let y = 0; y < 50; y++) {
+        const r = pixel(image, x, y)[0]!;
+
+        expect(r === Math.floor(exact) || r === Math.ceil(exact)).toBe(true);
+      }
+    }
+  });
+
+  test("is the same every time", () => {
+    expect(shallow(true).bitmap.data).toStrictEqual(shallow(true).bitmap.data);
+  });
+
+  test("doesn't change flat colors", () => {
+    const image = makeImage(20, 4).drawRect({
+      x: 0,
+      y: 0,
+      w: 20,
+      h: 4,
+      fill: {
+        type: "linear",
+        x1: 5,
+        y1: 0,
+        x2: 15,
+        y2: 0,
+        stops: [
+          { offset: 0, color: "#336699" },
+          { offset: 1, color: "#ffffff" },
+        ],
+        dither: true,
+      },
+    });
+
+    for (let y = 0; y < 4; y++) {
+      for (let x = 0; x < 5; x++) {
+        expect(pixel(image, x, y)).toStrictEqual([0x33, 0x66, 0x99, 255]);
+        expect(pixel(image, 19 - x, y)).toStrictEqual([255, 255, 255, 255]);
+      }
+    }
+  });
+
+  test("radial gradients and transparent stops are dithered too", () => {
+    const image = makeImage(200, 200).drawRect({
+      x: 0,
+      y: 0,
+      w: 200,
+      h: 200,
+      fill: {
+        type: "radial",
+        cx: 100,
+        cy: 100,
+        r: 100,
+        stops: [
+          { offset: 0, color: "rgba(0, 0, 0, 0)" },
+          { offset: 1, color: "rgba(0, 0, 0, 0.02)" },
+        ],
+        dither: true,
+      },
+    });
+    // On a ring 50 pixels out the alpha is 2.55, which rounds to 3 when it
+    // isn't dithered
+    let sum = 0;
+    let count = 0;
+
+    for (let angle = 0; angle < 360; angle += 1) {
+      const radians = (angle * Math.PI) / 180;
+      const x = Math.floor(100 + Math.cos(radians) * 49.5);
+      const y = Math.floor(100 + Math.sin(radians) * 49.5);
+
+      sum += pixel(image, x, y)[3]!;
+      count++;
+    }
+
+    expect(sum / count).toBeGreaterThan(2.3);
+    expect(sum / count).toBeLessThan(2.8);
+  });
+});
+
 describe("floodFill", () => {
   /** A 5x5 white image with a black ring around the middle pixel */
   function ring() {

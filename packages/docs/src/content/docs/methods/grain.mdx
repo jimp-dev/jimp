@@ -1,0 +1,97 @@
+---
+title: "grain()"
+description: "Add film grain that's the same every time, or just enough noise to hide gradient banding."
+category: effects
+method: "grain"
+plugin: "@jimp/plugin-color"
+---
+
+import Playground from "../../../components/playground/Playground";
+import Related from "../../../components/Related.astro";
+
+`grain` adds film grain: random-looking noise that's the same every time you call it with the same options. Use it for a film look, or turn it down to hide the bands that large, smooth gradients get in 8-bit images, especially after JPEG compression.
+
+## Signature
+
+```ts title="grain.d.ts"
+image.grain(options?: GrainOptions): this
+
+interface GrainOptions {
+  amount?: number;
+  size?: number;
+  monochrome?: boolean;
+  seed?: number;
+}
+```
+
+`grain` changes the image in place and returns it, so you can chain more calls after it.
+`GrainOptions` is exported from `jimp` as a type.
+
+## Options
+
+| Option       | Type      | Default | Description                                                                                                                                       |
+| ------------ | --------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `amount`     | `number`  | `0.1`   | How strong the grain is, from `0` to `1`. Each pixel moves by at most `amount × 255` levels, and usually by much less. `0` changes nothing.         |
+| `size`       | `number`  | `1`     | Roughly how wide a grain is in pixels, from `1` to `16`. At `1` every pixel gets its own noise; bigger sizes give softer clumps of the same strength. |
+| `monochrome` | `boolean` | `true`  | `true` changes red, green and blue by the same amount, so only brightness changes, like black-and-white film. `false` gives each channel its own noise. |
+| `seed`       | `number`  | `0`     | A whole number that picks the pattern. The same seed always gives the same grain.                                                                 |
+
+## Example
+
+```ts title="example.ts"
+import { Jimp } from "jimp";
+
+const image = await Jimp.read("photo.jpg");
+
+image.grain({ amount: 0.15, size: 1.5 });
+
+await image.write("photo-grain.jpg");
+```
+
+### Hide banding in gradients
+
+A wide gradient between two close colors has only a few levels to step through, so it shows flat bands. A little grain breaks up the edges between them. `amount: 0.01` moves each pixel by at most about 2.5 levels: invisible as grain, but it survives JPEG compression, which smooths away weaker noise:
+
+```ts title="example.ts"
+const card = await render(<OgCard post={post} />, {
+  width: 1200,
+  height: 630,
+  Jimp,
+});
+
+card.grain({ amount: 0.01 });
+
+const jpeg = await card.getBuffer("image/jpeg", { quality: 85 });
+```
+
+For lossy WebP, use colored grain (`monochrome: false`) and a high quality such as `95`: WebP's bands are mostly in the color, not the brightness. For PNG, dither the gradient itself instead with [`dither: true`](/jimp/concepts/drawing/#banding). It adds less noise, so it doesn't affect the rest of the image.
+
+![The same purple gradient saved six ways, as it is and with its contrast turned up: PNG shows diagonal bands; PNG with dither: true is smooth but 512 KB instead of 75 KB; JPEG 85 bands, and JPEG 85 with grain 0.01 is smooth at 13 KB; WebP 80 bands in blocks, and WebP 95 with color grain 0.012 is mostly smooth at 21 KB](/jimp/gradients/banding.png)
+
+### Animated grain
+
+Change `seed` for each frame so the grain moves, like film:
+
+```ts title="example.ts"
+const frames = images.map((image, i) => image.grain({ seed: i }));
+```
+
+## Try it
+
+Change the strength and size, and switch off `monochrome` for colored noise.
+
+<Playground method="grain" src="dice-on-paper.png" client:visible />
+
+## Notes
+
+- **The same every time.** The noise comes from a hash of each pixel's position and the seed, not `Math.random`, so the same image and options give the same bytes in Node.js, browsers, workers and [`@jimp/server`](/jimp/guides/image-server/). Snapshots and caches keep working. A pixel's grain depends only on its position, so a bigger image has the same grain in the part that overlaps a smaller one.
+- **The noise.** At `size: 1` the noise has a triangular distribution: the sum of two random numbers, the shape used for dithering audio and images. Bigger sizes blur per-pixel noise with a Gaussian about `size` pixels wide, then scale it back up to the same strength.
+- **Alpha is unchanged.** Only red, green and blue change, and fully transparent pixels are skipped.
+- **Clipping.** Values are clamped to `0`–`255`, so grain on pure black can only brighten and on pure white can only darken.
+- **Speed.** A 1200 × 630 image takes about 20 ms at `size: 1` and 70 ms at `size: 16`. With `monochrome: false` it takes about three times as long.
+- **Validation.** The options are checked with zod. An `amount` outside `0`–`1`, a `size` outside `1`–`16`, or a `seed` that isn't a whole number throws a validation error.
+- Added in 2.2.
+
+## Related
+
+<Related methods={["dither", "draw-rect", "render", "posterize", "gaussian", "pixelate"]} />

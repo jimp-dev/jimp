@@ -173,6 +173,7 @@ export type {
   GrayscaleAction,
   DesaturateAction,
   GradientMapOptions,
+  GrainOptions,
 } from "@jimp/plugin-color";
 export type { CircleOptions } from "@jimp/plugin-circle";
 export type {
