@@ -2,7 +2,7 @@ import { mkdir, mkdtemp, rm, symlink, writeFile } from "node:fs/promises";
 import { createServer, request as request_, type Server } from "node:http";
 import type { AddressInfo } from "node:net";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { join, parse, relative, sep } from "node:path";
 import { afterAll, beforeAll, describe, expect, test, vi } from "vitest";
 import { Jimp } from "jimp";
 
@@ -70,8 +70,11 @@ describe("directorySource", () => {
   });
 
   test("serves a filesystem root", async () => {
-    const data = await directorySource("/")(
-      join(root, "cats", "tom.png").slice(1),
+    // "/" on POSIX, a drive like "D:\\" on Windows
+    const file = join(root, "cats", "tom.png");
+    const fsRoot = parse(file).root;
+    const data = await directorySource(fsRoot)(
+      relative(fsRoot, file).split(sep).join("/"),
       request,
     );
 
