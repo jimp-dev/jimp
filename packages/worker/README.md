@@ -30,7 +30,7 @@ const jimp = createJimpWorker<JimpWorkerApi>(
     new Worker(new URL("./jimp.worker.ts", import.meta.url), {
       type: "module",
     }),
-  { concurrency: 2 }
+  { concurrency: 2 },
 );
 
 const thumbnail = await jimp.run({

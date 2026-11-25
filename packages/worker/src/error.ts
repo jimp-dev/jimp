@@ -15,7 +15,7 @@ export class JimpWorkerError extends Error {
 
   constructor(
     message: string,
-    options?: { cause?: unknown; editIndex?: number }
+    options?: { cause?: unknown; editIndex?: number },
   ) {
     super(message, options?.cause === undefined ? undefined : options);
 

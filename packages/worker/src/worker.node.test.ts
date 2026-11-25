@@ -13,16 +13,14 @@ import { TestJimp as UntypedTestJimp } from "./fixtures/test-jimp.mjs";
 
 const TestJimp = UntypedTestJimp as typeof Jimp;
 
-const fixture = (name: string) => new URL(`./fixtures/${name}`, import.meta.url);
+const fixture = (name: string) =>
+  new URL(`./fixtures/${name}`, import.meta.url);
 const photoPath = fixture("exif-p3.jpg");
 const dicePath = pathToFileURL(getTestImagePath("dice.png"));
 
 /** Edits only the test worker's class has */
 type TestEdit =
-  | ["spin", number]
-  | ["exit", number]
-  | ["throwSoon"]
-  | ["markThread"];
+  ["spin", number] | ["exit", number] | ["throwSoon"] | ["markThread"];
 
 const testEdits = (...edits: TestEdit[]) => edits as never[];
 
@@ -32,7 +30,7 @@ const rejection = (task: Promise<unknown>) =>
     () => {
       throw new Error("The task didn't fail");
     },
-    (error: unknown) => error as JimpWorkerError
+    (error: unknown) => error as JimpWorkerError,
   );
 
 const exifOf = (image: object) =>
@@ -41,10 +39,10 @@ const exifOf = (image: object) =>
 const pools: JimpWorker<typeof Jimp>[] = [];
 
 function createPool(concurrency = 1) {
-  const pool = createJimpWorker(
-    () => new Worker(fixture("test.worker.mjs")),
-    { Jimp: TestJimp, concurrency }
-  );
+  const pool = createJimpWorker(() => new Worker(fixture("test.worker.mjs")), {
+    Jimp: TestJimp,
+    concurrency,
+  });
 
   pools.push(pool);
 
@@ -63,9 +61,7 @@ describe("tasks", () => {
       input: bytes,
       edits: [["resize", { w: 100 }], ["greyscale"]],
     });
-    const expected = (await Jimp.read(bytes))
-      .resize({ w: 100 })
-      .greyscale();
+    const expected = (await Jimp.read(bytes)).resize({ w: 100 }).greyscale();
 
     expect(image).toBeInstanceOf(TestJimp);
     expect(image.width).toBe(100);
@@ -167,7 +163,10 @@ describe("tasks", () => {
     const transparent = new Jimp({ width: 2, height: 2, color: 0x00000000 });
     const image = await jimp.run({
       input: base,
-      edits: [["blit", src], ["mask", { src: transparent, x: 2, y: 2 }]],
+      edits: [
+        ["blit", src],
+        ["mask", { src: transparent, x: 2, y: 2 }],
+      ],
     });
 
     expect(image.getPixelColor(1, 1)).toBe(0xff0000ff);
@@ -185,9 +184,7 @@ describe("tasks", () => {
       input,
       edits: [["print", { font, x: 2, y: 2, text: "Hello" }]],
     });
-    const expected = input
-      .clone()
-      .print({ font, x: 2, y: 2, text: "Hello" });
+    const expected = input.clone().print({ font, x: 2, y: 2, text: "Hello" });
 
     expect(image.bitmap.data.equals(expected.bitmap.data)).toBe(true);
     expect(image.bitmap.data.equals(input.bitmap.data)).toBe(false);
@@ -197,7 +194,7 @@ describe("tasks", () => {
 describe("custom Jimp classes", () => {
   test("can use WASM formats", async () => {
     const jimp = createJimpWorker<typeof Jimp>(
-      () => new Worker(fixture("webp.worker.mjs"))
+      () => new Worker(fixture("webp.worker.mjs")),
     );
 
     pools.push(jimp);
@@ -222,7 +219,7 @@ describe("copying and transferring", () => {
     const bytes = await readFile(dicePath);
     const arrayBuffer = bytes.buffer.slice(
       bytes.byteOffset,
-      bytes.byteOffset + bytes.byteLength
+      bytes.byteOffset + bytes.byteLength,
     );
     const image = new Jimp({ width: 2, height: 2, color: 0xffffffff });
 
@@ -273,7 +270,7 @@ describe("errors", () => {
       jimp.run({
         input: await readFile(dicePath),
         edits: [["greyscale"], ["resize", { w: -1 }]],
-      })
+      }),
     );
 
     expect(error).toBeInstanceOf(JimpWorkerError);
@@ -281,7 +278,7 @@ describe("errors", () => {
     expect(error.editIndex).toBe(1);
     expect(error.cause).toBeInstanceOf(Error);
     expect((error.cause as Error).message).toBe(
-      error.message.replace("Edit 1 (resize) failed: ", "")
+      error.message.replace("Edit 1 (resize) failed: ", ""),
     );
   });
 
@@ -292,7 +289,7 @@ describe("errors", () => {
       jimp.run({
         input: await readFile(dicePath),
         edits: [["greyscale"], ["nope"]] as never[],
-      })
+      }),
     ).rejects.toMatchObject({
       message: 'Edit 1: "nope" isn\'t a plugin method of this Jimp class',
       editIndex: 1,
@@ -302,21 +299,21 @@ describe("errors", () => {
   test("passes on errors reading the input", async () => {
     const jimp = createPool();
     const error = await rejection(
-      jimp.run({ input: new Uint8Array([1, 2, 3]) })
+      jimp.run({ input: new Uint8Array([1, 2, 3]) }),
     );
 
     expect(error).toBeInstanceOf(JimpWorkerError);
     expect(error.message).toBe("Could not find MIME for Buffer");
     expect(error.editIndex).toBeUndefined();
 
-    await expect(
-      jimp.run({ input: "does-not-exist.png" })
-    ).rejects.toThrow("ENOENT");
+    await expect(jimp.run({ input: "does-not-exist.png" })).rejects.toThrow(
+      "ENOENT",
+    );
     await expect(
       jimp.run({
         input: await readFile(dicePath),
         output: { mime: "image/nope" as "image/png" },
-      })
+      }),
     ).rejects.toThrow("Unsupported MIME type: image/nope");
   });
 
@@ -324,30 +321,30 @@ describe("errors", () => {
     const jimp = createPool();
 
     await expect(jimp.run({ input: 42 as never })).rejects.toThrow(
-      "input must be encoded image data"
+      "input must be encoded image data",
     );
     await expect(
-      jimp.run({ input: "a.png", output: { mime: 1 as never } })
+      jimp.run({ input: "a.png", output: { mime: 1 as never } }),
     ).rejects.toThrow();
     expect(() =>
       createJimpWorker(() => new Worker(fixture("test.worker.mjs")), {
         concurrency: 0,
-      })
+      }),
     ).toThrow();
   });
 
   test("needs the Jimp class to return images", async () => {
     const jimp = createJimpWorker<typeof Jimp>(
-      () => new Worker(fixture("test.worker.mjs"))
+      () => new Worker(fixture("test.worker.mjs")),
     );
 
     pools.push(jimp);
 
     await expect(jimp.run({ input: dicePath })).rejects.toThrow(
-      "To get an image back, pass the Jimp class to createJimpWorker's Jimp option"
+      "To get an image back, pass the Jimp class to createJimpWorker's Jimp option",
     );
     await expect(
-      jimp.run({ input: dicePath, output: { mime: "image/png" } })
+      jimp.run({ input: dicePath, output: { mime: "image/png" } }),
     ).resolves.toBeInstanceOf(Uint8Array);
   });
 
@@ -356,7 +353,7 @@ describe("errors", () => {
     const input = await readFile(dicePath);
 
     await expect(
-      jimp.run({ input, edits: testEdits(["exit", 3]) })
+      jimp.run({ input, edits: testEdits(["exit", 3]) }),
     ).rejects.toThrow("The Jimp worker stopped: it exited with code 3");
     await expect(jimp.run({ input })).resolves.toBeDefined();
   });
@@ -369,7 +366,7 @@ describe("errors", () => {
         input,
         edits: testEdits(["throwSoon"]),
         output: { mime: "image/png" },
-      })
+      }),
     );
 
     expect(error).toBeInstanceOf(JimpWorkerError);
@@ -380,13 +377,13 @@ describe("errors", () => {
 
   test("rejects if the worker script can't load", async () => {
     const jimp = createJimpWorker<typeof Jimp>(
-      () => new Worker(fixture("missing.worker.mjs"))
+      () => new Worker(fixture("missing.worker.mjs")),
     );
 
     pools.push(jimp);
 
     await expect(
-      jimp.run({ input: dicePath, output: { mime: "image/png" } })
+      jimp.run({ input: dicePath, output: { mime: "image/png" } }),
     ).rejects.toThrow(/^The Jimp worker stopped: Cannot find module/);
   });
 
@@ -396,7 +393,7 @@ describe("errors", () => {
     });
 
     await expect(
-      jimp.run({ input: dicePath, output: { mime: "image/png" } })
+      jimp.run({ input: dicePath, output: { mime: "image/png" } }),
     ).rejects.toThrow("no workers here");
   });
 });
@@ -406,7 +403,7 @@ describe("pool", () => {
     const jimp = createPool(2);
     const input = new Jimp({ width: 1, height: 1 });
     const tasks = Array.from({ length: 5 }, () =>
-      jimp.run({ input, edits: testEdits(["spin", 100], ["markThread"]) })
+      jimp.run({ input, edits: testEdits(["spin", 100], ["markThread"]) }),
     );
 
     expect(jimp.running).toBe(2);
@@ -429,8 +426,8 @@ describe("pool", () => {
       [30, 0, 10].map((ms, i) =>
         jimp
           .run({ input, edits: testEdits(["spin", ms]) })
-          .then(() => finished.push(i))
-      )
+          .then(() => finished.push(i)),
+      ),
     );
 
     expect(finished).toEqual([0, 1, 2]);
@@ -440,17 +437,17 @@ describe("pool", () => {
     const jimp = createPool(1);
     const input = new Jimp({ width: 1, height: 1 });
     const running = expect(
-      jimp.run({ input, edits: testEdits(["spin", 5000]) })
+      jimp.run({ input, edits: testEdits(["spin", 5000]) }),
     ).rejects.toThrow("The Jimp worker was terminated");
     const queued = expect(jimp.run({ input })).rejects.toThrow(
-      "The Jimp worker was terminated"
+      "The Jimp worker was terminated",
     );
 
     await jimp.terminate();
     await running;
     await queued;
     await expect(jimp.run({ input })).rejects.toThrow(
-      "The Jimp worker was terminated"
+      "The Jimp worker was terminated",
     );
   });
 
@@ -458,7 +455,7 @@ describe("pool", () => {
     const { stdout } = await promisify(execFile)(
       process.execPath,
       [decodeURIComponent(fixture("no-exit.mjs").pathname)],
-      { timeout: 10000 }
+      { timeout: 10000 },
     );
 
     expect(stdout.trim()).toBe("done true");
@@ -486,7 +483,7 @@ describe("abort", () => {
     const start = Date.now();
     const running = jimp.run(
       { input, edits: testEdits(["spin", 10000]) },
-      { signal: AbortSignal.timeout(100) }
+      { signal: AbortSignal.timeout(100) },
     );
 
     await expect(running).rejects.toMatchObject({ name: "TimeoutError" });
@@ -504,8 +501,8 @@ describe("abort", () => {
     await expect(
       jimp.run(
         { input },
-        { signal: AbortSignal.abort(new Error("already")), transfer: true }
-      )
+        { signal: AbortSignal.abort(new Error("already")), transfer: true },
+      ),
     ).rejects.toThrow("already");
     expect(input.byteLength).toBeGreaterThan(0);
   });

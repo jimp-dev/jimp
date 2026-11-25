@@ -1,5 +1,9 @@
 import { Jimp } from "jimp";
-import { createJimpWorker, JimpWorkerError, type JimpWorker } from "@jimp/worker";
+import {
+  createJimpWorker,
+  JimpWorkerError,
+  type JimpWorker,
+} from "@jimp/worker";
 import { afterEach, describe, expect, test } from "vitest";
 
 const pools: JimpWorker<typeof Jimp>[] = [];
@@ -10,7 +14,7 @@ function createPool(concurrency = 1) {
       new Worker(new URL("./fixtures/browser.worker.ts", import.meta.url), {
         type: "module",
       }),
-    { Jimp, concurrency }
+    { Jimp, concurrency },
   );
 
   pools.push(pool);
@@ -81,10 +85,16 @@ describe("web workers", () => {
   test("says which edit failed", async () => {
     const jimp = createPool();
     const error = await jimp
-      .run({ input: await dice(), edits: [["blur", 1], ["blur", -1]] })
+      .run({
+        input: await dice(),
+        edits: [
+          ["blur", 1],
+          ["blur", -1],
+        ],
+      })
       .then(
         () => undefined,
-        (error: unknown) => error as JimpWorkerError
+        (error: unknown) => error as JimpWorkerError,
       );
 
     expect(error).toBeInstanceOf(JimpWorkerError);
@@ -101,20 +111,20 @@ describe("web workers", () => {
         input: await dice(),
         edits: edits(["throwSoon"]),
         output: { mime: "image/png" },
-      })
+      }),
     ).rejects.toThrow("The Jimp worker stopped: Uncaught Error: thrown soon");
     await expect(jimp.run({ input: await dice() })).resolves.toBeDefined();
   });
 
   test("rejects if the worker script can't load", async () => {
     const jimp = createJimpWorker<typeof Jimp>(
-      () => new Worker("/does-not-exist.js", { type: "module" })
+      () => new Worker("/does-not-exist.js", { type: "module" }),
     );
 
     pools.push(jimp);
 
     await expect(
-      jimp.run({ input: "/dice.png", output: { mime: "image/png" } })
+      jimp.run({ input: "/dice.png", output: { mime: "image/png" } }),
     ).rejects.toThrow(/^The Jimp worker stopped: /);
   });
 
@@ -125,8 +135,8 @@ describe("web workers", () => {
     await expect(
       jimp.run(
         { input, edits: edits(["spin", 10000]) },
-        { signal: AbortSignal.timeout(100) }
-      )
+        { signal: AbortSignal.timeout(100) },
+      ),
     ).rejects.toMatchObject({ name: "TimeoutError" });
     await expect(jimp.run({ input })).resolves.toBeDefined();
   });
@@ -136,8 +146,8 @@ describe("web workers", () => {
     const input = new Jimp({ width: 1, height: 1 });
     const images = await Promise.all(
       Array.from({ length: 4 }, () =>
-        jimp.run({ input, edits: edits(["spin", 50], ["markThread"]) })
-      )
+        jimp.run({ input, edits: edits(["spin", 50], ["markThread"]) }),
+      ),
     );
 
     expect(new Set(images.map((image) => image.background)).size).toBe(2);

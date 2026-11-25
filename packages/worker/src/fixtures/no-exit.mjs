@@ -5,7 +5,7 @@ import { createJimpWorker } from "@jimp/worker";
 
 const jimp = createJimpWorker(
   () => new Worker(new URL("./jimp.worker.mjs", import.meta.url)),
-  { concurrency: 2 }
+  { concurrency: 2 },
 );
 
 const bytes = await jimp.run({

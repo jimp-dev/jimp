@@ -44,9 +44,7 @@ export function listen(target: object, listeners: Listeners): () => void {
   const { message, crash } = listeners;
 
   if (isNodeEmitter(target)) {
-    const events: [string, (value: unknown) => void][] = [
-      ["message", message],
-    ];
+    const events: [string, (value: unknown) => void][] = [["message", message]];
 
     if (crash) {
       events.push(
@@ -55,7 +53,7 @@ export function listen(target: object, listeners: Listeners): () => void {
           "messageerror",
           () => crash(new Error("it sent a message that couldn't be read")),
         ],
-        ["exit", (code) => crash(new Error(`it exited with code ${code}`))]
+        ["exit", (code) => crash(new Error(`it exited with code ${code}`))],
       );
     }
 
@@ -88,14 +86,16 @@ export function listen(target: object, listeners: Listeners): () => void {
           crash(
             error instanceof Error
               ? error
-              : new Error(message || "it couldn't be loaded, or threw an error")
+              : new Error(
+                  message || "it couldn't be loaded, or threw an error",
+                ),
           );
         },
       ],
       [
         "messageerror",
         () => crash(new Error("it sent a message that couldn't be read")),
-      ]
+      ],
     );
   }
 

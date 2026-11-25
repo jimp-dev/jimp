@@ -39,7 +39,7 @@ const CreateJimpWorkerOptionsSchema = z.object({
   Jimp: z.optional(
     z.custom<JimpClassLike>((value) => typeof value === "function", {
       error: "Jimp must be a Jimp class",
-    })
+    }),
   ),
 });
 
@@ -62,8 +62,8 @@ const RunOptionsSchema = z.object({
         value !== null &&
         "aborted" in value &&
         typeof (value as AbortSignal).addEventListener === "function",
-      { error: "signal must be an AbortSignal" }
-    )
+      { error: "signal must be an AbortSignal" },
+    ),
   ),
   transfer: z.optional(z.boolean()),
 });
@@ -78,7 +78,7 @@ const TaskSchema = z.object({
     z.object({
       mime: z.string(),
       options: z.optional(z.record(z.string(), z.unknown())),
-    })
+    }),
   ),
 });
 
@@ -104,12 +104,11 @@ interface Slot {
 function toWireInput(
   input: JimpWorkerInput,
   transferList: Transferable[],
-  transfer: boolean
+  transfer: boolean,
 ): WireInput {
   if (typeof input === "string" || input instanceof URL) {
     // A worker would resolve relative URLs against its own script
-    const base = (globalThis as { location?: { href: string } }).location
-      ?.href;
+    const base = (globalThis as { location?: { href: string } }).location?.href;
 
     return {
       type: "url",
@@ -139,7 +138,7 @@ function toWireInput(
   }
 
   throw new Error(
-    "input must be encoded image data (an ArrayBuffer, Uint8Array or Blob), a URL or file path, or a Jimp image"
+    "input must be encoded image data (an ArrayBuffer, Uint8Array or Blob), a URL or file path, or a Jimp image",
   );
 }
 
@@ -173,19 +172,19 @@ function toWireInput(
  */
 export function createJimpWorker<Class extends JimpClassLike>(
   createWorker: () => WorkerLike,
-  options: CreateJimpWorkerOptions<Class> & { Jimp: Class }
+  options: CreateJimpWorkerOptions<Class> & { Jimp: Class },
 ): JimpWorker<Class>;
 export function createJimpWorker<T extends JimpClassLike | ExposedJimp>(
   createWorker: () => WorkerLike,
-  options?: CreateJimpWorkerOptions<JimpClassOf<T>>
+  options?: CreateJimpWorkerOptions<JimpClassOf<T>>,
 ): JimpWorker<T>;
 export function createJimpWorker(
   createWorker: () => WorkerLike,
-  options: CreateJimpWorkerOptions = {}
+  options: CreateJimpWorkerOptions = {},
 ): JimpWorker<JimpClassLike> {
   if (typeof createWorker !== "function") {
     throw new Error(
-      "createJimpWorker needs a function that starts a worker, like () => new Worker(url, { type: \"module\" })"
+      'createJimpWorker needs a function that starts a worker, like () => new Worker(url, { type: "module" })',
     );
   }
 
@@ -214,7 +213,10 @@ export function createJimpWorker(
         task.resolve(data.data as never);
       } else {
         task.resolve(
-          fromWireImage(Jimp as unknown as JimpConstructor, data.image) as never
+          fromWireImage(
+            Jimp as unknown as JimpConstructor,
+            data.image,
+          ) as never,
         );
       }
     } catch (error) {
@@ -253,7 +255,7 @@ export function createJimpWorker(
           task.reject(
             new JimpWorkerError(`The Jimp worker stopped: ${error.message}`, {
               cause: error,
-            })
+            }),
           );
         }
 
@@ -315,7 +317,7 @@ export function createJimpWorker(
 
       if (!output && !Jimp) {
         throw new Error(
-          "To get an image back, pass the Jimp class to createJimpWorker's Jimp option. To get encoded bytes, set the task's output."
+          "To get an image back, pass the Jimp class to createJimpWorker's Jimp option. To get encoded bytes, set the task's output.",
         );
       }
 

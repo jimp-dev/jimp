@@ -44,13 +44,13 @@ export interface ExposeOptions {
  */
 export function expose<Class extends JimpClassLike>(
   Jimp: Class,
-  options: ExposeOptions = {}
+  options: ExposeOptions = {},
 ): ExposedJimp<Class> {
   const scope = options.scope ?? getWorkerScope();
 
   if (!scope) {
     throw new Error(
-      "expose must be called in a worker: in a web worker or a Node.js worker thread"
+      "expose must be called in a worker: in a web worker or a Node.js worker thread",
     );
   }
 
@@ -70,7 +70,10 @@ export function expose<Class extends JimpClassLike>(
 
         if (task.edits.length > 0) {
           image.apply(
-            decodeEdits(task.edits, Jimp as unknown as JimpConstructor) as never[]
+            decodeEdits(
+              task.edits,
+              Jimp as unknown as JimpConstructor,
+            ) as never[],
           );
         }
 
@@ -78,8 +81,8 @@ export function expose<Class extends JimpClassLike>(
           const bytes = ownBytes(
             await image.getBuffer(
               task.output.mime as never,
-              task.output.options as never
-            )
+              task.output.options as never,
+            ),
           );
 
           post({ protocol: PROTOCOL, type: "bytes", id, data: bytes }, [
@@ -95,11 +98,16 @@ export function expose<Class extends JimpClassLike>(
               id,
               image: toWireImage(image, transfer, true),
             },
-            transfer
+            transfer,
           );
         }
       } catch (error) {
-        post({ protocol: PROTOCOL, type: "error", id, error: toWireError(error) });
+        post({
+          protocol: PROTOCOL,
+          type: "error",
+          id,
+          error: toWireError(error),
+        });
       }
     },
   });
@@ -109,7 +117,7 @@ export function expose<Class extends JimpClassLike>(
 
 async function readInput(
   Jimp: JimpClassLike,
-  { input, read }: WireTask
+  { input, read }: WireTask,
 ): Promise<Image> {
   switch (input.type) {
     case "bytes":
@@ -121,7 +129,7 @@ async function readInput(
     case "image":
       return fromWireImage(
         Jimp as unknown as JimpConstructor,
-        input.image
+        input.image,
       ) as Image;
   }
 }

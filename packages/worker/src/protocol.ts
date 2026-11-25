@@ -85,7 +85,7 @@ export type FromWorkerMessage =
     };
 
 export function isMessage<T extends { protocol: string }>(
-  data: unknown
+  data: unknown,
 ): data is T {
   return (
     typeof data === "object" &&
@@ -116,7 +116,11 @@ export function ownBytes(bytes: ArrayBufferView): Uint8Array<ArrayBuffer> {
 
 /** A copy of the bytes, in an ArrayBuffer of their own */
 export function copyBytes(bytes: ArrayBufferView): Uint8Array<ArrayBuffer> {
-  return new Uint8Array(bytes.buffer, bytes.byteOffset, bytes.byteLength).slice();
+  return new Uint8Array(
+    bytes.buffer,
+    bytes.byteOffset,
+    bytes.byteLength,
+  ).slice();
 }
 
 /** Whether a value is a Jimp image, from any Jimp class */
@@ -141,7 +145,7 @@ export function isJimpImage(value: unknown): value is JimpClass {
 export function toWireImage(
   image: JimpClass,
   transferList: Transferable[],
-  transfer: boolean
+  transfer: boolean,
 ): WireImage {
   const { bitmap, background, iccProfile } = image;
   const { mime, _exif } = image as { mime?: string; _exif?: unknown };
@@ -205,7 +209,7 @@ function bufferClassOf(Jimp: JimpConstructor): BufferClass {
 export type JimpConstructor = new (
   options:
     | { width: number; height: number }
-    | { data: Buffer; width: number; height: number }
+    | { data: Buffer; width: number; height: number },
 ) => JimpClass;
 
 /** Rebuild a Jimp image from plain data, without copying its pixels */
@@ -267,7 +271,7 @@ export function encodeEdits(edits: unknown, transferList: Transferable[]) {
 
     if (isPlainObject(value)) {
       return Object.fromEntries(
-        Object.entries(value).map(([key, item]) => [key, encode(item)])
+        Object.entries(value).map(([key, item]) => [key, encode(item)]),
       );
     }
 
@@ -290,7 +294,7 @@ export function decodeEdits(edits: unknown, Jimp: JimpConstructor): unknown {
       }
 
       return Object.fromEntries(
-        Object.entries(value).map(([key, item]) => [key, decode(item)])
+        Object.entries(value).map(([key, item]) => [key, decode(item)]),
       );
     }
 

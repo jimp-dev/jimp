@@ -18,10 +18,13 @@ describe("createJimpWorker", () => {
 
     expectTypeOf(jimp).toEqualTypeOf<JimpWorker<typeof Jimp>>();
     expectTypeOf(
-      jimp.run({ input: bytes, edits: [["resize", { w: 100 }], ["greyscale"]] })
+      jimp.run({
+        input: bytes,
+        edits: [["resize", { w: 100 }], ["greyscale"]],
+      }),
     ).resolves.toEqualTypeOf<InstanceType<typeof Jimp>>();
     expectTypeOf(
-      jimp.run({ input: bytes, output: { mime: "image/png" } })
+      jimp.run({ input: bytes, output: { mime: "image/png" } }),
     ).resolves.toEqualTypeOf<Uint8Array<ArrayBuffer>>();
   });
 

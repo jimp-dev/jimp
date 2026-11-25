@@ -8,11 +8,7 @@ declare const exposedClass: unique symbol;
  * Only what the worker uses is listed.
  */
 export interface JimpClassLike {
-  new (options: {
-    data: Buffer;
-    width: number;
-    height: number;
-  }): JimpClass & {
+  new (options: { data: Buffer; width: number; height: number }): JimpClass & {
     apply(edits: never[]): unknown;
     getBuffer(mime: never, options?: never): Promise<Uint8Array>;
   };
@@ -65,12 +61,7 @@ export interface JimpWorkerOutput<T> {
  *   data are sent.
  */
 export type JimpWorkerInput =
-  | string
-  | URL
-  | ArrayBuffer
-  | ArrayBufferView
-  | Blob
-  | JimpClass;
+  string | URL | ArrayBuffer | ArrayBufferView | Blob | JimpClass;
 
 /** A task for a Jimp worker: read an image, edit it, and send it back */
 export interface JimpWorkerTask<T> {
@@ -115,11 +106,11 @@ export interface JimpWorker<T> {
    */
   run(
     task: JimpWorkerTask<T> & { output: JimpWorkerOutput<T> },
-    options?: JimpWorkerRunOptions
+    options?: JimpWorkerRunOptions,
   ): Promise<Uint8Array<ArrayBuffer>>;
   run(
     task: JimpWorkerTask<T> & { output?: undefined },
-    options?: JimpWorkerRunOptions
+    options?: JimpWorkerRunOptions,
   ): Promise<JimpImageOf<T>>;
   /** How many tasks are waiting for a worker */
   readonly queued: number;
