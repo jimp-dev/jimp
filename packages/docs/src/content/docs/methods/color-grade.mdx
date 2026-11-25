@@ -1,0 +1,190 @@
+---
+title: "colorGrade()"
+description: "Color grade with a 3D LUT from a .cube file or a Hald image."
+category: color
+method: "colorGrade"
+plugin: "@jimp/plugin-lut"
+---
+
+import { Aside } from "@astrojs/starlight/components";
+import Playground from "../../../components/playground/Playground";
+import Related from "../../../components/Related.astro";
+
+`colorGrade` color grades an image with a 3D LUT (lookup table): a grid that gives a new color for every input color.
+LUTs are how photo and video editors share a "look", such as a film emulation or a teal and orange grade, so you can apply the same look in Jimp that you made in DaVinci Resolve, Premiere, Photoshop or darktable.
+
+| Original | `teal-orange` |
+| -------- | ------------- |
+| ![Red, green, blue and yellow dice on paper](/jimp/lut/dice.jpg) | ![The dice with more contrast, warmer highlights and cooler shadows](/jimp/lut/dice-teal-orange.jpg) |
+
+| `faded-film` | `bleach-bypass` |
+| ------------ | --------------- |
+| ![The dice with gray blacks, softer whites and muted, warm colors](/jimp/lut/dice-faded-film.jpg) | ![The dice with half their color, hard contrast and a cool cast](/jimp/lut/dice-bleach-bypass.jpg) |
+
+## Signature
+
+```ts title="colorGrade.d.ts"
+image.colorGrade(lut: Lut | JimpInstance, options?: { strength?: number }): this
+```
+
+`colorGrade` changes the image in place and returns it, so you can chain more calls after it.
+The `Lut` and `ColorGradeOptions` types are exported from `jimp`.
+
+## Parameters
+
+| Parameter          | Type                   | Default  | Description                                                                                                                                                 |
+| ------------------ | ---------------------- | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `lut`              | `Lut \| JimpInstance`  | required | A LUT from a `.cube` file, read with [`parseCubeLut`](/jimp/methods/parse-cube-lut/), or a [Hald CLUT image](#hald-clut-images).                           |
+| `options.strength` | `number`               | `1`      | How much of the graded colors to use, from `0` (the original image) to `1` (the LUT's colors). Values in between blend the two. Clamped to `0`–`1`.         |
+
+## Example
+
+```ts title="example.ts"
+import { readFile } from "node:fs/promises";
+import { Jimp, parseCubeLut } from "jimp";
+
+const lut = parseCubeLut(await readFile("teal-orange.cube", "utf8"));
+const image = await Jimp.read("photo.jpg");
+
+image.colorGrade(lut);
+
+await image.write("photo-graded.jpg");
+```
+
+A parsed LUT is plain data. Parse it once and reuse it for every image.
+In a browser, fetch the file's text instead: `parseCubeLut(await (await fetch("teal-orange.cube")).text())`.
+
+### A subtler grade
+
+Pass `strength` to blend the grade with the original colors:
+
+```ts title="example.ts"
+image.colorGrade(lut, { strength: 0.5 });
+```
+
+| `strength: 1` | `strength: 0.5` |
+| ------------- | --------------- |
+| ![The dice with the full teal and orange grade](/jimp/lut/dice-teal-orange.jpg) | ![The dice with half of the teal and orange grade](/jimp/lut/dice-teal-orange-half.jpg) |
+
+### Hald CLUT images
+
+A Hald CLUT is a LUT stored as an image, the format many film emulation packs use.
+Read it with [`Jimp.read`](/jimp/methods/read/) and pass the image:
+
+```ts title="example.ts"
+import { Jimp } from "jimp";
+
+const hald = await Jimp.read("kodachrome.png");
+const image = await Jimp.read("photo.jpg");
+
+image.colorGrade(hald);
+```
+
+A level `L` Hald image is a square of L³ × L³ pixels, with L² points along each axis: 512 × 512 for level 8 (64 points), 1728 × 1728 for level 12 (144 points).
+Its colors are read in place, so a large Hald image doesn't need extra memory.
+Any other size throws `A Hald CLUT image must be square, with a side of level³ pixels, like 512 × 512 for level 8. This one is 400 × 300.`
+
+## Try it
+
+Pick a look and drag the `strength` slider. Hold the compare button to see the original.
+The looks are Hald CLUT images: [teal-orange.png](/jimp/lut/teal-orange.png), [faded-film.png](/jimp/lut/faded-film.png) and [bleach-bypass.png](/jimp/lut/bleach-bypass.png). The teal and orange look is also available as [teal-orange.cube](/jimp/lut/teal-orange.cube).
+
+<Playground method="colorGrade" src="dice-on-paper.png" client:visible />
+
+## With `apply`, workers and the image server
+
+### `apply` and JSON
+
+`["colorGrade", lut, { strength: 0.5 }]` works in [`apply`](/jimp/methods/apply/).
+A parsed LUT's `data` is a `Float32Array`, which `JSON.stringify` doesn't keep as an array.
+To store a LUT as JSON, convert it to a plain array first, since `colorGrade` accepts one:
+
+```ts title="example.ts"
+const json = JSON.stringify({ ...lut, data: Array.from(lut.data) });
+
+image.apply([["colorGrade", JSON.parse(json), { strength: 0.5 }]]);
+```
+
+A `.cube` file is often smaller than this JSON, so for saved presets you can also keep the file's text and parse it when you load the preset.
+
+### Workers
+
+A parsed LUT and a Hald image can both be sent to a [worker](/jimp/guides/workers/) in a task's edits.
+They're copied to the worker with every task:
+
+```ts title="index.ts"
+const bytes = await jimp.run({
+  input: "photo.jpg",
+  edits: [["colorGrade", lut, { strength: 0.8 }]],
+  output: { mime: "image/jpeg" },
+});
+```
+
+### Image server
+
+A LUT is too large to put in a URL, so [`@jimp/server`](/jimp/guides/image-server/) doesn't allow the `colorGrade` edit.
+Instead, load your LUTs on the server and add a method that applies one by name.
+Then a [signed](/jimp/guides/image-server/#signed-urls) URL can ask for a look with the [`edits` param](/jimp/guides/image-server/#the-edits-param), like `[["look", "teal-orange", { "strength": 0.5 }]]`:
+
+```ts title="server.ts"
+import { readFile } from "node:fs/promises";
+import { createJimp } from "@jimp/core";
+import { defaultFormats, defaultPlugins, parseCubeLut } from "jimp";
+import { methods as lutMethods } from "@jimp/plugin-lut";
+import type { JimpClass } from "@jimp/types";
+import { createImageHandler, defaultAllowedEdits, fetchSource } from "@jimp/server";
+
+const looks = {
+  "teal-orange": parseCubeLut(await readFile("luts/teal-orange.cube", "utf8")),
+  "faded-film": parseCubeLut(await readFile("luts/faded-film.cube", "utf8")),
+};
+
+const Jimp = createJimp({
+  formats: defaultFormats,
+  plugins: [
+    ...defaultPlugins,
+    {
+      /** Grade the image with one of the server's LUTs */
+      look<I extends JimpClass>(image: I, name: string, options?: { strength?: number }) {
+        if (!Object.hasOwn(looks, name)) {
+          throw new Error(`There's no look called "${name}"`);
+        }
+
+        return lutMethods.colorGrade(image, looks[name as keyof typeof looks], options);
+      },
+    },
+  ],
+});
+
+const handler = createImageHandler({
+  Jimp,
+  source: fetchSource({ baseUrl: "https://assets.example.com/" }),
+  secret: process.env.IMAGE_SECRET,
+  allowedEdits: [...defaultAllowedEdits, "look"],
+});
+```
+
+An unknown name responds with `400` and the method's error.
+
+## Notes
+
+- **Tetrahedral interpolation.** Each color is between eight points of the LUT's grid. `colorGrade` splits that cell into six tetrahedra and blends the four corners of the one the color is in. This is the tetrahedral option in DaVinci Resolve and in FFmpeg's `lut3d` filter. It's more accurate than trilinear interpolation, which blends all eight corners: grays, for example, are blended only from points on the gray axis. Results match FFmpeg's to within one level, since FFmpeg truncates to 8 bits where Jimp rounds.
+- **Alpha is unchanged.** The colors of transparent pixels are graded too.
+- **Outputs are clamped** to `0`–`255`. `.cube` files may have outputs outside `0`–`1`.
+- **Inputs outside the LUT's domain are clamped.** A `.cube` file's `DOMAIN_MIN` and `DOMAIN_MAX` (or `LUT_3D_INPUT_RANGE`) set which input colors the grid covers. The default is `0` to `1`, every color.
+- **Use LUTs made for photos.** A LUT expects colors in a particular encoding. Creative LUTs and film emulations for Rec. 709 or sRGB suit JPEGs and PNGs. Camera LUTs that convert log footage (such as S-Log3 or V-Log to Rec. 709) expect log input and make ordinary photos look wrong.
+- **Hald images must be lossless.** Use a PNG: JPEG compression changes the colors the LUT stores. The Hald image's alpha is ignored.
+- **Speed.** The cost per pixel doesn't depend on the LUT's size, so a 65-point LUT is as fast to apply as a 17-point one. Only parsing a larger `.cube` file takes longer.
+- **Invalid LUTs throw a `ZodError`**, for example `data must have size³ × 3 = 107811 numbers, got 107810`. See [`parseCubeLut`](/jimp/methods/parse-cube-lut/) for the errors in `.cube` files.
+- **Custom Jimp.** `colorGrade` is in `@jimp/plugin-lut`. Add its `methods` to the plugins of a [custom Jimp](/jimp/guides/custom-jimp/) to use it there.
+- **Added in 2.2.**
+
+<Aside type="note" title="1D LUTs">
+  `colorGrade` only applies 3D LUTs. [`parseCubeLut`](/jimp/methods/parse-cube-lut/)
+  rejects `.cube` files with a `LUT_1D_SIZE`, and files that have a 1D shaper
+  LUT before the 3D one.
+</Aside>
+
+## Related
+
+<Related methods={["parseCubeLut", "color", "sepia", "contrast", "toColorSpace"]} />

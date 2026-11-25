@@ -36,6 +36,7 @@
     "@jimp/config-typescript": "workspace:*",
     "@jimp/core": "workspace:*",
     "@jimp/test-utils": "workspace:*",
+    "@jimp/types": "workspace:*",
     "@jimp/wasm-avif": "workspace:*",
     "@jimp/wasm-webp": "workspace:*",
     "@types/node": "^22.20.5",

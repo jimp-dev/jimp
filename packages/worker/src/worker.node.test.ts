@@ -6,7 +6,13 @@ import { Worker } from "node:worker_threads";
 import { getTestImagePath } from "@jimp/test-utils";
 import { createJimp } from "@jimp/core";
 import webp from "@jimp/wasm-webp";
-import { defaultFormats, defaultPlugins, Jimp, loadFont } from "jimp";
+import {
+  defaultFormats,
+  defaultPlugins,
+  Jimp,
+  loadFont,
+  parseCubeLut,
+} from "jimp";
 import { SANS_16_BLACK } from "jimp/fonts";
 import { afterEach, describe, expect, test } from "vitest";
 import { createJimpWorker, JimpWorkerError, type JimpWorker } from "./index.js";
@@ -219,6 +225,23 @@ describe("tasks", () => {
 
     expect(image.bitmap.data.equals(expected.bitmap.data)).toBe(true);
     expect(image.bitmap.data.equals(input.bitmap.data)).toBe(false);
+  });
+
+  test("sends LUTs and Hald images in edits' arguments", async () => {
+    const jimp = createPool();
+    // Swaps red and blue
+    const lut = parseCubeLut(
+      "LUT_3D_SIZE 2\n0 0 0\n0 0 1\n0 1 0\n0 1 1\n1 0 0\n1 0 1\n1 1 0\n1 1 1",
+    );
+    const hald = new Jimp({ width: 8, height: 8, color: 0x808080ff });
+    const input = new Jimp({ width: 2, height: 1, color: 0xff8000ff });
+    const [fromLut, fromHald] = await Promise.all([
+      jimp.run({ input, edits: [["colorGrade", lut, { strength: 0.5 }]] }),
+      jimp.run({ input, edits: [["colorGrade", hald]] }),
+    ]);
+
+    expect(fromLut.getPixelColor(0, 0)).toBe(0x808080ff);
+    expect(fromHald.getPixelColor(1, 0)).toBe(0x808080ff);
   });
 });
 

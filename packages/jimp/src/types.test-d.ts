@@ -180,6 +180,11 @@ describe("chainable methods return the instance type", () => {
       fisheye: image.fisheye(),
       flip: image.flip({ horizontal: true }),
       mask: image.mask({ src: image }),
+      colorGrade: image.colorGrade(
+        { size: 2, data: new Float32Array(24) },
+        { strength: 0.5 },
+      ),
+      colorGradeHald: image.colorGrade(image),
       erode: image.erode({ radius: 1 }),
       dilate: image.dilate({ radius: 1, shape: "disk" }),
       open: image.open({ radius: 1 }),
