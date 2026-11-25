@@ -1,6 +1,6 @@
 {
   "name": "@jimp/server",
-  "version": "2.0.0",
+  "version": "2.2.0",
   "description": "Resize, crop and convert images on request, from URL params. Runs on Cloudflare Workers, Vercel Edge, Deno, Bun and Node.js.",
   "files": [
     "dist"

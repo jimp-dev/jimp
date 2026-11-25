@@ -1,6 +1,6 @@
 {
   "name": "@jimp/plugin-lut",
-  "version": "2.1.0",
+  "version": "2.2.0",
   "description": "3D LUT color grading for Jimp, from .cube files and Hald CLUT images.",
   "files": [
     "dist"

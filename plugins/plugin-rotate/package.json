@@ -1,6 +1,6 @@
 {
   "name": "@jimp/plugin-rotate",
-  "version": "2.1.0",
+  "version": "2.2.0",
   "files": [
     "dist"
   ],

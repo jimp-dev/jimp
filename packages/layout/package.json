@@ -1,6 +1,6 @@
 {
   "name": "@jimp/layout",
-  "version": "2.1.0",
+  "version": "2.2.0",
   "description": "Lay out boxes, text and images like CSS flexbox and render them with Jimp: Open Graph cards, banners and badges.",
   "files": [
     "dist"
