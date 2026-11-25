@@ -37,17 +37,31 @@ export type JimpImageOf<T> = InstanceType<JimpClassOf<T>>;
 type MimeTypeOf<T> = Parameters<JimpImageOf<T>["getBuffer"]>[0];
 
 /**
+ * `unknown` if `getBuffer(mime, options)` accepts the options, `never` if not.
+ * TypeScript can't name the options type of one MIME type from `getBuffer`'s
+ * generic signature, but it can check given options against it.
+ */
+type CheckEncodeOptions<T, Mime, Options> =
+  JimpImageOf<T>["getBuffer"] extends (mime: Mime, options: Options) => unknown
+    ? unknown
+    : never;
+
+/**
  * Encode the result in the worker, as `image.getBuffer(mime, options)`
  * would, and get the bytes back.
  */
-export interface JimpWorkerOutput<T> {
+export interface JimpWorkerOutput<
+  T,
+  Mime extends MimeTypeOf<T> = MimeTypeOf<T>,
+  Options = Record<string, unknown>,
+> {
   /** The MIME type to encode to, one the worker's Jimp class can write */
-  mime: MimeTypeOf<T>;
+  mime: Mime;
   /**
-   * The format's encode options, as for `getBuffer`. They're checked in the
-   * worker, not by TypeScript.
+   * The format's encode options, as for `getBuffer`. `run` checks them
+   * against the MIME type's format.
    */
-  options?: Record<string, unknown>;
+  options?: Options;
 }
 
 /**
@@ -104,8 +118,17 @@ export interface JimpWorker<T> {
    * Run a task in a worker. Resolves with the encoded bytes if the task has
    * an `output`, or else with the image.
    */
-  run(
-    task: JimpWorkerTask<T> & { output: JimpWorkerOutput<T> },
+  run<
+    Mime extends MimeTypeOf<T>,
+    Options extends Record<string, unknown> = Record<string, never>,
+  >(
+    task: Omit<JimpWorkerTask<T>, "output"> & {
+      output: JimpWorkerOutput<
+        T,
+        Mime,
+        Options & NoInfer<CheckEncodeOptions<T, Mime, Options>>
+      >;
+    },
     options?: JimpWorkerRunOptions,
   ): Promise<Uint8Array<ArrayBuffer>>;
   run(

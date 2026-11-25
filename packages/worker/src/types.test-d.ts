@@ -84,3 +84,52 @@ describe("custom classes", () => {
     void jimp.run({ input: bytes, output: { mime: "image/gif" } });
   });
 });
+
+describe("output", () => {
+  test("checks the MIME type against the class's formats", () => {
+    const jimp = createJimpWorker(createWorker, { Jimp: CropJimp });
+
+    void jimp.run({ input: bytes, output: { mime: "image/png" } });
+    // @ts-expect-error CropJimp can't write JPEG
+    void jimp.run({ input: bytes, output: { mime: "image/jpeg" } });
+  });
+
+  test("checks the options against the MIME type's format", () => {
+    const jimp = createJimpWorker(createWorker, { Jimp });
+
+    expectTypeOf(
+      jimp.run({
+        input: bytes,
+        output: { mime: "image/jpeg", options: { quality: 50, exif: true } },
+      }),
+    ).resolves.toEqualTypeOf<Uint8Array<ArrayBuffer>>();
+    void jimp.run({
+      input: bytes,
+      output: { mime: "image/png", options: { deflateLevel: 9 } },
+    });
+    void jimp.run({
+      input: bytes,
+      // @ts-expect-error a PNG option for JPEG
+      output: { mime: "image/jpeg", options: { deflateLevel: 9 } },
+    });
+    void jimp.run({
+      input: bytes,
+      // @ts-expect-error wrong option type
+      output: { mime: "image/jpeg", options: { quality: "high" } },
+    });
+  });
+
+  test("checks options for a custom class's formats", () => {
+    const jimp = createJimpWorker(createWorker, { Jimp: WebpJimp });
+
+    void jimp.run({
+      input: bytes,
+      output: { mime: "image/webp", options: { quality: 80 } },
+    });
+    void jimp.run({
+      input: bytes,
+      // @ts-expect-error not a WebP option
+      output: { mime: "image/webp", options: { deflateLevel: 9 } },
+    });
+  });
+});

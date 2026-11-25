@@ -4,7 +4,9 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 import { promisify } from "node:util";
 import { Worker } from "node:worker_threads";
 import { getTestImagePath } from "@jimp/test-utils";
-import { Jimp, loadFont } from "jimp";
+import { createJimp } from "@jimp/core";
+import webp from "@jimp/wasm-webp";
+import { defaultFormats, defaultPlugins, Jimp, loadFont } from "jimp";
 import { SANS_16_BLACK } from "jimp/fonts";
 import { afterEach, describe, expect, test } from "vitest";
 import { createJimpWorker, JimpWorkerError, type JimpWorker } from "./index.js";
@@ -36,7 +38,7 @@ const rejection = (task: Promise<unknown>) =>
 const exifOf = (image: object) =>
   (image as { _exif: { tags: Record<string, unknown> } })._exif;
 
-const pools: JimpWorker<typeof Jimp>[] = [];
+const pools: Pick<JimpWorker<unknown>, "terminate">[] = [];
 
 function createPool(concurrency = 1) {
   const pool = createJimpWorker(() => new Worker(fixture("test.worker.mjs")), {
@@ -193,21 +195,30 @@ describe("tasks", () => {
 
 describe("custom Jimp classes", () => {
   test("can use WASM formats", async () => {
-    const jimp = createJimpWorker<typeof Jimp>(
+    // The class webp.worker.mjs exposes
+    const WebpJimp = createJimp({
+      formats: [...defaultFormats, webp],
+      plugins: defaultPlugins,
+    });
+    const jimp = createJimpWorker(
       () => new Worker(fixture("webp.worker.mjs")),
+      { Jimp: WebpJimp },
     );
 
     pools.push(jimp);
 
-    const webp = await jimp.run({
+    const encoded = await jimp.run({
       input: dicePath,
       edits: [["resize", { w: 50 }]],
-      output: { mime: "image/webp" as "image/png", options: { quality: 80 } },
+      output: { mime: "image/webp", options: { quality: 80 } },
     });
 
-    expect(new TextDecoder().decode(webp.subarray(8, 12))).toBe("WEBP");
+    expect(new TextDecoder().decode(encoded.subarray(8, 12))).toBe("WEBP");
 
-    const png = await jimp.run({ input: webp, output: { mime: "image/png" } });
+    const png = await jimp.run({
+      input: encoded,
+      output: { mime: "image/png" },
+    });
 
     expect((await Jimp.fromBuffer(png)).width).toBe(50);
   });

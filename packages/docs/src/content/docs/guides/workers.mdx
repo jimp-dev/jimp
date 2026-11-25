@@ -256,7 +256,7 @@ const bytes = await jimp.run({
 
 ## Types
 
-`createJimpWorker` checks tasks against the worker's `Jimp` class: method names and their arguments in `edits`, the `read` options, and the MIME type in `output`.
+`createJimpWorker` checks tasks against the worker's `Jimp` class: method names and their arguments in `edits`, the `read` options, and the MIME type in `output` and its options, as `getBuffer` does.
 Give it the class in one of two ways:
 
 - **The type of what `expose` returns**, exported from the worker script: `createJimpWorker<JimpWorkerApi>(...)`. Tasks are then checked against the class the worker really uses.
@@ -267,9 +267,13 @@ const jimp = createJimpWorker<JimpWorkerApi>(createWorker);
 
 // Type error: resize takes { w }, not { width }
 await jimp.run({ input: file, edits: [["resize", { width: 300 }]] });
-```
 
-The encode `options` in `output` aren't checked against the format by TypeScript; the worker checks them like `getBuffer` does.
+// Type error: deflateLevel is a PNG option, not a JPEG one
+await jimp.run({
+  input: file,
+  output: { mime: "image/jpeg", options: { deflateLevel: 9 } },
+});
+```
 
 ## Copying and transferring
 
