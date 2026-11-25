@@ -146,6 +146,7 @@ An absolutely positioned node with `left` and `right` and no `width` stretches b
 | `radius`      | `number \| object`    | `0`          | The corner radius: one number, or `{ topLeft, topRight, bottomRight, bottomLeft }`. Radii too big for the box are scaled down, so `999` makes a pill. |
 | `shadow`      | `Shadow \| Shadow[]`  | none         | Shadows under the box, like CSS `box-shadow`. The first one is drawn on top.                                                     |
 | `opacity`     | `number`              | `1`          | The opacity of the node and everything in it, from `0` to `1`.                                                                   |
+| `blendMode`   | `BlendMode`           | `"normal"`   | How the node and everything in it blends with what's behind it, like CSS `mix-blend-mode`.                                       |
 
 A `Color` is a hex number (`0xRRGGBBAA`) or a CSS color string. A `Fill` is a color or a gradient sized to the box it fills:
 
@@ -155,6 +156,8 @@ A `Color` is a hex number (`0xRRGGBBAA`) or a CSS color string. A `Fill` is a co
 `stops` is a list of colors, spread out evenly, or of `{ offset, color }` with offsets from `0` to `1`.
 
 A `Shadow` takes the options of [`boxShadow`](/jimp/methods/box-shadow/), with the same defaults: `x` (`0`), `y` (`4`), `blur` (`12`), `spread` (`0`) and `color` (50% black). It follows the box's `radius`.
+
+A `BlendMode` is one of the CSS `mix-blend-mode` keywords: `"normal"`, `"multiply"`, `"screen"`, `"overlay"`, `"darken"`, `"lighten"`, `"color-dodge"`, `"color-burn"`, `"hard-light"`, `"soft-light"`, `"difference"`, `"exclusion"`, `"hue"`, `"saturation"`, `"color"` or `"luminosity"`. They're [`composite`](/jimp/methods/composite/)'s [blend modes](/jimp/concepts/compositing/#blend-modes) under their CSS names. As in CSS, the node and its children are drawn together first and then blended as one, and a child of a box with `overflow: "hidden"` still blends with the box's background and everything behind it. Over a transparent part of the image, a node is drawn as with `"normal"`.
 
 ### Box props
 
@@ -470,6 +473,65 @@ const image = await render(
     ],
   },
   { width: 1200, height: 630, Jimp },
+);
+```
+
+</TabItem>
+</Tabs>
+
+### Blend a node with what's behind it
+
+`blendMode` works like CSS `mix-blend-mode`. Here a gradient tints the photo under it with `"color"`, which keeps the photo's light and shade and takes the gradient's colors:
+
+<Tabs syncKey="layout-syntax">
+<TabItem label="JSX">
+
+```tsx title="example.tsx"
+const image = await render(
+  <Box width={1200} height={630}>
+    <Image src={photo} fit="cover" grow={1} />
+    <Box
+      position="absolute"
+      top={0}
+      right={0}
+      bottom={0}
+      left={0}
+      blendMode="color"
+      background={{ type: "linear", angle: 135, stops: ["#ff5c8a", "#5cc8ff"] }}
+    />
+  </Box>,
+  { Jimp },
+);
+```
+
+</TabItem>
+<TabItem label="Objects">
+
+```ts title="example.ts"
+const image = await render(
+  {
+    type: "box",
+    width: 1200,
+    height: 630,
+    children: [
+      { type: "image", src: photo, fit: "cover", grow: 1 },
+      {
+        type: "box",
+        position: "absolute",
+        top: 0,
+        right: 0,
+        bottom: 0,
+        left: 0,
+        blendMode: "color",
+        background: {
+          type: "linear",
+          angle: 135,
+          stops: ["#ff5c8a", "#5cc8ff"],
+        },
+      },
+    ],
+  },
+  { Jimp },
 );
 ```
 

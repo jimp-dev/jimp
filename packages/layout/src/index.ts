@@ -28,6 +28,7 @@ export type {
   ImageNode,
   ImageProps,
   ImageSource,
+  LayoutBlendMode,
   LayoutFont,
   LayoutNode,
   Radius,

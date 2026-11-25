@@ -149,6 +149,64 @@ describe("render", () => {
     await snapshot(image);
   });
 
+  test("blend modes", async () => {
+    const dice = await Jimp.read(getTestImagePath("dice.png"));
+    const modes = [
+      "normal",
+      "multiply",
+      "screen",
+      "overlay",
+      "soft-light",
+      "color-burn",
+      "hue",
+      "color",
+    ] as const;
+    const image = await render(
+      {
+        type: "box",
+        direction: "row",
+        wrap: true,
+        width: 380,
+        padding: 10,
+        gap: 10,
+        background: "#d9d6ea",
+        children: modes.map((blendMode) => ({
+          type: "box",
+          width: 80,
+          height: 80,
+          radius: 12,
+          overflow: "hidden",
+          children: [
+            {
+              type: "image",
+              src: dice,
+              fit: "cover",
+              grow: 1,
+              background: "#2a2650",
+            },
+            {
+              type: "box",
+              position: "absolute",
+              top: 0,
+              right: 0,
+              bottom: 0,
+              left: 0,
+              blendMode,
+              background: {
+                type: "linear",
+                angle: 135,
+                stops: ["#ff5c8a", "#5cc8ff"],
+              },
+            },
+          ],
+        })),
+      },
+      { Jimp },
+    );
+
+    await snapshot(image);
+  });
+
   test("text alignment, wrapping and inherited styles", async () => {
     const paragraph =
       "Text wraps to fit its box and inherits its font and color.";
