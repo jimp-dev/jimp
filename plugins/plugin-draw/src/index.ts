@@ -16,7 +16,12 @@ import {
   type ResolvedPaint,
 } from "./paint.js";
 import { rasterize, type FillRule, type Polyline } from "./rasterize.js";
-import { ellipsePolyline, rectPolyline, type Radii } from "./shapes.js";
+import {
+  ellipsePolyline,
+  fitRadii,
+  rectPolyline,
+  type Radii,
+} from "./shapes.js";
 import { strokePolylines, type StrokeOptions } from "./stroke.js";
 
 export { flattenPath, type FlattenOptions, type Matrix } from "./path.js";
@@ -225,6 +230,8 @@ const CornerRadiiSchema = z.object({
   bottomLeft: z.number().min(0).optional(),
 });
 
+const StrokeAlignSchema = z.enum(["center", "inside", "outside"]);
+
 const DrawRectOptionsSchema = ShapeStyleSchema.extend(
   JoinStyleSchema.shape,
 ).extend({
@@ -241,6 +248,12 @@ const DrawRectOptionsSchema = ShapeStyleSchema.extend(
    * Radii too big for the rectangle are scaled down like CSS `border-radius`.
    */
   radius: z.union([z.number().min(0), CornerRadiiSchema]).optional(),
+  /**
+   * where the outline goes: `"center"` (default) straddles the edge like SVG
+   * and canvas, `"inside"` keeps it within the rectangle like a CSS border,
+   * and `"outside"` puts it all around the rectangle.
+   */
+  strokeAlign: StrokeAlignSchema.optional(),
 });
 
 export type DrawRectOptions = z.infer<typeof DrawRectOptionsSchema>;
@@ -348,7 +361,28 @@ export function drawShape<I extends DrawTarget>(
   polylines: Polyline[],
   style: ShapeStyle,
 ) {
-  const { stroke, strokeWidth = 1 } = style;
+  return paintShape(image, polylines, style, () =>
+    strokePolylines(polylines, {
+      width: style.strokeWidth ?? 1,
+      cap: style.cap,
+      join: style.join,
+      miterLimit: style.miterLimit,
+    }),
+  );
+}
+
+/**
+ * {@link drawShape}, with the stroke's outline from `outline`, filled with
+ * the evenodd rule, for strokes that aren't centered on the edge.
+ */
+function paintShape<I extends DrawTarget>(
+  image: I,
+  polylines: Polyline[],
+  style: ShapeStyle,
+  outline: () => Polyline[],
+  outlineFillRule?: FillRule,
+) {
+  const { stroke } = style;
   const fill = style.fill ?? (stroke === undefined ? 0x000000ff : undefined);
   // Resolve both first, so an invalid stroke color doesn't leave a fill drawn
   const fillPaint = fill === undefined ? undefined : resolvePaint(fill, image);
@@ -360,14 +394,7 @@ export function drawShape<I extends DrawTarget>(
   }
 
   if (strokePaint) {
-    const outline = strokePolylines(polylines, {
-      width: strokeWidth,
-      cap: style.cap,
-      join: style.join,
-      miterLimit: style.miterLimit,
-    });
-
-    fillResolved(image, outline, strokePaint);
+    fillResolved(image, outline(), strokePaint, outlineFillRule);
   }
 
   return image;
@@ -426,7 +453,8 @@ export const methods = {
   /**
    * Draws a rectangle, optionally with rounded corners. Give a `fill`, a
    * `stroke` or both; with neither it's filled black. The stroke is centered
-   * on the rectangle's edge, like SVG and canvas.
+   * on the rectangle's edge, like SVG and canvas, unless `strokeAlign` moves
+   * it inside, like a CSS border, or outside.
    * @example
    * ```ts
    * import { Jimp } from "jimp";
@@ -436,6 +464,8 @@ export const methods = {
    * image.drawRect({ x: 10, y: 10, w: 80, h: 80, fill: "#a8dadc" });
    * // a rounded outline
    * image.drawRect({ x: 110, y: 10, w: 80, h: 80, radius: 16, stroke: "#1d3557", strokeWidth: 4 });
+   * // a card with a CSS-style border, inside its 80x80 box
+   * image.drawRect({ x: 10, y: 10, w: 80, h: 80, radius: 16, fill: "white", stroke: "#e5e5e5", strokeWidth: 2, strokeAlign: "inside" });
    * ```
    */
   drawRect<I extends JimpClass>(image: I, options: DrawRectOptions) {
@@ -452,16 +482,62 @@ export const methods = {
       h = -h;
     }
 
-    const outline = rectPolyline(
-      x,
-      y,
-      w,
-      h,
-      toRadii(parsed.radius),
-      DEFAULT_TOLERANCE,
-    );
+    const radii = fitRadii(toRadii(parsed.radius), w, h);
+    const shape = rectPolyline(x, y, w, h, radii, DEFAULT_TOLERANCE);
+    const { strokeAlign = "center", strokeWidth = 1 } = parsed;
 
-    return drawShape(image, [outline], parsed);
+    if (strokeAlign === "center") {
+      return drawShape(image, [shape], parsed);
+    }
+
+    // The stroke is the ring between two rectangles, `strokeWidth` apart
+    return paintShape(
+      image,
+      [shape],
+      parsed,
+      () => {
+        if (strokeAlign === "outside") {
+          // Like CSS spread, rounded corners grow but square ones stay square
+          const outer = radii.map((r) => (r > 0 ? r + strokeWidth : 0));
+
+          return [
+            rectPolyline(
+              x - strokeWidth,
+              y - strokeWidth,
+              w + strokeWidth * 2,
+              h + strokeWidth * 2,
+              outer as Radii,
+              DEFAULT_TOLERANCE,
+            ),
+            shape,
+          ];
+        }
+
+        const innerW = w - strokeWidth * 2;
+        const innerH = h - strokeWidth * 2;
+
+        // A stroke wider than half the rectangle covers all of it
+        if (innerW <= 0 || innerH <= 0) {
+          return [shape];
+        }
+
+        // Like a CSS border, the inner corners are `strokeWidth` tighter
+        const inner = radii.map((r) => Math.max(0, r - strokeWidth));
+
+        return [
+          shape,
+          rectPolyline(
+            x + strokeWidth,
+            y + strokeWidth,
+            innerW,
+            innerH,
+            inner as Radii,
+            DEFAULT_TOLERANCE,
+          ),
+        ];
+      },
+      "evenodd",
+    );
   },
 
   /**

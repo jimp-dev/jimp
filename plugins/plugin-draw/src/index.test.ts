@@ -154,6 +154,128 @@ describe("drawRect", () => {
   });
 });
 
+describe("drawRect strokeAlign", () => {
+  const rect = (strokeAlign: "center" | "inside" | "outside") =>
+    makeImage(10, 10).drawRect({
+      x: 3,
+      y: 3,
+      w: 4,
+      h: 4,
+      fill: "#00ff00",
+      stroke: "#0000ff",
+      strokeWidth: 2,
+      strokeAlign,
+    });
+
+  test("inside keeps the stroke within the rectangle, like a CSS border", () => {
+    const image = rect("inside");
+
+    expect(alphas(image)).toStrictEqual(
+      alphas(makeImage(10, 10).drawRect({ x: 3, y: 3, w: 4, h: 4 })),
+    );
+    // A 4x4 box with a 2px border is all border
+    expect(pixel(image, 4, 4)).toStrictEqual([0, 0, 255, 255]);
+    expect(pixel(image, 5, 5)).toStrictEqual([0, 0, 255, 255]);
+  });
+
+  test("outside puts the stroke all around the rectangle", () => {
+    const image = rect("outside");
+
+    expect(alphas(image)).toStrictEqual(
+      alphas(makeImage(10, 10).drawRect({ x: 1, y: 1, w: 8, h: 8 })),
+    );
+    expect(pixel(image, 1, 1)).toStrictEqual([0, 0, 255, 255]);
+    expect(pixel(image, 2, 2)).toStrictEqual([0, 0, 255, 255]);
+    expect(pixel(image, 3, 3)).toStrictEqual([0, 255, 0, 255]);
+    expect(pixel(image, 6, 6)).toStrictEqual([0, 255, 0, 255]);
+  });
+
+  test("center is the default", () => {
+    expect(rect("center").bitmap.data).toStrictEqual(
+      makeImage(10, 10).drawRect({
+        x: 3,
+        y: 3,
+        w: 4,
+        h: 4,
+        fill: "#00ff00",
+        stroke: "#0000ff",
+        strokeWidth: 2,
+      }).bitmap.data,
+    );
+  });
+
+  test("inside leaves the middle of a bigger rectangle to the fill", () => {
+    const image = makeImage(12, 12).drawRect({
+      x: 1,
+      y: 1,
+      w: 10,
+      h: 10,
+      fill: "#00ff00",
+      stroke: "#0000ff",
+      strokeWidth: 3,
+      strokeAlign: "inside",
+    });
+
+    expect(pixel(image, 3, 6)).toStrictEqual([0, 0, 255, 255]);
+    expect(pixel(image, 4, 6)).toStrictEqual([0, 255, 0, 255]);
+    expect(pixel(image, 7, 6)).toStrictEqual([0, 255, 0, 255]);
+    expect(pixel(image, 8, 6)).toStrictEqual([0, 0, 255, 255]);
+    expect(pixel(image, 0, 6)[3]).toBe(0);
+  });
+
+  test("inside rounds the inner corners `strokeWidth` tighter", () => {
+    const image = makeImage(40, 40).drawRect({
+      x: 0,
+      y: 0,
+      w: 40,
+      h: 40,
+      radius: 12,
+      stroke: "black",
+      strokeWidth: 4,
+      strokeAlign: "inside",
+    });
+    const rows = alphas(image);
+
+    // The outer corner is cut off like a fill with the same radius
+    expect(rows[0]![0]).toBe(0);
+    expect(rows[0]![20]).toBe(255);
+    // Inside, the hole has corners of radius 8: just inside its corner
+    // square there's no stroke, but the corner itself is covered
+    expect(rows[20]![20]).toBe(0);
+    expect(rows[4]![4]).toBe(255);
+    expect(rows[7]![7]).toBe(0);
+  });
+
+  test("a radius of 0 stays square outside", () => {
+    const image = makeImage(10, 10).drawRect({
+      x: 2,
+      y: 2,
+      w: 6,
+      h: 6,
+      stroke: "black",
+      strokeWidth: 2,
+      strokeAlign: "outside",
+    });
+
+    expect(pixel(image, 0, 0)[3]).toBe(255);
+    expect(pixel(image, 4, 4)[3]).toBe(0);
+  });
+
+  test("throws for an unknown alignment", () => {
+    expect(() =>
+      makeImage(4, 4).drawRect({
+        x: 0,
+        y: 0,
+        w: 4,
+        h: 4,
+        stroke: "black",
+        // @ts-expect-error testing an invalid value
+        strokeAlign: "middle",
+      }),
+    ).toThrow();
+  });
+});
+
 describe("drawEllipse", () => {
   test("is symmetric and has the area of an ellipse", () => {
     const image = makeImage(32, 24).drawEllipse({

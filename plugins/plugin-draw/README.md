@@ -105,13 +105,13 @@ Stop offsets go from 0 to 1, and before the first stop and after the last the gr
 
 ## Shapes
 
-| Method        | Options                                                                                             |
-| ------------- | --------------------------------------------------------------------------------------------------- |
-| `drawLine`    | `x1`, `y1`, `x2`, `y2`, `color`, `width` (default 1), `cap`                                         |
-| `drawRect`    | `x`, `y`, `w`, `h`, `radius` (a number or `{ topLeft, topRight, bottomRight, bottomLeft }`), `join` |
-| `drawEllipse` | `cx`, `cy`, `rx`, `ry` (the same for a circle)                                                      |
-| `drawPolygon` | `points` (`[x, y]` pairs or `{ x, y }` objects), `closed` (default true), `cap`, `join`, `fillRule` |
-| `drawPath`    | `path` (SVG path data or a list of commands), `cap`, `join`, `fillRule`                             |
+| Method        | Options                                                                                                                                                                       |
+| ------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `drawLine`    | `x1`, `y1`, `x2`, `y2`, `color`, `width` (default 1), `cap`                                                                                                                   |
+| `drawRect`    | `x`, `y`, `w`, `h`, `radius` (a number or `{ topLeft, topRight, bottomRight, bottomLeft }`), `strokeAlign` (`"center"`, `"inside"` like a CSS border, or `"outside"`), `join` |
+| `drawEllipse` | `cx`, `cy`, `rx`, `ry` (the same for a circle)                                                                                                                                |
+| `drawPolygon` | `points` (`[x, y]` pairs or `{ x, y }` objects), `closed` (default true), `cap`, `join`, `fillRule`                                                                           |
+| `drawPath`    | `path` (SVG path data or a list of commands), `cap`, `join`, `fillRule`                                                                                                       |
 
 All but `drawLine` also take `fill`, `stroke` and `strokeWidth` (default 1). The stroke styles are the same as SVG's:
 
