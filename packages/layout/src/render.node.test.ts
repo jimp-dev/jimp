@@ -192,6 +192,59 @@ describe("render", () => {
     await snapshot(image);
   });
 
+  test("wrapped tags and an aspect ratio", async () => {
+    const dice = await Jimp.read(getTestImagePath("dice.png"));
+    const tags = [
+      "layout",
+      "flexbox",
+      "open graph",
+      "typescript",
+      "no wasm",
+      "jimp",
+      "cards",
+    ];
+    const image = await render(
+      {
+        type: "box",
+        direction: "row",
+        padding: 16,
+        gap: 16,
+        align: "start",
+        background: "#f4f1ea",
+        font: bold,
+        fontSize: 14,
+        children: [
+          {
+            type: "image",
+            src: dice,
+            fit: "cover",
+            width: 96,
+            aspectRatio: 1,
+            radius: 12,
+          },
+          {
+            type: "box",
+            grow: 1,
+            direction: "row",
+            wrap: true,
+            gap: 8,
+            children: tags.map((tag) => ({
+              type: "text",
+              text: tag,
+              padding: [4, 10],
+              radius: 999,
+              background: "#3a2d7a",
+              color: "white",
+            })),
+          },
+        ],
+      },
+      { Jimp, width: 360 },
+    );
+
+    await snapshot(image);
+  });
+
   test("bitmap fonts", async () => {
     const font = await loadFont(SANS_16_BLACK);
     const image = await render(

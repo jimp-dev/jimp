@@ -255,7 +255,8 @@ The layout is a subset of CSS flexbox, written in TypeScript:
 
 - A box lays out its children in a `"column"` (the default) or a `"row"`, with `gap` between them and `padding` around them. Children can have a `margin`.
 - `justify` places children along the direction: `"start"`, `"center"`, `"end"`, `"space-between"`, `"space-around"` or `"space-evenly"`. `align` places them across it: `"start"`, `"center"`, `"end"` or `"stretch"` (the default). A child's `alignSelf` overrides its parent's `align`.
-- `width` and `height` are pixels, percentages of the parent like `"50%"`, or `"auto"` to fit the content. `grow` shares out spare space and `shrink` takes away space that's missing.
+- `width` and `height` are pixels, percentages of the parent like `"50%"`, or `"auto"` to fit the content, and `aspectRatio` gives one from the other. `grow` shares out spare space and `shrink` takes away space that's missing, but not below a node's content: text doesn't get narrower than its longest word.
+- `wrap: true` starts a new line for children that don't fit, for rows of tags.
 - `position: "absolute"` takes a node out of the row or column and places it with `top`, `right`, `bottom` and `left`, for badges and background images.
 - Text is measured with [`measureText`](/jimp/methods/measure-text/) and [`measureTextHeight`](/jimp/methods/measure-text-height/), and wrapped the same way [`print`](/jimp/methods/print/) wraps it.
 

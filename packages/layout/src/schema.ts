@@ -145,6 +145,11 @@ const LayoutPropsSchema = z.strictObject({
   maxWidth: LengthSchema.optional(),
   minHeight: LengthSchema.optional(),
   maxHeight: LengthSchema.optional(),
+  /**
+   * the width divided by the height, like CSS `aspect-ratio`. With only one
+   * of them known, it gives the other.
+   */
+  aspectRatio: z.number().positive().optional(),
   /** space inside the border, around the content */
   padding: SpacingSchema.optional(),
   /** space outside the border, around the node */
@@ -153,7 +158,8 @@ const LayoutPropsSchema = z.strictObject({
   grow: z.number().min(0).optional(),
   /**
    * how much the node shrinks when its parent is too small, relative to its
-   * size. Defaults to 1, or 0 for images.
+   * size. Defaults to 1. It doesn't shrink smaller than its content, like
+   * the longest word of its text, unless it has a `minWidth` or `minHeight`.
    */
   shrink: z.number().min(0).optional(),
   /** overrides the parent's `align` for this node */
@@ -206,8 +212,13 @@ const BoxPropsSchema = LayoutPropsSchema.extend(BoxStylePropsSchema.shape)
   .extend({
     /** whether children are laid out in a `"column"` (default) or a `"row"` */
     direction: z.enum(["row", "column"]).optional(),
-    /** space between children, in pixels. Defaults to 0. */
+    /** space between children, and between lines, in pixels. Defaults to 0. */
     gap: z.number().min(0).optional(),
+    /**
+     * whether children that don't fit start a new line (a new column in a
+     * column), like CSS `flex-wrap: wrap`. Defaults to false.
+     */
+    wrap: z.boolean().optional(),
     /** where children go along the direction. Defaults to `"start"`. */
     justify: z
       .enum([

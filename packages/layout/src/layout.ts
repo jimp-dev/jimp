@@ -59,6 +59,8 @@ export interface ResolvedNode {
   image?: JimpClass;
   /** Frames already laid out, by their constraints */
   cache: Map<string, Frame>;
+  /** See {@link minContentWidth} */
+  minContentWidth?: number;
 }
 
 /** A child placed in its parent, relative to the parent's top left corner */
@@ -204,6 +206,11 @@ interface Constraints {
   /** what percentages of the node's width and height are of */
   baseWidth?: number;
   baseHeight?: number;
+  /**
+   * measure the height of the content, ignoring the node's own height and
+   * aspect ratio, for its minimum size in a column
+   */
+  contentHeight?: boolean;
 }
 
 type Length = number | `${number}%` | "auto" | undefined;
@@ -262,8 +269,11 @@ interface FlexItem {
  * size, and items that hit their min or max are frozen there.
  */
 export function distribute(items: FlexItem[], space: number) {
-  const sizes = items.map((item) => item.basis);
-  const growing = space > items.reduce((total, item) => total + item.basis, 0);
+  // Items that don't flex stay at their basis, within their min and max
+  const sizes = items.map((item) =>
+    Math.max(item.min, Math.min(item.max, item.basis)),
+  );
+  const growing = space > sizes.reduce((total, size) => total + size, 0);
   const frozen = items.map((item) => (growing ? item.grow : item.shrink) === 0);
 
   for (let pass = 0; pass <= items.length; pass++) {
@@ -328,6 +338,7 @@ export function layOut(r: ResolvedNode, c: Constraints): Frame {
     c.availableHeight,
     c.baseWidth,
     c.baseHeight,
+    c.contentHeight,
   ].join();
   const cached = r.cache.get(key);
 
@@ -342,6 +353,75 @@ export function layOut(r: ResolvedNode, c: Constraints): Frame {
   return frame;
 }
 
+/** The width of the longest word, the narrowest text can be without breaking one */
+function longestWord(style: TextStyle, content: string) {
+  const words = new Set(content.split(/\s+/));
+
+  return Math.max(0, ...[...words].map((word) => textWidth(style, word)));
+}
+
+/**
+ * The narrowest the node can be without its content overflowing, like CSS's
+ * `min-content` width: the longest word of text, the width of an image, and
+ * for a box, its children side by side in a row or the widest of them in a
+ * column. The node's own `width` doesn't count.
+ */
+export function minContentWidth(r: ResolvedNode): number {
+  if (r.minContentWidth !== undefined) {
+    return r.minContentWidth;
+  }
+
+  const { node } = r;
+  const { insetX, insetY } = limits(r);
+  let content = 0;
+
+  if (r.text) {
+    content = longestWord(r.text.style, r.text.content);
+  } else if (r.image) {
+    const { width, height } = r.image.bitmap;
+    const ratio = node.aspectRatio ?? width / height;
+
+    content =
+      typeof node.height === "number"
+        ? Math.max(0, node.height - insetY) * ratio
+        : width;
+  } else {
+    const box = node as BoxNode;
+
+    // Children of a clipping box can overflow it
+    if (box.overflow !== "hidden") {
+      const contributions = r.children
+        .filter((child) => child.node.position !== "absolute")
+        .map(
+          (child) =>
+            minContentContribution(child) +
+            child.margin.left +
+            child.margin.right,
+        );
+
+      content =
+        box.direction === "row" && !box.wrap
+          ? contributions.reduce((total, width) => total + width, 0) +
+            (box.gap ?? 0) * Math.max(0, contributions.length - 1)
+          : Math.max(0, ...contributions);
+    }
+  }
+
+  r.minContentWidth = content + insetX;
+
+  return r.minContentWidth;
+}
+
+/** How wide a node is at its narrowest: its own width if it has one */
+function minContentContribution(r: ResolvedNode) {
+  const { node } = r;
+  const { clampWidth } = limits(r);
+
+  return clampWidth(
+    typeof node.width === "number" ? node.width : minContentWidth(r),
+  );
+}
+
 function layOutUncached(r: ResolvedNode, c: Constraints): Frame {
   const { node } = r;
   const { insetX, insetY, clampWidth, clampHeight } = limits(
@@ -349,11 +429,23 @@ function layOutUncached(r: ResolvedNode, c: Constraints): Frame {
     c.baseWidth,
     c.baseHeight,
   );
+  const ratio = node.aspectRatio;
   let width = c.width ?? resolveLength(node.width, c.baseWidth);
-  let height = c.height ?? resolveLength(node.height, c.baseHeight);
+  let height =
+    c.height ??
+    (c.contentHeight ? undefined : resolveLength(node.height, c.baseHeight));
 
   width = width === undefined ? undefined : clampWidth(width);
   height = height === undefined ? undefined : clampHeight(height);
+
+  // With one side known, the aspect ratio gives the other
+  if (ratio !== undefined && !c.contentHeight) {
+    if (width !== undefined && height === undefined) {
+      height = clampHeight(width / ratio);
+    } else if (height !== undefined && width === undefined) {
+      width = clampWidth(height * ratio);
+    }
+  }
 
   // The most the content can take up, when the size is auto
   const availableWidth =
@@ -381,18 +473,25 @@ function layOutUncached(r: ResolvedNode, c: Constraints): Frame {
     const wrapWidth = width - insetX;
     const text = clampLines(style, content, wrapWidth, maxLines);
 
-    height ??= clampHeight(textHeight(style, text, wrapWidth) + insetY);
+    height ??=
+      ratio !== undefined && !c.contentHeight
+        ? clampHeight(width / ratio)
+        : clampHeight(textHeight(style, text, wrapWidth) + insetY);
 
     return { width, height, children: [], text, wrapWidth };
   }
 
   if (r.image) {
     const natural = r.image.bitmap;
-    const aspect = natural.width / natural.height;
+    const aspect = ratio ?? natural.width / natural.height;
 
     if (width === undefined && height === undefined) {
       width = clampWidth(natural.width + insetX);
-      height = clampHeight(natural.height + insetY);
+      height = clampHeight(
+        ratio === undefined
+          ? natural.height + insetY
+          : (width - insetX) / aspect + insetY,
+      );
     } else if (width === undefined) {
       width = clampWidth((height! - insetY) * aspect + insetX);
     } else if (height === undefined) {
@@ -402,7 +501,7 @@ function layOutUncached(r: ResolvedNode, c: Constraints): Frame {
     return { width, height: height!, children: [] };
   }
 
-  return layOutBox(r, node as BoxNode, {
+  const sizing = {
     width,
     height,
     availableWidth,
@@ -411,7 +510,24 @@ function layOutUncached(r: ResolvedNode, c: Constraints): Frame {
     insetY,
     clampWidth,
     clampHeight,
-  });
+  };
+  const frame = layOutBox(r, node as BoxNode, sizing);
+
+  // Sized by its content, then the aspect ratio gives the height
+  if (
+    ratio !== undefined &&
+    !c.contentHeight &&
+    width === undefined &&
+    height === undefined
+  ) {
+    return layOutBox(r, node as BoxNode, {
+      ...sizing,
+      width: frame.width,
+      height: clampHeight(frame.width / ratio),
+    });
+  }
+
+  return frame;
 }
 
 interface BoxSizing {
@@ -425,11 +541,15 @@ interface BoxSizing {
   clampHeight: (height: number) => number;
 }
 
+/** Widths are sums of floats, so allow for rounding when checking a fit */
+const EPSILON = 1e-6;
+
 /** Lay out a box's children in a row or column, like a CSS flex container */
 function layOutBox(r: ResolvedNode, node: BoxNode, sizing: BoxSizing): Frame {
   const { padding, border } = r;
   const { insetX, insetY } = sizing;
   const isRow = node.direction === "row";
+  const wrap = node.wrap === true;
   const gap = node.gap ?? 0;
   const align = node.align ?? "stretch";
   const contentWidth =
@@ -462,6 +582,7 @@ function layOutBox(r: ResolvedNode, node: BoxNode, sizing: BoxSizing): Frame {
     cross: number | undefined,
     availableChildMain?: number,
     availableChildCross?: number,
+    contentMain = false,
   ) =>
     layOut(
       child,
@@ -481,6 +602,7 @@ function layOutBox(r: ResolvedNode, node: BoxNode, sizing: BoxSizing): Frame {
             availableHeight: availableChildMain,
             baseWidth: contentWidth,
             baseHeight: contentHeight,
+            contentHeight: contentMain,
           },
     );
   const minus = (a: number | undefined, b: number) =>
@@ -504,19 +626,19 @@ function layOutBox(r: ResolvedNode, node: BoxNode, sizing: BoxSizing): Frame {
       (crossLength === undefined || crossLength === "auto");
     const availableChildMain = minus(mainSize ?? availableMain, marginMain);
     const availableChildCross = minus(crossSize ?? availableCross, marginCross);
-    // With a known cross size, stretched children are that size from the
-    // start, e.g. so text in a column wraps at the column's width
-    const stretchedCross = stretch ? minus(crossSize, marginCross) : undefined;
+    // With a known cross size, stretched children of a single line are that
+    // size from the start, e.g. so text in a column wraps at its width
+    const stretchedCross =
+      stretch && !wrap ? minus(crossSize, marginCross) : undefined;
     const childLimits = limits(child, contentWidth, contentHeight);
-    const min = isRow ? childLimits.minWidth : childLimits.minHeight;
     const max = isRow ? childLimits.maxWidth : childLimits.maxHeight;
-    let basis = resolveLength(
+    const inset = isRow ? childLimits.insetX : childLimits.insetY;
+    const specified = resolveLength(
       isRow ? child.node.width : child.node.height,
       mainSize,
     );
-
-    basis =
-      basis === undefined
+    const basis =
+      specified === undefined
         ? mainOf(
             lay(
               child,
@@ -526,15 +648,49 @@ function layOutBox(r: ResolvedNode, node: BoxNode, sizing: BoxSizing): Frame {
               availableChildCross,
             ),
           )
-        : Math.max(min, Math.min(max, basis));
+        : Math.max(
+            isRow ? childLimits.minWidth : childLimits.minHeight,
+            Math.min(max, specified),
+          );
+    const explicitMin = resolveLength(
+      isRow ? child.node.minWidth : child.node.minHeight,
+      isRow ? contentWidth : contentHeight,
+    );
+    let min = inset;
+
+    if (explicitMin !== undefined) {
+      min = Math.max(inset, explicitMin);
+    } else if (
+      child.node.type !== "box" ||
+      (child.node as BoxNode).overflow !== "hidden"
+    ) {
+      // Like CSS's automatic minimum size, a child doesn't shrink smaller
+      // than its content: the longest word of text, an image, or what's in
+      // a box. A clipping box can shrink, since its content is cut off.
+      const content = isRow
+        ? minContentWidth(child)
+        : mainOf(
+            lay(
+              child,
+              undefined,
+              stretchedCross,
+              availableChildMain,
+              availableChildCross,
+              true,
+            ),
+          );
+
+      min = Math.max(
+        inset,
+        Math.min(max, specified === undefined ? content : specified, content),
+      );
+    }
 
     return {
       child,
       basis,
       grow: child.node.grow ?? 0,
-      // Like CSS, images don't shrink below their size, so they don't
-      // get squashed
-      shrink: child.node.shrink ?? (child.image ? 0 : 1),
+      shrink: child.node.shrink ?? 1,
       min,
       max,
       marginMainStart,
@@ -550,116 +706,157 @@ function layOutBox(r: ResolvedNode, node: BoxNode, sizing: BoxSizing): Frame {
     };
   });
 
-  const margins =
-    items.reduce((total, item) => total + item.marginMain, 0) +
-    gap * Math.max(0, items.length - 1);
-  const lineMain =
-    mainSize ??
-    clampMain(
-      items.reduce((total, item) => total + item.basis, 0) +
-        margins +
-        insetMain,
-    ) - insetMain;
-  const sizes = distribute(items, lineMain - margins);
-  let frames = items.map((item, i) =>
-    lay(
-      item.child,
-      sizes[i],
-      item.stretchedCross,
-      undefined,
-      item.availableChildCross,
-    ),
-  );
-  const lineCross =
-    crossSize ??
-    clampCross(
-      frames.reduce(
-        (most, frame, i) =>
-          Math.max(most, crossOf(frame) + items[i]!.marginCross),
-        0,
-      ) + insetCross,
-    ) - insetCross;
+  type Item = (typeof items)[number];
 
-  // Now the line's cross size is known, stretch the children that couldn't
-  // be stretched before
-  frames = frames.map((frame, i) => {
-    const item = items[i]!;
+  // The space each item takes on its line before growing or shrinking
+  const outer = (item: Item) =>
+    Math.max(item.min, Math.min(item.max, item.basis)) + item.marginMain;
+  const lineLength = (line: Item[]) =>
+    line.reduce((total, item) => total + outer(item), 0) +
+    gap * Math.max(0, line.length - 1);
+  const lines: Item[][] = [];
 
-    if (!item.stretch || item.stretchedCross !== undefined) {
-      return frame;
+  if (wrap) {
+    // Start a new line when the next item doesn't fit
+    const limit = mainSize ?? availableMain ?? Infinity;
+    let line: Item[] = [];
+
+    for (const item of items) {
+      if (
+        line.length > 0 &&
+        lineLength(line) + gap + outer(item) > limit + EPSILON
+      ) {
+        lines.push(line);
+        line = [];
+      }
+
+      line.push(item);
     }
 
-    item.stretchedCross = Math.max(0, lineCross - item.marginCross);
-
-    return lay(item.child, sizes[i], item.stretchedCross);
-  });
-
-  const width = sizing.width ?? (isRow ? lineMain : lineCross) + insetX;
-  const height = sizing.height ?? (isRow ? lineCross : lineMain) + insetY;
-
-  // Place the children along the main axis
-  const free =
-    lineMain - margins - sizes.reduce((total, size) => total + size, 0);
-  const count = items.length;
-  let start = 0;
-  let between = gap;
-
-  switch (node.justify ?? "start") {
-    case "end":
-      start = free;
-      break;
-    case "center":
-      start = free / 2;
-      break;
-    case "space-between":
-      if (free > 0 && count > 1) {
-        between += free / (count - 1);
-      }
-      break;
-    case "space-around":
-      if (free > 0) {
-        between += free / count;
-        start = free / count / 2;
-      } else {
-        start = free / 2;
-      }
-      break;
-    case "space-evenly":
-      if (free > 0) {
-        between += free / (count + 1);
-        start = free / (count + 1);
-      } else {
-        start = free / 2;
-      }
-      break;
-    default:
-      break;
+    lines.push(line);
+  } else {
+    lines.push(items);
   }
 
-  const mainStart = border + (isRow ? padding.left : padding.top) + start;
-  const crossStart = border + (isRow ? padding.top : padding.left);
-  let position = mainStart;
+  // An auto-sized box is as long as its longest line
+  const lineMain =
+    mainSize ??
+    clampMain(Math.max(0, ...lines.map(lineLength)) + insetMain) - insetMain;
+  const laidOut = lines.map((line) => {
+    const margins =
+      line.reduce((total, item) => total + item.marginMain, 0) +
+      gap * Math.max(0, line.length - 1);
+    const sizes = distribute(line, lineMain - margins);
+    const frames = line.map((item, i) =>
+      lay(
+        item.child,
+        sizes[i],
+        item.stretchedCross,
+        undefined,
+        item.availableChildCross,
+      ),
+    );
+    const tallest = frames.reduce(
+      (most, frame, i) => Math.max(most, crossOf(frame) + line[i]!.marginCross),
+      0,
+    );
+
+    return { line, margins, sizes, frames, cross: tallest };
+  });
+
+  // A single line is as big as the box across it. Lines that wrap are as big
+  // as their biggest child, and packed at the start of the box.
+  if (!wrap) {
+    laidOut[0]!.cross =
+      crossSize ?? clampCross(laidOut[0]!.cross + insetCross) - insetCross;
+  }
+
+  const linesCross =
+    laidOut.reduce((total, line) => total + line.cross, 0) +
+    gap * Math.max(0, laidOut.length - 1);
+  const boxCross =
+    crossSize ?? clampCross(linesCross + insetCross) - insetCross;
+  const width = sizing.width ?? (isRow ? lineMain : boxCross) + insetX;
+  const height = sizing.height ?? (isRow ? boxCross : lineMain) + insetY;
   const placements = new Map<ResolvedNode, Placement>();
+  let lineStart = border + (isRow ? padding.top : padding.left);
 
-  items.forEach((item, i) => {
-    const frame = frames[i]!;
-    const main = position + item.marginMainStart;
-    let cross = crossStart + item.marginCrossStart;
+  for (const { line, margins, sizes, frames, cross: lineCross } of laidOut) {
+    // Now the line's cross size is known, stretch the children that couldn't
+    // be stretched before
+    line.forEach((item, i) => {
+      if (item.stretch && item.stretchedCross === undefined) {
+        frames[i] = lay(
+          item.child,
+          sizes[i],
+          Math.max(0, lineCross - item.marginCross),
+        );
+      }
+    });
 
-    if (item.selfAlign === "end") {
-      cross = crossStart + lineCross - crossOf(frame) - item.marginCrossEnd;
-    } else if (item.selfAlign === "center") {
-      cross += (lineCross - item.marginCross - crossOf(frame)) / 2;
+    // Place the children along the main axis
+    const free =
+      lineMain - margins - sizes.reduce((total, size) => total + size, 0);
+    const count = line.length;
+    let start = 0;
+    let between = gap;
+
+    switch (node.justify ?? "start") {
+      case "end":
+        start = free;
+        break;
+      case "center":
+        start = free / 2;
+        break;
+      case "space-between":
+        if (free > 0 && count > 1) {
+          between += free / (count - 1);
+        }
+        break;
+      case "space-around":
+        if (free > 0) {
+          between += free / count;
+          start = free / count / 2;
+        } else {
+          start = free / 2;
+        }
+        break;
+      case "space-evenly":
+        if (free > 0) {
+          between += free / (count + 1);
+          start = free / (count + 1);
+        } else {
+          start = free / 2;
+        }
+        break;
+      default:
+        break;
     }
 
-    position = main + mainOf(frame) + item.marginMainEnd + between;
-    placements.set(item.child, {
-      node: item.child,
-      x: isRow ? main : cross,
-      y: isRow ? cross : main,
-      frame,
+    let position = border + (isRow ? padding.left : padding.top) + start;
+
+    line.forEach((item, i) => {
+      const frame = frames[i]!;
+      const main = position + item.marginMainStart;
+      let cross = lineStart + item.marginCrossStart;
+
+      if (item.selfAlign === "end") {
+        cross = lineStart + lineCross - crossOf(frame) - item.marginCrossEnd;
+      } else if (item.selfAlign === "center") {
+        cross += (lineCross - item.marginCross - crossOf(frame)) / 2;
+      }
+
+      position = main + mainOf(frame) + item.marginMainEnd + between;
+      placements.set(item.child, {
+        node: item.child,
+        x: isRow ? main : cross,
+        y: isRow ? cross : main,
+        frame,
+      });
     });
-  });
+
+    lineStart += lineCross + gap;
+  }
 
   // Absolutely positioned children are placed in the padding box
   const paddingBoxWidth = width - border * 2;

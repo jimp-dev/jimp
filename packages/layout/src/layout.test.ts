@@ -421,6 +421,309 @@ describe("grow and shrink", () => {
   });
 });
 
+describe("minimum sizes", () => {
+  const text = (content: string, props: object = {}): LayoutNode => ({
+    type: "text",
+    text: content,
+    font: mono,
+    ...props,
+  });
+
+  test("text doesn't shrink narrower than its longest word", async () => {
+    expect(
+      await childBoxes(
+        block({
+          direction: "row",
+          align: "start",
+          children: [block({ width: 150 }), text("one three")],
+        }),
+      ),
+    ).toStrictEqual([
+      // Both shrink, by their size
+      { x: 0, y: 0, width: 125, height: 0 },
+      { x: 125, y: 0, width: 75, height: 40 },
+    ]);
+    expect(
+      await childBoxes(
+        block({
+          direction: "row",
+          align: "start",
+          children: [block({ width: 160, shrink: 0 }), text("one three")],
+        }),
+      ),
+    ).toStrictEqual([
+      { x: 0, y: 0, width: 160, height: 0 },
+      // "three" is 50 wide
+      { x: 160, y: 0, width: 50, height: 40 },
+    ]);
+  });
+
+  test("text that can't fit overflows rather than breaking words", async () => {
+    expect(
+      await childBoxes(
+        block({
+          direction: "row",
+          align: "start",
+          children: [block({ width: 190, shrink: 0 }), text("one three")],
+        }),
+      ),
+    ).toStrictEqual([
+      { x: 0, y: 0, width: 190, height: 0 },
+      { x: 190, y: 0, width: 50, height: 40 },
+    ]);
+  });
+
+  test("minWidth: 0 lets text shrink and break words", async () => {
+    expect(
+      (
+        await childBoxes(
+          block({
+            direction: "row",
+            align: "start",
+            children: [
+              block({ width: 180, shrink: 0 }),
+              text("one three", { minWidth: 0 }),
+            ],
+          }),
+        )
+      )[1],
+    ).toStrictEqual({ x: 180, y: 0, width: 20, height: 100 });
+  });
+
+  test("a box doesn't shrink narrower than what's in it", async () => {
+    const chip = block({ padding: 5, children: [text("tag")] });
+
+    expect(
+      await childBoxes(
+        block({
+          direction: "row",
+          align: "start",
+          children: [block({ width: 300 }), chip, chip],
+        }),
+      ),
+    ).toStrictEqual([
+      { x: 0, y: 0, width: 120, height: 0 },
+      {
+        x: 120,
+        y: 0,
+        width: 40,
+        height: 30,
+        children: [{ x: 125, y: 5, width: 30, height: 20 }],
+      },
+      {
+        x: 160,
+        y: 0,
+        width: 40,
+        height: 30,
+        children: [{ x: 165, y: 5, width: 30, height: 20 }],
+      },
+    ]);
+  });
+
+  test("a box with overflow: hidden can shrink, clipping its content", async () => {
+    expect(
+      (
+        await childBoxes(
+          block({
+            direction: "row",
+            align: "start",
+            children: [
+              block({ width: 180, shrink: 0 }),
+              block({ overflow: "hidden", children: [text("three")] }),
+            ],
+          }),
+        )
+      )[1],
+    ).toMatchObject({ x: 180, y: 0, width: 20 });
+  });
+
+  test("children of a column don't shrink shorter than their content", async () => {
+    expect(
+      await childBoxes(
+        block({
+          children: [block({ height: 80 }), text("one two three four")],
+        }),
+        100,
+        100,
+      ),
+    ).toStrictEqual([
+      { x: 0, y: 0, width: 100, height: 60 },
+      { x: 0, y: 60, width: 100, height: 40 },
+    ]);
+  });
+});
+
+describe("aspectRatio", () => {
+  test("gives the height from the width", async () => {
+    expect(
+      await childBoxes(block({ children: [block({ aspectRatio: 4 })] })),
+    ).toStrictEqual([{ x: 0, y: 0, width: 200, height: 50 }]);
+  });
+
+  test("gives the width from the height, e.g. when a row stretches it", async () => {
+    expect(
+      await childBoxes(
+        block({ direction: "row", children: [block({ aspectRatio: 0.5 })] }),
+      ),
+    ).toStrictEqual([{ x: 0, y: 0, width: 50, height: 100 }]);
+  });
+
+  test("sizes a box from its content's width", async () => {
+    expect(
+      await childBoxes(
+        block({
+          align: "start",
+          children: [
+            block({ aspectRatio: 2, children: [block({ width: 60 })] }),
+          ],
+        }),
+      ),
+    ).toStrictEqual([
+      {
+        x: 0,
+        y: 0,
+        width: 60,
+        height: 30,
+        children: [{ x: 0, y: 0, width: 60, height: 0 }],
+      },
+    ]);
+  });
+
+  test("throws for a ratio that isn't positive", async () => {
+    await expect(
+      layout(block({ aspectRatio: 0 }), { width: 10, height: 10 }),
+    ).rejects.toThrow();
+  });
+});
+
+describe("wrap", () => {
+  const tile = (props: Partial<LayoutNode> = {}) =>
+    block({ width: 50, height: 20, ...props });
+
+  test("starts a new line when a child doesn't fit", async () => {
+    const result = await layout(
+      block({
+        direction: "row",
+        wrap: true,
+        gap: 10,
+        children: Array.from({ length: 5 }, () => tile()),
+      }),
+      { width: 200, height: 100 },
+    );
+
+    expect(result.children.map((child) => [child.x, child.y])).toStrictEqual([
+      [0, 0],
+      [60, 0],
+      [120, 0],
+      [0, 30],
+      [60, 30],
+    ]);
+  });
+
+  test("an auto-sized box is as tall as its lines", async () => {
+    expect(
+      (
+        await childBoxes(
+          block({
+            children: [
+              block({
+                direction: "row",
+                wrap: true,
+                gap: 10,
+                children: [tile(), tile({ height: 30 }), tile(), tile()],
+              }),
+            ],
+          }),
+          180,
+          200,
+        )
+      )[0],
+    ).toMatchObject({ y: 0, width: 180, height: 60 });
+  });
+
+  test("lines are justified and stretched on their own", async () => {
+    const result = await layout(
+      block({
+        direction: "row",
+        wrap: true,
+        justify: "center",
+        align: "stretch",
+        children: [
+          tile({ width: 80 }),
+          tile({ width: 80, height: 40 }),
+          tile({ width: 80, height: "auto" }),
+        ],
+      }),
+      { width: 200, height: 200 },
+    );
+
+    expect(result.children.map(boxes)).toStrictEqual([
+      { x: 20, y: 0, width: 80, height: 20 },
+      { x: 100, y: 0, width: 80, height: 40 },
+      // Alone on its line, centered, and as tall as the line
+      { x: 60, y: 40, width: 80, height: 0 },
+    ]);
+  });
+
+  test("children grow to fill their own line", async () => {
+    const result = await layout(
+      block({
+        direction: "row",
+        wrap: true,
+        children: [
+          tile({ width: 120, grow: 1 }),
+          tile({ width: 120, grow: 1 }),
+        ],
+      }),
+      { width: 200, height: 100 },
+    );
+
+    expect(result.children.map(boxes)).toStrictEqual([
+      { x: 0, y: 0, width: 200, height: 20 },
+      { x: 0, y: 20, width: 200, height: 20 },
+    ]);
+  });
+
+  test("wraps a column into more columns", async () => {
+    const result = await layout(
+      block({
+        wrap: true,
+        align: "start",
+        children: [tile(), tile(), tile()],
+      }),
+      { width: 200, height: 50 },
+    );
+
+    expect(result.children.map((child) => [child.x, child.y])).toStrictEqual([
+      [0, 0],
+      [0, 20],
+      [50, 0],
+    ]);
+  });
+
+  test("text wraps inside a wrapped line", async () => {
+    const result = await layout(
+      block({
+        direction: "row",
+        wrap: true,
+        gap: 10,
+        children: [
+          { type: "text", text: "alpha", font: mono },
+          { type: "text", text: "beta", font: mono },
+          { type: "text", text: "gamma", font: mono },
+        ],
+      }),
+      { width: 120, height: 100 },
+    );
+
+    expect(result.children.map(boxes)).toStrictEqual([
+      { x: 0, y: 0, width: 50, height: 20 },
+      { x: 60, y: 0, width: 40, height: 20 },
+      { x: 0, y: 30, width: 50, height: 20 },
+    ]);
+  });
+});
+
 describe("absolute positioning", () => {
   test("places children in the padding box", async () => {
     const result = await layout(
@@ -597,14 +900,14 @@ describe("images", () => {
     ]);
   });
 
-  test("don't shrink unless you let them", async () => {
-    const row = (shrink?: number) =>
+  test("don't shrink smaller than their size unless you let them", async () => {
+    const row = (minWidth?: number) =>
       childBoxes(
         block({
           direction: "row",
           align: "start",
           children: [
-            { type: "image", src: picture, width: 40, height: 20, shrink },
+            { type: "image", src: picture, width: 40, height: 20, minWidth },
             block({ width: 200, height: 10 }),
           ],
         }),
@@ -614,12 +917,25 @@ describe("images", () => {
       { x: 0, y: 0, width: 40, height: 20 },
       { x: 40, y: 0, width: 160, height: 10 },
     ]);
-    expect((await row(1))[0]).toStrictEqual({
+    expect((await row(0))[0]).toStrictEqual({
       x: 0,
       y: 0,
       width: 33,
       height: 20,
     });
+  });
+
+  test("aspectRatio overrides the image's own", async () => {
+    expect(
+      await childBoxes(
+        block({
+          align: "start",
+          children: [
+            { type: "image", src: picture, width: 30, aspectRatio: 1 },
+          ],
+        }),
+      ),
+    ).toStrictEqual([{ x: 0, y: 0, width: 30, height: 30 }]);
   });
 
   test("stretch across a column, keeping their aspect ratio", async () => {
