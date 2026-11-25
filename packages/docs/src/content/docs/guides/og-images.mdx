@@ -40,6 +40,8 @@ If the rest of your project uses React, leave `tsconfig.json` alone and start ea
 /** @jsxImportSource @jimp/layout */
 ```
 
+If your `tsconfig.json` has `"jsx": "preserve"`, as Astro's does, add `/** @jsxRuntime automatic */` above it too.
+
 Node.js can't run JSX by itself, so compile the file with `tsc` or your bundler, or run it with a loader such as [tsx](https://tsx.is). If you'd rather not compile anything, every step below also shows the same card as plain objects: pick **Objects** on any of the tabs.
 
 You also need a font. `@jimp/layout` draws text with the fonts [`loadTTF`](/jimp/methods/load-ttf/) loads (TrueType, OpenType or WOFF) at any size and color, or with the bitmap fonts from [`loadFont`](/jimp/methods/load-font/). This guide uses [Inter](https://rsms.me/inter/) in two weights.

@@ -221,7 +221,7 @@ Point your compiler at the runtime. TypeScript, esbuild, Vite and Bun read it fr
 }
 ```
 
-In a project that uses React for everything else, start each file that builds images with `/** @jsxImportSource @jimp/layout */` instead. Node.js can't run JSX by itself: compile with `tsc` or a bundler, or run the file with a loader such as [tsx](https://tsx.is).
+In a project that uses React for everything else, start each file that builds images with `/** @jsxImportSource @jimp/layout */` instead. If `jsx` is `"preserve"` in your `tsconfig.json`, as it is in Astro projects, add `/** @jsxRuntime automatic */` too. Node.js can't run JSX by itself: compile with `tsc` or a bundler, or run the file with a loader such as [tsx](https://tsx.is).
 
 ### Children
 
