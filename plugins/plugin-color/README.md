@@ -14,6 +14,7 @@
 - [greyscale](https://jimp-dev.github.io/jimp/api/jimp/classes/jimp/#greyscale)
 - [opacity](https://jimp-dev.github.io/jimp/api/jimp/classes/jimp/#opacity)
 - [sepia](https://jimp-dev.github.io/jimp/api/jimp/classes/jimp/#sepia)
+- [gradientMap](https://jimp-dev.github.io/jimp/api/jimp/classes/jimp/#gradientmap)
 - [fade](https://jimp-dev.github.io/jimp/api/jimp/classes/jimp/#fade)
 - [convolution](https://jimp-dev.github.io/jimp/api/jimp/classes/jimp/#convolution)
 - [opaque](https://jimp-dev.github.io/jimp/api/jimp/classes/jimp/#opaque)

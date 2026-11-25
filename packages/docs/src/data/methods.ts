@@ -89,6 +89,7 @@ export const methods: MethodEntry[] = [
   m("greyscale", "greyscale", "color", "@jimp/plugin-color"),
   m("invert", "invert", "color", "@jimp/plugin-color"),
   m("sepia", "sepia", "color", "@jimp/plugin-color"),
+  m("gradient-map", "gradientMap", "color", "@jimp/plugin-color"),
   m("posterize", "posterize", "color", "@jimp/plugin-color"),
   m("normalize", "normalize", "color", "@jimp/plugin-color"),
   m("threshold", "threshold", "color", "@jimp/plugin-threshold"),
