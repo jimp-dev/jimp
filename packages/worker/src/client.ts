@@ -1,4 +1,6 @@
-import { z } from "zod";
+// zod/mini keeps the main thread's bundle small: it's what's left of the
+// worker there, and the rest of zod is several times bigger than this file.
+import * as z from "zod/mini";
 import { listen, setRef, type WorkerLike } from "./endpoint.js";
 import { JimpWorkerError } from "./error.js";
 import {
@@ -29,16 +31,16 @@ const CreateJimpWorkerOptionsSchema = z.object({
    * start as tasks need them.
    * @default 1
    */
-  concurrency: z.number().int().min(1).optional(),
+  concurrency: z.optional(z.int().check(z.minimum(1))),
   /**
    * The Jimp class to rebuild images with, needed to get images back
    * instead of encoded bytes. Use the same class the worker exposes.
    */
-  Jimp: z
-    .custom<JimpClassLike>((value) => typeof value === "function", {
-      message: "Jimp must be a Jimp class",
+  Jimp: z.optional(
+    z.custom<JimpClassLike>((value) => typeof value === "function", {
+      error: "Jimp must be a Jimp class",
     })
-    .optional(),
+  ),
 });
 
 export type CreateJimpWorkerOptions<Class = JimpClassLike> = Omit<
@@ -53,31 +55,31 @@ export type CreateJimpWorkerOptions<Class = JimpClassLike> = Omit<
 };
 
 const RunOptionsSchema = z.object({
-  signal: z
-    .custom<AbortSignal>(
+  signal: z.optional(
+    z.custom<AbortSignal>(
       (value) =>
         typeof value === "object" &&
         value !== null &&
         "aborted" in value &&
         typeof (value as AbortSignal).addEventListener === "function",
-      { message: "signal must be an AbortSignal" }
+      { error: "signal must be an AbortSignal" }
     )
-    .optional(),
-  transfer: z.boolean().optional(),
+  ),
+  transfer: z.optional(z.boolean()),
 });
 
 const TaskSchema = z.object({
   input: z.custom<JimpWorkerInput>((value) => value !== undefined, {
-    message: "input is required",
+    error: "input is required",
   }),
-  read: z.record(z.string(), z.unknown()).optional(),
-  edits: z.array(z.unknown()).optional(),
-  output: z
-    .object({
+  read: z.optional(z.record(z.string(), z.unknown())),
+  edits: z.optional(z.array(z.unknown())),
+  output: z.optional(
+    z.object({
       mime: z.string(),
-      options: z.record(z.string(), z.unknown()).optional(),
+      options: z.optional(z.record(z.string(), z.unknown())),
     })
-    .optional(),
+  ),
 });
 
 interface Task {

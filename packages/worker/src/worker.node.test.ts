@@ -4,7 +4,8 @@ import { pathToFileURL } from "node:url";
 import { promisify } from "node:util";
 import { Worker } from "node:worker_threads";
 import { getTestImagePath } from "@jimp/test-utils";
-import { Jimp } from "jimp";
+import { Jimp, loadFont } from "jimp";
+import { SANS_16_BLACK } from "jimp/fonts";
 import { afterEach, describe, expect, test } from "vitest";
 import { createJimpWorker, JimpWorkerError, type JimpWorker } from "./index.js";
 // A JavaScript fixture, so it can run in a worker
@@ -174,6 +175,22 @@ describe("tasks", () => {
     expect(image.getPixelColor(3, 3)).toBe(0x00000000);
     // The source is still usable
     expect(src.bitmap.data.byteLength).toBe(16);
+  });
+
+  test("sends fonts in edits' arguments", async () => {
+    const jimp = createPool();
+    const font = await loadFont(SANS_16_BLACK);
+    const input = new Jimp({ width: 120, height: 30, color: 0xffffffff });
+    const image = await jimp.run({
+      input,
+      edits: [["print", { font, x: 2, y: 2, text: "Hello" }]],
+    });
+    const expected = input
+      .clone()
+      .print({ font, x: 2, y: 2, text: "Hello" });
+
+    expect(image.bitmap.data.equals(expected.bitmap.data)).toBe(true);
+    expect(image.bitmap.data.equals(input.bitmap.data)).toBe(false);
   });
 });
 
