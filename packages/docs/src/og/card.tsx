@@ -5,7 +5,7 @@
  * sticker card on the site's wallpaper, with the page's section, title and
  * description, an install command and Jimpy.
  */
-import { Jimp, measureTextHeight, type JimpInstance } from "jimp";
+import { Jimp, measureText, measureTextHeight, type JimpInstance } from "jimp";
 import { Box, Image, render, Text } from "@jimp/layout";
 
 import { HEIGHT, loadAssets, WIDTH, type OgAssets } from "./assets";
@@ -39,23 +39,39 @@ function textOn(color: string) {
   return 0.299 * r! + 0.587 * g! + 0.114 * b! > 150 ? INK : "white";
 }
 
-/** The biggest size the title fits on two lines at */
+/**
+ * The biggest size the title fits on two lines at, with its longest word on
+ * one line. A word wider than the column, like `measureTextHeight()`, would
+ * otherwise be as wide as it is and push Jimpy aside.
+ */
 function titleSize(assets: OgAssets, page: OgPage) {
   const font = page.code ? assets.mono : assets.bold;
-
-  for (const size of [72, 64, 56, 48]) {
+  const words = page.title.split(/\s+/);
+  const fits = (size: number) => {
     const lineHeight = size * 1.15;
-    const height = measureTextHeight(font, page.title, TEXT_WIDTH, {
-      size,
-      lineHeight,
-    });
+    const options = { size, lineHeight };
+    const widest = Math.max(
+      ...words.map((word) => measureText(font, word, options)),
+    );
 
-    if (height <= lineHeight * 2 + 1) {
-      return size;
-    }
+    return (
+      widest <= TEXT_WIDTH &&
+      measureTextHeight(font, page.title, TEXT_WIDTH, options) <=
+        lineHeight * 2 + 1
+    );
+  };
+  const size = [72, 64, 56, 48].find(fits);
+
+  if (size !== undefined) {
+    return size;
   }
 
-  return 44;
+  // Smaller still: as big as the longest word fits at
+  const widest = Math.max(
+    ...words.map((word) => measureText(font, word, { size: 48 })),
+  );
+
+  return Math.min(44, Math.floor((48 * TEXT_WIDTH) / widest));
 }
 
 function Sticker({ label, color }: { label: string; color: string }) {
@@ -121,7 +137,14 @@ export function OgCard({ assets, page }: { assets: OgAssets; page: OgPage }) {
         borderColor={INK}
         shadow={{ x: SHADOW, y: SHADOW, blur: 0, color: INK }}
       >
-        <Box grow={1} alignSelf="stretch" justify="space-between" align="start">
+        {/* minWidth={0}, so nothing in it can push Jimpy's column aside */}
+        <Box
+          grow={1}
+          minWidth={0}
+          alignSelf="stretch"
+          justify="space-between"
+          align="start"
+        >
           <Box direction="row" align="center" gap={24}>
             <Image src={assets.logo} height={64} />
             <Sticker label={page.label} color={page.color} />
