@@ -1,6 +1,6 @@
 import { execFile } from "node:child_process";
 import { readFile } from "node:fs/promises";
-import { pathToFileURL } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 import { promisify } from "node:util";
 import { Worker } from "node:worker_threads";
 import { getTestImagePath } from "@jimp/test-utils";
@@ -99,7 +99,7 @@ describe("tasks", () => {
     for (const input of [
       dicePath,
       dicePath.href,
-      decodeURIComponent(dicePath.pathname),
+      fileURLToPath(dicePath),
       new Blob([bytes]),
     ]) {
       const image = await jimp.run({ input, edits: [["resize", { w: 8 }]] });
@@ -130,7 +130,7 @@ describe("tasks", () => {
 
   test("edits a Jimp image and keeps its metadata", async () => {
     const jimp = createPool();
-    const photo = await Jimp.read(decodeURIComponent(photoPath.pathname));
+    const photo = await Jimp.read(fileURLToPath(photoPath));
 
     photo.background = 0x123456ff;
 
@@ -454,7 +454,7 @@ describe("pool", () => {
   test("lets the process exit without terminate", async () => {
     const { stdout } = await promisify(execFile)(
       process.execPath,
-      [decodeURIComponent(fixture("no-exit.mjs").pathname)],
+      [fileURLToPath(fixture("no-exit.mjs"))],
       { timeout: 10000 },
     );
 
