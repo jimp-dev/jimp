@@ -25,6 +25,7 @@ import * as draw from "@jimp/plugin-draw";
 import * as fisheye from "@jimp/plugin-fisheye";
 import * as flip from "@jimp/plugin-flip";
 import * as hash from "@jimp/plugin-hash";
+import * as lut from "@jimp/plugin-lut";
 import * as mask from "@jimp/plugin-mask";
 import * as morphology from "@jimp/plugin-morphology";
 import * as print from "@jimp/plugin-print";
@@ -50,6 +51,7 @@ export const defaultPlugins = [
   fisheye.methods,
   flip.methods,
   hash.methods,
+  lut.methods,
   mask.methods,
   morphology.methods,
   print.methods,
@@ -218,6 +220,7 @@ export type {
   DecodeBlurhashOptions,
   PHashOptions,
 } from "@jimp/plugin-hash";
+export { parseCubeLut, type Lut, type LutOptions } from "@jimp/plugin-lut";
 export type { JPEGOptions } from "@jimp/js-jpeg";
 export { PNGColorType, PNGFilterType } from "@jimp/js-png";
 export { BmpCompression } from "@jimp/js-bmp";

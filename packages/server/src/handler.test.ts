@@ -2,7 +2,17 @@ import { describe, expect, test, vi } from "vitest";
 import { createJimp } from "@jimp/core";
 import webp from "@jimp/wasm-webp";
 import avif from "@jimp/wasm-avif";
-import { Jimp, defaultFormats, defaultPlugins, intToRGBA } from "jimp";
+import type { JimpClass } from "@jimp/types";
+import {
+  Jimp,
+  defaultFormats,
+  defaultPlugins,
+  intToRGBA,
+  parseCubeLut,
+  type JimpInstance,
+  type Lut,
+  type LutOptions,
+} from "jimp";
 
 import {
   createImageHandler,
@@ -653,6 +663,66 @@ describe("signing", () => {
 
     expect(response.status).toBe(400);
     expect(await response.text()).toContain(message);
+  });
+
+  test("edits can apply a LUT by name with a custom method", async () => {
+    // As on the lut() docs page: LUTs stay on the server
+    const looks: Record<string, Lut> = {
+      // Swaps red and blue
+      swap: parseCubeLut(
+        "LUT_3D_SIZE 2\n0 0 0\n0 0 1\n0 1 0\n0 1 1\n1 0 0\n1 0 1\n1 1 0\n1 1 1",
+      ),
+    };
+    const LookJimp = createJimp({
+      formats: defaultFormats,
+      plugins: [
+        ...defaultPlugins,
+        {
+          look<I extends JimpClass>(
+            image: I,
+            name: string,
+            options?: LutOptions,
+          ) {
+            if (!Object.hasOwn(looks, name)) {
+              throw new Error(`There's no look called "${name}"`);
+            }
+
+            return (image as unknown as JimpInstance).lut(
+              looks[name]!,
+              options,
+            ) as unknown as I;
+          },
+        },
+      ],
+    });
+    const lookHandler = createHandler({
+      Jimp: LookJimp,
+      secret,
+      allowedEdits: ["look"],
+    });
+    const request = async (edits: [string, ...unknown[]][]) =>
+      get(
+        lookHandler,
+        await signUrl(
+          `/images/halves.png?edits=${encodeEdits(edits)}&fm=png`,
+          secret,
+        ),
+      );
+
+    const image = await readImage(await request([["look", "swap"]]));
+
+    expect(image.getPixelColor(0, 0)).toBe(0x0000ffff);
+    expect(image.getPixelColor(199, 0)).toBe(0xff0000ff);
+
+    const unknown = await request([["look", "toString"]]);
+
+    expect(unknown.status).toBe(400);
+    expect(await unknown.text()).toContain(`There's no look called "toString"`);
+
+    const raw = await request([["lut", { size: 2, data: [] }]]);
+
+    expect(raw.status).toBe(400);
+    expect(await raw.text()).toBe("The lut edit isn't allowed");
   });
 });
 

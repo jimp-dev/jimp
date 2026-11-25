@@ -546,6 +546,9 @@ importers:
       '@jimp/plugin-hash':
         specifier: workspace:*
         version: link:../../plugins/plugin-hash
+      '@jimp/plugin-lut':
+        specifier: workspace:*
+        version: link:../../plugins/plugin-lut
       '@jimp/plugin-mask':
         specifier: workspace:*
         version: link:../../plugins/plugin-mask
@@ -826,6 +829,9 @@ importers:
       '@jimp/test-utils':
         specifier: workspace:*
         version: link:../test-utils
+      '@jimp/types':
+        specifier: workspace:*
+        version: link:../types
       '@jimp/wasm-avif':
         specifier: workspace:*
         version: link:../../plugins/wasm-avif
