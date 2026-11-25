@@ -41,6 +41,8 @@ describe("apply", () => {
     image.apply([["dominantColor"]]);
     // @ts-expect-error returns a list of colors
     image.apply([["palette", 5]]);
+    // @ts-expect-error returns a string
+    image.apply([["blurhash"]]);
   });
 
   test("JimpEdit names exactly the plugin methods that change the image", () => {
@@ -59,6 +61,7 @@ describe("apply", () => {
       | "autocropRect"
       | "dominantColor"
       | "palette"
+      | "blurhash"
     >().not.toExtend<Names>();
   });
 

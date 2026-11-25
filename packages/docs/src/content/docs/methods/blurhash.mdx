@@ -1,0 +1,84 @@
+---
+title: "blurhash()"
+description: "Encode the image as a short BlurHash string for blurred placeholders."
+category: io
+method: "blurhash"
+plugin: "@jimp/plugin-hash"
+---
+
+import Playground from "../../../components/playground/Playground";
+import Related from "../../../components/Related.astro";
+
+`blurhash` encodes the image as a [BlurHash](https://blurha.sh): a string of about 28 characters that describes the image's colors and their rough layout.
+Store it next to the image, and show it with [`decodeBlurhash`](/jimp/methods/decode-blurhash/) or any BlurHash library as a blurred placeholder while the real image loads.
+
+## Signature
+
+```ts title="blurhash.d.ts"
+image.blurhash(options?: { componentsX?: number; componentsY?: number }): string
+```
+
+`blurhash` doesn't change the image. It returns the hash as a string.
+
+## Options
+
+| Option        | Type     | Default | Description                                                                                         |
+| ------------- | -------- | ------- | --------------------------------------------------------------------------------------------------- |
+| `componentsX` | `number` | `4`     | How many components across, a whole number from `1` to `9`. More keeps more horizontal detail.      |
+| `componentsY` | `number` | `3`     | How many components down, a whole number from `1` to `9`. More keeps more vertical detail.          |
+
+The hash is `4 + 2 * componentsX * componentsY` characters long: 28 with the defaults.
+
+## Example
+
+```ts title="example.ts"
+import { Jimp } from "jimp";
+
+const image = await Jimp.read("dice.png");
+
+image.background = 0xffffffff; // draw transparent pixels over white
+image.blurhash(); // "LqQ0K:jL_NtMD+V{t6k7yDahMdj="
+image.blurhash({ componentsX: 3, componentsY: 3 }); // "KqQ0K:jL_ND+V{t6yDahMd"
+```
+
+### Store a placeholder with each image
+
+Hash each image once, when it's uploaded or built, and send the hash with the image's URL and size:
+
+```ts title="example.ts"
+import { Jimp } from "jimp";
+
+const image = await Jimp.read("photo.jpg");
+
+const entry = {
+  src: "/images/photo.jpg",
+  width: image.width,
+  height: image.height,
+  blurhash: image.blurhash(),
+};
+```
+
+The page decodes the hash at a small size and stretches it over the image's box until the image loads.
+[`decodeBlurhash`](/jimp/methods/decode-blurhash/) does this with Jimp, and the [`blurhash`](https://www.npmjs.com/package/blurhash) package does it in the browser.
+The hashes are the same as that package's, so either side can be swapped.
+
+To serve hashes from [`@jimp/server`](/jimp/guides/image-server/#blurhash-placeholders), request an image with `fm=blurhash`.
+
+## Try it
+
+Change the components to see how much detail the placeholder keeps.
+
+<Playground method="blurhash" client:visible />
+
+## Notes
+
+- **Speed.** Images larger than 64 pixels on their longest side are scaled down before they're encoded, so large photos are quick to hash. The components only hold coarse detail, which survives the scaling.
+- **Transparency.** BlurHash has no alpha. Transparent pixels are drawn over [`image.background`](/jimp/concepts/reading-and-writing/#image-properties), the way [`getBuffer`](/jimp/methods/get-buffer/) draws them for JPEG. The background is transparent by default, which turns fully transparent pixels black, so set `image.background` to the color of the page.
+- **Color spaces.** BlurHash works in sRGB. Images in other color spaces, such as Display P3, are converted to sRGB first.
+- **Aspect ratio.** The hash doesn't store the image's size. For tall or wide images, more components along the long side keep more detail, such as `{ componentsX: 3, componentsY: 4 }` for a portrait photo.
+- **Invalid options.** Components that aren't whole numbers from `1` to `9` throw a validation error.
+- **Added in 2.2.**
+
+## Related
+
+<Related methods={["decodeBlurhash", "hash", "getBase64"]} />

@@ -224,7 +224,7 @@ app.listen(3000);
 | `dpr`       | `1` to `4`                                                  | Device pixel ratio: `w` and `h` are multiplied by it, so `w=200&dpr=2` is 400 pixels wide. Default `1`.                                               |
 | `fit`       | `cover`, `contain`, `scale-to-fit`, `fill`                  | How the image fits `w` × `h` when both are set. Default `cover`. See [Fit](#fit).                                                                     |
 | `pos`       | `center`, `top`, `bottom`, `left`, `right`, `top-left`, …, `x,y`, `entropy` or `attention` | The part of the image to keep with `cover`, or where to place it with `contain`. `x,y` are fractions from `0` to `1`, like a focal point: `pos=0.5,0.2`. `entropy` and `attention` look at the image to keep its subject, with `fit=cover` only. See [smart cropping](/jimp/methods/cover/#smart-cropping). Default `center`. |
-| `fm`        | `auto`, `avif`, `webp`, `jpeg`/`jpg`, `png`, `gif`, `jxl`, `bmp`, `tiff` | Output format. Default: the source's format. See [Formats](#formats).                                                                   |
+| `fm`        | `auto`, `avif`, `webp`, `jpeg`/`jpg`, `png`, `gif`, `jxl`, `bmp`, `tiff`, `blurhash` | Output format. Default: the source's format. `blurhash` responds with a [BlurHash](#blurhash-placeholders) string. See [Formats](#formats). |
 | `q`         | `1` to `100`                                                | Quality for AVIF, JPEG, JPEG XL and WebP. Default `75`.                                                                                               |
 | `bg`        | hex like `ff0000` or `ff000080`, or a CSS color             | Background for `fit=contain` and for transparent images saved as JPEG. Default transparent, and white for JPEG.                                      |
 | `blur`      | `1` to `100`                                                | Blur radius in pixels, with [`blur`](/jimp/methods/blur/).                                                                                            |
@@ -274,6 +274,21 @@ Pass `defaultFormat: "auto"` to negotiate when there's no `fm` param.
 
 An `fm` the Jimp class can't encode is a 415, as is a source it can't decode.
 Animated GIFs and APNGs are read as their first frame.
+
+### BlurHash placeholders
+
+`fm=blurhash` responds with the image's [BlurHash](/jimp/methods/blurhash/) as `text/plain` instead of an image: a string of about 28 characters that the page can draw as a blurred placeholder while the image loads.
+The other params run first, so `?rot=90&fm=blurhash` is the BlurHash of the rotated image.
+It uses the default 4 × 3 components.
+
+```sh
+curl "https://example.com/images/cats/tom.jpg?fm=blurhash"
+# e.g. LEHV6nWB2yk8pyo0adR*.7kCMdnj
+```
+
+BlurHash has no transparency, so transparent pixels are drawn over white, or over `bg` if the request sets it.
+The response is cached and gets an `ETag` like an image response.
+`fm=blurhash` needs the `blurhash` method from `@jimp/plugin-hash`, which `Jimp` from `jimp` has. With a Jimp class without it, the request is a 415.
 
 ## Sources
 
