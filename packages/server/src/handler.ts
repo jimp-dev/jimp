@@ -83,7 +83,10 @@ export const defaultAllowedEdits = [
   "vibrance",
 ];
 
-/** Decode limits are set for these formats, as each one supports them */
+/**
+ * Formats whose decoders take `maxResolutionInMP`. `@jimp/wasm-jpeg` uses
+ * the `image/jpeg` MIME type too, and ignores it.
+ */
 const LIMITED_FORMATS = [
   "image/avif",
   "image/bmp",
@@ -96,7 +99,10 @@ const LIMITED_FORMATS = [
   "image/png",
   "image/svg+xml",
   "image/tiff",
+  "image/vnd.microsoft.icon",
   "image/webp",
+  "image/x-icon",
+  "image/x-ms-bmp",
 ];
 
 /** Formats the `q` param applies to */
@@ -207,6 +213,7 @@ export interface ImageHandlerOptions {
   maxSourceResolutionInMP?: number;
   /**
    * The quality for AVIF, JPEG, JPEG XL and WebP when there's no `q` param
+   * and `encodeOptions` doesn't set one
    * @default 75
    */
   quality?: number;
@@ -229,8 +236,8 @@ export interface ImageHandlerOptions {
   readOptions?: Record<string, unknown>;
   /**
    * Options for `getBuffer`, keyed by MIME type, e.g.
-   * `{ "image/png": { deflateLevel: 6 } }`. The quality from `q` or
-   * `quality` is merged over them.
+   * `{ "image/png": { deflateLevel: 6 } }`. A `q` param overrides their
+   * `quality`.
    */
   encodeOptions?: Record<string, Record<string, unknown>>;
   /**
@@ -265,7 +272,9 @@ const UNSUPPORTED_ERROR =
 function decodeError(error: unknown) {
   const message = error instanceof Error ? error.message : String(error);
 
-  if (DECODE_LIMIT_ERROR.test(message)) {
+  // "Couldn't read the WebP's dimensions to check maxResolutionInMP" isn't
+  // about the size, so it falls through to a decode error
+  if (DECODE_LIMIT_ERROR.test(message) && !/^Couldn't read/.test(message)) {
     return new ImageHandlerError(
       413,
       `The source image is too large: ${message}`,
@@ -290,6 +299,19 @@ function decodeError(error: unknown) {
   );
 }
 
+function applyEdits(image: JimpImage, edits: ImageEdit[]) {
+  try {
+    image.apply(edits);
+  } catch (error) {
+    // Running out of memory isn't the request's fault
+    if ((error as Error).cause instanceof RangeError) {
+      throw toHandlerError(error, 500);
+    }
+
+    throw toHandlerError(error, 400);
+  }
+}
+
 /** Whether the Accept header lists a MIME type, with a quality above 0 */
 function accepts(accept: string, mime: string) {
   return accept.split(",").some((part) => {
@@ -305,12 +327,15 @@ function accepts(accept: string, mime: string) {
   });
 }
 
-/** Whether an If-None-Match header matches an ETag */
+/**
+ * Whether an If-None-Match header matches an ETag. `*` isn't matched: the
+ * ETag is worked out before the edits run, and they can still fail.
+ */
 function matchesEtag(ifNoneMatch: string, etag: string) {
   return ifNoneMatch
     .split(",")
     .map((value) => value.trim().replace(/^W\//, ""))
-    .some((value) => value === "*" || value === etag);
+    .some((value) => value === etag);
 }
 
 /** Split the path after `basePath` into checked, decoded segments */
@@ -471,6 +496,7 @@ export function createImageHandler(options: ImageHandlerOptions) {
 
   // Options that change the output, so a new config gets new ETags
   const configKey = JSON.stringify([
+    probe.formats.map((format) => format.mime),
     defaultQuality,
     defaultFormat,
     maxSourceResolutionInMP,
@@ -581,7 +607,7 @@ export function createImageHandler(options: ImageHandlerOptions) {
       }
     }
 
-    checkEdits(params.edits);
+    checkEdits([...params.rawEdits, ...params.edits]);
 
     const format =
       params.format ?? (defaultFormat === "auto" ? "auto" : undefined);
@@ -659,24 +685,37 @@ export function createImageHandler(options: ImageHandlerOptions) {
       image.background = params.background;
     }
 
-    try {
-      image.apply(params.edits);
-    } catch (error) {
-      // Running out of memory isn't the request's fault
-      if ((error as Error).cause instanceof RangeError) {
-        throw toHandlerError(error, 500);
-      }
+    const largest = Math.max(maxSize, sourceSize);
+    const tooLarge = (width: number, height: number) =>
+      new ImageHandlerError(
+        422,
+        `The edits make the image ${width}x${height}, larger than the most of ${maxSize}`,
+      );
 
-      throw toHandlerError(error, 400);
+    applyEdits(image, params.rawEdits);
+
+    // With only w or h, the other side follows the aspect ratio, so a tall
+    // image with a large w could take far more memory than maxSize allows.
+    // Check it before resizing.
+    if (params.resizesOneSide) {
+      const turned = params.edits.some(
+        ([name, deg]) => name === "rotate" && Math.abs(deg as number) % 180,
+      );
+      const [w, h] = turned
+        ? [image.bitmap.height, image.bitmap.width]
+        : [image.bitmap.width, image.bitmap.height];
+      const width = params.width ?? Math.round((w * params.height!) / h);
+      const height = params.height ?? Math.round((h * params.width!) / w);
+
+      if (Math.max(width, height) > largest) {
+        throw tooLarge(width, height);
+      }
     }
 
-    const outputSize = Math.max(image.bitmap.width, image.bitmap.height);
+    applyEdits(image, params.edits);
 
-    if (outputSize > Math.max(maxSize, sourceSize)) {
-      throw new ImageHandlerError(
-        422,
-        `The edits make the image ${image.bitmap.width}x${image.bitmap.height}, larger than the most of ${maxSize}`,
-      );
+    if (Math.max(image.bitmap.width, image.bitmap.height) > largest) {
+      throw tooLarge(image.bitmap.width, image.bitmap.height);
     }
 
     const mime =
@@ -693,7 +732,8 @@ export function createImageHandler(options: ImageHandlerOptions) {
       image.background = 0xffffffff;
     }
 
-    const quality = params.quality ?? defaultQuality;
+    const quality =
+      params.quality ?? encodeOptions[mime]?.quality ?? defaultQuality;
     let body: Uint8Array;
 
     try {

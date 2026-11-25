@@ -23,8 +23,8 @@ function importKey(secret: string) {
 }
 
 /**
- * The params in a stable order, without the signature, so the same edits
- * always sign (and cache) the same however the params are ordered
+ * The params in a stable order, without the signature. Signed URLs use this
+ * order, so each signed transform has exactly one URL (and one cache key).
  */
 export function canonicalQuery(params: URLSearchParams) {
   const entries = [...params].filter(([key]) => key !== SIGNATURE_PARAM);
@@ -46,11 +46,20 @@ function toUrl(url: string | URL) {
   return new URL(url, "http://localhost");
 }
 
+/** The query string of a signed URL: the canonical params, then `s` */
+function signedSearch(url: URL, signature: string) {
+  const query = canonicalQuery(url.searchParams);
+
+  return `?${query}${query ? "&" : ""}${SIGNATURE_PARAM}=${signature}`;
+}
+
 /**
  * Sign an image URL, so a handler created with the same `secret` accepts it.
- * The signature covers the URL's path and every query param, in any order,
- * and is added as the `s` param. The host isn't signed, so a signed URL works
- * on any domain the handler runs on.
+ * The signature covers the URL's path and every query param, and is added as
+ * the `s` param. The params are sorted, and the handler only accepts the URL
+ * exactly as returned, so a signed transform can't be requested under other
+ * URLs that would miss a CDN's cache. The host isn't signed, so a signed URL
+ * works on any domain the handler runs on.
  *
  * Run this on your server, never in the browser: anyone with the secret can
  * sign any URL.
@@ -62,7 +71,7 @@ function toUrl(url: string | URL) {
  * import { signUrl } from "@jimp/server";
  *
  * const src = await signUrl("/images/cat.jpg?w=400&fm=auto", env.IMAGE_SECRET);
- * // "/images/cat.jpg?w=400&fm=auto&s=…"
+ * // "/images/cat.jpg?fm=auto&w=400&s=…"
  * ```
  */
 export async function signUrl(url: string | URL, secret: string) {
@@ -73,8 +82,7 @@ export async function signUrl(url: string | URL, secret: string) {
     utf8(signedText(parsed)) as BufferSource,
   );
 
-  parsed.searchParams.delete(SIGNATURE_PARAM);
-  parsed.searchParams.append(SIGNATURE_PARAM, toBase64Url(signature));
+  parsed.search = signedSearch(parsed, toBase64Url(signature));
 
   const isRelative =
     typeof url === "string" && !/^[a-z][a-z\d+.-]*:/i.test(url);
@@ -83,13 +91,19 @@ export async function signUrl(url: string | URL, secret: string) {
 }
 
 /**
- * Check a URL's `s` param against each secret. Uses `crypto.subtle.verify`,
- * which compares in constant time.
+ * Check a URL's `s` param against each secret. The query must be exactly as
+ * `signUrl` wrote it. Uses `crypto.subtle.verify`, which compares in
+ * constant time.
  */
 export async function verifyUrl(url: URL, secrets: string[]) {
-  const signature = url.searchParams.get(SIGNATURE_PARAM);
+  const signatures = url.searchParams.getAll(SIGNATURE_PARAM);
+  const signature = signatures[0];
 
-  if (!signature) {
+  if (
+    signatures.length !== 1 ||
+    !signature ||
+    url.search !== signedSearch(url, signature)
+  ) {
     return false;
   }
 

@@ -54,9 +54,11 @@ export function directorySource(
     realRoot ??= await realpath(resolve(root));
 
     const base = realRoot;
+    // A filesystem root like "/" already ends with the separator
+    const prefix = base.endsWith(sep) ? base : base + sep;
     const file = resolve(base, ...path.split("/"));
 
-    if (!file.startsWith(base + sep)) {
+    if (!file.startsWith(prefix)) {
       return null;
     }
 
@@ -69,7 +71,7 @@ export function directorySource(
       throw error;
     }
 
-    if (!real.startsWith(base + sep)) {
+    if (!real.startsWith(prefix)) {
       return null;
     }
 
@@ -120,6 +122,17 @@ export function toNodeHandler(
     next?: (error?: unknown) => void,
   ) {
     try {
+      // new Request throws for methods like TRACE, so answer them here
+      if (req.method !== "GET" && req.method !== "HEAD") {
+        res.writeHead(405, {
+          Allow: "GET, HEAD",
+          "Cache-Control": "no-store",
+          "Content-Type": "text/plain; charset=utf-8",
+        });
+        res.end("Only GET and HEAD are supported");
+        return;
+      }
+
       const path = req.originalUrl ?? req.url ?? "/";
       // Only the path and query are used, so don't trust the Host header
       const url = new URL(
@@ -128,7 +141,8 @@ export function toNodeHandler(
       const headers = new Headers();
 
       for (const [key, value] of Object.entries(req.headers)) {
-        if (value === undefined) continue;
+        // HTTP/2 pseudo-headers like :path aren't valid header names
+        if (value === undefined || key.startsWith(":")) continue;
 
         for (const item of Array.isArray(value) ? value : [value]) {
           headers.append(key, item);

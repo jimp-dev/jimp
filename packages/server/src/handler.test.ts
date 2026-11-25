@@ -228,6 +228,21 @@ describe("params", () => {
     );
   });
 
+  test("encodeOptions can set the quality, which q overrides", async () => {
+    const lowDefault = createHandler({
+      encodeOptions: { "image/jpeg": { quality: 5 } },
+    });
+    const size = async (h: typeof handler, path: string) =>
+      Number((await get(h, path)).headers.get("Content-Length"));
+
+    expect(await size(lowDefault, "/images/photo.jpg")).toBe(
+      await size(handler, "/images/photo.jpg?q=5"),
+    );
+    expect(await size(lowDefault, "/images/photo.jpg?q=100")).toBe(
+      await size(handler, "/images/photo.jpg?q=100"),
+    );
+  });
+
   test("bg fills transparency when encoding to JPEG, white by default", async () => {
     const white = await readImage(
       await get(handler, "/images/transparent.png?fm=jpeg"),
@@ -261,6 +276,8 @@ describe("params", () => {
     ["greyscale=yes", "greyscale must be 1, true, 0 or false"],
     ["width=100", "Unknown param: width"],
     ["w=100&w=200", "w is given more than once"],
+    ["__proto__=1", "Unknown param: __proto__"],
+    ["toString=1", "Unknown param: toString"],
   ])("?%s is a 400", async (query, message) => {
     const response = await get(handler, `/images/halves.png?${query}`);
 
@@ -408,14 +425,31 @@ describe("signing", () => {
     expect((await handler(new Request(url))).status).toBe(200);
   });
 
-  test("the signature doesn't depend on the order of the params", async () => {
-    const url = new URL(
-      await signUrl("/images/halves.png?w=50&h=20", secret),
-      "https://example.com",
-    );
-    const reordered = `/images/halves.png?h=20&s=${url.searchParams.get("s")}&w=50`;
+  test("signUrl sorts the params, so each transform has one URL", async () => {
+    const a = await signUrl("/images/halves.png?w=50&h=20", secret);
+    const b = await signUrl("/images/halves.png?h=20&w=50", secret);
 
-    expect((await get(handler, reordered)).status).toBe(200);
+    expect(a).toBe(b);
+    expect(a).toMatch(/^\/images\/halves\.png\?h=20&w=50&s=[\w-]{43}$/);
+    expect((await get(handler, a)).status).toBe(200);
+  });
+
+  test("only the URL signUrl returns is accepted", async () => {
+    const url = await signUrl("/images/halves.png?w=50&h=20", secret);
+    const s = new URL(url, "https://example.com").searchParams.get("s");
+    const variants = [
+      `/images/halves.png?w=50&h=20&s=${s}`,
+      `/images/halves.png?s=${s}&h=20&w=50`,
+      `${url}&s=${s}`,
+      `${url}&s=other`,
+      `${url}&`,
+      url.replace("?", "?&&"),
+      url.replace("h=20", "%68=%32%30"),
+    ];
+
+    for (const variant of variants) {
+      expect((await get(handler, variant)).status, variant).toBe(403);
+    }
   });
 
   test.each([
@@ -540,6 +574,28 @@ describe("limits", () => {
     expect(await response.text()).toContain("larger than the most of 300");
   });
 
+  test("w or h alone can't make the other side larger than maxSize", async () => {
+    const tall = await new Jimp({ width: 10, height: 1000 }).getBuffer(
+      "image/png",
+    );
+    const handler = createHandler({ maxSize: 200, source: () => tall });
+
+    const wide = await get(handler, "/images/tall.png?w=200");
+    expect(wide.status).toBe(422);
+    expect(await wide.text()).toBe(
+      "The edits make the image 200x20000, larger than the most of 200",
+    );
+
+    // A side as long as the source's is allowed, after a quarter turn too
+    expect((await get(handler, "/images/tall.png?h=200")).status).toBe(200);
+    expect((await get(handler, "/images/tall.png?rot=90&h=200")).status).toBe(
+      422,
+    );
+    expect((await get(handler, "/images/tall.png?rot=90&h=10")).status).toBe(
+      200,
+    );
+  });
+
   test("a source larger than maxSize is still served", async () => {
     const response = await get(
       createHandler({ maxSize: 50 }),
@@ -620,6 +676,18 @@ describe("limits", () => {
     expect(webpResponse.status).toBe(413);
   });
 
+  test("ICO sources are limited too", async () => {
+    const icon = await new Jimp({ width: 200, height: 100 }).getBuffer(
+      "image/x-icon",
+    );
+    const response = await get(
+      createHandler({ source: () => icon, maxSourceResolutionInMP: 0.01 }),
+      "/images/favicon.ico",
+    );
+
+    expect(response.status).toBe(413);
+  });
+
   test("readOptions are merged over the limits", async () => {
     const response = await get(
       createHandler({
@@ -678,7 +746,7 @@ describe("caching", () => {
     });
     const etag = response.headers.get("ETag")!;
 
-    for (const ifNoneMatch of [etag, `W/${etag}`, `"other", ${etag}`, "*"]) {
+    for (const ifNoneMatch of [etag, `W/${etag}`, `"other", ${etag}`]) {
       const notModified = await get(handler, "/images/halves.png?fm=auto", {
         Accept: "image/webp",
         "If-None-Match": ifNoneMatch,
@@ -690,11 +758,13 @@ describe("caching", () => {
       expect(notModified.headers.get("Vary")).toBe("Accept");
     }
 
-    const changed = await get(handler, "/images/halves.png?fm=auto", {
-      Accept: "image/webp",
-      "If-None-Match": '"other"',
-    });
-    expect(changed.status).toBe(200);
+    for (const ifNoneMatch of ['"other"', "*"]) {
+      const changed = await get(handler, "/images/halves.png?fm=auto", {
+        Accept: "image/webp",
+        "If-None-Match": ifNoneMatch,
+      });
+      expect(changed.status).toBe(200);
+    }
   });
 
   test("304s don't decode the image", async () => {

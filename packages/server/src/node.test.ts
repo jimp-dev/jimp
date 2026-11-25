@@ -1,9 +1,9 @@
 import { mkdir, mkdtemp, rm, symlink, writeFile } from "node:fs/promises";
-import { createServer, type Server } from "node:http";
+import { createServer, request as request_, type Server } from "node:http";
 import type { AddressInfo } from "node:net";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { afterAll, beforeAll, describe, expect, test } from "vitest";
+import { afterAll, beforeAll, describe, expect, test, vi } from "vitest";
 import { Jimp } from "jimp";
 
 import { createImageHandler, signUrl } from "./index.js";
@@ -67,6 +67,15 @@ describe("directorySource", () => {
     await expect(
       directorySource(join(dir, "nope"))("a.png", request),
     ).rejects.toThrow("ENOENT");
+  });
+
+  test("serves a filesystem root", async () => {
+    const data = await directorySource("/")(
+      join(root, "cats", "tom.png").slice(1),
+      request,
+    );
+
+    expect(data).not.toBeNull();
   });
 
   test("files over maxBytes are a 413", async () => {
@@ -145,6 +154,45 @@ describe("toNodeHandler", () => {
     expect(response.status).toBe(200);
     expect(Number(response.headers.get("Content-Length"))).toBeGreaterThan(0);
     expect((await response.arrayBuffer()).byteLength).toBe(0);
+  });
+
+  test("other methods are a 405, including ones Request can't make", async () => {
+    for (const method of ["POST", "TRACE"]) {
+      const status = await new Promise<number>((resolve, reject) => {
+        request_(`${origin}/images/cats/tom.png`, { method }, (res) => {
+          res.resume();
+          resolve(res.statusCode!);
+        })
+          .on("error", reject)
+          .end();
+      });
+
+      expect(status, method).toBe(405);
+    }
+  });
+
+  test("skips HTTP/2 pseudo-headers", async () => {
+    const handler = vi.fn(async (request: Request) => {
+      expect(request.headers.get("accept")).toBe("image/webp");
+      return new Response("ok");
+    });
+    const res = { writeHead: vi.fn(), end: vi.fn() };
+
+    await toNodeHandler(handler)(
+      {
+        method: "GET",
+        url: "/images/cats/tom.png",
+        headers: {
+          ":path": "/images/cats/tom.png",
+          ":method": "GET",
+          accept: "image/webp",
+        },
+      } as never,
+      res as never,
+    );
+
+    expect(handler).toHaveBeenCalledOnce();
+    expect(res.writeHead).toHaveBeenCalledWith(200, expect.any(Object));
   });
 
   test("uses Express's originalUrl and next", async () => {

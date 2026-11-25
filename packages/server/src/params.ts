@@ -153,8 +153,12 @@ const ParamsSchema = z
 
 /** An image request, parsed from its URL params */
 export interface ImageParams {
-  /** The edits to apply, in order */
+  /** The edits from the `edits` param, which run first */
+  rawEdits: ImageEdit[];
+  /** The edits from the other params, in order */
   edits: ImageEdit[];
+  /** Whether the resize only sets one side, so the other follows the image */
+  resizesOneSide: boolean;
   /** The width and height the request asks for, after `dpr` */
   width?: number;
   height?: number;
@@ -219,7 +223,7 @@ function parseRawEdits(value: string): ImageEdit[] {
  * Throws an `ImageHandlerError` with status 400 for invalid params.
  */
 export function parseParams(searchParams: URLSearchParams): ImageParams {
-  const input: Record<string, string> = {};
+  const input: Record<string, string> = Object.create(null);
 
   for (const [key, value] of searchParams) {
     if (key === SIGNATURE_PARAM) {
@@ -240,7 +244,8 @@ export function parseParams(searchParams: URLSearchParams): ImageParams {
   }
 
   const params = result.data;
-  const edits: ImageEdit[] = params.edits ? parseRawEdits(params.edits) : [];
+  const rawEdits = params.edits ? parseRawEdits(params.edits) : [];
+  const edits: ImageEdit[] = [];
   const dpr = params.dpr ?? 1;
   const width = params.w === undefined ? undefined : Math.round(params.w * dpr);
   const height =
@@ -292,7 +297,9 @@ export function parseParams(searchParams: URLSearchParams): ImageParams {
   }
 
   return {
+    rawEdits,
     edits,
+    resizesOneSide: (width === undefined) !== (height === undefined),
     width,
     height,
     format:
