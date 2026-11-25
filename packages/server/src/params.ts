@@ -34,6 +34,9 @@ const POSITIONS: Record<string, { x: number; y: number }> = {
   "bottom-right": { x: 1, y: 1 },
 };
 
+/** `pos` values that make cover look at the image to choose what to keep */
+const STRATEGIES = new Set(["entropy", "attention"]);
+
 const TRUE = new Set(["", "1", "true"]);
 const FALSE = new Set(["0", "false"]);
 
@@ -94,6 +97,10 @@ const ParamsSchema = z
           return keyword;
         }
 
+        if (STRATEGIES.has(value)) {
+          return value as "entropy" | "attention";
+        }
+
         const [x, y, ...rest] = value.split(",");
 
         if (
@@ -105,7 +112,7 @@ const ParamsSchema = z
         ) {
           ctx.addIssue({
             code: "custom",
-            message: `pos must be one of ${Object.keys(POSITIONS).join(", ")}, or x,y fractions from 0 to 1 like 0.5,0.2`,
+            message: `pos must be one of ${[...Object.keys(POSITIONS), ...STRATEGIES].join(", ")}, or x,y fractions from 0 to 1 like 0.5,0.2`,
           });
           return z.NEVER;
         }
@@ -270,6 +277,14 @@ export function parseParams(searchParams: URLSearchParams): ImageParams {
   if (width !== undefined && height !== undefined) {
     const fit = params.fit ?? "cover";
     const align = params.pos;
+
+    // contain keeps the whole image, so there's nothing for a strategy to pick
+    if (typeof align === "string" && fit !== "cover") {
+      throw new ImageHandlerError(
+        400,
+        `pos=${align} only works with fit=cover`,
+      );
+    }
 
     if (fit === "cover" || fit === "contain") {
       edits.push([fit, { w: width, h: height, ...(align && { align }) }]);

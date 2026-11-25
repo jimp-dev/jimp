@@ -270,6 +270,18 @@ const ImagePropsSchema = LayoutPropsSchema.extend(
    * stretches it, `"cover"` crops it and `"contain"` fits it in
    */
   fit: z.enum(["fill", "cover", "contain"]).optional(),
+  /**
+   * which part of the image `fit` keeps, or where it places it, like CSS
+   * `object-position`: `{ x, y }` fractions from 0 (left/top) to 1
+   * (right/bottom). With `fit: "cover"`, `"entropy"` or `"attention"` look at
+   * the image to keep its subject, see `cover`. Defaults to the middle.
+   */
+  objectPosition: z
+    .union([
+      z.object({ x: z.number().optional(), y: z.number().optional() }),
+      z.enum(["entropy", "attention"]),
+    ])
+    .optional(),
 });
 
 /** The props of an image node */

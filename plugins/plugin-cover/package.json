@@ -29,6 +29,8 @@
     "@jimp/config-eslint": "workspace:*",
     "@jimp/config-typescript": "workspace:*",
     "@jimp/config-vitest": "workspace:*",
+    "@jimp/js-jpeg": "workspace:*",
+    "@jimp/js-png": "workspace:*",
     "@jimp/test-utils": "workspace:*",
     "@vitest/browser": "^5.1.1",
     "eslint": "^10.15.0",

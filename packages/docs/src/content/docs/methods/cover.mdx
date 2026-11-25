@@ -18,13 +18,20 @@ The result is always exactly `w` × `h`, like CSS `object-fit: cover`. It's the 
 image.cover(options: {
   w: number;
   h: number;
-  align?: number | { x?: number; y?: number };
+  align?: number | { x?: number; y?: number } | "entropy" | "attention";
   mode?: ResizeStrategy;
   premultiplyAlpha?: boolean;
 }): this
+
+image.coverRect(options: {
+  w: number;
+  h: number;
+  align?: number | { x?: number; y?: number } | "entropy" | "attention";
+}): { x: number; y: number; w: number; h: number }
 ```
 
 `cover` changes the image in place and returns it, so you can chain more calls after it.
+[`coverRect`](/jimp/methods/cover-rect/) doesn't change the image: it returns the part of it that `cover` would keep.
 
 ## Options
 
@@ -32,7 +39,7 @@ image.cover(options: {
 | ------------------ | --------------------------------------------- | ---------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `w`                | `number`                                      | required         | The output width in pixels.                                                                                                                                                   |
 | `h`                | `number`                                      | required         | The output height in pixels.                                                                                                                                                  |
-| `align`            | `number` or `{ x?, y? }`                      | centered         | Which part of the image to keep: `HorizontalAlign` and `VerticalAlign` flags, or `{ x, y }` fractions from `0` to `1`. See [Alignment](#alignment).                          |
+| `align`            | `number`, `{ x?, y? }`, `"entropy"` or `"attention"` | centered  | Which part of the image to keep: `HorizontalAlign` and `VerticalAlign` flags, `{ x, y }` fractions from `0` to `1`, or a strategy that looks at the image. See [Alignment](#alignment) and [Smart cropping](#smart-cropping). |
 | `mode`             | [`ResizeStrategy`](/jimp/concepts/constants/) | built-in resizer | The resampling algorithm. See [resize strategies](/jimp/methods/resize/#resize-strategies).                                                                                   |
 | `premultiplyAlpha` | `boolean`                                     | `true`           | Treat alpha as opacity. Pass `false` when alpha holds other data, to keep the color of transparent pixels. See [Alpha that isn't opacity](/jimp/methods/resize/#alpha-that-isnt-opacity). |
 
@@ -90,10 +97,56 @@ image.cover({ w: 150, h: 100, align: { x: 0.5, y: 0.2 } });
 
 A missing `x` or `y` is centered (`0.5`), and values outside `0` to `1` are clamped.
 
+## Smart cropping
+
+A fixed alignment doesn't know where the subject is. When the subject is off-center, as in many avatars and cover photos, a centered crop can cut it in half.
+Pass a strategy as `align` and `cover` looks at the image to choose what to keep, like the `position` strategies of [sharp](https://sharp.pixelplumbing.com/api-resize):
+
+- **`"entropy"`** keeps the most detailed part: the window whose brightness histogram holds the most information. Busy areas win over flat sky, walls and backgrounds.
+- **`"attention"`** keeps the part people tend to look at: strong edges, saturated color and skin tones, weighted towards the middle of the window so one subject is framed rather than two cut in half.
+
+```ts title="example.ts"
+import { Jimp } from "jimp";
+
+const image = await Jimp.read("team-photo.jpg");
+
+// A tall card from a wide photo
+image.cover({ w: 150, h: 320, align: "attention" });
+```
+
+This photo is 640 × 426. Here it is covered to 150 × 320, which keeps only a narrow strip:
+
+![Two toy police figures side by side on a path, in front of a blurred green and orange background](/jimp/cover/original.jpg)
+
+| Centered (default)                                                            | `"entropy"`                                                     | `"attention"`                                                         |
+| ----------------------------------------------------------------------------- | --------------------------------------------------------------- | --------------------------------------------------------------------- |
+| ![The strip between the figures, cutting both in half](/jimp/cover/center.jpg) | ![The whole left figure, with an edge of the right one](/jimp/cover/entropy.jpg) | ![The left figure centered, with part of the right one's face](/jimp/cover/attention.jpg) |
+
+Only the axis that overflows moves: a wide image in a tall box is searched from left to right, and a tall image in a wide box from top to bottom.
+Both strategies analyse a copy that is at most 256 pixels on its longest side, so they take a few milliseconds even for large photos, and the same image always gives the same crop.
+Transparent pixels count for nothing.
+
+They are heuristics, not face detection. A skin-colored wall can draw `"attention"`, and a noisy background can draw `"entropy"`.
+When you know where the subject is, pass it as `{ x, y }` fractions instead.
+
+### Measure the crop
+
+[`coverRect`](/jimp/methods/cover-rect/) takes the same `w`, `h` and `align` and returns the rectangle of the original image that `cover` would keep, without changing it.
+Use it to crop at full resolution, to show the crop so someone can adjust it, or to work out a smart crop once and store it:
+
+```ts title="example.ts"
+// The 640 × 426 photo above, for a 1200 × 630 Open Graph card
+const rect = image.coverRect({ w: 1200, h: 630, align: "attention" });
+// { x: 0, y: 3, w: 640, h: 336 }
+
+// Same framing, without scaling
+image.crop(rect);
+```
+
 ## Try it
 
 Set the box with `w` and `h`, then change the alignment to choose which part of the dice is kept.
-Switch `align with` to `{ x, y } fractions` to use sliders instead of flags.
+Switch `align with` to `{ x, y } fractions` to use sliders instead of flags, or to `"entropy"` or `"attention"` to let `cover` choose.
 
 <Playground method="cover" client:visible />
 
@@ -101,6 +154,8 @@ Switch `align with` to `{ x, y } fractions` to use sliders instead of flags.
 
 - **It enlarges too.** An image smaller than the box is scaled up until it fills it.
 - **Invalid flags.** Two flags for one direction (such as `HorizontalAlign.LEFT | HorizontalAlign.RIGHT`), unknown bits or a fractional number throw `align must combine at most one HorizontalAlign and one VerticalAlign flag`. `align: 0` has no flags, so it's centered.
+- **Strategies in other places.** [`render`](/jimp/methods/render/) images take them as `objectPosition` with `fit: "cover"`, and the [image server](/jimp/guides/image-server/#url-params) as `pos=entropy` or `pos=attention`. [`contain`](/jimp/methods/contain/) doesn't take them, since it keeps the whole image.
+- **Added in 2.2:** the `"entropy"` and `"attention"` strategies for `align`, and `coverRect`.
 - **Added in 2.0:** `{ x, y }` fractions for `align`, the `premultiplyAlpha` option, and the `LANCZOS`, `LANCZOS2` and `MITCHELL` strategies.
 - **Changed in 2.0:** a direction left out of `align` is centered, and any invalid combination of flags throws. Before, a missing direction aligned to the left or top, and two flags in one direction were accepted unless both directions were invalid.
 

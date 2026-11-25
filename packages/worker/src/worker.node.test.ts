@@ -94,6 +94,21 @@ describe("tasks", () => {
     expect(image.width).toBe(40);
   });
 
+  test("runs cover with a smart align", async () => {
+    const jimp = createPool();
+    const bytes = await readFile(dicePath);
+    const image = await jimp.run({
+      input: bytes,
+      edits: [["cover", { w: 30, h: 60, align: "attention" }]],
+    });
+    const expected = (await Jimp.read(bytes)).apply([
+      ["cover", { w: 30, h: 60, align: "attention" }],
+    ]);
+
+    expect(image.width).toBe(30);
+    expect(image.bitmap.data.equals(expected.bitmap.data)).toBe(true);
+  });
+
   test("reads file paths, file: URLs and Blobs in the worker", async () => {
     const jimp = createPool();
     const bytes = await readFile(dicePath);

@@ -129,6 +129,42 @@ describe("render", () => {
     await snapshot(image);
   });
 
+  test("image objectPosition", async () => {
+    const dice = await Jimp.read(getTestImagePath("dice.png"));
+    const positions = [undefined, { x: 0 }, "entropy", "attention"] as const;
+    const image = await render(
+      {
+        type: "box",
+        direction: "row",
+        padding: 10,
+        gap: 10,
+        background: "#d9d6ea",
+        children: [
+          ...positions.map((objectPosition) => ({
+            type: "image" as const,
+            src: dice,
+            fit: "cover" as const,
+            objectPosition,
+            width: 40,
+            height: 90,
+          })),
+          {
+            type: "image",
+            src: dice,
+            fit: "contain",
+            objectPosition: { y: 0 },
+            width: 60,
+            height: 90,
+            background: "#1b1840",
+          },
+        ],
+      },
+      { Jimp },
+    );
+
+    await snapshot(image);
+  });
+
   test("an avatar: a rounded image with a border", async () => {
     const dice = await Jimp.read(getTestImagePath("dice.png"));
     const image = await render(

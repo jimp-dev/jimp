@@ -108,6 +108,23 @@ const alignCode = (o: AlignOptions) => {
   return raw(`HorizontalAlign.${o.alignH} | VerticalAlign.${o.alignV}`);
 };
 
+/** cover can also look at the image to choose what to keep */
+const coverStrategies = ["entropy", "attention"] as const;
+
+const coverAlignControls = [
+  {
+    ...alignControls[0]!,
+    options: [
+      ...alignControls[0]!.options!,
+      ...coverStrategies.map((s) => ({ value: s, label: `"${s}"` })),
+    ],
+  },
+  ...alignControls.slice(1),
+];
+
+const strategyOf = (o: AlignOptions) =>
+  coverStrategies.find((s) => s === o.alignBy);
+
 const boxImports = (mode: string, o: AlignOptions) => {
   const names: string[] = [];
   if (mode) names.push("ResizeStrategy");
@@ -178,19 +195,24 @@ export default [
     icon: icons.cover,
     group: "shape",
     description:
-      "Scale the image until it fills a w x h box, then crop the overflow. The alignment picks which part is kept.",
+      "Scale the image until it fills a w x h box, then crop the overflow. The alignment picks which part is kept, or \"entropy\" and \"attention\" pick it by looking at the image.",
     controls: [
       { type: "slider", key: "w", min: 16, max: 360, step: 4, unit: "px" },
       { type: "slider", key: "h", min: 16, max: 360, step: 4, unit: "px" },
-      ...alignControls,
+      ...coverAlignControls,
       modeControl,
     ],
     defaults: { w: 160, h: 240, ...alignDefaults, mode: "" },
     apply: (image, o) => {
-      image.cover({ w: o.w, h: o.h, align: alignValue(o), mode: toMode(o.mode) });
+      image.cover({
+        w: o.w,
+        h: o.h,
+        align: strategyOf(o) ?? alignValue(o),
+        mode: toMode(o.mode),
+      });
     },
     code: (o) =>
-      `image.cover(${js({ w: o.w, h: o.h, align: alignCode(o), mode: modeCode(o.mode) })});`,
+      `image.cover(${js({ w: o.w, h: o.h, align: strategyOf(o) ?? alignCode(o), mode: modeCode(o.mode) })});`,
     imports: (o) => boxImports(o.mode, o),
   }),
 
