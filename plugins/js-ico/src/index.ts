@@ -45,6 +45,12 @@ export interface DecodeIcoOptions {
    * Of images the same size, the one with the most bits per pixel is used.
    */
   size?: number;
+  /**
+   * Largest image, in megapixels, that will be decoded. Checked against the
+   * chosen image's own header before it's decoded.
+   * @default Infinity
+   */
+  maxResolutionInMP?: number;
 }
 
 export interface EncodeIcoOptions {
@@ -280,6 +286,16 @@ function decodeBmp({ data, index, width, height, bitDepth }: Entry): Bitmap {
 
 function decode(data: Buffer, options: DecodeIcoOptions = {}): Bitmap {
   const entry = pickEntry(readEntries(data), options);
+  const { maxResolutionInMP } = options;
+
+  if (
+    maxResolutionInMP !== undefined &&
+    Math.abs(entry.width * entry.height) > maxResolutionInMP * 1_000_000
+  ) {
+    throw new Error(
+      `ICO dimensions ${entry.width}x${Math.abs(entry.height)} exceed the maximum resolution of ${maxResolutionInMP} megapixels`,
+    );
+  }
 
   return entry.format === "png" ? png().decode(entry.data) : decodeBmp(entry);
 }

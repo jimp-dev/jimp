@@ -39,6 +39,25 @@ describe("readWebpSize", () => {
     expect(readWebpSize(data)).toEqual({ width, height });
   });
 
+  test("reads VP8L sizes from the shortest files", async () => {
+    const data = await format.encode(bitmap(0xff), { lossless: 1 });
+
+    expect(readWebpSize(data.subarray(0, 25))).toEqual({ width, height });
+  });
+
+  test("decode refuses files it can't read the size of when there's a limit", async () => {
+    const data = await format.encode(bitmap(0xff), { lossless: 1 });
+    // A bare VP8L bitstream after the RIFF header, without the chunk tag
+    const bare = Buffer.concat([data.subarray(0, 12), data.subarray(20)]);
+
+    expect(readWebpSize(bare)).toBeUndefined();
+    await expect(
+      format.decode(bare, { maxResolutionInMP: 100 }),
+    ).rejects.toThrow(
+      "Couldn't read the WebP's dimensions to check maxResolutionInMP",
+    );
+  });
+
   test("returns undefined for other data", () => {
     expect(readWebpSize(new Uint8Array(40))).toBeUndefined();
   });

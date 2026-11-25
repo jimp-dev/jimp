@@ -1,20 +1,26 @@
 /**
  * Read the width and height of a WebP from its first chunk, without decoding
- * it. Returns undefined if the header isn't one we recognise, and leaves the
- * codec to report the error.
+ * it. Returns undefined if the header isn't one we recognise.
  */
 export function readWebpSize(
   data: Uint8Array,
 ): { width: number; height: number } | undefined {
   if (
-    data.length < 30 ||
+    data.length < 16 ||
     ascii(data, 0) !== "RIFF" ||
     ascii(data, 8) !== "WEBP"
   ) {
     return undefined;
   }
 
-  switch (ascii(data, 12)) {
+  const chunk = ascii(data, 12);
+
+  // The size fields end at byte 25 for VP8L and 30 for the others
+  if (data.length < (chunk === "VP8L" ? 25 : 30)) {
+    return undefined;
+  }
+
+  switch (chunk) {
     // Lossy: 14-bit sizes after the frame tag and start code
     case "VP8 ":
       return {

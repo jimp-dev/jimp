@@ -130,13 +130,18 @@ export default function avif({ wasm }: AvifFormatOptions = {}) {
       return Buffer.from(arrayBuffer);
     },
     decode: async (data, { maxResolutionInMP }: DecodeAvifOptions = {}) => {
-      const size = readAvifSize(data);
+      const size =
+        maxResolutionInMP === undefined ? undefined : readAvifSize(data);
 
-      if (
-        size &&
-        maxResolutionInMP !== undefined &&
-        size.width * size.height > maxResolutionInMP * 1_000_000
-      ) {
+      // Without an ispe property the size can't be checked, so refuse the
+      // file rather than skip the check
+      if (maxResolutionInMP !== undefined && !size) {
+        throw new Error(
+          "Couldn't read the AVIF's dimensions to check maxResolutionInMP",
+        );
+      }
+
+      if (size && size.width * size.height > maxResolutionInMP! * 1_000_000) {
         throw new Error(
           `AVIF dimensions ${size.width}x${size.height} exceed the maximum resolution of ${maxResolutionInMP} megapixels`,
         );

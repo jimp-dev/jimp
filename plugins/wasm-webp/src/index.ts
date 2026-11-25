@@ -223,13 +223,18 @@ export default function webp({ wasm }: WebpFormatOptions = {}) {
       return Buffer.from(arrayBuffer);
     },
     decode: async (data, { maxResolutionInMP }: DecodeWebpOptions = {}) => {
-      const size = readWebpSize(data);
+      const size =
+        maxResolutionInMP === undefined ? undefined : readWebpSize(data);
 
-      if (
-        size &&
-        maxResolutionInMP !== undefined &&
-        size.width * size.height > maxResolutionInMP * 1_000_000
-      ) {
+      // libwebp decodes some files we can't read the size of, like a bare
+      // VP8L bitstream, so refuse them rather than skip the check
+      if (maxResolutionInMP !== undefined && !size) {
+        throw new Error(
+          "Couldn't read the WebP's dimensions to check maxResolutionInMP",
+        );
+      }
+
+      if (size && size.width * size.height > maxResolutionInMP! * 1_000_000) {
         throw new Error(
           `WebP dimensions ${size.width}x${size.height} exceed the maximum resolution of ${maxResolutionInMP} megapixels`,
         );

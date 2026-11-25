@@ -21,4 +21,12 @@ describe("readAvifSize", () => {
   test("returns undefined for other data", () => {
     expect(readAvifSize(new Uint8Array(40))).toBeUndefined();
   });
+
+  test("decode refuses files without an ispe when there's a limit", async () => {
+    await expect(
+      format.decode(Buffer.alloc(40), { maxResolutionInMP: 100 }),
+    ).rejects.toThrow(
+      "Couldn't read the AVIF's dimensions to check maxResolutionInMP",
+    );
+  });
 });

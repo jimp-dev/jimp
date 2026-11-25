@@ -119,7 +119,11 @@ export default function png({ wasm }: PngFormatOptions = {}) {
     decode: async (data, { maxResolutionInMP }: DecodePngOptions = {}) => {
       // The width and height are the first fields of the IHDR chunk, which
       // follows the 8-byte signature and the chunk's length and type
-      if (maxResolutionInMP !== undefined && data.length >= 24) {
+      if (maxResolutionInMP !== undefined) {
+        if (data.length < 24) {
+          throw new Error("Invalid PNG: the file is too short for its header");
+        }
+
         const view = new DataView(data.buffer, data.byteOffset, 24);
         const width = view.getUint32(16);
         const height = view.getUint32(20);
