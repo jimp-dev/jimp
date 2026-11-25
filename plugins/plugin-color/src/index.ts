@@ -4,8 +4,11 @@ import {
   ColorSpace,
   cssColorToHex,
   getColorSpace,
+  gradientTable,
+  GradientStopsSchema,
   intToRGBA,
   limit255,
+  normalizeStops,
   scan,
   SRGB,
 } from "@jimp/utils";
@@ -93,6 +96,28 @@ const PixelateOptionsSchema = z.union([
 
 type PixelateComplexOptions = z.infer<typeof PixelateComplexOptionsSchema>;
 type PixelateOptions = z.infer<typeof PixelateOptionsSchema>;
+
+const GradientMapOptionsSchema = z.union([
+  GradientStopsSchema,
+  z.object({
+    /**
+     * the colors to map the darkest (offset 0) to the lightest (offset 1)
+     * pixels to: colors, spread out evenly, or `{ offset, color }` stops
+     */
+    stops: GradientStopsSchema,
+    /**
+     * how much of the gradient map to apply, from 0 (the original image) to
+     * 1 (the default). Values outside 0-1 are clamped.
+     */
+    amount: z.number().optional(),
+  }),
+]);
+
+/**
+ * The colors to map an image's tones to: a list of gradient stops, or
+ * `{ stops, amount }` to blend the result with the original
+ */
+export type GradientMapOptions = z.infer<typeof GradientMapOptionsSchema>;
 
 function applyKernel(
   image: JimpClass,
@@ -1000,6 +1025,74 @@ export const methods = {
       image.bitmap.data[idx + 1] =
         (green < 255 ? green : 255) * t + g * (1 - t);
       image.bitmap.data[idx + 2] = (blue < 255 ? blue : 255) * t + b * (1 - t);
+    });
+
+    return image;
+  },
+
+  /**
+   * Applies a gradient map: replaces each pixel with the color at its
+   * luminance along a gradient, so the darkest pixels get the first stop's
+   * color and the lightest the last's. Two stops give a duotone, like
+   * Photoshop's Gradient Map adjustment.
+   *
+   * The stops are the same as `@jimp/plugin-draw`'s gradients: colors spread
+   * out evenly, or `{ offset, color }` stops with offsets from 0 to 1. CSS
+   * colors are converted to the image's colour space, and invalid colors
+   * throw.
+   *
+   * A pixel's place on the gradient is the luminance `greyscale()` gives it
+   * (Rec. 709 weights on the stored values), divided by 255, so a gradient
+   * map of an image and of its greyscale version are the same. The colors
+   * between stops are interpolated in the image's colour space as it's
+   * stored (gamma encoded, not linear light), like CSS and `plugin-draw`
+   * gradients, so mapping a black to white ramp gives the same colors as
+   * drawing the gradient.
+   *
+   * Each pixel keeps its alpha, multiplied by the alpha of its gradient
+   * color. `amount` blends the result with the original image, like
+   * `sepia(amount)`.
+   * @param options the gradient's stops, or `{ stops, amount }`
+   * @example
+   * ```ts
+   * import { Jimp } from "jimp";
+   *
+   * const image = await Jimp.read("test/image.png");
+   *
+   * // a duotone: shadows navy, highlights pink
+   * image.gradientMap(["#1e3264", "#f037a5"]);
+   *
+   * // three stops, blended half way with the original
+   * image.gradientMap({
+   *   stops: [
+   *     { offset: 0, color: "#000000" },
+   *     { offset: 0.6, color: "#d9381e" },
+   *     { offset: 1, color: "#ffe08a" },
+   *   ],
+   *   amount: 0.5,
+   * });
+   * ```
+   */
+  gradientMap<I extends JimpClass>(image: I, options: GradientMapOptions) {
+    const parsed = GradientMapOptionsSchema.parse(options);
+    const { stops, amount = 1 } = Array.isArray(parsed)
+      ? { stops: parsed }
+      : parsed;
+    const t = Math.min(1, Math.max(0, amount));
+    const lut = gradientTable(normalizeStops(stops), getColorSpace(image), 256);
+    const data = image.bitmap.data;
+
+    image.scan((_, __, idx) => {
+      const r = data[idx]!;
+      const g = data[idx + 1]!;
+      const b = data[idx + 2]!;
+      const a = data[idx + 3]!;
+      const j = luminance(r, g, b) * 4;
+
+      data[idx] = Math.round(lut[j]! * t + r * (1 - t));
+      data[idx + 1] = Math.round(lut[j + 1]! * t + g * (1 - t));
+      data[idx + 2] = Math.round(lut[j + 2]! * t + b * (1 - t));
+      data[idx + 3] = Math.round(a * (1 - t + (t * lut[j + 3]!) / 255));
     });
 
     return image;

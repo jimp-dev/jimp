@@ -12,6 +12,9 @@ const exposureIcon = `<circle cx="16" cy="16" r="12" fill="#ffd83a" ${S}/><path 
 /** A muted swatch growing into a vivid one. */
 const vibranceIcon = `<rect x="3" y="10" width="11" height="13" rx="3" fill="#d6a7b8" ${S}/><rect x="18" y="5" width="11" height="22" rx="3" fill="#ff2f86" ${S}/><path d="M13 16h6" ${S} stroke-width="2.2"/>`;
 
+/** A swatch fading from navy to pink, the two colors of a duotone. */
+const gradientMapIcon = `<defs><linearGradient id="gradient-map-icon" x1="0" x2="1"><stop offset="0" stop-color="#1e3264"/><stop offset="1" stop-color="#f037a5"/></linearGradient></defs><rect x="3" y="7" width="26" height="18" rx="3" fill="url(#gradient-map-icon)" ${S}/>`;
+
 /** Ops that take no options. */
 const simple = (id: "greyscale" | "invert" | "normalize", description: string) =>
   defineOp({
@@ -268,6 +271,33 @@ export default [
       else image.sepia(num(amount));
     },
     code: ({ amount }) => (num(amount) === 1 ? "image.sepia();" : `image.sepia(${js(amount)});`),
+  }),
+
+  defineOp({
+    id: "gradientMap",
+    label: "gradientMap",
+    icon: gradientMapIcon,
+    group: "color",
+    description:
+      "Map each pixel's luminance to a gradient: shadows get the first color, highlights the last. Two colors make a duotone.",
+    controls: [
+      { type: "color", key: "shadows" },
+      { type: "toggle", key: "midtone" },
+      { type: "color", key: "midtones", when: (o) => o.midtone },
+      { type: "color", key: "highlights" },
+      { type: "slider", key: "amount", min: 0, max: 1, step: 0.05 },
+    ],
+    defaults: { shadows: "#1e3264", midtone: false, midtones: "#d9381e", highlights: "#f037a5", amount: 1 },
+    apply: (image, { shadows, midtone, midtones, highlights, amount }) => {
+      const stops = midtone ? [shadows, midtones, highlights] : [shadows, highlights];
+      image.gradientMap({ stops, amount: num(amount) });
+    },
+    code: ({ shadows, midtone, midtones, highlights, amount }) => {
+      const stops = js(midtone ? [shadows, midtones, highlights] : [shadows, highlights]);
+      return num(amount) === 1
+        ? `image.gradientMap(${stops});`
+        : `image.gradientMap({ stops: ${stops}, amount: ${js(amount)} });`;
+    },
   }),
 
   simple("normalize", "Stretch each channel so its values use the full 0 to 255 range."),

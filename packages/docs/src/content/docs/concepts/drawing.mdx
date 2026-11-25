@@ -151,16 +151,16 @@ image.drawEllipse({
 | `type`   | `"linear"` or `"radial"`              | The kind of gradient.                                                       |
 | `x1`, `y1`, `x2`, `y2` | `number`                | Linear only: the start and end of the gradient line.                        |
 | `cx`, `cy`, `r` | `number`                       | Radial only: the center and the radius where the gradient reaches offset 1. `r` must be `0` or more. |
-| `stops`  | `{ offset: number; color: Color }[]`  | At least one stop. `offset` goes from `0` (the start) to `1` (the end).     |
+| `stops`  | `({ offset: number; color: Color } \| Color)[]` | At least one stop. `offset` goes from `0` (the start) to `1` (the end). Bare colors are spread out evenly, so `["red", "blue"]` is the same as stops at `0` and `1`. |
 
 Stops work like CSS gradient stops:
 
 - Before the first stop and after the last, the gradient is that stop's color.
 - Offsets are clamped to 0–1, and a stop with a smaller offset than the one before it is moved up to it. Two stops at the same offset make a hard edge.
-- Colors are blended with premultiplied alpha, so fading to `"transparent"` fades the color out instead of through gray.
+- Colors are blended in the image's color space as it's stored (gamma encoded, as CSS does by default), with premultiplied alpha, so fading to `"transparent"` fades the color out instead of through gray.
 - A gradient with no length (the same start and end, or `r: 0`) is its last stop's color, as in SVG.
 
-Gradients work everywhere a color does, including strokes, [`drawLine`](/jimp/methods/draw-line/) and [`floodFill`](/jimp/methods/flood-fill/).
+Gradients work everywhere a color does, including strokes, [`drawLine`](/jimp/methods/draw-line/) and [`floodFill`](/jimp/methods/flood-fill/). [`gradientMap`](/jimp/methods/gradient-map/) and [`render`](/jimp/methods/render/) backgrounds take the same stops.
 
 ## Antialiasing
 

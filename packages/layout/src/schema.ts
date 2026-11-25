@@ -1,5 +1,6 @@
 import type { BmFont, VectorFont } from "@jimp/plugin-print";
 import { JimpClassSchema, type JimpClass } from "@jimp/types";
+import { GradientStopsSchema as StopsSchema } from "@jimp/utils";
 import { z } from "zod";
 
 /** A font from `loadFont` (bitmap) or `loadTTF` (TrueType, OpenType or WOFF) */
@@ -52,20 +53,6 @@ const ColorSchema = z.union([
 ]);
 
 export type Color = z.infer<typeof ColorSchema>;
-
-const StopsSchema = z
-  .array(
-    z.union([
-      ColorSchema,
-      z.strictObject({
-        /** where the color is along the gradient, from 0 to 1 */
-        offset: z.number(),
-        /** the color at that point */
-        color: ColorSchema,
-      }),
-    ]),
-  )
-  .min(1);
 
 const LinearGradientSchema = z.strictObject({
   type: z.literal("linear"),

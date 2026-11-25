@@ -1,7 +1,13 @@
 import { describe, expect, test } from "vitest";
 import { createJimp } from "@jimp/core";
 
-import { fillPath, methods, rasterize, strokePath } from "./index.js";
+import {
+  fillPath,
+  methods,
+  rasterize,
+  strokePath,
+  type GradientStops,
+} from "./index.js";
 
 const Jimp = createJimp({ plugins: [methods] });
 
@@ -671,6 +677,25 @@ describe("gradients", () => {
     for (let x = 0; x < 10; x++) {
       expect(pixel(image, x, 0)[0]).toBeCloseTo(((x + 0.5) / 10) * 255, -0.5);
     }
+  });
+
+  test("bare colors are spread out evenly", () => {
+    const fill = (stops: GradientStops) =>
+      makeImage(9, 1).drawRect({
+        x: 0,
+        y: 0,
+        w: 9,
+        h: 1,
+        fill: { type: "linear", x1: 0, y1: 0, x2: 9, y2: 0, stops },
+      });
+
+    expect(fill(["#ff0000", "#00ff00", "#0000ff"]).bitmap).toStrictEqual(
+      fill([
+        { offset: 0, color: "#ff0000" },
+        { offset: 0.5, color: "#00ff00" },
+        { offset: 1, color: "#0000ff" },
+      ]).bitmap,
+    );
   });
 
   test("several stops, hard stops and the colors past the ends", () => {

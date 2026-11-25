@@ -44,6 +44,7 @@ export { PaintSchema } from "./paint.js";
 export type {
   Color,
   GradientStop,
+  GradientStops,
   LinearGradient,
   Paint,
   RadialGradient,

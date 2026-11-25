@@ -65,6 +65,7 @@ export const defaultAllowedEdits = [
   "fade",
   "flip",
   "gaussian",
+  "gradientMap",
   "greyscale",
   "invert",
   "normalize",

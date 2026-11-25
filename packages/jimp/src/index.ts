@@ -172,6 +172,7 @@ export type {
   SaturateAction,
   GrayscaleAction,
   DesaturateAction,
+  GradientMapOptions,
 } from "@jimp/plugin-color";
 export type { CircleOptions } from "@jimp/plugin-circle";
 export type {
@@ -192,6 +193,7 @@ export type {
   FillRule,
   FloodFillOptions,
   GradientStop,
+  GradientStops,
   LinearGradient,
   LineCap,
   LineJoin,
