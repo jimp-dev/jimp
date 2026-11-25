@@ -729,6 +729,52 @@ importers:
         specifier: ^5.1.1
         version: 5.1.1(@types/node@22.20.5)(@vitest/browser-playwright@5.1.1)(@vitest/ui@5.1.1)(vite@8.3.8(@types/node@22.20.5)(esbuild@0.28.2)(terser@5.51.4)(yaml@2.9.1))
 
+  packages/server:
+    dependencies:
+      '@jimp/utils':
+        specifier: workspace:*
+        version: link:../utils
+      zod:
+        specifier: ^4.6.7
+        version: 4.6.7
+    devDependencies:
+      '@jimp/config-eslint':
+        specifier: workspace:*
+        version: link:../config-eslint
+      '@jimp/config-typescript':
+        specifier: workspace:*
+        version: link:../config-typescript
+      '@jimp/core':
+        specifier: workspace:*
+        version: link:../core
+      '@jimp/test-utils':
+        specifier: workspace:*
+        version: link:../test-utils
+      '@jimp/wasm-avif':
+        specifier: workspace:*
+        version: link:../../plugins/wasm-avif
+      '@jimp/wasm-webp':
+        specifier: workspace:*
+        version: link:../../plugins/wasm-webp
+      '@types/node':
+        specifier: ^22.20.5
+        version: 22.20.5
+      eslint:
+        specifier: ^10.15.0
+        version: 10.15.0(supports-color@7.2.0)
+      jimp:
+        specifier: workspace:*
+        version: link:../jimp
+      tshy:
+        specifier: ~4.0.0
+        version: 4.0.0
+      typescript:
+        specifier: ^7.0.2
+        version: 7.0.2
+      vitest:
+        specifier: ^5.1.1
+        version: 5.1.1(@types/node@22.20.5)(@vitest/browser-playwright@5.1.1)(@vitest/ui@5.1.1)(vite@8.3.8(@types/node@22.20.5)(esbuild@0.28.2)(terser@5.51.4)(yaml@2.9.1))
+
   packages/test-utils:
     dependencies:
       '@jimp/types':
