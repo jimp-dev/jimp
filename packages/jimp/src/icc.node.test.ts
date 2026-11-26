@@ -221,4 +221,31 @@ describe("ICC profile", () => {
     expect(output[25]).toBe(0);
     expect(pngProfile(output)).toBeUndefined();
   });
+
+  test("ignores an iCCP chunk that inflates past the limit", async () => {
+    // The limit @jimp/pngjs puts on compressed metadata too
+    const limit = 16 * 1024 * 1024;
+
+    /** A PNG with a profile padded out to `length` bytes with zeros */
+    async function png(length: number) {
+      const profile = Buffer.alloc(length);
+      const image = new Jimp({ width: 1, height: 1, color: "#ff0000" });
+
+      // The header, so the profile is still read as an RGB one
+      (await displayP3).copy(profile);
+      image.iccProfile = profile;
+
+      return Buffer.from(await image.getBuffer("image/png"));
+    }
+
+    const fits = await png(limit);
+    const over = await png(limit + 1);
+
+    // Zeros deflate to about a thousandth of their size, so both are small
+    expect(fits.length).toBeLessThan(256 * 1024);
+    expect(over.length).toBeLessThan(256 * 1024);
+
+    expect((await Jimp.fromBuffer(fits)).iccProfile).toHaveLength(limit);
+    expect((await Jimp.fromBuffer(over)).iccProfile).toBeUndefined();
+  });
 });

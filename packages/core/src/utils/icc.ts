@@ -1,5 +1,5 @@
 import { Buffer } from "buffer";
-import { unzlibSync, zlibSync } from "fflate";
+import { Unzlib, zlibSync } from "fflate";
 
 import { APP0, APP1, readJpegSegments } from "./exif.js";
 
@@ -35,6 +35,14 @@ const PNG_SIGNATURE = Buffer.from([
   0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a,
 ]);
 const PNG_PROFILE_NAME = "ICC Profile";
+/**
+ * The most a PNG's iCCP chunk may inflate to, the limit @jimp/pngjs puts on
+ * compressed metadata as well. Deflate packs a megabyte of zeros into a
+ * kilobyte, so without a limit a small chunk inflates to gigabytes.
+ */
+const MAX_PNG_PROFILE_LENGTH = 16 * 1024 * 1024;
+/** How much of the compressed profile to inflate at a time */
+const PNG_PROFILE_CHUNK = 16 * 1024;
 
 /** The signature box JP2 and JPX files start with */
 const JP2_SIGNATURE = Buffer.from([
@@ -141,6 +149,39 @@ function readPngChunks(data: Buffer) {
   return chunks;
 }
 
+/**
+ * Inflates an iCCP chunk's profile, or returns undefined if it inflates to
+ * more than `MAX_PNG_PROFILE_LENGTH`. The data goes in a piece at a time so
+ * the limit stops the inflate rather than being checked after it.
+ */
+function inflateProfile(compressed: Buffer) {
+  const parts: Uint8Array[] = [];
+  let length = 0;
+  let tooLarge = false;
+  const stream = new Unzlib((part) => {
+    length += part.length;
+
+    if (length > MAX_PNG_PROFILE_LENGTH) {
+      tooLarge = true;
+      return;
+    }
+
+    parts.push(part);
+  });
+
+  for (
+    let offset = 0;
+    offset < compressed.length && !tooLarge;
+    offset += PNG_PROFILE_CHUNK
+  ) {
+    const end = Math.min(offset + PNG_PROFILE_CHUNK, compressed.length);
+
+    stream.push(compressed.subarray(offset, end), end === compressed.length);
+  }
+
+  return tooLarge ? undefined : Buffer.concat(parts);
+}
+
 /** Inflates the profile in the iCCP chunk */
 function readPngProfile(data: Buffer) {
   for (const { type, data: chunk } of readPngChunks(data)) {
@@ -160,7 +201,7 @@ function readPngProfile(data: Buffer) {
       return undefined;
     }
 
-    return Buffer.from(unzlibSync(chunk.subarray(nameEnd + 2)));
+    return inflateProfile(chunk.subarray(nameEnd + 2));
   }
 
   return undefined;
