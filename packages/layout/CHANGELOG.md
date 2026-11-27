@@ -1,3 +1,15 @@
+# v2.2.1 (Fri Nov 27 2026)
+
+#### ⚠️ Pushed to `main`
+
+- docs: remove Deno mentions, use Node.js in examples ([@hipstersmoothie](https://github.com/hipstersmoothie))
+
+#### Authors: 1
+
+- Andrew Lisowski ([@hipstersmoothie](https://github.com/hipstersmoothie))
+
+---
+
 # v2.2.0 (Wed Nov 25 2026)
 
 #### 🚀 Enhancement

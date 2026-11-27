@@ -1,3 +1,15 @@
+# v2.2.1 (Fri Nov 27 2026)
+
+#### 🐛 Bug Fix
+
+- fix(plugin-print): don't throw on fonts opentype.js can't shape [#1573](https://github.com/jimp-dev/jimp/pull/1573) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+
+#### Authors: 1
+
+- Andrew Lisowski ([@hipstersmoothie](https://github.com/hipstersmoothie))
+
+---
+
 # v2.1.0 (Tue Nov 24 2026)
 
 #### 🚀 Enhancement

@@ -1,3 +1,24 @@
+# v2.2.1 (Fri Nov 27 2026)
+
+#### 🐛 Bug Fix
+
+- `@jimp/core`, `jimp`
+  - Limit how much a PNG's iCCP profile can inflate in readIccProfile [#1572](https://github.com/jimp-dev/jimp/pull/1572) ([@Shrusti-pk](https://github.com/Shrusti-pk))
+- `@jimp/docs`, `@jimp/plugin-print`
+  - fix(plugin-print): don't throw on fonts opentype.js can't shape [#1573](https://github.com/jimp-dev/jimp/pull/1573) ([@hipstersmoothie](https://github.com/hipstersmoothie))
+
+#### ⚠️ Pushed to `main`
+
+- `@jimp/docs`, `@jimp/layout`, `@jimp/server`
+  - docs: remove Deno mentions, use Node.js in examples ([@hipstersmoothie](https://github.com/hipstersmoothie))
+
+#### Authors: 2
+
+- [@Shrusti-pk](https://github.com/Shrusti-pk)
+- Andrew Lisowski ([@hipstersmoothie](https://github.com/hipstersmoothie))
+
+---
+
 # v2.2.0 (Wed Nov 25 2026)
 
 #### 🚀 Enhancement

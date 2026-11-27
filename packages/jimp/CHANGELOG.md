@@ -1,3 +1,15 @@
+# v2.2.1 (Fri Nov 27 2026)
+
+#### 🐛 Bug Fix
+
+- Limit how much a PNG's iCCP profile can inflate in readIccProfile [#1572](https://github.com/jimp-dev/jimp/pull/1572) ([@Shrusti-pk](https://github.com/Shrusti-pk))
+
+#### Authors: 1
+
+- [@Shrusti-pk](https://github.com/Shrusti-pk)
+
+---
+
 # v2.2.0 (Wed Nov 25 2026)
 
 #### 🚀 Enhancement
