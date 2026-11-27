@@ -22,10 +22,16 @@ const fixture = (name: string) =>
 let inter: VectorFont;
 /** Open Sans, from the .ttf: TrueType outlines, an fi ligature, no kerning */
 let openSans: VectorFont;
+/**
+ * Hanken Grotesk, from the .ttf: GPOS kerning, an fi ligature, and a `ccmp`
+ * lookup opentype.js can't apply
+ */
+let hanken: VectorFont;
 
 beforeAll(async () => {
   inter = await loadTTF(fixture("Inter-Regular.otf"));
   openSans = await loadTTF(fixture("OpenSans-Regular.ttf"));
+  hanken = await loadTTF(fixture("HankenGrotesk-Regular.ttf"));
 });
 
 type PrintWithOptions = Omit<PrintOptions, "text"> &
@@ -315,6 +321,104 @@ describe("measuring", () => {
     expect(() =>
       measureTextHeight(inter, "a", undefined, {} as { size: number }),
     ).toThrow();
+  });
+});
+
+describe("fonts opentype.js can't shape", () => {
+  /** The width of a glyph per character, with no substitutions, and kerning */
+  function unshapedWidth(font: VectorFont, text: string, size: number) {
+    const glyphs = Array.from(text, (char) => font.opentype.charToGlyph(char));
+    const units = glyphs.reduce(
+      (width, glyph, i) =>
+        width +
+        glyph.advanceWidth! +
+        (i > 0 ? font.kerning(glyphs[i - 1]!.index, glyph.index) : 0),
+      0,
+    );
+
+    return (units * size) / font.opentype.unitsPerEm;
+  }
+
+  test("opentype.js throws on Hanken Grotesk's ccmp", () => {
+    // A chained-context substitution, lookup type 6 format 2, which
+    // opentype.js applies to every line, whatever features it's given
+    expect(() => hanken.opentype.stringToGlyphs("Roomy")).toThrow(
+      "not yet supported",
+    );
+    expect(() =>
+      hanken.opentype.stringToGlyphs("Roomy", { features: {} }),
+    ).toThrow("not yet supported");
+  });
+
+  test("measures one glyph per code point, with kerning", () => {
+    const width = measure(hanken, 100, "To").width;
+
+    expect(width).toBeCloseTo(unshapedWidth(hanken, "To", 100), 10);
+    // Kerned
+    expect(width).toBeLessThan(
+      advance(hanken, "T", 100) + advance(hanken, "o", 100),
+    );
+    // Without the fi ligature, which needs opentype.js's shaping
+    expect(measure(hanken, 100, "fi").width).toBeCloseTo(
+      unshapedWidth(hanken, "fi", 100),
+      10,
+    );
+  });
+
+  test("adds letter spacing", () => {
+    expect(
+      measure(hanken, 32, "Roomy", undefined, { letterSpacing: 2 }).width,
+    ).toBeCloseTo(measure(hanken, 32, "Roomy").width + 8, 10);
+  });
+
+  test("drops variation selectors, like opentype.js", () => {
+    expect(measure(hanken, 32, "Hi️").width).toBe(
+      measure(hanken, 32, "Hi").width,
+    );
+  });
+
+  test("wraps and measures lines the way they're drawn", () => {
+    const text = "Roomy rooms for everyone";
+    const width = measure(hanken, 20, "Roomy rooms").width;
+    const { lines } = measure(hanken, 20, text, width);
+
+    expect(lines).toStrictEqual(["Roomy rooms", "for everyone"]);
+
+    let end: { x: number; y: number } | undefined;
+    const image = makeImage(200, 80);
+
+    image.print({
+      font: hanken,
+      size: 20,
+      x: 0,
+      y: 0,
+      text,
+      maxWidth: width,
+      cb: (position) => {
+        end = position;
+      },
+    });
+
+    expect(end).toStrictEqual({
+      x: measure(hanken, 20, lines.join("\n")).width,
+      y: measure(hanken, 20, text, width).height,
+    });
+    expect(inkBounds(image).right).toBeLessThanOrEqual(Math.ceil(width));
+  });
+
+  test("print draws the text", () => {
+    const image = printWith(makeImage(120, 40), {
+      font: hanken,
+      size: 32,
+      x: 0,
+      y: 0,
+      text: "Roomy",
+    });
+
+    expect(solidPixel(image)).toStrictEqual([0, 0, 0, 255]);
+    expect(inkBounds(image).right).toBeLessThanOrEqual(
+      Math.ceil(measure(hanken, 32, "Roomy").width),
+    );
   });
 });
 
