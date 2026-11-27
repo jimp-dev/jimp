@@ -1367,6 +1367,16 @@
       "contributions": [
         "doc"
       ]
+    },
+    {
+      "login": "Shrusti-pk",
+      "name": "Shrusti-pk",
+      "avatar_url": "https://avatars.githubusercontent.com/u/334113427?v=4",
+      "profile": "https://github.com/Shrusti-pk",
+      "contributions": [
+        "test",
+        "code"
+      ]
     }
   ],
   "contributorsPerLine": 7,

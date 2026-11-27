@@ -245,6 +245,7 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
     <td align="center"><a href="http://www.benmccann.com/"><img src="https://avatars.githubusercontent.com/u/322311?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Ben McCann</b></sub></a><br /><a href="https://github.com/jimp-dev/jimp/commits?author=benmccann" title="Code">💻</a></td>
     <td align="center"><a href="https://ilyas.life/"><img src="https://avatars.githubusercontent.com/u/93825870?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Ilyas Landikov</b></sub></a><br /><a href="https://github.com/jimp-dev/jimp/commits?author=ilandikov" title="Code">💻</a></td>
     <td align="center"><a href="https://about.bishwajeetparhi.dev/"><img src="https://avatars.githubusercontent.com/u/62933155?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Bishwajeet Parhi</b></sub></a><br /><a href="https://github.com/jimp-dev/jimp/commits?author=2002Bishwajeet" title="Documentation">📖</a></td>
+    <td align="center"><a href="https://github.com/Shrusti-pk"><img src="https://avatars.githubusercontent.com/u/334113427?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Shrusti-pk</b></sub></a><br /><a href="https://github.com/jimp-dev/jimp/commits?author=Shrusti-pk" title="Tests">⚠️</a> <a href="https://github.com/jimp-dev/jimp/commits?author=Shrusti-pk" title="Code">💻</a></td>
   </tr>
 </table>
 
