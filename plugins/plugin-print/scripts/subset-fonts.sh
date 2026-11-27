@@ -2,7 +2,7 @@
 # Generates the small font subsets in fixtures/ that the tests draw with.
 # Needs curl, unzip and uv (https://docs.astral.sh/uv/), which runs fonttools.
 #
-# Both fonts are under the SIL Open Font License 1.1 with no Reserved Font
+# The fonts are under the SIL Open Font License 1.1 with no Reserved Font
 # Name, so their subsets can keep their names. The licences are copied too.
 set -eu
 
@@ -32,3 +32,13 @@ unzip -q -j "$TMP/Inter.zip" extras/otf/Inter-Regular.otf LICENSE.txt -d "$TMP"
 cp "$TMP/LICENSE.txt" fixtures/Inter-OFL.txt
 $FONTTOOLS subset "$TMP/Inter-Regular.otf" $SUBSET_OPTIONS --output-file=fixtures/Inter-Regular.otf
 $FONTTOOLS subset "$TMP/Inter-Regular.otf" $SUBSET_OPTIONS --flavor=woff --output-file=fixtures/Inter-Regular.woff
+
+# Hanken Grotesk (TrueType outlines, GPOS kerning), whose ccmp feature has a
+# chained-context substitution (lookup type 6, format 2) that opentype.js
+# throws on. That lookup decomposes letters before combining marks, so the
+# subset keeps the marks and dotless i and j to keep it, and keeps ccmp.
+HANKEN=https://github.com/google/fonts/raw/c1eda9233c33ad7775b27efd794f931095cf6133/ofl/hankengrotesk
+curl -sSfL -o "$TMP/HankenGrotesk.ttf" "$HANKEN/HankenGrotesk%5Bwght%5D.ttf"
+curl -sSfL -o fixtures/HankenGrotesk-OFL.txt "$HANKEN/OFL.txt"
+$FONTTOOLS varLib.instancer "$TMP/HankenGrotesk.ttf" wght=400 --static -q -o "$TMP/HankenGrotesk-Regular.ttf"
+$FONTTOOLS subset "$TMP/HankenGrotesk-Regular.ttf" $SUBSET_OPTIONS --unicodes=$UNICODES,U+0131,U+0237,U+0300-036F --layout-features+=ccmp --output-file=fixtures/HankenGrotesk-Regular.ttf

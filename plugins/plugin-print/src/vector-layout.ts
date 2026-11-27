@@ -23,6 +23,40 @@ export interface ShapedLine {
   width: number;
 }
 
+/** Unicode variation selectors, which pick a variant of the character before */
+const VARIATION_SELECTOR = /[᠋-᠍︀-️\u{E0100}-\u{E01EF}]/u;
+
+/**
+ * The glyphs for a line, with the font's substitutions like ligatures applied
+ * by opentype.js.
+ *
+ * opentype.js throws on substitution lookups it doesn't implement, and it
+ * applies some features, like `ccmp`, whatever `features` says. So for a font
+ * with one of those lookups, like Hanken Grotesk's chained-context `ccmp`, the
+ * line falls back to one glyph per code point, without substitutions. Text is
+ * measured and drawn with this, so both fall back the same way.
+ */
+function lineGlyphs(
+  font: VectorFont,
+  text: string,
+  options?: { features?: Record<string, boolean> },
+) {
+  try {
+    return font.opentype.stringToGlyphs(text, options);
+  } catch {
+    const glyphs: OpenTypeGlyph[] = [];
+
+    for (const char of text) {
+      // stringToGlyphs drops variation selectors too
+      if (!VARIATION_SELECTOR.test(char)) {
+        glyphs.push(font.opentype.charToGlyph(char));
+      }
+    }
+
+    return glyphs;
+  }
+}
+
 /**
  * Turns a line of text into positioned glyphs: one per code point (`.notdef`
  * for ones the font doesn't have), with ligatures, kerning and letter
@@ -33,10 +67,10 @@ export function shapeLine(
   text: string,
   { size, letterSpacing = 0 }: LayoutOptions,
 ): ShapedLine {
-  const { opentype } = font;
-  const scale = size / opentype.unitsPerEm;
+  const scale = size / font.opentype.unitsPerEm;
   // Like CSS, letter spacing turns off optional ligatures
-  const glyphs = opentype.stringToGlyphs(
+  const glyphs = lineGlyphs(
+    font,
     text,
     letterSpacing === 0 ? undefined : { features: { rlig: true } },
   );

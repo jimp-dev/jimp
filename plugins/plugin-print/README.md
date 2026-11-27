@@ -190,9 +190,13 @@ The glyphs of a `print` call are filled together with the nonzero rule, so where
 
 Kerning comes from the `kern` feature of the font's `GPOS` table, or its `kern` table if it has no GPOS kerning. The GPOS kerning is read by this plugin instead of opentype.js, because opentype.js skips extension lookups, and large fonts like Inter and Noto keep their kerning in those.
 
+### Substitutions
+
+Ligatures and the font's other substitutions (its `GSUB` table) are applied by opentype.js. opentype.js throws on some kinds of substitution it doesn't implement, and it applies some features, like `ccmp`, to every line. For a line it can't shape, like any line in [Hanken Grotesk](https://github.com/marcologous/hanken-grotesk), whose `ccmp` uses a class-based chained-context substitution, each code point gets its own glyph instead, without ligatures but still kerned and letter-spaced. Text is measured and wrapped the same way it's drawn, and the font isn't changed.
+
 ### Test fonts
 
-The fonts in `fixtures/` are small subsets of [Open Sans](https://github.com/googlefonts/opensans) and [Inter](https://github.com/rsms/inter), both under the SIL Open Font License 1.1 (see the `*-OFL.txt` files next to them). `scripts/subset-fonts.sh` makes them with fonttools.
+The fonts in `fixtures/` are small subsets of [Open Sans](https://github.com/googlefonts/opensans), [Inter](https://github.com/rsms/inter) and [Hanken Grotesk](https://github.com/marcologous/hanken-grotesk), all under the SIL Open Font License 1.1 (see the `*-OFL.txt` files next to them). `scripts/subset-fonts.sh` makes them with fonttools.
 
 ## API
 

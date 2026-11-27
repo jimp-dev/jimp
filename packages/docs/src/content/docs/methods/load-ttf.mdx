@@ -74,7 +74,7 @@ WOFF files are smaller than TTF and OTF files and work the same.
 - **How the font is loaded.** In Node.js, a path or `file:` URL is read from disk. `http:`, `https:` and `data:` URLs are loaded with the global `fetch`. Fonts are parsed with [opentype.js](https://github.com/opentypejs/opentype.js), which is only loaded the first time you call `loadTTF`.
 - **Load once, print many times.** The font can be reused for any number of images and calls.
 - **Formats.** TrueType outlines (`.ttf`), CFF outlines (`.otf`) and WOFF 1 (`.woff`) work. WOFF2 and font collections (`.ttc`) don't. Convert a WOFF2 font with fonttools: `fonttools ttLib.woff2 decompress font.woff2`.
-- **Kerning and ligatures.** Kerning pairs from the font's `GPOS` table (or the older `kern` table) and the standard ligatures are applied when printing and measuring.
+- **Kerning and ligatures.** Kerning pairs from the font's `GPOS` table (or the older `kern` table) and the standard ligatures are applied when printing and measuring. If opentype.js can't apply one of the font's substitutions (it throws on a few kinds it doesn't implement), the line is drawn with one glyph per character instead, still kerned, so the text is printed without ligatures rather than throwing.
 - **The parsed font** is on `font.opentype`, typed with the parts Jimp uses. Cast it to opentype.js's `Font` type for the rest.
 - **Licenses.** Check that the font's license allows embedding it in images. Fonts under the SIL Open Font License, such as most of Google Fonts, do.
 - **Added in 2.0.**

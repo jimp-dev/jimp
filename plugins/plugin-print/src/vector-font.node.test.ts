@@ -22,10 +22,12 @@ const fixture = (name: string) => path.join(fixtures, name);
 
 let inter: VectorFont;
 let openSans: VectorFont;
+let hanken: VectorFont;
 
 beforeAll(async () => {
   inter = await loadTTF(fixture("Inter-Regular.otf"));
   openSans = await loadTTF(fixture("OpenSans-Regular.ttf"));
+  hanken = await loadTTF(fixture("HankenGrotesk-Regular.ttf"));
 });
 
 async function snapshot(image: InstanceType<typeof Jimp>) {
@@ -263,6 +265,23 @@ describe("vector font snapshots", () => {
       text: "Outline",
       stroke: "black",
       strokeWidth: 1.5,
+    });
+
+    await snapshot(image);
+  });
+
+  test("a font opentype.js can't shape", async () => {
+    const image = new Jimp({ width: 300, height: 110, color: 0xffffffff });
+
+    // Hanken Grotesk's ccmp has a lookup opentype.js throws on, so each code
+    // point gets its own glyph, still kerned
+    image.print({
+      font: hanken,
+      size: 40,
+      x: 10,
+      y: 5,
+      maxWidth: 280,
+      text: "Roomy rooms, To fine",
     });
 
     await snapshot(image);

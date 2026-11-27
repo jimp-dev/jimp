@@ -35,4 +35,6 @@ export interface OpenTypeFont {
     text: string,
     options?: { features?: Record<string, boolean> },
   ): OpenTypeGlyph[];
+  /** The glyph for a code point, without substitutions, or `.notdef` */
+  charToGlyph(char: string): OpenTypeGlyph;
 }
