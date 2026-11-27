@@ -1,6 +1,6 @@
 {
   "name": "@jimp/worker",
-  "version": "2.2.0",
+  "version": "2.2.1",
   "description": "Run Jimp off the main thread, in web workers and Node.js worker threads.",
   "files": [
     "dist"
